@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "608464a9_d9da7d58",
+        "filename": "src/sksl/dsl/DSLFunction.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-23T17:31:43Z",
+      "side": 1,
+      "message": "Thinking out loud: When we want to remove the IR includes (so this and other DSL headers can be public), I think we\u0027ll be okay to leave everything above this line in a template method in the header, and then have a private method (implemented in the .cpp) that forwards to the IR generator? And we can do something similar in the constructor, where we build the parameter array, but push instantiation of fDecl to a private function in the .cpp?",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 89
+      },
+      "revId": "6f5b96377954222fc43030d3e29862ab57f21531",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
