@@ -338,6 +338,8 @@ struct GrSubRunList {
     bool isEmpty() const { return fHead == nullptr; }
     Iterator begin() { return Iterator{ fHead.get()}; }
     Iterator end() { return Iterator{nullptr}; }
+    Iterator begin() const { return Iterator{ fHead.get()}; }
+    Iterator end() const { return Iterator{nullptr}; }
     GrSubRun& front() const {return *fHead; }
 
     std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> fHead{nullptr};
@@ -420,7 +422,7 @@ public:
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
             const SkStrikeSpec& strikeSpec);
 
-    GrSubRunList& subRunList() {
+    const GrSubRunList& subRunList() const {
         return fSubRunList;
     }
 
