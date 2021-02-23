@@ -734,6 +734,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		}
 		if b.parts["model"] == "iPhone11" {
 			d["os"] = "iOS-13.6"
+			d["id"] = "skia-rpi-001"
 		}
 		if b.parts["model"] == "iPadPro" {
 			d["os"] = "iOS-13.6"
