@@ -34,7 +34,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
         const VaryingInfoArray& pathProcVaryings,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
+        std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
         std::unique_ptr<Attribute[]> attributes,
         int vertexAttributeCnt,
         int instanceAttributeCnt,
@@ -48,7 +48,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
                                                pathProcVaryings,
                                                std::move(geometryProcessor),
                                                std::move(xferProcessor),
-                                               std::move(fps),
+                                               std::move(fpImpls),
                                                std::move(attributes),
                                                vertexAttributeCnt,
                                                instanceAttributeCnt,
@@ -69,7 +69,7 @@ GrGLProgram::GrGLProgram(
         const VaryingInfoArray& pathProcVaryings,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-        std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fps,
+        std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
         std::unique_ptr<Attribute[]> attributes,
         int vertexAttributeCnt,
         int instanceAttributeCnt,
@@ -79,7 +79,7 @@ GrGLProgram::GrGLProgram(
         , fProgramID(programID)
         , fPrimitiveProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
-        , fFragmentProcessors(std::move(fps))
+        , fFPImpls(std::move(fpImpls))
         , fAttributes(std::move(attributes))
         , fVertexAttributeCnt(vertexAttributeCnt)
         , fInstanceAttributeCnt(instanceAttributeCnt)
@@ -115,10 +115,9 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     fPrimitiveProcessor->setData(fProgramDataManager, programInfo.primProc());
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
-        auto& pipelineFP = programInfo.pipeline().getFragmentProcessor(i);
-        auto& baseGLSLFP = *fFragmentProcessors[i];
-        for (auto [fp, glslFP] : GrGLSLFragmentProcessor::ParallelRange(pipelineFP, baseGLSLFP)) {
-            glslFP.setData(fProgramDataManager, fp);
+        auto& fp = programInfo.pipeline().getFragmentProcessor(i);
+        for (auto [fp, impl] : GrGLSLFragmentProcessor::ParallelRange(fp, *fFPImpls[i])) {
+            impl.setData(fProgramDataManager, fp);
         }
     }
 
