@@ -115,7 +115,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
             }
         }
         if (subset) {
-            SkASSERT(samplerState.mipmapped() == GrMipmapped::kNo);
             if (makeLinearWithSnap) {
                 // The plane is subsampled and we have an overall subset on the image. We're
                 // emulating do_fancy_upsampling using linear filtering but snapping look ups to the

@@ -63,10 +63,10 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
                                                         samplerState);
     }
 
-    // Check to see if the client has given us pre-mipped textures or we can generate them
-    // If not disable mip mapping. Also disable when a subset is requested.
+    // Check to see if the client has given us pre-mipped textures or if we can generate them
+    // If not disable mip mapping.
     if (samplerState.mipmapped() == GrMipmapped::kYes &&
-        (subset || !fImage->setupMipmapsForPlanes(this->context()))) {
+        !fImage->setupMipmapsForPlanes(this->context())) {
         samplerState.setMipmapMode(GrSamplerState::MipmapMode::kNone);
     }
 
