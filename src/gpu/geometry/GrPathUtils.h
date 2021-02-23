@@ -160,10 +160,7 @@ inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
 //
 // 'areCusps' is set to true if the chop point occurred at a cusp (within tolerance), or if the chop
 // point(s) occurred at 180-degree turnaround points on a degenerate flat line.
-//
-// If 'T' is null, then this method returns -1 and writes out a value to 'areCusps' indicating
-// whether the chop point(s) would have been cusps.
-int findCubicConvex180Chops(const SkPoint[], float T[2], bool* areCusps = nullptr);
+int findCubicConvex180Chops(const SkPoint[], float T[2], bool* areCusps);
 
 }  // namespace GrPathUtils
 
