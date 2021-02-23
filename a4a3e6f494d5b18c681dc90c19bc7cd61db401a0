@@ -95,6 +95,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6b3451c_ed824cef",
+        "filename": "tests/sksl/errors/StaticSwitchWithConditionalContinue.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-23T14:56:48Z",
+      "side": 1,
+      "message": "This error message is generated at a distance so we don\u0027t know what kind of exit it was; changed to say \"conditional exit\".",
+      "parentUuid": "03cf89ba_229bbbfc",
+      "range": {
+        "startLine": 3,
+        "startChar": 56,
+        "endLine": 3,
+        "endChar": 61
+      },
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0198cd3_a5f58692",
@@ -112,6 +136,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec0e5aa2_3b4e72c9",
+        "filename": "tests/sksl/errors/StaticSwitchWithConditionalExit.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-23T14:56:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0198cd3_a5f58692",
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b05c302a_a1be1192",
@@ -125,6 +167,30 @@
       "writtenOn": "2021-02-23T14:26:37Z",
       "side": 1,
       "message": "s/break/return/",
+      "range": {
+        "startLine": 3,
+        "startChar": 56,
+        "endLine": 3,
+        "endChar": 61
+      },
+      "revId": "a4a3e6f494d5b18c681dc90c19bc7cd61db401a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "694827a0_0e4da10d",
+        "filename": "tests/sksl/errors/StaticSwitchWithConditionalReturn.glsl",
+        "patchSetId": 9
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-23T14:56:48Z",
+      "side": 1,
+      "message": "This error message is generated at a distance so we don\u0027t know what kind of exit it was; changed to say \"conditional exit\".",
+      "parentUuid": "b05c302a_a1be1192",
       "range": {
         "startLine": 3,
         "startChar": 56,
