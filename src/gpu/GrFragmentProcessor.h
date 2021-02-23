@@ -482,6 +482,7 @@ static inline GrFPResult GrFPFailure(std::unique_ptr<GrFragmentProcessor> fp) {
     return {false, std::move(fp)};
 }
 static inline GrFPResult GrFPSuccess(std::unique_ptr<GrFragmentProcessor> fp) {
+    SkASSERT(fp);
     return {true, std::move(fp)};
 }
 

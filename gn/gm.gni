@@ -10,6 +10,7 @@ gm_sources = [
   "$_gm/3d.cpp",
   "$_gm/aaa.cpp",
   "$_gm/aaclip.cpp",
+  "$_gm/aarecteffect.cpp",
   "$_gm/aarectmodes.cpp",
   "$_gm/aaxfermodes.cpp",
   "$_gm/addarc.cpp",
