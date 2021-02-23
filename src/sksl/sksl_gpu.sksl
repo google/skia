@@ -256,8 +256,6 @@ half4 sample(sampler1D s, float2 P, float bias);
 half4 sample(sampler2D s, float3 P);
 half4 sample(sampler2D s, float3 P, float bias);
 
-float4 imageLoad(image2D image, int2 P);
-int4 imageLoad(iimage2D image, int2 P);
 $genType dFdx($genType p);
 $genType dFdy($genType p);
 $genHType dFdx($genHType p);

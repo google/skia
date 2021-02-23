@@ -1985,7 +1985,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                         Modifiers(Layout(/*flags=*/0, /*location=*/-1,
                                          fProgram.fConfig->fSettings.fRTHeightOffset,
                                          /*binding=*/-1, /*index=*/-1, /*set=*/-1, /*builtin=*/-1,
-                                         /*inputAttachmentIndex=*/-1, Layout::Format::kUnspecified,
+                                         /*inputAttachmentIndex=*/-1,
                                          Layout::kUnspecified_Primitive, /*maxVertices=*/1,
                                          /*invocations=*/-1, /*marker=*/"", /*when=*/"",
                                          Layout::kNo_Key, Layout::CType::kDefault),
@@ -2007,7 +2007,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 Modifiers modifiers(
                         Layout(flags, /*location=*/-1, /*offset=*/-1, binding, /*index=*/-1,
                                set, /*builtin=*/-1, /*inputAttachmentIndex=*/-1,
-                               Layout::Format::kUnspecified, Layout::kUnspecified_Primitive,
+                               Layout::kUnspecified_Primitive,
                                /*maxVertices=*/-1, /*invocations=*/-1, /*marker=*/"", /*when=*/"",
                                Layout::kNo_Key, Layout::CType::kDefault),
                         Modifiers::kUniform_Flag);

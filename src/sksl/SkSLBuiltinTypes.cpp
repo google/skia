@@ -218,18 +218,6 @@ BuiltinTypes::BuiltinTypes()
         , fISampler2D(MakeSamplerType("isampler2D", *fITexture2D))
 
         , fSampler(MakeSeparateSamplerType("sampler"))
-        , fImage2D(MakeTextureType("image2D",
-                                   SpvDim2D,
-                                   /*isDepth=*/false,
-                                   /*isArrayedTexture=*/false,
-                                   /*isMultisampled=*/false,
-                                   /*isSampled=*/true))
-        , fIImage2D(MakeTextureType("iimage2D",
-                                    SpvDim2D,
-                                    /*isDepth=*/false,
-                                    /*isArrayedTexture=*/false,
-                                    /*isMultisampled=*/false,
-                                    /*isSampled=*/true))
 
         , fSubpassInput(MakeTextureType("subpassInput",
                                         SpvDimSubpassData,

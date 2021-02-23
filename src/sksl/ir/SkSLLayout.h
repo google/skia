@@ -39,21 +39,6 @@ struct Layout {
         kTrianglesAdjacency_Primitive
     };
 
-    // These are used by images in GLSL. We only support a subset of what GL supports.
-    enum class Format {
-        kUnspecified = -1,
-        kRGBA32F,
-        kR32F,
-        kRGBA16F,
-        kR16F,
-        kLUMINANCE16F,
-        kRGBA8,
-        kR8,
-        kRGBA8I,
-        kR8I,
-        kRG16F,
-    };
-
     // used by SkSL processors
     enum Key {
         // field is not a key
@@ -84,58 +69,6 @@ struct Layout {
         kGrSurfaceProxyView,
         kGrFragmentProcessor,
     };
-
-    static const char* FormatToStr(Format format) {
-        switch (format) {
-            case Format::kUnspecified:  return "";
-            case Format::kRGBA32F:      return "rgba32f";
-            case Format::kR32F:         return "r32f";
-            case Format::kRGBA16F:      return "rgba16f";
-            case Format::kR16F:         return "r16f";
-            case Format::kLUMINANCE16F: return "lum16f";
-            case Format::kRGBA8:        return "rgba8";
-            case Format::kR8:           return "r8";
-            case Format::kRGBA8I:       return "rgba8i";
-            case Format::kR8I:          return "r8i";
-            case Format::kRG16F:        return "rg16f";
-        }
-        SK_ABORT("Unexpected format");
-    }
-
-    static bool ReadFormat(String str, Format* format) {
-        if (str == "rgba32f") {
-            *format = Format::kRGBA32F;
-            return true;
-        } else if (str == "r32f") {
-            *format = Format::kR32F;
-            return true;
-        } else if (str == "rgba16f") {
-            *format = Format::kRGBA16F;
-            return true;
-        } else if (str == "r16f") {
-            *format = Format::kR16F;
-            return true;
-        } else if (str == "lum16f") {
-            *format = Format::kLUMINANCE16F;
-            return true;
-        } else if (str == "rgba8") {
-            *format = Format::kRGBA8;
-            return true;
-        } else if (str == "r8") {
-            *format = Format::kR8;
-            return true;
-        } else if (str == "rgba8i") {
-            *format = Format::kRGBA8I;
-            return true;
-        } else if (str == "r8i") {
-            *format = Format::kR8I;
-            return true;
-        } else if (str == "rg16f") {
-            *format = Format::kRG16F;
-            return true;
-        }
-        return false;
-    }
 
     static const char* CTypeToStr(CType ctype) {
         switch (ctype) {
@@ -174,8 +107,8 @@ struct Layout {
     }
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
-           int inputAttachmentIndex, Format format, Primitive primitive, int maxVertices,
-           int invocations, StringFragment marker, StringFragment when, Key key, CType ctype)
+           int inputAttachmentIndex, Primitive primitive, int maxVertices, int invocations,
+           StringFragment marker, StringFragment when, Key key, CType ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -184,7 +117,6 @@ struct Layout {
     , fSet(set)
     , fBuiltin(builtin)
     , fInputAttachmentIndex(inputAttachmentIndex)
-    , fFormat(format)
     , fPrimitive(primitive)
     , fMaxVertices(maxVertices)
     , fInvocations(invocations)
@@ -202,7 +134,6 @@ struct Layout {
     , fSet(-1)
     , fBuiltin(-1)
     , fInputAttachmentIndex(-1)
-    , fFormat(Format::kUnspecified)
     , fPrimitive(kUnspecified_Primitive)
     , fMaxVertices(-1)
     , fInvocations(-1)
@@ -244,9 +175,6 @@ struct Layout {
         }
         if (fInputAttachmentIndex >= 0) {
             result += separator() + "input_attachment_index = " + to_string(fInputAttachmentIndex);
-        }
-        if (Format::kUnspecified != fFormat) {
-            result += separator() + FormatToStr(fFormat);
         }
         if (fFlags & kOriginUpperLeft_Flag) {
             result += separator() + "origin_upper_left";
@@ -321,7 +249,6 @@ struct Layout {
                fSet                  == other.fSet &&
                fBuiltin              == other.fBuiltin &&
                fInputAttachmentIndex == other.fInputAttachmentIndex &&
-               fFormat               == other.fFormat &&
                fPrimitive            == other.fPrimitive &&
                fMaxVertices          == other.fMaxVertices &&
                fInvocations          == other.fInvocations &&
@@ -347,7 +274,6 @@ struct Layout {
     // input_attachment_index comes from Vulkan/SPIR-V to connect a shader variable to the a
     // corresponding attachment on the subpass in which the shader is being used.
     int fInputAttachmentIndex;
-    Format fFormat;
     Primitive fPrimitive;
     int fMaxVertices;
     int fInvocations;
