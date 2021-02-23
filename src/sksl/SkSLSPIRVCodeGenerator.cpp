@@ -1999,7 +1999,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                          /*inputAttachmentIndex=*/-1,
                                          Layout::kUnspecified_Primitive, /*maxVertices=*/1,
                                          /*invocations=*/-1, /*marker=*/"", /*when=*/"",
-                                         Layout::kNo_Key, Layout::CType::kDefault),
+                                         Layout::CType::kDefault),
                                   /*flags=*/0),
                         SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
                 StringFragment name("sksl_synthetic_uniforms");
@@ -2020,7 +2020,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                set, /*builtin=*/-1, /*inputAttachmentIndex=*/-1,
                                Layout::kUnspecified_Primitive,
                                /*maxVertices=*/-1, /*invocations=*/-1, /*marker=*/"", /*when=*/"",
-                               Layout::kNo_Key, Layout::CType::kDefault),
+                               Layout::CType::kDefault),
                         Modifiers::kUniform_Flag);
                 const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
                         std::make_unique<Variable>(/*offset=*/-1,

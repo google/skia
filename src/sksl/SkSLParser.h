@@ -188,8 +188,6 @@ private:
 
     StringFragment layoutCode();
 
-    Layout::Key layoutKey();
-
     Layout::CType layoutCType();
 
     Layout layout();

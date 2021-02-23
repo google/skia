@@ -360,7 +360,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
             this->errorReporter().error(offset,
                                         "'ctype' is only permitted within fragment processors");
         }
-        if (modifiers.fLayout.fKey) {
+        if (modifiers.fLayout.fFlags & Layout::kKey_Flag) {
             this->errorReporter().error(offset,
                                         "'key' is only permitted within fragment processors");
         }
@@ -372,7 +372,8 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                                         "'in' variables not permitted in runtime effects");
         }
     }
-    if (modifiers.fLayout.fKey && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
+    if ((modifiers.fLayout.fFlags & Layout::kKey_Flag) &&
+        (modifiers.fFlags & Modifiers::kUniform_Flag)) {
         this->errorReporter().error(offset, "'key' is not permitted on 'uniform' variables");
     }
     if (modifiers.fLayout.fMarker.fLength) {
@@ -1624,7 +1625,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
             if (this->programKind() == ProgramKind::kFragmentProcessor &&
                 (modifiers.fFlags & Modifiers::kIn_Flag) &&
                 !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
-                !modifiers.fLayout.fKey &&
+                !(modifiers.fLayout.fFlags & Layout::kKey_Flag) &&
                 modifiers.fLayout.fBuiltin == -1 &&
                 var->type() != *fContext.fTypes.fFragmentProcessor &&
                 var->type().typeKind() != Type::TypeKind::kSampler) {
