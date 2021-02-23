@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The `ShapedText` type has been removed. Clients who want ShapedText should use the
    Paragraph APIs.
 
+### Removed
+ - `Font.measureText`, which had been previously deprecated. Clients should use either
+   Paragraph APIs or `Font.getGlyphWidths` instead (the latter does no shaping).
+ - `Font.getWidths`, which had been previously deprecated. Clients should use `Font.getGlyphWidths`.
+
 ## [0.24.0] - 2021-02-18
 
 ### Added
