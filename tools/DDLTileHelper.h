@@ -40,11 +40,6 @@ public:
                   const SkIRect& clip,
                   const SkIRect& paddingOutsets);
 
-        // Convert the compressedPictureData into an SkPicture replacing each image-index
-        // with a promise image.
-        void createTileSpecificSKP(SkData* compressedPictureData,
-                                   const DDLPromiseImageHelper& helper);
-
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
         void createDDL();
 
@@ -110,8 +105,6 @@ public:
                   const SkIRect& viewport,
                   int numDivisions,
                   bool addRandomPaddingToDst);
-
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,

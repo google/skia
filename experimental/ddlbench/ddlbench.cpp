@@ -259,7 +259,7 @@ static bool create_contexts(GrContextFactory* factory,
 }
 
 static sk_sp<SkPicture> create_shared_skp(const char* src,
-                                          GrDirectContext* dContext,
+                                          sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
                                           DDLPromiseImageHelper* promiseImageHelper) {
     SkString srcfile(src);
 
@@ -278,9 +278,10 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
         exitf("skp deflation failed %s", srcfile.c_str());
     }
 
-    // TODO: use the new shared promise images to just create one skp here
+    SkTArray<sk_sp<SkImage>> promiseImages;
 
-    return skp;
+    return promiseImageHelper->reinflateSKP(threadSafeProxy, compressedPictureData.get(),
+                                            &promiseImages);
 }
 
 int main(int argc, char** argv) {
@@ -316,7 +317,7 @@ int main(int argc, char** argv) {
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADTypes);
 
     sk_sp<SkPicture> skp = create_shared_skp(FLAGS_src[0],
-                                             mainContext->fDirectContext,
+                                             mainContext->fDirectContext->threadSafeProxy(),
                                              &promiseImageHelper);
 
     promiseImageHelper.createCallbackContexts(mainContext->fDirectContext);

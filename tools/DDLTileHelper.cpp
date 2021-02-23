@@ -43,32 +43,6 @@ void DDLTileHelper::TileData::init(int id,
 DDLTileHelper::TileData::TileData() {}
 DDLTileHelper::TileData::~TileData() {}
 
-void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureData,
-                                                    const DDLPromiseImageHelper& helper) {
-    if (!this->initialized()) {
-        return;
-    }
-
-    SkASSERT(!fReconstitutedPicture);
-
-    auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
-    SkASSERT(recordingChar.isValid());
-
-    // This is bending the DDLRecorder contract! The promise images in the SKP should be
-    // created by the same recorder used to create the matching DDL.
-    SkDeferredDisplayListRecorder recorder(recordingChar);
-
-    fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
-
-    auto ddl = recorder.detach();
-    if (ddl && ddl->priv().numRenderTasks()) {
-        // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
-        // reinflation of the SKPs contains opsTasks that means some image subset operation
-        // created a draw.
-        fReconstitutedPicture.reset();
-    }
-}
-
 void DDLTileHelper::TileData::createDDL() {
     if (!this->initialized()) {
         return;
@@ -84,17 +58,6 @@ void DDLTileHelper::TileData::createDDL() {
     // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
     // Maybe set it up in the ctor?
     SkCanvas* recordingCanvas = recorder.getCanvas();
-
-    // Because we cheated in createTileSpecificSKP and used the wrong DDLRecorder, the GrContext's
-    // stored in fReconstitutedPicture's promise images are incorrect. Patch them with the correct
-    // one now.
-    for (int i = 0; i < fPromiseImages.count(); ++i) {
-        if (fPromiseImages[i]->isTextureBacked()) {
-            auto rContext = recordingCanvas->recordingContext();
-            SkImage_GpuBase* gpuImage = (SkImage_GpuBase*) fPromiseImages[i].get();
-            gpuImage->resetContext(sk_ref_sp(rContext));
-        }
-    }
 
     // We always record the DDL in the (0,0) .. (clipWidth, clipHeight) coordinates
     recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
@@ -294,13 +257,6 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
             fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
                                            {lPad, tPad, rPad, bPad});
         }
-    }
-}
-
-void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
-                                     const DDLPromiseImageHelper& helper) {
-    for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createTileSpecificSKP(compressedPictureData, helper);
     }
 }
 
