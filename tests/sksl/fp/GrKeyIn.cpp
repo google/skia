@@ -30,8 +30,8 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
 };
-GrGLSLFragmentProcessor* GrKeyIn::onCreateGLSLInstance() const {
-    return new GrGLSLKeyIn();
+std::unique_ptr<GrGLSLFragmentProcessor> GrKeyIn::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLKeyIn());
 }
 void GrKeyIn::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     uint16_t red = SkFloatToHalf(color.fR);

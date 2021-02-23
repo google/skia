@@ -628,8 +628,8 @@ public:
     int numOctaves() const { return fNumOctaves; }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GrGLPerlinNoise;
+    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+        return std::make_unique<GrGLPerlinNoise>();
     }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {

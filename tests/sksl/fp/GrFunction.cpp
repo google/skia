@@ -66,8 +66,8 @@ private:
     }
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrFunction::onCreateGLSLInstance() const {
-    return new GrGLSLFunction();
+std::unique_ptr<GrGLSLFragmentProcessor> GrFunction::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLFunction());
 }
 void GrFunction::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }

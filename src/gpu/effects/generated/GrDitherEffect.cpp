@@ -56,8 +56,8 @@ private:
     }
     UniformHandle rangeVar;
 };
-GrGLSLFragmentProcessor* GrDitherEffect::onCreateGLSLInstance() const {
-    return new GrGLSLDitherEffect();
+std::unique_ptr<GrGLSLFragmentProcessor> GrDitherEffect::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLDitherEffect());
 }
 void GrDitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {}

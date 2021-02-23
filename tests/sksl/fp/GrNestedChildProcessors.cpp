@@ -34,8 +34,8 @@ private:
     }
     UniformHandle colorVar;
 };
-GrGLSLFragmentProcessor* GrNestedChildProcessors::onCreateGLSLInstance() const {
-    return new GrGLSLNestedChildProcessors();
+std::unique_ptr<GrGLSLFragmentProcessor> GrNestedChildProcessors::onMakeProgramImpl() const {
+    return std::unique_ptr<GrGLSLFragmentProcessor>(new GrGLSLNestedChildProcessors());
 }
 void GrNestedChildProcessors::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
 }
