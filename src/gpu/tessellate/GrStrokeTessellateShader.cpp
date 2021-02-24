@@ -221,7 +221,11 @@ private:
         if (tan0 == float2(0)) {
             // [p0, p0, p0, p3] is a reserved pattern that means this patch is a "bowtie".
             P[3] = P[0];  // Colocate all the points on the center of the bowtie.
-            tan0 = prevJoinTangent;  // Use the curve sections to draw the bowtie.
+            // Use the final curve section to draw the bowtie. Since the points are colocated, this
+            // curve will register as a line, which overrides innerTangents as [tan0, tan0]. That
+            // disables the first two sections of the curve because their tangents and points are
+            // all equal.
+            tan0 = prevJoinTangent;
             prevJoinTangent = float2(0);  // Disable the join section.
         }
 
@@ -229,6 +233,10 @@ private:
             // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only. Colocate
             // all the curve's points to ensure it gets disabled by the tessellation stages.
             P[1] = P[2] = P[3] = P[0];
+            // Since the points are colocated, this curve will register as a line, which overrides
+            // innerTangents as [tan0, tan0]. Setting tan1=tan0 as well results in all tangents and
+            // all points being equal, which disables every section of the curve.
+            tan1 = tan0;
         }
 
         // Calculate the number of segments to chop the join into.
@@ -612,7 +620,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         //
         float numCombinedSegments = numParametricSegments + numRadialSegments - 1.0;
 
-        if (P[0] == P[3] && tangents[1] == vec2(0)) {
+        if (P[0] == P[3] && tangents[0] == tangents[1]) {
             // The vertex shader intentionally disabled our section. Set numCombinedSegments to 0.
             numCombinedSegments = 0.0;
         }
