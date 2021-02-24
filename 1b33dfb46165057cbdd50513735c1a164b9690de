@@ -16,6 +16,23 @@
       "message": "This struck me as a disproportionate cost to small benefit, and is kind of the only low-hanging fruit I see left.  If this debugging info has been useful though, I can just drop the CL.  ",
       "revId": "1b33dfb46165057cbdd50513735c1a164b9690de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16329321_ac1f429a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-02-24T20:12:10Z",
+      "side": 1,
+      "message": "I don\u0027t really remember why this was added, but it was probably some specific problem we were looking into.  I\u0027m okay with removing it.",
+      "revId": "1b33dfb46165057cbdd50513735c1a164b9690de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
