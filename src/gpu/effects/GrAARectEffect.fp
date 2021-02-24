@@ -17,37 +17,35 @@ uniform float4 rectUniform;
 }
 
 half4 main() {
-    half alpha;
+    half coverage;
     @switch (edgeType) {
         case GrClipEdgeType::kFillBW: // fall through
         case GrClipEdgeType::kInverseFillBW:
             // non-AA
-            alpha = all(greaterThan(float4(sk_FragCoord.xy, rectUniform.zw),
-                                    float4(rectUniform.xy, sk_FragCoord.xy))) ? 1 : 0;
+            coverage = all(greaterThan(float4(sk_FragCoord.xy, rectUniform.zw),
+                                       float4(rectUniform.xy, sk_FragCoord.xy))) ? 1 : 0;
             break;
         default:
-            // The amount of coverage removed in x and y by the edges is computed as a pair of
-            // negative numbers, xSub and ySub.
-            half xSub, ySub;
-            xSub = min(half(sk_FragCoord.x - rectUniform.x), 0.0);
-            xSub += min(half(rectUniform.z - sk_FragCoord.x), 0.0);
-            ySub = min(half(sk_FragCoord.y - rectUniform.y), 0.0);
-            ySub += min(half(rectUniform.w - sk_FragCoord.y), 0.0);
-            // Now compute coverage in x and y and multiply them to get the fraction of the pixel
-            // covered.
-            alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));
+            // compute coverage relative to left and right edges, add, then subtract 1 to account
+            // for double counting. And similar for top/bottom.
+            half4 dists4 = clamp(half4(1, 1, -1, -1) *
+                                 half4(sk_FragCoord.xyxy - rectUniform), 0, 1);
+            half2 dists2 = dists4.xy + dists4.zw - 1;
+            coverage = dists2.x * dists2.y;
     }
 
     @if (edgeType == GrClipEdgeType::kInverseFillBW || edgeType == GrClipEdgeType::kInverseFillAA) {
-        alpha = 1.0 - alpha;
+        coverage = 1.0 - coverage;
     }
-    return sample(inputFP) * alpha;
+    return sample(inputFP) * coverage;
 }
 
 @setData(pdman) {
     SkASSERT(rect.isSorted());
+    // The AA math in the shader evaluates to 0 at the uploaded coordinates, so outset by 0.5
+    // to interpolate from 0 at a half pixel inset and 1 at a half pixel outset of rect.
     const SkRect& newRect = GrProcessorEdgeTypeIsAA(edgeType) ?
-                            rect.makeInset(.5f, .5f) : rect;
+                            rect.makeOutset(.5f, .5f) : rect;
     if (newRect != prevRect) {
         pdman.set4f(rectUniform, newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);
         prevRect = newRect;
