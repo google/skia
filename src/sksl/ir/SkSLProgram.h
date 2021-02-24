@@ -89,7 +89,6 @@ struct Program {
 
     Program(std::unique_ptr<String> source,
             std::unique_ptr<ProgramConfig> config,
-            const ShaderCapsClass* caps,
             std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::vector<const ProgramElement*> sharedElements,
@@ -99,7 +98,6 @@ struct Program {
             Inputs inputs)
     : fSource(std::move(source))
     , fConfig(std::move(config))
-    , fCaps(caps)
     , fContext(context)
     , fSymbols(symbols)
     , fPool(std::move(pool))
@@ -197,7 +195,6 @@ struct Program {
 
     std::unique_ptr<String> fSource;
     std::unique_ptr<ProgramConfig> fConfig;
-    const ShaderCapsClass* fCaps;
     std::shared_ptr<Context> fContext;
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols
