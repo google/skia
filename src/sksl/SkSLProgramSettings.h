@@ -9,6 +9,7 @@
 #define SKSL_PROGRAMSETTINGS
 
 #include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace SkSL {
 
