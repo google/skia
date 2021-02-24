@@ -25,6 +25,7 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
+#include "tools/gpu/TestOps.h"
 
 #include <memory>
 #include <utility>
@@ -111,8 +112,13 @@ protected:
                     continue;
                 }
 
-                auto rect = p.getBounds().makeOutset(kOutset, kOutset).roundOut();
-                surfaceDrawContext->fillRectWithFP(rect, std::move(fp));
+                GrPaint grPaint;
+                grPaint.setColor4f({ 0, 0, 0, 1.f });
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                grPaint.setCoverageFragmentProcessor(std::move(fp));
+                auto rect = p.getBounds().makeOutset(kOutset, kOutset);
+                auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), rect);
+                surfaceDrawContext->addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }

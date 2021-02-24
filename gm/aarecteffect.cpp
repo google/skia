@@ -23,6 +23,7 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/generated/GrAARectEffect.h"
+#include "tools/gpu/TestOps.h"
 
 #include <memory>
 #include <utility>
@@ -76,8 +77,13 @@ protected:
                 auto fp = GrAARectEffect::Make(/*inputFP=*/nullptr, edgeType, rect);
                 SkASSERT(fp);
 
-                auto drawRect = rect.makeOutset(kOutset, kOutset).roundOut();
-                surfaceDrawContext->fillRectWithFP(drawRect, std::move(fp));
+                GrPaint grPaint;
+                grPaint.setColor4f({ 0, 0, 0, 1.f });
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                grPaint.setCoverageFragmentProcessor(std::move(fp));
+                auto drawRect = rect.makeOutset(kOutset, kOutset);
+                auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), drawRect);
+                surfaceDrawContext->addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }
