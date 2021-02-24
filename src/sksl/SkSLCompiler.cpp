@@ -1426,7 +1426,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
         String text,
         const Program::Settings& settings,
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
-    ATRACE_ANDROID_FRAMEWORK("SkSL::Compiler::convertProgram");
+    TRACE_EVENT0("skia.gpu", "SkSL::Compiler::convertProgram");
 
     SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
 
@@ -1714,7 +1714,7 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 }
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
-    ATRACE_ANDROID_FRAMEWORK("SkSL::Compiler::toGLSL");
+    TRACE_EVENT0("skia.gpu", "SkSL::Compiler::toGLSL");
     AutoSource as(this, program.fSource.get());
     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();

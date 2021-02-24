@@ -57,7 +57,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const SkSL::String& glsl,
                                     GrGpu::Stats* stats,
                                     GrContextOptions::ShaderErrorHandler* errorHandler) {
-    ATRACE_ANDROID_FRAMEWORK_ALWAYS("driver_compile_shader");
+    TRACE_EVENT0_ALWAYS("skia.gpu", "driver_compile_shader");
     const GrGLInterface* gli = glCtx.glInterface();
 
     // Specify GLSL source to the driver.
