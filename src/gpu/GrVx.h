@@ -66,7 +66,7 @@ template<int N> SK_ALWAYS_INLINE vec<N> fast_madd(vec<N> f, vec<N> m, vec<N> a) 
 //
 // NOTE: This function deviates immediately from pi and 0 outside -1 and 1. (The derivatives are
 // infinite at -1 and 1). So the input must still be clamped between -1 and 1.
-#define GRVX_FAST_ACOS_MAX_ERROR SkDegreesToRadians(.96f)
+#define GRVX_APPROX_ACOS_MAX_ERROR SkDegreesToRadians(.96f)
 template<int N> SK_ALWAYS_INLINE vec<N> approx_acos(vec<N> x) {
     constexpr static float a = -0.939115566365855f;
     constexpr static float b =  0.9217841528914573f;
