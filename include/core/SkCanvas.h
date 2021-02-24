@@ -1742,6 +1742,10 @@ public:
         this->drawSimpleText(str.c_str(), str.size(), SkTextEncoding::kUTF8, x, y, font, paint);
     }
 
+    void drawGlyphs(const SkPaint& paint, const SkFont& font, int n,
+                    const SkGlyphID* glyphs, const SkPoint* locations,
+                    const uint32_t* clusters, int textSize, const char* text);
+
     /** Draws SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
 
         blob contains glyphs, their positions, and paint attributes specific to text:
@@ -2149,6 +2153,9 @@ protected:
     virtual void onDrawPath(const SkPath& path, const SkPaint& paint);
     virtual void onDrawRegion(const SkRegion& region, const SkPaint& paint);
 
+    virtual void onDrawGlyphs(const SkPaint& paint, const SkFont& font, int n,
+                              const SkGlyphID* glyphs, const SkPoint* locations,
+                              const uint32_t* clusters, int textSize, const char* text);
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint);
 
