@@ -126,10 +126,6 @@ public:
             size_t length,
             const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions);
 
-    // both of these functions return null and report an error if the setting does not exist
-    const Type* typeForSetting(int offset, String name) const;
-    std::unique_ptr<Expression> valueForSetting(int offset, String name) const;
-
     const Program::Settings& settings() const { return fContext.fConfig->fSettings; }
     ProgramKind programKind() const { return fContext.fConfig->fKind; }
 
