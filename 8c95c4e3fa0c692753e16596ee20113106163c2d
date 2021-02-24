@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "53d24580_d807c0bc",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-24T19:46:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "061713d9_97e1b983",
+      "range": {
+        "startLine": 681,
+        "startChar": 78,
+        "endLine": 681,
+        "endChar": 84
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97fdbcce_58795d63",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-24T17:54:11Z",
       "side": 1,
       "message": "Consider mentioning in the comment why we shouldn\u0027t have ever gotten this far. (onCombineIfPossible?)",
+      "range": {
+        "startLine": 782,
+        "startChar": 53,
+        "endLine": 782,
+        "endChar": 79
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "313d428a_405eafb6",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-24T19:46:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97fdbcce_58795d63",
       "range": {
         "startLine": 782,
         "startChar": 53,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcd59f1c_f3144708",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-24T19:46:19Z",
+      "side": 1,
+      "message": "Done. Everyone can use the \"approx_acos\" version now. I\u0027s faster even without SIMD.",
+      "parentUuid": "dcd1e05a_6e9c2594",
+      "range": {
+        "startLine": 82,
+        "startChar": 21,
+        "endLine": 82,
+        "endChar": 51
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ee1d5b0_a2401d38",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-02-24T17:54:11Z",
       "side": 1,
       "message": "Can stroke-width be negative? \nIf not, maybe `max(1/approxScale, SK_ScalarNearlyZero)` ?",
+      "range": {
+        "startLine": 103,
+        "startChar": 35,
+        "endLine": 106,
+        "endChar": 17
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc521e01_d4586587",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-24T19:46:19Z",
+      "side": 1,
+      "message": "Negative stroke means \"fill style\" in Skia, so it shouldn\u0027t make it here.\n\nI thought about using \"max\" too, but I decided I\u0027d prefer to leave the answer as correct as possible. The only concern is that it can\u0027t accidentally be zero since that means hairline.",
+      "parentUuid": "1ee1d5b0_a2401d38",
       "range": {
         "startLine": 103,
         "startChar": 35,
