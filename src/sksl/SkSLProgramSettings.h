@@ -56,8 +56,12 @@ struct ProgramSettings {
     // (Requires fOptimize = true) Remove any uncalled functions other than main(). Note that a
     // function which starts out being used may end up being uncalled after optimization.
     bool fRemoveDeadFunctions = true;
-    // (Requires fOptimize = true) Uses the control-flow graph to detect and eliminate code within
-    // a function that has become unreachable due to optimization.
+    // (Requires fOptimize = true) Performs control-flow analysis, constant propagation, and various
+    // other optimizations that are currently implemented as part of the control-flow system.
+    // Turning this off will also disable error-checking for unreachable code and unassigned vars.
+    bool fControlFlowAnalysis = true;
+    // (Requires fOptimize = true AND fControlFlowAnalysis = true) Uses the control-flow graph to
+    // detect and eliminate code within a function that has become unreachable due to optimization.
     bool fDeadCodeElimination = true;
     // (Requires fOptimize = true) When greater than zero, enables the inliner. The threshold value
     // sets an upper limit on the acceptable amount of code growth from inlining.
