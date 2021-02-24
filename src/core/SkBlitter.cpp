@@ -651,6 +651,12 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     return true;
 #else
 
+#if !defined(SK_SUPPORT_LEGACY_DITHER)
+    if (paint.isDither()) {
+        return true;
+    }
+#endif
+
     const SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
 
     // The legacy blitters cannot handle any of these complex features (anymore).
