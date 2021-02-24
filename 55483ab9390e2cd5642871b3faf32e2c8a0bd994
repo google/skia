@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d9199f1_fbebfbfb",
+        "filename": "src/sksl/dsl/DSLErrorHandling.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-24T18:56:37Z",
+      "side": 1,
+      "message": "How about we make these private, and add file_name() and line() accessors, to match up with https://en.cppreference.com/w/cpp/utility/source_location. That way, when we finally get to c++20, we can just `using PositionInfo \u003d std::source_location`, and clients that have written custom ErrorHandlers won\u0027t have to do anything different?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 14
+      },
+      "revId": "55483ab9390e2cd5642871b3faf32e2c8a0bd994",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
