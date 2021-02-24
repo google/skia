@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acd39d30_b789bcc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-24T16:51:09Z",
+      "side": 1,
+      "message": "This is specifically to allow something like https://chromium-review.googlesource.com/c/chromium/src/+/2716923 to be landed in Chromium.",
+      "revId": "17f7b5db0f26711f2f40b8dec06fd724979d5bf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
