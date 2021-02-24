@@ -28,14 +28,15 @@ namespace dsl {
 
 DSLWriter::DSLWriter(SkSL::Compiler* compiler)
     : fCompiler(compiler) {
-    SkSL::ParsedModule module = fCompiler->moduleForProgramKind(SkSL::ProgramKind::kFragment);
+    fOldConfig = fCompiler->fContext->fConfig;
+    fCompiler->fContext->fConfig = &fConfig;
     fConfig.fKind = SkSL::ProgramKind::kFragment;
+
+    SkSL::ParsedModule module = fCompiler->moduleForProgramKind(SkSL::ProgramKind::kFragment);
 
     SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
     fOldSymbolTable = ir.fSymbolTable;
-    fOldConfig = fCompiler->fContext->fConfig;
     ir.fSymbolTable = module.fSymbols;
-    fCompiler->fContext->fConfig = &fConfig;
     ir.pushSymbolTable();
 }
 

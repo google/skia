@@ -87,6 +87,19 @@ public:
     const String* fOldSource;
 };
 
+class AutoProgramConfig {
+public:
+    AutoProgramConfig(Context& context, ProgramConfig* config)
+            : fContext(context), fOldConfig(fContext.fConfig) {
+        fContext.fConfig = config;
+    }
+
+    ~AutoProgramConfig() { fContext.fConfig = fOldConfig; }
+
+    Context& fContext;
+    ProgramConfig* fOldConfig;
+};
+
 Compiler::Compiler(const ShaderCapsClass* caps)
         : fContext(std::make_shared<Context>(/*errors=*/*this, *caps))
         , fInliner(fContext.get())
@@ -286,8 +299,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     config.fKind = kind;
     config.fSettings.fReplaceSettings = false;
 
-    fContext->fConfig = &config;
-    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
+    AutoProgramConfig addConfigToContext(*fContext, &config);
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
@@ -1430,16 +1442,13 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
 
+    // Update our context to point to the program configuration for the duration of compilation.
+    auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
+    AutoProgramConfig addConfigToContext(*fContext, config.get());
+
     // Loading and optimizing our base module might reset the inliner, so do that first,
     // *then* configure the inliner with the settings for this program.
     const ParsedModule& baseModule = this->moduleForProgramKind(kind);
-
-    // Update our context to point to the program configuration for the duration of compilation.
-    auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
-
-    SkASSERT(!fContext->fConfig);
-    fContext->fConfig = config.get();
-    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
 
     fErrorText = "";
     fErrorCount = 0;
@@ -1543,9 +1552,7 @@ bool Compiler::optimize(LoadedModule& module) {
     config.fKind = module.fKind;
 
     // Update our context to point to this configuration for the duration of compilation.
-    SkASSERT(!fContext->fConfig);
-    fContext->fConfig = &config;
-    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
+    AutoProgramConfig addConfigToContext(*fContext, &config);
 
     // Reset the Inliner.
     fInliner.reset(fModifiers.back().get());
