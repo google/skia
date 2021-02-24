@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7699868c_a0cfe7ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-02-24T17:18:14Z",
+      "side": 1,
+      "message": "It does show \"Hello world!\".",
+      "revId": "e6e0539c41f32ff4d99c0aa8fd86001414134947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
