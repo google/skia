@@ -23,6 +23,7 @@ layout(ctype=SkPMColor4f, tracked) in uniform half4 rightBorderColor; // t > 1.0
 layout(key) in bool makePremul;
 // Trust the creator that this matches the color spec of the gradient
 in bool colorsAreOpaque;
+layout(key) in bool layoutPreservesOpacity;
 
 half4 main() {
     half4 t = sample(gradLayout);
@@ -31,7 +32,7 @@ half4 main() {
     // If t.x is below 0, use the left border color without invoking the child processor. If any t.x
     // is above 1, use the right border color. Otherwise, t is in the [0, 1] range assumed by the
     // colorizer FP, so delegate to the child processor.
-    if (!gradLayout.preservesOpaqueInput && t.y < 0) {
+    if (!layoutPreservesOpacity && t.y < 0) {
         // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
         // preserves opacity is false)
         outColor = half4(0);
@@ -56,6 +57,21 @@ half4 main() {
 // into account the opacity of the border colors).
 @optimizationFlags {
     kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-    (colorsAreOpaque && gradLayout->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
-                                                           : kNone_OptimizationFlags)
+    (colorsAreOpaque && layoutPreservesOpacity ? kPreservesOpaqueInput_OptimizationFlag
+                                               : kNone_OptimizationFlags)
+}
+
+@make{
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            std::unique_ptr<GrFragmentProcessor> colorizer,
+            std::unique_ptr<GrFragmentProcessor> gradLayout,
+            SkPMColor4f leftBorderColor,
+            SkPMColor4f rightBorderColor,
+            bool makePremul,
+            bool colorsAreOpaque) {
+        bool layoutPreservesOpacity = gradLayout->preservesOpaqueInput();
+        return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(
+                std::move(colorizer), std::move(gradLayout), leftBorderColor, rightBorderColor,
+                makePremul, colorsAreOpaque, layoutPreservesOpacity));
+    }
 }
