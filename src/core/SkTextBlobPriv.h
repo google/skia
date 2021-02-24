@@ -39,30 +39,6 @@ public:
     static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
 };
 
-class SkTextBlobBuilderPriv {
-public:
-    static const SkTextBlobBuilder::RunBuffer& AllocRunText(SkTextBlobBuilder* builder,
-            const SkFont& font, int count, SkScalar x, SkScalar y, int textByteCount,
-            const SkRect* bounds = nullptr) {
-        return builder->allocRunText(font, count, x, y, textByteCount, bounds);
-    }
-    static const SkTextBlobBuilder::RunBuffer& AllocRunTextPosH(SkTextBlobBuilder* builder,
-            const SkFont& font, int count, SkScalar y, int textByteCount,
-            const SkRect* bounds = nullptr) {
-        return builder->allocRunTextPosH(font, count, y, textByteCount, bounds);
-    }
-    static const SkTextBlobBuilder::RunBuffer& AllocRunTextPos(SkTextBlobBuilder* builder,
-            const SkFont& font, int count, int textByteCount,
-            const SkRect* bounds = nullptr) {
-        return builder->allocRunTextPos(font, count, textByteCount, bounds);
-    }
-    static const SkTextBlobBuilder::RunBuffer& AllocRunRSXForm(SkTextBlobBuilder* builder,
-            const SkFont& font, int count, int textByteCount,
-            const SkRect* bounds = nullptr) {
-        return builder->allocRunRSXform(font, count, textByteCount, bounds);
-    }
-};
-
 //
 // Textblob data is laid out into externally-managed storage as follows:
 //
