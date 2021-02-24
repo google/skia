@@ -22,6 +22,30 @@
       },
       "revId": "b5107a2a738fac8e1253a1dbb54e043b1cac8424",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72444a3b_cffb4058",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-24T19:48:37Z",
+      "side": 1,
+      "message": "Updated the comment, as discussed offline",
+      "parentUuid": "628b1303_8ef707de",
+      "range": {
+        "startLine": 516,
+        "startChar": 11,
+        "endLine": 516,
+        "endChar": 35
+      },
+      "revId": "b5107a2a738fac8e1253a1dbb54e043b1cac8424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
