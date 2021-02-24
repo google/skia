@@ -9,6 +9,7 @@
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
@@ -35,14 +36,8 @@ static float num_combined_segments(float numParametricSegments, float numRadialS
     return numParametricSegments + numRadialSegments - 1;
 }
 
-static float num_parametric_segments(float numCombinedSegments, float numRadialSegments) {
-    // numCombinedSegments = numParametricSegments + numRadialSegments - 1.
-    // (See num_combined_segments()).
-    return std::max(numCombinedSegments + 1 - numRadialSegments, 0.f);
-}
-
-static float pow4(float x) {
-    float xx = x*x;
+static grvx::float2 pow4(grvx::float2 x) {
+    auto xx = x*x;
     return xx*xx;
 }
 
@@ -58,7 +53,7 @@ public:
         kBowtie = SkPaint::kLast_Join + 1  // Double sided round join.
     };
 
-    PatchWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target,
+    PatchWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target, float matrixMaxScale,
                 SkTArray<PatchChunk>* patchChunks, int totalCombinedVerbCnt)
             : fShaderFlags(shaderFlags)
             , fTarget(target)
@@ -66,7 +61,8 @@ public:
             , fPatchStride(GrStrokeTessellateShader::PatchStride(fShaderFlags))
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
-            , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments() - 2) {
+            , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments() - 2)
+            , fParametricIntolerance(Tolerances::CalcParametricIntolerance(matrixMaxScale)) {
         // Pre-allocate at least enough vertex space for 1 in 4 strokes to chop, and for 8 caps.
         int strokePreallocCount = totalCombinedVerbCnt * 5/4;
         int capPreallocCount = 8;
@@ -83,7 +79,7 @@ public:
     // This is the intolerance value, adjusted for the view matrix, to use with Wang's formulas when
     // determining how many parametric segments a curve will require.
     float parametricIntolerance() const {
-        return fTolerances.fParametricIntolerance;
+        return fParametricIntolerance;
     }
     // Will a line and worst-case previous join both fit in a single patch together?
     bool lineFitsInPatch_withJoin() {
@@ -92,65 +88,61 @@ public:
     // Will a stroke with the given number of parametric segments and a worst-case rotation of 180
     // degrees fit in a single patch?
     bool stroke180FitsInPatch(float numParametricSegments_pow4) {
-        return numParametricSegments_pow4 <= fMaxParametricSegments180_pow4;
+        return numParametricSegments_pow4 <= fMaxParametricSegments_pow4[0];
     }
     // Will a worst-case 180-degree stroke with the given number of parametric segments, and a
     // worst-case join fit in a single patch together?
     bool stroke180FitsInPatch_withJoin(float numParametricSegments_pow4) {
-        return numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin;
+        return numParametricSegments_pow4 <= fMaxParametricSegments_pow4_withJoin[0];
     }
     // Will a stroke with the given number of parametric segments and a worst-case rotation of 360
     // degrees fit in a single patch?
     bool stroke360FitsInPatch(float numParametricSegments_pow4) {
-        return numParametricSegments_pow4 <= fMaxParametricSegments360_pow4;
+        return numParametricSegments_pow4 <= fMaxParametricSegments_pow4[1];
     }
     // Will a worst-case 360-degree stroke with the given number of parametric segments, and a
     // worst-case join fit in a single patch together?
     bool stroke360FitsInPatch_withJoin(float numParametricSegments_pow4) {
-        return numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin;
+        return numParametricSegments_pow4 <= fMaxParametricSegments_pow4_withJoin[1];
     }
 
-    void updateTolerances(Tolerances tolerances, SkPaint::Join joinType) {
+    void updateTolerances(float numRadialSegmentsPerRadian, SkPaint::Join joinType) {
+        using grvx::float2;
+
+        fNumRadialSegmentsPerRadian = numRadialSegmentsPerRadian;
+
         // Calculate the worst-case numbers of parametric segments our hardware can support for the
         // current stroke radius, in the event that there are also enough radial segments to rotate
         // 180 and 360 degrees respectively. These are used for "quick accepts" that allow us to
         // send almost all curves directly to the hardware without having to chop.
-        float numRadialSegments180 = std::max(std::ceil(
-                SK_ScalarPI * tolerances.fNumRadialSegmentsPerRadian), 1.f);
-        float maxParametricSegments180 = num_parametric_segments(fMaxTessellationSegments,
-                                                                 numRadialSegments180);
-        fMaxParametricSegments180_pow4 = pow4(maxParametricSegments180);
+        float2 numRadialSegments_180_360 = skvx::max(skvx::ceil(
+                float2{SK_ScalarPI, 2*SK_ScalarPI} * fNumRadialSegmentsPerRadian), 1);
+        // numEdges = numSegments + 1. See num_combined_segments().
+        float maxTotalEdges = fMaxTessellationSegments + 1;
+        // numParametricSegments = numTotalEdges - numRadialSegments. See num_combined_segments().
+        float2 maxParametricSegments = skvx::max(maxTotalEdges - numRadialSegments_180_360, 0);
+        float2 maxParametricSegments_pow4 = pow4(maxParametricSegments);
+        maxParametricSegments_pow4.store(fMaxParametricSegments_pow4);
 
-        float numRadialSegments360 = std::max(std::ceil(
-                2*SK_ScalarPI * tolerances.fNumRadialSegmentsPerRadian), 1.f);
-        float maxParametricSegments360 = num_parametric_segments(fMaxTessellationSegments,
-                                                                 numRadialSegments360);
-        fMaxParametricSegments360_pow4 = pow4(maxParametricSegments360);
-
-        // Now calculate the worst-case numbers of parametric segments if we are to integrate a join
-        // into the same patch as the curve.
-        float maxNumSegmentsInJoin;
+        // Find the worst-case numbers of parametric segments if we are to integrate a join into the
+        // same patch as the curve.
+        float numRadialSegments180 = numRadialSegments_180_360[0];
+        float worstCaseNumSegmentsInJoin;
         switch (joinType) {
-            case SkPaint::kBevel_Join:
-                maxNumSegmentsInJoin = 1;
-                break;
-            case SkPaint::kMiter_Join:
-                maxNumSegmentsInJoin = 2;
-                break;
-            case SkPaint::kRound_Join:
-                // 180-degree round join.
-                maxNumSegmentsInJoin = numRadialSegments180;
-                break;
+            case SkPaint::kBevel_Join: worstCaseNumSegmentsInJoin = 1; break;
+            case SkPaint::kMiter_Join: worstCaseNumSegmentsInJoin = 2; break;
+            case SkPaint::kRound_Join: worstCaseNumSegmentsInJoin = numRadialSegments180; break;
         }
-        // Subtract an extra 1 off the end because when we integrate a join, the tessellator has to
-        // add a redundant edge between the join and curve.
-        fMaxParametricSegments180_pow4_withJoin = pow4(std::max(
-                maxParametricSegments180 - maxNumSegmentsInJoin - 1, 0.f));
-        fMaxParametricSegments360_pow4_withJoin = pow4(std::max(
-                maxParametricSegments360 - maxNumSegmentsInJoin - 1, 0.f));
-        fMaxCombinedSegments_withJoin = fMaxTessellationSegments - maxNumSegmentsInJoin - 1;
+
+        // Now calculate the worst-case numbers of parametric segments if we also want to combine a
+        // join with the patch. Subtract an extra 1 off the end because when we integrate a join,
+        // the tessellator has to add a redundant edge between the join and curve.
+        float2 maxParametricSegments_pow4_withJoin = pow4(skvx::max(
+                maxParametricSegments - worstCaseNumSegmentsInJoin - 1, 0));
+        maxParametricSegments_pow4_withJoin.store(fMaxParametricSegments_pow4_withJoin);
+
+        fMaxCombinedSegments_withJoin = fMaxTessellationSegments - worstCaseNumSegmentsInJoin - 1;
         fSoloRoundJoinAlwaysFitsInPatch = (numRadialSegments180 <= fMaxTessellationSegments);
-        fTolerances = tolerances;
         fStrokeJoinType = JoinType(joinType);
     }
 
@@ -389,7 +381,7 @@ private:
         }
 
         float numParametricSegments_pow4 =
-                GrWangsFormula::quadratic_pow4(fTolerances.fParametricIntolerance, p);
+                GrWangsFormula::quadratic_pow4(fParametricIntolerance, p);
         if (this->stroke180FitsInPatch(numParametricSegments_pow4) || maxDepth == 0) {
             this->internalPatchTo(prevJoinType,
                                   this->stroke180FitsInPatch_withJoin(numParametricSegments_pow4),
@@ -399,8 +391,7 @@ private:
 
         // We still might have enough tessellation segments to render the curve. Check again with
         // the actual rotation.
-        float numRadialSegments =
-                SkMeasureQuadRotation(p) * fTolerances.fNumRadialSegmentsPerRadian;
+        float numRadialSegments = SkMeasureQuadRotation(p) * fNumRadialSegmentsPerRadian;
         numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
         float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
         numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
@@ -454,8 +445,7 @@ private:
             return;
         }
 
-        float numParametricSegments_pow4 =
-                GrWangsFormula::cubic_pow4(fTolerances.fParametricIntolerance, p);
+        float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricIntolerance, p);
         if (this->stroke180FitsInPatch(numParametricSegments_pow4) || maxDepth == 0) {
             this->internalPatchTo(prevJoinType,
                                   this->stroke180FitsInPatch_withJoin(numParametricSegments_pow4),
@@ -465,8 +455,7 @@ private:
 
         // We still might have enough tessellation segments to render the curve. Check again with
         // its actual rotation.
-        float numRadialSegments =
-                SkMeasureNonInflectCubicRotation(p) * fTolerances.fNumRadialSegmentsPerRadian;
+        float numRadialSegments = SkMeasureNonInflectCubicRotation(p) * fNumRadialSegmentsPerRadian;
         numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
         float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
         numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
@@ -553,7 +542,7 @@ private:
             SkVector tan0 = junctionPoint - fLastControlPoint;
             SkVector tan1 = nextControlPoint - junctionPoint;
             float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
-            float numRadialSegments = rotation * fTolerances.fNumRadialSegmentsPerRadian;
+            float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
             if (numRadialSegments > fMaxTessellationSegments) {
                 // This is a round join that requires more segments than the tessellator supports.
                 // Split it and recurse.
@@ -659,19 +648,29 @@ private:
     // The maximum number of tessellation segments the hardware can emit for a single patch.
     const int fMaxTessellationSegments;
 
-    // These values contain worst-case numbers of parametric segments, raised to the 4th power, that
+    // This is the intolerance value, adjusted for the view matrix, to use with Wang's formulas when
+    // determining how many parametric segments a curve will require.
+    const float fParametricIntolerance;
+
+    // Number of radial segments required for each radian of rotation in order to look smooth with
+    // the current stroke radius.
+    float fNumRadialSegmentsPerRadian;
+
+    // These arrays contain worst-case numbers of parametric segments, raised to the 4th power, that
     // our hardware can support for the current stroke radius. They assume curve rotations of 180
     // and 360 degrees respectively. These are used for "quick accepts" that allow us to send almost
     // all curves directly to the hardware without having to chop. We raise to the 4th power because
     // the "pow4" variants of Wang's formula are the quickest to evaluate.
-    GrStrokeTessellateShader::Tolerances fTolerances;
-    JoinType fStrokeJoinType;
-    float fMaxParametricSegments180_pow4;
-    float fMaxParametricSegments360_pow4;
-    float fMaxParametricSegments180_pow4_withJoin;
-    float fMaxParametricSegments360_pow4_withJoin;
+    float fMaxParametricSegments_pow4[2];  // Values for strokes that rotate 180 and 360 degrees.
+    float fMaxParametricSegments_pow4_withJoin[2];  // For strokes that rotate 180 and 360 degrees.
+
+    // Maximum number of segments we can allocate for a stroke if we are stuffing it in a patch
+    // together with a worst-case join.
     float fMaxCombinedSegments_withJoin;
+
+    // Additional info on the current stroke radius/join type.
     bool fSoloRoundJoinAlwaysFitsInPatch;
+    JoinType fStrokeJoinType;
 
     // Variables related to the patch chunk that we are currently writing out during prepareBuffers.
     int fCurrChunkPatchCount = 0;
@@ -691,7 +690,42 @@ private:
     GrVertexColor fDynamicColor;
 };
 
-}  // namespace
+// Calculates and buffers up future values for "numRadialSegmentsPerRadian" using SIMD.
+class alignas(sizeof(grvx::float4)) RadialSegmentsPerRadianBuffer {
+public:
+    using PathStrokeList = GrStrokeTessellator::PathStrokeList;
+
+    RadialSegmentsPerRadianBuffer(float parametricIntolerance)
+            : fParametricIntolerance(parametricIntolerance) {
+    }
+
+    float fetchNext(PathStrokeList* head) {
+        // GrStrokeTessellateOp::onCombineIfPossible does not allow hairlines to become dynamic. If
+        // this changes, we will need to call Tolerances::GetLocalStrokeWidth() for each stroke.
+        SkASSERT(!head->fStroke.isHairlineStyle());
+        if (fBufferIdx == 4) {
+            // We ran out of values. Peek ahead and buffer up 4 more.
+            PathStrokeList* peekAhead = head;
+            int i = 0;
+            do {
+                fStrokeWidths[i++] = peekAhead->fStroke.getWidth();
+            } while ((peekAhead = peekAhead->fNext) && i < 4);
+            Tolerances::ApproxNumRadialSegmentsPerRadian(fParametricIntolerance,
+                                                         fStrokeWidths).store(
+                    fNumRadialSegmentsPerRadian);
+            fBufferIdx = 0;
+        }
+        SkASSERT(0 <= fBufferIdx && fBufferIdx < 4);
+        SkASSERT(fStrokeWidths[fBufferIdx] == head->fStroke.getWidth());
+        return fNumRadialSegmentsPerRadian[fBufferIdx++];
+    }
+
+private:
+    grvx::float4 fStrokeWidths{};  // Must be first for alignment purposes.
+    float fNumRadialSegmentsPerRadian[4];
+    const float fParametricIntolerance;
+    int fBufferIdx = 4;  // Initialize the buffer as "empty";
+};
 
 SK_ALWAYS_INLINE static bool conic_has_cusp(const SkPoint p[3]) {
     SkVector a = p[1] - p[0];
@@ -736,27 +770,40 @@ SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
            (!(skvx::all(p0 == p1) || skvx::all(p2 == p3)) || (a == 0 && b == 0 && c == 0));
 }
 
+}  // namespace
+
 void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                                           const SkMatrix& viewMatrix) {
     using JoinType = PatchWriter::JoinType;
 
-    std::array<float, 2> matrixScales;
-    if (!viewMatrix.getMinMaxScales(matrixScales.data())) {
-        matrixScales.fill(1);
+    std::array<float, 2> matrixMinMaxScales;
+    if (!viewMatrix.getMinMaxScales(matrixMinMaxScales.data())) {
+        matrixMinMaxScales.fill(1);
     }
 
-    PatchWriter patchWriter(fShaderFlags, target, &fPatchChunks, fTotalCombinedVerbCnt);
-    const SkStrokeRec* strokeForTolerances = nullptr;
+    PatchWriter patchWriter(fShaderFlags, target, matrixMinMaxScales[1], &fPatchChunks,
+                            fTotalCombinedVerbCnt);
+    if (!(fShaderFlags & ShaderFlags::kDynamicStroke)) {
+        // Strokes are static. Calculate tolerances once.
+        const SkStrokeRec& stroke = fPathStrokeList->fStroke;
+        float localStrokeWidth = Tolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
+                                                                 stroke.getWidth());
+        float numRadialSegmentsPerRadian = Tolerances::CalcNumRadialSegmentsPerRadian(
+                patchWriter.parametricIntolerance(), localStrokeWidth);
+        patchWriter.updateTolerances(numRadialSegmentsPerRadian, stroke.getJoin());
+    }
+
+    // Fast SIMD queue that buffers up values for "numRadialSegmentsPerRadian". Only used when we
+    // have dynamic strokes.
+    RadialSegmentsPerRadianBuffer radialSegmentsPerRadianBuffer(
+            patchWriter.parametricIntolerance());
 
     for (PathStrokeList* pathStroke = fPathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
-        if (!strokeForTolerances || strokeForTolerances->getWidth() != stroke.getWidth() ||
-            strokeForTolerances->getCap() != stroke.getCap()) {
-            auto tolerances = Tolerances::MakePreTransform(matrixScales.data(), stroke.getWidth());
-            patchWriter.updateTolerances(tolerances, stroke.getJoin());
-            strokeForTolerances = &stroke;
-        }
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+            // Strokes are dynamic. Update tolerances with every new stroke.
+            patchWriter.updateTolerances(radialSegmentsPerRadianBuffer.fetchNext(pathStroke),
+                                         stroke.getJoin());
             patchWriter.updateDynamicStroke(stroke);
         }
         if (fShaderFlags & ShaderFlags::kDynamicColor) {

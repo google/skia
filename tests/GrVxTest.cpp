@@ -43,7 +43,7 @@ DEF_TEST(grvx_cross_dot, r) {
 static bool check_approx_acos(skiatest::Reporter* r, float x, float approx_acos_x) {
     float acosf_x = acosf(x);
     float error = acosf_x - approx_acos_x;
-    if (!(fabsf(error) <= GRVX_FAST_ACOS_MAX_ERROR)) {
+    if (!(fabsf(error) <= GRVX_APPROX_ACOS_MAX_ERROR)) {
         ERRORF(r, "Larger-than-expected error from grvx::approx_acos\n"
                   "  x=              %f\n"
                   "  approx_acos_x=  %f  (%f degrees\n"
@@ -52,7 +52,7 @@ static bool check_approx_acos(skiatest::Reporter* r, float x, float approx_acos_
                   "  tolerance=      %f  (%f degrees)\n\n",
                   x, approx_acos_x, SkRadiansToDegrees(approx_acos_x), acosf_x,
                   SkRadiansToDegrees(acosf_x), error, SkRadiansToDegrees(error),
-                  GRVX_FAST_ACOS_MAX_ERROR, SkRadiansToDegrees(GRVX_FAST_ACOS_MAX_ERROR));
+                  GRVX_APPROX_ACOS_MAX_ERROR, SkRadiansToDegrees(GRVX_APPROX_ACOS_MAX_ERROR));
         return false;
     }
     return true;
@@ -146,7 +146,7 @@ static bool check_approx_angle_between_vectors(skiatest::Reporter* r, SkVector a
                                                float approxTheta) {
     float expectedTheta = precise_angle_between_vectors(a, b);
     float error = expectedTheta - approxTheta;
-    if (!(fabsf(error) <= GRVX_FAST_ACOS_MAX_ERROR + SK_ScalarNearlyZero)) {
+    if (!(fabsf(error) <= GRVX_APPROX_ACOS_MAX_ERROR + SK_ScalarNearlyZero)) {
         int expAx = SkFloat2Bits(a.fX) >> 23 & 0xff;
         int expAy = SkFloat2Bits(a.fY) >> 23 & 0xff;
         int expBx = SkFloat2Bits(b.fX) >> 23 & 0xff;
@@ -162,8 +162,8 @@ static bool check_approx_angle_between_vectors(skiatest::Reporter* r, SkVector a
                   "  tolerance=         %f  (%f degrees)\n\n",
                   a.fX, a.fY, b.fX, b.fY, expAx, expAy, expBx, expBy, approxTheta,
                   SkRadiansToDegrees(approxTheta), expectedTheta, SkRadiansToDegrees(expectedTheta),
-                  error, SkRadiansToDegrees(error), GRVX_FAST_ACOS_MAX_ERROR,
-                  SkRadiansToDegrees(GRVX_FAST_ACOS_MAX_ERROR));
+                  error, SkRadiansToDegrees(error), GRVX_APPROX_ACOS_MAX_ERROR,
+                  SkRadiansToDegrees(GRVX_APPROX_ACOS_MAX_ERROR));
         return false;
     }
     return true;

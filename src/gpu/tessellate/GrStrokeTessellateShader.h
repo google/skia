@@ -11,6 +11,7 @@
 #include "src/gpu/tessellate/GrPathShader.h"
 
 #include "include/core/SkStrokeRec.h"
+#include "src/gpu/GrVx.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include <array>
 
@@ -69,17 +70,35 @@ public:
     // These tolerances decide the number of parametric and radial segments the tessellator will
     // linearize curves into. These decisions are made in (pre-viewMatrix) local path space.
     struct Tolerances {
-        // See fParametricIntolerance.
+        // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
+        // steps in parametric space.) The tessellator will add enough parametric segments so that,
+        // once transformed into device space, they never deviate by more than
+        // 1/GrTessellationPathRenderer::kLinearizationIntolerance pixels from the true curve.
         constexpr static float CalcParametricIntolerance(float matrixMaxScale) {
             return matrixMaxScale * GrTessellationPathRenderer::kLinearizationIntolerance;
         }
-        // Returns the equivalent tolerances in (pre-viewMatrix) local path space that the
-        // tessellator will use when rendering this stroke.
-        static Tolerances MakePreTransform(const float matrixMinMaxScales[2], float strokeWidth) {
-            float matrixMaxScale = matrixMinMaxScales[1];
+        // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
+        // in tangent angle.) The tessellator will add this number of radial segments for each
+        // radian of rotation in local path space.
+        static float CalcNumRadialSegmentsPerRadian(float parametricIntolerance,
+                                                    float strokeWidth) {
+            return .5f / acosf(std::max(1 - 2 / (parametricIntolerance * strokeWidth), -1.f));
+        }
+        template<int N> static grvx::vec<N> ApproxNumRadialSegmentsPerRadian(
+                float parametricIntolerance, grvx::vec<N> strokeWidths) {
+            grvx::vec<N> cosTheta = skvx::max(1 - 2 / (parametricIntolerance * strokeWidths), -1);
+            // Subtract GRVX_APPROX_ACOS_MAX_ERROR so we never account for too few segments.
+            return .5f / (grvx::approx_acos(cosTheta) - GRVX_APPROX_ACOS_MAX_ERROR);
+        }
+        // Returns the equivalent stroke width in (pre-viewMatrix) local path space that the
+        // tessellator will use when rendering this stroke. This only differs from the actual stroke
+        // width for hairlines.
+        static float GetLocalStrokeWidth(const float matrixMinMaxScales[2], float strokeWidth) {
+            SkASSERT(strokeWidth >= 0);
             float localStrokeWidth = strokeWidth;
-            if (localStrokeWidth == 0) {
+            if (localStrokeWidth == 0) {  // Is the stroke a hairline?
                 float matrixMinScale = matrixMinMaxScales[0];
+                float matrixMaxScale = matrixMinMaxScales[1];
                 // If the stroke is hairline then the tessellator will operate in post-transform
                 // space instead. But for the sake of CPU methods that need to conservatively
                 // approximate the number of segments to emit, we use
@@ -90,26 +109,25 @@ public:
                 // of segments to emit.)
                 approxScale = std::max(matrixMinScale, matrixMaxScale * .25f);
                 localStrokeWidth = 1/approxScale;
+                if (localStrokeWidth == 0) {
+                    // We just can't accidentally return zero from this method because zero means
+                    // "hairline". Otherwise return whatever we calculated above.
+                    localStrokeWidth = SK_ScalarNearlyZero;
+                }
             }
-            return GrStrokeTessellateShader::Tolerances(matrixMaxScale, localStrokeWidth);
+            return localStrokeWidth;
         }
-        Tolerances() = default;
-        Tolerances(float matrixMaxScale, float strokeWidth) {
-            this->set(matrixMaxScale, strokeWidth);
+        static Tolerances Make(const float matrixMinMaxScales[2], float strokeWidth) {
+            return MakeNonHairline(matrixMinMaxScales[1],
+                                   GetLocalStrokeWidth(matrixMinMaxScales, strokeWidth));
         }
-        void set(float matrixMaxScale, float strokeWidth) {
-            fParametricIntolerance = CalcParametricIntolerance(matrixMaxScale);
-            fNumRadialSegmentsPerRadian =
-                    .5f / acosf(std::max(1 - 2/(fParametricIntolerance * strokeWidth), -1.f));
+        static Tolerances MakeNonHairline(float matrixMaxScale, float strokeWidth) {
+            SkASSERT(strokeWidth > 0);
+            float parametricIntolerance = CalcParametricIntolerance(matrixMaxScale);
+            return {parametricIntolerance,
+                    CalcNumRadialSegmentsPerRadian(parametricIntolerance, strokeWidth)};
         }
-        // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
-        // steps in parametric space.) The tessellator will add enough parametric segments so that,
-        // once transformed into device space, they never deviate by more than
-        // 1/GrTessellationPathRenderer::kLinearizationIntolerance pixels from the true curve.
         float fParametricIntolerance;
-        // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
-        // in tangent angle.) The tessellator will add this number of radial segments for each
-        // radian of rotation in local path space.
         float fNumRadialSegmentsPerRadian;
     };
 
