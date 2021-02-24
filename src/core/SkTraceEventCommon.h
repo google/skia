@@ -64,6 +64,7 @@
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
 #define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY
 #define TRACE_EVENT0(cg, n) TRACE_EMPTY
+#define TRACE_EVENT0_ALWAYS(cg, n) TRACE_EMPTY
 #define TRACE_EVENT1(cg, n, a1n, a1v) TRACE_EMPTY
 #define TRACE_EVENT2(cg, n, a1n, a1v, a2n, a2v) TRACE_EMPTY
 #define TRACE_EVENT_INSTANT0(cg, n, scope) TRACE_EMPTY
@@ -142,6 +143,8 @@ public:
 // associated arguments. In the framework, the arguments are ignored.
 #define TRACE_EVENT0(category_group, name) \
     SkAndroidFrameworkTraceUtil __trace(name)
+#define TRACE_EVENT0_ALWAYS(category_group, name) \
+    SkAndroidFrameworkTraceUtilAlways __trace_always(name)
 #define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) \
     SkAndroidFrameworkTraceUtil __trace(name)
 #define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) \
@@ -195,6 +198,9 @@ public:
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. If the category is not enabled, then this does nothing.
 #define TRACE_EVENT0(category_group, name) \
+  INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name)
+
+#define TRACE_EVENT0_ALWAYS(category_group, name) \
   INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name)
 
 #define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) \
