@@ -16,6 +16,23 @@
       "message": "This is specifically to allow something like https://chromium-review.googlesource.com/c/chromium/src/+/2716923 to be landed in Chromium.",
       "revId": "17f7b5db0f26711f2f40b8dec06fd724979d5bf6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb5185a2_a39470a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-24T17:08:37Z",
+      "side": 1,
+      "message": "no objection per-se, but note that Herb is soon to expose direct ways to draw glyphs (with optional accesstext) on canvas, so perhaps Chrome can use their own transport for their data, and skip the intermediate blob object...",
+      "revId": "17f7b5db0f26711f2f40b8dec06fd724979d5bf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
