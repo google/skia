@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "857ed530_7c989d83",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T15:47:39Z",
+      "side": 1,
+      "message": "You could always move the `String text;` vardecl out of the loop as well, but OK.",
+      "parentUuid": "fb1b7abb_ae659452",
+      "range": {
+        "startLine": 894,
+        "startChar": 17,
+        "endLine": 894,
+        "endChar": 24
+      },
+      "revId": "9164361faad55614dbdb7da61981ed29cefe3694",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3fee2e7d_17683993",
         "filename": "src/sksl/SkSLParser.cpp",
         "patchSetId": 1
