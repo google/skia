@@ -202,37 +202,31 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/mskp"
   },
   {
-    "cmd": [],
-    "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp"
-  },
-  {
     "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "listdir",
+      "glob",
       "[START_DIR]/mskp",
-      "--recursive"
+      "*"
     ],
     "infra_step": true,
-    "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp.list [START_DIR]/mskp",
+    "name": "ls [START_DIR]/mskp/*",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/mskp/.file3@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/mskp/.ignore/file4@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/mskp/file1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/mskp/subdir/file2@@@",
-      "@@@STEP_LOG_END@listdir@@@"
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/mskp/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/mskp/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
     ]
   },
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
-      "[START_DIR]/mskp/.file3",
-      "/sdcard/revenge_of_the_skiabot/mskp/.file3"
+      "[START_DIR]/mskp/bar.jpg",
+      "[START_DIR]/mskp/foo.png",
+      "/sdcard/revenge_of_the_skiabot/mskp"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -241,48 +235,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp.push [START_DIR]/mskp/.file3",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb.1.0.35",
-      "push",
-      "[START_DIR]/mskp/file1",
-      "/sdcard/revenge_of_the_skiabot/mskp/file1"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp.push [START_DIR]/mskp/file1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb.1.0.35",
-      "push",
-      "[START_DIR]/mskp/subdir/file2",
-      "/sdcard/revenge_of_the_skiabot/mskp/subdir/file2"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp.push [START_DIR]/mskp/subdir/file2",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp"
   },
   {
     "cmd": [
