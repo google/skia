@@ -48,6 +48,7 @@ skia_skottie_sources = [
   "$_src/effects/Effects.cpp",
   "$_src/effects/Effects.h",
   "$_src/effects/FillEffect.cpp",
+  "$_src/effects/FractalNoiseEffect.cpp",
   "$_src/effects/GaussianBlurEffect.cpp",
   "$_src/effects/GlowStyles.cpp",
   "$_src/effects/GradientEffect.cpp",
