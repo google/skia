@@ -589,10 +589,10 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkF
     return fCurrentRunBuffer;
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunRSXform(const SkFont& font,
-                                                                       int count,
-                                                                       int textByteCount,
-                                                                       const SkRect* bounds) {
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextRSXform(const SkFont& font,
+                                                                           int count,
+                                                                           int textByteCount,
+                                                                           const SkRect *bounds) {
     this->allocInternal(font,
                         SkTextBlob::kRSXform_Positioning,
                         count,
@@ -747,7 +747,7 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
                 buf = &blobBuilder.allocRunTextPos(font, glyphCount, textSize, &bounds);
                 break;
             case SkTextBlob::kRSXform_Positioning:
-                buf = &blobBuilder.allocRunRSXform(font, glyphCount, textSize, &bounds);
+                buf = &blobBuilder.allocRunTextRSXform(font, glyphCount, textSize, &bounds);
                 break;
         }
 
