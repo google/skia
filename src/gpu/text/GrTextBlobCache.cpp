@@ -52,13 +52,17 @@ void GrTextBlobCache::remove(GrTextBlob* blob) {
 void GrTextBlobCache::internalRemove(GrTextBlob* blob) {
     auto  id      = GrTextBlob::GetKey(*blob).fUniqueID;
     auto* idEntry = fBlobIDCache.find(id);
-    SkASSERT(idEntry);
 
-    fCurrentSize -= blob->size();
-    fBlobList.remove(blob);
-    idEntry->removeBlob(blob);
-    if (idEntry->fBlobs.empty()) {
-        fBlobIDCache.remove(id);
+    if (idEntry != nullptr) {
+        sk_sp<GrTextBlob> stillExists = idEntry->find(blob->key());
+        if (blob == stillExists.get())  {
+            fCurrentSize -= blob->size();
+            fBlobList.remove(blob);
+            idEntry->removeBlob(blob);
+            if (idEntry->fBlobs.empty()) {
+                fBlobIDCache.remove(id);
+            }
+        }
     }
 }
 
