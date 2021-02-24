@@ -18,6 +18,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrPixmap.h"
+#include "src/gpu/GrRenderTask.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
@@ -181,12 +182,12 @@ public:
 
 #if GR_TEST_UTILS
     bool testCopy(sk_sp<GrSurfaceProxy> src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
-        return this->copy(std::move(src), srcRect, dstPoint);
+        return this->copy(std::move(src), srcRect, dstPoint) != nullptr;
     }
 
     bool testCopy(sk_sp<GrSurfaceProxy> src) {
         auto rect = SkIRect::MakeSize(src->dimensions());
-        return this->copy(std::move(src), rect, {0, 0});
+        return this->copy(std::move(src), rect, {0, 0}) != nullptr;
     }
 #endif
 
@@ -234,7 +235,8 @@ private:
      * should go through GrSurfaceProxy::Copy.
      * @param src       src of pixels
      * @param dstPoint  the origin of the 'srcRect' in the destination coordinate space
-     * @return          true if the copy succeeded; false otherwise
+     * @return          a task (that may be skippable by calling canSkip) if successful and
+     *                  null otherwise.
      *
      * Note: Notionally, 'srcRect' is clipped to 'src's extent with 'dstPoint' being adjusted.
      *       Then the 'srcRect' offset by 'dstPoint' is clipped against the dst's extent.
@@ -242,7 +244,7 @@ private:
      *       regions will not be shifted. The 'src' must have the same origin as the backing proxy
      *       of fSurfaceContext.
      */
-    bool copy(sk_sp<GrSurfaceProxy> src, SkIRect srcRect, SkIPoint dstPoint);
+    sk_sp<GrRenderTask> copy(sk_sp<GrSurfaceProxy> src, SkIRect srcRect, SkIPoint dstPoint);
 
     class AsyncReadResult;
 

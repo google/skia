@@ -229,6 +229,8 @@ private:
     };
 
 
+    void onCanSkip() override;
+
     bool onIsUsed(GrSurfaceProxy*) const override;
 
     void handleInternalAllocationFailure() override;
