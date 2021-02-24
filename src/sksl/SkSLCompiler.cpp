@@ -1558,6 +1558,8 @@ bool Compiler::optimize(LoadedModule& module) {
         bool madeChanges = false;
 
         // Scan and optimize based on the control-flow graph for each function.
+        // TODO(skia:11365): we always perform CFG-based optimization here to reduce Settings into
+        // their final form. We should do this optimization in our Make functions instead.
         for (const auto& element : module.fElements) {
             if (element->is<FunctionDefinition>()) {
                 madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage.get());
@@ -1582,9 +1584,11 @@ bool Compiler::optimize(Program& program) {
         bool madeChanges = false;
 
         // Scan and optimize based on the control-flow graph for each function.
-        for (const auto& element : program.ownedElements()) {
-            if (element->is<FunctionDefinition>()) {
-                madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage);
+        if (program.fConfig->fSettings.fControlFlowAnalysis) {
+            for (const auto& element : program.ownedElements()) {
+                if (element->is<FunctionDefinition>()) {
+                    madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage);
+                }
             }
         }
 
