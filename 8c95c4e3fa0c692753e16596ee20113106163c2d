@@ -142,6 +142,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "59bd107a_ad8ee79b",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-02-24T23:31:31Z",
+      "side": 1,
+      "message": "Actually this caused issues with the indirect tests. We can address those later.",
+      "parentUuid": "dcd59f1c_f3144708",
+      "range": {
+        "startLine": 82,
+        "startChar": 21,
+        "endLine": 82,
+        "endChar": 51
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ee1d5b0_a2401d38",
