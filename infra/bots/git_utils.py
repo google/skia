@@ -5,6 +5,7 @@
 
 """This module contains functions for using git."""
 
+import os
 import re
 import shutil
 import subprocess
@@ -122,8 +123,13 @@ class NewGitCheckout(utils.tmp_dir):
           new copy is updated from there.
     """
     super(NewGitCheckout, self).__init__()
+    self._checkout_root = ''
     self._repository = repository
     self._local = local
+
+  @property
+  def name(self):
+    return self._checkout_root
 
   @property
   def root(self):
@@ -139,7 +145,12 @@ class NewGitCheckout(utils.tmp_dir):
     remote = self._repository
     if self._local:
       remote = self._local
-    subprocess.check_output(args=['git', 'clone', remote, self.root])
+    subprocess.check_output(args=['git', 'clone', remote])
+    repo_name = remote.split('/')[-1]
+    if repo_name.endswith('.git'):
+      repo_name = repo_name[:-len('.git')]
+    self._checkout_root = os.path.join(os.getcwd(), repo_name)
+    os.chdir(repo_name)
     if self._local:
       subprocess.check_call([
           'git', 'remote', 'set-url', 'origin', self._repository])
