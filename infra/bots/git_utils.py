@@ -5,6 +5,7 @@
 
 """This module contains functions for using git."""
 
+import os
 import re
 import shutil
 import subprocess
@@ -96,7 +97,7 @@ class GitBranch(object):
           subprocess.check_call(['git', 'branch', '-D', self._branch_name])
 
 
-class NewGitCheckout(utils.tmp_dir):
+class NewGitCheckout(object):
   """Creates a new local checkout of a Git repository."""
 
   def __init__(self, repository, local=None):
@@ -124,22 +125,28 @@ class NewGitCheckout(utils.tmp_dir):
     super(NewGitCheckout, self).__init__()
     self._repository = repository
     self._local = local
+    self._root_dir = None
+    self._orig_dir = None
 
-  @property
-  def root(self):
-    """Returns the root directory containing the checked-out files."""
-    return self.name
+  def __exit__(self, t, v, tb):
+    os.chdir(self._orig_dir)
+    RemoveDirectory(self._root_dir)
 
   def __enter__(self):
     """Check out a new local copy of the repository.
 
     Uses the parameters that were passed into the constructor.
     """
-    super(NewGitCheckout, self).__enter__()
+    self._orig_dir = os.getcwd()
     remote = self._repository
     if self._local:
       remote = self._local
-    subprocess.check_output(args=['git', 'clone', remote, self.root])
+    subprocess.check_output(args=['git', 'clone', remote])
+    repo_name = remote.split('/')[-1]
+    if repo_name.endswith('.git'):
+      repo_name = repo_name[:-len('.git')]
+    os.chdir(repo_name)
+    self._root_dir = os.getcwd()
     if self._local:
       subprocess.check_call([
           'git', 'remote', 'set-url', 'origin', self._repository])
