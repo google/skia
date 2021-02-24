@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2276c51e_e7094402",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T19:03:46Z",
+      "side": 1,
+      "message": "LGTM pending Brian\u0027s suggestion",
+      "revId": "55483ab9390e2cd5642871b3faf32e2c8a0bd994",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d9199f1_fbebfbfb",
@@ -43,6 +60,29 @@
         "startChar": 0,
         "endLine": 25,
         "endChar": 14
+      },
+      "revId": "55483ab9390e2cd5642871b3faf32e2c8a0bd994",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a464817b_91d269cc",
+        "filename": "src/sksl/dsl/DSLExpression.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T19:03:46Z",
+      "side": 1,
+      "message": "Love this doc comment, very good explanation!",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 43
       },
       "revId": "55483ab9390e2cd5642871b3faf32e2c8a0bd994",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
