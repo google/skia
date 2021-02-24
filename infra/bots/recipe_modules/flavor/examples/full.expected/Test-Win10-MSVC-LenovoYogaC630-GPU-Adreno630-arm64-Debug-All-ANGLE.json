@@ -296,80 +296,6 @@
   },
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skp VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SKP_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
-      "@@@STEP_LOG_END@SKP_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "scp",
-      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SKP_VERSION",
-      "[CLEANUP]/read_file_on_device_tmp_2/SKP_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SKP_VERSION.scp foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SKP_VERSION [CLEANUP]/read_file_on_device_tmp_2/SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[CLEANUP]/read_file_on_device_tmp_2/SKP_VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SKP_VERSION.read SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_END@SKP_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
@@ -383,22 +309,6 @@
     },
     "infra_step": true,
     "name": "rm C:\\Users\\chrome-bot\\botdata\\SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
-      "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\skps\"",
-      "8"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "clean C:\\Users\\chrome-bot\\botdata\\skps"
   },
   {
     "cmd": [],
@@ -461,93 +371,6 @@
   },
   {
     "cmd": [
-      "scp",
-      "[START_DIR]/tmp/SKP_VERSION",
-      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SKP_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SKP_VERSION foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skimage VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
-      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "scp",
-      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION",
-      "[CLEANUP]/read_file_on_device_tmp_3/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION.scp foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION [CLEANUP]/read_file_on_device_tmp_3/SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[CLEANUP]/read_file_on_device_tmp_3/SK_IMAGE_VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION.read SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
@@ -561,22 +384,6 @@
     },
     "infra_step": true,
     "name": "rm C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
-      "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\images\"",
-      "8"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "clean C:\\Users\\chrome-bot\\botdata\\images"
   },
   {
     "cmd": [],
@@ -639,93 +446,6 @@
   },
   {
     "cmd": [
-      "scp",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION",
-      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SK_IMAGE_VERSION foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get svg VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SVG_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
-      "@@@STEP_LOG_END@SVG_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [],
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "scp",
-      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SVG_VERSION",
-      "[CLEANUP]/read_file_on_device_tmp_4/SVG_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SVG_VERSION.scp foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SVG_VERSION [CLEANUP]/read_file_on_device_tmp_4/SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[CLEANUP]/read_file_on_device_tmp_4/SVG_VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SVG_VERSION.read SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_END@SVG_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
@@ -739,22 +459,6 @@
     },
     "infra_step": true,
     "name": "rm C:\\Users\\chrome-bot\\botdata\\SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
-      "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\svgs\"",
-      "8"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "clean C:\\Users\\chrome-bot\\botdata\\svgs"
   },
   {
     "cmd": [],
@@ -814,19 +518,6 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
-  },
-  {
-    "cmd": [
-      "scp",
-      "[START_DIR]/tmp/SVG_VERSION",
-      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SVG_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SVG_VERSION foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\SVG_VERSION"
   },
   {
     "cmd": [
