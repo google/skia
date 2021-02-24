@@ -7,6 +7,7 @@
 
 package org.skia.skottie;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -161,6 +162,14 @@ public class SkottieView extends FrameLayout {
 
     protected SkottieAnimation getSkottieAnimation() {
         return mAnimation;
+    }
+
+    public void removeListener(Animator.AnimatorListener listener) {
+        mAnimation.removeListener(listener);
+    }
+
+    public void addListener(Animator.AnimatorListener listener) {
+        mAnimation.addListener(listener);
     }
 
     // progress: a float from 0 to 1 representing the percent into the animation
