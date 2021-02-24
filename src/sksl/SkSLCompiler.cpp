@@ -88,14 +88,13 @@ public:
 };
 
 Compiler::Compiler(const ShaderCapsClass* caps)
-        : fContext(std::make_shared<Context>(/*errors=*/*this))
-        , fCaps(caps)
+        : fContext(std::make_shared<Context>(/*errors=*/*this, *caps))
         , fInliner(fContext.get())
         , fErrorCount(0) {
-    SkASSERT(fCaps);
+    SkASSERT(caps);
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
     fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
-    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), fCaps);
+    fIRGenerator = std::make_unique<IRGenerator>(fContext.get());
 
 #define TYPE(t) fContext->fTypes.f ## t .get()
 
@@ -1453,7 +1452,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
     std::unique_ptr<Pool> pool;
-    if (fCaps->useNodePools()) {
+    if (fContext->fCaps.useNodePools()) {
         pool = Pool::Create();
         pool->attachToThread();
     }
@@ -1462,7 +1461,6 @@ std::unique_ptr<Program> Compiler::convertProgram(
                                                             externalFunctions);
     auto program = std::make_unique<Program>(std::move(textPtr),
                                              std::move(config),
-                                             fCaps,
                                              fContext,
                                              std::move(ir.fElements),
                                              std::move(ir.fSharedElements),
@@ -1540,7 +1538,7 @@ void Compiler::verifyStaticTests(const Program& program) {
 bool Compiler::optimize(LoadedModule& module) {
     SkASSERT(!fErrorCount);
 
-    // Create a temporary program configuration with default settings.
+    // Create a temporary program configuration with default settings and no caps bits.
     ProgramConfig config;
     config.fKind = module.fKind;
 

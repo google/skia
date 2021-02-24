@@ -217,7 +217,6 @@ private:
     Position position(int offset);
 
     std::shared_ptr<Context> fContext;
-    const ShaderCapsClass* fCaps = nullptr;
 
     std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fPrivateSymbolTable;
