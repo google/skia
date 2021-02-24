@@ -20,10 +20,12 @@ GrTextBlobCache::GrTextBlobCache(uint32_t messageBusID)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
-void GrTextBlobCache::add(const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) {
+sk_sp<GrTextBlob> GrTextBlobCache::addOrReturnExisting(
+        const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) {
     SkAutoSpinlock lock{fSpinLock};
-    this->internalAdd(std::move(blob));
+    blob = this->internalAdd(std::move(blob));
     glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);
+    return blob;
 }
 
 sk_sp<GrTextBlob> GrTextBlobCache::find(const GrTextBlob::Key& key) {
@@ -133,20 +135,23 @@ void GrTextBlobCache::internalCheckPurge(GrTextBlob* blob) {
     }
 }
 
-void GrTextBlobCache::internalAdd(sk_sp<GrTextBlob> blob) {
+sk_sp<GrTextBlob> GrTextBlobCache::internalAdd(sk_sp<GrTextBlob> blob) {
     auto  id      = GrTextBlob::GetKey(*blob).fUniqueID;
     auto* idEntry = fBlobIDCache.find(id);
     if (!idEntry) {
         idEntry = fBlobIDCache.set(id, BlobIDCacheEntry(id));
     }
 
-    // Safe to retain a raw ptr temporarily here, because the cache will hold a ref.
-    GrTextBlob* rawBlobPtr = blob.get();
-    fBlobList.addToHead(rawBlobPtr);
-    fCurrentSize += blob->size();
-    idEntry->addBlob(std::move(blob));
+    if (sk_sp<GrTextBlob> alreadyIn = idEntry->find(GrTextBlob::GetKey(*blob)); alreadyIn) {
+        blob = std::move(alreadyIn);
+    } else {
+        fBlobList.addToHead(blob.get());
+        fCurrentSize += blob->size();
+        idEntry->addBlob(blob);
+    }
 
-    this->internalCheckPurge(rawBlobPtr);
+    this->internalCheckPurge(blob.get());
+    return blob;
 }
 
 GrTextBlobCache::BlobIDCacheEntry::BlobIDCacheEntry() : fID(SK_InvalidGenID) {}
