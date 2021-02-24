@@ -50,6 +50,24 @@
       "message": "Not immediately clear if I can reuse the builder after make() -- can I hoist it out of the loop?",
       "revId": "bc21b34bfc7241b21121664bf0da8c42cd765fd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "527a568f_cfac2fe9",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-24T20:33:18Z",
+      "side": 1,
+      "message": "Yes, it should be reusable.",
+      "parentUuid": "c1a9e91e_ee790039",
+      "revId": "bc21b34bfc7241b21121664bf0da8c42cd765fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
