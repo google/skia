@@ -12,6 +12,7 @@
 
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -24,13 +25,16 @@ struct ProgramConfig;
  */
 class Context {
 public:
-    Context(ErrorReporter& errors);
+    Context(ErrorReporter& errors, const ShaderCapsClass& caps);
 
     // The Context holds all of the built-in types.
     BuiltinTypes fTypes;
 
     // The Context holds a reference to our error reporter.
     ErrorReporter& fErrors;
+
+    // The Context holds a reference to our shader caps bits.
+    const ShaderCapsClass& fCaps;
 
     // The Context holds a pointer to the configuration of the program being compiled.
     ProgramConfig* fConfig = nullptr;
