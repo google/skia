@@ -26,6 +26,7 @@ public:
     void setTestFontManager(sk_sp<SkFontMgr> fontManager);
     void setDefaultFontManager(sk_sp<SkFontMgr> fontManager);
     void setDefaultFontManager(sk_sp<SkFontMgr> fontManager, const char defaultFamilyName[]);
+    void setDefaultFontManager(sk_sp<SkFontMgr> fontManager, const std::vector<SkString>& defaultFamilyNames);
 
     sk_sp<SkFontMgr> getFallbackManager() const { return fDefaultFontManager; }
 
@@ -70,7 +71,7 @@ private:
     sk_sp<SkFontMgr> fDynamicFontManager;
     sk_sp<SkFontMgr> fTestFontManager;
 
-    SkString fDefaultFamilyName;
+    std::vector<SkString> fDefaultFamilyNames;
     ParagraphCache fParagraphCache;
 };
 }  // namespace textlayout
