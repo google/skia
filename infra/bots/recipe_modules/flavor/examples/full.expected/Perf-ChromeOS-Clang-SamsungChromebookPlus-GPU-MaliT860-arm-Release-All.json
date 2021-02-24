@@ -266,60 +266,6 @@
   },
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skp VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SKP_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
-      "@@@STEP_LOG_END@SKP_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "cat",
-      "/home/chronos/user/SKP_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "read /home/chronos/user/SKP_VERSION"
-  },
-  {
-    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
@@ -336,44 +282,6 @@
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "rm",
-      "-rf",
-      "/home/chronos/user/skps"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "rm /home/chronos/user/skps"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "mkdir",
-      "-p",
-      "/home/chronos/user/skps"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "mkdir /home/chronos/user/skps"
   },
   {
     "cmd": [
@@ -397,73 +305,6 @@
   },
   {
     "cmd": [
-      "scp",
-      "[START_DIR]/tmp/SKP_VERSION",
-      "foo@127.0.0.1:/home/chronos/user/SKP_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SKP_VERSION foo@127.0.0.1:/home/chronos/user/SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skimage VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
-      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "cat",
-      "/home/chronos/user/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "read /home/chronos/user/SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
@@ -480,44 +321,6 @@
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "rm",
-      "-rf",
-      "/home/chronos/user/images"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "rm /home/chronos/user/images"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "mkdir",
-      "-p",
-      "/home/chronos/user/images"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "mkdir /home/chronos/user/images"
   },
   {
     "cmd": [
@@ -541,73 +344,6 @@
   },
   {
     "cmd": [
-      "scp",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION",
-      "foo@127.0.0.1:/home/chronos/user/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SK_IMAGE_VERSION foo@127.0.0.1:/home/chronos/user/SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get svg VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SVG_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
-      "@@@STEP_LOG_END@SVG_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "cat",
-      "/home/chronos/user/SVG_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "read /home/chronos/user/SVG_VERSION"
-  },
-  {
-    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
@@ -624,44 +360,6 @@
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "rm",
-      "-rf",
-      "/home/chronos/user/svgs"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "rm /home/chronos/user/svgs"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "mkdir",
-      "-p",
-      "/home/chronos/user/svgs"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "mkdir /home/chronos/user/svgs"
   },
   {
     "cmd": [
@@ -682,19 +380,6 @@
       "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
-  },
-  {
-    "cmd": [
-      "scp",
-      "[START_DIR]/tmp/SVG_VERSION",
-      "foo@127.0.0.1:/home/chronos/user/SVG_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SVG_VERSION foo@127.0.0.1:/home/chronos/user/SVG_VERSION"
   },
   {
     "cmd": [

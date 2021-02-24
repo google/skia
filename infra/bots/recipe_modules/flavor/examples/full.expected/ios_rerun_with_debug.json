@@ -215,56 +215,6 @@
   },
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skp VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SKP_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
-      "@@@STEP_LOG_END@SKP_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
-      "tmp/SKP_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "cat_file tmp/SKP_VERSION"
-  },
-  {
-    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SKP_VERSION"
     ],
@@ -276,34 +226,6 @@
     },
     "infra_step": true,
     "name": "rm tmp/SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
-      "skps"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "rm skps"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
-      "skps"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "mkdir skps"
   },
   {
     "cmd": [
@@ -322,71 +244,6 @@
   },
   {
     "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
-      "[START_DIR]/tmp/SKP_VERSION",
-      "tmp/SKP_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push_file [START_DIR]/tmp/SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skimage VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
-      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
-      "tmp/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "cat_file tmp/SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SK_IMAGE_VERSION"
     ],
@@ -398,34 +255,6 @@
     },
     "infra_step": true,
     "name": "rm tmp/SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
-      "images"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "rm images"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
-      "images"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "mkdir images"
   },
   {
     "cmd": [
@@ -444,71 +273,6 @@
   },
   {
     "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION",
-      "tmp/SK_IMAGE_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push_file [START_DIR]/tmp/SK_IMAGE_VERSION"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get svg VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SVG_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
-      "@@@STEP_LOG_END@SVG_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
-      "tmp/SVG_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "cat_file tmp/SVG_VERSION"
-  },
-  {
-    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SVG_VERSION"
     ],
@@ -520,34 +284,6 @@
     },
     "infra_step": true,
     "name": "rm tmp/SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
-      "svgs"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "rm svgs"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
-      "svgs"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "mkdir svgs"
   },
   {
     "cmd": [
@@ -563,21 +299,6 @@
     },
     "infra_step": true,
     "name": "push_if_needed [START_DIR]/svg"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
-      "[START_DIR]/tmp/SVG_VERSION",
-      "tmp/SVG_VERSION"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "IOS_BUNDLE_ID": "com.google.dm",
-      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push_file [START_DIR]/tmp/SVG_VERSION"
   },
   {
     "cmd": [
