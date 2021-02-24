@@ -16,6 +16,8 @@
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
+using Tolerances = GrStrokeTessellateShader::Tolerances;
+
 static sk_sp<GrDirectContext> make_mock_context() {
     GrMockOptions mockOptions;
     mockOptions.fDrawInstancedSupport = true;
@@ -270,7 +272,7 @@ void GrStrokeIndirectTessellator::verifyResolveLevels(skiatest::Reporter* r,
                                                       const SkMatrix& viewMatrix,
                                                       const SkPath& path,
                                                       const SkStrokeRec& stroke) {
-    GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
+    auto tolerances = Tolerances::MakeNonHairline(viewMatrix.getMaxScale(), stroke.getWidth());
     int8_t resolveLevelForCircles = SkTPin<float>(
             sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI),
             1, kMaxResolveLevel);
@@ -439,7 +441,7 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r, GrMockOpT
     };
     auto instance = static_cast<const IndirectInstance*>(target->peekStaticVertexData());
     auto* indirect = static_cast<const GrDrawIndirectCommand*>(target->peekStaticIndirectData());
-    GrStrokeTessellateShader::Tolerances tolerances(viewMatrix.getMaxScale(), stroke.getWidth());
+    auto tolerances = Tolerances::MakeNonHairline(viewMatrix.getMaxScale(), stroke.getWidth());
     float tolerance = test_tolerance(stroke.getJoin());
     for (int i = 0; i < fChainedDrawIndirectCount; ++i) {
         int numExtraEdgesInJoin = (stroke.getJoin() == SkPaint::kMiter_Join) ? 4 : 3;

@@ -92,6 +92,9 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkAren
         !DynamicStroke::StrokesHaveEqualDynamicState(this->headStroke(), op->headStroke())) {
         // The paths have different stroke properties. We will need to enable dynamic stroke if we
         // still decide to combine them.
+        if (this->headStroke().isHairlineStyle()) {
+            return CombineResult::kCannotCombine;  // Dynamic hairlines aren't supported.
+        }
         combinedFlags |= ShaderFlags::kDynamicStroke;
     }
     if (!(combinedFlags & ShaderFlags::kDynamicColor) && this->headColor() != op->headColor()) {

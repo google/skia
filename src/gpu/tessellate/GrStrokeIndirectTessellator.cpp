@@ -75,8 +75,8 @@ public:
 
     void updateTolerances(float strokeWidth, bool isRoundJoin) {
         this->flush();
-        fTolerances = GrStrokeTessellateShader::Tolerances::MakePreTransform(
-                fMatrixMinMaxScales.data(), strokeWidth);
+        fTolerances = GrStrokeTessellateShader::Tolerances::Make(fMatrixMinMaxScales.data(),
+                                                                 strokeWidth);
         fResolveLevelForCircles = SkTPin<float>(
                 sk_float_nextlog2(fTolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI),
                 1, kMaxResolveLevel);
