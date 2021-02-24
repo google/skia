@@ -17,8 +17,6 @@ sksl_fp_error_tests = [
 
 sksl_fp_tests = [
   "/sksl/fp/GrChildProcessorAndGlobal.fp",
-  "/sksl/fp/GrChildProcessorFieldAccess.fp",
-  "/sksl/fp/GrChildProcessorInlineFieldAccess.fp",
   "/sksl/fp/GrChildProcessorSampleCoords.fp",
   "/sksl/fp/GrChildProcessorSampleMatrixAndCoords.fp",
   "/sksl/fp/GrChildProcessorSampleMatrixConstant.fp",
