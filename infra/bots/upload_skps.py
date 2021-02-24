@@ -41,6 +41,11 @@ def main(target_dir):
     except subprocess.CalledProcessError as e:
       print >> sys.stderr, (
          'gen_tasks.go failed, not uploading SKP update:\n\n%s' % e.output)
+      import time
+      print 'SLEEPING NOW FOR 1 HOUR'
+      print ['go', 'run', tmp_gen_tasks, '--test']
+      print tmp_infrabots_dir
+      time.sleep(1*60*60)
       sys.exit(1)
 
     # Upload the new version, land the update CL as the recreate-skps user.
