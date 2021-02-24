@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "effa1d65_096060ae",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-24T17:47:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3466249c_7d7aa235",
+      "range": {
+        "startLine": 920,
+        "startChar": 0,
+        "endLine": 923,
+        "endChar": 52
+      },
+      "revId": "d6a70322e86380b249d38d780e2d8a4d7879adbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0ab09c85_40ad85fe",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-23T18:23:57Z",
       "side": 1,
       "message": "IIRC we don\u0027t usually \u0027const\u0027 SkData bc it is built in immutable. I guess, except when we\u0027re passing one by reference.",
+      "range": {
+        "startLine": 123,
+        "startChar": 34,
+        "endLine": 123,
+        "endChar": 40
+      },
+      "revId": "d6a70322e86380b249d38d780e2d8a4d7879adbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83d4f95f_4f2a860c",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-24T17:47:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ab09c85_40ad85fe",
       "range": {
         "startLine": 123,
         "startChar": 34,

@@ -63,6 +63,24 @@
       "message": "wdyt about, as a follow up, moving this into the promiseImageHelper so we would just have the call:\n\nsk_sp\u003cSkPicture\u003e foo \u003d promiseImageHelper.gimmeNewSKP(inputPicture);\n\n?",
       "revId": "9fbb7c2c2046feefbf0b1b9df8e68a718172e9c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cb0d8e3_63129b6f",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 1842,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-24T17:47:05Z",
+      "side": 1,
+      "message": "I\u0027m not opposed but I don\u0027t quite follow. What would the caller do with the skp? Would we remove kickOffThreadedWork and have the caller manage that layer?",
+      "parentUuid": "508348e2_c1b8b30c",
+      "revId": "9fbb7c2c2046feefbf0b1b9df8e68a718172e9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
