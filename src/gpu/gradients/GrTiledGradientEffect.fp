@@ -14,11 +14,12 @@ layout(key) in bool mirror;
 layout(key) in bool makePremul;
 // Trust the creator that this matches the color spec of the gradient
 in bool colorsAreOpaque;
+layout(key) in bool layoutPreservesOpacity;
 
 half4 main() {
     half4 t = sample(gradLayout);
 
-    if (!gradLayout.preservesOpaqueInput && t.y < 0) {
+    if (!layoutPreservesOpacity && t.y < 0) {
         // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
         // preserves opacity is false)
         return half4(0);
@@ -54,6 +55,20 @@ half4 main() {
 // but otherwise respect the provided color opacity state.
 @optimizationFlags {
     kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-    (colorsAreOpaque && gradLayout->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
-                                                           : kNone_OptimizationFlags)
+    (colorsAreOpaque && layoutPreservesOpacity ? kPreservesOpaqueInput_OptimizationFlag
+                                               : kNone_OptimizationFlags)
+}
+
+@make{
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            std::unique_ptr<GrFragmentProcessor> colorizer,
+            std::unique_ptr<GrFragmentProcessor> gradLayout,
+            bool mirror,
+            bool makePremul,
+            bool colorsAreOpaque) {
+        bool layoutPreservesOpacity = gradLayout->preservesOpaqueInput();
+        return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(
+                std::move(colorizer), std::move(gradLayout), mirror, makePremul, colorsAreOpaque,
+                layoutPreservesOpacity));
+    }
 }

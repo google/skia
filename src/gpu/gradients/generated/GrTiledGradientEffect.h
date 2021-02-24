@@ -24,8 +24,10 @@ public:
             bool mirror,
             bool makePremul,
             bool colorsAreOpaque) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(
-                std::move(colorizer), std::move(gradLayout), mirror, makePremul, colorsAreOpaque));
+        bool layoutPreservesOpacity = gradLayout->preservesOpaqueInput();
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrTiledGradientEffect(std::move(colorizer), std::move(gradLayout), mirror,
+                                          makePremul, colorsAreOpaque, layoutPreservesOpacity));
     }
     GrTiledGradientEffect(const GrTiledGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -33,21 +35,24 @@ public:
     bool mirror;
     bool makePremul;
     bool colorsAreOpaque;
+    bool layoutPreservesOpacity;
 
 private:
     GrTiledGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
                           std::unique_ptr<GrFragmentProcessor> gradLayout,
                           bool mirror,
                           bool makePremul,
-                          bool colorsAreOpaque)
+                          bool colorsAreOpaque,
+                          bool layoutPreservesOpacity)
             : INHERITED(kGrTiledGradientEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-                                (colorsAreOpaque && gradLayout->preservesOpaqueInput()
+                                (colorsAreOpaque && layoutPreservesOpacity
                                          ? kPreservesOpaqueInput_OptimizationFlag
                                          : kNone_OptimizationFlags))
             , mirror(mirror)
             , makePremul(makePremul)
-            , colorsAreOpaque(colorsAreOpaque) {
+            , colorsAreOpaque(colorsAreOpaque)
+            , layoutPreservesOpacity(layoutPreservesOpacity) {
         this->registerChild(std::move(colorizer), SkSL::SampleUsage::Explicit());
         this->registerChild(std::move(gradLayout), SkSL::SampleUsage::PassThrough());
     }
