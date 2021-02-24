@@ -13,6 +13,7 @@ vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     }
 }
 void main() {
+    vec4 _0_blend_saturation;
     float _1_alpha = dst.w * src.w;
     vec3 _2_sda = src.xyz * dst.w;
     vec3 _3_dsa = dst.xyz * src.w;

@@ -15,6 +15,7 @@ OpName %DaSqd "DaSqd"
 OpName %DaCub "DaCub"
 OpName %_10_n "_10_n"
 OpName %main "main"
+OpName %_0_blend_soft_light "_0_blend_soft_light"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -124,21 +125,21 @@ OpDecorate %179 RelaxedPrecision
 OpDecorate %181 RelaxedPrecision
 OpDecorate %183 RelaxedPrecision
 OpDecorate %184 RelaxedPrecision
-OpDecorate %188 RelaxedPrecision
-OpDecorate %197 RelaxedPrecision
+OpDecorate %190 RelaxedPrecision
 OpDecorate %198 RelaxedPrecision
-OpDecorate %201 RelaxedPrecision
-OpDecorate %205 RelaxedPrecision
-OpDecorate %208 RelaxedPrecision
-OpDecorate %212 RelaxedPrecision
-OpDecorate %215 RelaxedPrecision
-OpDecorate %219 RelaxedPrecision
-OpDecorate %221 RelaxedPrecision
-OpDecorate %223 RelaxedPrecision
+OpDecorate %199 RelaxedPrecision
+OpDecorate %202 RelaxedPrecision
+OpDecorate %206 RelaxedPrecision
+OpDecorate %209 RelaxedPrecision
+OpDecorate %213 RelaxedPrecision
+OpDecorate %216 RelaxedPrecision
+OpDecorate %220 RelaxedPrecision
+OpDecorate %222 RelaxedPrecision
 OpDecorate %224 RelaxedPrecision
-OpDecorate %226 RelaxedPrecision
+OpDecorate %225 RelaxedPrecision
 OpDecorate %227 RelaxedPrecision
-OpDecorate %229 RelaxedPrecision
+OpDecorate %228 RelaxedPrecision
+OpDecorate %230 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -162,8 +163,8 @@ OpDecorate %229 RelaxedPrecision
 %float_16 = OpConstant %float 16
 %void = OpTypeVoid
 %186 = OpTypeFunction %void
-%float_0 = OpConstant %float 0
 %_ptr_Function_v4float = OpTypePointer Function %v4float
+%float_0 = OpConstant %float 0
 %_soft_light_component = OpFunction %float None %15
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
@@ -343,58 +344,59 @@ OpUnreachable
 OpFunctionEnd
 %main = OpFunction %void None %186
 %187 = OpLabel
-%192 = OpVariable %_ptr_Function_v4float Function
-%200 = OpVariable %_ptr_Function_v2float Function
-%203 = OpVariable %_ptr_Function_v2float Function
-%207 = OpVariable %_ptr_Function_v2float Function
-%210 = OpVariable %_ptr_Function_v2float Function
-%214 = OpVariable %_ptr_Function_v2float Function
-%217 = OpVariable %_ptr_Function_v2float Function
-%188 = OpLoad %v4float %dst
-%189 = OpCompositeExtract %float %188 3
-%191 = OpFOrdEqual %bool %189 %float_0
-OpSelectionMerge %196 None
-OpBranchConditional %191 %194 %195
-%194 = OpLabel
-%197 = OpLoad %v4float %src
-OpStore %192 %197
-OpBranch %196
+%_0_blend_soft_light = OpVariable %_ptr_Function_v4float Function
+%194 = OpVariable %_ptr_Function_v4float Function
+%201 = OpVariable %_ptr_Function_v2float Function
+%204 = OpVariable %_ptr_Function_v2float Function
+%208 = OpVariable %_ptr_Function_v2float Function
+%211 = OpVariable %_ptr_Function_v2float Function
+%215 = OpVariable %_ptr_Function_v2float Function
+%218 = OpVariable %_ptr_Function_v2float Function
+%190 = OpLoad %v4float %dst
+%191 = OpCompositeExtract %float %190 3
+%193 = OpFOrdEqual %bool %191 %float_0
+OpSelectionMerge %197 None
+OpBranchConditional %193 %195 %196
 %195 = OpLabel
 %198 = OpLoad %v4float %src
-%199 = OpVectorShuffle %v2float %198 %198 0 3
-OpStore %200 %199
-%201 = OpLoad %v4float %dst
-%202 = OpVectorShuffle %v2float %201 %201 0 3
-OpStore %203 %202
-%204 = OpFunctionCall %float %_soft_light_component %200 %203
-%205 = OpLoad %v4float %src
-%206 = OpVectorShuffle %v2float %205 %205 1 3
-OpStore %207 %206
-%208 = OpLoad %v4float %dst
-%209 = OpVectorShuffle %v2float %208 %208 1 3
-OpStore %210 %209
-%211 = OpFunctionCall %float %_soft_light_component %207 %210
-%212 = OpLoad %v4float %src
-%213 = OpVectorShuffle %v2float %212 %212 2 3
-OpStore %214 %213
-%215 = OpLoad %v4float %dst
-%216 = OpVectorShuffle %v2float %215 %215 2 3
-OpStore %217 %216
-%218 = OpFunctionCall %float %_soft_light_component %214 %217
-%219 = OpLoad %v4float %src
-%220 = OpCompositeExtract %float %219 3
-%221 = OpLoad %v4float %src
-%222 = OpCompositeExtract %float %221 3
-%223 = OpFSub %float %float_1 %222
-%224 = OpLoad %v4float %dst
-%225 = OpCompositeExtract %float %224 3
-%226 = OpFMul %float %223 %225
-%227 = OpFAdd %float %220 %226
-%228 = OpCompositeConstruct %v4float %204 %211 %218 %227
-OpStore %192 %228
-OpBranch %196
+OpStore %194 %198
+OpBranch %197
 %196 = OpLabel
-%229 = OpLoad %v4float %192
-OpStore %sk_FragColor %229
+%199 = OpLoad %v4float %src
+%200 = OpVectorShuffle %v2float %199 %199 0 3
+OpStore %201 %200
+%202 = OpLoad %v4float %dst
+%203 = OpVectorShuffle %v2float %202 %202 0 3
+OpStore %204 %203
+%205 = OpFunctionCall %float %_soft_light_component %201 %204
+%206 = OpLoad %v4float %src
+%207 = OpVectorShuffle %v2float %206 %206 1 3
+OpStore %208 %207
+%209 = OpLoad %v4float %dst
+%210 = OpVectorShuffle %v2float %209 %209 1 3
+OpStore %211 %210
+%212 = OpFunctionCall %float %_soft_light_component %208 %211
+%213 = OpLoad %v4float %src
+%214 = OpVectorShuffle %v2float %213 %213 2 3
+OpStore %215 %214
+%216 = OpLoad %v4float %dst
+%217 = OpVectorShuffle %v2float %216 %216 2 3
+OpStore %218 %217
+%219 = OpFunctionCall %float %_soft_light_component %215 %218
+%220 = OpLoad %v4float %src
+%221 = OpCompositeExtract %float %220 3
+%222 = OpLoad %v4float %src
+%223 = OpCompositeExtract %float %222 3
+%224 = OpFSub %float %float_1 %223
+%225 = OpLoad %v4float %dst
+%226 = OpCompositeExtract %float %225 3
+%227 = OpFMul %float %224 %226
+%228 = OpFAdd %float %221 %227
+%229 = OpCompositeConstruct %v4float %205 %212 %219 %228
+OpStore %194 %229
+OpBranch %197
+%197 = OpLabel
+%230 = OpLoad %v4float %194
+OpStore %sk_FragColor %230
 OpReturn
 OpFunctionEnd

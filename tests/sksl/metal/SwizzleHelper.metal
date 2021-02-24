@@ -33,8 +33,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     (void)_globals;
     Outputs _out;
     (void)_out;
+    float2 a = float2(1.0);
     float3 b = float3(2.0);
+    float4x4 c = float4x4(3.0);
     float3x3 d = float3x3(4.0);
-    _out.sk_FragColor =     _skOutParamHelper0_fn(_out, _globals, 1.0, b, _globals.glob, d);
+    _out.sk_FragColor =     _skOutParamHelper0_fn(_out, _globals, a.x, b, _globals.glob, d);
     return _out;
 }

@@ -3,6 +3,7 @@ out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
 void main() {
+    vec4 _0_blend_luminosity;
     float _1_alpha = dst.w * src.w;
     vec3 _2_sda = src.xyz * dst.w;
     vec3 _3_dsa = dst.xyz * src.w;

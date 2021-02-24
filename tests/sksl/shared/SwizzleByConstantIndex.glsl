@@ -4,6 +4,7 @@ uniform vec4 testInputs;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
+    vec4 _0_constant_swizzle;
     vec4 _1_v = testInputs;
     float _2_x = _1_v.x;
     float _3_y = _1_v.y;
@@ -11,5 +12,13 @@ vec4 main() {
     float _5_w = _1_v.w;
     vec4 a = vec4(_2_x, _3_y, _4_z, _5_w);
 
-    return a == vec4(-1.25, 0.0, 0.75, 2.25) ? colorGreen : colorRed;
+    vec4 _6_foldable;
+    vec4 _7_v = vec4(0.0, 1.0, 2.0, 3.0);
+    float _8_x = _7_v.x;
+    float _9_y = _7_v.y;
+    float _10_z = _7_v.z;
+    float _11_w = _7_v.w;
+    vec4 b = vec4(_8_x, _9_y, _10_z, _11_w);
+
+    return a == vec4(-1.25, 0.0, 0.75, 2.25) && b == vec4(0.0, 1.0, 2.0, 3.0) ? colorGreen : colorRed;
 }

@@ -34,20 +34,21 @@ OpSelectionMerge %18 None
 OpSwitch %int_0 %18 0 %19 1 %20
 %19 = OpLabel
 OpStore %x %float_0
-%21 = OpExtInst %float %1 Sqrt %float_1
-%23 = OpFOrdLessThan %bool %float_0 %21
-OpSelectionMerge %25 None
-OpBranchConditional %23 %24 %25
-%24 = OpLabel
-OpBranch %18
+%21 = OpLoad %float %x
+%22 = OpExtInst %float %1 Sqrt %float_1
+%24 = OpFOrdLessThan %bool %21 %22
+OpSelectionMerge %26 None
+OpBranchConditional %24 %25 %26
 %25 = OpLabel
+OpBranch %18
+%26 = OpLabel
 OpBranch %20
 %20 = OpLabel
 OpStore %x %float_1
 OpBranch %18
 %18 = OpLabel
-%26 = OpLoad %float %x
-%27 = OpCompositeConstruct %v4float %26 %26 %26 %26
-OpStore %sk_FragColor %27
+%27 = OpLoad %float %x
+%28 = OpCompositeConstruct %v4float %27 %27 %27 %27
+OpStore %sk_FragColor %28
 OpReturn
 OpFunctionEnd

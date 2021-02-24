@@ -25,7 +25,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %_ptr_Function_int = OpTypePointer Function %int
 %float_1 = OpConstant %float 1
 %int_3 = OpConstant %int 3
-%float_3 = OpConstant %float 3
+%v4int = OpTypeVector %int 4
+%int_1 = OpConstant %int 1
+%v2int = OpTypeVector %int 2
 %_ptr_Output_float = OpTypePointer Output %float
 %int_0 = OpConstant %int 0
 %main = OpFunction %void None %11
@@ -36,8 +38,14 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpStore %i %18
 %19 = OpLoad %int %i
 OpStore %i %int_3
-%21 = OpIMul %int %19 %int_3
-%23 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %23 %float_3
+%21 = OpCompositeConstruct %v4int %int_3 %int_3 %int_3 %int_3
+%23 = OpCompositeExtract %int %21 0
+%25 = OpCompositeConstruct %v2int %23 %int_1
+%27 = OpCompositeExtract %int %25 0
+%28 = OpIMul %int %19 %27
+%29 = OpLoad %int %i
+%30 = OpConvertSToF %float %29
+%31 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %31 %30
 OpReturn
 OpFunctionEnd

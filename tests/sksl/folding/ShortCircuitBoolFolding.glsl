@@ -4,6 +4,7 @@ uniform vec4 colorRed;
 uniform vec4 colorGreen;
 uniform float unknownInput;
 vec4 main() {
+    bool _0_test;
     bool _1_expr = unknownInput > 0.0;
     int _2_ok = 0;
     int _3_bad = 0;
@@ -103,6 +104,7 @@ vec4 main() {
     float _4_a = sqrt(1.0);
     float _5_b = sqrt(2.0);
 
+    true;
     if (_4_a == _5_b) {
         ++_3_bad;
     } else {

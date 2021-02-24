@@ -17,6 +17,8 @@ bool this_function_is_prototyped_in_the_middle_and_never_defined(float4x4 a);
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    float4 _0_this_function_is_defined_before_use;
+    float4 _1_this_function_is_defined_after_use;
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 

@@ -11,6 +11,7 @@ OpName %_color_dodge_component "_color_dodge_component"
 OpName %delta "delta"
 OpName %_4_n "_4_n"
 OpName %main "main"
+OpName %_0_blend_color_dodge "_0_blend_color_dodge"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -60,18 +61,18 @@ OpDecorate %90 RelaxedPrecision
 OpDecorate %92 RelaxedPrecision
 OpDecorate %93 RelaxedPrecision
 OpDecorate %94 RelaxedPrecision
-OpDecorate %98 RelaxedPrecision
-OpDecorate %101 RelaxedPrecision
-OpDecorate %105 RelaxedPrecision
-OpDecorate %108 RelaxedPrecision
-OpDecorate %112 RelaxedPrecision
-OpDecorate %115 RelaxedPrecision
-OpDecorate %119 RelaxedPrecision
+OpDecorate %100 RelaxedPrecision
+OpDecorate %103 RelaxedPrecision
+OpDecorate %107 RelaxedPrecision
+OpDecorate %110 RelaxedPrecision
+OpDecorate %114 RelaxedPrecision
+OpDecorate %117 RelaxedPrecision
 OpDecorate %121 RelaxedPrecision
 OpDecorate %123 RelaxedPrecision
-OpDecorate %124 RelaxedPrecision
+OpDecorate %125 RelaxedPrecision
 OpDecorate %126 RelaxedPrecision
-OpDecorate %127 RelaxedPrecision
+OpDecorate %128 RelaxedPrecision
+OpDecorate %129 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -90,6 +91,7 @@ OpDecorate %127 RelaxedPrecision
 %_ptr_Function_float = OpTypePointer Function %float
 %void = OpTypeVoid
 %96 = OpTypeFunction %void
+%_ptr_Function_v4float = OpTypePointer Function %v4float
 %_color_dodge_component = OpFunction %float None %15
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
@@ -181,43 +183,44 @@ OpUnreachable
 OpFunctionEnd
 %main = OpFunction %void None %96
 %97 = OpLabel
-%100 = OpVariable %_ptr_Function_v2float Function
-%103 = OpVariable %_ptr_Function_v2float Function
-%107 = OpVariable %_ptr_Function_v2float Function
-%110 = OpVariable %_ptr_Function_v2float Function
-%114 = OpVariable %_ptr_Function_v2float Function
-%117 = OpVariable %_ptr_Function_v2float Function
-%98 = OpLoad %v4float %src
-%99 = OpVectorShuffle %v2float %98 %98 0 3
-OpStore %100 %99
-%101 = OpLoad %v4float %dst
-%102 = OpVectorShuffle %v2float %101 %101 0 3
-OpStore %103 %102
-%104 = OpFunctionCall %float %_color_dodge_component %100 %103
-%105 = OpLoad %v4float %src
-%106 = OpVectorShuffle %v2float %105 %105 1 3
-OpStore %107 %106
-%108 = OpLoad %v4float %dst
-%109 = OpVectorShuffle %v2float %108 %108 1 3
-OpStore %110 %109
-%111 = OpFunctionCall %float %_color_dodge_component %107 %110
-%112 = OpLoad %v4float %src
-%113 = OpVectorShuffle %v2float %112 %112 2 3
-OpStore %114 %113
-%115 = OpLoad %v4float %dst
-%116 = OpVectorShuffle %v2float %115 %115 2 3
-OpStore %117 %116
-%118 = OpFunctionCall %float %_color_dodge_component %114 %117
-%119 = OpLoad %v4float %src
-%120 = OpCompositeExtract %float %119 3
+%_0_blend_color_dodge = OpVariable %_ptr_Function_v4float Function
+%102 = OpVariable %_ptr_Function_v2float Function
+%105 = OpVariable %_ptr_Function_v2float Function
+%109 = OpVariable %_ptr_Function_v2float Function
+%112 = OpVariable %_ptr_Function_v2float Function
+%116 = OpVariable %_ptr_Function_v2float Function
+%119 = OpVariable %_ptr_Function_v2float Function
+%100 = OpLoad %v4float %src
+%101 = OpVectorShuffle %v2float %100 %100 0 3
+OpStore %102 %101
+%103 = OpLoad %v4float %dst
+%104 = OpVectorShuffle %v2float %103 %103 0 3
+OpStore %105 %104
+%106 = OpFunctionCall %float %_color_dodge_component %102 %105
+%107 = OpLoad %v4float %src
+%108 = OpVectorShuffle %v2float %107 %107 1 3
+OpStore %109 %108
+%110 = OpLoad %v4float %dst
+%111 = OpVectorShuffle %v2float %110 %110 1 3
+OpStore %112 %111
+%113 = OpFunctionCall %float %_color_dodge_component %109 %112
+%114 = OpLoad %v4float %src
+%115 = OpVectorShuffle %v2float %114 %114 2 3
+OpStore %116 %115
+%117 = OpLoad %v4float %dst
+%118 = OpVectorShuffle %v2float %117 %117 2 3
+OpStore %119 %118
+%120 = OpFunctionCall %float %_color_dodge_component %116 %119
 %121 = OpLoad %v4float %src
 %122 = OpCompositeExtract %float %121 3
-%123 = OpFSub %float %float_1 %122
-%124 = OpLoad %v4float %dst
-%125 = OpCompositeExtract %float %124 3
-%126 = OpFMul %float %123 %125
-%127 = OpFAdd %float %120 %126
-%128 = OpCompositeConstruct %v4float %104 %111 %118 %127
-OpStore %sk_FragColor %128
+%123 = OpLoad %v4float %src
+%124 = OpCompositeExtract %float %123 3
+%125 = OpFSub %float %float_1 %124
+%126 = OpLoad %v4float %dst
+%127 = OpCompositeExtract %float %126 3
+%128 = OpFMul %float %125 %127
+%129 = OpFAdd %float %122 %128
+%130 = OpCompositeConstruct %v4float %106 %113 %120 %129
+OpStore %sk_FragColor %130
 OpReturn
 OpFunctionEnd

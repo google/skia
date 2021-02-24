@@ -18,6 +18,7 @@ float _color_dodge_component(vec2 s, vec2 d) {
     }
 }
 void main() {
+    vec4 _0_blend_color_dodge;
     sk_FragColor = vec4(_color_dodge_component(src.xw, dst.xw), _color_dodge_component(src.yw, dst.yw), _color_dodge_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 
 }

@@ -8,7 +8,7 @@ struct S {
 };
 vec4 main() {
     vec4 x = vec4(3.0, 2.0, 1.0, 0.0);
-    x.xyz = vec3(1.0, 2.0, 3.0);
+    x.xyz = x.zyx;
     S s;
     s.i = 2.0;
     s.j = 2.0;
@@ -18,5 +18,12 @@ vec4 main() {
     a[0] = 1.0;
     a[1] = 0.0;
     a[1] = a[0];
+    x.wy = x.wy;
+    x.xyz = x.xyz;
+    x = x;
+    s.i = s.i;
+    s.j = s.j;
+    a[0] = a[0];
+    a[1] = a[1];
     return vec4(x.w, s.i / s.j, a[0] - a[1], a[0] * a[1]);
 }

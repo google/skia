@@ -2,6 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 color;
 void main() {
+    vec4 _0_switchy;
     vec4 _1_result;
     switch (int(color.x)) {
         case 1:

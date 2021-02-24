@@ -17,6 +17,10 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = ((((((clamp(_uniforms.testInputs.x, -1.0, 1.0) == -1.0 && all(clamp(_uniforms.testInputs.xy, -1.0, 1.0) == float2(-1.0, 0.0))) && all(clamp(_uniforms.testInputs.xyz, -1.0, 1.0) == float3(-1.0, 0.0, 0.75))) && all(clamp(_uniforms.testInputs, -1.0, 1.0) == float4(-1.0, 0.0, 0.75, 1.0))) && clamp(_uniforms.testInputs.x, -1.0, 1.0) == -1.0) && all(clamp(_uniforms.testInputs.xy, float2(-1.0, -2.0), float2(1.0, 2.0)) == float2(-1.0, 0.0))) && all(clamp(_uniforms.testInputs.xyz, float3(-1.0, -2.0, -2.0), float3(1.0, 2.0, 0.5)) == float3(-1.0, 0.0, 0.5))) && all(clamp(_uniforms.testInputs, float4(-1.0, -2.0, -2.0, 1.0), float4(1.0, 2.0, 0.5, 3.0)) == float4(-1.0, 0.0, 0.5, 2.25)) ? _uniforms.colorGreen : _uniforms.colorRed;
+    float4 expectedA = float4(-1.0, 0.0, 0.75, 1.0);
+    float4 clampLow = float4(-1.0, -2.0, -2.0, 1.0);
+    float4 expectedB = float4(-1.0, 0.0, 0.5, 2.25);
+    float4 clampHigh = float4(1.0, 2.0, 0.5, 3.0);
+    _out.sk_FragColor = ((((((clamp(_uniforms.testInputs.x, -1.0, 1.0) == expectedA.x && all(clamp(_uniforms.testInputs.xy, -1.0, 1.0) == expectedA.xy)) && all(clamp(_uniforms.testInputs.xyz, -1.0, 1.0) == expectedA.xyz)) && all(clamp(_uniforms.testInputs, -1.0, 1.0) == expectedA)) && clamp(_uniforms.testInputs.x, clampLow.x, clampHigh.x) == expectedB.x) && all(clamp(_uniforms.testInputs.xy, clampLow.xy, clampHigh.xy) == expectedB.xy)) && all(clamp(_uniforms.testInputs.xyz, clampLow.xyz, clampHigh.xyz) == expectedB.xyz)) && all(clamp(_uniforms.testInputs, clampLow, clampHigh) == expectedB) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

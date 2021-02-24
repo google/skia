@@ -10,6 +10,7 @@ OpMemberName %_UniformBuffer 0 "colorGreen"
 OpMemberName %_UniformBuffer 1 "colorRed"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
+OpName %x "x"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -22,7 +23,10 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %24 RelaxedPrecision
+OpDecorate %23 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
+OpDecorate %32 RelaxedPrecision
+OpDecorate %37 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -36,9 +40,12 @@ OpDecorate %24 RelaxedPrecision
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
 %18 = OpTypeFunction %v4float
+%_ptr_Function_bool = OpTypePointer Function %bool
+%true = OpConstantTrue %bool
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
+%int_1 = OpConstant %int 1
 %_entrypoint = OpFunction %void None %15
 %16 = OpLabel
 %17 = OpFunctionCall %v4float %main
@@ -47,7 +54,24 @@ OpReturn
 OpFunctionEnd
 %main = OpFunction %v4float None %18
 %19 = OpLabel
-%20 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%24 = OpLoad %v4float %20
-OpReturnValue %24
+%x = OpVariable %_ptr_Function_bool Function
+OpStore %x %true
+%23 = OpLoad %bool %x
+OpSelectionMerge %25 None
+OpBranchConditional %23 %24 %25
+%24 = OpLabel
+%26 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%30 = OpLoad %v4float %26
+OpReturnValue %30
+%25 = OpLabel
+%32 = OpLoad %bool %x
+%31 = OpLogicalNot %bool %32
+OpSelectionMerge %34 None
+OpBranchConditional %31 %33 %34
+%33 = OpLabel
+%35 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
+%37 = OpLoad %v4float %35
+OpReturnValue %37
+%34 = OpLabel
+OpUnreachable
 OpFunctionEnd

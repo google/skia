@@ -12,6 +12,8 @@ float3x3 float3x3_from_float2x2(float2x2 x0) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor.x = float(all(float3x3(1.0)[0] == float3x3_from_float2x2(float2x2(1.0))[0]) ? 0 : 1);
+    float3x3 a = float3x3(1.0);
+    float3x3 b = float3x3_from_float2x2(float2x2(1.0));
+    _out.sk_FragColor.x = float(all(a[0] == b[0]) ? 0 : 1);
     return _out;
 }
