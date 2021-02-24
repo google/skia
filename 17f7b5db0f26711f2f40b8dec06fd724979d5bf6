@@ -33,6 +33,24 @@
       "message": "no objection per-se, but note that Herb is soon to expose direct ways to draw glyphs (with optional accesstext) on canvas, so perhaps Chrome can use their own transport for their data, and skip the intermediate blob object...",
       "revId": "17f7b5db0f26711f2f40b8dec06fd724979d5bf6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1867a92e_2ae42cfd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-24T17:20:35Z",
+      "side": 1,
+      "message": "Then this is actually a good time to land this and the associated Chromium side change to provide text before landing any SkCanvas changes an updating Chromium to use them. The ShapeResultBloberizer on the Chromium side is actually not well structured to provide the text information (https://chromium-review.googlesource.com/c/chromium/src/+/2716923 really threads the needle on this) and a re-write there to use the new API with the text already being provided should prod the re-writer to move the code in the correct direction (as opposed to moving in probably the wrong direction if the text isn\u0027t being provided already).\n\nI\u0027m interested in the proposed timeline for any SkCanvas additions, we really don\u0027t want to slip the Chromium side past M91 at the latest (in theory we can still get this into M90). Also note that the default SkShaper TextBlob adapter was already returning TextBlobs with text in them.",
+      "parentUuid": "eb5185a2_a39470a3",
+      "revId": "17f7b5db0f26711f2f40b8dec06fd724979d5bf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
