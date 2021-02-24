@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "906b67a6_d742d328",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-24T15:10:11Z",
+      "side": 1,
+      "message": "Updated to use the reduced ops clip code and also only do extra outsetting when there is a non-aa edge.",
+      "revId": "735df8500aac35782fd01418078b0f48c4f33b2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
