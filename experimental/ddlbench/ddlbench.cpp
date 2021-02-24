@@ -273,14 +273,7 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
         exitf("failed to parse file %s", srcfile.c_str());
     }
 
-    sk_sp<SkData> compressedPictureData = promiseImageHelper->deflateSKP(skp.get());
-    if (!compressedPictureData) {
-        exitf("skp deflation failed %s", srcfile.c_str());
-    }
-
-    // TODO: use the new shared promise images to just create one skp here
-
-    return skp;
+    return promiseImageHelper->recreateSKP(skp.get(), dContext);
 }
 
 int main(int argc, char** argv) {
@@ -318,8 +311,6 @@ int main(int argc, char** argv) {
     sk_sp<SkPicture> skp = create_shared_skp(FLAGS_src[0],
                                              mainContext->fDirectContext,
                                              &promiseImageHelper);
-
-    promiseImageHelper.createCallbackContexts(mainContext->fDirectContext);
 
     // TODO: do this later on a utility thread!
     promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext);
