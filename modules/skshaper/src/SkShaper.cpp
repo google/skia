@@ -226,7 +226,7 @@ SkShaper::RunHandler::Buffer SkTextBlobBuilderRunHandler::runBuffer(const RunInf
     int utf8RangeSize = SkTFitsIn<int>(info.utf8Range.size()) ? info.utf8Range.size() : INT_MAX;
 
     const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, info.fFont, glyphCount,
-                                                                   utf8RangeSize, SkString());
+                                                                   utf8RangeSize);
     if (runBuffer.utf8text && fUtf8Text) {
         memcpy(runBuffer.utf8text, fUtf8Text + info.utf8Range.begin(), utf8RangeSize);
     }

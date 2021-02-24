@@ -114,7 +114,7 @@ SkShaper::RunHandler::Buffer RunHandler::runBuffer(const RunInfo& info) {
     int utf8RangeSize = SkTFitsIn<int>(info.utf8Range.size()) ? info.utf8Range.size() : INT_MAX;
 
     const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, info.fFont, glyphCount,
-                                                                   utf8RangeSize, SkString());
+                                                                   utf8RangeSize);
     fCurrentGlyphs = runBuffer.glyphs;
     fCurrentPoints = runBuffer.points();
 
