@@ -5,6 +5,7 @@
 
 """This module contains functions for using git."""
 
+import os
 import re
 import shutil
 import subprocess
@@ -139,7 +140,11 @@ class NewGitCheckout(utils.tmp_dir):
     remote = self._repository
     if self._local:
       remote = self._local
-    subprocess.check_output(args=['git', 'clone', remote, self.root])
+    subprocess.check_output(args=['git', 'clone', remote])
+    repo_name = remote.split('/')[-1]
+    if repo_name.endswith('.git'):
+      repo_name = repo_name[:-len('.git')]
+    os.chdir(repo_name)
     if self._local:
       subprocess.check_call([
           'git', 'remote', 'set-url', 'origin', self._repository])
