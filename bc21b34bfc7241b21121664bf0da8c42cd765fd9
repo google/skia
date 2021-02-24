@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6dbdda2e_59f52383",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-24T21:26:13Z",
+      "side": 1,
+      "message": "It\u0027s not planned in the near-term. It\u0027s going to require that we start having multiple versions/profiles. (uint, and integer-only operations like bitwise math don\u0027t exist in GLES2, so we need to have GLES3 mode). There\u0027s also a bit of work to be done on the CPU side to support uint and some other integer ops.",
+      "parentUuid": "fc85cfb6_28e4744e",
+      "revId": "bc21b34bfc7241b21121664bf0da8c42cd765fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c1a9e91e_ee790039",
         "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
         "patchSetId": 8
