@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "801dbad6_8a99e9f4",
+        "filename": "src/gpu/effects/GrAARectEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-24T19:58:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "03d6bceb_a2ba32bf",
+      "range": {
+        "startLine": 25,
+        "startChar": 39,
+        "endLine": 25,
+        "endChar": 45
+      },
+      "revId": "cbef5beea299ac2eb92f36cb5d3c4a2fb8cc4153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b4bfe62b_343bc73c",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-02-24T15:56:52Z",
       "side": 1,
       "message": "nit: alignment",
+      "range": {
+        "startLine": 26,
+        "startChar": 37,
+        "endLine": 26,
+        "endChar": 38
+      },
+      "revId": "cbef5beea299ac2eb92f36cb5d3c4a2fb8cc4153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5306c7a2_b390515f",
+        "filename": "src/gpu/effects/GrAARectEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-24T19:58:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4bfe62b_343bc73c",
       "range": {
         "startLine": 26,
         "startChar": 37,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6be10005_7e9f93a1",
+        "filename": "src/gpu/effects/GrAARectEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-24T19:58:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58f86d63_e7d973cb",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 26
+      },
+      "revId": "cbef5beea299ac2eb92f36cb5d3c4a2fb8cc4153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "30e41c1d_aa65378f",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-02-24T15:56:52Z",
       "side": 1,
       "message": "Maybe add a comment like:\n// The aa math in the shader evaluates to 0 at the uploaded coordinates, so outset by 0.5 to interpolate from 0 @ .5 outside to 1 @ .5px inside ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 61
+      },
+      "revId": "cbef5beea299ac2eb92f36cb5d3c4a2fb8cc4153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8946ae1a_930758ca",
+        "filename": "src/gpu/effects/GrAARectEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-24T19:58:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30e41c1d_aa65378f",
       "range": {
         "startLine": 45,
         "startChar": 4,
