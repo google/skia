@@ -14,6 +14,8 @@
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkTLogic.h"
 
+#include <string>
+
 class SkChecksum : SkNoncopyable {
 public:
     /**
