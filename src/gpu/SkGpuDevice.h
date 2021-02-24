@@ -103,6 +103,7 @@ public:
     void drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) override;
 
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+    void drawGlyphRunListNoCache(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[], const SkColor[],
