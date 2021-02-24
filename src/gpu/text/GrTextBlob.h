@@ -106,7 +106,7 @@ public:
         return this->allocateBytes(size, alignof(T));
     }
 
-    char* alignedBytes(int unsafeSize, int unsafeAlignment);
+    void* alignedBytes(int unsafeSize, int unsafeAlignment);
 
 private:
     // 16 seems to be a good number for alignment. If a use case for larger alignments is found,
@@ -236,7 +236,7 @@ public:
         return std::unique_ptr<T[], ArrayDestroyer>{array, ArrayDestroyer{n}};
     }
 
-    char* alignedBytes(int size, int alignment);
+    void* alignedBytes(int size, int alignment);
 
 private:
     GrBagOfBytes fAlloc;

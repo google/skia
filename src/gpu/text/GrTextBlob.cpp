@@ -1566,7 +1566,7 @@ GrBagOfBytes::Block::Block(char* previous, char* startOfBlock)
         : fBlockStart{startOfBlock}
         , fPrevious{reinterpret_cast<Block*>(previous)} {}
 
-char* GrBagOfBytes::alignedBytes(int size, int alignment) {
+void* GrBagOfBytes::alignedBytes(int size, int alignment) {
     SkASSERT_RELEASE(0 < size && size < kMaxByteSize);
     SkASSERT_RELEASE(0 < alignment && alignment <= kMaxAlignment);
     SkASSERT_RELEASE(SkIsPow2(alignment));
@@ -1606,6 +1606,6 @@ GrSubRunAllocator::GrSubRunAllocator(char* bytes, int size, int firstHeapAllocat
 GrSubRunAllocator::GrSubRunAllocator(int firstHeapAllocation)
         : GrSubRunAllocator(nullptr, 0, firstHeapAllocation) {}
 
-char* GrSubRunAllocator::alignedBytes(int unsafeSize, int unsafeAlignment) {
+void* GrSubRunAllocator::alignedBytes(int unsafeSize, int unsafeAlignment) {
     return fAlloc.alignedBytes(unsafeSize, unsafeAlignment);
 }

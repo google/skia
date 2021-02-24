@@ -316,7 +316,7 @@ DEF_TEST(GrSubRunAllocator, r) {
 
     {
         GrSubRunAllocator arena(4096);
-        char* ptr = arena.alignedBytes(4081, 8);
+        void* ptr = arena.alignedBytes(4081, 8);
         REPORTER_ASSERT(r, ((intptr_t)ptr & 7) == 0);
     }
 }
