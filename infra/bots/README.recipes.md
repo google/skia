@@ -336,11 +336,11 @@ Prepare the variables.
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/env/examples/full.py#13)(api):**
 ### *recipes* / [flavor:examples/full](/infra/bots/recipe_modules/flavor/examples/full.py)
 
-[DEPS](/infra/bots/recipe_modules/flavor/examples/full.py#6): [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/flavor/examples/full.py#6): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipe_modules/flavor/examples/full.py#31)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipe_modules/flavor/examples/full.py#32)(api):**
 
-&mdash; **def [test\_exceptions](/infra/bots/recipe_modules/flavor/examples/full.py#16)(api):**
+&mdash; **def [test\_exceptions](/infra/bots/recipe_modules/flavor/examples/full.py#17)(api):**
 ### *recipes* / [git:examples/full](/infra/bots/recipe_modules/git/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/git/examples/full.py#6): [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step], [git](#recipe_modules-git)
