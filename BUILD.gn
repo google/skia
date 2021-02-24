@@ -589,6 +589,7 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
   executable("skslc") {
     defines = [
       "SKSL_STANDALONE",
+      "SK_DISABLE_TRACING",
       "SK_ENABLE_SPIRV_VALIDATION",
     ]
     sources = [

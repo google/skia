@@ -52,7 +52,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
                                                const GrProgramDesc& desc,
                                                const GrProgramInfo& programInfo,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
-    ATRACE_ANDROID_FRAMEWORK_ALWAYS("shader_compile");
+    TRACE_EVENT0_ALWAYS("skia.gpu", "shader_compile");
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
@@ -260,7 +260,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         this->computeCountsAndStrides(programID, primProc, false);
         usedProgramBinaries = true;
     } else if (cached) {
-        ATRACE_ANDROID_FRAMEWORK_ALWAYS("cache_hit");
+        TRACE_EVENT0_ALWAYS("skia.gpu", "cache_hit");
         SkReadBuffer reader(fCached->data(), fCached->size());
         SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
 
@@ -322,7 +322,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         }
     }
     if (!usedProgramBinaries) {
-        ATRACE_ANDROID_FRAMEWORK_ALWAYS("cache_miss");
+        TRACE_EVENT0_ALWAYS("skia.gpu", "cache_miss");
         // Either a cache miss, or we got something other than binaries from the cache
 
         /*
@@ -443,7 +443,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         this->bindProgramResourceLocations(programID);
 
         {
-            ATRACE_ANDROID_FRAMEWORK_ALWAYS("driver_link_program");
+            TRACE_EVENT0_ALWAYS("skia.gpu", "driver_link_program");
             GL_CALL(LinkProgram(programID));
             if (checkLinked) {
                 if (!this->checkLinkStatus(programID, errorHandler, sksl, glsl)) {
