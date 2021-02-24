@@ -119,17 +119,10 @@ std::unique_ptr<Expression> IRGenerator::CapsValue::literal(const Context& conte
     }
 }
 
-IRGenerator::IRGenerator(const Context* context,
-                         const ShaderCapsClass* caps)
+IRGenerator::IRGenerator(const Context* context)
         : fContext(*context)
-        , fCaps(caps)
         , fModifiers(new ModifiersPool()) {
-    if (fCaps) {
-        FillCapsMap(*fCaps, &fCapsMap);
-    } else {
-        fCapsMap.insert({String("integerSupport"), CapsValue(true)});
-    }
-
+    FillCapsMap(context->fCaps, &fCapsMap);
 }
 
 void IRGenerator::pushSymbolTable() {
@@ -585,15 +578,15 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
             return nullptr;
         }
         fInvocations = modifiers.fLayout.fInvocations;
-        if (fCaps && !fCaps->gsInvocationsSupport()) {
+        if (!this->caps().gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
             if (modifiers.fLayout.description() == "") {
                 return nullptr;
             }
         }
     }
-    if (modifiers.fLayout.fMaxVertices != -1 && fInvocations > 0 && fCaps &&
-        !fCaps->gsInvocationsSupport()) {
+    if (modifiers.fLayout.fMaxVertices != -1 && fInvocations > 0 &&
+        !this->caps().gsInvocationsSupport()) {
         modifiers.fLayout.fMaxVertices *= fInvocations;
     }
     return std::make_unique<ModifiersDeclaration>(fModifiers->addToPool(modifiers));
@@ -1313,7 +1306,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             fSymbolTable->addWithoutOwnership(param);
         }
         bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
-                                          fCaps && !fCaps->gsInvocationsSupport();
+                                          !this->caps().gsInvocationsSupport();
         std::unique_ptr<Block> body = this->convertBlock(*iter);
         if (!body) {
             return;
@@ -1617,7 +1610,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
                 case SK_FRAGCOORD_BUILTIN:
                     fInputs.fFlipY = true;
                     if (this->settings().fFlipY &&
-                        (!fCaps || !fCaps->fragCoordConventionsExtensionString())) {
+                        !this->caps().fragCoordConventionsExtensionString()) {
                         fInputs.fRTHeight = true;
                     }
 #endif
@@ -2751,7 +2744,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     if (this->programKind() == ProgramKind::kGeometry && !fIsBuiltinCode) {
         // Declare sk_InvocationID programmatically. With invocations support, it's an 'in' builtin.
         // If we're applying the workaround, then it's a plain global.
-        bool workaround = fCaps && !fCaps->gsInvocationsSupport();
+        bool workaround = !this->caps().gsInvocationsSupport();
         Modifiers m;
         if (!workaround) {
             m.fFlags = Modifiers::kIn_Flag;

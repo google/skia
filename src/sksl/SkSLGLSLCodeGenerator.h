@@ -174,6 +174,8 @@ protected:
 
     virtual void writeProgramElement(const ProgramElement& e);
 
+    const ShaderCapsClass& caps() const { return fContext.fCaps; }
+
     const char* fLineEnding;
     const Context& fContext;
     StringStream fExtensions;

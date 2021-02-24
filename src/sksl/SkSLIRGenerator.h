@@ -105,8 +105,7 @@ private:
  */
 class IRGenerator {
 public:
-    IRGenerator(const Context* context,
-                const ShaderCapsClass* caps);
+    IRGenerator(const Context* context);
 
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
@@ -271,8 +270,11 @@ private:
         return fContext.fConfig->strictES2Mode();
     }
 
+    const ShaderCapsClass& caps() const {
+        return fContext.fCaps;
+    }
+
     Program::Inputs fInputs;
-    const ShaderCapsClass* fCaps = nullptr;
 
     std::unique_ptr<ASTFile> fFile;
 

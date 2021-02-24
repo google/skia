@@ -12,8 +12,9 @@
 #include "tests/Test.h"
 
 DEF_TEST(SkSLMemoryLayout140Test, r) {
+    GrShaderCaps caps(GrContextOptions{});
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::Context context(errors);
+    SkSL::Context context(errors, caps);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k140_Standard);
 
     // basic types
@@ -98,8 +99,9 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
 }
 
 DEF_TEST(SkSLMemoryLayout430Test, r) {
+    GrShaderCaps caps(GrContextOptions{});
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::Context context(errors);
+    SkSL::Context context(errors, caps);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::k430_Standard);
 
     // basic types

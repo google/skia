@@ -35,8 +35,9 @@ public:
     using INHERITED = Expression;
 };
 
-Context::Context(ErrorReporter& errors)
+Context::Context(ErrorReporter& errors, const ShaderCapsClass& caps)
         : fErrors(errors)
+        , fCaps(caps)
         , fDefined_Expression(std::make_unique<DefinedExpression>(fTypes.fInvalid.get())) {}
 
 }  // namespace SkSL
