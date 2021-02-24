@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a728a3e7_b18b48c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-24T21:55:38Z",
+      "side": 1,
+      "message": "Pretty much just the ",
+      "revId": "8d65516d05627096ea269e1950bb6cdcc90d8970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "472e9aaa_acf7d767",
@@ -14,6 +31,30 @@
       "writtenOn": "2021-02-24T21:49:09Z",
       "side": 1,
       "message": "Out of curiosity--why doesn\u0027t the old way work any more?",
+      "range": {
+        "startLine": 415,
+        "startChar": 8,
+        "endLine": 415,
+        "endChar": 21
+      },
+      "revId": "8d65516d05627096ea269e1950bb6cdcc90d8970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa98326b_3f08212a",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-24T21:55:38Z",
+      "side": 1,
+      "message": "Well, technically it does, but it means we don\u0027t get any line number info because we never convert from DSLPossibleExpression to DSLExpression. It seemed better to exercise that path, and I\u0027m hoping to enable an assert in the future which requires there to be line number info on every failure.",
+      "parentUuid": "472e9aaa_acf7d767",
       "range": {
         "startLine": 415,
         "startChar": 8,
