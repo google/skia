@@ -157,17 +157,6 @@ def GenTests(api):
   )
 
   yield (
-      api.test('failed_read_version') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data('read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION',
-                    retcode=1)
-  )
-
-  yield (
       api.test('retry_adb_command') +
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
