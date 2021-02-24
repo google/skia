@@ -503,13 +503,35 @@ private:
                          SkPoint endPt) {
         if (prevJoinType == JoinType::kBowtie) {
             SkASSERT(fHasLastControlPoint);
-            // Bowties need to go in their own patch if they will have >1 segment. TODO: Investigate
-            // if an optimization like "x < fCosRadiansPerSegment" would be worth it.
+            // Bowtie joins are only used on internal chops, and internal chops almost always have
+            // continuous tangent angles (i.e., the ending tangent of the first chop and the
+            // beginning tangent of the second both point in the same direction). The tangents will
+            // only ever not point in the same direction if we chopped at a cusp point, so that's
+            // the only time we actually need a bowtie.
             SkPoint nextControlPoint = (p[1] == p[0]) ? p[2] : p[1];
-            float rotation = SkMeasureAngleBetweenVectors(p[0] - fLastControlPoint,
-                                                          nextControlPoint - p[0]);
-            if (rotation * fTolerances.fNumRadialSegmentsPerRadian > 1) {
-                this->internalJoinTo(prevJoinType, p[0], nextControlPoint);
+            SkVector a = p[0] - fLastControlPoint;
+            SkVector b = nextControlPoint - p[0];
+            float ab_cosTheta = a.dot(b);
+            float ab_pow2 = a.dot(a) * b.dot(b);
+            // To check if tangents 'a' and 'b' do not point in the same direction, any of the
+            // following formulas work:
+            //
+            //          0 != theta
+            //          1 != cosTheta
+            //          1 != cosTheta * abs(cosTheta)  [Still false when cosTheta == -1]
+            //
+            // Introducing a slop term for fuzzy equality gives:
+            //
+            //          1 !~= cosTheta * abs(cosTheta)                [tolerance = epsilon]
+            //     (ab)^2 !~= (ab)^2 * cosTheta * abs(cosTheta)       [tolerance = (ab)^2 * epsilon]
+            //     (ab)^2 !~= (ab * cosTheta) * (ab * abs(cosTheta))  [tolerance = (ab)^2 * epsilon]
+            //     (ab)^2 !~= (ab * cosTheta) * abs(ab * cosTheta)    [tolerance = (ab)^2 * epsilon]
+            //
+            // Since we also scale the tolerance, the formula is unaffected by the magnitude of the
+            // tangent vectors. (And we can fold "ab" in to the abs() because it's always positive.)
+            if (!SkScalarNearlyEqual(ab_pow2, ab_cosTheta * fabsf(ab_cosTheta),
+                                     ab_pow2 * SK_ScalarNearlyZero)) {
+                this->internalJoinTo(JoinType::kBowtie, p[0], nextControlPoint);
                 fLastControlPoint = p[0];  // Disables the join section of this patch.
                 prevJoinFitsInPatch = true;
             }
