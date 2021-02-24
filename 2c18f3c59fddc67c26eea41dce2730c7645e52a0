@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ed53de9_93f34c78",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-24T16:09:33Z",
+      "side": 1,
+      "message": "Only changes private API in a public class. Cleanup before making such private API public for something like https://chromium-review.googlesource.com/c/chromium/src/+/2716923 .",
+      "revId": "2c18f3c59fddc67c26eea41dce2730c7645e52a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
