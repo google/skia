@@ -421,11 +421,12 @@ private:
         if (!shader.hasDynamicStroke()) {
             Tolerances tolerances;
             if (!stroke.isHairlineStyle()) {
-                tolerances.set(shader.viewMatrix().getMaxScale(), stroke.getWidth());
+                tolerances = Tolerances::MakeNonHairline(shader.viewMatrix().getMaxScale(),
+                                                         stroke.getWidth());
             } else {
                 // In the hairline case we transform prior to tessellation. Set up tolerances for an
                 // identity viewMatrix and a strokeWidth of 1.
-                tolerances.set(1, 1);
+                tolerances = Tolerances::MakeNonHairline(1, 1);
             }
             float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
             pdman.set4f(fTessArgsUniform,
@@ -1262,11 +1263,12 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             // Set up the tessellation control uniforms.
             Tolerances tolerances;
             if (!stroke.isHairlineStyle()) {
-                tolerances.set(shader.viewMatrix().getMaxScale(), stroke.getWidth());
+                tolerances = Tolerances::MakeNonHairline(shader.viewMatrix().getMaxScale(),
+                                                         stroke.getWidth());
             } else {
                 // In the hairline case we transform prior to tessellation. Set up tolerances for an
                 // identity viewMatrix and a strokeWidth of 1.
-                tolerances.set(1, 1);
+                tolerances = Tolerances::MakeNonHairline(1, 1);
             }
             float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
             pdman.set4f(fTessControlArgsUniform,
