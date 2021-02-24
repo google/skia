@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8c7ce52_16d1dfd3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-02-24T14:53:03Z",
+      "side": 1,
+      "message": "Oops. Michael, I just landed your CL instead of one of mine. I\u0027ll watch and revert if anything goes awry!",
+      "revId": "47b400bf7dd759ae97393e8a5783f5457b2034e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
