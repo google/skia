@@ -51,6 +51,24 @@
       "parentUuid": "eb5185a2_a39470a3",
       "revId": "17f7b5db0f26711f2f40b8dec06fd724979d5bf6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e9a1be0_9b15bce8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-24T18:08:43Z",
+      "side": 1,
+      "message": "I think any new drawGlyphs entrypoint would not require us to remove drawTextBlob, just allow clients to draw w/o first packaging as a blob.",
+      "parentUuid": "1867a92e_2ae42cfd",
+      "revId": "17f7b5db0f26711f2f40b8dec06fd724979d5bf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
