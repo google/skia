@@ -167,7 +167,7 @@ public:
      * Notifies the current ErrorHandler that a DSL error has occurred. With a null ErrorHandler
      * (the default), any errors will be dumped to stderr and a fatal exception will be generated.
      */
-    static void ReportError(const char* msg);
+    static void ReportError(const char* msg, PositionInfo* info = nullptr);
 
     /**
      * Returns whether name mangling is enabled. This should always be enabled outside of tests.

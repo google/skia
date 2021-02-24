@@ -32,16 +32,6 @@ namespace dsl {
 using namespace SkSL::SwizzleComponent;
 
 /**
- * Class which is notified in the event of an error.
- */
-class ErrorHandler {
-public:
-    virtual ~ErrorHandler() {}
-
-    virtual void handleError(const char* msg) = 0;
-};
-
-/**
  * Starts DSL output on the current thread using the specified compiler. This must be called
  * prior to any other DSL functions.
  */
