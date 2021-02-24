@@ -9,5 +9,12 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    float _1_y = 0.0;
+    float _2_foo;
+    float _3_z = _1_y;
+
+
+    false;
+
     return _out;
 }
