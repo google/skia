@@ -22,6 +22,30 @@
       },
       "revId": "2d0da324a09b8322e38a246c4d5d569a9a351b15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68cb80b9_834d1d8d",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-02-24T20:11:13Z",
+      "side": 1,
+      "message": "No need, Metal supports 10.15 and \u0027Mac\u0027 defaults to 10.15.7, we shouldn\u0027t have an issue unless we backtrack the default version.",
+      "parentUuid": "28c4b28b_a74d5ed0",
+      "range": {
+        "startLine": 256,
+        "startChar": 8,
+        "endLine": 256,
+        "endChar": 11
+      },
+      "revId": "2d0da324a09b8322e38a246c4d5d569a9a351b15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
