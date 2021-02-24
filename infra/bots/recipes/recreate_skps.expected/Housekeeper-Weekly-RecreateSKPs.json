@@ -177,20 +177,6 @@
   },
   {
     "cmd": [
-      "ninja",
-      "-C",
-      "[START_DIR]/cache/work/src/out/Release",
-      "chrome"
-    ],
-    "cwd": "[START_DIR]/cache/work/src",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "name": "Build Chrome"
-  },
-  {
-    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -216,25 +202,6 @@
     ],
     "infra_step": true,
     "name": "makedirs skp_output"
-  },
-  {
-    "cmd": [
-      "python",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/create.py",
-      "--chrome_src_path",
-      "[START_DIR]/cache/work/src",
-      "--browser_executable",
-      "[START_DIR]/cache/work/src/out/Release/chrome",
-      "--target_dir",
-      "[START_DIR]/skp_output",
-      "--upload_to_partner_bucket"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "name": "Recreate SKPs"
   },
   {
     "cmd": [
