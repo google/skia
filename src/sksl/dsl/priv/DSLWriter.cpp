@@ -141,10 +141,15 @@ DSLStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                  IRGenerator().fSymbolTable);
 }
 
-
-void DSLWriter::ReportError(const char* msg) {
+void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
+    if (info && !info->file_name()) {
+        info = nullptr;
+    }
     if (Instance().fErrorHandler) {
-        Instance().fErrorHandler->handleError(msg);
+        Instance().fErrorHandler->handleError(msg, info);
+    } else if (info) {
+        SK_ABORT("%s: %d: %sNo SkSL DSL error handler configured, treating this as a fatal error\n",
+                 info->file_name(), info->line(), msg);
     } else {
         SK_ABORT("%sNo SkSL DSL error handler configured, treating this as a fatal error\n", msg);
     }
