@@ -38,6 +38,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         { "ADBE Drop Shadow"            , &EffectBuilder::attachDropShadowEffect         },
         { "ADBE Easy Levels2"           , &EffectBuilder::attachEasyLevelsEffect         },
         { "ADBE Fill"                   , &EffectBuilder::attachFillEffect               },
+        { "ADBE Fractal Noise"          , &EffectBuilder::attachFractalNoiseEffect       },
         { "ADBE Gaussian Blur 2"        , &EffectBuilder::attachGaussianBlurEffect       },
         { "ADBE Geometry2"              , &EffectBuilder::attachTransformEffect          },
         { "ADBE HUE SATURATION"         , &EffectBuilder::attachHueSaturationEffect      },
