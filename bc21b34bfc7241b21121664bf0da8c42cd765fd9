@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbde66d9_cc089aac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-24T20:24:37Z",
+      "side": 1,
+      "message": "FYI, in the initial version (https://skia-review.googlesource.com/c/skia/+/374676/1/modules/skottie/src/effects/FractalNoiseEffect.cpp) I tried composing all octaves in a single runtime shader.  Worked ok except for them pesky constant loop expressions - the workaround was to instantiate several fixed loop counts, which was suboptimal for counts in between.  SkShader-level composing seems to be slightly slower, but scales much better with the exact octave count.\n\nBoorish tests:\n\nhttps://imgur.com/a/M0LvpT4\nhttps://imgur.com/a/DT5Hm9u\nhttps://imgur.com/a/g8UVAw0\nhttps://imgur.com/a/5h662qx\n\nFor something nicer, this is using the Turbulent Sharp fractal type (follow up CL): https://imgur.com/a/NTFqLQ8",
+      "revId": "bc21b34bfc7241b21121664bf0da8c42cd765fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc85cfb6_28e4744e",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-24T20:24:37Z",
+      "side": 1,
+      "message": "Kinda meh: barely-fast-enough/barely-good-enough.  Are we getting uints sometime soon?",
+      "revId": "bc21b34bfc7241b21121664bf0da8c42cd765fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1a9e91e_ee790039",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-24T20:24:37Z",
+      "side": 1,
+      "message": "Not immediately clear if I can reuse the builder after make() -- can I hoist it out of the loop?",
+      "revId": "bc21b34bfc7241b21121664bf0da8c42cd765fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
