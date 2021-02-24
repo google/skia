@@ -1530,6 +1530,10 @@ group("modules") {
   ]
 }
 
+group("experimental") {
+  deps = [ "experimental/sktext" ]
+}
+
 config("our_vulkan_headers") {
   include_dirs = [ "include/third_party/vulkan" ]
 }
@@ -2081,6 +2085,7 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":xml",
+      "experimental/sktext:samples",
       "modules/audioplayer",
       "modules/skparagraph:samples",
       "modules/skshaper",
@@ -2754,6 +2759,7 @@ if (skia_enable_tools) {
         ":tool_utils",
         ":trace",
         "experimental/skrive",
+        "experimental/sktext",
         "modules/audioplayer",
         "modules/particles",
         "modules/skottie",
