@@ -99,7 +99,7 @@ static CapsLookupTable sCapsLookupTable{{
 
 }  // namespace
 
-const Type* Setting::GetType(const Context& context, int offset, const String& name) {
+static const Type* get_type(const Context& context, int offset, const String& name) {
     if (const CapsLookupMethod* caps = sCapsLookupTable.lookup(name)) {
         return caps->type(context);
     }
@@ -108,8 +108,8 @@ const Type* Setting::GetType(const Context& context, int offset, const String& n
     return nullptr;
 }
 
-std::unique_ptr<Expression> Setting::GetValue(const Context& context, int offset,
-                                              const String& name) {
+static std::unique_ptr<Expression> get_value(const Context& context, int offset,
+                                             const String& name) {
     if (const CapsLookupMethod* caps = sCapsLookupTable.lookup(name)) {
         return caps->value(context);
     }
@@ -118,12 +118,17 @@ std::unique_ptr<Expression> Setting::GetValue(const Context& context, int offset
     return nullptr;
 }
 
-std::unique_ptr<Expression> Setting::constantPropagate(const IRGenerator& irGenerator,
-                                                       const DefinitionMap& definitions) {
-    if (irGenerator.fContext.fConfig->fSettings.fReplaceSettings) {
-        return GetValue(irGenerator.fContext, fOffset, this->name());
+std::unique_ptr<Expression> Setting::Make(const Context& context, int offset, const String& name) {
+    SkASSERT(context.fConfig);
+
+    if (context.fConfig->fSettings.fReplaceSettings) {
+        // Insert the settings value directly into the IR.
+        return get_value(context, offset, name);
     }
-    return nullptr;
+
+    // Generate a Setting IRNode.
+    const Type* type = get_type(context, offset, name);
+    return type ? std::make_unique<Setting>(offset, name, type) : nullptr;
 }
 
 }  // namespace SkSL
