@@ -278,6 +278,9 @@ protected:
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
     virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList) = 0;
+    virtual void drawGlyphRunListNoCache(const SkGlyphRunList& glyphRunList) {
+        this->drawGlyphRunList(glyphRunList);
+    }
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
