@@ -426,7 +426,9 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         blob = GrTextBlob::Make(glyphRunList, drawMatrix);
         if (canCache) {
             blob->addKey(key);
-            textBlobCache->add(glyphRunList, blob);
+            // The blob may already have been created on a different thread. Use the first one
+            // that was there.
+            blob = textBlobCache->addOrReturnExisting(glyphRunList, blob);
         }
 
         bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();

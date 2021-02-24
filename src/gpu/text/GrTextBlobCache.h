@@ -22,8 +22,9 @@ class GrTextBlobCache {
 public:
     GrTextBlobCache(uint32_t messageBusID);
 
-    void add(const SkGlyphRunList& glyphRunList,
-             sk_sp<GrTextBlob> blob) SK_EXCLUDES(fSpinLock);
+    // If not already in the cache, then add it else, return the text blob from the cache.
+    sk_sp<GrTextBlob> addOrReturnExisting(
+            const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) SK_EXCLUDES(fSpinLock);
 
     sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) SK_EXCLUDES(fSpinLock);
 
@@ -73,7 +74,7 @@ private:
 
     void internalPurgeStaleBlobs() SK_REQUIRES(fSpinLock);
 
-    void internalAdd(sk_sp<GrTextBlob> blob) SK_REQUIRES(fSpinLock);
+    sk_sp<GrTextBlob> internalAdd(sk_sp<GrTextBlob> blob) SK_REQUIRES(fSpinLock);
     void internalRemove(GrTextBlob* blob) SK_REQUIRES(fSpinLock);
 
     void internalCheckPurge(GrTextBlob* blob = nullptr) SK_REQUIRES(fSpinLock);
