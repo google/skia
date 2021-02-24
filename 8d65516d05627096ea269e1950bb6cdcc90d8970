@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "472e9aaa_acf7d767",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T21:49:09Z",
+      "side": 1,
+      "message": "Out of curiosity--why doesn\u0027t the old way work any more?",
+      "range": {
+        "startLine": 415,
+        "startChar": 8,
+        "endLine": 415,
+        "endChar": 21
+      },
+      "revId": "8d65516d05627096ea269e1950bb6cdcc90d8970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
