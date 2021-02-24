@@ -16,6 +16,24 @@
       "message": "We do this the other way around,\n\n   #if !defined(SK_LEGACY_DITHER)\n       if (paint.isDither()) {\n           return true;\n       }\n   #endif\n\nfirst #defining SK_LEGACY_DITHER where we need to rebaseline, I think here just Chrome?",
       "revId": "450fb92e092abb94c262f8762e9d8ce974435052",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90c6123c_9a49d39e",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-02-24T16:08:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a912e37_6f365b9d",
+      "revId": "450fb92e092abb94c262f8762e9d8ce974435052",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
