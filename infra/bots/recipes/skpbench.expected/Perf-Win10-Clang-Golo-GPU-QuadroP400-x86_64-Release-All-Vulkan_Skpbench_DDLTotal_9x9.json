@@ -21,42 +21,6 @@
       "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skp VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]\\tmp\\SKP_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
-      "@@@STEP_LOG_END@SKP_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",

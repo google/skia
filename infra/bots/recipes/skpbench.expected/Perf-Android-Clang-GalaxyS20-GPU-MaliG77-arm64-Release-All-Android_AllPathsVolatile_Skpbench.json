@@ -63,58 +63,6 @@
   },
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get skp VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "42",
-      "[START_DIR]/tmp/SKP_VERSION"
-    ],
-    "infra_step": true,
-    "name": "write SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
-      "@@@STEP_LOG_END@SKP_VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb.1.0.35",
-      "shell",
-      "cat",
-      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)\nexcept subprocess.CalledProcessError as e:\n  output = e.output\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
@@ -156,6 +104,20 @@
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copytree",
+      "[START_DIR]/skp",
+      "[CLEANUP]/copy_directory_contents_to_device_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "cp -r [START_DIR]/skp [CLEANUP]/copy_directory_contents_to_device_tmp_1"
   },
   {
     "cmd": [
@@ -204,9 +166,10 @@
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
-      "shell",
-      "mkdir",
-      "-p",
+      "push",
+      "-z",
+      "any",
+      "[CLEANUP]/copy_directory_contents_to_device_tmp_1",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "cwd": "[START_DIR]/skia",
@@ -216,106 +179,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
-  },
-  {
-    "cmd": [],
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "listdir",
-      "[START_DIR]/skp",
-      "--recursive"
-    ],
-    "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.list [START_DIR]/skp",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/.file3@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/.ignore/file4@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/file1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/subdir/file2@@@",
-      "@@@STEP_LOG_END@listdir@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb.1.0.35",
-      "push",
-      "[START_DIR]/skp/.file3",
-      "/sdcard/revenge_of_the_skiabot/skps/.file3"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/.file3",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb.1.0.35",
-      "push",
-      "[START_DIR]/skp/file1",
-      "/sdcard/revenge_of_the_skiabot/skps/file1"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/file1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb.1.0.35",
-      "push",
-      "[START_DIR]/skp/subdir/file2",
-      "/sdcard/revenge_of_the_skiabot/skps/subdir/file2"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/subdir/file2",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb.1.0.35",
-      "push",
-      "[START_DIR]/tmp/SKP_VERSION",
-      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    "name": "push [CLEANUP]/copy_directory_contents_to_device_tmp_1 /sdcard/revenge_of_the_skiabot/skps"
   },
   {
     "cmd": [
