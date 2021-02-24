@@ -10,6 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "src/sksl/dsl/DSLErrorHandling.h"
 
 #include <memory>
 
@@ -24,6 +25,8 @@ namespace dsl {
 
 class DSLBlock;
 class DSLExpression;
+class DSLPossibleExpression;
+class DSLPossibleStatement;
 class DSLVar;
 
 class DSLStatement {
@@ -31,6 +34,10 @@ public:
     DSLStatement() {}
 
     DSLStatement(DSLExpression expr);
+
+    DSLStatement(DSLPossibleExpression expr, PositionInfo pos = PositionInfo());
+
+    DSLStatement(DSLPossibleStatement stmt, PositionInfo pos = PositionInfo());
 
     DSLStatement(DSLBlock block);
 
@@ -52,7 +59,26 @@ private:
     friend class DSLBlock;
     friend class DSLCore;
     friend class DSLExpression;
+    friend class DSLPossibleStatement;
     friend class DSLWriter;
+};
+
+class DSLPossibleStatement {
+public:
+    DSLPossibleStatement(std::unique_ptr<SkSL::Statement> stmt);
+
+    DSLPossibleStatement(DSLPossibleStatement&& other) = default;
+
+    ~DSLPossibleStatement();
+
+    std::unique_ptr<SkSL::Statement> release() {
+        return std::move(fStatement);
+    }
+
+private:
+    std::unique_ptr<SkSL::Statement> fStatement;
+
+    friend class DSLStatement;
 };
 
 } // namespace dsl
