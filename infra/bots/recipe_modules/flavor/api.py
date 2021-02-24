@@ -151,7 +151,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       device_version = self.read_file_on_device(device_version_file,
                                                 abort_on_failure=False,
                                                 fail_build_on_failure=False)
-      if not device_version:
+      if True or not device_version:
         device_version = VERSION_NONE
       if device_version != host_version:
         self.remove_file_on_device(device_version_file)
