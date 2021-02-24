@@ -14,20 +14,6 @@
 
 namespace SkSL {
 
-/**
- * Returns the struct fields for FragmentProcessors; these are intended to parallel the C++ API for
- * GrFragmentProcessor.
- */
-static std::vector<Type::Field> make_fp_fields(const Type* intType, const Type* boolType) {
-    Modifiers mods{Layout(), Modifiers::kConst_Flag};
-    return {Type::Field(mods, "numTextureSamplers", intType),
-            Type::Field(mods, "numChildProcessors", intType),
-            Type::Field(mods, "usesLocalCoords", boolType),
-            Type::Field(mods, "compatibleWithCoverageAsAlpha", boolType),
-            Type::Field(mods, "preservesOpaqueInput", boolType),
-            Type::Field(mods, "hasConstantOutputForConstantInput", boolType)};
-}
-
 /** Create a scalar type. */
 std::unique_ptr<Type> BuiltinTypes::MakeScalarType(const char* name,
                                                    Type::NumberKind numberKind,
@@ -94,12 +80,6 @@ std::unique_ptr<Type> BuiltinTypes::MakeSeparateSamplerType(const char* name) {
  */
 std::unique_ptr<Type> BuiltinTypes::MakeOtherType(const char* name) {
     return std::unique_ptr<Type>(new Type(name));
-}
-
-/** Create an "other" (special) type that supports field access. */
-std::unique_ptr<Type> BuiltinTypes::MakeOtherStruct(const char* name,
-                                                    std::vector<Type::Field> fields) {
-    return std::unique_ptr<Type>(new Type(name, std::move(fields)));
 }
 
 /**
@@ -272,7 +252,6 @@ BuiltinTypes::BuiltinTypes()
         , fBVec(MakeGenericType("$bvec",
                                 {fInvalid.get(), fBool2.get(), fBool3.get(), fBool4.get()}))
         , fSkCaps(MakeOtherType("$sk_Caps"))
-        , fFragmentProcessor(
-                  MakeOtherStruct("fragmentProcessor", make_fp_fields(fInt.get(), fBool.get()))) {}
+        , fFragmentProcessor(MakeOtherType("fragmentProcessor")) {}
 
 }  // namespace SkSL

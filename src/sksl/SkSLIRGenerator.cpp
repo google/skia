@@ -2604,7 +2604,6 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
         return std::make_unique<Setting>(fieldNode.fOffset, field, type);
     }
     switch (baseType.typeKind()) {
-        case Type::TypeKind::kOther:
         case Type::TypeKind::kStruct:
             return this->convertField(std::move(base), field);
         default:

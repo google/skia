@@ -45,8 +45,6 @@ private:
 
     void writeSwizzle(const Swizzle& swizzle) override;
 
-    void writeFieldAccess(const FieldAccess& access) override;
-
     void writeVariableReference(const VariableReference& ref) override;
 
     String getSamplerHandle(const Variable& var);

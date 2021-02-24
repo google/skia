@@ -282,7 +282,7 @@ public:
     }
 
     const std::vector<Field>& fields() const {
-        SkASSERT(this->isStruct() || fTypeKind == TypeKind::kOther);
+        SkASSERT(this->isStruct());
         return fFields;
     }
 
@@ -381,13 +381,6 @@ private:
             : INHERITED(-1, kSymbolKind, name)
             , fTypeKind(TypeKind::kOther)
             , fNumberKind(NumberKind::kNonnumeric) {}
-
-    // Constructor for MakeOtherStruct.
-    Type(const char* name, std::vector<Field> fields)
-            : INHERITED(-1, kSymbolKind, name)
-            , fTypeKind(TypeKind::kOther)
-            , fNumberKind(NumberKind::kNonnumeric)
-            , fFields(std::move(fields)) {}
 
     // Constructor for MakeEnumType and MakeSeparateSamplerType.
     Type(String name, TypeKind kind)
