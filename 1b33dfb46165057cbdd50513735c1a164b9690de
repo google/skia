@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8b9ad1a_11175509",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-24T20:09:40Z",
+      "side": 1,
+      "message": "This struck me as a disproportionate cost to small benefit, and is kind of the only low-hanging fruit I see left.  If this debugging info has been useful though, I can just drop the CL.  ",
+      "revId": "1b33dfb46165057cbdd50513735c1a164b9690de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
