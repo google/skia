@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "061713d9_97e1b983",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T17:54:11Z",
+      "side": 1,
+      "message": "In case this ever fires in the future, it might be helpful to mention in the comment that onCombineIfPossible was supposed to reject this stroke? (I think that\u0027s what\u0027s enforcing this invariant, right?)",
+      "range": {
+        "startLine": 681,
+        "startChar": 78,
+        "endLine": 681,
+        "endChar": 84
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97fdbcce_58795d63",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T17:54:11Z",
+      "side": 1,
+      "message": "Consider mentioning in the comment why we shouldn\u0027t have ever gotten this far. (onCombineIfPossible?)",
+      "range": {
+        "startLine": 782,
+        "startChar": 53,
+        "endLine": 782,
+        "endChar": 79
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcd1e05a_6e9c2594",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T17:54:11Z",
+      "side": 1,
+      "message": "Would be it be possible to implement the float4 version in this class, and to call it from RadialSegmentsPerRadianBuffer::fetchNext? It seems like these two implementations could easily fall out of sync if anyone decided to change it here.\n\nI don\u0027t know if it could be templated, or if it costs anything to have the float1 version call through to the float4 version and ignore the other 3 columns, but even two similar-looking functions side by side would be helpful. If you updated one you\u0027d hopefully see the other one and update it too.",
+      "range": {
+        "startLine": 82,
+        "startChar": 21,
+        "endLine": 82,
+        "endChar": 51
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ee1d5b0_a2401d38",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-24T17:54:11Z",
+      "side": 1,
+      "message": "Can stroke-width be negative? \nIf not, maybe `max(1/approxScale, SK_ScalarNearlyZero)` ?",
+      "range": {
+        "startLine": 103,
+        "startChar": 35,
+        "endLine": 106,
+        "endChar": 17
+      },
+      "revId": "8c95c4e3fa0c692753e16596ee20113106163c2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
