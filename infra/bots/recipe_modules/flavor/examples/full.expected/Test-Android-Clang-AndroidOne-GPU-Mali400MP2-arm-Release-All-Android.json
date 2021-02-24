@@ -253,37 +253,31 @@
     "name": "push dm"
   },
   {
-    "cmd": [],
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
-  },
-  {
     "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "listdir",
+      "glob",
       "[START_DIR]/skia/resources",
-      "--recursive"
+      "*"
     ],
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.list [START_DIR]/skia/resources",
+    "name": "ls [START_DIR]/skia/resources/*",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/.file3@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/.ignore/file4@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/file1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/subdir/file2@@@",
-      "@@@STEP_LOG_END@listdir@@@"
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
     ]
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/skia/resources/.file3",
-      "/sdcard/revenge_of_the_skiabot/resources/.file3"
+      "[START_DIR]/skia/resources/bar.jpg",
+      "[START_DIR]/skia/resources/foo.png",
+      "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -292,48 +286,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/.file3",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/skia/resources/file1",
-      "/sdcard/revenge_of_the_skiabot/resources/file1"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/file1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/skia/resources/subdir/file2",
-      "/sdcard/revenge_of_the_skiabot/resources/subdir/file2"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/subdir/file2",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
   },
   {
     "cmd": [
@@ -493,37 +446,31 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
   },
   {
-    "cmd": [],
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
-  },
-  {
     "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "listdir",
+      "glob",
       "[START_DIR]/skp",
-      "--recursive"
+      "*"
     ],
     "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.list [START_DIR]/skp",
+    "name": "ls [START_DIR]/skp/*",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/.file3@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/.ignore/file4@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/file1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/subdir/file2@@@",
-      "@@@STEP_LOG_END@listdir@@@"
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skp/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skp/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
     ]
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/skp/.file3",
-      "/sdcard/revenge_of_the_skiabot/skps/.file3"
+      "[START_DIR]/skp/bar.jpg",
+      "[START_DIR]/skp/foo.png",
+      "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -532,48 +479,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/.file3",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/skp/file1",
-      "/sdcard/revenge_of_the_skiabot/skps/file1"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/file1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/skp/subdir/file2",
-      "/sdcard/revenge_of_the_skiabot/skps/subdir/file2"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/subdir/file2",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
   },
   {
     "cmd": [
@@ -749,37 +655,31 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/images"
   },
   {
-    "cmd": [],
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images"
-  },
-  {
     "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "listdir",
+      "glob",
       "[START_DIR]/skimage",
-      "--recursive"
+      "*"
     ],
     "infra_step": true,
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.list [START_DIR]/skimage",
+    "name": "ls [START_DIR]/skimage/*",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/.file3@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/.ignore/file4@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/file1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/subdir/file2@@@",
-      "@@@STEP_LOG_END@listdir@@@"
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skimage/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skimage/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
     ]
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/skimage/.file3",
-      "/sdcard/revenge_of_the_skiabot/images/.file3"
+      "[START_DIR]/skimage/bar.jpg",
+      "[START_DIR]/skimage/foo.png",
+      "/sdcard/revenge_of_the_skiabot/images"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -788,48 +688,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/.file3",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/skimage/file1",
-      "/sdcard/revenge_of_the_skiabot/images/file1"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/file1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/skimage/subdir/file2",
-      "/sdcard/revenge_of_the_skiabot/images/subdir/file2"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/subdir/file2",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images"
   },
   {
     "cmd": [
@@ -1005,37 +864,31 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
-    "cmd": [],
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs"
-  },
-  {
     "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "listdir",
+      "glob",
       "[START_DIR]/svg",
-      "--recursive"
+      "*"
     ],
     "infra_step": true,
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.list [START_DIR]/svg",
+    "name": "ls [START_DIR]/svg/*",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/.file3@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/.ignore/file4@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/file1@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/subdir/file2@@@",
-      "@@@STEP_LOG_END@listdir@@@"
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/svg/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/svg/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
     ]
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/svg/.file3",
-      "/sdcard/revenge_of_the_skiabot/svgs/.file3"
+      "[START_DIR]/svg/bar.jpg",
+      "[START_DIR]/svg/foo.png",
+      "/sdcard/revenge_of_the_skiabot/svgs"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -1044,48 +897,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/.file3",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/svg/file1",
-      "/sdcard/revenge_of_the_skiabot/svgs/file1"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/file1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/svg/subdir/file2",
-      "/sdcard/revenge_of_the_skiabot/svgs/subdir/file2"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/subdir/file2",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
+    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
     "cmd": [
