@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fb1b7abb_ae659452",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-24T15:08:27Z",
+      "side": 1,
+      "message": "I originally had them at outer scope, but moved them here so they could put \u0027text\u0027 in the error message...",
+      "parentUuid": "f048f5bf_8daae282",
+      "range": {
+        "startLine": 894,
+        "startChar": 17,
+        "endLine": 894,
+        "endChar": 24
+      },
+      "revId": "9164361faad55614dbdb7da61981ed29cefe3694",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3fee2e7d_17683993",
         "filename": "src/sksl/SkSLParser.cpp",
         "patchSetId": 1
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-23T21:48:33Z",
       "side": 1,
       "message": "How about `only one primitive-type layout qualifier is allowed`?\n\n- Explicitly stating \"only one xxxxx is allowed\" is clearer than just \"more than one xxxxx\".\n- Hyphenating primitive-type helps to disambiguate what part of the sentence \"type\" attaches to.",
+      "range": {
+        "startLine": 902,
+        "startChar": 36,
+        "endLine": 902,
+        "endChar": 81
+      },
+      "revId": "9164361faad55614dbdb7da61981ed29cefe3694",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc63c734_1d23d5ac",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 902,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-24T15:08:27Z",
+      "side": 1,
+      "message": "Good suggestions, I tried several variations on this, but I like yours better.",
+      "parentUuid": "3fee2e7d_17683993",
       "range": {
         "startLine": 902,
         "startChar": 36,
