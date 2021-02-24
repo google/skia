@@ -907,6 +907,19 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     fSurfaceDrawContext->drawGlyphRunList(this->clip(), this->asMatrixProvider(), glyphRunList);
 }
 
+void SkGpuDevice::drawGlyphRunListNoCache(const SkGlyphRunList& glyphRunList) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunListNoCache", fContext.get());
+
+    // Check for valid input
+    if (!this->localToDevice().isFinite() || !glyphRunList.allFontsFinite()) {
+        return;
+    }
+
+    fSurfaceDrawContext->drawGlyphRunListNoCache(
+            this->clip(), this->asMatrixProvider(), glyphRunList);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas) {

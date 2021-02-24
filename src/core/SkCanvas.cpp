@@ -2278,6 +2278,16 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst,
                         paint, kFast_SrcRectConstraint);
 }
 
+void SkCanvas::onDrawGlyphs(const SkPaint& paint, const SkFont& font, int n,
+                            const SkGlyphID* glyphs, const SkPoint* locations) {
+    SkGlyphRun glyphRun{font,
+                        SkSpan{locations, SkTo<size_t>(n)}, SkSpan{glyphs, SkTo<size_t>(n)},
+                        SkSpan<const char>{}, SkSpan<const uint32_t>{}};
+    AutoLayerForImageFilter layer(this, paint, nullptr);
+    SkGlyphRunList glyphRunList{glyphRun, layer.paint()};
+    this->topDevice()->drawGlyphRunListNoCache(glyphRunList);
+}
+
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
     const SkRect bounds = blob->bounds().makeOffset(x, y);
@@ -2297,6 +2307,17 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
+}
+
+void SkCanvas::drawGlyphs(const SkPaint& paint, const SkFont& font, int n, const SkGlyphID* glyphs,
+                          const SkPoint* locations) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(glyphs);
+    RETURN_ON_NULL(locations);
+    constexpr int kMaxGlyphCount = 1 << 21;
+    RETURN_ON_FALSE(n <= kMaxGlyphCount);
+
+    this->onDrawGlyphs(paint, font, n, glyphs, locations);
 }
 
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
