@@ -65,7 +65,6 @@ extern bool gSkForceRasterPipelineBlitter;
 extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
 extern bool gSkVMJITViaDylib;
-extern bool gSkSLAllowOptimization;
 
 #ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
@@ -1241,7 +1240,6 @@ int main(int argc, char** argv) {
     gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
     gUseSkVMBlitter = FLAGS_skvm;
     gSkVMAllowJIT = gSkVMJITViaDylib = FLAGS_jit;
-    gSkSLAllowOptimization = false;  // Temporary experiment
 
     int runs = 0;
     BenchmarkStream benchStream;
