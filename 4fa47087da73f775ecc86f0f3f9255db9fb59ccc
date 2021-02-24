@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bddb377_53c46375",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-24T19:04:26Z",
+      "side": 1,
+      "message": "Chinmay mentioned wanting better tracing of shader compiles the other day. Leon added these events very recently - this just upgrades all of them to be emitted even when we\u0027re not on Android.",
+      "revId": "4fa47087da73f775ecc86f0f3f9255db9fb59ccc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
