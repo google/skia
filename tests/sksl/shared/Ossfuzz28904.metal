@@ -9,6 +9,9 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    all(-int2(2, 1) == -(-int2(2, 1)));
+    false;
+
     _out.sk_FragColor = float4(0.0);
     return _out;
 }
