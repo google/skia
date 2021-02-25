@@ -212,10 +212,6 @@ private:
     std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
     std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
     std::unique_ptr<Statement> convertIf(const ASTNode& s);
-    std::unique_ptr<Statement> convertIf(int offset, bool isStatic,
-                                         std::unique_ptr<Expression> test,
-                                         std::unique_ptr<Statement> ifTrue,
-                                         std::unique_ptr<Statement> ifFalse);
     std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTNode& s);
     Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTNode& expression);

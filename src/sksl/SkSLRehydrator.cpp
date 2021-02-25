@@ -386,9 +386,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<Expression> test = this->expression();
             std::unique_ptr<Statement> ifTrue = this->statement();
             std::unique_ptr<Statement> ifFalse = this->statement();
-            return std::unique_ptr<Statement>(new IfStatement(-1, isStatic, std::move(test),
-                                                              std::move(ifTrue),
-                                                              std::move(ifFalse)));
+            return IfStatement::Make(fContext, /*offset=*/-1, isStatic, std::move(test),
+                                     std::move(ifTrue), std::move(ifFalse));
         }
         case Rehydrator::kInlineMarker_Command: {
             const FunctionDeclaration* funcDecl = this->symbolRef<FunctionDeclaration>(

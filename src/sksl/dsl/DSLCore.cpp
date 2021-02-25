@@ -98,8 +98,8 @@ public:
     }
 
     static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse) {
-        return DSLWriter::IRGenerator().convertIf(/*offset=*/-1, /*isStatic=*/false, test.release(),
-                                                  ifTrue.release(), ifFalse.release());
+        return IfStatement::Make(DSLWriter::Context(), /*offset=*/-1, /*isStatic=*/false,
+                                 test.release(), ifTrue.release(), ifFalse.release());
     }
 
     static DSLStatement Return(DSLExpression value) {
