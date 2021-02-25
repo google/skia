@@ -51,13 +51,13 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
 static const bool gPrintSKSL = false;
 static const bool gPrintMSL = false;
 
-id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
-                                          const SkSL::String& sksl,
-                                          SkSL::ProgramKind programKind,
-                                          const SkSL::Program::Settings& settings,
-                                          SkSL::String* msl,
-                                          SkSL::Program::Inputs* outInputs,
-                                          GrContextOptions::ShaderErrorHandler* errorHandler) {
+bool GrSkSLToMSL(const GrMtlGpu* gpu,
+                 const SkSL::String& sksl,
+                 SkSL::ProgramKind programKind,
+                 const SkSL::Program::Settings& settings,
+                 SkSL::String* msl,
+                 SkSL::Program::Inputs* outInputs,
+                 GrContextOptions::ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
     SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
 #else
@@ -70,7 +70,7 @@ id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
                                                   settings);
     if (!program || !compiler->toMetal(*program, msl)) {
         errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
-        return nil;
+        return false;
     }
 
     if (gPrintSKSL || gPrintMSL) {
@@ -86,7 +86,7 @@ id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
     }
 
     *outInputs = program->fInputs;
-    return GrCompileMtlShaderLibrary(gpu, *msl, errorHandler);
+    return true;
 }
 
 id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
