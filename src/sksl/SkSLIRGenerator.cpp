@@ -579,30 +579,6 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
                              std::move(ifTrue), std::move(ifFalse));
 }
 
-std::unique_ptr<Statement> IRGenerator::convertFor(int offset,
-                                                   std::unique_ptr<Statement> initializer,
-                                                   std::unique_ptr<Expression> test,
-                                                   std::unique_ptr<Expression> next,
-                                                   std::unique_ptr<Statement> statement) {
-    if (test) {
-        test = this->coerce(std::move(test), *fContext.fTypes.fBool);
-        if (!test) {
-            return nullptr;
-        }
-    }
-
-    auto forStmt =
-            std::make_unique<ForStatement>(offset, std::move(initializer), std::move(test),
-                                           std::move(next), std::move(statement), fSymbolTable);
-    if (this->strictES2Mode()) {
-        if (!Analysis::ForLoopIsValidForES2(*forStmt, /*outLoopInfo=*/nullptr,
-                                            &this->errorReporter())) {
-            return nullptr;
-        }
-    }
-    return std::move(forStmt);
-}
-
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     SkASSERT(f.fKind == ASTNode::Kind::kFor);
     AutoSymbolTable table(this);
@@ -636,8 +612,8 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
         return nullptr;
     }
 
-    return this->convertFor(f.fOffset, std::move(initializer), std::move(test), std::move(next),
-                            std::move(statement));
+    return ForStatement::Make(fContext, f.fOffset, std::move(initializer), std::move(test),
+                              std::move(next), std::move(statement), fSymbolTable);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr<Expression> test,
@@ -655,8 +631,8 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(int offset, std::unique_ptr
         return nullptr;
     }
 
-    return std::make_unique<ForStatement>(offset, /*initializer=*/nullptr, std::move(test),
-                                          /*next=*/nullptr, std::move(statement), fSymbolTable);
+    return ForStatement::Make(fContext, offset, /*initializer=*/nullptr, std::move(test),
+                              /*next=*/nullptr, std::move(statement), fSymbolTable);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
@@ -838,11 +814,9 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0),
             fContext.fTypes.fInt.get());
     auto initializer = std::make_unique<ExpressionStatement>(std::move(assignment));
-    auto loop = std::make_unique<ForStatement>(/*offset=*/-1,
-                                               std::move(initializer),
-                                               std::move(test), std::move(next),
-                                               std::make_unique<Block>(-1, std::move(loopBody)),
-                                               fSymbolTable);
+    auto loop = ForStatement::Make(
+            fContext, /*offset=*/-1, std::move(initializer), std::move(test), std::move(next),
+            std::make_unique<Block>(/*offset=*/-1, std::move(loopBody)), fSymbolTable);
     StatementArray children;
     children.push_back(std::move(loop));
     return std::make_unique<Block>(/*offset=*/-1, std::move(children));
