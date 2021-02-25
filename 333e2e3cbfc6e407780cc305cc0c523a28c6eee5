@@ -22,6 +22,30 @@
       },
       "revId": "333e2e3cbfc6e407780cc305cc0c523a28c6eee5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f66a9c0e_11ef439c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1746,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-02-25T21:43:04Z",
+      "side": 1,
+      "message": "I immediately turn hpos into points. I see that hpos is attractive in its space savings. Is that something that is attractive to SkParagraph? I\u0027ve been toying around with handling hpos style data directly without the conversion.",
+      "parentUuid": "e14fc318_30364745",
+      "range": {
+        "startLine": 1746,
+        "startChar": 45,
+        "endLine": 1746,
+        "endChar": 69
+      },
+      "revId": "333e2e3cbfc6e407780cc305cc0c523a28c6eee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
