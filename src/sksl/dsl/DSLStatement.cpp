@@ -42,17 +42,6 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     }
 }
 
-DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
-    : DSLStatement(DSLExpression(std::move(expr), pos)) {}
-
-DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), &pos);
-        DSLWriter::Compiler().setErrorCount(0);
-    }
-    fStatement = std::move(stmt.fStatement);
-}
-
 DSLStatement::~DSLStatement() {
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     if (fStatement && DSLWriter::InFragmentProcessor()) {
@@ -61,16 +50,6 @@ DSLStatement::~DSLStatement() {
     }
 #endif
     SkASSERTF(!fStatement, "Statement destroyed without being incorporated into program");
-}
-
-DSLPossibleStatement::DSLPossibleStatement(std::unique_ptr<SkSL::Statement> statement)
-    : fStatement(std::move(statement)) {}
-
-DSLPossibleStatement::~DSLPossibleStatement() {
-    if (fStatement) {
-        // this handles incorporating the expression into the output tree
-        DSLStatement(std::move(fStatement));
-    }
 }
 
 } // namespace dsl
