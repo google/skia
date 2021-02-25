@@ -25,11 +25,6 @@ public:
         : INHERITED(offset, kExpressionKind, type)
         , fName(std::move(name)) {}
 
-    static const Type* GetType(const Context& context, int offset, const String& name);
-
-    static std::unique_ptr<Expression> GetValue(const Context& context, int offset,
-                                                const String& name);
-
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
 
