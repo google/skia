@@ -15,6 +15,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/dsl/priv/DSLFPs.h"
 
 // For brevity
 using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
@@ -40,37 +41,34 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     const GrGaussianConvolutionFragmentProcessor& ce =
             args.fFp.cast<GrGaussianConvolutionFragmentProcessor>();
 
-    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-
-    const char* inc;
-    fIncrementUni = uniformHandler->addUniform(&ce, kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                               "Increment", &inc);
+    using namespace SkSL::dsl;
+    StartFragmentProcessor(this, &args);
+    Var increment(kUniform_Modifier, kHalf2, "Increment");
+    fIncrementUni = VarUniformHandle(increment);
 
     int width = SkGpuBlurUtils::KernelWidth(ce.fRadius);
 
     int arrayCount = (width + 3) / 4;
     SkASSERT(4 * arrayCount >= width);
 
-    const char* kernel;
-    fKernelUni = uniformHandler->addUniformArray(&ce, kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                 "Kernel", arrayCount, &kernel);
+    Var kernel(kUniform_Modifier, Array(kHalf4, arrayCount), "Kernel");
+    fKernelUni = VarUniformHandle(kernel);
 
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+    Var color(kHalf4, "color");
+    Declare(color, Half4(0));
 
-    fragBuilder->codeAppendf("half4 color = half4(0);");
-
-    fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", args.fSampleCoord, ce.fRadius, inc);
+    Var coord(kFloat2, "coord");
+    Declare(coord, sk_SampleCoord() - ce.fRadius * increment);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
-        auto sample = this->invokeChild(/*childIndex=*/0, args, "coord");
         if (i != 0) {
-            fragBuilder->codeAppendf("coord += %s;", inc);
+            coord += increment;
         }
-        fragBuilder->codeAppendf("color += %s * %s[%d][%d];",
-                                 sample.c_str(), kernel, i / 4, i & 0x3);
+        color += SampleChild(/*index=*/0, coord) * kernel[i / 4][i & 0x3];
     }
-    fragBuilder->codeAppendf("return color;");
+    Return(color);
+    EndFragmentProcessor();
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgramDataManager& pdman,
