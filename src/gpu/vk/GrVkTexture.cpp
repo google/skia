@@ -138,13 +138,6 @@ GrVkTexture::~GrVkTexture() {
 }
 
 void GrVkTexture::onRelease() {
-    // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we
-    // have to decide who will handle them. If the resource is still tied to a command buffer we let
-    // it handle them. Otherwise, we handle them.
-    if (this->hasResource() && this->resource()->isQueuedForWorkOnGpu()) {
-        this->removeFinishIdleProcs();
-    }
-
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
         fTextureView.reset();
@@ -171,13 +164,6 @@ struct GrVkTexture::DescriptorCacheEntry {
 };
 
 void GrVkTexture::onAbandon() {
-    // We're about to be severed from our GrManagedResource. If there are "finish" idle procs we
-    // have to decide who will handle them. If the resource is still tied to a command buffer we let
-    // it handle them. Otherwise, we handle them.
-    if (this->hasResource() && this->resource()->isQueuedForWorkOnGpu()) {
-        this->removeFinishIdleProcs();
-    }
-
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
         fTextureView.reset();
@@ -200,74 +186,6 @@ GrVkGpu* GrVkTexture::getVkGpu() const {
 
 const GrVkImageView* GrVkTexture::textureView() {
     return fTextureView.get();
-}
-
-void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc) {
-    INHERITED::addIdleProc(idleProc);
-    if (auto* resource = this->resource()) {
-        resource->addIdleProc(this, std::move(idleProc));
-    }
-}
-
-void GrVkTexture::callIdleProcsOnBehalfOfResource() {
-    // If we got here then the resource is being removed from its last command buffer and the
-    // texture is idle in the cache. Any kFlush idle procs should already have been called. So
-    // the texture and resource should have the same set of procs.
-    SkASSERT(this->resource());
-    SkASSERT(this->resource()->idleProcCnt() == fIdleProcs.count());
-#ifdef SK_DEBUG
-    for (int i = 0; i < fIdleProcs.count(); ++i) {
-        SkASSERT(fIdleProcs[i] == this->resource()->idleProc(i));
-    }
-#endif
-    fIdleProcs.reset();
-    this->resource()->resetIdleProcs();
-}
-
-void GrVkTexture::willRemoveLastRef() {
-    if (!fIdleProcs.count()) {
-        return;
-    }
-    // This is called when the GrTexture is purgeable. However, we need to check whether the
-    // Resource is still owned by any command buffers. If it is then it will call the proc.
-    auto* resource = this->hasResource() ? this->resource() : nullptr;
-    bool callFinishProcs = !resource || !resource->isQueuedForWorkOnGpu();
-    if (callFinishProcs) {
-        // Everything must go!
-        fIdleProcs.reset();
-        if (resource) {
-            resource->resetIdleProcs();
-        }
-    } else {
-        // The procs that should be called on flush but not finish are those that are owned
-        // by the GrVkTexture and not the Resource. We do this by copying the resource's array
-        // and thereby dropping refs to procs we own but the resource does not.
-        SkASSERT(resource);
-        fIdleProcs.reset(resource->idleProcCnt());
-        for (int i = 0; i < fIdleProcs.count(); ++i) {
-            fIdleProcs[i] = resource->idleProc(i);
-        }
-    }
-}
-
-void GrVkTexture::removeFinishIdleProcs() {
-    // This should only be called by onRelease/onAbandon when we have already checked for a
-    // resource.
-    const auto* resource = this->resource();
-    SkASSERT(resource);
-    SkSTArray<4, sk_sp<GrRefCntedCallback>> procsToKeep;
-    int resourceIdx = 0;
-    // The idle procs that are common between the GrVkTexture and its Resource should be found in
-    // the same order.
-    for (int i = 0; i < fIdleProcs.count(); ++i) {
-        if (fIdleProcs[i] == resource->idleProc(resourceIdx)) {
-            ++resourceIdx;
-        } else {
-            procsToKeep.push_back(fIdleProcs[i]);
-        }
-    }
-    SkASSERT(resourceIdx == resource->idleProcCnt());
-    fIdleProcs = procsToKeep;
 }
 
 const GrVkDescriptorSet* GrVkTexture::cachedSingleDescSet(GrSamplerState state) {

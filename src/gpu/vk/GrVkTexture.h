@@ -45,9 +45,6 @@ public:
 
     const GrVkImageView* textureView();
 
-    void addIdleProc(sk_sp<GrRefCntedCallback>) override;
-    void callIdleProcsOnBehalfOfResource() override;
-
     // For each GrVkTexture, there is a cache of GrVkDescriptorSets which only contain a single
     // texture/sampler descriptor. If there is a cached descriptor set that matches the passed in
     // GrSamplerState, then a pointer to it is returned. The ref count is not incremented on the
@@ -75,8 +72,6 @@ protected:
         return false;
     }
 
-    void willRemoveLastRef() override;
-
 private:
     GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, const GrVkImageInfo&,
                 sk_sp<GrBackendSurfaceMutableStateImpl>, sk_sp<const GrVkImageView> imageView,
@@ -91,8 +86,6 @@ private:
         // Forward the release proc on to GrVkImage
         this->setResourceRelease(std::move(releaseHelper));
     }
-
-    void removeFinishIdleProcs();
 
     sk_sp<const GrVkImageView> fTextureView;
 

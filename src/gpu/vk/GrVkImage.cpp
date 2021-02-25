@@ -308,7 +308,6 @@ void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
 
 void GrVkImage::releaseImage() {
     if (fResource) {
-        fResource->removeOwningTexture();
         fResource->unref();
         fResource = nullptr;
     }

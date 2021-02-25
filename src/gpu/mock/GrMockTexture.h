@@ -183,10 +183,6 @@ public:
         return GrMockTexture::backendFormat();
     }
 
-protected:
-    // This avoids an inherits via dominance warning on MSVC.
-    void willRemoveLastRef() override { GrTexture::willRemoveLastRef(); }
-
 private:
     void onAbandon() override {
         GrRenderTarget::onAbandon();
