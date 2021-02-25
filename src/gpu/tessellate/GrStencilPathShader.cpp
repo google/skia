@@ -351,8 +351,8 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
         const auto& shader = args.fGP.cast<GrMiddleOutCubicShader>();
         args.fVaryingHandler->emitAttributes(shader);
         args.fVertBuilder->defineConstantf("int", "kMaxVertexID", "%i", 1 << kMaxResolveLevel);
-        args.fVertBuilder->defineConstantf("float", "kInverseMaxVertexID", "exp2(-%i.0)",
-                                           kMaxResolveLevel);
+        args.fVertBuilder->defineConstantf("float", "kInverseMaxVertexID",
+                                           "(1.0 / float(kMaxVertexID))");
         args.fVertBuilder->insertFunction(kUnpackRationalCubicFn);
         args.fVertBuilder->insertFunction(kEvalRationalCubicFn);
         args.fVertBuilder->codeAppend(R"(
