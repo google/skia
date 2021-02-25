@@ -34,7 +34,6 @@ SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkISize size, ui
         , fContext(std::move(context)) {}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-
 bool SkImage_GpuBase::ValidateBackendTexture(const GrCaps* caps, const GrBackendTexture& tex,
                                              GrColorType grCT, SkColorType ct, SkAlphaType at,
                                              sk_sp<SkColorSpace> cs) {
