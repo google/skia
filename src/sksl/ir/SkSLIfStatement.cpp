@@ -6,7 +6,9 @@
  */
 
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -39,8 +41,10 @@ std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset,
     if (!test) {
         return nullptr;
     }
+
     if (test->is<BoolLiteral>()) {
         // Static Boolean values can fold down to a single branch.
+        // This is technically an optimization, but we don't gate it on the optimization flag.
         if (test->as<BoolLiteral>().value()) {
             return ifTrue;
         }
@@ -50,6 +54,20 @@ std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset,
         // False, but no else-clause. Not an error, so don't return null!
         return std::make_unique<Nop>();
     }
+
+    if (context.fConfig->fSettings.fOptimize) {
+        if (ifFalse && ifFalse->isEmpty()) {
+            // Eliminate an empty if-false block.
+            ifFalse = nullptr;
+        }
+
+        if (!ifFalse && ifTrue->isEmpty()) {
+            // We don't have an if-true block or an if-false block.
+            // The only thing left is the test-expression.
+            return ExpressionStatement::Make(context, std::move(test));
+        }
+    }
+
     return std::make_unique<IfStatement>(offset, isStatic, std::move(test), std::move(ifTrue),
                                          std::move(ifFalse));
 }
