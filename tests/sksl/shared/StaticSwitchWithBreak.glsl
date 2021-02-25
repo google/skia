@@ -1,5 +1,9 @@
 
 out vec4 sk_FragColor;
 void main() {
-    sk_FragColor = vec4(0.0);
+    float x = 0.0;
+    {
+        x = 0.0;
+    }
+    sk_FragColor = vec4(x);
 }

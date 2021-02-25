@@ -1,5 +1,4 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-void main() {
-    sk_FragColor = vec4(0.0);
-}
+error: 3: static switch contains non-static conditional exit
+1 error

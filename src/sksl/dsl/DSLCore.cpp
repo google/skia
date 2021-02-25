@@ -93,8 +93,9 @@ public:
 
     static DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
                             DSLStatement stmt) {
-        return DSLWriter::IRGenerator().convertFor(/*offset=*/-1, initializer.release(),
-                                                   test.release(), next.release(), stmt.release());
+        return ForStatement::Make(DSLWriter::Context(), /*offset=*/-1, initializer.release(),
+                                  test.release(), next.release(), stmt.release(),
+                                  DSLWriter::SymbolTable());
     }
 
     static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse) {
@@ -146,7 +147,8 @@ public:
     }
 
     static DSLStatement While(DSLExpression test, DSLStatement stmt) {
-        return DSLWriter::IRGenerator().convertWhile(/*offset=*/-1, test.release(), stmt.release());
+        return ForStatement::MakeWhile(DSLWriter::Context(), /*offset=*/-1, test.release(),
+                                       stmt.release(), DSLWriter::SymbolTable());
     }
 };
 

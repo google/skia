@@ -454,16 +454,16 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kExpression: {
             const ExpressionStatement& e = statement.as<ExpressionStatement>();
-            return std::make_unique<ExpressionStatement>(expr(e.expression()));
+            return ExpressionStatement::Make(*fContext, expr(e.expression()));
         }
         case Statement::Kind::kFor: {
             const ForStatement& f = statement.as<ForStatement>();
             // need to ensure initializer is evaluated first so that we've already remapped its
             // declarations by the time we evaluate test & next
             std::unique_ptr<Statement> initializer = stmt(f.initializer());
-            return std::make_unique<ForStatement>(offset, std::move(initializer), expr(f.test()),
-                                                  expr(f.next()), stmt(f.statement()),
-                                                  SymbolTable::WrapIfBuiltin(f.symbols()));
+            return ForStatement::Make(*fContext, offset, std::move(initializer), expr(f.test()),
+                                      expr(f.next()), stmt(f.statement()),
+                                      SymbolTable::WrapIfBuiltin(f.symbols()));
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
@@ -499,8 +499,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
 
             // For more complex functions, assign their result into a variable.
             SkASSERT(*resultExpr);
-            auto assignment =
-                    std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
+            auto assignment = ExpressionStatement::Make(
+                    *fContext,
+                    std::make_unique<BinaryExpression>(
                             offset,
                             clone_with_ref_kind(**resultExpr, VariableReference::RefKind::kWrite),
                             Token::Kind::TK_EQ,
@@ -519,8 +520,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             }
             // Functions without early returns aren't wrapped in a for loop and don't need to worry
             // about breaking out of the control flow.
-            return std::move(assignment);
-
+            return assignment;
         }
         case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
@@ -726,12 +726,12 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlineStatements = &innerBlock->children();
 
         // for (int _1_loop = 0; _1_loop < 1; _1_loop++) {...}
-        inlinedBody.children().push_back(std::make_unique<ForStatement>(/*offset=*/-1,
-                                                                        std::move(loopVar.fVarDecl),
-                                                                        std::move(test),
-                                                                        std::move(increment),
-                                                                        std::move(innerBlock),
-                                                                        symbolTable));
+        inlinedBody.children().push_back(ForStatement::Make(*fContext, /*offset=*/-1,
+                                                            std::move(loopVar.fVarDecl),
+                                                            std::move(test),
+                                                            std::move(increment),
+                                                            std::move(innerBlock),
+                                                            symbolTable));
     } else {
         // No early returns, so we can just dump the code into our existing scopeless block.
         inlineStatements = &inlinedBody.children();
@@ -748,8 +748,9 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     for (int i : argsToCopyBack) {
         const Variable* p = function.declaration().parameters()[i];
         SkASSERT(varMap.find(p) != varMap.end());
-        inlineStatements->push_back(
-                std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
+        inlineStatements->push_back(ExpressionStatement::Make(
+                *fContext,
+                std::make_unique<BinaryExpression>(
                         offset,
                         clone_with_ref_kind(*arguments[i], VariableReference::RefKind::kWrite),
                         Token::Kind::TK_EQ,
