@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e14fc318_30364745",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1746,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-25T21:32:15Z",
+      "side": 1,
+      "message": "Blink does a certain amount of work for the common case of everything on one baseline (the \u0027H\u0027 versions of the TextBlobBuilder run allocators). Should that exist here as well?",
+      "range": {
+        "startLine": 1746,
+        "startChar": 45,
+        "endLine": 1746,
+        "endChar": 69
+      },
+      "revId": "333e2e3cbfc6e407780cc305cc0c523a28c6eee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
