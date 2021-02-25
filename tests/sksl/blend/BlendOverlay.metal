@@ -16,9 +16,9 @@ float _blend_overlay_component(float2 s, float2 d) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 _1_result = float4(_blend_overlay_component(_in.src.xw, _in.dst.xw), _blend_overlay_component(_in.src.yw, _in.dst.yw), _blend_overlay_component(_in.src.zw, _in.dst.zw), _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
-    _1_result.xyz = _1_result.xyz + _in.dst.xyz * (1.0 - _in.src.w) + _in.src.xyz * (1.0 - _in.dst.w);
-    _out.sk_FragColor = _1_result;
+    float4 _0_result = float4(_blend_overlay_component(_in.src.xw, _in.dst.xw), _blend_overlay_component(_in.src.yw, _in.dst.yw), _blend_overlay_component(_in.src.zw, _in.dst.zw), _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
+    _0_result.xyz = _0_result.xyz + _in.dst.xyz * (1.0 - _in.src.w) + _in.src.xyz * (1.0 - _in.dst.w);
+    _out.sk_FragColor = _0_result;
 
     return _out;
 }

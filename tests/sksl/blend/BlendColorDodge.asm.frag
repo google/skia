@@ -9,7 +9,7 @@ OpName %src "src"
 OpName %dst "dst"
 OpName %_color_dodge_component "_color_dodge_component"
 OpName %delta "delta"
-OpName %_4_n "_4_n"
+OpName %_0_n "_0_n"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -95,7 +95,7 @@ OpDecorate %127 RelaxedPrecision
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpLabel
 %delta = OpVariable %_ptr_Function_float Function
-%_4_n = OpVariable %_ptr_Function_float Function
+%_0_n = OpVariable %_ptr_Function_float Function
 %20 = OpLoad %v2float %18
 %21 = OpCompositeExtract %float %20 0
 %23 = OpFOrdEqual %bool %21 %float_0
@@ -147,10 +147,10 @@ OpReturnValue %64
 %68 = OpLoad %v2float %17
 %69 = OpCompositeExtract %float %68 1
 %70 = OpFMul %float %67 %69
-OpStore %_4_n %70
+OpStore %_0_n %70
 %72 = OpLoad %v2float %18
 %73 = OpCompositeExtract %float %72 1
-%74 = OpLoad %float %_4_n
+%74 = OpLoad %float %_0_n
 %75 = OpLoad %float %delta
 %76 = OpFDiv %float %74 %75
 %71 = OpExtInst %float %1 FMin %73 %76
