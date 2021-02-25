@@ -634,23 +634,6 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
                                    fSymbolTable);
 }
 
-std::unique_ptr<Statement> IRGenerator::convertDo(std::unique_ptr<Statement> stmt,
-                                                  std::unique_ptr<Expression> test) {
-    if (this->strictES2Mode()) {
-        this->errorReporter().error(stmt->fOffset, "do-while loops are not supported");
-        return nullptr;
-    }
-
-    test = this->coerce(std::move(test), *fContext.fTypes.fBool);
-    if (!test) {
-        return nullptr;
-    }
-    if (this->detectVarDeclarationWithoutScope(*stmt)) {
-        return nullptr;
-    }
-    return std::make_unique<DoStatement>(stmt->fOffset, std::move(stmt), std::move(test));
-}
-
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDo);
     auto iter = d.begin();
@@ -662,7 +645,10 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     if (!test) {
         return nullptr;
     }
-    return this->convertDo(std::move(statement), std::move(test));
+    if (this->detectVarDeclarationWithoutScope(*statement)) {
+        return nullptr;
+    }
+    return DoStatement::Make(fContext, std::move(statement), std::move(test));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
