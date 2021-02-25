@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c37ee4e6_da4c7212",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2021-02-25T22:04:27Z",
+      "side": 1,
+      "message": "no api change, just version update",
+      "revId": "cca10b484f42f41861e3b4c0d78e08bf6d7a5acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
