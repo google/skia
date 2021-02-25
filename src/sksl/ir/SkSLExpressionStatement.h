@@ -24,6 +24,9 @@ public:
         : INHERITED(expression->fOffset, kStatementKind)
         , fExpression(std::move(expression)) {}
 
+    static std::unique_ptr<Statement> Make(const Context& context,
+                                           std::unique_ptr<Expression> expr);
+
     const std::unique_ptr<Expression>& expression() const {
         return fExpression;
     }
@@ -33,7 +36,7 @@ public:
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new ExpressionStatement(this->expression()->clone()));
+        return std::make_unique<ExpressionStatement>(this->expression()->clone());
     }
 
     String description() const override {
