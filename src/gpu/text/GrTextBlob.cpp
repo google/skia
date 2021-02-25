@@ -1498,19 +1498,15 @@ void GrTextBlob::makeSubRuns(SkGlyphRunListPainter* painter,
                              const SkSurfaceProps& props,
                              bool contextSupportsDistanceFieldText,
                              const GrSDFTOptions& options) {
-    SkAutoSpinlock lock{fSpinLock};
-    if (!fSubRunsCreated) {
-        for (auto& glyphRun : glyphRunList) {
-            painter->processGlyphRun(glyphRun,
-                                     drawMatrix,
-                                     drawOrigin,
-                                     runPaint,
-                                     props,
-                                     contextSupportsDistanceFieldText,
-                                     options,
-                                     this);
-        }
-        fSubRunsCreated = true;
+    for (auto& glyphRun : glyphRunList) {
+        painter->processGlyphRun(glyphRun,
+                                 drawMatrix,
+                                 drawOrigin,
+                                 runPaint,
+                                 props,
+                                 contextSupportsDistanceFieldText,
+                                 options,
+                                 this);
     }
 }
 
