@@ -12,7 +12,9 @@
 
 /**
  *  Controls how much filtering to be done when scaling/transforming complex colors
- *  e.g. images
+ *  e.g. images.
+    These values are persisted to logs. Entries should not be renumbered and
+    numeric values should never be reused.
  */
 enum SkFilterQuality {
     kNone_SkFilterQuality   = 0,    //!< nearest-neighbor; fastest but lowest quality
