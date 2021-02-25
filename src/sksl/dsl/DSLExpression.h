@@ -69,33 +69,33 @@ public:
     /**
      * Overloads the '=' operator to create an SkSL assignment statement.
      */
-    DSLPossibleExpression operator=(DSLExpression other);
+    DSLExpression operator=(DSLExpression other);
 
-    DSLExpression x(PositionInfo pos = PositionInfo());
+    DSLExpression x();
 
-    DSLExpression y(PositionInfo pos = PositionInfo());
+    DSLExpression y();
 
-    DSLExpression z(PositionInfo pos = PositionInfo());
+    DSLExpression z();
 
-    DSLExpression w(PositionInfo pos = PositionInfo());
+    DSLExpression w();
 
-    DSLExpression r(PositionInfo pos = PositionInfo());
+    DSLExpression r();
 
-    DSLExpression g(PositionInfo pos = PositionInfo());
+    DSLExpression g();
 
-    DSLExpression b(PositionInfo pos = PositionInfo());
+    DSLExpression b();
 
-    DSLExpression a(PositionInfo pos = PositionInfo());
+    DSLExpression a();
 
     /**
      * Creates an SkSL struct field access expression.
      */
-    DSLExpression field(const char* name, PositionInfo pos = PositionInfo());
+    DSLExpression field(const char* name);
 
     /**
      * Creates an SkSL array index expression.
      */
-    DSLPossibleExpression operator[](DSLExpression index);
+    DSLExpression operator[](DSLExpression index);
 
     /**
      * Invalidates this object and returns the SkSL expression it represents.
@@ -115,6 +115,9 @@ private:
 
     friend DSLExpression SampleChild(int index, DSLExpression coords);
 
+    template<class... Cases>
+    friend DSLStatement Switch(DSLExpression value, Cases... cases);
+
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLPossibleExpression;
@@ -122,41 +125,41 @@ private:
     friend class DSLWriter;
 };
 
-DSLPossibleExpression operator+(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator+=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator-(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator-=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator*(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator*=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator/(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator/=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator%(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator%=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator<<(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator<<=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator>>(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator>>=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator&&(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator||(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator&(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator&=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator|(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator|=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator^(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator^=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator,(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator==(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator!=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator>(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator<(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator>=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator<=(DSLExpression left, DSLExpression right);
-DSLPossibleExpression operator!(DSLExpression expr);
-DSLPossibleExpression operator~(DSLExpression expr);
-DSLPossibleExpression operator++(DSLExpression expr);
-DSLPossibleExpression operator++(DSLExpression expr, int);
-DSLPossibleExpression operator--(DSLExpression expr);
-DSLPossibleExpression operator--(DSLExpression expr, int);
+DSLExpression operator+(DSLExpression left, DSLExpression right);
+DSLExpression operator+=(DSLExpression left, DSLExpression right);
+DSLExpression operator-(DSLExpression left, DSLExpression right);
+DSLExpression operator-=(DSLExpression left, DSLExpression right);
+DSLExpression operator*(DSLExpression left, DSLExpression right);
+DSLExpression operator*=(DSLExpression left, DSLExpression right);
+DSLExpression operator/(DSLExpression left, DSLExpression right);
+DSLExpression operator/=(DSLExpression left, DSLExpression right);
+DSLExpression operator%(DSLExpression left, DSLExpression right);
+DSLExpression operator%=(DSLExpression left, DSLExpression right);
+DSLExpression operator<<(DSLExpression left, DSLExpression right);
+DSLExpression operator<<=(DSLExpression left, DSLExpression right);
+DSLExpression operator>>(DSLExpression left, DSLExpression right);
+DSLExpression operator>>=(DSLExpression left, DSLExpression right);
+DSLExpression operator&&(DSLExpression left, DSLExpression right);
+DSLExpression operator||(DSLExpression left, DSLExpression right);
+DSLExpression operator&(DSLExpression left, DSLExpression right);
+DSLExpression operator&=(DSLExpression left, DSLExpression right);
+DSLExpression operator|(DSLExpression left, DSLExpression right);
+DSLExpression operator|=(DSLExpression left, DSLExpression right);
+DSLExpression operator^(DSLExpression left, DSLExpression right);
+DSLExpression operator^=(DSLExpression left, DSLExpression right);
+DSLExpression operator,(DSLExpression left, DSLExpression right);
+DSLExpression operator==(DSLExpression left, DSLExpression right);
+DSLExpression operator!=(DSLExpression left, DSLExpression right);
+DSLExpression operator>(DSLExpression left, DSLExpression right);
+DSLExpression operator<(DSLExpression left, DSLExpression right);
+DSLExpression operator>=(DSLExpression left, DSLExpression right);
+DSLExpression operator<=(DSLExpression left, DSLExpression right);
+DSLExpression operator!(DSLExpression expr);
+DSLExpression operator~(DSLExpression expr);
+DSLExpression operator++(DSLExpression expr);
+DSLExpression operator++(DSLExpression expr, int);
+DSLExpression operator--(DSLExpression expr);
+DSLExpression operator--(DSLExpression expr, int);
 
 /**
  * Represents an Expression which may have failed and/or have pending errors to report. Converting a
@@ -193,23 +196,23 @@ public:
 
     DSLExpression field(const char* name, PositionInfo pos = PositionInfo());
 
-    DSLPossibleExpression operator=(const DSLVar& var);
+    DSLExpression operator=(const DSLVar& var);
 
-    DSLPossibleExpression operator=(DSLExpression expr);
+    DSLExpression operator=(DSLExpression expr);
 
-    DSLPossibleExpression operator=(int expr);
+    DSLExpression operator=(int expr);
 
-    DSLPossibleExpression operator=(float expr);
+    DSLExpression operator=(float expr);
 
-    DSLPossibleExpression operator[](DSLExpression index);
+    DSLExpression operator[](DSLExpression index);
 
-    DSLPossibleExpression operator++();
+    DSLExpression operator++();
 
-    DSLPossibleExpression operator++(int);
+    DSLExpression operator++(int);
 
-    DSLPossibleExpression operator--();
+    DSLExpression operator--();
 
-    DSLPossibleExpression operator--(int);
+    DSLExpression operator--(int);
 
     std::unique_ptr<SkSL::Expression> release();
 

@@ -90,62 +90,62 @@ std::unique_ptr<SkSL::Expression> DSLExpression::release() {
     return std::move(fExpression);
 }
 
-DSLExpression DSLExpression::x(PositionInfo pos) {
-    return Swizzle(this->release(), X, pos);
+DSLExpression DSLExpression::x() {
+    return Swizzle(this->release(), X);
 }
 
-DSLExpression DSLExpression::y(PositionInfo pos) {
-    return Swizzle(this->release(), Y, pos);
+DSLExpression DSLExpression::y() {
+    return Swizzle(this->release(), Y);
 }
 
-DSLExpression DSLExpression::z(PositionInfo pos) {
-    return Swizzle(this->release(), Z, pos);
+DSLExpression DSLExpression::z() {
+    return Swizzle(this->release(), Z);
 }
 
-DSLExpression DSLExpression::w(PositionInfo pos) {
-    return Swizzle(this->release(), W, pos);
+DSLExpression DSLExpression::w() {
+    return Swizzle(this->release(), W);
 }
 
-DSLExpression DSLExpression::r(PositionInfo pos) {
-    return Swizzle(this->release(), R, pos);
+DSLExpression DSLExpression::r() {
+    return Swizzle(this->release(), R);
 }
 
-DSLExpression DSLExpression::g(PositionInfo pos) {
-    return Swizzle(this->release(), G, pos);
+DSLExpression DSLExpression::g() {
+    return Swizzle(this->release(), G);
 }
 
-DSLExpression DSLExpression::b(PositionInfo pos) {
-    return Swizzle(this->release(), B, pos);
+DSLExpression DSLExpression::b() {
+    return Swizzle(this->release(), B);
 }
 
-DSLExpression DSLExpression::a(PositionInfo pos) {
-    return Swizzle(this->release(), A, pos);
+DSLExpression DSLExpression::a() {
+    return Swizzle(this->release(), A);
 }
 
-DSLExpression DSLExpression::field(const char* name, PositionInfo pos) {
-    return DSLExpression(DSLWriter::ConvertField(this->release(), name), pos);
+DSLExpression DSLExpression::field(const char* name) {
+    return DSLWriter::ConvertField(this->release(), name);
 }
 
-DSLPossibleExpression DSLExpression::operator=(DSLExpression right) {
+DSLExpression DSLExpression::operator=(DSLExpression right) {
     return DSLWriter::ConvertBinary(this->release(), SkSL::Token::Kind::TK_EQ, right.release());
 }
 
-DSLPossibleExpression DSLExpression::operator[](DSLExpression right) {
+DSLExpression DSLExpression::operator[](DSLExpression right) {
     return DSLWriter::ConvertIndex(this->release(), right.release());
 }
 
 #define OP(op, token)                                                                              \
-DSLPossibleExpression operator op(DSLExpression left, DSLExpression right) {                       \
+DSLExpression operator op(DSLExpression left, DSLExpression right) {                               \
     return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::token, right.release());    \
 }
 
 #define PREFIXOP(op, token)                                                                        \
-DSLPossibleExpression operator op(DSLExpression expr) {                                            \
+DSLExpression operator op(DSLExpression expr) {                                                    \
     return DSLWriter::ConvertPrefix(SkSL::Token::Kind::token, expr.release());                     \
 }
 
 #define POSTFIXOP(op, token)                                                                       \
-DSLPossibleExpression operator op(DSLExpression expr, int) {                                       \
+DSLExpression operator op(DSLExpression expr, int) {                                               \
     return DSLWriter::ConvertPostfix(expr.release(), SkSL::Token::Kind::token);                    \
 }
 
@@ -185,9 +185,8 @@ POSTFIXOP(++, TK_PLUSPLUS)
 PREFIXOP(--, TK_MINUSMINUS)
 POSTFIXOP(--, TK_MINUSMINUS)
 
-DSLPossibleExpression operator,(DSLExpression left, DSLExpression right) {
-    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_COMMA,
-                                    right.release());
+DSLExpression operator,(DSLExpression left, DSLExpression right) {
+    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_COMMA, right.release());
 }
 
 std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Type& type) {
@@ -209,74 +208,74 @@ DSLPossibleExpression::~DSLPossibleExpression() {
 }
 
 DSLExpression DSLPossibleExpression::x(PositionInfo pos) {
-    return DSLExpression(this->release()).x(pos);
+    return DSLExpression(this->release()).x();
 }
 
 DSLExpression DSLPossibleExpression::y(PositionInfo pos) {
-    return DSLExpression(this->release()).y(pos);
+    return DSLExpression(this->release()).y();
 }
 
 DSLExpression DSLPossibleExpression::z(PositionInfo pos) {
-    return DSLExpression(this->release()).z(pos);
+    return DSLExpression(this->release()).z();
 }
 
 DSLExpression DSLPossibleExpression::w(PositionInfo pos) {
-    return DSLExpression(this->release()).w(pos);
+    return DSLExpression(this->release()).w();
 }
 
 DSLExpression DSLPossibleExpression::r(PositionInfo pos) {
-    return DSLExpression(this->release()).r(pos);
+    return DSLExpression(this->release()).r();
 }
 
 DSLExpression DSLPossibleExpression::g(PositionInfo pos) {
-    return DSLExpression(this->release()).g(pos);
+    return DSLExpression(this->release()).g();
 }
 
 DSLExpression DSLPossibleExpression::b(PositionInfo pos) {
-    return DSLExpression(this->release()).b(pos);
+    return DSLExpression(this->release()).b();
 }
 
 DSLExpression DSLPossibleExpression::a(PositionInfo pos) {
-    return DSLExpression(this->release()).a(pos);
+    return DSLExpression(this->release()).a();
 }
 
 DSLExpression DSLPossibleExpression::field(const char* name, PositionInfo pos) {
-    return DSLExpression(this->release()).field(name, pos);
+    return DSLExpression(this->release()).field(name);
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(const DSLVar& var) {
+DSLExpression DSLPossibleExpression::operator=(const DSLVar& var) {
     return this->operator=(DSLExpression(var));
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(DSLExpression expr) {
+DSLExpression DSLPossibleExpression::operator=(DSLExpression expr) {
     return DSLExpression(this->release()) = std::move(expr);
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(int expr) {
+DSLExpression DSLPossibleExpression::operator=(int expr) {
     return this->operator=(DSLExpression(expr));
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator=(float expr) {
+DSLExpression DSLPossibleExpression::operator=(float expr) {
     return this->operator=(DSLExpression(expr));
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator[](DSLExpression index) {
+DSLExpression DSLPossibleExpression::operator[](DSLExpression index) {
     return DSLExpression(this->release())[std::move(index)];
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator++() {
+DSLExpression DSLPossibleExpression::operator++() {
     return ++DSLExpression(this->release());
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator++(int) {
+DSLExpression DSLPossibleExpression::operator++(int) {
     return DSLExpression(this->release())++;
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator--() {
+DSLExpression DSLPossibleExpression::operator--() {
     return --DSLExpression(this->release());
 }
 
-DSLPossibleExpression DSLPossibleExpression::operator--(int) {
+DSLExpression DSLPossibleExpression::operator--(int) {
     return DSLExpression(this->release())--;
 }
 

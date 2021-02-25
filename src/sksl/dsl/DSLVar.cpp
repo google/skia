@@ -101,11 +101,11 @@ GrGLSLUniformHandler::UniformHandle DSLVar::uniformHandle() const {
 }
 #endif
 
-DSLPossibleExpression DSLVar::operator[](DSLExpression&& index) {
+DSLExpression DSLVar::operator[](DSLExpression&& index) {
     return DSLExpression(*this)[std::move(index)];
 }
 
-DSLPossibleExpression DSLVar::operator=(DSLExpression expr) {
+DSLExpression DSLVar::operator=(DSLExpression expr) {
     return DSLWriter::ConvertBinary(DSLExpression(*this).release(), SkSL::Token::Kind::TK_EQ,
                                     expr.release());
 }
