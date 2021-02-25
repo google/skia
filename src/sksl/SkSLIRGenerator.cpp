@@ -79,51 +79,9 @@ public:
     std::shared_ptr<SymbolTable> fPrevious;
 };
 
-void IRGenerator::FillCapsMap(const SkSL::ShaderCapsClass& caps,
-                              std::unordered_map<String, CapsValue>* capsMap) {
-#define CAP(name) capsMap->insert({String(#name), CapsValue(caps.name())})
-    CAP(fbFetchSupport);
-    CAP(fbFetchNeedsCustomOutput);
-    CAP(flatInterpolationSupport);
-    CAP(noperspectiveInterpolationSupport);
-    CAP(externalTextureSupport);
-    CAP(mustEnableAdvBlendEqs);
-    CAP(mustDeclareFragmentShaderOutput);
-    CAP(mustDoOpBetweenFloorAndAbs);
-    CAP(mustGuardDivisionEvenAfterExplicitZeroCheck);
-    CAP(inBlendModesFailRandomlyForAllZeroVec);
-    CAP(atan2ImplementedAsAtanYOverX);
-    CAP(canUseAnyFunctionInShader);
-    CAP(floatIs32Bits);
-    CAP(integerSupport);
-    CAP(builtinFMASupport);
-    CAP(builtinDeterminantSupport);
-#undef CAP
-}
-
-std::unique_ptr<Expression> IRGenerator::CapsValue::literal(const Context& context,
-                                                            int offset) const {
-    switch (fKind) {
-        case kBool_Kind:
-            return std::make_unique<BoolLiteral>(context, offset, fValue);
-
-        case kInt_Kind:
-            return std::make_unique<IntLiteral>(context, offset, fValue);
-
-        case kFloat_Kind:
-            return std::make_unique<FloatLiteral>(context, offset, fValueF);
-
-        default:
-            SkDEBUGFAILF("unrecognized caps kind: %d", fKind);
-            return nullptr;
-    }
-}
-
 IRGenerator::IRGenerator(const Context* context)
         : fContext(*context)
-        , fModifiers(new ModifiersPool()) {
-    FillCapsMap(context->fCaps, &fCapsMap);
-}
+        , fModifiers(new ModifiersPool()) {}
 
 void IRGenerator::pushSymbolTable() {
     auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
@@ -2388,30 +2346,6 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                    : Swizzle::Make(fContext, std::move(base), components);
 }
 
-const Type* IRGenerator::typeForSetting(int offset, String name) const {
-    auto found = fCapsMap.find(name);
-    if (found == fCapsMap.end()) {
-        this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
-        return nullptr;
-    }
-    switch (found->second.fKind) {
-        case CapsValue::kBool_Kind:  return fContext.fTypes.fBool.get();
-        case CapsValue::kFloat_Kind: return fContext.fTypes.fFloat.get();
-        case CapsValue::kInt_Kind:   return fContext.fTypes.fInt.get();
-    }
-    SkUNREACHABLE;
-    return nullptr;
-}
-
-std::unique_ptr<Expression> IRGenerator::valueForSetting(int offset, String name) const {
-    auto found = fCapsMap.find(name);
-    if (found == fCapsMap.end()) {
-        this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
-        return nullptr;
-    }
-    return found->second.literal(fContext, offset);
-}
-
 std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type& type,
                                                           StringFragment field) {
     const ProgramElement* enumElement = nullptr;
@@ -2559,9 +2493,9 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     const Type& baseType = base->type();
     if (baseType == *fContext.fTypes.fSkCaps) {
         if (this->settings().fReplaceSettings && !fIsBuiltinCode) {
-            return this->valueForSetting(fieldNode.fOffset, field);
+            return Setting::GetValue(fContext, fieldNode.fOffset, field);
         }
-        const Type* type = this->typeForSetting(fieldNode.fOffset, field);
+        const Type* type = Setting::GetType(fContext, fieldNode.fOffset, field);
         if (!type) {
             return nullptr;
         }
