@@ -11,28 +11,28 @@ float return_loop_0()
 }
 half4 main()
 {
-	float _1_sum = 0.0;
-	for (float _2_i = 0.0;_2_i < 10.0; ++_2_i) 
+	float _0_sum = 0.0;
+	for (float _1_i = 0.0;_1_i < 10.0; ++_1_i) 
 	{
-		if (_2_i < 5.0) 
+		if (_1_i < 5.0) 
 		{
 			continue;
 		}
-		_1_sum += _2_i;
+		_0_sum += _1_i;
 	}
-	float _4_sum = 0.0;
-	for (float _5_i = 0.0;_5_i < 10.0; ++_5_i) 
+	float _2_sum = 0.0;
+	for (float _3_i = 0.0;_3_i < 10.0; ++_3_i) 
 	{
-		if (_5_i > 5.0) 
+		if (_3_i > 5.0) 
 		{
 			break;
 		}
+		_2_sum += _3_i;
+	}
+	float _4_sum = 0.0;
+	for (float _5_i = 0.12300000339746475;_5_i < 0.60000002384185791; _5_i += 0.11100000143051147) 
+	{
 		_4_sum += _5_i;
 	}
-	float _7_sum = 0.0;
-	for (float _8_i = 0.12300000339746475;_8_i < 0.60000002384185791; _8_i += 0.11100000143051147) 
-	{
-		_7_sum += _8_i;
-	}
-	return half4(half4(half(return_loop_0()), half(_1_sum), half(_4_sum), half(_7_sum)));
+	return half4(half4(half(return_loop_0()), half(_0_sum), half(_2_sum), half(_4_sum)));
 }

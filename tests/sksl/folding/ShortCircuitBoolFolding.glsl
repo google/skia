@@ -4,116 +4,116 @@ uniform vec4 colorRed;
 uniform vec4 colorGreen;
 uniform float unknownInput;
 vec4 main() {
-    bool _1_expr = unknownInput > 0.0;
-    int _2_ok = 0;
-    int _3_bad = 0;
+    bool _0_expr = unknownInput > 0.0;
+    int _1_ok = 0;
+    int _2_bad = 0;
 
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
     {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (true ^^ _1_expr) {
-        ++_3_bad;
+    if (true ^^ _0_expr) {
+        ++_2_bad;
     } else {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
     {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
-    if (false == _1_expr) {
-        ++_3_bad;
+    if (false == _0_expr) {
+        ++_2_bad;
     } else {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (true != _1_expr) {
-        ++_3_bad;
+    if (true != _0_expr) {
+        ++_2_bad;
     } else {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
     {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr ^^ true) {
-        ++_3_bad;
+    if (_0_expr ^^ true) {
+        ++_2_bad;
     } else {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
     {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
-    if (_1_expr == false) {
-        ++_3_bad;
+    if (_0_expr == false) {
+        ++_2_bad;
     } else {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr != true) {
-        ++_3_bad;
+    if (_0_expr != true) {
+        ++_2_bad;
     } else {
-        ++_2_ok;
+        ++_1_ok;
     }
-    if (_1_expr) {
-        ++_2_ok;
+    if (_0_expr) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
-    float _4_a = sqrt(1.0);
-    float _5_b = sqrt(2.0);
+    float _3_a = sqrt(1.0);
+    float _4_b = sqrt(2.0);
 
-    if (_4_a == _5_b) {
-        ++_3_bad;
+    if (_3_a == _4_b) {
+        ++_2_bad;
     } else {
-        ++_2_ok;
+        ++_1_ok;
     }
-    bool(_4_a = _5_b) || true;
-    if (_4_a == _5_b) {
-        ++_2_ok;
+    bool(_3_a = _4_b) || true;
+    if (_3_a == _4_b) {
+        ++_1_ok;
     } else {
-        ++_3_bad;
+        ++_2_bad;
     }
-    return _2_ok == 22 && _3_bad == 0 ? colorGreen : colorRed;
+    return _1_ok == 22 && _2_bad == 0 ? colorGreen : colorRed;
 
 }

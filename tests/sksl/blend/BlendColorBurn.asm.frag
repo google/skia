@@ -8,7 +8,7 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
 OpName %_color_burn_component "_color_burn_component"
-OpName %_6_n "_6_n"
+OpName %_1_n "_1_n"
 OpName %delta "delta"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
@@ -95,7 +95,7 @@ OpDecorate %130 RelaxedPrecision
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpLabel
-%_6_n = OpVariable %_ptr_Function_float Function
+%_1_n = OpVariable %_ptr_Function_float Function
 %delta = OpVariable %_ptr_Function_float Function
 %20 = OpLoad %v2float %18
 %21 = OpCompositeExtract %float %20 1
@@ -148,10 +148,10 @@ OpReturnValue %60
 %68 = OpLoad %v2float %17
 %69 = OpCompositeExtract %float %68 1
 %70 = OpFMul %float %67 %69
-OpStore %_6_n %70
+OpStore %_1_n %70
 %73 = OpLoad %v2float %18
 %74 = OpCompositeExtract %float %73 1
-%75 = OpLoad %float %_6_n
+%75 = OpLoad %float %_1_n
 %76 = OpLoad %v2float %17
 %77 = OpCompositeExtract %float %76 0
 %78 = OpFDiv %float %75 %77

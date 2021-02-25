@@ -11,11 +11,11 @@ bool test_int() {
     return bool(((result.x * result.y) * result.z) * result.w);
 }
 vec4 main() {
-    vec4 _1_result;
-    _1_result.x = 1.0;
-    _1_result.y = 1.0;
-    _1_result.z = 1.0;
-    _1_result.w = 1.0;
-    return bool(((_1_result.x * _1_result.y) * _1_result.z) * _1_result.w) && test_int() ? colorGreen : colorRed;
+    vec4 _0_result;
+    _0_result.x = 1.0;
+    _0_result.y = 1.0;
+    _0_result.z = 1.0;
+    _0_result.w = 1.0;
+    return bool(((_0_result.x * _0_result.y) * _0_result.z) * _0_result.w) && test_int() ? colorGreen : colorRed;
 
 }

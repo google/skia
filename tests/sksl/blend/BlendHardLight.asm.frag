@@ -9,7 +9,7 @@ OpName %src "src"
 OpName %dst "dst"
 OpName %_blend_overlay_component "_blend_overlay_component"
 OpName %main "main"
-OpName %_2_result "_2_result"
+OpName %_0_result "_0_result"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -130,7 +130,7 @@ OpReturnValue %56
 OpFunctionEnd
 %main = OpFunction %void None %58
 %59 = OpLabel
-%_2_result = OpVariable %_ptr_Function_v4float Function
+%_0_result = OpVariable %_ptr_Function_v4float Function
 %64 = OpVariable %_ptr_Function_v2float Function
 %67 = OpVariable %_ptr_Function_v2float Function
 %71 = OpVariable %_ptr_Function_v2float Function
@@ -168,8 +168,8 @@ OpStore %81 %80
 %91 = OpFMul %float %88 %90
 %92 = OpFAdd %float %84 %91
 %93 = OpCompositeConstruct %v4float %68 %75 %82 %92
-OpStore %_2_result %93
-%94 = OpLoad %v4float %_2_result
+OpStore %_0_result %93
+%94 = OpLoad %v4float %_0_result
 %95 = OpVectorShuffle %v3float %94 %94 0 1 2
 %97 = OpLoad %v4float %src
 %98 = OpVectorShuffle %v3float %97 %97 0 1 2
@@ -185,10 +185,10 @@ OpStore %_2_result %93
 %108 = OpVectorTimesScalar %v3float %104 %107
 %109 = OpFAdd %v3float %102 %108
 %110 = OpFAdd %v3float %95 %109
-%111 = OpLoad %v4float %_2_result
+%111 = OpLoad %v4float %_0_result
 %112 = OpVectorShuffle %v4float %111 %110 4 5 6 3
-OpStore %_2_result %112
-%113 = OpLoad %v4float %_2_result
+OpStore %_0_result %112
+%113 = OpLoad %v4float %_0_result
 OpStore %sk_FragColor %113
 OpReturn
 OpFunctionEnd
