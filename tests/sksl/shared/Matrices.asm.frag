@@ -10,14 +10,14 @@ OpMemberName %_UniformBuffer 0 "colorGreen"
 OpMemberName %_UniformBuffer 1 "colorRed"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
-OpName %_1_m3 "_1_m3"
-OpName %_2_m5 "_2_m5"
-OpName %_3_m6 "_3_m6"
-OpName %_4_m11 "_4_m11"
-OpName %_6_m3 "_6_m3"
-OpName %_7_m5 "_7_m5"
-OpName %_8_m6 "_8_m6"
-OpName %_9_m11 "_9_m11"
+OpName %_0_m3 "_0_m3"
+OpName %_1_m5 "_1_m5"
+OpName %_2_m6 "_2_m6"
+OpName %_3_m11 "_3_m11"
+OpName %_4_m3 "_4_m3"
+OpName %_5_m5 "_5_m5"
+OpName %_6_m6 "_6_m6"
+OpName %_7_m11 "_7_m11"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -100,26 +100,26 @@ OpReturn
 OpFunctionEnd
 %main = OpFunction %v4float None %18
 %19 = OpLabel
-%_1_m3 = OpVariable %_ptr_Function_mat2v2float Function
-%_2_m5 = OpVariable %_ptr_Function_mat2v2float Function
+%_0_m3 = OpVariable %_ptr_Function_mat2v2float Function
+%_1_m5 = OpVariable %_ptr_Function_mat2v2float Function
 %38 = OpVariable %_ptr_Function_mat2v2float Function
-%_3_m6 = OpVariable %_ptr_Function_mat2v2float Function
-%_4_m11 = OpVariable %_ptr_Function_mat4v4float Function
-%_6_m3 = OpVariable %_ptr_Function_mat2v2float Function
-%_7_m5 = OpVariable %_ptr_Function_mat2v2float Function
+%_2_m6 = OpVariable %_ptr_Function_mat2v2float Function
+%_3_m11 = OpVariable %_ptr_Function_mat4v4float Function
+%_4_m3 = OpVariable %_ptr_Function_mat2v2float Function
+%_5_m5 = OpVariable %_ptr_Function_mat2v2float Function
 %101 = OpVariable %_ptr_Function_mat2v2float Function
-%_8_m6 = OpVariable %_ptr_Function_mat2v2float Function
-%_9_m11 = OpVariable %_ptr_Function_mat4v4float Function
+%_6_m6 = OpVariable %_ptr_Function_mat2v2float Function
+%_7_m11 = OpVariable %_ptr_Function_mat4v4float Function
 %29 = OpCompositeConstruct %v2float %float_1 %float_2
 %30 = OpCompositeConstruct %v2float %float_3 %float_4
 %28 = OpCompositeConstruct %mat2v2float %29 %30
-OpStore %_1_m3 %28
-%31 = OpLoad %mat2v2float %_1_m3
+OpStore %_0_m3 %28
+%31 = OpLoad %mat2v2float %_0_m3
 %34 = OpCompositeConstruct %v2float %float_1 %float_0
 %35 = OpCompositeConstruct %v2float %float_0 %float_1
 %32 = OpCompositeConstruct %mat2v2float %34 %35
 %36 = OpMatrixTimesMatrix %mat2v2float %31 %32
-OpStore %_1_m3 %36
+OpStore %_0_m3 %36
 %40 = OpCompositeConstruct %v2float %float_1 %float_2
 %41 = OpCompositeConstruct %v2float %float_3 %float_4
 %39 = OpCompositeConstruct %mat2v2float %40 %41
@@ -130,13 +130,13 @@ OpStore %38 %39
 %49 = OpCompositeConstruct %v2float %47 %float_0
 %50 = OpCompositeConstruct %v2float %float_0 %47
 %48 = OpCompositeConstruct %mat2v2float %49 %50
-OpStore %_2_m5 %48
+OpStore %_1_m5 %48
 %53 = OpCompositeConstruct %v2float %float_1 %float_2
 %54 = OpCompositeConstruct %v2float %float_3 %float_4
 %52 = OpCompositeConstruct %mat2v2float %53 %54
-OpStore %_3_m6 %52
-%55 = OpLoad %mat2v2float %_3_m6
-%56 = OpLoad %mat2v2float %_2_m5
+OpStore %_2_m6 %52
+%55 = OpLoad %mat2v2float %_2_m6
+%56 = OpLoad %mat2v2float %_1_m5
 %57 = OpCompositeExtract %v2float %55 0
 %58 = OpCompositeExtract %v2float %56 0
 %59 = OpFAdd %v2float %57 %58
@@ -144,14 +144,14 @@ OpStore %_3_m6 %52
 %61 = OpCompositeExtract %v2float %56 1
 %62 = OpFAdd %v2float %60 %61
 %63 = OpCompositeConstruct %mat2v2float %59 %62
-OpStore %_3_m6 %63
+OpStore %_2_m6 %63
 %68 = OpCompositeConstruct %v4float %float_2 %float_0 %float_0 %float_0
 %69 = OpCompositeConstruct %v4float %float_0 %float_2 %float_0 %float_0
 %70 = OpCompositeConstruct %v4float %float_0 %float_0 %float_2 %float_0
 %71 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_2
 %67 = OpCompositeConstruct %mat4v4float %68 %69 %70 %71
-OpStore %_4_m11 %67
-%72 = OpLoad %mat4v4float %_4_m11
+OpStore %_3_m11 %67
+%72 = OpLoad %mat4v4float %_3_m11
 %74 = OpCompositeConstruct %v4float %float_1 %float_0 %float_0 %float_0
 %75 = OpCompositeConstruct %v4float %float_0 %float_1 %float_0 %float_0
 %76 = OpCompositeConstruct %v4float %float_0 %float_0 %float_1 %float_0
@@ -170,17 +170,17 @@ OpStore %_4_m11 %67
 %88 = OpCompositeExtract %v4float %73 3
 %89 = OpFSub %v4float %87 %88
 %90 = OpCompositeConstruct %mat4v4float %80 %83 %86 %89
-OpStore %_4_m11 %90
+OpStore %_3_m11 %90
 %93 = OpCompositeConstruct %v2float %float_1 %float_2
 %94 = OpCompositeConstruct %v2float %float_3 %float_4
 %92 = OpCompositeConstruct %mat2v2float %93 %94
-OpStore %_6_m3 %92
-%95 = OpLoad %mat2v2float %_6_m3
+OpStore %_4_m3 %92
+%95 = OpLoad %mat2v2float %_4_m3
 %97 = OpCompositeConstruct %v2float %float_1 %float_0
 %98 = OpCompositeConstruct %v2float %float_0 %float_1
 %96 = OpCompositeConstruct %mat2v2float %97 %98
 %99 = OpMatrixTimesMatrix %mat2v2float %95 %96
-OpStore %_6_m3 %99
+OpStore %_4_m3 %99
 %103 = OpCompositeConstruct %v2float %float_1 %float_2
 %104 = OpCompositeConstruct %v2float %float_3 %float_4
 %102 = OpCompositeConstruct %mat2v2float %103 %104
@@ -191,13 +191,13 @@ OpStore %101 %102
 %109 = OpCompositeConstruct %v2float %107 %float_0
 %110 = OpCompositeConstruct %v2float %float_0 %107
 %108 = OpCompositeConstruct %mat2v2float %109 %110
-OpStore %_7_m5 %108
+OpStore %_5_m5 %108
 %113 = OpCompositeConstruct %v2float %float_1 %float_2
 %114 = OpCompositeConstruct %v2float %float_3 %float_4
 %112 = OpCompositeConstruct %mat2v2float %113 %114
-OpStore %_8_m6 %112
-%115 = OpLoad %mat2v2float %_8_m6
-%116 = OpLoad %mat2v2float %_7_m5
+OpStore %_6_m6 %112
+%115 = OpLoad %mat2v2float %_6_m6
+%116 = OpLoad %mat2v2float %_5_m5
 %117 = OpCompositeExtract %v2float %115 0
 %118 = OpCompositeExtract %v2float %116 0
 %119 = OpFAdd %v2float %117 %118
@@ -205,14 +205,14 @@ OpStore %_8_m6 %112
 %121 = OpCompositeExtract %v2float %116 1
 %122 = OpFAdd %v2float %120 %121
 %123 = OpCompositeConstruct %mat2v2float %119 %122
-OpStore %_8_m6 %123
+OpStore %_6_m6 %123
 %126 = OpCompositeConstruct %v4float %float_2 %float_0 %float_0 %float_0
 %127 = OpCompositeConstruct %v4float %float_0 %float_2 %float_0 %float_0
 %128 = OpCompositeConstruct %v4float %float_0 %float_0 %float_2 %float_0
 %129 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_2
 %125 = OpCompositeConstruct %mat4v4float %126 %127 %128 %129
-OpStore %_9_m11 %125
-%130 = OpLoad %mat4v4float %_9_m11
+OpStore %_7_m11 %125
+%130 = OpLoad %mat4v4float %_7_m11
 %132 = OpCompositeConstruct %v4float %float_1 %float_0 %float_0 %float_0
 %133 = OpCompositeConstruct %v4float %float_0 %float_1 %float_0 %float_0
 %134 = OpCompositeConstruct %v4float %float_0 %float_0 %float_1 %float_0
@@ -231,7 +231,7 @@ OpStore %_9_m11 %125
 %146 = OpCompositeExtract %v4float %131 3
 %147 = OpFSub %v4float %145 %146
 %148 = OpCompositeConstruct %mat4v4float %138 %141 %144 %147
-OpStore %_9_m11 %148
+OpStore %_7_m11 %148
 %149 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %151 = OpLoad %v4float %149
 OpReturnValue %151
