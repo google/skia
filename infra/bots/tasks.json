@@ -26144,7 +26144,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -26227,7 +26227,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -26310,7 +26310,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -46601,7 +46601,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -46684,7 +46684,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -46767,7 +46767,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -46850,7 +46850,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -46933,7 +46933,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
@@ -47016,7 +47016,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-26.21.14.4120",
+        "gpu:10de:1401-27.21.14.5671",
         "os:Windows-10-18363",
         "pool:Skia"
       ],
