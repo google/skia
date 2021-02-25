@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b21b785a_927ca364",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-25T15:34:57Z",
+      "side": 1,
+      "message": "Looks like out.glsl was added (empty) accidentally?",
+      "revId": "411fd91151fc4f173f728a33b22a06967c923be0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
