@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a406091_86fa3f75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-25T21:52:31Z",
+      "side": 1,
+      "message": "Straight reland other than a small merge in If().",
+      "revId": "4a447b1d1dd7e510ffd4b7329a5f98c72f20296b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
