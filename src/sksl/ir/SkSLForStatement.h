@@ -31,6 +31,20 @@ public:
     , fNext(std::move(next))
     , fStatement(std::move(statement)) {}
 
+    // Creates an SkSL for loop.
+    static std::unique_ptr<Statement> Make(const Context& context, int offset,
+                                           std::unique_ptr<Statement> initializer,
+                                           std::unique_ptr<Expression> test,
+                                           std::unique_ptr<Expression> next,
+                                           std::unique_ptr<Statement> statement,
+                                           std::shared_ptr<SymbolTable> symbolTable);
+
+    // A while statement is represented in SkSL as a for loop with no init-stmt or next-expr.
+    static std::unique_ptr<Statement> MakeWhile(const Context& context, int offset,
+                                                std::unique_ptr<Expression> test,
+                                                std::unique_ptr<Statement> statement,
+                                                std::shared_ptr<SymbolTable> symbolTable);
+
     std::unique_ptr<Statement>& initializer() {
         return fInitializer;
     }
@@ -67,34 +81,9 @@ public:
         return fSymbolTable;
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<ForStatement>(
-                fOffset,
-                this->initializer() ? this->initializer()->clone() : nullptr,
-                this->test() ? this->test()->clone() : nullptr,
-                this->next() ? this->next()->clone() : nullptr,
-                this->statement()->clone(),
-                SymbolTable::WrapIfBuiltin(this->symbols()));
-    }
+    std::unique_ptr<Statement> clone() const override;
 
-    String description() const override {
-        String result("for (");
-        if (this->initializer()) {
-            result += this->initializer()->description();
-        } else {
-            result += ";";
-        }
-        result += " ";
-        if (this->test()) {
-            result += this->test()->description();
-        }
-        result += "; ";
-        if (this->next()) {
-            result += this->next()->description();
-        }
-        result += ") " + this->statement()->description();
-        return result;
-    }
+    String description() const override;
 
 private:
     std::shared_ptr<SymbolTable> fSymbolTable;
