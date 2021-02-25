@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/DSLCore.h"
+#include "src/sksl/dsl/DSLErrorHandling.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 
@@ -97,45 +98,50 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Express
     return expr;
 }
 
-DSLExpression DSLWriter::Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type) {
-    return DSLExpression(Check(IRGenerator().coerce(std::move(left), type)));
+DSLPossibleExpression DSLWriter::Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type) {
+    return IRGenerator().coerce(std::move(left), type);
 }
 
-DSLExpression DSLWriter::Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs) {
+DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
+                                           std::vector<DSLExpression> rawArgs) {
     SkSL::ExpressionArray args;
     args.reserve_back(rawArgs.size());
 
     for (DSLExpression& arg : rawArgs) {
         args.push_back(arg.release());
     }
-    return DSLExpression(SkSL::Constructor::Make(Context(), /*offset=*/-1, type, std::move(args)));
+    return SkSL::Constructor::Make(Context(), /*offset=*/-1, type, std::move(args));
 }
 
-DSLExpression DSLWriter::ConvertBinary(std::unique_ptr<Expression> left, Operator op,
-                                       std::unique_ptr<Expression> right) {
+std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expression> left,
+                                                           Operator op,
+                                                           std::unique_ptr<Expression> right) {
     return IRGenerator().convertBinaryExpression(std::move(left), op, std::move(right));
 }
 
-DSLExpression DSLWriter::ConvertField(std::unique_ptr<Expression> base, const char* name) {
+std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
+                                                          const char* name) {
     return IRGenerator().convertField(std::move(base), name);
 }
 
-DSLExpression DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,
-                                      std::unique_ptr<Expression> index) {
+std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,
+                                                          std::unique_ptr<Expression> index) {
     return IRGenerator().convertIndex(std::move(base), std::move(index));
 }
 
-DSLExpression DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr, Operator op) {
+std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr,
+                                                            Operator op) {
     return IRGenerator().convertPostfixExpression(std::move(expr), op);
 }
 
-DSLExpression DSLWriter::ConvertPrefix(Operator op, std::unique_ptr<Expression> expr) {
+std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,
+                                                           std::unique_ptr<Expression> expr) {
     return IRGenerator().convertPrefixExpression(op, std::move(expr));
 }
 
-DSLStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
-                                      ExpressionArray caseValues,
-                                      SkTArray<SkSL::StatementArray> caseStatements) {
+DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
+                                              ExpressionArray caseValues,
+                                              SkTArray<SkSL::StatementArray> caseStatements) {
     return SwitchStatement::Make(Context(), /*offset=*/-1, /*isStatic=*/false, std::move(value),
                                  std::move(caseValues), std::move(caseStatements),
                                  IRGenerator().fSymbolTable);
