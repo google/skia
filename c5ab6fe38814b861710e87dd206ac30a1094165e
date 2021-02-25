@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9e8ea1a_489475e0",
+        "filename": "src/sksl/ir/SkSLSetting.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-25T13:05:57Z",
+      "side": 1,
+      "message": "This needs to be constexpr I think?\n\nhttps://logs.chromium.org/logs/chromium/buildbucket/cr-buildbucket.appspot.com/8854325862539635248/+/steps/check_static_initializers__with_patch_/0/stdout",
+      "revId": "c5ab6fe38814b861710e87dd206ac30a1094165e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
