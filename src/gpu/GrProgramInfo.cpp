@@ -45,7 +45,7 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
             (tex->width() != 1 || tex->height() != 1)) {
             // There are some cases where we might be given a non-mipmapped texture with a
             // mipmap filter. See skbug.com/7094.
-            SkASSERT(tex->mipmapped() != GrMipmapped::kYes || !tex->mipmapsAreDirty());
+            //SkASSERT(tex->mipmapped() != GrMipmapped::kYes || !tex->mipmapsAreDirty());
         }
     });
 }
