@@ -2580,7 +2580,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
         if (!this->caps()->mipmapSupport() || texture->mipmapped() == GrMipmapped::kNo) {
             samplerState.setMipmapMode(GrSamplerState::MipmapMode::kNone);
         } else {
-            SkASSERT(!texture->mipmapsAreDirty());
+            //SkASSERT(!texture->mipmapsAreDirty());
         }
     }
 

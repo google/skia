@@ -3,16 +3,25 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+
+#include "src/core/SkOSFile.h"
+
+#include "src/gpu/GrDirectContextPriv.h"
+
+#include "src/sksl/SkSLDefines.h"
+
+#include "src/utils/SkOSPath.h"
 
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
+#include "tools/ToolUtils.h"
 
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/TestContext.h"
-
-#include "src/sksl/SkSLDefines.h"
 
 #include <chrono>
 #include <deque>
@@ -26,6 +35,9 @@ using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
 
 static DEFINE_int(ddlNumRecordingThreads, 1, "number of DDL recording threads");
+static DEFINE_int(ddlTilingWidthHeight, 3, "number of tiles along one edge when in DDL mode");
+static DEFINE_int(numSamples, 1, "number of MSAA samples");
+static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 static DEFINE_string(src, "", "input .skp file");
 
 static void exitf(const char* format, ...) {
@@ -273,14 +285,52 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
         exitf("failed to parse file %s", srcfile.c_str());
     }
 
-    sk_sp<SkData> compressedPictureData = promiseImageHelper->deflateSKP(skp.get());
-    if (!compressedPictureData) {
-        exitf("skp deflation failed %s", srcfile.c_str());
+    return promiseImageHelper->recreateSKP(skp.get(), dContext);
+}
+
+static void check_params(GrDirectContext* dContext,
+                         int width, int height, SkColorType ct, SkAlphaType at, int numSamples) {
+
+    if (dContext->maxRenderTargetSize() < std::max(width, height)) {
+        exitf("render target size %ix%i not supported by platform (max: %i)",
+              width, height, dContext->maxRenderTargetSize());
     }
 
-    // TODO: use the new shared promise images to just create one skp here
+    GrBackendFormat format = dContext->defaultBackendFormat(ct, GrRenderable::kYes);
+    if (!format.isValid()) {
+        exitf("failed to get GrBackendFormat from SkColorType: %d", ct);
+    }
 
-    return skp;
+    int supportedSampleCount = dContext->priv().caps()->getRenderTargetSampleCount(numSamples,
+                                                                                   format);
+    if (supportedSampleCount != numSamples) {
+        exitf("sample count %i not supported by platform", numSamples);
+    }
+}
+
+bool mkdir_p(const SkString& dirname) {
+    if (dirname.isEmpty() || dirname == SkString("/")) {
+        return true;
+    }
+    return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
+}
+
+static void maybe_save_file(SkSurface* surface) {
+    if (FLAGS_png.isEmpty()) {
+        return;
+    }
+
+    SkBitmap bmp;
+    bmp.allocPixels(surface->imageInfo());
+    if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
+        exitf("failed to read canvas pixels for png");
+    }
+    if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
+        exitf("failed to create directory for png \"%s\"", FLAGS_png[0]);
+    }
+    if (!ToolUtils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
+        exitf("failed to save png to \"%s\"", FLAGS_png[0]);
+    }
 }
 
 int main(int argc, char** argv) {
@@ -294,6 +344,8 @@ int main(int argc, char** argv) {
     const GrContextFactory::ContextType kContextType = GrContextFactory::kGL_ContextType;
     const GrContextOptions kContextOptions;
     const GrContextFactory::ContextOverrides kOverrides = GrContextFactory::ContextOverrides::kNone;
+    SkColorType ct = kRGBA_8888_SkColorType;
+    SkAlphaType at = kPremul_SkAlphaType;
 
     SkGraphics::Init();
 
@@ -319,10 +371,35 @@ int main(int argc, char** argv) {
                                              mainContext->fDirectContext,
                                              &promiseImageHelper);
 
-    promiseImageHelper.createCallbackContexts(mainContext->fDirectContext);
+    int width = std::min(SkScalarCeilToInt(skp->cullRect().width()), 2048);
+    int height = std::min(SkScalarCeilToInt(skp->cullRect().height()), 2048);
+
+    check_params(mainContext->fDirectContext, width, height, ct, at, FLAGS_numSamples);
 
     // TODO: do this later on a utility thread!
     promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext);
+
+    SkImageInfo info = SkImageInfo::Make(width, height, ct, at, nullptr);
+
+    sk_sp<SkSurface> dstSurface = SkSurface::MakeRenderTarget(mainContext->fDirectContext,
+                                                              SkBudgeted::kNo, info,
+                                                              FLAGS_numSamples, nullptr);
+    if (!dstSurface) {
+        exitf("Could not create a surface.");
+    }
+
+    SkSurfaceCharacterization dstCharacterization;
+    SkAssertResult(dstSurface->characterize(&dstCharacterization));
+
+    SkIRect viewport = dstSurface->imageInfo().bounds();
+
+    DDLTileHelper tiles(mainContext->fDirectContext,
+                        dstCharacterization,
+                        viewport,
+                        FLAGS_ddlTilingWidthHeight,
+                        /* addRandomPaddingToDst */ false);
+
+    tiles.createBackendTextures(nullptr, mainContext->fDirectContext);
 
     mainContext->fTestContext->makeNotCurrent();
 
@@ -331,6 +408,7 @@ int main(int argc, char** argv) {
         GrTaskGroup recordingTaskGroup(SkSpan<ThreadInfo>(utilityContexts.get(),
                                                           FLAGS_ddlNumRecordingThreads));
 
+#if 0
         for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
             recordingTaskGroup.add([] {
                                        ThreadInfo* threadLocal = get_thread_local_info();
@@ -350,13 +428,82 @@ int main(int argc, char** argv) {
                              ThreadInfo* threadLocal = get_thread_local_info();
                              threadLocal->fTestContext->makeNotCurrent();
                          });
+#endif
+
+#if 1
+        for (int i = 0; i < tiles.numTiles(); ++i) {
+            DDLTileHelper::TileData* tile = tiles.tile(i);
+            if (!tile->initialized()) {
+                continue;
+            }
+
+            recordingTaskGroup.add([tile, gpuTaskGroup1 = &gpuTaskGroup, skp]() {
+                                        tile->createDDL(skp.get());
+                                        printf("created tile %d\n", tile->id());
+
+                                        gpuTaskGroup1->add([tile]() {
+                                            ThreadInfo* threadLocal = get_thread_local_info();
+
+                                            printf("doing ddl work for %d\n", tile->id());
+                                            tile->precompile(threadLocal->fDirectContext);
+
+                                            tile->draw(threadLocal->fDirectContext);
+
+                                            tile->dropDDL();
+                                        });
+                                    });
+        }
+
+        recordingTaskGroup.add([&tiles] { tiles.createComposeDDL(); });
 
         recordingTaskGroup.wait();
+
+        gpuTaskGroup.add([dstSurface, ddl = tiles.composeDDL()]() {
+//                             ThreadInfo* threadLocal = get_thread_local_info();
+                             printf("drawing composeDDL %p\n", ddl.get());
+                             dstSurface->draw(std::move(ddl));
+                        });
+
+#else
+        gpuTaskGroup.add([dstSurface, skp]() {
+//                             ThreadInfo* threadLocal = get_thread_local_info();
+
+                             printf("drawing full SKP\n");
+                             dstSurface->getCanvas()->drawPicture(skp);
+                        });
+#endif
+
+        gpuTaskGroup.add([]() {
+                             ThreadInfo* threadLocal = get_thread_local_info();
+
+                             printf("flushing\n");
+                             threadLocal->fDirectContext->flush();
+                             threadLocal->fDirectContext->submit(true);
+                        });
+
+        gpuTaskGroup.add([]() {
+                             ThreadInfo* threadLocal = get_thread_local_info();
+
+                             printf("making not current\n");
+                             threadLocal->fTestContext->makeNotCurrent();
+                        });
+
         gpuTaskGroup.wait();
     }
 
     mainContext->fTestContext->makeCurrent();
 
+    if (!FLAGS_png.isEmpty()) {
+        maybe_save_file(dstSurface.get());
+    }
+
+    tiles.resetAllTiles();
+
+    promiseImageHelper.deleteAllFromGPU(nullptr, mainContext->fDirectContext);
+
+    tiles.deleteBackendTextures(nullptr, mainContext->fDirectContext);
+
+    // Dump out the timing stats
     mainContext->dump();
     for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
         utilityContexts[i].dump();
