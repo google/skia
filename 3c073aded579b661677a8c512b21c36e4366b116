@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3673d2ca_866f655f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-25T18:05:54Z",
+      "side": 1,
+      "message": "LGTM but would really like to see a before/after of the emitted code if that\u0027s not too hard.",
+      "revId": "3c073aded579b661677a8c512b21c36e4366b116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b3fce60_b2573a6d",
@@ -37,6 +54,30 @@
       "writtenOn": "2021-02-25T17:59:25Z",
       "side": 1,
       "message": "Does this reorder change the result? I guess not, though it\u0027s a little confusing (actually, the old code may have been doing something different than it appeared) - \u0027coord\u0027 is evaluated after the increment, even in the old code, despite invokeChild being called before. Bleh.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 74
+      },
+      "revId": "3c073aded579b661677a8c512b21c36e4366b116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fd45a02_51022d3f",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-25T18:05:54Z",
+      "side": 1,
+      "message": "The old code is wonky but I think it does the desired thing. The new code is clearer for sure.\n\nIt would be super handy if there were a way to easily preview the code before and after this CL... would it be possible to attach before/afters as a go/paste to these sorts of CLs?",
+      "parentUuid": "cb66dd28_fb29c5d2",
       "range": {
         "startLine": 65,
         "startChar": 0,
