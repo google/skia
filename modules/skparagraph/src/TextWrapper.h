@@ -92,6 +92,7 @@ class TextWrapper {
         void startFrom(Cluster* cluster, size_t pos) {
             fStart = ClusterPos(cluster, pos);
             fEnd = ClusterPos(cluster, pos);
+            fBreak = ClusterPos(cluster, pos);
             if (cluster->run() != nullptr) {
                 fMetrics.add(cluster->run());
             }

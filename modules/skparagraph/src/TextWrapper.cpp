@@ -233,7 +233,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
     auto end = span.end() - 1;
     auto start = span.begin();
-    InternalLineMetrics maxRunMetrics;
     bool needEllipsis = false;
     while (fEndLine.endCluster() != end) {
 
@@ -279,11 +278,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 lastRun->updateMetrics(&fEndLine.metrics());
             }
         }
-
-        // Before we update the line metrics with struts,
-        // let's save it for GetRectsForRange(RectHeightStyle::kMax)
-        maxRunMetrics = fEndLine.metrics();
-        maxRunMetrics.fForceStrut = false;
 
         if (parent->strutEnabled()) {
             // Make sure font metrics are not less than the strut
@@ -419,7 +413,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 fEndLine.metrics(),
                 needEllipsis);
         fHeight += fEndLine.metrics().height();
-        parent->lines().back().setMaxRunMetrics(maxRunMetrics);
     }
 }
 

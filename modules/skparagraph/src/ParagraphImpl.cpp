@@ -340,7 +340,12 @@ void ParagraphImpl::buildClusterTable() {
         fMaxIntrinsicWidth += run.advance().fX;
     }
     fClustersIndexFromCodeUnit[fText.size()] = fClusters.size();
-    fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
+    if (fRuns.empty()) {
+        fClusters.emplace_back(this, EMPTY_RUN, 0, 0, this->text({fText.size(), fText.size()}), 0, 0);
+    } else {
+        auto& run = fRuns.back();
+        fClusters.emplace_back(this, run.index(), run.size(), run.size(), this->text({fText.size(), fText.size()}), 0, 0);
+    }
 }
 
 void ParagraphImpl::spaceGlyphs() {
