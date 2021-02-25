@@ -132,28 +132,25 @@ public:
      */
     static std::unique_ptr<SkSL::Expression> Check(std::unique_ptr<SkSL::Expression> expr);
 
-    static DSLPossibleExpression Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type);
+    static DSLExpression Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type);
 
-    static DSLPossibleExpression Construct(const SkSL::Type& type,
-                                           std::vector<DSLExpression> rawArgs);
+    static DSLExpression Construct(const SkSL::Type& type, std::vector<DSLExpression> rawArgs);
 
-    static std::unique_ptr<Expression> ConvertBinary(std::unique_ptr<Expression> left, Operator op,
-                                                     std::unique_ptr<Expression> right);
+    static DSLExpression ConvertBinary(std::unique_ptr<Expression> left, Operator op,
+                                       std::unique_ptr<Expression> right);
 
-    static std::unique_ptr<SkSL::Expression> ConvertField(std::unique_ptr<Expression> base,
-                                                          const char* name);
+    static DSLExpression ConvertField(std::unique_ptr<Expression> base, const char* name);
 
-    static std::unique_ptr<Expression> ConvertIndex(std::unique_ptr<Expression> base,
-                                                    std::unique_ptr<Expression> index);
+    static DSLExpression ConvertIndex(std::unique_ptr<Expression> base,
+                                      std::unique_ptr<Expression> index);
 
-    static std::unique_ptr<Expression> ConvertPostfix(std::unique_ptr<Expression> expr,
-                                                      Operator op);
+    static DSLExpression ConvertPostfix(std::unique_ptr<Expression> expr, Operator op);
 
-    static std::unique_ptr<Expression> ConvertPrefix(Operator op, std::unique_ptr<Expression> expr);
+    static DSLExpression ConvertPrefix(Operator op, std::unique_ptr<Expression> expr);
 
-    static DSLPossibleStatement ConvertSwitch(std::unique_ptr<Expression> value,
-                                              ExpressionArray caseValues,
-                                              SkTArray<SkSL::StatementArray> caseStatements);
+    static DSLStatement ConvertSwitch(std::unique_ptr<Expression> value,
+                                      ExpressionArray caseValues,
+                                      SkTArray<SkSL::StatementArray> caseStatements);
 
     static void Ignore(std::unique_ptr<SkSL::Expression>&) {}
 
