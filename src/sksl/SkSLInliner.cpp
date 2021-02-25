@@ -461,9 +461,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // need to ensure initializer is evaluated first so that we've already remapped its
             // declarations by the time we evaluate test & next
             std::unique_ptr<Statement> initializer = stmt(f.initializer());
-            return std::make_unique<ForStatement>(offset, std::move(initializer), expr(f.test()),
-                                                  expr(f.next()), stmt(f.statement()),
-                                                  SymbolTable::WrapIfBuiltin(f.symbols()));
+            return ForStatement::Make(*fContext, offset, std::move(initializer), expr(f.test()),
+                                      expr(f.next()), stmt(f.statement()),
+                                      SymbolTable::WrapIfBuiltin(f.symbols()));
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
@@ -726,12 +726,12 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlineStatements = &innerBlock->children();
 
         // for (int _1_loop = 0; _1_loop < 1; _1_loop++) {...}
-        inlinedBody.children().push_back(std::make_unique<ForStatement>(/*offset=*/-1,
-                                                                        std::move(loopVar.fVarDecl),
-                                                                        std::move(test),
-                                                                        std::move(increment),
-                                                                        std::move(innerBlock),
-                                                                        symbolTable));
+        inlinedBody.children().push_back(ForStatement::Make(*fContext, /*offset=*/-1,
+                                                            std::move(loopVar.fVarDecl),
+                                                            std::move(test),
+                                                            std::move(increment),
+                                                            std::move(innerBlock),
+                                                            symbolTable));
     } else {
         // No early returns, so we can just dump the code into our existing scopeless block.
         inlineStatements = &inlinedBody.children();

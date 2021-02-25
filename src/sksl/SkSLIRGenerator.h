@@ -203,11 +203,6 @@ private:
     std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              StringFragment field);
-    std::unique_ptr<Statement> convertFor(int offset,
-                                          std::unique_ptr<Statement> initializer,
-                                          std::unique_ptr<Expression> test,
-                                          std::unique_ptr<Expression> next,
-                                          std::unique_ptr<Statement> statement);
     std::unique_ptr<Statement> convertFor(const ASTNode& f);
     std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
     std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
@@ -238,8 +233,6 @@ private:
                                                          std::unique_ptr<Expression> ifFalse);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
-    std::unique_ptr<Statement> convertWhile(int offset, std::unique_ptr<Expression> test,
-                                            std::unique_ptr<Statement> statement);
     std::unique_ptr<Statement> convertWhile(const ASTNode& w);
     void convertGlobalVarDeclarations(const ASTNode& decl);
     void convertEnum(const ASTNode& e);
