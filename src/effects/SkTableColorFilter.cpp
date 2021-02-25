@@ -11,6 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkOnce.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorFilterBase.h"
@@ -65,7 +66,10 @@ public:
         }
     }
 
-    ~SkTable_ColorFilter() override { delete fBitmap; }
+    ~SkTable_ColorFilter() override {
+        fBitmapOnce([]{}); // acquire state of fBitmap
+        delete fBitmap;
+    }
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -144,6 +148,7 @@ private:
 
     void getTableAsBitmap(SkBitmap* table) const;
 
+    mutable SkOnce          fBitmapOnce;
     mutable const SkBitmap* fBitmap = nullptr; // lazily allocated
 
     uint8_t fStorage[256 * 4];
@@ -221,7 +226,7 @@ sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
 
 void SkTable_ColorFilter::getTableAsBitmap(SkBitmap* table) const {
     if (table) {
-        if (nullptr == fBitmap) {
+        fBitmapOnce([this]{
             SkBitmap* bmp = new SkBitmap;
             bmp->allocPixels(SkImageInfo::MakeA8(256, 4));
             uint8_t* bitmapPixels = bmp->getAddr8(0, 0);
@@ -239,7 +244,7 @@ void SkTable_ColorFilter::getTableAsBitmap(SkBitmap* table) const {
             }
             bmp->setImmutable();
             fBitmap = bmp;
-        }
+        });
         *table = *fBitmap;
     }
 }
