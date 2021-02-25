@@ -9,6 +9,7 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/core/SkTypes.h"
+#include "src/sksl/dsl/DSLErrorHandling.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 
 #include <cstdint>
@@ -20,6 +21,7 @@ class Expression;
 
 namespace dsl {
 
+class DSLPossibleExpression;
 class DSLStatement;
 class DSLVar;
 
@@ -59,6 +61,8 @@ public:
      * Creates an expression representing a variable reference.
      */
     DSLExpression(const DSLVar& var);
+
+    DSLExpression(DSLPossibleExpression expr, PositionInfo pos = PositionInfo());
 
     ~DSLExpression();
 
@@ -116,6 +120,7 @@ private:
 
     friend class DSLCore;
     friend class DSLFunction;
+    friend class DSLPossibleExpression;
     friend class DSLVar;
     friend class DSLWriter;
 };
@@ -155,6 +160,67 @@ DSLExpression operator++(DSLExpression expr);
 DSLExpression operator++(DSLExpression expr, int);
 DSLExpression operator--(DSLExpression expr);
 DSLExpression operator--(DSLExpression expr, int);
+
+/**
+ * Represents an Expression which may have failed and/or have pending errors to report. Converting a
+ * PossibleExpression into an Expression requires PositionInfo so that any pending errors can be
+ * reported at the correct position.
+ *
+ * PossibleExpression is used instead of Expression in situations where it is not possible to
+ * capture the PositionInfo at the time of Expression construction (notably in operator overloads,
+ * where we cannot add default parameters).
+ */
+class DSLPossibleExpression {
+public:
+    DSLPossibleExpression(std::unique_ptr<SkSL::Expression> expression);
+
+    DSLPossibleExpression(DSLPossibleExpression&& other) = default;
+
+    ~DSLPossibleExpression();
+
+    DSLExpression x(PositionInfo pos = PositionInfo());
+
+    DSLExpression y(PositionInfo pos = PositionInfo());
+
+    DSLExpression z(PositionInfo pos = PositionInfo());
+
+    DSLExpression w(PositionInfo pos = PositionInfo());
+
+    DSLExpression r(PositionInfo pos = PositionInfo());
+
+    DSLExpression g(PositionInfo pos = PositionInfo());
+
+    DSLExpression b(PositionInfo pos = PositionInfo());
+
+    DSLExpression a(PositionInfo pos = PositionInfo());
+
+    DSLExpression field(const char* name, PositionInfo pos = PositionInfo());
+
+    DSLExpression operator=(const DSLVar& var);
+
+    DSLExpression operator=(DSLExpression expr);
+
+    DSLExpression operator=(int expr);
+
+    DSLExpression operator=(float expr);
+
+    DSLExpression operator[](DSLExpression index);
+
+    DSLExpression operator++();
+
+    DSLExpression operator++(int);
+
+    DSLExpression operator--();
+
+    DSLExpression operator--(int);
+
+    std::unique_ptr<SkSL::Expression> release();
+
+private:
+    std::unique_ptr<SkSL::Expression> fExpression;
+
+    friend class DSLExpression;
+};
 
 } // namespace dsl
 
