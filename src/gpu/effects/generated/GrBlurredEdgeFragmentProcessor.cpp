@@ -25,23 +25,14 @@ public:
         const GrBlurredEdgeFragmentProcessor& _outer =
                 args.fFp.cast<GrBlurredEdgeFragmentProcessor>();
         (void)_outer;
-        auto mode = _outer.mode;
-        (void)mode;
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half inputAlpha = %s.w;
 half factor = 1.0 - inputAlpha;
-@switch (%d) {
-    case 0:
-        factor = exp((-factor * factor) * 4.0) - 0.017999999225139618;
-        break;
-    case 1:
-        factor = smoothstep(1.0, 0.0, factor);
-        break;
-}
+factor = exp((-factor * factor) * 4.0) - 0.017999999225139618;
 return half4(factor);
 )SkSL",
-                _sample0.c_str(), (int)_outer.mode);
+                _sample0.c_str());
     }
 
 private:
@@ -52,26 +43,20 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrBlurredEdgeFragmentProcessor::onMakeP
     return std::make_unique<GrGLSLBlurredEdgeFragmentProcessor>();
 }
 void GrBlurredEdgeFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                           GrProcessorKeyBuilder* b) const {
-    b->add32((uint32_t)mode);
-}
+                                                           GrProcessorKeyBuilder* b) const {}
 bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrBlurredEdgeFragmentProcessor& that = other.cast<GrBlurredEdgeFragmentProcessor>();
     (void)that;
-    if (mode != that.mode) return false;
     return true;
 }
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
         const GrBlurredEdgeFragmentProcessor& src)
-        : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, src.optimizationFlags())
-        , mode(src.mode) {
+        : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, src.optimizationFlags()) {
     this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
     return std::make_unique<GrBlurredEdgeFragmentProcessor>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrBlurredEdgeFragmentProcessor::onDumpInfo() const {
-    return SkStringPrintf("(mode=%d)", (int)mode);
-}
+SkString GrBlurredEdgeFragmentProcessor::onDumpInfo() const { return SkString(); }
 #endif

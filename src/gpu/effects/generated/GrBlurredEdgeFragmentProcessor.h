@@ -18,21 +18,17 @@
 
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
-    enum class Mode { kGaussian = 0, kSmoothStep = 1 };
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     Mode mode) {
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrBlurredEdgeFragmentProcessor(std::move(inputFP), mode));
+                new GrBlurredEdgeFragmentProcessor(std::move(inputFP)));
     }
     GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
-    Mode mode;
 
 private:
-    GrBlurredEdgeFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, Mode mode)
-            : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
-            , mode(mode) {
+    GrBlurredEdgeFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP)
+            : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
