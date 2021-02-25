@@ -119,7 +119,7 @@ public:
     void deleteAllFromGPU(SkTaskGroup*, GrDirectContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
-    sk_sp<SkPicture> reinflateSKP(sk_sp<GrContextThreadSafeProxy>,
+    sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
                                   SkData* compressedPicture,
                                   SkTArray<sk_sp<SkImage>>* promiseImages) const;
 
@@ -140,7 +140,8 @@ private:
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
         bool isYUV() const { return fYUVAPixmaps.isValid(); }
 
-        SkISize overallDimensions() const { return fImageInfo.dimensions(); }
+        int overallWidth() const { return fImageInfo.width(); }
+        int overallHeight() const { return fImageInfo.height(); }
         SkColorType overallColorType() const { return fImageInfo.colorType(); }
         SkAlphaType overallAlphaType() const { return fImageInfo.alphaType(); }
         sk_sp<SkColorSpace> refOverallColorSpace() const { return fImageInfo.refColorSpace(); }
@@ -211,10 +212,12 @@ private:
         sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVAInfo::kMaxPlanes];
     };
 
-    struct DeserialImageProcContext {
-        sk_sp<GrContextThreadSafeProxy> fThreadSafeProxy;
-        const DDLPromiseImageHelper*    fHelper;
-        SkTArray<sk_sp<SkImage>>*       fPromiseImages;
+    // This stack-based context allows each thread to re-inflate the image indices into
+    // promise images while still using the same GrBackendTexture.
+    struct PerRecorderContext {
+        SkDeferredDisplayListRecorder* fRecorder;
+        const DDLPromiseImageHelper*   fHelper;
+        SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
     static void CreateBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);

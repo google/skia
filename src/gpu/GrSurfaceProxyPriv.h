@@ -42,8 +42,6 @@ public:
 
     void setIsDDLTarget() { fProxy->fIsDDLTarget = true; }
 
-    void setIsPromiseProxy() { fProxy->fIsPromiseProxy = true; }
-
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
     GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) = delete;
