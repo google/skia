@@ -127,7 +127,7 @@ func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId
 	startTime := time.Now()
 
 	// For writing to the step's log stream.
-	stdout := td.NewLogStream(ctx, "stdout", td.Info)
+	stdout := td.NewLogStream(ctx, "stdout", td.SeverityInfo)
 	for {
 		roll, err := manualRollDB.Get(ctx, rollId)
 		if err != nil {

@@ -159,7 +159,7 @@ func waitForCanaryRoll(parentCtx context.Context, taskFileName, taskStoragePath 
 	defer td.EndStep(ctx)
 
 	// For writing to the step's log stream.
-	stdout := td.NewLogStream(ctx, "stdout", td.Info)
+	stdout := td.NewLogStream(ctx, "stdout", td.SeverityInfo)
 	// Lets add the roll link only once to step data.
 	addedRollLinkStepData := false
 	for {

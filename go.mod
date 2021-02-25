@@ -12,7 +12,6 @@ require (
 	github.com/Microsoft/go-winio v0.4.15 // indirect
 	github.com/VividCortex/godaemon v0.0.0-20150910212227-3d9f6e0b234f // indirect
 	github.com/andygrunwald/go-gerrit v0.0.0-20200503132804-ed2419acda39
-	github.com/bazelbuild/remote-apis v0.0.0-20201113154229-1e9ccef3705c // indirect
 	github.com/bazelbuild/remote-apis-sdks v0.0.0-20201120151053-8f976b9bf4fc // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
@@ -37,7 +36,7 @@ require (
 	github.com/vektra/mockery v1.1.2 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20201221193112-e9c390189fa6
+	go.skia.org/infra v0.0.0-20210225173621-2d381258bc7f
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
