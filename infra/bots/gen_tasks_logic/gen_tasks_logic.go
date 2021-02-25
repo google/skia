@@ -706,6 +706,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Mac10.13":   "Mac-10.13.6",
 			"Mac10.14":   "Mac-10.14.3",
 			"Mac10.15.1": "Mac-10.15.1",
+			"Mac10.15.7": "Mac-10.15.7", // Same as 'Mac', but explicit.
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-18363",
@@ -851,7 +852,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"Adreno630":     "Adreno630",
 					"GT610":         "10de:104a-23.21.13.9101",
 					"GTX660":        "10de:11c0-26.21.14.4120",
-					"GTX960":        "10de:1401-26.21.14.4120",
+					"GTX960":        "10de:1401-27.21.14.5671",
 					"IntelHD4400":   "8086:0a16-20.19.15.4963",
 					"IntelIris540":  "8086:1926-26.20.100.7463",
 					"IntelIris6100": "8086:162b-20.19.15.4963",
