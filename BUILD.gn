@@ -2950,6 +2950,17 @@ if (skia_enable_tools) {
       deps = []
     }
 
+    libfuzzer_app("api_ddl_threading") {
+      include_dirs = [
+        "include",
+        "include/gpu",
+      ]
+      sources = [
+        "fuzz/FuzzDDLThreading.cpp",
+        "fuzz/oss_fuzz/FuzzDDLThreading.cpp",
+      ]
+    }
+
     libfuzzer_app("api_gradients") {
       sources = [
         "fuzz/FuzzGradients.cpp",
