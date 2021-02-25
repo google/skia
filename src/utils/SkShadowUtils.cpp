@@ -13,6 +13,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTPin.h"
@@ -92,7 +93,25 @@ GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragment
 #endif
 
 sk_sp<SkColorFilter> SkColorFilterPriv::MakeGaussian() {
+#if 0
     return sk_sp<SkColorFilter>(new SkGaussianColorFilter);
+#else
+    static SkColorFilter* filter = []{
+        auto [effect, err] = SkRuntimeEffect::Make(SkString{R"(
+            uniform shader input;
+            half4 main() {
+                half x = 1 - sample(input).a;
+                return (exp(-x*x*4) - 0.018).xxxx;
+            }
+        )"});
+        SkASSERT(effect && err.isEmpty());
+
+        sk_sp<SkColorFilter> input = nullptr;
+        return effect->makeColorFilter(SkData::MakeEmpty(), &input, 1)
+            .release();
+    }();
+    return sk_ref_sp(filter);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
