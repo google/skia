@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "746f25c0_8e9f4ad1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-02-25T19:23:15Z",
+      "side": 1,
+      "message": "PTAL. A shade more code but I think it\u0027s a lot clearer.",
+      "revId": "691e901f9dea8e5acd42de4ec028c0bade96b285",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
