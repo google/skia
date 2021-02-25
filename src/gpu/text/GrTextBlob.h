@@ -407,7 +407,7 @@ public:
             const SkPaint& runPaint,
             const SkSurfaceProps& props,
             bool contextSupportsDistanceFieldText,
-            const GrSDFTOptions& options) SK_EXCLUDES(fSpinLock);
+            const GrSDFTOptions& options);
 
     static const Key& GetKey(const GrTextBlob& blob);
     static uint32_t Hash(const Key& key);
@@ -451,14 +451,6 @@ private:
                            SkScalar maxScale) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
-
-    // The run must be created only once.
-    bool fSubRunsCreated SK_GUARDED_BY(fSpinLock) {false};
-
-    // This lock guards makeSubRuns, but also guards addMultiMaskFormat, processDeviceMasks,
-    // processSourcePaths, processSourceSDFT, and processSourceMasks. These are callbacks, and
-    // there is no way for the annotation system to track the lock through processGlyphRun.
-    mutable SkSpinlock fSpinLock;
 
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
