@@ -83,6 +83,21 @@ struct Analysis {
     // - myStruct.myArrayField[7].xyz
     static bool IsTrivialExpression(const Expression& expr);
 
+    // Is 'expr' a constant-expression, as defined by GLSL 1.0, section 5.10? A constant expression
+    // is one of:
+    //
+    // - A literal value
+    // - A global or local variable qualified as 'const', excluding function parameters
+    // - An expression formed by an operator on operands that are constant expressions, including
+    //   getting an element of a constant vector or a constant matrix, or a field of a constant
+    //   structure
+    // - A constructor whose arguments are all constant expressions
+    //
+    // GLSL (but not SkSL, yet - skbug.com/10835) also provides:
+    // - A built-in function call whose arguments are all constant expressions, with the exception
+    //   of the texture lookup functions
+    static bool IsConstantExpression(const Expression& expr);
+
     struct UnrollableLoopInfo {
         const Variable* fIndex;
         double fStart;

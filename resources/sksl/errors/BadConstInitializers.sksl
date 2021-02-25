@@ -1,0 +1,22 @@
+uniform float u;
+
+const float c = 1;
+      float f = 1;
+
+struct S { float f; } s;
+
+// Valid constant-expression initializers. Should not produce errors:
+void from_literal()           { const float x = 0; }
+void from_const_global()      { const float x = c; }
+void from_const_local()       { const float x = 0; const float y = x; }
+void from_const_constructor() { const int i = int(c); }
+void from_expression()        { const float x = 2 * c; }
+
+// Invalid constant-expression initializers. Should all produce errors:
+void from_uniform()                      { const float x = u; }
+void from_parameter(float p)             { const float x = p; }
+void from_const_parameter(const float p) { const float x = p; }
+void from_non_const_local()              { float x = u; const float y = x; }
+void from_non_const_expression()         { const float x = u + u; }
+void from_mixed_expression()             { const float x = c + u; }
+void from_non_const_struct_field()       { const float x = s.f; }

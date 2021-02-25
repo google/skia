@@ -406,9 +406,16 @@ std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& m
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Variable> var,
                                                               std::unique_ptr<Expression> value) {
-    if ((var->modifiers().fFlags & Modifiers::kConst_Flag) && !value) {
-        this->errorReporter().error(var->fOffset, "'const' variables must be initialized");
-        return nullptr;
+    if (var->modifiers().fFlags & Modifiers::kConst_Flag) {
+        if (!value) {
+            this->errorReporter().error(var->fOffset, "'const' variables must be initialized");
+            return nullptr;
+        }
+        if (!Analysis::IsConstantExpression(*value)) {
+            this->errorReporter().error(
+                    value->fOffset, "'const' variable initializer must be a constant expression");
+            return nullptr;
+        }
     }
     if (value) {
         if (var->type().isOpaque()) {

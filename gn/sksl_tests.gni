@@ -86,6 +86,7 @@ sksl_error_tests = [
   "/sksl/errors/ArrayUnspecifiedDimensions.sksl",
   "/sksl/errors/AssignmentTypeMismatch.sksl",
   "/sksl/errors/BadCaps.sksl",
+  "/sksl/errors/BadConstInitializers.sksl",
   "/sksl/errors/BadFieldAccess.sksl",
   "/sksl/errors/BadIndex.sksl",
   "/sksl/errors/BadModifiers.sksl",
