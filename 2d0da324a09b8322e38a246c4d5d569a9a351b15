@@ -70,6 +70,30 @@
       },
       "revId": "2d0da324a09b8322e38a246c4d5d569a9a351b15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76e7a15b_62858cad",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-02-25T14:32:28Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "73cad836_70dfd0e8",
+      "range": {
+        "startLine": 256,
+        "startChar": 8,
+        "endLine": 256,
+        "endChar": 11
+      },
+      "revId": "2d0da324a09b8322e38a246c4d5d569a9a351b15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
