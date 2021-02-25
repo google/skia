@@ -689,19 +689,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafePro
 
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.
     // The promise API provides no way for the client to indicate that the texture is protected.
-    auto proxy = sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(callback),
-                                                          format,
-                                                          dimensions,
-                                                          mipMapped,
-                                                          mipmapStatus,
-                                                          SkBackingFit::kExact,
-                                                          SkBudgeted::kNo,
-                                                          GrProtected::kNo,
-                                                          GrInternalSurfaceFlags::kReadOnly,
-                                                          GrSurfaceProxy::UseAllocator::kYes,
-                                                          GrDDLProvider::kYes));
-    proxy->priv().setIsPromiseProxy();
-    return proxy;
+    return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(callback),
+                                                    format,
+                                                    dimensions,
+                                                    mipMapped,
+                                                    mipmapStatus,
+                                                    SkBackingFit::kExact,
+                                                    SkBudgeted::kNo,
+                                                    GrProtected::kNo,
+                                                    GrInternalSurfaceFlags::kReadOnly,
+                                                    GrSurfaceProxy::UseAllocator::kYes,
+                                                    GrDDLProvider::kYes));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&& callback,

@@ -337,8 +337,6 @@ public:
 
     GrProtected isProtected() const { return fIsProtected; }
 
-    bool isPromiseProxy() { return fIsPromiseProxy; }
-
 protected:
     // Deferred version - takes a new UniqueID from the shared resource/proxy pool.
     GrSurfaceProxy(const GrBackendFormat&,
@@ -435,7 +433,6 @@ private:
 
     bool                   fIgnoredByResourceAllocator = false;
     bool                   fIsDDLTarget = false;
-    bool                   fIsPromiseProxy = false;
     GrProtected            fIsProtected;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
