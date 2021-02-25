@@ -160,7 +160,8 @@ public:
         return ModuleData{/*fPath=*/nullptr, data, size};
     }
 
-    LoadedModule loadModule(ProgramKind kind, ModuleData data, std::shared_ptr<SymbolTable> base);
+    LoadedModule loadModule(ProgramKind kind, ModuleData data, std::shared_ptr<SymbolTable> base,
+                            bool dehydrate);
     ParsedModule parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base);
 
     IRGenerator& irGenerator() {
