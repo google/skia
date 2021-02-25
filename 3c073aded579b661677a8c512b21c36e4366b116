@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b3fce60_b2573a6d",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-25T17:59:25Z",
+      "side": 1,
+      "message": "this is supposed to be \u0027*\u0027, right?",
+      "range": {
+        "startLine": 61,
+        "startChar": 49,
+        "endLine": 61,
+        "endChar": 50
+      },
+      "revId": "3c073aded579b661677a8c512b21c36e4366b116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb66dd28_fb29c5d2",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-25T17:59:25Z",
+      "side": 1,
+      "message": "Does this reorder change the result? I guess not, though it\u0027s a little confusing (actually, the old code may have been doing something different than it appeared) - \u0027coord\u0027 is evaluated after the increment, even in the old code, despite invokeChild being called before. Bleh.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 74
+      },
+      "revId": "3c073aded579b661677a8c512b21c36e4366b116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
