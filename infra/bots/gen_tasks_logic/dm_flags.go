@@ -944,6 +944,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("Metal") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
+		// skbug.com/11366
+		match = append(match, "~SurfacePartialDraw_Gpu")
 	}
 
 	if b.extraConfig("Direct3D") {
