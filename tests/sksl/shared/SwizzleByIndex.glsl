@@ -5,6 +5,7 @@ uniform vec4 colorBlack;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
+    vec4 _0_non_constant_swizzle;
     vec4 _1_v = testInputs;
     ivec4 _2_i = ivec4(colorBlack);
     float _3_x = _1_v[_2_i.x];

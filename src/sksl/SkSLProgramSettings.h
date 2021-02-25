@@ -59,7 +59,7 @@ struct ProgramSettings {
     // (Requires fOptimize = true) Performs control-flow analysis, constant propagation, and various
     // other optimizations that are currently implemented as part of the control-flow system.
     // Turning this off will also disable error-checking for unreachable code and unassigned vars.
-    bool fControlFlowAnalysis = true;
+    bool fControlFlowAnalysis = false;
     // (Requires fOptimize = true AND fControlFlowAnalysis = true) Uses the control-flow graph to
     // detect and eliminate code within a function that has become unreachable due to optimization.
     bool fDeadCodeElimination = true;

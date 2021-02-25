@@ -24,23 +24,38 @@ thread float4x4& operator*=(thread float4x4& left, thread const float4x4& right)
 }
 
 
+bool test_half() {
+    float2x3 m23 = float2x3(23.0);
+    float2x4 m24 = float2x4(24.0);
+    float3x2 m32 = float3x2(32.0);
+    float3x4 m34 = float3x4(34.0);
+    float4x2 m42 = float4x2(42.0);
+    float4x3 m43 = float4x3(44.0);
+    float2x2 m22 = m32 * m23;
+    m22 *= m22;
+    float3x3 m33 = m43 * m34;
+    m33 *= m33;
+    float4x4 m44 = m24 * m42;
+    m44 *= m44;
+    return true;
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float2x2 _1_m22 = float3x2(32.0) * float2x3(23.0);
-    _1_m22 *= _1_m22;
-    float3x3 _2_m33 = float4x3(44.0) * float3x4(34.0);
-    _2_m33 *= _2_m33;
-    float4x4 _3_m44 = float2x4(24.0) * float4x2(42.0);
-    _3_m44 *= _3_m44;
-    float2x2 _5_m22 = float3x2(32.0) * float2x3(23.0);
-    _5_m22 *= _5_m22;
-    float3x3 _6_m33 = float4x3(44.0) * float3x4(34.0);
-    _6_m33 *= _6_m33;
-    float4x4 _7_m44 = float2x4(24.0) * float4x2(42.0);
-    _7_m44 *= _7_m44;
-    _out.sk_FragColor = _uniforms.colorGreen;
+    bool _0_test_float;
+    float2x3 _1_m23 = float2x3(23.0);
+    float2x4 _2_m24 = float2x4(24.0);
+    float3x2 _3_m32 = float3x2(32.0);
+    float3x4 _4_m34 = float3x4(34.0);
+    float4x2 _5_m42 = float4x2(42.0);
+    float4x3 _6_m43 = float4x3(44.0);
+    float2x2 _7_m22 = _3_m32 * _1_m23;
+    _7_m22 *= _7_m22;
+    float3x3 _8_m33 = _6_m43 * _4_m34;
+    _8_m33 *= _8_m33;
+    float4x4 _9_m44 = _2_m24 * _5_m42;
+    _9_m44 *= _9_m44;
+    _out.sk_FragColor = true && test_half() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
-
 
 }

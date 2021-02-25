@@ -8,6 +8,7 @@ struct Color {
     float alpha;
 };
 void main() {
+    vec4 _0_helper;
     Color _1_c;
     _1_c.red = 0.25;
     _1_c.green = 0.5;

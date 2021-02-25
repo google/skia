@@ -11,6 +11,7 @@ int return_loop_0()
 }
 half4 main()
 {
+	int _0_continue_loop;
 	int _1_sum = 0;
 	for (int _2_i = 0;_2_i < 10; ++_2_i) 
 	{
@@ -20,6 +21,7 @@ half4 main()
 		}
 		_1_sum += _2_i;
 	}
+	int _3_break_loop;
 	int _4_sum = 0;
 	for (int _5_i = 0;_5_i < 10; ++_5_i) 
 	{

@@ -11,11 +11,14 @@ float index_clamped_out_of_bounds_0()
 }
 float4 main()
 {
+	float _0_index_by_literal;
+	float _1_index_by_loop;
 	float _2_sum = 0.0;
 	for (int _3_i = 0;_3_i < 4; ++_3_i) 
 	{
 		_2_sum += u2[_3_i];
 	}
+	float _4_index_by_complex_loop;
 	float _5_prod = 1.0;
 	for (int _6_i = 0;_6_i < 4; ++_6_i) 
 	{
