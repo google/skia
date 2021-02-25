@@ -79,93 +79,51 @@ public:
     std::shared_ptr<SymbolTable> fPrevious;
 };
 
-// Helper classes for converting caps fields to Expressions and Types in the CapsLookupTable.
-class CapsLookupMethod {
-public:
-    virtual ~CapsLookupMethod() {}
-    virtual const Type* type(const Context& context) const = 0;
-    virtual std::unique_ptr<Expression> value(const Context& context) const = 0;
-};
-
-class BoolCapsLookup : public CapsLookupMethod {
-public:
-    using CapsFn = bool (ShaderCapsClass::*)() const;
-
-    BoolCapsLookup(const CapsFn& fn) : fGetCap(fn) {}
-
-    const Type* type(const Context& context) const override {
-        return context.fTypes.fBool.get();
-    }
-    std::unique_ptr<Expression> value(const Context& context) const override {
-        return std::make_unique<BoolLiteral>(context, /*offset=*/-1, (context.fCaps.*fGetCap)());
-    }
-
-private:
-    CapsFn fGetCap;
-};
-
-class IntCapsLookup : public CapsLookupMethod {
-public:
-    using CapsFn = int (ShaderCapsClass::*)() const;
-
-    IntCapsLookup(const CapsFn& fn) : fGetCap(fn) {}
-
-    const Type* type(const Context& context) const override {
-        return context.fTypes.fInt.get();
-    }
-    std::unique_ptr<Expression> value(const Context& context) const override {
-        return std::make_unique<IntLiteral>(context, /*offset=*/-1, (context.fCaps.*fGetCap)());
-    }
-
-private:
-    CapsFn fGetCap;
-};
-
-class CapsLookupTable {
-public:
-    using Pair = std::pair<const char*, CapsLookupMethod*>;
-
-    CapsLookupTable(std::initializer_list<Pair> capsLookups) {
-        for (auto& entry : capsLookups) {
-            fMap[entry.first] = std::unique_ptr<CapsLookupMethod>(entry.second);
-        }
-    }
-
-    const CapsLookupMethod* lookup(const String& name) const {
-        auto iter = fMap.find(name);
-        return (iter != fMap.end()) ? iter->second.get() : nullptr;
-    }
-
-private:
-    std::unordered_map<String, std::unique_ptr<CapsLookupMethod>> fMap;
-};
-
-// Create a lookup table at startup that converts strings into the equivalent ShaderCapsClass
-// methods.
-static CapsLookupTable sCapsLookupTable{{
-#define CAP(T, name) CapsLookupTable::Pair{#name, new T##CapsLookup{&ShaderCapsClass::name}}
-    CAP(Bool, fbFetchSupport),
-    CAP(Bool, fbFetchNeedsCustomOutput),
-    CAP(Bool, flatInterpolationSupport),
-    CAP(Bool, noperspectiveInterpolationSupport),
-    CAP(Bool, externalTextureSupport),
-    CAP(Bool, mustEnableAdvBlendEqs),
-    CAP(Bool, mustDeclareFragmentShaderOutput),
-    CAP(Bool, mustDoOpBetweenFloorAndAbs),
-    CAP(Bool, mustGuardDivisionEvenAfterExplicitZeroCheck),
-    CAP(Bool, inBlendModesFailRandomlyForAllZeroVec),
-    CAP(Bool, atan2ImplementedAsAtanYOverX),
-    CAP(Bool, canUseAnyFunctionInShader),
-    CAP(Bool, floatIs32Bits),
-    CAP(Bool, integerSupport),
-    CAP(Bool, builtinFMASupport),
-    CAP(Bool, builtinDeterminantSupport),
+void IRGenerator::FillCapsMap(const SkSL::ShaderCapsClass& caps,
+                              std::unordered_map<String, CapsValue>* capsMap) {
+#define CAP(name) capsMap->insert({String(#name), CapsValue(caps.name())})
+    CAP(fbFetchSupport);
+    CAP(fbFetchNeedsCustomOutput);
+    CAP(flatInterpolationSupport);
+    CAP(noperspectiveInterpolationSupport);
+    CAP(externalTextureSupport);
+    CAP(mustEnableAdvBlendEqs);
+    CAP(mustDeclareFragmentShaderOutput);
+    CAP(mustDoOpBetweenFloorAndAbs);
+    CAP(mustGuardDivisionEvenAfterExplicitZeroCheck);
+    CAP(inBlendModesFailRandomlyForAllZeroVec);
+    CAP(atan2ImplementedAsAtanYOverX);
+    CAP(canUseAnyFunctionInShader);
+    CAP(floatIs32Bits);
+    CAP(integerSupport);
+    CAP(builtinFMASupport);
+    CAP(builtinDeterminantSupport);
 #undef CAP
-}};
+}
+
+std::unique_ptr<Expression> IRGenerator::CapsValue::literal(const Context& context,
+                                                            int offset) const {
+    switch (fKind) {
+        case kBool_Kind:
+            return std::make_unique<BoolLiteral>(context, offset, fValue);
+
+        case kInt_Kind:
+            return std::make_unique<IntLiteral>(context, offset, fValue);
+
+        case kFloat_Kind:
+            return std::make_unique<FloatLiteral>(context, offset, fValueF);
+
+        default:
+            SkDEBUGFAILF("unrecognized caps kind: %d", fKind);
+            return nullptr;
+    }
+}
 
 IRGenerator::IRGenerator(const Context* context)
         : fContext(*context)
-        , fModifiers(new ModifiersPool()) {}
+        , fModifiers(new ModifiersPool()) {
+    FillCapsMap(context->fCaps, &fCapsMap);
+}
 
 void IRGenerator::pushSymbolTable() {
     auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
@@ -2431,21 +2389,27 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
 }
 
 const Type* IRGenerator::typeForSetting(int offset, String name) const {
-    if (const CapsLookupMethod* caps = sCapsLookupTable.lookup(name)) {
-        return caps->type(fContext);
+    auto found = fCapsMap.find(name);
+    if (found == fCapsMap.end()) {
+        this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
+        return nullptr;
     }
-
-    this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
+    switch (found->second.fKind) {
+        case CapsValue::kBool_Kind:  return fContext.fTypes.fBool.get();
+        case CapsValue::kFloat_Kind: return fContext.fTypes.fFloat.get();
+        case CapsValue::kInt_Kind:   return fContext.fTypes.fInt.get();
+    }
+    SkUNREACHABLE;
     return nullptr;
 }
 
 std::unique_ptr<Expression> IRGenerator::valueForSetting(int offset, String name) const {
-    if (const CapsLookupMethod* caps = sCapsLookupTable.lookup(name)) {
-        return caps->value(fContext);
+    auto found = fCapsMap.find(name);
+    if (found == fCapsMap.end()) {
+        this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
+        return nullptr;
     }
-
-    this->errorReporter().error(offset, "unknown capability flag '" + name + "'");
-    return nullptr;
+    return found->second.literal(fContext, offset);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type& type,

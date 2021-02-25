@@ -278,6 +278,30 @@ private:
 
     std::unique_ptr<ASTFile> fFile;
 
+    struct CapsValue {
+        CapsValue(bool b)         : fKind(kBool_Kind), fValue(b) {}
+        CapsValue(int i)          : fKind(kInt_Kind), fValue(i) {}
+        CapsValue(unsigned int i) : fKind(kInt_Kind), fValue(i) {}
+        CapsValue(float f)        : fKind(kFloat_Kind), fValueF(f) {}
+
+        std::unique_ptr<Expression> literal(const Context& context, int offset) const;
+
+        enum {
+            kBool_Kind,
+            kInt_Kind,
+            kFloat_Kind,
+        } fKind;
+
+        union {
+            int   fValue;  // for kBool_Kind and kInt_Kind
+            float fValueF; // for kFloat_Kind
+        };
+    };
+
+    static void FillCapsMap(const SkSL::ShaderCapsClass& caps,
+                            std::unordered_map<String, CapsValue>* capsMap);
+
+    std::unordered_map<String, CapsValue> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     // additional statements that need to be inserted before the one that convertStatement is
     // currently working on
