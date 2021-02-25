@@ -123,8 +123,6 @@ public:
     void createComposeDDL();
     const sk_sp<SkDeferredDisplayList>& composeDDL() const { return fComposeDDL; }
 
-    void precompileAndDrawAllTiles(GrDirectContext*);
-
     // For each tile, create its DDL and then draw it - all on a single thread. This is to allow
     // comparison w/ just drawing the SKP directly (i.e., drawAllTilesDirectly). The
     // DDL creations and draws are interleaved to prevent starvation of the GPU.

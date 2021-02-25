@@ -361,14 +361,6 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
     recordingTaskGroup->add([this] { this->createComposeDDL(); });
 }
 
-// Only called from ViaDDL
-void DDLTileHelper::precompileAndDrawAllTiles(GrDirectContext* direct) {
-    for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].precompile(direct);
-        fTiles[i].draw(direct);
-    }
-}
-
 // Only called from skpbench
 void DDLTileHelper::interleaveDDLCreationAndDraw(GrDirectContext* direct) {
     for (int i = 0; i < this->numTiles(); ++i) {

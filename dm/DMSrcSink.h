@@ -626,15 +626,6 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
-class ViaDDL : public Via {
-public:
-    ViaDDL(int numReplays, int numDivisions, Sink* sink);
-    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-private:
-    const int fNumReplays;
-    const int fNumDivisions;
-};
-
 class ViaSVG : public Via {
 public:
     explicit ViaSVG(Sink* sink) : Via(sink) {}
