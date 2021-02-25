@@ -110,7 +110,6 @@ void GrD3DTextureResource::prepareForPresent(GrD3DGpu* gpu) {
 void GrD3DTextureResource::releaseResource(GrD3DGpu* gpu) {
     // TODO: do we need to migrate resource state if we change queues?
     if (fResource) {
-        fResource->removeOwningTexture();
         fResource.reset();
     }
     fInfo.fResource.reset();
