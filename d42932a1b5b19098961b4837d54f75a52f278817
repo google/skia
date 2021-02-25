@@ -16,6 +16,24 @@
       "message": "It seems there are two bots (Build-Debian10-Clang-x86-devrel-Android_SKQP and Build-Debian10-Clang-x86_64-Release-CMake) which get here but don\u0027t have these builtins. It looks like Debian10\u0027s clang is 7 and these builtins were added in clang 9?",
       "revId": "d42932a1b5b19098961b4837d54f75a52f278817",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7886e698_d0bec163",
+        "filename": "src/sksl/dsl/DSLErrorHandling.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-25T13:04:14Z",
+      "side": 1,
+      "message": "Yeah, and the one in Docker is Clang 8.",
+      "parentUuid": "90a4214c_91a2693a",
+      "revId": "d42932a1b5b19098961b4837d54f75a52f278817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
