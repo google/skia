@@ -14,8 +14,9 @@
 namespace SkSL {
 
 /**
- * Represents a compile-time constant setting, such as sk_Caps.fbFetchSupport. These are generally
- * collapsed down to their constant representations during the compilation process.
+ * Represents a compile-time constant setting, such as sk_Caps.fbFetchSupport. These IRNodes should
+ * only exist in a dehydrated module. These nodes are replaced with the value of the setting during
+ * rehydration or compilation (i.e., whenever fReplaceSettings is true).
  */
 class Setting final : public Expression {
 public:
@@ -25,16 +26,10 @@ public:
         : INHERITED(offset, kExpressionKind, type)
         , fName(std::move(name)) {}
 
-    static const Type* GetType(const Context& context, int offset, const String& name);
-
-    static std::unique_ptr<Expression> GetValue(const Context& context, int offset,
-                                                const String& name);
-
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override;
+    static std::unique_ptr<Expression> Make(const Context& context, int offset, const String& name);
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new Setting(fOffset, this->name(), &this->type()));
+        return std::make_unique<Setting>(fOffset, this->name(), &this->type());
     }
 
     const String& name() const {
@@ -47,10 +42,6 @@ public:
 
     bool hasProperty(Property property) const override {
         return false;
-    }
-
-    bool isCompileTimeConstant() const override {
-        return true;
     }
 
 private:

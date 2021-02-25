@@ -87,6 +87,21 @@ public:
     const String* fOldSource;
 };
 
+class AutoProgramConfig {
+public:
+    AutoProgramConfig(std::shared_ptr<Context>& context, ProgramConfig* config)
+            : fContext(context.get()) {
+        SkASSERT(!fContext->fConfig);
+        fContext->fConfig = config;
+    }
+
+    ~AutoProgramConfig() {
+        fContext->fConfig = nullptr;
+    }
+
+    Context* fContext;
+};
+
 Compiler::Compiler(const ShaderCapsClass* caps)
         : fContext(std::make_shared<Context>(/*errors=*/*this, *caps))
         , fInliner(fContext.get())
@@ -256,16 +271,24 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
 
 LoadedModule Compiler::loadModule(ProgramKind kind,
                                   ModuleData data,
-                                  std::shared_ptr<SymbolTable> base) {
-    if (!base) {
-        // NOTE: This is a workaround. The only time 'base' is null is when dehydrating includes.
-        // In that case, skslc doesn't know which module it's preparing, nor what the correct base
-        // module is. We can't use 'Root', because many GPU intrinsics reference private types,
-        // like samplers or textures. Today, 'Private' does contain the union of all known types,
-        // so this is safe. If we ever have types that only exist in 'Public' (for example), this
-        // logic needs to be smarter (by choosing the correct base for the module we're compiling).
+                                  std::shared_ptr<SymbolTable> base,
+                                  bool dehydrate) {
+    if (dehydrate) {
+        // NOTE: This is a workaround. When dehydrating includes, skslc doesn't know which module
+        // it's preparing, nor what the correct base module is. We can't use 'Root', because many
+        // GPU intrinsics reference private types, like samplers or textures. Today, 'Private' does
+        // contain the union of all known types, so this is safe. If we ever have types that only
+        // exist in 'Public' (for example), this logic needs to be smarter (by choosing the correct
+        // base for the module we're compiling).
         base = fPrivateSymbolTable;
     }
+    SkASSERT(base);
+
+    // Built-in modules always use default program settings.
+    ProgramConfig config;
+    config.fKind = kind;
+    config.fSettings.fReplaceSettings = !dehydrate;
+    AutoProgramConfig autoConfig(fContext, &config);
 
 #if defined(SKSL_STANDALONE)
     SkASSERT(data.fPath);
@@ -281,13 +304,6 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
-
-    ProgramConfig config;
-    config.fKind = kind;
-    config.fSettings.fReplaceSettings = false;
-
-    fContext->fConfig = &config;
-    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
@@ -313,7 +329,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 }
 
 ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base) {
-    LoadedModule module = this->loadModule(kind, data, base.fSymbols);
+    LoadedModule module = this->loadModule(kind, data, base.fSymbols, /*dehydrate=*/false);
     this->optimize(module);
 
     // For modules that just declare (but don't define) intrinsic functions, there will be no new
@@ -1436,10 +1452,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     // Update our context to point to the program configuration for the duration of compilation.
     auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
-
-    SkASSERT(!fContext->fConfig);
-    fContext->fConfig = config.get();
-    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
+    AutoProgramConfig autoConfig(fContext, config.get());
 
     fErrorText = "";
     fErrorCount = 0;
@@ -1541,11 +1554,7 @@ bool Compiler::optimize(LoadedModule& module) {
     // Create a temporary program configuration with default settings.
     ProgramConfig config;
     config.fKind = module.fKind;
-
-    // Update our context to point to this configuration for the duration of compilation.
-    SkASSERT(!fContext->fConfig);
-    fContext->fConfig = &config;
-    SK_AT_SCOPE_EXIT(fContext->fConfig = nullptr);
+    AutoProgramConfig autoConfig(fContext, &config);
 
     // Reset the Inliner.
     fInliner.reset(fModifiers.back().get());
@@ -1556,11 +1565,11 @@ bool Compiler::optimize(LoadedModule& module) {
         bool madeChanges = false;
 
         // Scan and optimize based on the control-flow graph for each function.
-        // TODO(skia:11365): we always perform CFG-based optimization here to reduce Settings into
-        // their final form. We should do this optimization in our Make functions instead.
-        for (const auto& element : module.fElements) {
-            if (element->is<FunctionDefinition>()) {
-                madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage.get());
+        if (config.fSettings.fControlFlowAnalysis) {
+            for (const auto& element : module.fElements) {
+                if (element->is<FunctionDefinition>()) {
+                    madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage.get());
+                }
             }
         }
 

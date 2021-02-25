@@ -454,8 +454,9 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
             printf("error writing '%s'\n", outputPath.c_str());
             return ResultCode::kOutputError;
         }
-        SkSL::LoadedModule module = compiler.loadModule(
-                kind, SkSL::Compiler::MakeModulePath(inputPath.c_str()), nullptr);
+        SkSL::LoadedModule module =
+                compiler.loadModule(kind, SkSL::Compiler::MakeModulePath(inputPath.c_str()),
+                                    /*base=*/nullptr, /*dehydrate=*/true);
         SkSL::Dehydrator dehydrator;
         dehydrator.write(*module.fSymbols);
         dehydrator.write(module.fElements);
@@ -475,8 +476,8 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
             return ResultCode::kOutputError;
         }
     } else {
-        printf("expected output path to end with one of: .glsl, .metal, .spirv, .asm.frag, "
-               ".asm.vert, .asm.geom, .cpp, .h (got '%s')\n", outputPath.c_str());
+        printf("expected output path to end with one of: .glsl, .metal, .spirv, .asm.frag, .skvm, "
+               ".stage, .asm.vert, .asm.geom, .cpp, .h (got '%s')\n", outputPath.c_str());
         return ResultCode::kConfigurationError;
     }
     return ResultCode::kSuccess;

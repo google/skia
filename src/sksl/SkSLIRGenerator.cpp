@@ -2492,14 +2492,7 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     StringFragment field = fieldNode.getString();
     const Type& baseType = base->type();
     if (baseType == *fContext.fTypes.fSkCaps) {
-        if (this->settings().fReplaceSettings && !fIsBuiltinCode) {
-            return Setting::GetValue(fContext, fieldNode.fOffset, field);
-        }
-        const Type* type = Setting::GetType(fContext, fieldNode.fOffset, field);
-        if (!type) {
-            return nullptr;
-        }
-        return std::make_unique<Setting>(fieldNode.fOffset, field, type);
+        return Setting::Make(fContext, fieldNode.fOffset, field);
     }
     switch (baseType.typeKind()) {
         case Type::TypeKind::kStruct:

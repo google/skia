@@ -348,7 +348,6 @@ void Dehydrator::write(const Expression* e) {
                 const Setting& s = e->as<Setting>();
                 this->writeCommand(Rehydrator::kSetting_Command);
                 this->write(s.name());
-                this->write(s.type());
                 break;
             }
             case Expression::Kind::kSwizzle: {
