@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b09908eb_0ec32211",
+        "filename": "src/sksl/ir/SkSLIfStatement.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-25T17:17:55Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we be gating this behind the optimization flag?",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 34
+      },
+      "revId": "63435d270a58a25569c6582c9b4e1ef3368d4209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
