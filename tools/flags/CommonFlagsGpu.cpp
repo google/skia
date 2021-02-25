@@ -98,7 +98,7 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
     ctxOptions->fAllPathsVolatile                    = FLAGS_allPathsVolatile;
     ctxOptions->fSuppressGeometryShaders             = !FLAGS_gs;
-    ctxOptions->fSuppressTessellationShaders         = !FLAGS_hwtess;
+    ctxOptions->fEnableExperimentalHardwareTessellation = FLAGS_hwtess;
     ctxOptions->fMaxTessellationSegmentsOverride     = FLAGS_maxTessellationSegments;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fInternalMultisampleCount            = FLAGS_internalSamples;
