@@ -1,7 +1,6 @@
 ### Compilation failed:
 
-error: 24: index expression must be constant
 error: 25: index expression must be constant
-error: 28: index expression must be constant
+error: 26: index expression must be constant
 error: 29: index expression must be constant
-4 errors
+3 errors

@@ -732,9 +732,11 @@ bool Analysis::ForLoopIsValidForES2(const ForStatement& loop,
     return true;
 }
 
-class ES2IndexExpressionVisitor : public ProgramVisitor {
+// Checks for ES2 constant-expression rules, and (optionally) constant-index-expression rules
+// (if loopIndices is non-nullptr)
+class ConstantExpressionVisitor : public ProgramVisitor {
 public:
-    ES2IndexExpressionVisitor(const std::set<const Variable*>* loopIndices)
+    ConstantExpressionVisitor(const std::set<const Variable*>* loopIndices)
             : fLoopIndices(loopIndices) {}
 
     bool visitExpression(const Expression& e) override {
@@ -746,14 +748,17 @@ public:
             case Expression::Kind::kFloatLiteral:
                 return false;
 
-            // ... loop indices as defined in section 4. Today, SkSL allows no other variables,
-            // but GLSL allows 'const' variables, because it requires that const variables be
-            // initialized with constant-expressions. We could support that usage by checking
-            // for variables that are const, and whose initializing expression also pass our
-            // checks. For now, we'll be conservative. (skbug.com/10837)
-            case Expression::Kind::kVariableReference:
-                return fLoopIndices->find(e.as<VariableReference>().variable()) ==
-                       fLoopIndices->end();
+            // ... a global or local variable qualified as 'const', excluding function parameters.
+            // ... loop indices as defined in section 4. [constant-index-expression]
+            case Expression::Kind::kVariableReference: {
+                const Variable* v = e.as<VariableReference>().variable();
+                if ((v->storage() == Variable::Storage::kGlobal ||
+                     v->storage() == Variable::Storage::kLocal) &&
+                    (v->modifiers().fFlags & Modifiers::kConst_Flag)) {
+                    return false;
+                }
+                return !fLoopIndices || fLoopIndices->find(v) == fLoopIndices->end();
+            }
 
             // ... expressions composed of both of the above
             case Expression::Kind::kBinary:
@@ -766,7 +771,7 @@ public:
             case Expression::Kind::kTernary:
                 return INHERITED::visitExpression(e);
 
-            // These are completely disallowed in SkSL constant-index-expressions. GLSL allows
+            // These are completely disallowed in SkSL constant-(index)-expressions. GLSL allows
             // calls to built-in functions where the arguments are all constant-expressions, but
             // we don't guarantee that behavior. (skbug.com/10835)
             case Expression::Kind::kExternalFunctionCall:
@@ -811,7 +816,7 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<IndexExpression>()) {
             const IndexExpression& i = e.as<IndexExpression>();
-            ES2IndexExpressionVisitor indexerInvalid(&fLoopIndices);
+            ConstantExpressionVisitor indexerInvalid(&fLoopIndices);
             if (indexerInvalid.visitExpression(*i.index())) {
                 fErrors.error(i.fOffset, "index expression must be constant");
                 return true;
@@ -832,6 +837,11 @@ private:
 void Analysis::ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors) {
     ES2IndexingVisitor visitor(errors);
     visitor.visitProgramElement(pe);
+}
+
+bool Analysis::IsConstantExpression(const Expression& expr) {
+    ConstantExpressionVisitor visitor(/*loopIndices=*/nullptr);
+    return !visitor.visitExpression(expr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
