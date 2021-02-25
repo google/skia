@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10562b0a_42652d1e",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-25T19:46:02Z",
+      "side": 1,
+      "message": "Crap, yes.",
+      "parentUuid": "5b3fce60_b2573a6d",
+      "range": {
+        "startLine": 61,
+        "startChar": 49,
+        "endLine": 61,
+        "endChar": 50
+      },
+      "revId": "3c073aded579b661677a8c512b21c36e4366b116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb66dd28_fb29c5d2",
@@ -78,6 +102,30 @@
       "side": 1,
       "message": "The old code is wonky but I think it does the desired thing. The new code is clearer for sure.\n\nIt would be super handy if there were a way to easily preview the code before and after this CL... would it be possible to attach before/afters as a go/paste to these sorts of CLs?",
       "parentUuid": "cb66dd28_fb29c5d2",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 74
+      },
+      "revId": "3c073aded579b661677a8c512b21c36e4366b116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4332322_921912b1",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-02-25T19:46:02Z",
+      "side": 1,
+      "message": "I dug up the original CL that rewrote it like this, and this was clearly the intent before it was rewritten to be misleading, so I went with the clear approach.\n\nAs for the actual code, here\u0027s tip of tree:\n\ninline half4 GaussianConvolution_Stage1_c0(half4 _input) \n{\n    half4 color \u003d half4(0);\n    float2 coord \u003d vLocalCoord_Stage0 - 12.0 * uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[0][0];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[0][1];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[0][2];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[0][3];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[1][0];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[1][1];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[1][2];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[1][3];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[2][0];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[2][1];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[2][2];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[2][3];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[3][0];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[3][1];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[3][2];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[3][3];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[4][0];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[4][1];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[4][2];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[4][3];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[5][0];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[5][1];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[5][2];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[5][3];\n    coord +\u003d uIncrement_Stage1_c0;\n    color +\u003d MatrixEffect_Stage1_c0_c0(_input, coord) * uKernel_Stage1_c0[6][0];\n    return color;\n}\n\nAnd here\u0027s my version:\n\ninline half4 GaussianConvolution_Stage1_c0(half4 _input) \n{\n    half4 _2_color \u003d half4(0.0);\n    float2 _3_coord \u003d (vLocalCoord_Stage0 - float2((12.0 * u_0_Increment_Stage1_c0)));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[0].x));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[0].y));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[0].z));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[0].w));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[1].x));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[1].y));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[1].z));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[1].w));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[2].x));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[2].y));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[2].z));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[2].w));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[3].x));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[3].y));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[3].z));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[3].w));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[4].x));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[4].y));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[4].z));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[4].w));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[5].x));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[5].y));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[5].z));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[5].w));\n    (_3_coord +\u003d float2(u_0_Increment_Stage1_c0));\n    (_2_color +\u003d (MatrixEffect_Stage1_c0_c0(_input, _3_coord) * u_1_Kernel_Stage1_c0[6].x));\n    return _2_color;\n}",
+      "parentUuid": "0fd45a02_51022d3f",
       "range": {
         "startLine": 65,
         "startChar": 0,
