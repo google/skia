@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58420b76_e0f459e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-02-25T14:34:29Z",
+      "side": 1,
+      "message": "Somehow I cannot mark this CL as code reviewed. The \"CODE-REVIEW+1\" button does not work!",
+      "revId": "399b7d518f5917878502f58b235eca5b029ab8fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
