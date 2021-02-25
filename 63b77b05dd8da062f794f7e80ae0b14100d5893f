@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": true,
       "key": {
         "uuid": "0f39396c_567c6084",
         "filename": "fuzz/FuzzDDLThreading.cpp",
@@ -14,10 +15,10 @@
       "side": 1,
       "message": "rm ?",
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "bda59f8c_0e8d73b5",
         "filename": "fuzz/FuzzDDLThreading.cpp",
@@ -37,10 +38,10 @@
         "endChar": 78
       },
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "98e7cb76_4b176867",
         "filename": "fuzz/FuzzDDLThreading.cpp",
@@ -60,10 +61,10 @@
         "endChar": 53
       },
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "57f0f53c_a6fd8e0f",
         "filename": "fuzz/FuzzDDLThreading.cpp",
@@ -83,10 +84,10 @@
         "endChar": 54
       },
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "a18cef37_3eaa8fce",
         "filename": "fuzz/FuzzDDLThreading.cpp",
@@ -100,10 +101,10 @@
       "side": 1,
       "message": "// TODO: additionally fuzz the lifetime of the DDL. Right now we always delete it on the gpu thread but Chrome may want to off load that work to a cpu thread.",
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "2d475d33_6405c4e2",
         "filename": "include/gpu/GrContext.h",
@@ -117,10 +118,10 @@
       "side": 1,
       "message": "I guess these should use the:\n\n/**\n *\n */\n\nformatting.",
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "bb1c4fcc_423a116b",
         "filename": "tools/DDLTileHelper.cpp",
@@ -134,10 +135,28 @@
       "side": 1,
       "message": "This ...",
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d3d39d7_262ff399",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-25T14:55:11Z",
+      "side": 1,
+      "message": "Outdated",
+      "parentUuid": "bb1c4fcc_423a116b",
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
       "key": {
         "uuid": "36d5f470_ce3961ef",
         "filename": "tools/DDLTileHelper.cpp",
@@ -157,8 +176,31 @@
         "endChar": 39
       },
       "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "778c442b_9e0c6968",
+        "filename": "tools/DDLTileHelper.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-02-25T14:55:11Z",
+      "side": 1,
+      "message": "Outdated",
+      "parentUuid": "36d5f470_ce3961ef",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 39
+      },
+      "revId": "63b77b05dd8da062f794f7e80ae0b14100d5893f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
