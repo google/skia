@@ -37,10 +37,6 @@ public:
 
     bool onIsValid(GrRecordingContext*) const final;
 
-#if GR_TEST_UTILS
-    void resetContext(sk_sp<GrImageContext> newContext);
-#endif
-
     static bool ValidateBackendTexture(const GrCaps*, const GrBackendTexture& tex,
                                        GrColorType grCT, SkColorType ct, SkAlphaType at,
                                        sk_sp<SkColorSpace> cs);

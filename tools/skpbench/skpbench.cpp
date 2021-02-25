@@ -211,7 +211,8 @@ private:
 
 static void ddl_sample(GrDirectContext* context, DDLTileHelper* tiles, GpuSync& gpuSync,
                        Sample* sample, SkTaskGroup* recordingTaskGroup, SkTaskGroup* gpuTaskGroup,
-                       std::chrono::high_resolution_clock::time_point* startStopTime) {
+                       std::chrono::high_resolution_clock::time_point* startStopTime,
+                       SkPicture* picture) {
     using clock = std::chrono::high_resolution_clock;
 
     clock::time_point start = *startStopTime;
@@ -223,13 +224,13 @@ static void ddl_sample(GrDirectContext* context, DDLTileHelper* tiles, GpuSync& 
         // thread. The interleaving is so that we don't starve the GPU.
         // One unfortunate side effect of this is that we can't delete the DDLs until after
         // the GPU work is flushed.
-        tiles->interleaveDDLCreationAndDraw(context);
+        tiles->interleaveDDLCreationAndDraw(context, picture);
     } else if (FLAGS_comparableSKP) {
         // In this mode simply draw the re-inflated per-tile SKPs directly to the GPU w/o going
         // through a DDL.
-        tiles->drawAllTilesDirectly(context);
+        tiles->drawAllTilesDirectly(context, picture);
     } else {
-        tiles->kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, context);
+        tiles->kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, context, picture);
         recordingTaskGroup->wait();
     }
 
@@ -264,12 +265,10 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrDirectCon
 
     SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADataTypes(*context);
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADataTypes);
-    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture);
-    if (!compressedPictureData) {
+    sk_sp<SkPicture> newSKP = promiseImageHelper.recreateSKP(inputPicture, context);
+    if (!newSKP) {
         exitf(ExitErr::kUnavailable, "DDL: conversion of skp failed");
     }
-
-    promiseImageHelper.createCallbackContexts(context);
 
     promiseImageHelper.uploadAllToGPU(nullptr, context);
 
@@ -277,8 +276,6 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrDirectCon
                         /* addRandomPaddingToDst */ false);
 
     tiles.createBackendTextures(nullptr, context);
-
-    tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
     // In comparable modes, there is no GPU thread. The following pointers are all null.
     // Otherwise, we transfer testContext onto the GPU thread until after the bench.
@@ -299,7 +296,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrDirectCon
 
     GpuSync gpuSync;
     ddl_sample(context, &tiles, gpuSync, nullptr, recordingTaskGroup.get(),
-               gpuTaskGroup.get(), &startStopTime);
+               gpuTaskGroup.get(), &startStopTime, newSKP.get());
 
     clock::duration cumulativeDuration = std::chrono::milliseconds(0);
 
@@ -310,7 +307,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrDirectCon
         do {
             tiles.resetAllTiles();
             ddl_sample(context, &tiles, gpuSync, &sample, recordingTaskGroup.get(),
-                       gpuTaskGroup.get(), &startStopTime);
+                       gpuTaskGroup.get(), &startStopTime, newSKP.get());
         } while (sample.fDuration < sampleDuration);
 
         cumulativeDuration += sample.fDuration;

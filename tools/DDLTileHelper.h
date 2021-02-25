@@ -40,13 +40,8 @@ public:
                   const SkIRect& clip,
                   const SkIRect& paddingOutsets);
 
-        // Convert the compressedPictureData into an SkPicture replacing each image-index
-        // with a promise image.
-        void createTileSpecificSKP(SkData* compressedPictureData,
-                                   const DDLPromiseImageHelper& helper);
-
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
-        void createDDL();
+        void createDDL(SkPicture* picture);
 
         void dropDDL() { fDisplayList.reset(); }
 
@@ -56,7 +51,7 @@ public:
         // Just draw the re-inflated per-tile SKP directly into this tile w/o going through a DDL
         // first. This is used for determining the overhead of using DDLs (i.e., it replaces
         // a 'createDDL' and 'draw' pair.
-        void drawSKPDirectly(GrRecordingContext*);
+        void drawSKPDirectly(GrRecordingContext*, SkPicture* picture);
 
         // Replay the recorded DDL into the tile surface - filling in 'fBackendTexture'.
         void draw(GrDirectContext*);
@@ -99,9 +94,6 @@ public:
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
         sk_sp<SkSurface>              fTileSurface;
 
-        sk_sp<SkPicture>              fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>      fPromiseImages;    // All the promise images in the
-                                                     // reconstituted picture
         sk_sp<SkDeferredDisplayList>  fDisplayList;
     };
 
@@ -111,35 +103,36 @@ public:
                   int numDivisions,
                   bool addRandomPaddingToDst);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
-
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
-                             GrDirectContext*);
+                             GrDirectContext*,
+                             SkPicture* picture);
 
-    void createDDLsInParallel();
+    void createDDLsInParallel(SkPicture* picture);
 
     // Create the DDL that will compose all the tile images into a final result.
     void createComposeDDL();
     const sk_sp<SkDeferredDisplayList>& composeDDL() const { return fComposeDDL; }
 
-    void precompileAndDrawAllTiles(GrDirectContext*);
+    void precompileAndDrawAllTiles(GrDirectContext*, SkPicture* picture);
 
     // For each tile, create its DDL and then draw it - all on a single thread. This is to allow
     // comparison w/ just drawing the SKP directly (i.e., drawAllTilesDirectly). The
     // DDL creations and draws are interleaved to prevent starvation of the GPU.
     // Note: this is somewhat of a misuse/pessimistic-use of DDLs since they are supposed to
     // be created on a separate thread.
-    void interleaveDDLCreationAndDraw(GrDirectContext*);
+    void interleaveDDLCreationAndDraw(GrDirectContext*, SkPicture* picture);
 
     // This draws all the per-tile SKPs directly into all of the tiles w/o converting them to
     // DDLs first - all on a single thread.
-    void drawAllTilesDirectly(GrDirectContext*);
+    void drawAllTilesDirectly(GrDirectContext*, SkPicture* picture);
 
     void dropCallbackContexts();
     void resetAllTiles();
 
     int numTiles() const { return fNumDivisions * fNumDivisions; }
+
+    TileData* tile(int i) { return &fTiles[i]; }
 
     void createBackendTextures(SkTaskGroup*, GrDirectContext*);
     void deleteBackendTextures(SkTaskGroup*, GrDirectContext*);
