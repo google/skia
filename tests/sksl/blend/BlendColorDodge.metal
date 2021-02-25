@@ -16,8 +16,8 @@ float _color_dodge_component(float2 s, float2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _4_n = d.x * s.y;
-            delta = min(d.y, _4_n / delta);
+            float _0_n = d.x * s.y;
+            delta = min(d.y, _0_n / delta);
 
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }

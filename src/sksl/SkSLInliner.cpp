@@ -492,13 +492,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // inside an Block's scope, we don't need to store the result in a variable at all. Just
             // replace the function-call expression with the function's return expression.
             SkASSERT(resultExpr);
-            SkASSERT(*resultExpr);
             if (returnComplexity <= ReturnComplexity::kSingleSafeReturn) {
                 *resultExpr = expr(r.expression());
                 return std::make_unique<Nop>();
             }
 
             // For more complex functions, assign their result into a variable.
+            SkASSERT(*resultExpr);
             auto assignment =
                     std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                             offset,
@@ -645,9 +645,12 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     inlinedBody.children().push_back(std::make_unique<InlineMarker>(&call->function()));
 
-    // Create a variable to hold the result in the extra statements (excepting void).
     std::unique_ptr<Expression> resultExpr;
-    if (function.declaration().returnType() != *fContext->fTypes.fVoid) {
+    if (returnComplexity > ReturnComplexity::kSingleSafeReturn &&
+        function.declaration().returnType() != *fContext->fTypes.fVoid) {
+        // Create a variable to hold the result in the extra statements. We don't need to do this
+        // for void-return functions, or in cases that are simple enough that we can just replace
+        // the function-call node with the result expression.
         std::unique_ptr<Expression> noInitialValue;
         InlineVariable var = this->makeInlineVariable(function.declaration().name(),
                                                       &function.declaration().returnType(),
@@ -655,7 +658,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                       caller->isBuiltin(), &noInitialValue);
         inlinedBody.children().push_back(std::move(var.fVarDecl));
         resultExpr = std::make_unique<VariableReference>(/*offset=*/-1, var.fVarSymbol);
-   }
+    }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
     // them.

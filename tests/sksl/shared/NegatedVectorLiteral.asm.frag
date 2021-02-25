@@ -12,7 +12,7 @@ OpName %_entrypoint "_entrypoint"
 OpName %test_int "test_int"
 OpName %result "result"
 OpName %main "main"
-OpName %_1_result "_1_result"
+OpName %_0_result "_0_result"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -89,25 +89,25 @@ OpReturnValue %45
 OpFunctionEnd
 %main = OpFunction %v4float None %46
 %47 = OpLabel
-%_1_result = OpVariable %_ptr_Function_v4float Function
+%_0_result = OpVariable %_ptr_Function_v4float Function
 %74 = OpVariable %_ptr_Function_v4float Function
-%51 = OpAccessChain %_ptr_Function_float %_1_result %int_0
+%51 = OpAccessChain %_ptr_Function_float %_0_result %int_0
 OpStore %51 %float_1
-%53 = OpAccessChain %_ptr_Function_float %_1_result %int_1
+%53 = OpAccessChain %_ptr_Function_float %_0_result %int_1
 OpStore %53 %float_1
-%54 = OpAccessChain %_ptr_Function_float %_1_result %int_2
+%54 = OpAccessChain %_ptr_Function_float %_0_result %int_2
 OpStore %54 %float_1
-%55 = OpAccessChain %_ptr_Function_float %_1_result %int_3
+%55 = OpAccessChain %_ptr_Function_float %_0_result %int_3
 OpStore %55 %float_1
-%57 = OpLoad %v4float %_1_result
+%57 = OpLoad %v4float %_0_result
 %58 = OpCompositeExtract %float %57 0
-%59 = OpLoad %v4float %_1_result
+%59 = OpLoad %v4float %_0_result
 %60 = OpCompositeExtract %float %59 1
 %61 = OpFMul %float %58 %60
-%62 = OpLoad %v4float %_1_result
+%62 = OpLoad %v4float %_0_result
 %63 = OpCompositeExtract %float %62 2
 %64 = OpFMul %float %61 %63
-%65 = OpLoad %v4float %_1_result
+%65 = OpLoad %v4float %_0_result
 %66 = OpCompositeExtract %float %65 3
 %67 = OpFMul %float %64 %66
 %68 = OpFUnordNotEqual %bool %67 %float_0

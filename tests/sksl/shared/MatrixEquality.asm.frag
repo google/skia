@@ -12,7 +12,7 @@ OpMemberName %_UniformBuffer 2 "testMatrix2x2"
 OpMemberName %_UniformBuffer 3 "testMatrix3x3"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
-OpName %_1_ok "_1_ok"
+OpName %_0_ok "_0_ok"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -109,9 +109,9 @@ OpReturn
 OpFunctionEnd
 %main = OpFunction %v4float None %22
 %23 = OpLabel
-%_1_ok = OpVariable %_ptr_Function_bool Function
+%_0_ok = OpVariable %_ptr_Function_bool Function
 %127 = OpVariable %_ptr_Function_v4float Function
-OpStore %_1_ok %true
+OpStore %_0_ok %true
 %27 = OpAccessChain %_ptr_Uniform_mat2v2float %10 %int_2
 %31 = OpLoad %mat2v2float %27
 %37 = OpCompositeConstruct %v2float %float_1 %float_2
@@ -126,8 +126,8 @@ OpStore %_1_ok %true
 %46 = OpFOrdEqual %v2bool %44 %45
 %47 = OpAll %bool %46
 %48 = OpLogicalAnd %bool %43 %47
-OpStore %_1_ok %48
-%50 = OpLoad %bool %_1_ok
+OpStore %_0_ok %48
+%50 = OpLoad %bool %_0_ok
 OpSelectionMerge %52 None
 OpBranchConditional %50 %51 %52
 %51 = OpLabel
@@ -154,8 +154,8 @@ OpBranchConditional %50 %51 %52
 OpBranch %52
 %52 = OpLabel
 %81 = OpPhi %bool %false %23 %80 %51
-OpStore %_1_ok %81
-%82 = OpLoad %bool %_1_ok
+OpStore %_0_ok %81
+%82 = OpLoad %bool %_0_ok
 OpSelectionMerge %84 None
 OpBranchConditional %82 %83 %84
 %83 = OpLabel
@@ -176,8 +176,8 @@ OpBranchConditional %82 %83 %84
 OpBranch %84
 %84 = OpLabel
 %101 = OpPhi %bool %false %52 %100 %83
-OpStore %_1_ok %101
-%102 = OpLoad %bool %_1_ok
+OpStore %_0_ok %101
+%102 = OpLoad %bool %_0_ok
 OpSelectionMerge %104 None
 OpBranchConditional %102 %103 %104
 %103 = OpLabel
@@ -204,8 +204,8 @@ OpBranchConditional %102 %103 %104
 OpBranch %104
 %104 = OpLabel
 %125 = OpPhi %bool %false %84 %124 %103
-OpStore %_1_ok %125
-%126 = OpLoad %bool %_1_ok
+OpStore %_0_ok %125
+%126 = OpLoad %bool %_0_ok
 OpSelectionMerge %131 None
 OpBranchConditional %126 %129 %130
 %129 = OpLabel

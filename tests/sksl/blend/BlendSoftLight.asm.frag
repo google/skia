@@ -8,12 +8,12 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
 OpName %_soft_light_component "_soft_light_component"
-OpName %_8_n "_8_n"
+OpName %_2_n "_2_n"
 OpName %DSqd "DSqd"
 OpName %DCub "DCub"
 OpName %DaSqd "DaSqd"
 OpName %DaCub "DaCub"
-OpName %_10_n "_10_n"
+OpName %_3_n "_3_n"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -168,12 +168,12 @@ OpDecorate %229 RelaxedPrecision
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpLabel
-%_8_n = OpVariable %_ptr_Function_float Function
+%_2_n = OpVariable %_ptr_Function_float Function
 %DSqd = OpVariable %_ptr_Function_float Function
 %DCub = OpVariable %_ptr_Function_float Function
 %DaSqd = OpVariable %_ptr_Function_float Function
 %DaCub = OpVariable %_ptr_Function_float Function
-%_10_n = OpVariable %_ptr_Function_float Function
+%_3_n = OpVariable %_ptr_Function_float Function
 %21 = OpLoad %v2float %17
 %22 = OpCompositeExtract %float %21 0
 %23 = OpFMul %float %float_2 %22
@@ -195,8 +195,8 @@ OpBranchConditional %26 %27 %28
 %41 = OpFMul %float %float_2 %40
 %42 = OpFSub %float %38 %41
 %43 = OpFMul %float %36 %42
-OpStore %_8_n %43
-%44 = OpLoad %float %_8_n
+OpStore %_2_n %43
+%44 = OpLoad %float %_2_n
 %45 = OpLoad %v2float %18
 %46 = OpCompositeExtract %float %45 1
 %47 = OpFDiv %float %44 %46
@@ -296,8 +296,8 @@ OpStore %DaCub %99
 %146 = OpCompositeExtract %float %145 0
 %147 = OpFMul %float %144 %146
 %148 = OpFSub %float %143 %147
-OpStore %_10_n %148
-%149 = OpLoad %float %_10_n
+OpStore %_3_n %148
+%149 = OpLoad %float %_3_n
 %150 = OpLoad %float %DaSqd
 %151 = OpFDiv %float %149 %150
 OpReturnValue %151

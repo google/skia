@@ -23,12 +23,12 @@ bool test_int() {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 _1_result;
-    _1_result.x = 1.0;
-    _1_result.y = 1.0;
-    _1_result.z = 1.0;
-    _1_result.w = 1.0;
-    _out.sk_FragColor = bool(((_1_result.x * _1_result.y) * _1_result.z) * _1_result.w) && test_int() ? _uniforms.colorGreen : _uniforms.colorRed;
+    float4 _0_result;
+    _0_result.x = 1.0;
+    _0_result.y = 1.0;
+    _0_result.z = 1.0;
+    _0_result.w = 1.0;
+    _out.sk_FragColor = bool(((_0_result.x * _0_result.y) * _0_result.z) * _0_result.w) && test_int() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 
 }

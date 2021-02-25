@@ -11,11 +11,11 @@ OpMemberName %_UniformBuffer 1 "colorGreen"
 OpMemberName %_UniformBuffer 2 "colorRed"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
-OpName %_1_v "_1_v"
-OpName %_2_x "_2_x"
-OpName %_3_y "_3_y"
-OpName %_4_z "_4_z"
-OpName %_5_w "_5_w"
+OpName %_0_v "_0_v"
+OpName %_1_x "_1_x"
+OpName %_2_y "_2_y"
+OpName %_3_z "_3_z"
+OpName %_4_w "_4_w"
 OpName %a "a"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -78,32 +78,32 @@ OpReturn
 OpFunctionEnd
 %main = OpFunction %v4float None %18
 %19 = OpLabel
-%_1_v = OpVariable %_ptr_Function_v4float Function
-%_2_x = OpVariable %_ptr_Function_float Function
-%_3_y = OpVariable %_ptr_Function_float Function
-%_4_z = OpVariable %_ptr_Function_float Function
-%_5_w = OpVariable %_ptr_Function_float Function
+%_0_v = OpVariable %_ptr_Function_v4float Function
+%_1_x = OpVariable %_ptr_Function_float Function
+%_2_y = OpVariable %_ptr_Function_float Function
+%_3_z = OpVariable %_ptr_Function_float Function
+%_4_w = OpVariable %_ptr_Function_float Function
 %a = OpVariable %_ptr_Function_v4float Function
 %55 = OpVariable %_ptr_Function_v4float Function
 %22 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %26 = OpLoad %v4float %22
-OpStore %_1_v %26
-%29 = OpLoad %v4float %_1_v
+OpStore %_0_v %26
+%29 = OpLoad %v4float %_0_v
 %30 = OpCompositeExtract %float %29 0
-OpStore %_2_x %30
-%32 = OpLoad %v4float %_1_v
+OpStore %_1_x %30
+%32 = OpLoad %v4float %_0_v
 %33 = OpCompositeExtract %float %32 1
-OpStore %_3_y %33
-%35 = OpLoad %v4float %_1_v
+OpStore %_2_y %33
+%35 = OpLoad %v4float %_0_v
 %36 = OpCompositeExtract %float %35 2
-OpStore %_4_z %36
-%38 = OpLoad %v4float %_1_v
+OpStore %_3_z %36
+%38 = OpLoad %v4float %_0_v
 %39 = OpCompositeExtract %float %38 3
-OpStore %_5_w %39
-%41 = OpLoad %float %_2_x
-%42 = OpLoad %float %_3_y
-%43 = OpLoad %float %_4_z
-%44 = OpLoad %float %_5_w
+OpStore %_4_w %39
+%41 = OpLoad %float %_1_x
+%42 = OpLoad %float %_2_y
+%43 = OpLoad %float %_3_z
+%44 = OpLoad %float %_4_w
 %45 = OpCompositeConstruct %v4float %41 %42 %43 %44
 OpStore %a %45
 %46 = OpLoad %v4float %a

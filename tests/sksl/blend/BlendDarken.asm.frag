@@ -8,7 +8,7 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
 OpName %main "main"
-OpName %_1_result "_1_result"
+OpName %_0_result "_0_result"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -46,7 +46,7 @@ OpDecorate %41 RelaxedPrecision
 %v3float = OpTypeVector %float 3
 %main = OpFunction %void None %14
 %15 = OpLabel
-%_1_result = OpVariable %_ptr_Function_v4float Function
+%_0_result = OpVariable %_ptr_Function_v4float Function
 %18 = OpLoad %v4float %src
 %20 = OpLoad %v4float %src
 %21 = OpCompositeExtract %float %20 3
@@ -54,8 +54,8 @@ OpDecorate %41 RelaxedPrecision
 %23 = OpLoad %v4float %dst
 %24 = OpVectorTimesScalar %v4float %23 %22
 %25 = OpFAdd %v4float %18 %24
-OpStore %_1_result %25
-%27 = OpLoad %v4float %_1_result
+OpStore %_0_result %25
+%27 = OpLoad %v4float %_0_result
 %28 = OpVectorShuffle %v3float %27 %27 0 1 2
 %30 = OpLoad %v4float %dst
 %31 = OpCompositeExtract %float %30 3
@@ -67,10 +67,10 @@ OpStore %_1_result %25
 %37 = OpVectorShuffle %v3float %36 %36 0 1 2
 %38 = OpFAdd %v3float %35 %37
 %26 = OpExtInst %v3float %1 FMin %28 %38
-%39 = OpLoad %v4float %_1_result
+%39 = OpLoad %v4float %_0_result
 %40 = OpVectorShuffle %v4float %39 %26 4 5 6 3
-OpStore %_1_result %40
-%41 = OpLoad %v4float %_1_result
+OpStore %_0_result %40
+%41 = OpLoad %v4float %_0_result
 OpStore %sk_FragColor %41
 OpReturn
 OpFunctionEnd
