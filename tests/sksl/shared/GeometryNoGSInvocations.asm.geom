@@ -35,6 +35,7 @@ OpDecorate %_arr_sk_PerVertex_int_1 ArrayStride 32
 %float_0_5 = OpConstant %float 0.5
 %float_0 = OpConstant %float 0
 %_ptr_Output_v4float = OpTypePointer Output %v4float
+%false = OpConstantFalse %bool
 %float_n0_5 = OpConstant %float -0.5
 %main = OpFunction %void None %16
 %17 = OpLabel
@@ -57,21 +58,21 @@ OpBranchConditional %26 %21 %23
 %37 = OpAccessChain %_ptr_Output_v4float %3 %int_0
 OpStore %37 %36
 OpEmitVertex
-%40 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
-%41 = OpLoad %v4float %40
-%43 = OpLoad %int %sk_InvocationID
-%44 = OpConvertSToF %float %43
-%45 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %44
-%46 = OpFAdd %v4float %41 %45
-%47 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-OpStore %47 %46
+%41 = OpAccessChain %_ptr_Input_v4float %8 %int_0 %int_0
+%42 = OpLoad %v4float %41
+%44 = OpLoad %int %sk_InvocationID
+%45 = OpConvertSToF %float %44
+%46 = OpCompositeConstruct %v4float %float_n0_5 %float_0 %float_0 %45
+%47 = OpFAdd %v4float %42 %46
+%48 = OpAccessChain %_ptr_Output_v4float %3 %int_0
+OpStore %48 %47
 OpEmitVertex
 OpEndPrimitive
 OpBranch %22
 %22 = OpLabel
-%50 = OpLoad %int %sk_InvocationID
-%51 = OpIAdd %int %50 %int_1
-OpStore %sk_InvocationID %51
+%51 = OpLoad %int %sk_InvocationID
+%52 = OpIAdd %int %51 %int_1
+OpStore %sk_InvocationID %52
 OpBranch %19
 %23 = OpLabel
 OpReturn

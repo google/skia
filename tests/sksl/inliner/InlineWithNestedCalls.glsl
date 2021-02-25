@@ -1,7 +1,9 @@
 
 out vec4 sk_FragColor;
 void main() {
-    float _0_y = 0.0;
+    float _1_y = 123.0;
+    float z = 0.0;
+    float _0_y = z;
     ++_0_y;
     ++_0_y;
     ++_0_y;
@@ -37,7 +39,9 @@ void main() {
     --_0_y;
     --_0_y;
     _0_y = 42.0;
+    false;
 
+    _0_y;
 
-    sk_FragColor.x = 0.0;
+    sk_FragColor.x = z;
 }
