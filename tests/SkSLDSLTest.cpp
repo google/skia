@@ -134,15 +134,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
     EXPECT_EQUAL(Float3(0.75),
                 "float3(0.75)");
     EXPECT_EQUAL(Float3(Float2(0, 1), -2),
-                "float3(float2(0.0, 1.0), -2.0)");
+                "float3(0.0, 1.0, -2.0)");
     EXPECT_EQUAL(Float3(0, 1, 2),
                 "float3(0.0, 1.0, 2.0)");
     EXPECT_EQUAL(Float4(0),
                 "float4(0.0)");
     EXPECT_EQUAL(Float4(Float2(0, 1), Float2(2, 3)),
-                "float4(float2(0.0, 1.0), float2(2.0, 3.0))");
+                "float4(0.0, 1.0, 2.0, 3.0)");
     EXPECT_EQUAL(Float4(0, 1, Float2(2, 3)),
-                "float4(0.0, 1.0, float2(2.0, 3.0))");
+                "float4(0.0, 1.0, 2.0, 3.0)");
     EXPECT_EQUAL(Float4(0, 1, 2, 3),
                 "float4(0.0, 1.0, 2.0, 3.0)");
 
@@ -179,32 +179,24 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLHalf, r, ctxInfo) {
     REPORTER_ASSERT(r,
                     atof(e2.release()->description().c_str()) == std::numeric_limits<float>::min());
 
-    Expression e3 = Half2(0);
-    EXPECT_EQUAL(e3, "half2(0.0)");
-
-    Expression e4 = Half2(-0.5, 1);
-    EXPECT_EQUAL(e4, "half2(-0.5, 1.0)");
-
-    Expression e5 = Half3(0.75);
-    EXPECT_EQUAL(e5, "half3(0.75)");
-
-    Expression e6 = Half3(Half2(0, 1), -2);
-    EXPECT_EQUAL(e6, "half3(half2(0.0, 1.0), -2.0)");
-
-    Expression e7 = Half3(0, 1, 2);
-    EXPECT_EQUAL(e7, "half3(0.0, 1.0, 2.0)");
-
-    Expression e8 = Half4(0);
-    EXPECT_EQUAL(e8, "half4(0.0)");
-
-    Expression e9 = Half4(Half2(0, 1), Half2(2, 3));
-    EXPECT_EQUAL(e9, "half4(half2(0.0, 1.0), half2(2.0, 3.0))");
-
-    Expression e10 = Half4(0, 1, Half2(2, 3));
-    EXPECT_EQUAL(e10, "half4(0.0, 1.0, half2(2.0, 3.0))");
-
-    Expression e11 = Half4(0, 1, 2, 3);
-    EXPECT_EQUAL(e11, "half4(0.0, 1.0, 2.0, 3.0)");
+    EXPECT_EQUAL(Half2(0),
+                "half2(0.0)");
+    EXPECT_EQUAL(Half2(-0.5, 1),
+                "half2(-0.5, 1.0)");
+    EXPECT_EQUAL(Half3(0.75),
+                "half3(0.75)");
+    EXPECT_EQUAL(Half3(Half2(0, 1), -2),
+                "half3(0.0, 1.0, -2.0)");
+    EXPECT_EQUAL(Half3(0, 1, 2),
+                "half3(0.0, 1.0, 2.0)");
+    EXPECT_EQUAL(Half4(0),
+                "half4(0.0)");
+    EXPECT_EQUAL(Half4(Half2(0, 1), Half2(2, 3)),
+                "half4(0.0, 1.0, 2.0, 3.0)");
+    EXPECT_EQUAL(Half4(0, 1, Half2(2, 3)),
+                "half4(0.0, 1.0, 2.0, 3.0)");
+    EXPECT_EQUAL(Half4(0, 1, 2, 3),
+                "half4(0.0, 1.0, 2.0, 3.0)");
 
     {
         ExpectError error(r, "error: floating point value is infinite\n");
@@ -231,35 +223,27 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLHalf, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInt, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Expression e1 = Int(std::numeric_limits<int32_t>::max());
-    EXPECT_EQUAL(e1, "2147483647");
 
-    Expression e2 = Int2(std::numeric_limits<int32_t>::min());
-    EXPECT_EQUAL(e2, "int2(-2147483648)");
-
-    Expression e3 = Int2(0, 1);
-    EXPECT_EQUAL(e3, "int2(0, 1)");
-
-    Expression e4 = Int3(0);
-    EXPECT_EQUAL(e4, "int3(0)");
-
-    Expression e5 = Int3(Int2(0, 1), -2);
-    EXPECT_EQUAL(e5, "int3(int2(0, 1), -2)");
-
-    Expression e6 = Int3(0, 1, 2);
-    EXPECT_EQUAL(e6, "int3(0, 1, 2)");
-
-    Expression e7 = Int4(0);
-    EXPECT_EQUAL(e7, "int4(0)");
-
-    Expression e8 = Int4(Int2(0, 1), Int2(2, 3));
-    EXPECT_EQUAL(e8, "int4(int2(0, 1), int2(2, 3))");
-
-    Expression e9 = Int4(0, 1, Int2(2, 3));
-    EXPECT_EQUAL(e9, "int4(0, 1, int2(2, 3))");
-
-    Expression e10 = Int4(0, 1, 2, 3);
-    EXPECT_EQUAL(e10, "int4(0, 1, 2, 3)");
+    EXPECT_EQUAL(Int(std::numeric_limits<int32_t>::max()),
+                "2147483647");
+    EXPECT_EQUAL(Int2(std::numeric_limits<int32_t>::min()),
+                "int2(-2147483648)");
+    EXPECT_EQUAL(Int2(0, 1),
+                "int2(0, 1)");
+    EXPECT_EQUAL(Int3(0),
+                "int3(0)");
+    EXPECT_EQUAL(Int3(Int2(0, 1), -2),
+                "int3(0, 1, -2)");
+    EXPECT_EQUAL(Int3(0, 1, 2),
+                "int3(0, 1, 2)");
+    EXPECT_EQUAL(Int4(0),
+                "int4(0)");
+    EXPECT_EQUAL(Int4(Int2(0, 1), Int2(2, 3)),
+                "int4(0, 1, 2, 3)");
+    EXPECT_EQUAL(Int4(0, 1, Int2(2, 3)),
+                "int4(0, 1, 2, 3)");
+    EXPECT_EQUAL(Int4(0, 1, 2, 3),
+                "int4(0, 1, 2, 3)");
 
     {
         ExpectError error(r, "error: invalid arguments to 'int2' constructor (expected 2 scalars,"
@@ -276,35 +260,27 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInt, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Expression e1 = Short(std::numeric_limits<int16_t>::max());
-    EXPECT_EQUAL(e1, "32767");
 
-    Expression e2 = Short2(std::numeric_limits<int16_t>::min());
-    EXPECT_EQUAL(e2, "short2(-32768)");
-
-    Expression e3 = Short2(0, 1);
-    EXPECT_EQUAL(e3, "short2(0, 1)");
-
-    Expression e4 = Short3(0);
-    EXPECT_EQUAL(e4, "short3(0)");
-
-    Expression e5 = Short3(Short2(0, 1), -2);
-    EXPECT_EQUAL(e5, "short3(short2(0, 1), -2)");
-
-    Expression e6 = Short3(0, 1, 2);
-    EXPECT_EQUAL(e6, "short3(0, 1, 2)");
-
-    Expression e7 = Short4(0);
-    EXPECT_EQUAL(e7, "short4(0)");
-
-    Expression e8 = Short4(Short2(0, 1), Short2(2, 3));
-    EXPECT_EQUAL(e8, "short4(short2(0, 1), short2(2, 3))");
-
-    Expression e9 = Short4(0, 1, Short2(2, 3));
-    EXPECT_EQUAL(e9, "short4(0, 1, short2(2, 3))");
-
-    Expression e10 = Short4(0, 1, 2, 3);
-    EXPECT_EQUAL(e10, "short4(0, 1, 2, 3)");
+    EXPECT_EQUAL(Short(std::numeric_limits<int16_t>::max()),
+                "32767");
+    EXPECT_EQUAL(Short2(std::numeric_limits<int16_t>::min()),
+                "short2(-32768)");
+    EXPECT_EQUAL(Short2(0, 1),
+                "short2(0, 1)");
+    EXPECT_EQUAL(Short3(0),
+                "short3(0)");
+    EXPECT_EQUAL(Short3(Short2(0, 1), -2),
+                "short3(0, 1, -2)");
+    EXPECT_EQUAL(Short3(0, 1, 2),
+                "short3(0, 1, 2)");
+    EXPECT_EQUAL(Short4(0),
+                "short4(0)");
+    EXPECT_EQUAL(Short4(Short2(0, 1), Short2(2, 3)),
+                "short4(0, 1, 2, 3)");
+    EXPECT_EQUAL(Short4(0, 1, Short2(2, 3)),
+                "short4(0, 1, 2, 3)");
+    EXPECT_EQUAL(Short4(0, 1, 2, 3),
+                "short4(0, 1, 2, 3)");
 
     {
         ExpectError error(r, "error: invalid arguments to 'short2' constructor (expected 2 scalars,"
@@ -321,33 +297,25 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Expression e1 = Bool2(false);
-    EXPECT_EQUAL(e1, "bool2(false)");
 
-    Expression e2 = Bool2(false, true);
-    EXPECT_EQUAL(e2, "bool2(false, true)");
-
-    Expression e3 = Bool3(false);
-    EXPECT_EQUAL(e3, "bool3(false)");
-
-    Expression e4 = Bool3(Bool2(false, true), false);
-    EXPECT_EQUAL(e4, "bool3(bool2(false, true), false)");
-
-    Expression e5 = Bool3(false, true, false);
-    EXPECT_EQUAL(e5, "bool3(false, true, false)");
-
-    Expression e6 = Bool4(false);
-    EXPECT_EQUAL(e6, "bool4(false)");
-
-    Expression e7 = Bool4(Bool2(false, true), Bool2(false, true));
-    EXPECT_EQUAL(e7, "bool4(bool2(false, true), "
-                                                      "bool2(false, true))");
-
-    Expression e8 = Bool4(false, true, Bool2(false, true));
-    EXPECT_EQUAL(e8, "bool4(false, true, bool2(false, true))");
-
-    Expression e9 = Bool4(false, true, false, true);
-    EXPECT_EQUAL(e9, "bool4(false, true, false, true)");
+    EXPECT_EQUAL(Bool2(false),
+                "bool2(false)");
+    EXPECT_EQUAL(Bool2(false, true),
+                "bool2(false, true)");
+    EXPECT_EQUAL(Bool3(false),
+                "bool3(false)");
+    EXPECT_EQUAL(Bool3(Bool2(false, true), false),
+                "bool3(false, true, false)");
+    EXPECT_EQUAL(Bool3(false, true, false),
+                "bool3(false, true, false)");
+    EXPECT_EQUAL(Bool4(false),
+                "bool4(false)");
+    EXPECT_EQUAL(Bool4(Bool2(false, true), Bool2(false, true)),
+                "bool4(false, true, false, true)");
+    EXPECT_EQUAL(Bool4(false, true, Bool2(false, true)),
+                "bool4(false, true, false, true)");
+    EXPECT_EQUAL(Bool4(false, true, false, true),
+                "bool4(false, true, false, true)");
 
     {
         ExpectError error(r, "error: invalid arguments to 'bool2' constructor (expected 2 scalars,"
@@ -1189,44 +1157,32 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat4, "a");
 
-    Expression e1 = a.x();
-    EXPECT_EQUAL(e1, "a.x");
-
-    Expression e2 = a.y();
-    EXPECT_EQUAL(e2, "a.y");
-
-    Expression e3 = a.z();
-    EXPECT_EQUAL(e3, "a.z");
-
-    Expression e4 = a.w();
-    EXPECT_EQUAL(e4, "a.w");
-
-    Expression e5 = a.r();
-    EXPECT_EQUAL(e5, "a.x");
-
-    Expression e6 = a.g();
-    EXPECT_EQUAL(e6, "a.y");
-
-    Expression e7 = a.b();
-    EXPECT_EQUAL(e7, "a.z");
-
-    Expression e8 = a.a();
-    EXPECT_EQUAL(e8, "a.w");
-
-    Expression e9 = Swizzle(a, R);
-    EXPECT_EQUAL(e9, "a.x");
-
-    Expression e10 = Swizzle(a, ZERO, G);
-    EXPECT_EQUAL(e10, "float2(a.y, 0.0).yx");
-
-    Expression e11 = Swizzle(a, B, G, G);
-    EXPECT_EQUAL(e11, "a.zyy");
-
-    Expression e12 = Swizzle(a, R, G, B, ONE);
-    EXPECT_EQUAL(e12, "float4(a.xyz, 1.0)");
-
-    Expression e13 = Swizzle(a, R, G, B, ONE).r();
-    EXPECT_EQUAL(e13, "float4(a.xyz, 1.0).x");
+    EXPECT_EQUAL(a.x(),
+                "a.x");
+    EXPECT_EQUAL(a.y(),
+                "a.y");
+    EXPECT_EQUAL(a.z(),
+                "a.z");
+    EXPECT_EQUAL(a.w(),
+                "a.w");
+    EXPECT_EQUAL(a.r(),
+                "a.x");
+    EXPECT_EQUAL(a.g(),
+                "a.y");
+    EXPECT_EQUAL(a.b(),
+                "a.z");
+    EXPECT_EQUAL(a.a(),
+                "a.w");
+    EXPECT_EQUAL(Swizzle(a, R),
+                "a.x");
+    EXPECT_EQUAL(Swizzle(a, ZERO, G),
+                "float2(0.0, a.y)");
+    EXPECT_EQUAL(Swizzle(a, B, G, G),
+                "a.zyy");
+    EXPECT_EQUAL(Swizzle(a, R, G, B, ONE),
+                "float4(a.xyz, 1.0)");
+    EXPECT_EQUAL(Swizzle(a, B, G, R, ONE).r(),
+                "a.z");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
