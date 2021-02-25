@@ -472,7 +472,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("DDL3") {
 			// This bot generates the real ddl images for the large skps and the gms
 			ddlConfigs := suffix(filter(configs, "gl", "vk", "mtl"), "ddl")
-			ddl2Configs := prefix(filter(configs, "gl", "vk", "mtl"), "ddl2-")
 			configs = append(ddlConfigs, ddl2Configs...)
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
