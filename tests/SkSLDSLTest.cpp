@@ -96,8 +96,10 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
     REPORTER_ASSERT(r, !whitespace_insensitive_compare("a b c  d", "\n\n\nabc"));
 }
 
-static SkSL::String stringize(DSLStatement& stmt)  { return stmt.release()->description(); }
-static SkSL::String stringize(DSLExpression& expr) { return expr.release()->description(); }
+static SkSL::String stringize(DSLStatement& stmt)          { return stmt.release()->description(); }
+static SkSL::String stringize(DSLPossibleStatement& stmt)  { return stmt.release()->description(); }
+static SkSL::String stringize(DSLExpression& expr)         { return expr.release()->description(); }
+static SkSL::String stringize(DSLPossibleExpression& expr) { return expr.release()->description(); }
 static SkSL::String stringize(SkSL::IRNode& node)  { return node.description(); }
 
 template <typename T>
@@ -379,17 +381,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '+' cannot operate on 'bool2', 'float'\n");
-        (Bool2(true) + a).release();
+        DSLExpression((Bool2(true) + a)).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '+=' cannot operate on 'float', 'bool2'\n");
-        (a += Bool2(true)).release();
+        DSLExpression((a += Bool2(true))).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1.0 += a).release();
+        DSLExpression((1.0 += a)).release();
     }
 }
 
@@ -410,17 +412,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '-' cannot operate on 'bool2', 'int'\n");
-        (Bool2(true) - a).release();
+        DSLExpression(Bool2(true) - a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '-=' cannot operate on 'int', 'bool2'\n");
-        (a -= Bool2(true)).release();
+        DSLExpression(a -= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1.0 -= a).release();
+        DSLExpression(1.0 -= a).release();
     }
 }
 
@@ -441,17 +443,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '*' cannot operate on 'bool2', 'float'\n");
-        (Bool2(true) * a).release();
+        DSLExpression(Bool2(true) * a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '*=' cannot operate on 'float', 'bool2'\n");
-        (a *= Bool2(true)).release();
+        DSLExpression(a *= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1.0 *= a).release();
+        DSLExpression(1.0 *= a).release();
     }
 }
 
@@ -475,28 +477,28 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '/' cannot operate on 'bool2', 'float'\n");
-        (Bool2(true) / a).release();
+        DSLExpression(Bool2(true) / a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '/=' cannot operate on 'float', 'bool2'\n");
-        (a /= Bool2(true)).release();
+        DSLExpression(a /= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1.0 /= a).release();
+        DSLExpression(1.0 /= a).release();
     }
 
     {
         ExpectError error(r, "error: division by zero\n");
-        (a /= 0).release();
+        DSLExpression(a /= 0).release();
     }
 
     {
         Var c(kFloat2, "c");
         ExpectError error(r, "error: division by zero\n");
-        (c /= Float2(Float(0), 1)).release();
+        DSLExpression(c /= Float2(Float(0), 1)).release();
     }
 }
 
@@ -517,28 +519,28 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '%' cannot operate on 'bool2', 'int'\n");
-        (Bool2(true) % a).release();
+        DSLExpression(Bool2(true) % a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '%=' cannot operate on 'int', 'bool2'\n");
-        (a %= Bool2(true)).release();
+        DSLExpression(a %= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1 %= a).release();
+        DSLExpression(1 %= a).release();
     }
 
     {
         ExpectError error(r, "error: division by zero\n");
-        (a %= 0).release();
+        DSLExpression(a %= 0).release();
     }
 
     {
         Var c(kInt2, "c");
         ExpectError error(r, "error: division by zero\n");
-        (c %= Int2(Int(0), 1)).release();
+        DSLExpression(c %= Int2(Int(0), 1)).release();
     }
 }
 
@@ -559,17 +561,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '<<' cannot operate on 'bool2', 'int'\n");
-        (Bool2(true) << a).release();
+        DSLExpression(Bool2(true) << a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '<<=' cannot operate on 'int', 'bool2'\n");
-        (a <<= Bool2(true)).release();
+        DSLExpression(a <<= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1 <<= a).release();
+        DSLExpression(1 <<= a).release();
     }
 }
 
@@ -590,17 +592,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '>>' cannot operate on 'bool2', 'int'\n");
-        (Bool2(true) >> a).release();
+        DSLExpression(Bool2(true) >> a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '>>=' cannot operate on 'int', 'bool2'\n");
-        (a >>= Bool2(true)).release();
+        DSLExpression(a >>= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1 >>= a).release();
+        DSLExpression(1 >>= a).release();
     }
 }
 
@@ -621,17 +623,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '&' cannot operate on 'bool2', 'int'\n");
-        (Bool2(true) & a).release();
+        DSLExpression(Bool2(true) & a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '&=' cannot operate on 'int', 'bool2'\n");
-        (a &= Bool2(true)).release();
+        DSLExpression(a &= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1 &= a).release();
+        DSLExpression(1 &= a).release();
     }
 }
 
@@ -652,17 +654,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '|' cannot operate on 'bool2', 'int'\n");
-        (Bool2(true) | a).release();
+        DSLExpression(Bool2(true) | a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '|=' cannot operate on 'int', 'bool2'\n");
-        (a |= Bool2(true)).release();
+        DSLExpression(a |= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1 |= a).release();
+        DSLExpression(1 |= a).release();
     }
 }
 
@@ -683,17 +685,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '^' cannot operate on 'bool2', 'int'\n");
-        (Bool2(true) ^ a).release();
+        DSLExpression(Bool2(true) ^ a).release();
     }
 
     {
         ExpectError error(r, "error: type mismatch: '^=' cannot operate on 'int', 'bool2'\n");
-        (a ^= Bool2(true)).release();
+        DSLExpression(a ^= Bool2(true)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (1 ^= a).release();
+        DSLExpression(1 ^= a).release();
     }
 }
 
@@ -711,7 +713,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalAnd, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '&&' cannot operate on 'bool', 'int'\n");
-        (a && 5).release();
+        DSLExpression(a && 5).release();
     }
 }
 
@@ -729,7 +731,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalOr, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '||' cannot operate on 'bool', 'int'\n");
-        (a || 5).release();
+        DSLExpression(a || 5).release();
     }
 }
 
@@ -754,7 +756,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '==' cannot operate on 'int', 'bool2'\n");
-        (a == Bool2(true)).release();
+        DSLExpression(a == Bool2(true)).release();
     }
 }
 
@@ -769,7 +771,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '!=' cannot operate on 'int', 'bool2'\n");
-        (a != Bool2(true)).release();
+        DSLExpression(a != Bool2(true)).release();
     }
 }
 
@@ -784,7 +786,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '>' cannot operate on 'int', 'bool2'\n");
-        (a > Bool2(true)).release();
+        DSLExpression(a > Bool2(true)).release();
     }
 }
 
@@ -799,7 +801,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '>=' cannot operate on 'int', 'bool2'\n");
-        (a >= Bool2(true)).release();
+        DSLExpression(a >= Bool2(true)).release();
     }
 }
 
@@ -814,7 +816,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '<' cannot operate on 'int', 'bool2'\n");
-        (a < Bool2(true)).release();
+        DSLExpression(a < Bool2(true)).release();
     }
 }
 
@@ -829,7 +831,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: type mismatch: '<=' cannot operate on 'int', 'bool2'\n");
-        (a <= Bool2(true)).release();
+        DSLExpression(a <= Bool2(true)).release();
     }
 }
 
@@ -841,7 +843,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalNot, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: '!' cannot operate on 'int'\n");
-        (!a).release();
+        DSLExpression(!a).release();
     }
 }
 
@@ -853,7 +855,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseNot, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: '~' cannot operate on 'bool'\n");
-        (~b).release();
+        DSLExpression(~b).release();
     }
 }
 
@@ -868,22 +870,22 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIncrement, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: '++' cannot operate on 'bool'\n");
-        (++b).release();
+        DSLExpression(++b).release();
     }
 
     {
         ExpectError error(r, "error: '++' cannot operate on 'bool'\n");
-        (b++).release();
+        DSLExpression(b++).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (++(a + 1)).release();
+        DSLExpression(++(a + 1)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        ((a + 1)++).release();
+        DSLExpression((a + 1)++).release();
     }
 }
 
@@ -898,22 +900,22 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: '--' cannot operate on 'bool'\n");
-        (--b).release();
+        DSLExpression(--b).release();
     }
 
     {
         ExpectError error(r, "error: '--' cannot operate on 'bool'\n");
-        (b--).release();
+        DSLExpression(b--).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        (--(a + 1)).release();
+        DSLExpression(--(a + 1)).release();
     }
 
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
-        ((a + 1)--).release();
+        DSLExpression((a + 1)--).release();
     }
 }
 
@@ -1122,12 +1124,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected 'bool', but found 'int'\n");
-        Select(a, 1, -1).release();
+        DSLExpression x = Select(a, 1, -1);
     }
 
     {
         ExpectError error(r, "error: ternary operator result mismatch: 'float2', 'float3'\n");
-        Select(a > 0, Float2(1), Float3(1)).release();
+        DSLExpression x = Select(a > 0, Float2(1), Float3(1));
     }
 }
 
@@ -1159,18 +1161,18 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: duplicate case value '0'\n");
-        Switch(0, Case(0), Case(0)).release();
+        DSLStatement(Switch(0, Case(0), Case(0))).release();
     }
 
     {
         ExpectError error(r, "error: duplicate default case\n");
-        Switch(0, Default(a = 0), Default(a = 1)).release();
+        DSLStatement(Switch(0, Default(a = 0), Default(a = 1))).release();
     }
 
     {
         ExpectError error(r, "error: case value must be a constant integer\n");
         Var b(kInt);
-        Switch(0, Case(b)).release();
+        DSLStatement(Switch(0, Case(b))).release();
     }
 
     {
@@ -1240,7 +1242,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected 'bool', but found 'int'\n");
-        While(7, Block()).release();
+        DSLStatement x = While(7, Block());
     }
 }
 
@@ -1253,17 +1255,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected 'int', but found 'bool'\n");
-        a[true].release();
+        DSLExpression x = a[true];
     }
 
     {
         ExpectError error(r, "error: expected array, but found 'int'\n");
-        b[0].release();
+        DSLExpression x = b[0];
     }
 
     {
         ExpectError error(r, "error: index -1 out of range for 'int[5]'\n");
-        a[-1].release();
+        DSLExpression x = a[-1];
     }
 }
 

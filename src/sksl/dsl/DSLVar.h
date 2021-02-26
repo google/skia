@@ -70,28 +70,36 @@ public:
         return DSLExpression(*this).field(name);
     }
 
-    DSLExpression operator=(const DSLVar& var) {
+    DSLPossibleExpression operator=(const DSLVar& var) {
         return this->operator=(DSLExpression(var));
     }
 
-    DSLExpression operator=(DSLExpression expr);
+    DSLPossibleExpression operator=(DSLExpression expr);
 
-    DSLExpression operator=(int expr) {
+    DSLPossibleExpression operator=(int expr) {
         return this->operator=(DSLExpression(expr));
     }
 
-    DSLExpression operator=(float expr) {
+    DSLPossibleExpression operator=(float expr) {
         return this->operator=(DSLExpression(expr));
     }
 
-    DSLExpression operator[](DSLExpression&& index);
+    DSLPossibleExpression operator[](DSLExpression&& index);
 
-    DSLExpression operator++() {
+    DSLPossibleExpression operator++() {
         return ++DSLExpression(*this);
     }
 
-    DSLExpression operator++(int) {
+    DSLPossibleExpression operator++(int) {
         return DSLExpression(*this)++;
+    }
+
+    DSLPossibleExpression operator--() {
+        return --DSLExpression(*this);
+    }
+
+    DSLPossibleExpression operator--(int) {
+        return DSLExpression(*this)--;
     }
 
 private:
