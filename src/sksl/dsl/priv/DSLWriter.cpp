@@ -16,6 +16,7 @@
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLErrorHandling.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 
@@ -132,7 +133,7 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expres
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr,
                                                             Operator op) {
-    return IRGenerator().convertPostfixExpression(std::move(expr), op);
+    return PostfixExpression::Make(Context(), std::move(expr), op);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,

@@ -367,7 +367,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kPostfix: {
             const PostfixExpression& p = expression.as<PostfixExpression>();
-            return std::make_unique<PostfixExpression>(expr(p.operand()), p.getOperator());
+            return PostfixExpression::Make(*fContext, expr(p.operand()), p.getOperator());
         }
         case Expression::Kind::kSetting:
             return expression.clone();
@@ -716,7 +716,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 fContext->fTypes.fBool.get());
 
         // _1_loop++
-        std::unique_ptr<Expression> increment = std::make_unique<PostfixExpression>(
+        std::unique_ptr<Expression> increment = PostfixExpression::Make(
+                *fContext,
                 std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol,
                                                     VariableReference::RefKind::kReadWrite),
                 Token::Kind::TK_PLUSPLUS);

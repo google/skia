@@ -503,7 +503,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return std::make_unique<PostfixExpression>(std::move(operand), op);
+            return PostfixExpression::Make(fContext, std::move(operand), op);
         }
         case Rehydrator::kPrefix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
