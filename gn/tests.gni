@@ -182,7 +182,6 @@ tests_sources = [
   "$_tests/PDFTaggedPruningTest.cpp",
   "$_tests/PDFTaggedTableTest.cpp",
   "$_tests/PDFTaggedTest.cpp",
-  "$_tests/PackBitsTest.cpp",
   "$_tests/PaintTest.cpp",
   "$_tests/ParametricStageTest.cpp",
   "$_tests/ParseColorTest.cpp",
