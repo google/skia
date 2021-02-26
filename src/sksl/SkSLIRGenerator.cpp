@@ -707,7 +707,7 @@ std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(const ASTNode
     if (!e) {
         return nullptr;
     }
-    return std::unique_ptr<Statement>(new ExpressionStatement(std::move(e)));
+    return ExpressionStatement::Make(fContext, std::move(e));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertReturn(int offset,
@@ -785,12 +785,12 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
 
     StatementArray loopBody;
     loopBody.reserve_back(2);
-    loopBody.push_back(std::make_unique<ExpressionStatement>(this->call(/*offset=*/-1,
-                                                                        *invokeDecl,
-                                                                        ExpressionArray{})));
-    loopBody.push_back(std::make_unique<ExpressionStatement>(this->call(/*offset=*/-1,
-                                                                        std::move(endPrimitive),
-                                                                        ExpressionArray{})));
+    loopBody.push_back(ExpressionStatement::Make(fContext, this->call(/*offset=*/-1,
+                                                                      *invokeDecl,
+                                                                      ExpressionArray{})));
+    loopBody.push_back(ExpressionStatement::Make(fContext, this->call(/*offset=*/-1,
+                                                                      std::move(endPrimitive),
+                                                                      ExpressionArray{})));
     auto assignment = std::make_unique<BinaryExpression>(
             /*offset=*/-1,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
@@ -798,7 +798,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             Token::Kind::TK_EQ,
             std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0),
             fContext.fTypes.fInt.get());
-    auto initializer = std::make_unique<ExpressionStatement>(std::move(assignment));
+    auto initializer = ExpressionStatement::Make(fContext, std::move(assignment));
     auto loop = ForStatement::Make(
             fContext, /*offset=*/-1, std::move(initializer), std::move(test), std::move(next),
             std::make_unique<Block>(/*offset=*/-1, std::move(loopBody)), fSymbolTable);
@@ -865,7 +865,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     std::unique_ptr<Expression> result = Op(Pos(), Token::Kind::TK_EQ,
                                  Constructor::Make(fContext, /*offset=*/-1,
                                                    *fContext.fTypes.fFloat4, std::move(children)));
-    return std::make_unique<ExpressionStatement>(std::move(result));
+    return ExpressionStatement::Make(fContext, std::move(result));
 }
 
 void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int permitted) {
