@@ -79,23 +79,21 @@ void SkPixelRef::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) {
         return;
     }
     SkASSERT(!listener->shouldDeregister());
-    bool singleThreaded = this->unique();
-    fGenIDChangeListeners.add(std::move(listener), singleThreaded);
+    fGenIDChangeListeners.add(std::move(listener));
 }
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPixelRef::callGenIDChangeListeners() {
-    bool singleThreaded = this->unique();
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
     if (this->genIDIsUnique()) {
-        fGenIDChangeListeners.changed(singleThreaded);
+        fGenIDChangeListeners.changed();
         if (fAddedToCache.exchange(false)) {
             SkNotifyBitmapGenIDIsStale(this->getGenerationID());
         }
     } else {
         // Listeners get at most one shot, so even though these weren't triggered or not, blow them
         // away.
-        fGenIDChangeListeners.reset(singleThreaded);
+        fGenIDChangeListeners.reset();
     }
 }
 

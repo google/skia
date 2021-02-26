@@ -503,7 +503,6 @@ GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const 
 }
 
 void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const {
-    bool singleThreaded = this->unique();
-    fUniqueIDListeners.add(std::move(listener), singleThreaded);
+    fUniqueIDListeners.add(std::move(listener));
 }
 #endif
