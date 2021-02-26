@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e46231f_ca1af710",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-26T21:37:27Z",
+      "side": 1,
+      "message": "While doing follow-up work, I got nervous as I realized that the various copy and assignment operators were no longer propagating the initial-key-length. Reverted the original CL, then added fixes to PS2 here.",
+      "revId": "3eb7046a5cc218f5c0c7e08efe85fa6ac5928f24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
