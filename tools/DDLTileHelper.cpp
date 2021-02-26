@@ -43,7 +43,11 @@ void DDLTileHelper::TileData::init(int id,
 DDLTileHelper::TileData::TileData() {}
 DDLTileHelper::TileData::~TileData() {}
 
-void DDLTileHelper::TileData::createDDL(const SkPicture* picture) {
+void DDLTileHelper::TileData::createDDL(SkPicture* picture) {
+    if (!this->initialized()) {
+        return;
+    }
+
     SkASSERT(!fDisplayList && picture);
 
     auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
@@ -130,8 +134,7 @@ sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrRecordingContext
                                              &fPlaybackChar.surfaceProps());
 }
 
-void DDLTileHelper::TileData::drawSKPDirectly(GrDirectContext* dContext,
-                                              const SkPicture* picture) {
+void DDLTileHelper::TileData::drawSKPDirectly(GrDirectContext* dContext, SkPicture* picture) {
     SkASSERT(!fDisplayList && !fTileSurface && picture);
 
     fTileSurface = this->makeWrappedTileDest(dContext);
@@ -223,24 +226,25 @@ void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* t
 DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
                              const SkSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
-                             int numDivisions,
+                             int numXDivisions, int numYDivisions,
                              bool addRandomPaddingToDst)
-        : fNumDivisions(numDivisions)
-        , fTiles(numDivisions * numDivisions)
+        : fNumXDivisions(numXDivisions)
+        , fNumYDivisions(numYDivisions)
+        , fTiles(numXDivisions * numYDivisions)
         , fDstCharacterization(dstChar) {
-    SkASSERT(fNumDivisions > 0);
+    SkASSERT(fNumXDivisions > 0 && fNumYDivisions > 0);
 
-    int xTileSize = viewport.width()/fNumDivisions;
-    int yTileSize = viewport.height()/fNumDivisions;
+    int xTileSize = viewport.width()/fNumXDivisions;
+    int yTileSize = viewport.height()/fNumYDivisions;
 
     SkRandom rand;
 
     // Create the destination tiles
-    for (int y = 0, yOff = 0; y < fNumDivisions; ++y, yOff += yTileSize) {
-        int ySize = (y < fNumDivisions-1) ? yTileSize : viewport.height()-yOff;
+    for (int y = 0, yOff = 0; y < fNumYDivisions; ++y, yOff += yTileSize) {
+        int ySize = (y < fNumYDivisions-1) ? yTileSize : viewport.height()-yOff;
 
-        for (int x = 0, xOff = 0; x < fNumDivisions; ++x, xOff += xTileSize) {
-            int xSize = (x < fNumDivisions-1) ? xTileSize : viewport.width()-xOff;
+        for (int x = 0, xOff = 0; x < fNumXDivisions; ++x, xOff += xTileSize) {
+            int xSize = (x < fNumXDivisions-1) ? xTileSize : viewport.width()-xOff;
 
             SkIRect clip = SkIRect::MakeXYWH(xOff, yOff, xSize, ySize);
 
@@ -252,32 +256,23 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
             int32_t rPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
             int32_t bPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
 
-            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
-                                           {lPad, tPad, rPad, bPad});
+            fTiles[y*fNumXDivisions+x].init(y*fNumXDivisions+x, direct, dstChar, clip,
+                                            {lPad, tPad, rPad, bPad});
         }
     }
 }
 
-void DDLTileHelper::createSKP(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
-                              SkData* compressedPictureData,
-                              const DDLPromiseImageHelper& helper) {
-    SkASSERT(!fReconstitutedPicture);
-
-    fReconstitutedPicture = helper.reinflateSKP(std::move(threadSafeProxy), compressedPictureData,
-                                                &fPromiseImages);
-}
-
-void DDLTileHelper::createDDLsInParallel() {
+void DDLTileHelper::createDDLsInParallel(SkPicture* picture) {
 #if 1
     SkTaskGroup().batch(this->numTiles(), [&](int i) {
-        fTiles[i].createDDL(fReconstitutedPicture.get());
+        fTiles[i].createDDL(picture);
     });
     SkTaskGroup().add([this]{ this->createComposeDDL(); });
     SkTaskGroup().wait();
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createDDL(fReconstitutedPicture.get());
+        fTiles[i].createDDL(picture);
     }
     this->createComposeDDL();
 #endif
@@ -300,7 +295,8 @@ static void do_gpu_stuff(GrDirectContext* direct, DDLTileHelper::TileData* tile)
 // We expect to have more than one recording thread but just one gpu thread
 void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                                         SkTaskGroup* gpuTaskGroup,
-                                        GrDirectContext* dContext) {
+                                        GrDirectContext* dContext,
+                                        SkPicture* picture) {
     SkASSERT(recordingTaskGroup && gpuTaskGroup && dContext);
 
     for (int i = 0; i < this->numTiles(); ++i) {
@@ -314,8 +310,8 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
         //    schedule gpu-thread processing of the DDL
         // Note: a finer grained approach would be add a scheduling task which would evaluate
         //       which DDLs were ready to be rendered based on their prerequisites
-        recordingTaskGroup->add([this, tile, gpuTaskGroup, dContext]() {
-                                    tile->createDDL(fReconstitutedPicture.get());
+        recordingTaskGroup->add([tile, gpuTaskGroup, dContext, picture]() {
+                                    tile->createDDL(picture);
 
                                     gpuTaskGroup->add([dContext, tile]() {
                                         do_gpu_stuff(dContext, tile);
@@ -327,7 +323,7 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
 }
 
 // Only called from ViaDDL
-void DDLTileHelper::precompileAndDrawAllTiles(GrDirectContext* direct) {
+void DDLTileHelper::precompileAndDrawAllTiles(GrDirectContext* direct, SkPicture* picture) {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].precompile(direct);
         fTiles[i].draw(direct);
@@ -335,17 +331,17 @@ void DDLTileHelper::precompileAndDrawAllTiles(GrDirectContext* direct) {
 }
 
 // Only called from skpbench
-void DDLTileHelper::interleaveDDLCreationAndDraw(GrDirectContext* direct) {
+void DDLTileHelper::interleaveDDLCreationAndDraw(GrDirectContext* direct, SkPicture* picture) {
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].createDDL(fReconstitutedPicture.get());
+        fTiles[i].createDDL(picture);
         fTiles[i].draw(direct);
     }
 }
 
 // Only called from skpbench
-void DDLTileHelper::drawAllTilesDirectly(GrDirectContext* context) {
+void DDLTileHelper::drawAllTilesDirectly(GrDirectContext* context, SkPicture* picture) {
     for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].drawSKPDirectly(context, fReconstitutedPicture.get());
+        fTiles[i].drawSKPDirectly(context, picture);
     }
 }
 
