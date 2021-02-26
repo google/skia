@@ -31,7 +31,26 @@
 #include "src/gpu/GrDrawOpTest.h"
 #endif
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+#if !defined(GR_OP_ALLOCATE_USE_POOL)
+thread_local void* gGrAtlasTextOpCache = nullptr;
+void* GrAtlasTextOp::operator new(size_t s) {
+    if (gGrAtlasTextOpCache != nullptr) {
+        void* result = gGrAtlasTextOpCache;
+        gGrAtlasTextOpCache = nullptr;
+        return result;
+    } else {
+        return ::operator new(s);
+    }
+}
+
+void GrAtlasTextOp::operator delete(void* b) noexcept {
+    if (gGrAtlasTextOpCache == nullptr) {
+        gGrAtlasTextOpCache = b;
+    } else {
+        ::operator delete(b);
+    }
+}
+#endif
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              bool needsTransform,

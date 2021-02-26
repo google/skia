@@ -42,7 +42,11 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy)
     fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }
 
-GrRecordingContext::~GrRecordingContext() = default;
+extern thread_local void* gGrAtlasTextOpCache;
+GrRecordingContext::~GrRecordingContext() {
+    ::operator delete(gGrAtlasTextOpCache);
+    gGrAtlasTextOpCache = nullptr;
+};
 
 int GrRecordingContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrBackendFormat format =

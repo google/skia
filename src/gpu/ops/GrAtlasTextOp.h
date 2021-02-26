@@ -25,6 +25,11 @@ public:
         }
     }
 
+#if !defined(GR_OP_ALLOCATE_USE_POOL)
+    void* operator new(size_t s);
+    void operator delete(void* b);
+#endif
+
     static const int kVerticesPerGlyph = GrAtlasSubRun::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
