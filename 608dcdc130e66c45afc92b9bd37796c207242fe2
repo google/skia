@@ -34,6 +34,24 @@
       "parentUuid": "ab4e0673_f771a8e2",
       "revId": "608dcdc130e66c45afc92b9bd37796c207242fe2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d629dc4b_006bdfb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-26T21:03:56Z",
+      "side": 1,
+      "message": "I realize the one caveat here is that it won\u0027t be set correctly when using BuildFromData(). That API is only used by GL (for shader precompilation). But as it\u0027s not in the key in the later code-paths, it shouldn\u0027t affect our lookups of programs that were precompiled.\n\nThe only use of initialKeyLength() is in non-GL backends, when adding things *to* the cache (to slice off the backend-specific parts of the key). So I do think it\u0027s safe, but subtly so.",
+      "parentUuid": "5f2f8715_62b49486",
+      "revId": "608dcdc130e66c45afc92b9bd37796c207242fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
