@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c093bae8_67580d88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-26T13:17:20Z",
+      "side": 1,
+      "message": "Hmm.  This doesn\u0027t really pass my smell test... if we were to wipe the file away and rewrite it from scratch, I don\u0027t think we\u0027d ever permit ourselves to write it like this.  Mostly I\u0027ll put that on the existing code, but that use of SkOnce as a memory barrier kind of crashed my brain when I read that too.  Why don\u0027t we take this opportunity to revise the whole effect?\n\nIt seems a little silly to have two copies of this data, one in `uint8_t fStorage[256*4]` and the other in a lazily cached 256x4 8-bit fBitmap.  I would like to eliminate one and use the other as the single truth.  Of the two options, I think the code would read most straightforward if we remove fStorage and work exclusively from a non-lazy fBitmap?  It does also look possible to go the other way, keeping fStorage, wrapping that as an SkPixmap, then finally wrapping that as an immutable SkBitmap using installPixels(), but I think even then tracking the relationships between fStorage, fPixmap, and fBitmap would sum up to a bit more cognitive load than necessary here.\n\nI\u0027ll take a crack at this and send you a CL if I come up with anything good.",
+      "revId": "0d6f80837e4be224805b2f4c335ede0bcbdda633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
