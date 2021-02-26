@@ -22,6 +22,30 @@
       },
       "revId": "016b77093e3bfbea39bff5b768cbe402b19161bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4843f90f_c397cc09",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-26T21:51:00Z",
+      "side": 1,
+      "message": "Yeah, my thought was this is a rare case; the optimization opportunity was only exposed after other simplification passes. If I thought control-flow-based optimizations were going to live forever I\u0027d be more concerned about it, but all the evidence points to removing it anyway. Honestly, even if control-flow-based optimizations do end up making the cut, this code will probably get rewritten anyway (this is exactly the kind of optimization that we\u0027re doing in the control-flow pass that could be done in a separate pass).",
+      "parentUuid": "c7f3dd09_36644e3d",
+      "range": {
+        "startLine": 165,
+        "startChar": 64,
+        "endLine": 165,
+        "endChar": 88
+      },
+      "revId": "016b77093e3bfbea39bff5b768cbe402b19161bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
