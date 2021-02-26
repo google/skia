@@ -3,16 +3,25 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+
+#include "src/core/SkOSFile.h"
+
+#include "src/gpu/GrDirectContextPriv.h"
+
+#include "src/sksl/SkSLDefines.h"
+
+#include "src/utils/SkOSPath.h"
 
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
+#include "tools/ToolUtils.h"
 
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/TestContext.h"
-
-#include "src/sksl/SkSLDefines.h"
 
 #include <chrono>
 #include <deque>
@@ -25,9 +34,11 @@ using sk_gpu_test::ContextInfo;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
 
-static DEFINE_int(ddlNumRecordingThreads, 1, "number of DDL recording threads");
+static DEFINE_int(numRecordingThreads, 1, "number of DDL recording threads");
 static DEFINE_int(numTilesX, 3, "number of tiles horizontally");
 static DEFINE_int(numTilesY, 3, "number of tiles vertically");
+static DEFINE_int(numSamples, 1, "number of MSAA samples");
+static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 static DEFINE_string(src, "", "input .skp file");
 
 static void exitf(const char* format, ...) {
@@ -285,6 +296,51 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
     return skp;
 }
 
+static void check_params(GrDirectContext* dContext,
+                         int width, int height, SkColorType ct, SkAlphaType at, int numSamples) {
+
+    if (dContext->maxRenderTargetSize() < std::max(width, height)) {
+        exitf("render target size %ix%i not supported by platform (max: %i)",
+              width, height, dContext->maxRenderTargetSize());
+    }
+
+    GrBackendFormat format = dContext->defaultBackendFormat(ct, GrRenderable::kYes);
+    if (!format.isValid()) {
+        exitf("failed to get GrBackendFormat from SkColorType: %d", ct);
+    }
+
+    int supportedSampleCount = dContext->priv().caps()->getRenderTargetSampleCount(numSamples,
+                                                                                   format);
+    if (supportedSampleCount != numSamples) {
+        exitf("sample count %i not supported by platform", numSamples);
+    }
+}
+
+static bool mkdir_p(const SkString& dirname) {
+    if (dirname.isEmpty() || dirname == SkString("/")) {
+        return true;
+    }
+    return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
+}
+
+static void maybe_save_file(SkSurface* surface) {
+    if (FLAGS_png.isEmpty()) {
+        return;
+    }
+
+    SkBitmap bmp;
+    bmp.allocPixels(surface->imageInfo());
+    if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
+        exitf("failed to read canvas pixels for png");
+    }
+    if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
+        exitf("failed to create directory for png \"%s\"", FLAGS_png[0]);
+    }
+    if (!ToolUtils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
+        exitf("failed to save png to \"%s\"", FLAGS_png[0]);
+    }
+}
+
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
@@ -296,19 +352,21 @@ int main(int argc, char** argv) {
     const GrContextFactory::ContextType kContextType = GrContextFactory::kGL_ContextType;
     const GrContextOptions kContextOptions;
     const GrContextFactory::ContextOverrides kOverrides = GrContextFactory::ContextOverrides::kNone;
+    SkColorType ct = kRGBA_8888_SkColorType;
+    SkAlphaType at = kPremul_SkAlphaType;
 
     SkGraphics::Init();
 
     GrContextFactory factory(kContextOptions);
 
     std::unique_ptr<ThreadInfo> mainContext(new ThreadInfo);
-    std::unique_ptr<ThreadInfo[]> utilityContexts(new ThreadInfo[FLAGS_ddlNumRecordingThreads]);
+    std::unique_ptr<ThreadInfo[]> utilityContexts(new ThreadInfo[FLAGS_numRecordingThreads]);
 
     if (!create_contexts(&factory,
                          kContextType,
                          kOverrides,
                          mainContext.get(),
-                         SkSpan<ThreadInfo>(utilityContexts.get(), FLAGS_ddlNumRecordingThreads))) {
+                         SkSpan<ThreadInfo>(utilityContexts.get(), FLAGS_numRecordingThreads))) {
         return 1;
     }
 
@@ -321,19 +379,42 @@ int main(int argc, char** argv) {
                                              mainContext->fDirectContext,
                                              &promiseImageHelper);
 
+    int width = std::min(SkScalarCeilToInt(skp->cullRect().width()), 2048);
+    int height = std::min(SkScalarCeilToInt(skp->cullRect().height()), 2048);
+
+    check_params(mainContext->fDirectContext, width, height, ct, at, FLAGS_numSamples);
+
     promiseImageHelper.createCallbackContexts(mainContext->fDirectContext);
 
     // TODO: do this later on a utility thread!
     promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext);
 
-    mainContext->fTestContext->makeNotCurrent();
+    SkImageInfo info = SkImageInfo::Make(width, height, ct, at, nullptr);
 
-    {
+    sk_sp<SkSurface> dstSurface = SkSurface::MakeRenderTarget(mainContext->fDirectContext,
+                                                              SkBudgeted::kNo, info,
+                                                              FLAGS_numSamples, nullptr);
+    if (!dstSurface) {
+        exitf("Could not create a surface.");
+    }
+
+    if (FLAGS_numRecordingThreads == 0) {
+        mainContext->fThreadStart = hires_clock::now();
+
+        dstSurface->getCanvas()->drawPicture(skp);
+
+        mainContext->fThreadStop = hires_clock::now();
+
+        mainContext->fWorkElapsed = mainContext->fThreadStop - mainContext->fThreadStart;
+        mainContext->fWorkUnit++;
+    } else {
+        mainContext->fTestContext->makeNotCurrent();
+
         GrTaskGroup gpuTaskGroup(SkSpan<ThreadInfo>(mainContext.get(), 1));
         GrTaskGroup recordingTaskGroup(SkSpan<ThreadInfo>(utilityContexts.get(),
-                                                          FLAGS_ddlNumRecordingThreads));
+                                                          FLAGS_numRecordingThreads));
 
-        for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
+        for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
             recordingTaskGroup.add([] {
                                        ThreadInfo* threadLocal = get_thread_local_info();
                                        printf("%s: dContext %p\n", threadLocal->fName.c_str(),
@@ -355,12 +436,17 @@ int main(int argc, char** argv) {
 
         recordingTaskGroup.wait();
         gpuTaskGroup.wait();
+
+        mainContext->fTestContext->makeCurrent();
     }
 
-    mainContext->fTestContext->makeCurrent();
+    maybe_save_file(dstSurface.get());
 
+    promiseImageHelper.deleteAllFromGPU(nullptr, mainContext->fDirectContext);
+
+    // Dump out the timing stats
     mainContext->dump();
-    for (int i = 0; i < FLAGS_ddlNumRecordingThreads; ++i) {
+    for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
         utilityContexts[i].dump();
     }
 
