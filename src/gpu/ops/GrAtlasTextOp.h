@@ -13,6 +13,11 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/text/GrTextBlob.h"
 
+#if !defined(SK_BUILD_FOR_IOS) || \
+            (defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_9_0)
+    #define GR_HAS_THREAD_LOCAL
+#endif
+
 class GrRecordingContext;
 
 class GrAtlasTextOp final : public GrMeshDrawOp {
@@ -24,6 +29,14 @@ public:
             g->~Geometry();
         }
     }
+
+#if !defined(GR_OP_ALLOCATE_USE_POOL) && defined(GR_HAS_THREAD_LOCAL)
+    void* operator new(size_t s);
+    void operator delete(void* b) noexcept;
+    static void ClearCache();
+#else
+    static void ClearCache() {}
+#endif
 
     static const int kVerticesPerGlyph = GrAtlasSubRun::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
