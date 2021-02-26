@@ -22,7 +22,7 @@ class GrShaderCaps;
  */
 class GrProgramDesc {
 public:
-    GrProgramDesc(const GrProgramDesc& other) : fKey(other.fKey) {}   // for SkLRUCache
+    GrProgramDesc(const GrProgramDesc& other) = default;
 
     bool isValid() const { return !fKey.empty(); }
 
@@ -41,6 +41,7 @@ public:
         uint32_t keyLength = other.keyLength();
         fKey.reset(SkToInt(keyLength));
         memcpy(fKey.begin(), other.fKey.begin(), keyLength);
+        fInitialKeyLength = other.fInitialKeyLength;
         return *this;
     }
 
@@ -65,7 +66,7 @@ public:
         return !(*this == other);
     }
 
-    uint32_t initialKeyLength() const { return this->header().fInitialKeyLength; }
+    uint32_t initialKeyLength() const { return fInitialKeyLength; }
 
 protected:
     friend class GrDawnCaps;
@@ -100,48 +101,11 @@ protected:
         return true;
     }
 
-    // TODO: this should be removed and converted to just data added to the key
-    struct KeyHeader {
-        // Set to uniquely identify any swizzling of the shader's output color(s).
-        uint16_t fWriteSwizzle;
-        uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
-        uint8_t fCoverageFragmentProcessorCnt;
-        // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
-        uint32_t fSurfaceOriginKey : 2;
-        uint32_t fProcessorFeatures : 1;
-        uint32_t fSnapVerticesToPixelCenters : 1;
-        uint32_t fHasPointSize : 1;
-        // This is the key size (in bytes) after core key construction. It doesn't include any
-        // portions added by the platform-specific backends.
-        uint32_t fInitialKeyLength : 27;
-    };
-    static_assert(sizeof(KeyHeader) == 8);
-
-    const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
-
-    template<typename T, size_t OFFSET> T* atOffset() {
-        return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
-    }
-
-    template<typename T, size_t OFFSET> const T* atOffset() const {
-        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
-    }
-
-    // The key, stored in fKey, is composed of two parts:
-    // 1. Header struct defined above.
-    // 2. A Backend specific payload which includes the per-processor keys.
-    enum KeyOffsets {
-        kHeaderOffset = 0,
-        kHeaderSize = SkAlign4(sizeof(KeyHeader)),
-        // This is the offset into the backend-specific part of the key, which includes
-        // per-processor keys.
-        kProcessorKeysOffset = kHeaderOffset + kHeaderSize,
-    };
-
     enum {
+        kHeaderSize            = 4,    // "header" in ::Build
         kMaxPreallocProcessors = 8,
         kIntsPerProcessor      = 4,    // This is an overestimate of the average effect key size.
-        kPreAllocSize = kHeaderOffset + kHeaderSize +
+        kPreAllocSize = kHeaderSize +
                         kMaxPreallocProcessors * sizeof(uint32_t) * kIntsPerProcessor,
     };
 
@@ -149,6 +113,7 @@ protected:
 
 private:
     SkSTArray<kPreAllocSize, uint8_t, true> fKey;
+    uint32_t fInitialKeyLength = 0;
 };
 
 #endif
