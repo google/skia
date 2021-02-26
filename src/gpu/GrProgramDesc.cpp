@@ -83,7 +83,7 @@ static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
                             const GrCaps& caps,
                             uint32_t transformKey,
                             GrProcessorKeyBuilder* b) {
-    size_t processorKeySize = b->size();
+    size_t processorKeySize = b->sizeInBits();
     uint32_t classID = fp.classID();
 
     // Currently we allow 16 bits for the class id and the overall processor key size.
@@ -99,17 +99,16 @@ static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
         caps.addExtraSamplerKey(b, te.samplerState(), backendFormat);
     });
 
-    uint32_t* key = b->add32n(2);
-    key[0] = (classID << 16) | SkToU32(processorKeySize);
-    key[1] = transformKey;
+    b->addBits(16, classID,          "fpClassID");
+    b->addBits(16, processorKeySize, "fpKeySize");
+    b->add32(transformKey,           "fpTransforms");
     return true;
 }
 
 static bool gen_pp_meta_key(const GrPrimitiveProcessor& pp,
                             const GrCaps& caps,
-                            uint32_t transformKey,
                             GrProcessorKeyBuilder* b) {
-    size_t processorKeySize = b->size();
+    size_t processorKeySize = b->sizeInBits();
     uint32_t classID = pp.classID();
 
     // Currently we allow 16 bits for the class id and the overall processor key size.
@@ -120,14 +119,13 @@ static bool gen_pp_meta_key(const GrPrimitiveProcessor& pp,
 
     add_pp_sampler_keys(b, pp, caps);
 
-    uint32_t* key = b->add32n(2);
-    key[0] = (classID << 16) | SkToU32(processorKeySize);
-    key[1] = transformKey;
+    b->addBits(16, classID,          "ppClassID");
+    b->addBits(16, processorKeySize, "ppKeySize");
     return true;
 }
 
 static bool gen_xp_meta_key(const GrXferProcessor& xp, GrProcessorKeyBuilder* b) {
-    size_t processorKeySize = b->size();
+    size_t processorKeySize = b->sizeInBits();
     uint32_t classID = xp.classID();
 
     // Currently we allow 16 bits for the class id and the overall processor key size.
@@ -136,7 +134,8 @@ static bool gen_xp_meta_key(const GrXferProcessor& xp, GrProcessorKeyBuilder* b)
         return false;
     }
 
-    b->add32((classID << 16) | SkToU32(processorKeySize));
+    b->addBits(16, classID,          "xpClassID");
+    b->addBits(16, processorKeySize, "xpKeySize");
     return true;
 }
 
@@ -181,7 +180,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     const GrPrimitiveProcessor& primitiveProcessor = programInfo.primProc();
     primitiveProcessor.getGLSLProcessorKey(*caps.shaderCaps(), &b);
     primitiveProcessor.getAttributeKey(&b);
-    if (!gen_pp_meta_key(primitiveProcessor, caps, 0, &b)) {
+    if (!gen_pp_meta_key(primitiveProcessor, caps, &b)) {
         desc->key().reset();
         return false;
     }
