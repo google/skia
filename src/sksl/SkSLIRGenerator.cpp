@@ -769,7 +769,8 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             Token::Kind::TK_LT,
             std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations),
             fContext.fTypes.fBool.get());
-    auto next = std::make_unique<PostfixExpression>(
+    auto next = PostfixExpression::Make(
+            fContext,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
                                                 VariableReference::RefKind::kReadWrite),
             Token::Kind::TK_PLUSPLUS);
@@ -2408,23 +2409,7 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode&
     if (!base) {
         return nullptr;
     }
-    return this->convertPostfixExpression(std::move(base), expression.getOperator());
-}
-
-std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_ptr<Expression> base,
-                                                                  Operator op) {
-    const Type& baseType = base->type();
-    if (!baseType.isNumber()) {
-        this->errorReporter().error(base->fOffset,
-                                    "'" + String(op.operatorName()) +
-                                    "' cannot operate on '" + baseType.displayName() + "'");
-        return nullptr;
-    }
-    if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
-                                      &fContext.fErrors)) {
-        return nullptr;
-    }
-    return std::make_unique<PostfixExpression>(std::move(base), op);
+    return PostfixExpression::Make(fContext, std::move(base), expression.getOperator());
 }
 
 void IRGenerator::checkValid(const Expression& expr) {
