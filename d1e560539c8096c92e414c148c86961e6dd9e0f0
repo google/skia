@@ -46,6 +46,30 @@
       },
       "revId": "d1e560539c8096c92e414c148c86961e6dd9e0f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6d9100f_12c21cab",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-26T18:38:11Z",
+      "side": 1,
+      "message": "... FWIW, this may not be a concern, soon. For other reasons, it\u0027s looking like we\u0027re going to have a SkRuntimeEffect cache. (Though it makes sense to do the caching yourself, as it\u0027s still going to be faster than us looking it up, and we\u0027re not really guaranteeing anything yet).",
+      "parentUuid": "9099c3b7_cbfc5b5b",
+      "range": {
+        "startLine": 60,
+        "startChar": 24,
+        "endLine": 60,
+        "endChar": 32
+      },
+      "revId": "d1e560539c8096c92e414c148c86961e6dd9e0f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
