@@ -376,7 +376,8 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                      Modifiers::kFlat_Flag | Modifiers::kVarying_Flag |
                      Modifiers::kNoPerspective_Flag;
     }
-    this->checkModifiers(offset, modifiers, permitted);
+    // TODO(skbug.com/11301): Migrate above checks into building a mask of permitted layout flags
+    this->checkModifiers(offset, modifiers, permitted, /*permittedLayoutFlags=*/~0);
 }
 
 std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& modifiers,
@@ -861,26 +862,63 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     return ExpressionStatement::Make(fContext, std::move(result));
 }
 
-void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int permitted) {
+void IRGenerator::checkModifiers(int offset,
+                                 const Modifiers& modifiers,
+                                 int permittedModifierFlags,
+                                 int permittedLayoutFlags) {
     int flags = modifiers.fFlags;
-    #define CHECK(flag, name)                                                            \
-        if (!flags) return;                                                              \
-        if (flags & flag) {                                                              \
-            if (!(permitted & flag)) {                                                   \
-                this->errorReporter().error(offset, "'" name "' is not permitted here"); \
-            }                                                                            \
-            flags &= ~flag;                                                              \
+    auto checkModifier = [&](Modifiers::Flag flag, const char* name) {
+        if (flags & flag) {
+            if (!(permittedModifierFlags & flag)) {
+                this->errorReporter().error(offset, "'" + String(name) + "' is not permitted here");
+            }
+            flags &= ~flag;
         }
-    CHECK(Modifiers::kConst_Flag,          "const")
-    CHECK(Modifiers::kIn_Flag,             "in")
-    CHECK(Modifiers::kOut_Flag,            "out")
-    CHECK(Modifiers::kUniform_Flag,        "uniform")
-    CHECK(Modifiers::kFlat_Flag,           "flat")
-    CHECK(Modifiers::kNoPerspective_Flag,  "noperspective")
-    CHECK(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects")
-    CHECK(Modifiers::kVarying_Flag,        "varying")
-    CHECK(Modifiers::kInline_Flag,         "inline")
+    };
+
+    checkModifier(Modifiers::kConst_Flag,          "const");
+    checkModifier(Modifiers::kIn_Flag,             "in");
+    checkModifier(Modifiers::kOut_Flag,            "out");
+    checkModifier(Modifiers::kUniform_Flag,        "uniform");
+    checkModifier(Modifiers::kFlat_Flag,           "flat");
+    checkModifier(Modifiers::kNoPerspective_Flag,  "noperspective");
+    checkModifier(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects");
+    checkModifier(Modifiers::kVarying_Flag,        "varying");
+    checkModifier(Modifiers::kInline_Flag,         "inline");
     SkASSERT(flags == 0);
+
+    int layoutFlags = modifiers.fLayout.fFlags;
+    auto checkLayout = [&](Layout::Flag flag, const char* name) {
+        if (layoutFlags & flag) {
+            if (!(permittedLayoutFlags & flag)) {
+                this->errorReporter().error(
+                        offset, "layout qualifier '" + String(name) + "' is not permitted here");
+            }
+            layoutFlags &= ~flag;
+        }
+    };
+
+    checkLayout(Layout::kOriginUpperLeft_Flag,          "origin_upper_left");
+    checkLayout(Layout::kOverrideCoverage_Flag,         "override_coverage");
+    checkLayout(Layout::kPushConstant_Flag,             "push_constant");
+    checkLayout(Layout::kBlendSupportAllEquations_Flag, "blend_support_all_equations");
+    checkLayout(Layout::kTracked_Flag,                  "tracked");
+    checkLayout(Layout::kSRGBUnpremul_Flag,             "srgb_unpremul");
+    checkLayout(Layout::kKey_Flag,                      "key");
+    checkLayout(Layout::kLocation_Flag,                 "location");
+    checkLayout(Layout::kOffset_Flag,                   "offset");
+    checkLayout(Layout::kBinding_Flag,                  "binding");
+    checkLayout(Layout::kIndex_Flag,                    "index");
+    checkLayout(Layout::kSet_Flag,                      "set");
+    checkLayout(Layout::kBuiltin_Flag,                  "builtin");
+    checkLayout(Layout::kInputAttachmentIndex_Flag,     "input_attachment_index");
+    checkLayout(Layout::kPrimitive_Flag,                "primitive-type");
+    checkLayout(Layout::kMaxVertices_Flag,              "max_vertices");
+    checkLayout(Layout::kInvocations_Flag,              "invocations");
+    checkLayout(Layout::kMarker_Flag,                   "marker");
+    checkLayout(Layout::kWhen_Flag,                     "when");
+    checkLayout(Layout::kCType_Flag,                    "ctype");
+    SkASSERT(layoutFlags == 0);
 }
 
 void IRGenerator::finalizeFunction(FunctionDefinition& f) {
@@ -1009,16 +1047,17 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         return;
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
-    this->checkModifiers(f.fOffset, funcData.fModifiers, Modifiers::kHasSideEffects_Flag |
-                                                         Modifiers::kInline_Flag);
+    this->checkModifiers(f.fOffset, funcData.fModifiers,
+                         Modifiers::kHasSideEffects_Flag | Modifiers::kInline_Flag,
+                         /*permittedLayoutFlags=*/0);
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
         SkASSERT(param.fKind == ASTNode::Kind::kParameter);
         ASTNode::ParameterData pd = param.getParameterData();
-        this->checkModifiers(param.fOffset, pd.fModifiers, Modifiers::kConst_Flag |
-                                                           Modifiers::kIn_Flag |
-                                                           Modifiers::kOut_Flag);
+        this->checkModifiers(param.fOffset, pd.fModifiers,
+                             Modifiers::kConst_Flag | Modifiers::kIn_Flag | Modifiers::kOut_Flag,
+                             /*permittedLayoutFlags=*/0);
         auto paramIter = param.begin();
         const Type* type = this->convertType(*(paramIter++));
         if (!type) {

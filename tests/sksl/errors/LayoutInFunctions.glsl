@@ -1,0 +1,41 @@
+### Compilation failed:
+
+error: 21: layout qualifier 'origin_upper_left' is not permitted here
+error: 21: layout qualifier 'override_coverage' is not permitted here
+error: 21: layout qualifier 'push_constant' is not permitted here
+error: 21: layout qualifier 'blend_support_all_equations' is not permitted here
+error: 21: layout qualifier 'tracked' is not permitted here
+error: 21: layout qualifier 'srgb_unpremul' is not permitted here
+error: 21: layout qualifier 'key' is not permitted here
+error: 21: layout qualifier 'location' is not permitted here
+error: 21: layout qualifier 'offset' is not permitted here
+error: 21: layout qualifier 'binding' is not permitted here
+error: 21: layout qualifier 'index' is not permitted here
+error: 21: layout qualifier 'set' is not permitted here
+error: 21: layout qualifier 'builtin' is not permitted here
+error: 21: layout qualifier 'input_attachment_index' is not permitted here
+error: 21: layout qualifier 'max_vertices' is not permitted here
+error: 21: layout qualifier 'invocations' is not permitted here
+error: 21: layout qualifier 'marker' is not permitted here
+error: 21: layout qualifier 'when' is not permitted here
+error: 21: layout qualifier 'ctype' is not permitted here
+error: 43: layout qualifier 'origin_upper_left' is not permitted here
+error: 43: layout qualifier 'override_coverage' is not permitted here
+error: 43: layout qualifier 'push_constant' is not permitted here
+error: 43: layout qualifier 'blend_support_all_equations' is not permitted here
+error: 43: layout qualifier 'tracked' is not permitted here
+error: 43: layout qualifier 'srgb_unpremul' is not permitted here
+error: 43: layout qualifier 'key' is not permitted here
+error: 43: layout qualifier 'location' is not permitted here
+error: 43: layout qualifier 'offset' is not permitted here
+error: 43: layout qualifier 'binding' is not permitted here
+error: 43: layout qualifier 'index' is not permitted here
+error: 43: layout qualifier 'set' is not permitted here
+error: 43: layout qualifier 'builtin' is not permitted here
+error: 43: layout qualifier 'input_attachment_index' is not permitted here
+error: 43: layout qualifier 'max_vertices' is not permitted here
+error: 43: layout qualifier 'invocations' is not permitted here
+error: 43: layout qualifier 'marker' is not permitted here
+error: 43: layout qualifier 'when' is not permitted here
+error: 43: layout qualifier 'ctype' is not permitted here
+38 errors
