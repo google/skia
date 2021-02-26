@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1c75c91_514ecddc",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-26T18:42:52Z",
+      "side": 1,
+      "message": "Want to throw in a comment that this value is arbitrary, and not as magic as it appears?",
+      "range": {
+        "startLine": 153,
+        "startChar": 69,
+        "endLine": 153,
+        "endChar": 72
+      },
+      "revId": "9d8a68b204938ac68664dbfe3280610f3570c2ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
