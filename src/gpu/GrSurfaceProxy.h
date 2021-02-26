@@ -439,7 +439,7 @@ private:
     // will be called but, when the proxy is deferred, it will compute the answer itself.
     // If the proxy computes its own answer that answer is checked (in debug mode) in
     // the instantiation method.
-    mutable size_t         fGpuMemorySize;
+    mutable std::atomic<size_t>         fGpuMemorySize;
     SkDEBUGCODE(SkString   fDebugName;)
 };
 
