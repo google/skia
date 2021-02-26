@@ -450,7 +450,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
 
         case Statement::Kind::kDo: {
             const DoStatement& d = statement.as<DoStatement>();
-            return std::make_unique<DoStatement>(offset, stmt(d.statement()), expr(d.test()));
+            return DoStatement::Make(*fContext, stmt(d.statement()), expr(d.test()));
         }
         case Statement::Kind::kExpression: {
             const ExpressionStatement& e = statement.as<ExpressionStatement>();
@@ -473,6 +473,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             return statement.clone();
+
         case Statement::Kind::kReturn: {
             const ReturnStatement& r = statement.as<ReturnStatement>();
             if (!r.expression()) {

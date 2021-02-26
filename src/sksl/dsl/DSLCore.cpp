@@ -88,7 +88,7 @@ public:
     }
 
     static DSLPossibleStatement Do(DSLStatement stmt, DSLExpression test) {
-        return DSLWriter::IRGenerator().convertDo(stmt.release(), test.release());
+        return DoStatement::Make(DSLWriter::Context(), stmt.release(), test.release());
     }
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
