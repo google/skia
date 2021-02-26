@@ -63,9 +63,23 @@ public:
             memcpy(dst, tableB, 256);
             fFlags |= kB_Flag;
         }
-    }
 
-    ~SkTable_ColorFilter() override { delete fBitmap; }
+        fBitmap.allocPixels(SkImageInfo::MakeA8(256, 4));
+        uint8_t* bitmapPixels = fBitmap.getAddr8(0, 0);
+        int offset = 0;
+        static const unsigned kFlags[] = { kA_Flag, kR_Flag, kG_Flag, kB_Flag };
+
+        for (int x = 0; x < 4; ++x) {
+            if (!(fFlags & kFlags[x])) {
+                memcpy(bitmapPixels, kIdentityTable, sizeof(kIdentityTable));
+            } else {
+                memcpy(bitmapPixels, fStorage + offset, 256);
+                offset += 256;
+            }
+            bitmapPixels += 256;
+        }
+        fBitmap.setImmutable();
+    }
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -142,9 +156,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
 
-    void getTableAsBitmap(SkBitmap* table) const;
-
-    mutable const SkBitmap* fBitmap = nullptr; // lazily allocated
+    SkBitmap fBitmap;
 
     uint8_t fStorage[256 * 4];
     unsigned int fFlags = 0;
@@ -217,31 +229,6 @@ sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
         ptr += 256;
     }
     return SkTableColorFilter::MakeARGB(a, r, g, b);
-}
-
-void SkTable_ColorFilter::getTableAsBitmap(SkBitmap* table) const {
-    if (table) {
-        if (nullptr == fBitmap) {
-            SkBitmap* bmp = new SkBitmap;
-            bmp->allocPixels(SkImageInfo::MakeA8(256, 4));
-            uint8_t* bitmapPixels = bmp->getAddr8(0, 0);
-            int offset = 0;
-            static const unsigned kFlags[] = { kA_Flag, kR_Flag, kG_Flag, kB_Flag };
-
-            for (int x = 0; x < 4; ++x) {
-                if (!(fFlags & kFlags[x])) {
-                    memcpy(bitmapPixels, kIdentityTable, sizeof(kIdentityTable));
-                } else {
-                    memcpy(bitmapPixels, fStorage + offset, 256);
-                    offset += 256;
-                }
-                bitmapPixels += 256;
-            }
-            bmp->setImmutable();
-            fBitmap = bmp;
-        }
-        *table = *fBitmap;
-    }
 }
 
 #if SK_SUPPORT_GPU
@@ -377,10 +364,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
 GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                     GrRecordingContext* context,
                                                     const GrColorInfo&) const {
-    SkBitmap bitmap;
-    this->getTableAsBitmap(&bitmap);
-
-    return GrFPSuccess(ColorTableEffect::Make(std::move(inputFP), context, bitmap));
+    return GrFPSuccess(ColorTableEffect::Make(std::move(inputFP), context, fBitmap));
 }
 
 #endif // SK_SUPPORT_GPU
