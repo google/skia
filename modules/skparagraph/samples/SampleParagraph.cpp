@@ -3416,6 +3416,57 @@ private:
     using INHERITED = Sample;
 };
 
+void print_line_metrics(std::vector<LineMetrics> metrics) {
+    for (size_t i = 0; i < metrics.size(); ++i) {
+        auto& line = metrics[i];
+        printf("Line[%zd] startIndex=%zd, endIndex=%zd, endExcludingWhitespaces=%zd, _endIncludingNewline=%zd, hardBreak=%d, baseline=%.2f, ascent=%.2f, descent=%.2f, unscaledAscent=%.2f, height=%.2f, width=%.2f, left=%.2f, lineNumber=%zd\n",
+        i,
+        line.fStartIndex, line.fEndIndex,
+        line.fEndExcludingWhitespaces, line.fEndIncludingNewline,
+        line.fHardBreak,
+        line.fBaseline, line.fAscent, line.fDescent, line.fUnscaledAscent,
+        line.fHeight, line.fWidth, line.fLeft,
+        line.fLineNumber);
+    }
+}
+
+class ParagraphView58 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph58"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(32);
+        text_style.setHeight(5.0);
+        text_style.setHeightOverride(true);
+        text_style.setColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText("Line1\nLine2\nLine3\nLine4\n");
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+
+        std::vector<LineMetrics> metrics;
+        paragraph->getLineMetrics(metrics);
+
+        print_line_metrics(metrics);
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3474,3 +3525,4 @@ DEF_SAMPLE(return new ParagraphView54();)
 DEF_SAMPLE(return new ParagraphView55();)
 DEF_SAMPLE(return new ParagraphView56();)
 DEF_SAMPLE(return new ParagraphView57();)
+DEF_SAMPLE(return new ParagraphView58();)
