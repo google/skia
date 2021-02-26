@@ -33,6 +33,7 @@
 
 #include <chrono>
 #include <functional>
+#include <future>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -78,6 +79,7 @@ static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
 static DEFINE_bool   (quick, false, "Skip image hashing and encoding?");
+static DEFINE_int    (race, 0, "Use threads to try to induce race conditions?");
 
 static DEFINE_string(writeShaders, "", "Write GLSL shaders to this directory if set.");
 
@@ -566,27 +568,47 @@ int main(int argc, char** argv) {
 
         GrContextOptions options = baseOptions;
         source.tweak(&options);
-        GrContextFactory factory(options);  // N.B. factory must outlive image
+        GrContextFactory factory(options);  // N.B. factory must outlive images produced using it
 
-        sk_sp<SkImage> image;
-        sk_sp<SkData>  blob;
-        const char*    ext = ".png";
-        switch (backend) {
-            case kCPU_Backend:
-                image = draw_with_cpu(draw, info);
-                break;
-            case kSKP_Backend:
-                blob = draw_as_skp(draw, info);
-                ext  = ".skp";
-                break;
-            case kPDF_Backend:
-                blob = draw_as_pdf(draw, info, source.name);
-                ext  = ".pdf";
-                break;
-            default:
-                image = draw_with_gpu(draw, info, (GrContextFactory::ContextType)backend, &factory);
-                break;
+        // Normally there will be just one of these Output futures, unless we use --race.
+        struct Output {
+            sk_sp<SkImage> image;
+            sk_sp<SkData>  blob;
+            const char*    ext = ".png";
+        };
+        std::vector<std::future<Output>> outputs(std::max(FLAGS_race, 1));
+
+        // Kick off draws on individual threads when using --race; if not, draw on this thread.
+        for (auto& output : outputs) {
+            output = std::async(FLAGS_race > 0 ? std::launch::async
+                                               : std::launch::deferred, [&]{
+                Output o;
+                switch (backend) {
+                    case kCPU_Backend:
+                        o.image = draw_with_cpu(draw, info);
+                        break;
+                    case kSKP_Backend:
+                        o.blob = draw_as_skp(draw, info);
+                        o.ext  = ".skp";
+                        break;
+                    case kPDF_Backend:
+                        o.blob = draw_as_pdf(draw, info, source.name);
+                        o.ext  = ".pdf";
+                        break;
+                    default:
+                        o.image = draw_with_gpu(draw, info,
+                                                (GrContextFactory::ContextType)backend, &factory);
+                        break;
+                }
+                return o;
+            });
         }
+
+        // Wait for draws to wrap up, then carry on with one arbitrary Output.
+        for (auto& output : outputs) {
+            output.wait();
+        }
+        auto [image, blob, ext] = outputs.back().get();
 
         if (!image && !blob) {
             fprintf(stdout, "\tskipped\n");
