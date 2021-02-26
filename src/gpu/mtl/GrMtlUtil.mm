@@ -113,6 +113,20 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     return compiledLibrary;
 }
 
+void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                                  const SkSL::String& msl) {
+    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
+                                                   length:msl.size()
+                                                 encoding:NSUTF8StringEncoding
+                                             freeWhenDone:NO];
+    // Do nothing after completion. Can we just pass nil instead?
+    MTLNewLibraryCompletionHandler completionHandler =
+            ^(id<MTLLibrary> library, NSError* error) {};
+    [gpu->device() newLibraryWithSource:nsSource
+                                options:nil
+                      completionHandler:completionHandler];
+}
+
 // Wrapper to get atomic assignment for compiles and pipeline creation
 class MtlCompileResult : public SkRefCnt {
 public:
