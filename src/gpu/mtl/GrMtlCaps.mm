@@ -1107,6 +1107,7 @@ GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget* rt,
 
     b.add32(programInfo.primitiveTypeKey());
 
+    b.flush();
     return desc;
 }
 

@@ -193,6 +193,8 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
     b.add32(static_cast<int32_t>(hasDepthStencil));
     b.add32(get_blend_info_key(programInfo.pipeline()));
     b.add32(programInfo.primitiveTypeKey());
+
+    b.flush();
     return desc;
 }
 

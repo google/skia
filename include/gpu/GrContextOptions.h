@@ -9,6 +9,7 @@
 #define GrContextOptions_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/gpu/GrTypes.h"
@@ -51,7 +52,17 @@ struct SK_API GrContextOptions {
          */
         virtual sk_sp<SkData> load(const SkData& key) = 0;
 
-        virtual void store(const SkData& key, const SkData& data) = 0;
+        // Placeholder until all clients override the 3-parameter store(), then remove this, and
+        // make that version pure virtual.
+        virtual void store(const SkData& /*key*/, const SkData& /*data*/) { SkASSERT(false); }
+
+        /**
+         * Stores data in the cache, indexed by key. description provides a human-readable
+         * version of the key.
+         */
+        virtual void store(const SkData& key, const SkData& data, const SkString& /*description*/) {
+            this->store(key, data);
+        }
 
     protected:
         PersistentCache() = default;

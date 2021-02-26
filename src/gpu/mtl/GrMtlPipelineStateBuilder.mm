@@ -79,6 +79,7 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
     // program, and that only depends on the base GrProgramDesc data.
     sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(),
                                                 this->desc().initialKeyLength());
+    const SkString& description = this->desc().description();
     sk_sp<SkData> data;
     if (isSkSL) {
         // source cache, plus metadata to allow for a complete precompile
@@ -90,7 +91,7 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
         data = GrPersistentCacheUtils::PackCachedShaders(kMSL_Tag, shaders, inputs,
                                                          kGrShaderTypeCount);
     }
-    fGpu->getContext()->priv().getPersistentCache()->store(*key, *data);
+    fGpu->getContext()->priv().getPersistentCache()->store(*key, *data, description);
 }
 
 id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(

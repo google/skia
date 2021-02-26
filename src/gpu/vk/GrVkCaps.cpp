@@ -1754,12 +1754,13 @@ void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
 
     GrVkSampler::Key key = GrVkSampler::GenerateKey(samplerState, *ycbcrInfo);
 
-    size_t numInts = (sizeof(key) + 3) / 4;
-
-    uint32_t* tmp = b->add32n(numInts);
-
-    tmp[numInts - 1] = 0;
+    constexpr size_t numInts = (sizeof(key) + 3) / 4;
+    uint32_t tmp[numInts];
     memcpy(tmp, &key, sizeof(key));
+
+    for (size_t i = 0; i < numInts; ++i) {
+        b->add32(tmp[i]);
+    }
 }
 
 /**
@@ -1868,6 +1869,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
         b.add32(!programInfo.isMixedSampled() ? 0 : programInfo.numRasterSamples());
     }
 
+    b.flush();
     return desc;
 }
 
