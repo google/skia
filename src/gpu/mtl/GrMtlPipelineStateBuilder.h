@@ -37,6 +37,8 @@ public:
                                                    const GrProgramDesc&,
                                                    const GrProgramInfo&);
 
+    static bool PrecompileShaders(GrMtlGpu*, const SkData&);
+
 private:
     GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*,
                               const GrProgramDesc&, const GrProgramInfo&);
@@ -55,7 +57,7 @@ private:
                                            SkSL::Program::Inputs inputs,
                                            GrContextOptions::ShaderErrorHandler* errorHandler);
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
-                             bool isSkSL);
+                             SkSL::Program::Settings*, bool isSkSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }

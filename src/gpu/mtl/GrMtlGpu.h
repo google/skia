@@ -109,6 +109,8 @@ public:
         this->didWriteToSurface(surface, origin, bounds);
     }
 
+    bool precompileShader(const SkData& key, const SkData& data) override;
+
 private:
     GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
              id<MTLCommandQueue>, GrMTLHandle binaryArchive, MTLFeatureSet);
