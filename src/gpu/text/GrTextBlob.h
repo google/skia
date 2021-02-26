@@ -403,7 +403,6 @@ public:
             SkGlyphRunListPainter* painter,
             const SkGlyphRunList& glyphRunList,
             const SkMatrix& drawMatrix,
-            SkPoint drawOrigin,
             const SkPaint& runPaint,
             const SkSurfaceProps& props,
             bool contextSupportsDistanceFieldText,

@@ -471,8 +471,8 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
                                                int y) {
     size_t textLen = (int)strlen(text);
 
-    const SkMatrix& drawMatrix(mtxProvider.localToDevice());
-
+    SkMatrix drawMatrix(mtxProvider.localToDevice());
+    drawMatrix.preTranslate(x, y);
     auto drawOrigin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
     builder.drawTextUTF8(skPaint, font, text, textLen, drawOrigin);
@@ -489,7 +489,7 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
     SkGlyphRunListPainter* painter = rtc->glyphRunPainter();
     painter->processGlyphRun(
             *glyphRunList.begin(),
-            drawMatrix, glyphRunList.origin(),
+            drawMatrix,
             glyphRunList.paint(),
             rtc->surfaceProps(),
             rContext->priv().caps()->shaderCaps()->supportsDistanceFieldText(),

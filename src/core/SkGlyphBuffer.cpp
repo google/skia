@@ -70,17 +70,16 @@ void SkDrawableGlyphBuffer::startBitmapDevice(
 
 void SkDrawableGlyphBuffer::startGPUDevice(
         const SkZip<const SkGlyphID, const SkPoint>& source,
-        SkPoint origin, const SkMatrix& viewMatrix,
+        const SkMatrix& drawMatrix,
         const SkGlyphPositionRoundingSpec& roundingSpec) {
     fInputSize = source.size();
     fDrawableSize = 0;
 
     // Build up the mapping from source space to device space. Add the rounding constant
     // halfSampleFreq so we just need to floor to get the device result.
-    SkMatrix device = viewMatrix;
+    SkMatrix device = drawMatrix;
     SkPoint halfSampleFreq = roundingSpec.halfAxisSampleFreq;
     device.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
-    device.preTranslate(origin.x(), origin.y());
 
     auto positions = source.get<1>();
     device.mapPoints(fPositions, positions.data(), positions.size());
