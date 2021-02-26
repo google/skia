@@ -22,6 +22,30 @@
       },
       "revId": "d1e560539c8096c92e414c148c86961e6dd9e0f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9099c3b7_cbfc5b5b",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-26T18:05:10Z",
+      "side": 1,
+      "message": "Per conversation, switched back to SkSL composition.\n\nI was initially concerned with generating too many shaders, but Mike pointed out the same combinatorics are in effect even when using SkShader composition.\n\nSo it makes sense to optimize for readability, I think the only (slight) downside is caching more SkRuntimeEffects.\n\nPTAL.",
+      "parentUuid": "6da74639_1a0c0925",
+      "range": {
+        "startLine": 60,
+        "startChar": 24,
+        "endLine": 60,
+        "endChar": 32
+      },
+      "revId": "d1e560539c8096c92e414c148c86961e6dd9e0f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
