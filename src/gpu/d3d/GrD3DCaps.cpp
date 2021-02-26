@@ -1058,6 +1058,7 @@ GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
 
     SkASSERT(!this->mixedSamplesSupport());
 
+    b.flush();
     return desc;
 }
 
