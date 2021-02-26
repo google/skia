@@ -70,7 +70,7 @@ void SkDrawableGlyphBuffer::startBitmapDevice(
 
 void SkDrawableGlyphBuffer::startGPUDevice(
         const SkZip<const SkGlyphID, const SkPoint>& source,
-        SkPoint origin, const SkMatrix& viewMatrix,
+        const SkMatrix& viewMatrix,
         const SkGlyphPositionRoundingSpec& roundingSpec) {
     fInputSize = source.size();
     fDrawableSize = 0;
@@ -80,7 +80,6 @@ void SkDrawableGlyphBuffer::startGPUDevice(
     SkMatrix device = viewMatrix;
     SkPoint halfSampleFreq = roundingSpec.halfAxisSampleFreq;
     device.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
-    device.preTranslate(origin.x(), origin.y());
 
     auto positions = source.get<1>();
     device.mapPoints(fPositions, positions.data(), positions.size());

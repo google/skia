@@ -52,16 +52,19 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         GrSDFTOptions options{256, 256};
         const SkPoint drawOrigin = glyphRunList.origin();
         const SkPaint& drawPaint = glyphRunList.paint();
+
+        SkMatrix drawMatrix = view;
+        drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
         for (auto& glyphRun : glyphRunList) {
             painter.processGlyphRun(
-                    glyphRun, view, drawOrigin, drawPaint, props, false, options, fBlob.get());
+                    glyphRun, drawMatrix, drawPaint, props, false, options, fBlob.get());
         }
 
         SkASSERT(!fBlob->subRunList().isEmpty());
         GrAtlasSubRun* subRun = fBlob->subRunList().front().testingOnly_atlasSubRun();
         SkASSERT(subRun);
         subRun->testingOnly_packedGlyphIDToGrGlyph(&fCache);
-        fVertices.reset(new char[subRun->vertexStride(view) * subRun->glyphCount() * 4]);
+        fVertices.reset(new char[subRun->vertexStride(drawMatrix) * subRun->glyphCount() * 4]);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
