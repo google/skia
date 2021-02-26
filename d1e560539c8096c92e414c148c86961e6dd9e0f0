@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6da74639_1a0c0925",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-02-26T16:33:20Z",
+      "side": 1,
+      "message": "Your loop, which is really driven by c, is really clever\n\nprolly should comment something like:\n\nLoop is really based on c, which can be fractional (e.g. 3.6)\nwhere each iterations w would be\n    w \u003d 1\n    w \u003d 1\n    w \u003d 1\n    w \u003d .6\n\nAn the \"int\" looper limit is ceil(c) (or larger)",
+      "range": {
+        "startLine": 60,
+        "startChar": 24,
+        "endLine": 60,
+        "endChar": 32
+      },
+      "revId": "d1e560539c8096c92e414c148c86961e6dd9e0f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
