@@ -1,0 +1,3 @@
+void main() {
+    sk_FragColor+=(0), 1.*~2;
+}
