@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "113ca16d_4ec0b3cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-26T14:00:07Z",
+      "side": 1,
+      "message": "I think this is enough to make things thread safe,\nand I\u0027ve got a follow up brewing that really simplifies.",
+      "revId": "c58c7449c591e2e2920198fd955cbd6bbade1cac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
