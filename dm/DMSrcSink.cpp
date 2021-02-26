@@ -1833,7 +1833,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
     // calls.
     constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions,
+    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport,
+                        kNumDivisions, kNumDivisions,
                         /* addRandomPaddingToDst */ false);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
@@ -2237,102 +2238,6 @@ Result ViaSerialization::draw(
     }
 
     return check_against_reference(bitmap, src, fSink.get());
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-ViaDDL::ViaDDL(int numReplays, int numDivisions, Sink* sink)
-        : Via(sink), fNumReplays(numReplays), fNumDivisions(numDivisions) {}
-
-Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    auto size = src.size();
-    SkPictureRecorder recorder;
-    Result result = src.draw(nullptr, recorder.beginRecording(SkIntToScalar(size.width()),
-                                                              SkIntToScalar(size.height())));
-    if (!result.isOk()) {
-        return result;
-    }
-    sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
-
-    // this is our ultimate final drawing area/rect
-    SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
-
-    DDLPromiseImageHelper promiseImageHelper(SkYUVAPixmapInfo::SupportedDataTypes::All());
-    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
-    if (!compressedPictureData) {
-        return Result::Fatal("ViaDDL: Couldn't deflate SkPicture");
-    }
-    auto draw = [&](SkCanvas* canvas) -> Result {
-        auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
-                                                 : nullptr;
-        if (!direct) {
-            return Result::Fatal("ViaDDL: DDLs are GPU only");
-        }
-        SkSurface* tmp = canvas->getSurface();
-        if (!tmp) {
-            return Result::Fatal("ViaDDL: cannot get surface from canvas");
-        }
-        sk_sp<SkSurface> dstSurface = sk_ref_sp(tmp);
-
-        SkSurfaceCharacterization dstCharacterization;
-        SkAssertResult(dstSurface->characterize(&dstCharacterization));
-
-        promiseImageHelper.createCallbackContexts(direct);
-
-        // This is here bc this is the first point where we have access to the context
-        promiseImageHelper.uploadAllToGPU(nullptr, direct);
-        // We draw N times, with a clear between.
-        for (int replay = 0; replay < fNumReplays; ++replay) {
-            if (replay > 0) {
-                // Clear the drawing of the previous replay
-                canvas->clear(SK_ColorTRANSPARENT);
-            }
-            // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(direct, dstCharacterization, viewport, fNumDivisions,
-                                /* addRandomPaddingToDst */ false);
-
-            tiles.createBackendTextures(nullptr, direct);
-
-            // Second, reinflate the compressed picture individually for each thread
-            // This recreates the promise SkImages on each replay iteration. We are currently
-            // relying on this to test using a SkPromiseImageTexture to fulfill different
-            // SkImages. On each replay the promise SkImages are recreated in createSKPPerTile.
-            tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
-
-            // Third, create the DDLs in parallel
-            tiles.createDDLsInParallel();
-
-            if (replay == fNumReplays - 1) {
-                // All the DDLs are created and they ref any created promise images which,
-                // in turn, ref the callback contexts. If it is the last run, drop the
-                // promise image helper's refs on the callback contexts.
-                promiseImageHelper.reset();
-                // Note: we cannot drop the tiles' callback contexts here bc they are needed
-                // to create each tile's destination surface.
-            }
-
-            // Fourth, synchronously render the display lists into the dest tiles
-            // TODO: it would be cool to not wait until all the tiles are drawn to begin
-            // drawing to the GPU and composing to the final surface
-            tiles.precompileAndDrawAllTiles(direct);
-
-            if (replay == fNumReplays - 1) {
-                // At this point the compose DDL holds refs to the composition promise images
-                // which, in turn, hold refs on the tile callback contexts. If it is the last run,
-                // drop the refs on tile callback contexts.
-                tiles.dropCallbackContexts();
-            }
-
-            dstSurface->draw(tiles.composeDDL());
-
-            // We need to ensure all the GPU work is finished so the promise image callback
-            // contexts will delete all the backend textures.
-            direct->flush();
-            direct->submit(true);
-        }
-        return Result::Ok();
-    };
-    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, draw);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

@@ -262,24 +262,25 @@ void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext*, TileData* t
 DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
                              const SkSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
-                             int numDivisions,
+                             int numXDivisions, int numYDivisions,
                              bool addRandomPaddingToDst)
-        : fNumDivisions(numDivisions)
-        , fTiles(numDivisions * numDivisions)
+        : fNumXDivisions(numXDivisions)
+        , fNumYDivisions(numYDivisions)
+        , fTiles(numXDivisions * numYDivisions)
         , fDstCharacterization(dstChar) {
-    SkASSERT(fNumDivisions > 0);
+    SkASSERT(fNumXDivisions > 0 && fNumYDivisions > 0);
 
-    int xTileSize = viewport.width()/fNumDivisions;
-    int yTileSize = viewport.height()/fNumDivisions;
+    int xTileSize = viewport.width()/fNumXDivisions;
+    int yTileSize = viewport.height()/fNumYDivisions;
 
     SkRandom rand;
 
     // Create the destination tiles
-    for (int y = 0, yOff = 0; y < fNumDivisions; ++y, yOff += yTileSize) {
-        int ySize = (y < fNumDivisions-1) ? yTileSize : viewport.height()-yOff;
+    for (int y = 0, yOff = 0; y < fNumYDivisions; ++y, yOff += yTileSize) {
+        int ySize = (y < fNumYDivisions-1) ? yTileSize : viewport.height()-yOff;
 
-        for (int x = 0, xOff = 0; x < fNumDivisions; ++x, xOff += xTileSize) {
-            int xSize = (x < fNumDivisions-1) ? xTileSize : viewport.width()-xOff;
+        for (int x = 0, xOff = 0; x < fNumXDivisions; ++x, xOff += xTileSize) {
+            int xSize = (x < fNumXDivisions-1) ? xTileSize : viewport.width()-xOff;
 
             SkIRect clip = SkIRect::MakeXYWH(xOff, yOff, xSize, ySize);
 
@@ -291,7 +292,7 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
             int32_t rPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
             int32_t bPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
 
-            fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
+            fTiles[y*fNumXDivisions+x].init(y*fNumXDivisions+x, direct, dstChar, clip,
                                            {lPad, tPad, rPad, bPad});
         }
     }
@@ -359,14 +360,6 @@ void DDLTileHelper::kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
     }
 
     recordingTaskGroup->add([this] { this->createComposeDDL(); });
-}
-
-// Only called from ViaDDL
-void DDLTileHelper::precompileAndDrawAllTiles(GrDirectContext* direct) {
-    for (int i = 0; i < this->numTiles(); ++i) {
-        fTiles[i].precompile(direct);
-        fTiles[i].draw(direct);
-    }
 }
 
 // Only called from skpbench

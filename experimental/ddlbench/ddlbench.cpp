@@ -26,6 +26,8 @@ using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
 
 static DEFINE_int(ddlNumRecordingThreads, 1, "number of DDL recording threads");
+static DEFINE_int(numTilesX, 3, "number of tiles horizontally");
+static DEFINE_int(numTilesY, 3, "number of tiles vertically");
 static DEFINE_string(src, "", "input .skp file");
 
 static void exitf(const char* format, ...) {

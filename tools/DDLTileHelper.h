@@ -108,7 +108,7 @@ public:
     DDLTileHelper(GrDirectContext*,
                   const SkSurfaceCharacterization& dstChar,
                   const SkIRect& viewport,
-                  int numDivisions,
+                  int numXDivisions, int numYDivisions,
                   bool addRandomPaddingToDst);
 
     void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
@@ -122,8 +122,6 @@ public:
     // Create the DDL that will compose all the tile images into a final result.
     void createComposeDDL();
     const sk_sp<SkDeferredDisplayList>& composeDDL() const { return fComposeDDL; }
-
-    void precompileAndDrawAllTiles(GrDirectContext*);
 
     // For each tile, create its DDL and then draw it - all on a single thread. This is to allow
     // comparison w/ just drawing the SKP directly (i.e., drawAllTilesDirectly). The
@@ -139,14 +137,15 @@ public:
     void dropCallbackContexts();
     void resetAllTiles();
 
-    int numTiles() const { return fNumDivisions * fNumDivisions; }
+    int numTiles() const { return fNumXDivisions * fNumYDivisions; }
 
     void createBackendTextures(SkTaskGroup*, GrDirectContext*);
     void deleteBackendTextures(SkTaskGroup*, GrDirectContext*);
 
 private:
-    int                                    fNumDivisions; // number of tiles along a side
-    SkAutoTArray<TileData>                 fTiles;        // 'fNumDivisions' x 'fNumDivisions'
+    int                                    fNumXDivisions; // number of tiles horizontally
+    int                                    fNumYDivisions; // number of tiles vertically
+    SkAutoTArray<TileData>                 fTiles;        // 'fNumXDivisions' x 'fNumYDivisions'
 
     sk_sp<SkDeferredDisplayList>           fComposeDDL;
 
