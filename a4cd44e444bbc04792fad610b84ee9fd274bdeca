@@ -16,6 +16,23 @@
       "message": "In GPay project thousands of test images don\u0027t much because we cannot find Roboto \u0027\\n\u0027 and resolve it with something else.",
       "revId": "a4cd44e444bbc04792fad610b84ee9fd274bdeca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3712d03a_6b8a584b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-02-26T22:10:55Z",
+      "side": 1,
+      "message": "I don\u0027t understand, if you want to interpret \"\\n\" as an embedded directive in Paragraph to create a new line then Paragraph should handle that and not pass the \"\\n\" to SkShaper (shape up to it, then shape after it). If Paragraph is ok with \"\\n\" being text then it is text and should be treated exactly how it is, with fallback to a font which claims to support it.\n\nIt seems maybe you want to OneLineShape the entire input and then break things up (trying to break things around what maps to the \"\\n\"), but it seems Paragraph needs to look for \"\\n\" (and whatever else is a Paragraph control character), split the input up, and call OneLineShaper on each of these.",
+      "revId": "a4cd44e444bbc04792fad610b84ee9fd274bdeca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
