@@ -18,38 +18,35 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
 
     struct Uniforms { float grayscale, invertStyle, contrast; };
 
-    static SkRuntimeEffect* effect = []{
-        SkString code{R"(
-            uniform shader input;
-            uniform half grayscale, invertStyle, contrast;
-        )"};
-        code += kRGB_to_HSL_sksl;
-        code += kHSL_to_RGB_sksl;
-        code += R"(
-            half4 main() {
-                half4 c = sample(input);  // linear unpremul RGBA in dst gamut.
-                if (grayscale == 1) {
-                    c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;
-                }
-                if (invertStyle == 1/*brightness*/) {
-                    c.rgb = 1 - c.rgb;
-                } else if (invertStyle == 2/*lightness*/) {
-                    c.rgb = rgb_to_hsl(c.rgb);
-                    c.b = 1 - c.b;
-                    c.rgb = hsl_to_rgb(c.rgb);
-                }
-                c.rgb = mix(half3(0.5), c.rgb, contrast);
-                return half4(saturate(c.rgb), c.a);
+    SkString code{R"(
+        uniform shader input;
+        uniform half grayscale, invertStyle, contrast;
+    )"};
+    code += kRGB_to_HSL_sksl;
+    code += kHSL_to_RGB_sksl;
+    code += R"(
+        half4 main() {
+            half4 c = sample(input);  // linear unpremul RGBA in dst gamut.
+            if (grayscale == 1) {
+                c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;
             }
-        )";
-
-        auto [effect, err] = SkRuntimeEffect::Make(code);
-        if (!err.isEmpty()) {
-            SkDebugf("%s\n%s\n", code.c_str(), err.c_str());
+            if (invertStyle == 1/*brightness*/) {
+                c.rgb = 1 - c.rgb;
+            } else if (invertStyle == 2/*lightness*/) {
+                c.rgb = rgb_to_hsl(c.rgb);
+                c.b = 1 - c.b;
+                c.rgb = hsl_to_rgb(c.rgb);
+            }
+            c.rgb = mix(half3(0.5), c.rgb, contrast);
+            return half4(saturate(c.rgb), c.a);
         }
-        SkASSERT(effect && err.isEmpty());
-        return effect.release();
-    }();
+    )";
+
+    auto [effect, err] = SkRuntimeEffect::Make(code);
+    if (!err.isEmpty()) {
+        SkDebugf("%s\n%s\n", code.c_str(), err.c_str());
+    }
+    SkASSERT(effect && err.isEmpty());
 
     // A contrast setting of exactly +1 would divide by zero (1+c)/(1-c), so pull in to +1-ε.
     // I'm not exactly sure why we've historically pinned -1 up to -1+ε, maybe just symmetry?
