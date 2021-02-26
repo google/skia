@@ -114,6 +114,7 @@ static const struct {
     { "mtlmsaa8",              "gpu", "api=metal,samples=8" },
     { "mtlddl",                "gpu", "api=metal,useDDLSink=true" },
     { "mtlooprddl",            "gpu", "api=metal,OOPRish=true" },
+    { "mtltestprecompile",     "gpu", "api=metal,testPrecompile=true" },
 #endif
 #ifdef SK_DIRECT3D
     { "d3d",                   "gpu", "api=direct3d" },

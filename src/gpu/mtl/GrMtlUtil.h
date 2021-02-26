@@ -89,6 +89,13 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                          GrContextOptions::ShaderErrorHandler* errorHandler);
 
 /**
+ * Attempts to compile an MSL shader asynchronously. We are not concerned about the result, which
+ * will be cached in the Apple shader cache.
+ */
+void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                                  const SkSL::String& msl);
+
+/**
  * Replacement for newLibraryWithSource:options:error that has a timeout.
  */
 id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice>, NSString* mslCode,
