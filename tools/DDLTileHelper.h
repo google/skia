@@ -108,7 +108,7 @@ public:
     DDLTileHelper(GrDirectContext*,
                   const SkSurfaceCharacterization& dstChar,
                   const SkIRect& viewport,
-                  int numDivisions,
+                  int numXDivisions, int numYDivisions,
                   bool addRandomPaddingToDst);
 
     void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
@@ -137,14 +137,15 @@ public:
     void dropCallbackContexts();
     void resetAllTiles();
 
-    int numTiles() const { return fNumDivisions * fNumDivisions; }
+    int numTiles() const { return fNumXDivisions * fNumYDivisions; }
 
     void createBackendTextures(SkTaskGroup*, GrDirectContext*);
     void deleteBackendTextures(SkTaskGroup*, GrDirectContext*);
 
 private:
-    int                                    fNumDivisions; // number of tiles along a side
-    SkAutoTArray<TileData>                 fTiles;        // 'fNumDivisions' x 'fNumDivisions'
+    int                                    fNumXDivisions; // number of tiles horizontally
+    int                                    fNumYDivisions; // number of tiles vertically
+    SkAutoTArray<TileData>                 fTiles;        // 'fNumXDivisions' x 'fNumYDivisions'
 
     sk_sp<SkDeferredDisplayList>           fComposeDDL;
 
