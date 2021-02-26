@@ -13,6 +13,7 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrProcessorUnitTest.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -26,28 +27,33 @@ class GrResourceProvider;
  */
 class GrProcessorKeyBuilder {
 public:
-    GrProcessorKeyBuilder(SkTArray<unsigned char, true>* data) : fData(data), fCount(0) {
-        SkASSERT(0 == fData->count() % sizeof(uint32_t));
+    GrProcessorKeyBuilder(GrKeyBuilder* key) : fKey(key) {
+        SkASSERT(0 == fKey->size() % sizeof(uint32_t));
     }
 
-    void add32(uint32_t v) {
-        ++fCount;
-        fData->push_back_n(4, reinterpret_cast<uint8_t*>(&v));
+    ~GrProcessorKeyBuilder() { fKey->flush(); }
+
+    void addBits(uint32_t numBits, uint32_t val, const char* label) {
+        fKey->addBits(numBits, val, label);
     }
 
-    /** Inserts count uint32_ts into the key. The returned pointer is only valid until the next
-        add*() call. */
-    uint32_t* SK_WARN_UNUSED_RESULT add32n(int count) {
-        SkASSERT(count > 0);
-        fCount += count;
-        return reinterpret_cast<uint32_t*>(fData->push_back_n(4 * count));
+    void addBytes(uint32_t numBytes, const void* data, const char* label) {
+        fKey->addBytes(numBytes, data, label);
     }
 
-    size_t size() const { return sizeof(uint32_t) * fCount; }
+    void add32(uint32_t v, const char* label = "unknown") {
+        this->addBits(32, v, label);
+    }
+
+    template <typename StringFunc>
+    void addString(StringFunc&& sf) {
+        fKey->addString(std::move(sf));
+    }
+
+    size_t sizeInBits() const { return fKey->sizeInBits(); }
 
 private:
-    SkTArray<uint8_t, true>* fData; // unowned ptr to the larger key.
-    int fCount;                     // number of uint32_ts added to fData by the processor.
+    GrKeyBuilder* fKey;    // unowned ptr to the larger key.
 };
 
 /** Provides custom shader code to the Ganesh shading pipeline. GrProcessor objects *must* be

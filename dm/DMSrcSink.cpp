@@ -1685,6 +1685,7 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     auto precompileShaders = [&memoryCache](GrDirectContext* dContext) {
         memoryCache.foreach([dContext](sk_sp<const SkData> key,
                                        sk_sp<SkData> data,
+                                       const SkString& /*description*/,
                                        int /*count*/) {
             SkAssertResult(dContext->precompileShader(*key, *data));
         });
