@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12162ac2_feb2a0b5",
+        "filename": "gn/compile_sksl_tests.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-26T16:30:39Z",
+      "side": 1,
+      "message": "Leftover from debugging",
+      "revId": "ca6a9efb954544c0a760d09707346ea6245e2067",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
