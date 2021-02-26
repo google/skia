@@ -175,11 +175,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    static_assert(0 == kProcessorKeysOffset % sizeof(uint32_t));
-    // Make room for everything up to the effect keys.
     desc->key().reset();
-    desc->key().push_back_n(kProcessorKeysOffset);
-
     GrProcessorKeyBuilder b(&desc->key());
 
     const GrPrimitiveProcessor& primitiveProcessor = programInfo.primProc();
@@ -223,36 +219,29 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
         b.add32(renderTarget->getSamplePatternKey());
     }
 
-    // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
-    // Because header is a pointer into the dynamic array, we can't push any new data into the key
-    // below here.
-    KeyHeader* header = desc->atOffset<KeyHeader, kHeaderOffset>();
-
-    // make sure any padding in the header is zeroed.
-    memset(header, 0, kHeaderSize);
-    header->fWriteSwizzle = pipeline.writeSwizzle().asKey();
-    header->fColorFragmentProcessorCnt = numColorFPs;
-    header->fCoverageFragmentProcessorCnt = numCoverageFPs;
-    SkASSERT(header->fColorFragmentProcessorCnt == numColorFPs);
-    SkASSERT(header->fCoverageFragmentProcessorCnt == numCoverageFPs);
+    // Add "header" metadata
+    uint32_t header = 0;
+    SkDEBUGCODE(uint32_t header_bits = 0);
+    auto add_bits = [&](uint32_t nbits, uint32_t val) {
+        SkASSERT(val < (1u << nbits));
+        SkASSERT((header_bits += nbits) <= 32);
+        header = (header << nbits) | val;
+    };
+    add_bits(16, pipeline.writeSwizzle().asKey());
+    add_bits( 1, numColorFPs);
+    add_bits( 2, numCoverageFPs);
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    header->fSurfaceOriginKey =
-                    GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin());
-    header->fProcessorFeatures = (uint8_t)programInfo.requestedFeatures();
-    // Ensure enough bits.
-    SkASSERT(header->fProcessorFeatures == (int) programInfo.requestedFeatures());
-    header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
+    add_bits( 2, GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()));
+    add_bits( 1, static_cast<uint32_t>(programInfo.requestedFeatures()));
+    add_bits( 1, pipeline.snapVerticesToPixelCenters());
     // The base descriptor only stores whether or not the primitiveType is kPoints. Backend-
     // specific versions (e.g., Vulkan) require more detail
-    header->fHasPointSize = (programInfo.primitiveType() == GrPrimitiveType::kPoints);
+    add_bits( 1, (programInfo.primitiveType() == GrPrimitiveType::kPoints));
 
-    header->fInitialKeyLength = desc->keyLength();
-    // Fail if the initial key length won't fit in 27 bits.
-    if (header->fInitialKeyLength != desc->keyLength()) {
-        desc->key().reset();
-        return false;
-    }
+    b.add32(header);
+
+    desc->fInitialKeyLength = desc->keyLength();
 
     return true;
 }
