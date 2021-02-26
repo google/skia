@@ -20,11 +20,15 @@ class DoStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kDo;
 
-    DoStatement(int offset, std::unique_ptr<Statement> statement,
-                std::unique_ptr<Expression> test)
+    DoStatement(int offset, std::unique_ptr<Statement> statement, std::unique_ptr<Expression> test)
         : INHERITED(offset, kStatementKind)
         , fStatement(std::move(statement))
         , fTest(std::move(test)) {}
+
+    // Creates an SkSL do loop.
+    static std::unique_ptr<Statement> Make(const Context& context,
+                                           std::unique_ptr<Statement> stmt,
+                                           std::unique_ptr<Expression> test);
 
     std::unique_ptr<Statement>& statement() {
         return fStatement;
@@ -42,15 +46,9 @@ public:
         return fTest;
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new DoStatement(fOffset, this->statement()->clone(),
-                                                          this->test()->clone()));
-    }
+    std::unique_ptr<Statement> clone() const override;
 
-    String description() const override {
-        return "do " + this->statement()->description() + " while (" + this->test()->description() +
-               ");";
-    }
+    String description() const override;
 
 private:
     std::unique_ptr<Statement> fStatement;
