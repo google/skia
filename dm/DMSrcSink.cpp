@@ -1833,7 +1833,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
     // calls.
     constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions,
+    DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport,
+                        kNumDivisions, kNumDivisions,
                         /* addRandomPaddingToDst */ false);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
