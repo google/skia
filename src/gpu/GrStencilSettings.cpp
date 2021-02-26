@@ -244,39 +244,30 @@ const GrUserStencilSettings* GrStencilSettings::SetClipBitSettings(bool setToIns
 }
 
 void GrStencilSettings::genKey(GrProcessorKeyBuilder* b, bool includeRefs) const {
-    b->add32(fFlags);
+    b->addBits(6, fFlags, "stencilFlags");
     if (this->isDisabled()) {
         return;
     }
     if (!this->isTwoSided()) {
-        constexpr int kCount16 = sizeof(Face) / sizeof(uint16_t);
-        static_assert(0 == sizeof(Face) % sizeof(uint16_t));
-        uint16_t* key = reinterpret_cast<uint16_t*>(b->add32n((kCount16 + 1) / 2));
         if (includeRefs) {
-            memcpy(key, &fCWFace, sizeof(Face));
+            b->addBytes(sizeof(Face), &fCWFace, "stencilCWFace");
         } else {
             Face tempFace = fCWFace;
             tempFace.fRef = 0;
-            memcpy(key, &tempFace, sizeof(Face));
+            b->addBytes(sizeof(Face), &tempFace, "stencilCWFace");
         }
-        key[kCount16] = 0;
-        static_assert(1 == kCount16 % 2);
     } else {
-        constexpr int kCount32 = (2 * sizeof(Face)) / sizeof(uint32_t);
-        static_assert(0 == (2 * sizeof(Face)) % sizeof(uint32_t));
-        uint32_t* key = b->add32n(kCount32);
         if (includeRefs) {
-            memcpy(key, &fCWFace, 2 * sizeof(Face));
-            static_assert(
-                    sizeof(Face) ==
-                    offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
+            b->addBytes(sizeof(Face), &fCWFace, "stencilCWFace");
+            b->addBytes(sizeof(Face), &fCCWFace, "stencilCCWFace");
         } else {
             Face tempFaces[2];
             tempFaces[0] = fCWFace;
             tempFaces[0].fRef = 0;
             tempFaces[1] = fCCWFace;
             tempFaces[1].fRef = 0;
-            memcpy(key, &tempFaces, 2 * sizeof(Face));
+            b->addBytes(sizeof(Face), &tempFaces[0], "stencilCWFace");
+            b->addBytes(sizeof(Face), &tempFaces[1], "stencilCCWFace");
         }
     }
     // We rely on GrStencilSettings::Face being tightly packed for the key to be reliable.
