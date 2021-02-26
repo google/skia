@@ -139,7 +139,6 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 #if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkMatrix& drawMatrix,
-                                            SkPoint drawOrigin,
                                             const SkPaint& runPaint,
                                             const SkSurfaceProps& props,
                                             bool contextSupportsDistanceFieldText,
@@ -148,6 +147,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
     fRejects.setSource(glyphRun.source());
     const SkFont& runFont = glyphRun.font();
+
     bool useSDFT = options.canDrawAsDistanceFields(
             runPaint, runFont, drawMatrix, props, contextSupportsDistanceFieldText);
 
@@ -183,7 +183,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
 
         SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-        fDrawable.startGPUDevice(fRejects.source(), drawOrigin, drawMatrix, strike->roundingSpec());
+        fDrawable.startGPUDevice(fRejects.source(), drawMatrix, strike->roundingSpec());
         strike->prepareForMaskDrawing(&fDrawable, &fRejects);
         fRejects.flipRejectsToSource();
 
