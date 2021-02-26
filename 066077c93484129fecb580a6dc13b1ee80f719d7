@@ -22,6 +22,30 @@
       },
       "revId": "066077c93484129fecb580a6dc13b1ee80f719d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d3d411f_1289f51f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-26T17:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32c52b87_547192e4",
+      "range": {
+        "startLine": 379,
+        "startChar": 7,
+        "endLine": 379,
+        "endChar": 11
+      },
+      "revId": "066077c93484129fecb580a6dc13b1ee80f719d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
