@@ -299,6 +299,7 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
 #ifndef SK_PARAGRAPH_GRAPHEME_EDGES
 void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock) {
 
+    auto text = fCurrentRun->fOwner->text();
     size_t unresolvedGlyphs = 0;
 
     GlyphRange block = EMPTY_RANGE;
@@ -314,8 +315,13 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
 
         GraphemeIndex gi = fParagraph->findPreviousGraphemeBoundary(ci);
         if ((fCurrentRun->leftToRight() ? gi > graphemeStart : gi < graphemeStart) || graphemeStart == EMPTY_INDEX) {
+            // This is the Flutter change
+            // Do not count control codepoints as unresolved
+            const char* cluster = text.begin() + ci;
+            SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
+            bool isControl8 = fParagraph->getUnicode()->isControl(codepoint);
             // We only count glyph resolved if all the glyphs in its grapheme are resolved
-            graphemeResolved = glyph != 0;
+            graphemeResolved = glyph != 0 || isControl8;
             graphemeStart = gi;
         } else if (glyph == 0) {
             // Found unresolved glyph - the entire grapheme is unresolved now
