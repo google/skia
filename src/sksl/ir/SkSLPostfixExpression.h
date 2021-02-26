@@ -26,6 +26,9 @@ public:
         , fOperand(std::move(operand))
         , fOperator(op) {}
 
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> base,
+                                            Operator op);
     Operator getOperator() const {
         return fOperator;
     }
@@ -39,15 +42,12 @@ public:
     }
 
     bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects) {
-            return true;
-        }
-        return this->operand()->hasProperty(property);
+        return (property == Property::kSideEffects) ||
+               this->operand()->hasProperty(property);
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new PostfixExpression(this->operand()->clone(),
-                                                                 this->getOperator()));
+        return std::make_unique<PostfixExpression>(this->operand()->clone(), this->getOperator());
     }
 
     String description() const override {
