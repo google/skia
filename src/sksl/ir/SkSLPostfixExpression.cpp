@@ -1,0 +1,31 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+
+namespace SkSL {
+
+std::unique_ptr<Expression> PostfixExpression::Make(const Context& context,
+                                                    std::unique_ptr<Expression> base,
+                                                    Operator op) {
+    const Type& baseType = base->type();
+    if (!baseType.isNumber()) {
+        context.fErrors.error(base->fOffset,
+                              "'" + String(op.operatorName()) + "' cannot operate on '" +
+                              baseType.displayName() + "'");
+        return nullptr;
+    }
+    if (!Analysis::MakeAssignmentExpr(base.get(), VariableRefKind::kReadWrite, &context.fErrors)) {
+        return nullptr;
+    }
+    return std::make_unique<PostfixExpression>(std::move(base), op);
+}
+
+}  // namespace SkSL
