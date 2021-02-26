@@ -70,6 +70,15 @@ static void add_pp_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProce
     }
 }
 
+// Currently we allow 8 bits for the class id and 24 bits for the overall processor key size
+// (as measured in bits, so the byte count of the processor key must be < 2^21).
+static constexpr uint32_t kClassIDBits = 8;
+static constexpr uint32_t kKeySizeBits = 24;
+
+static bool processor_meta_data_fits(uint32_t classID, size_t keySize) {
+    return (classID < (1u << kClassIDBits)) && (keySize < (1u << kKeySizeBits));
+}
+
 /**
  * A function which emits a meta key into the key builder.  This is required because shader code may
  * be dependent on properties of the effect that the effect itself doesn't use
@@ -83,12 +92,10 @@ static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
                             const GrCaps& caps,
                             uint32_t transformKey,
                             GrProcessorKeyBuilder* b) {
-    size_t processorKeySize = b->size();
+    size_t processorKeySize = b->sizeInBits();
     uint32_t classID = fp.classID();
 
-    // Currently we allow 16 bits for the class id and the overall processor key size.
-    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)UINT16_MAX);
-    if ((processorKeySize | classID) & kMetaKeyInvalidMask) {
+    if (!processor_meta_data_fits(classID, processorKeySize)) {
         return false;
     }
 
@@ -99,54 +106,48 @@ static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
         caps.addExtraSamplerKey(b, te.samplerState(), backendFormat);
     });
 
-    uint32_t* key = b->add32n(2);
-    key[0] = (classID << 16) | SkToU32(processorKeySize);
-    key[1] = transformKey;
+    b->addBits(kClassIDBits, classID,          "fpClassID");
+    b->addBits(kKeySizeBits, processorKeySize, "fpKeySize");
+    b->add32(transformKey,                     "fpTransforms");
     return true;
 }
 
 static bool gen_pp_meta_key(const GrPrimitiveProcessor& pp,
                             const GrCaps& caps,
-                            uint32_t transformKey,
                             GrProcessorKeyBuilder* b) {
-    size_t processorKeySize = b->size();
+    size_t processorKeySize = b->sizeInBits();
     uint32_t classID = pp.classID();
 
-    // Currently we allow 16 bits for the class id and the overall processor key size.
-    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)UINT16_MAX);
-    if ((processorKeySize | classID) & kMetaKeyInvalidMask) {
+    if (!processor_meta_data_fits(classID, processorKeySize)) {
         return false;
     }
 
     add_pp_sampler_keys(b, pp, caps);
 
-    uint32_t* key = b->add32n(2);
-    key[0] = (classID << 16) | SkToU32(processorKeySize);
-    key[1] = transformKey;
+    b->addBits(kClassIDBits, classID,          "ppClassID");
+    b->addBits(kKeySizeBits, processorKeySize, "ppKeySize");
     return true;
 }
 
 static bool gen_xp_meta_key(const GrXferProcessor& xp, GrProcessorKeyBuilder* b) {
-    size_t processorKeySize = b->size();
+    size_t processorKeySize = b->sizeInBits();
     uint32_t classID = xp.classID();
 
-    // Currently we allow 16 bits for the class id and the overall processor key size.
-    static const uint32_t kMetaKeyInvalidMask = ~((uint32_t)UINT16_MAX);
-    if ((processorKeySize | classID) & kMetaKeyInvalidMask) {
+    if (!processor_meta_data_fits(classID, processorKeySize)) {
         return false;
     }
 
-    b->add32((classID << 16) | SkToU32(processorKeySize));
+    b->addBits(kClassIDBits, classID,          "xpClassID");
+    b->addBits(kKeySizeBits, processorKeySize, "xpKeySize");
     return true;
 }
 
-static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
-                                        const GrFragmentProcessor& fp,
+static bool gen_frag_proc_and_meta_keys(const GrFragmentProcessor& fp,
                                         const GrCaps& caps,
                                         GrProcessorKeyBuilder* b) {
     for (int i = 0; i < fp.numChildProcessors(); ++i) {
         if (auto child = fp.childProcessor(i)) {
-            if (!gen_frag_proc_and_meta_keys(primProc, *child, caps, b)) {
+            if (!gen_frag_proc_and_meta_keys(*child, caps, b)) {
                 return false;
             }
         } else {
@@ -155,9 +156,10 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
         }
     }
 
+    b->addString([&](){ return fp.name(); });
     fp.getGLSLProcessorKey(*caps.shaderCaps(), b);
 
-    return gen_fp_meta_key(fp, caps, primProc.computeCoordTransformsKey(fp), b);
+    return gen_fp_meta_key(fp, caps, GrPrimitiveProcessor::ComputeCoordTransformsKey(fp), b);
 }
 
 bool GrProgramDesc::Build(GrProgramDesc* desc,
@@ -179,9 +181,10 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     GrProcessorKeyBuilder b(&desc->key());
 
     const GrPrimitiveProcessor& primitiveProcessor = programInfo.primProc();
+    b.addString([&](){ return primitiveProcessor.name(); });
     primitiveProcessor.getGLSLProcessorKey(*caps.shaderCaps(), &b);
     primitiveProcessor.getAttributeKey(&b);
-    if (!gen_pp_meta_key(primitiveProcessor, caps, 0, &b)) {
+    if (!gen_pp_meta_key(primitiveProcessor, caps, &b)) {
         desc->key().reset();
         return false;
     }
@@ -190,7 +193,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     int numColorFPs = 0, numCoverageFPs = 0;
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
-        if (!gen_frag_proc_and_meta_keys(primitiveProcessor, fp, caps, &b)) {
+        if (!gen_frag_proc_and_meta_keys(fp, caps, &b)) {
             desc->key().reset();
             return false;
         }
@@ -208,6 +211,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
         origin = pipeline.dstProxyView().origin();
         originIfDstTexture = &origin;
     }
+    b.addString([&](){ return xp.name(); });
     xp.getGLSLProcessorKey(*caps.shaderCaps(), &b, originIfDstTexture, pipeline.dstSampleType());
     if (!gen_xp_meta_key(xp, &b)) {
         desc->key().reset();
@@ -220,27 +224,22 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     }
 
     // Add "header" metadata
-    uint32_t header = 0;
-    SkDEBUGCODE(uint32_t header_bits = 0);
-    auto add_bits = [&](uint32_t nbits, uint32_t val) {
-        SkASSERT(val < (1u << nbits));
-        SkASSERT((header_bits += nbits) <= 32);
-        header = (header << nbits) | val;
-    };
-    add_bits(16, pipeline.writeSwizzle().asKey());
-    add_bits( 1, numColorFPs);
-    add_bits( 2, numCoverageFPs);
+    b.addBits(16, pipeline.writeSwizzle().asKey(), "writeSwizzle");
+    b.addBits( 1, numColorFPs,    "numColorFPs");
+    b.addBits( 2, numCoverageFPs, "numCoverageFPs");
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    add_bits( 2, GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()));
-    add_bits( 1, static_cast<uint32_t>(programInfo.requestedFeatures()));
-    add_bits( 1, pipeline.snapVerticesToPixelCenters());
+    b.addBits( 2, GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()), "origin");
+    b.addBits( 1, static_cast<uint32_t>(programInfo.requestedFeatures()), "requestedFeatures");
+    b.addBits( 1, pipeline.snapVerticesToPixelCenters(), "snapVertices");
     // The base descriptor only stores whether or not the primitiveType is kPoints. Backend-
     // specific versions (e.g., Vulkan) require more detail
-    add_bits( 1, (programInfo.primitiveType() == GrPrimitiveType::kPoints));
+    b.addBits( 1, (programInfo.primitiveType() == GrPrimitiveType::kPoints), "isPoints");
 
-    b.add32(header);
-
+    // This keyLength includes any partial uint32_t that's been written (rounded up).
+    // The GrProcessorKeyBuilder destructor will call flush() when we exit this function, putting
+    // a clean break between the "common" data written by this function, and any backend-specific
+    // data appended later.
     desc->fInitialKeyLength = desc->keyLength();
 
     return true;
