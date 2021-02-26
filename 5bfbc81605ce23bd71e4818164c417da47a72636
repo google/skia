@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7f0098d_44bf6211",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-02-26T01:59:02Z",
+      "side": 1,
+      "message": "This is the last of the deprecated image filter header/file cleanup, we don\u0027t need a cpp file dedicated to the public factories any more. ",
+      "revId": "5bfbc81605ce23bd71e4818164c417da47a72636",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
