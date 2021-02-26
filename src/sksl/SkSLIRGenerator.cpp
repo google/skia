@@ -2160,6 +2160,10 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Operator op,
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
+            if (baseType.isLiteral()) {
+                // The expression `~123` is no longer a literal; coerce to the actual type.
+                base = this->coerce(std::move(base), baseType.scalarTypeForLiteral());
+            }
             break;
         default:
             SK_ABORT("unsupported prefix operator\n");
