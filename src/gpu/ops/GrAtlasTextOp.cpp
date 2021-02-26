@@ -31,7 +31,50 @@
 #include "src/gpu/GrDrawOpTest.h"
 #endif
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// This class was determined through experimentation. You would expect to use operator new/delete
+// in this code, but this crashed thread_local implementations of Android. Using malloc/free
+// seems to work on Android.
+namespace {
+struct CachedVoidPointer {
+    ~CachedVoidPointer() { free(fPtr); }
+    void* doNew(size_t size) {
+        if (fPtr != nullptr) {
+            void* result = fPtr;
+            fPtr = nullptr;
+            return result;
+        }
+
+        void* result = malloc(size);
+        if (result == nullptr) {
+            SK_ABORT("Out of memory.");
+        }
+        return result;
+    }
+
+    void doDelete(void* ptr) {
+        if (fPtr == nullptr) {
+            fPtr = ptr;
+            return;
+        }
+
+        free(ptr);
+    }
+
+    void* fPtr = nullptr;
+};
+}  // namespace
+
+// If we have thread local, then cache memory for a single GrAtlasTextOp.
+#if !defined(GR_OP_ALLOCATE_USE_POOL) && defined(GR_HAS_THREAD_LOCAL)
+static thread_local CachedVoidPointer gGrAtlasTextOpCache;
+void* GrAtlasTextOp::operator new(size_t s) {
+    return gGrAtlasTextOpCache.doNew(s);
+}
+
+void GrAtlasTextOp::operator delete(void* b) noexcept {
+    return gGrAtlasTextOpCache.doDelete(b);
+}
+#endif
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              bool needsTransform,
