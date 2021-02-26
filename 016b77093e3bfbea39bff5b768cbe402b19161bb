@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7f3dd09_36644e3d",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-02-26T21:13:40Z",
+      "side": 1,
+      "message": "Looks like this is unavoidable, but won\u0027t matter once we\u0027ve stopped doing after-the-fact optimization?",
+      "range": {
+        "startLine": 165,
+        "startChar": 64,
+        "endLine": 165,
+        "endChar": 88
+      },
+      "revId": "016b77093e3bfbea39bff5b768cbe402b19161bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
