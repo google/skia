@@ -508,7 +508,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kPrefix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return std::make_unique<PrefixExpression>(op, std::move(operand));
+            return PrefixExpression::Make(fContext, op, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
             StringFragment name = this->readString();

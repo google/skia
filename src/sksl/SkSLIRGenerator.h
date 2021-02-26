@@ -224,8 +224,6 @@ private:
     std::unique_ptr<Expression> convertPostfixExpression(std::unique_ptr<Expression> base,
                                                          Operator op);
     std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
-    std::unique_ptr<Expression> convertPrefixExpression(Operator op,
-                                                        std::unique_ptr<Expression> base);
     std::unique_ptr<Expression> convertScopeExpression(const ASTNode& expression);
     std::unique_ptr<StructDefinition> convertStructDefinition(const ASTNode& expression);
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
