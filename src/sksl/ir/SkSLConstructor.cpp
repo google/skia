@@ -26,7 +26,7 @@ std::unique_ptr<Expression> Constructor::Make(const Context& context,
         return std::move(args[0]);
     }
     if (type.isScalar()) {
-        return MakeScalarConstructor(context, offset, type, std::move(args));
+        return MakeScalarConstructor(context, offset, type.scalarTypeForLiteral(), std::move(args));
     }
     if (type.isVector() || type.isMatrix()) {
         return MakeCompoundConstructor(context, offset, type, std::move(args));
