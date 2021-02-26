@@ -43,25 +43,28 @@ class SkTable_ColorFilter : public SkColorFilterBase {
 public:
     SkTable_ColorFilter(const uint8_t tableA[], const uint8_t tableR[],
                         const uint8_t tableG[], const uint8_t tableB[]) {
-        uint8_t* dst = fStorage;
+        uint8_t tmp[256 * 4];
+        unsigned flags = 0;
+
+        uint8_t* dst = tmp;
         if (tableA) {
             memcpy(dst, tableA, 256);
             dst += 256;
-            fFlags |= kA_Flag;
+            flags |= kA_Flag;
         }
         if (tableR) {
             memcpy(dst, tableR, 256);
             dst += 256;
-            fFlags |= kR_Flag;
+            flags |= kR_Flag;
         }
         if (tableG) {
             memcpy(dst, tableG, 256);
             dst += 256;
-            fFlags |= kG_Flag;
+            flags |= kG_Flag;
         }
         if (tableB) {
             memcpy(dst, tableB, 256);
-            fFlags |= kB_Flag;
+            flags |= kB_Flag;
         }
 
         fBitmap.allocPixels(SkImageInfo::MakeA8(256, 4));
@@ -70,10 +73,10 @@ public:
         static const unsigned kFlags[] = { kA_Flag, kR_Flag, kG_Flag, kB_Flag };
 
         for (int x = 0; x < 4; ++x) {
-            if (!(fFlags & kFlags[x])) {
+            if (!(flags & kFlags[x])) {
                 memcpy(bitmapPixels, kIdentityTable, sizeof(kIdentityTable));
             } else {
-                memcpy(bitmapPixels, fStorage + offset, 256);
+                memcpy(bitmapPixels, tmp + offset, 256);
                 offset += 256;
             }
             bitmapPixels += 256;
@@ -94,15 +97,10 @@ public:
     };
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
-        const uint8_t *r = kIdentityTable,
-                      *g = kIdentityTable,
-                      *b = kIdentityTable,
-                      *a = kIdentityTable;
-        const uint8_t* ptr = fStorage;
-        if (fFlags & kA_Flag) { a = ptr; ptr += 256; }
-        if (fFlags & kR_Flag) { r = ptr; ptr += 256; }
-        if (fFlags & kG_Flag) { g = ptr; ptr += 256; }
-        if (fFlags & kB_Flag) { b = ptr;             }
+        const uint8_t *a = fBitmap.getAddr8(0,0),
+                      *r = fBitmap.getAddr8(0,1),
+                      *g = fBitmap.getAddr8(0,2),
+                      *b = fBitmap.getAddr8(0,3);
 
         SkRasterPipeline* p = rec.fPipeline;
         if (!shaderIsOpaque) {
@@ -131,22 +129,16 @@ public:
 
         c = unpremul(c);
 
-        const uint8_t* ptr = fStorage;
-        if (fFlags & kA_Flag) {
-            c.a = apply_table_to_component(c.a, ptr);
-            ptr += 256;
-        }
-        if (fFlags & kR_Flag) {
-            c.r = apply_table_to_component(c.r, ptr);
-            ptr += 256;
-        }
-        if (fFlags & kG_Flag) {
-            c.g = apply_table_to_component(c.g, ptr);
-            ptr += 256;
-        }
-        if (fFlags & kB_Flag) {
-            c.b = apply_table_to_component(c.b, ptr);
-        }
+        const uint8_t *a = fBitmap.getAddr8(0,0),
+                      *r = fBitmap.getAddr8(0,1),
+                      *g = fBitmap.getAddr8(0,2),
+                      *b = fBitmap.getAddr8(0,3);
+
+        c.a = apply_table_to_component(c.a, a);
+        c.r = apply_table_to_component(c.r, r);
+        c.g = apply_table_to_component(c.g, g);
+        c.b = apply_table_to_component(c.b, b);
+
         return premul(c);
     }
 
@@ -158,77 +150,24 @@ private:
 
     SkBitmap fBitmap;
 
-    uint8_t fStorage[256 * 4];
-    unsigned int fFlags = 0;
-
     friend class SkTableColorFilter;
 
     using INHERITED = SkColorFilter;
 };
 
-static const uint8_t kCountNibBits[] = {
-    0, 1, 1, 2,
-    1, 2, 2, 3,
-    1, 2, 2, 3,
-    2, 3, 3, 4
-};
-
-#include "src/effects/SkPackBits.h"
-
 void SkTable_ColorFilter::flatten(SkWriteBuffer& buffer) const {
-    uint8_t storage[5*256];
-    int count = kCountNibBits[fFlags & 0xF];
-    size_t size = SkPackBits::Pack8(fStorage, count * 256, storage, sizeof(storage));
-
-    buffer.write32(fFlags);
-    buffer.writeByteArray(storage, size);
+    buffer.writeByteArray(fBitmap.getAddr8(0,0), 4*256);
 }
 
 sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
-    const int flags = buffer.read32();
-    const size_t count = kCountNibBits[flags & 0xF];
-    SkASSERT(count <= 4);
-
-    uint8_t packedStorage[5*256];
-    size_t packedSize = buffer.getArrayCount();
-    if (!buffer.validate(packedSize <= sizeof(packedStorage))) {
-        return nullptr;
+    uint8_t argb[4*256];
+    if (buffer.readByteArray(argb, sizeof(argb))) {
+        return SkTableColorFilter::MakeARGB(argb+0*256,
+                                            argb+1*256,
+                                            argb+2*256,
+                                            argb+3*256);
     }
-    if (!buffer.readByteArray(packedStorage, packedSize)) {
-        return nullptr;
-    }
-
-    uint8_t unpackedStorage[4*256];
-    size_t unpackedSize = SkPackBits::Unpack8(packedStorage, packedSize,
-                              unpackedStorage, sizeof(unpackedStorage));
-    // now check that we got the size we expected
-    if (!buffer.validate(unpackedSize == count*256)) {
-        return nullptr;
-    }
-
-    const uint8_t* a = nullptr;
-    const uint8_t* r = nullptr;
-    const uint8_t* g = nullptr;
-    const uint8_t* b = nullptr;
-    const uint8_t* ptr = unpackedStorage;
-
-    if (flags & kA_Flag) {
-        a = ptr;
-        ptr += 256;
-    }
-    if (flags & kR_Flag) {
-        r = ptr;
-        ptr += 256;
-    }
-    if (flags & kG_Flag) {
-        g = ptr;
-        ptr += 256;
-    }
-    if (flags & kB_Flag) {
-        b = ptr;
-        ptr += 256;
-    }
-    return SkTableColorFilter::MakeARGB(a, r, g, b);
+    return nullptr;
 }
 
 #if SK_SUPPORT_GPU
