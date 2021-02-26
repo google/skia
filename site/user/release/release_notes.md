@@ -5,6 +5,66 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 90
+------------
+  * Renamed use of sk_cf_obj in external Metal types to sk_cfp.
+    https://review.skia.org/372556
+
+  * GrDirectContext::ComputeImageSize() is removed. Use SkImage::textureSize() instead.
+    https://review.skia.org/368621
+    https://review.skia.org/369317
+    https://review.skia.org/371958
+
+  * Remove SkImageFilter::MakeMatrixFilter as it was unused and replaced with
+    SkImageFilters::MatrixTransform.
+    https://review.skia.org/366318
+
+  * Refactored particle system to use a single code string containing both Effect and Particle code.
+    Uniform APIs are now shared for all program entry points, and no longer prefixed with 'Effect'
+    or 'Particle'. For example, instead of `SkParticleEffect::effectUniformInfo` and
+    `SkParticleEffect::particleUniformInfo`, there is just `SkParticleEffect::uniformInfo`.
+
+  * Remove SkImageFilter::CropRect from the public API as it's no longer usable. All factories
+    work with 'SkRect', 'SkIRect', or nullable pointers to 'Sk[I]Rect'.
+    https://review.skia.org/361496
+
+  * Remove deprecated SkImageFilter factory functions and supporting types. All default-provided
+    SkImageFilters are now only constructed via 'include/effects/SkImageFilters.h'
+    https://review.skia.org/357285
+
+  * Added SkRuntimeEffect::makeImage() to capture the output of an SkRuntimeEffect in an SkImage.
+    https://review.skia.org/357284
+
+  * Updated SkRuntimeEffect::Make() to take an Options struct. It also now returns a Results struct
+    instead of a tuple.
+    https://review.skia.org/363785
+    https://review.skia.org/367060
+
+  * Changed SkRuntimeEffect::Varying to have lower-case member names, with no 'f' prefix.
+    https://review.skia.org/365656
+
+  * Changed SkRuntimeEffect::Uniform to have lower-case member names, with no 'f' prefix.
+    https://review.skia.org/365696
+
+  * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
+    https://review.skia.org/344763
+
+  * Fix several minor issues in lighting image filters:
+    - The spotlight falloff exponent is no longer clamped to [1, 128]. SVG 1.1 requires the specular
+      lighting effect's exponent (shininess) to be clamped; not the spotlight's falloff. Any such
+      parameter clamping is the client's responisibility, which makes Skia's lighting effect easily
+      adaptable to SVG 1.1 (clamp exponent) or SVG 2 (no clamp).
+    - Fix spotlight incorrectly scaling light within the cone angle.
+    - Move saturation of RGBA to after multiplying lighting intensity with the lighting color, which
+      improves rendering when diffuse and specular constants are greater than 1.
+    https://review.skia.org/355496
+
+  * SkDeferredDisplayListRecorder::makePromiseTexture has moved to SkImage::MakePromiseTexture.
+    New code should use the new entry point – migration CLs will be coming soon.
+    https://review.skia.org/373716
+
+* * *
+
 Milestone 89
 ------------
 
