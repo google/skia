@@ -66,7 +66,7 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     return writer.snapshotAsData();
 }
 
-static SkFourByteTag GetType(SkReadBuffer* reader) {
+static inline SkFourByteTag GetType(SkReadBuffer* reader) {
     constexpr SkFourByteTag kInvalidTag = ~0;
     int version           = reader->readInt();
     SkFourByteTag typeTag = reader->readUInt();
