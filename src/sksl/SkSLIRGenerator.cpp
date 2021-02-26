@@ -1824,9 +1824,12 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
         return nullptr;
     }
     bool isAssignment = op.isAssignment();
-    if (isAssignment && !this->setRefKind(*left, op.kind() != Token::Kind::TK_EQ
-                                                 ? VariableReference::RefKind::kReadWrite
-                                                 : VariableReference::RefKind::kWrite)) {
+    if (isAssignment &&
+        !Analysis::MakeAssignmentExpr(left.get(),
+                                      op.kind() != Token::Kind::TK_EQ
+                                              ? VariableReference::RefKind::kReadWrite
+                                              : VariableReference::RefKind::kWrite,
+                                      &fContext.fErrors)) {
         return nullptr;
     }
     if (!determine_binary_type(fContext, this->settings().fAllowNarrowingConversions, op,
@@ -2020,9 +2023,11 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
         const Modifiers& paramModifiers = function.parameters()[i]->modifiers();
         if (paramModifiers.fFlags & Modifiers::kOut_Flag) {
-            if (!this->setRefKind(*arguments[i], paramModifiers.fFlags & Modifiers::kIn_Flag
-                                                          ? VariableReference::RefKind::kReadWrite
-                                                          : VariableReference::RefKind::kPointer)) {
+            if (!Analysis::MakeAssignmentExpr(arguments[i].get(),
+                                              paramModifiers.fFlags & Modifiers::kIn_Flag
+                                                      ? VariableReference::RefKind::kReadWrite
+                                                      : VariableReference::RefKind::kPointer,
+                                              &fContext.fErrors)) {
                 return nullptr;
             }
         }
@@ -2164,7 +2169,8 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Operator op,
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
-            if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
+            if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
+                                              &fContext.fErrors)) {
                 return nullptr;
             }
             break;
@@ -2175,7 +2181,8 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(Operator op,
                                             "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
-            if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
+            if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
+                                              &fContext.fErrors)) {
                 return nullptr;
             }
             break;
@@ -2505,7 +2512,8 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(std::unique_pt
                                     "' cannot operate on '" + baseType.displayName() + "'");
         return nullptr;
     }
-    if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
+    if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
+                                      &fContext.fErrors)) {
         return nullptr;
     }
     return std::make_unique<PostfixExpression>(std::move(base), op);
@@ -2532,17 +2540,6 @@ void IRGenerator::checkValid(const Expression& expr) {
             }
             break;
     }
-}
-
-bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) {
-    Analysis::AssignmentInfo info;
-    if (!Analysis::IsAssignable(expr, &info, &this->errorReporter())) {
-        return false;
-    }
-    if (info.fAssignedVar) {
-        info.fAssignedVar->setRefKind(kind);
-    }
-    return true;
 }
 
 void IRGenerator::findAndDeclareBuiltinVariables() {
