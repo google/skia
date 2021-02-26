@@ -528,6 +528,21 @@ void Analysis::UpdateRefKind(Expression* expr, VariableRefKind refKind) {
     RefKindWriter{refKind}.visitExpression(*expr);
 }
 
+bool Analysis::MakeAssignmentExpr(Expression* expr,
+                                  VariableReference::RefKind kind,
+                                  ErrorReporter* errors) {
+    Analysis::AssignmentInfo info;
+    if (!Analysis::IsAssignable(*expr, &info, errors)) {
+        return false;
+    }
+    if (!info.fAssignedVar) {
+        errors->error(expr->fOffset, "can't assign to expression '" + expr->description() + "'");
+        return false;
+    }
+    info.fAssignedVar->setRefKind(kind);
+    return true;
+}
+
 bool Analysis::IsTrivialExpression(const Expression& expr) {
     return expr.is<IntLiteral>() ||
            expr.is<FloatLiteral>() ||
