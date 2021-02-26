@@ -31,7 +31,44 @@
 #include "src/gpu/GrDrawOpTest.h"
 #endif
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace {
+
+struct VoidPtr {
+    ~VoidPtr() { ::operator delete(fPtr); }
+    void* doNew(size_t size) {
+        if (fPtr != nullptr) {
+            void* result = fPtr;
+            fPtr = nullptr;
+            return result;
+        }
+
+        return ::operator new(size);
+    }
+
+    void doDelete(void* ptr) {
+        if (fPtr == nullptr) {
+            fPtr = ptr;
+            return;
+        }
+
+        ::operator delete(ptr);
+    }
+
+    void* fPtr = nullptr;
+};
+
+}  // namespace
+
+#if !defined(GR_OP_ALLOCATE_USE_POOL) && defined(GR_HAS_THREAD_LOCAL)
+static thread_local VoidPtr gGrAtlasTextOpCache;
+void* GrAtlasTextOp::operator new(size_t s) {
+    return gGrAtlasTextOpCache.doNew(s);
+}
+
+void GrAtlasTextOp::operator delete(void* b) noexcept {
+    return gGrAtlasTextOpCache.doDelete(b);
+}
+#endif
 
 GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              bool needsTransform,
