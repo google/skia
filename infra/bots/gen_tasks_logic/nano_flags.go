@@ -240,6 +240,31 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
+	if (b.model("Pixel5")) {
+		// skia:11152
+		match = append(match, "~pathedger")
+		match = append(match, "~path_last_move_to_index")
+		match = append(match, "~pathbuilder_addPolygon")
+		match = append(match, "~pathbuilder_shrinkToFit")
+		match = append(match, "~path_addpath_crbug_1153516")
+		match = append(match, "~path_tight_bounds")
+		match = append(match, "~pathbuilder_genid")
+		match = append(match, "~pathbuilder_addPath")
+		match = append(match, "~path_convexity_scale_way_down")
+		match = append(match, "~SVGDevice_path_effect")
+		match = append(match, "~Rect_path_nan")
+		match = append(match, "~pathbuilder_addRRect")
+		match = append(match, "~pathbuilder_addOval")
+		match = append(match, "~pathbuilder_make")
+		match = append(match, "~pathbuilder")
+		match = append(match, "~giant_path_region")
+		match = append(match, "~pathbuilder_addRect")
+		match = append(match, "~pathbuilder_filltype")
+		match = append(match, "~SVGDevice_textpath")
+		match = append(match, "~GrStyledShape_short_path_keys")
+		match = append(match, "~pathbuilder_missing_move")
+		match = append(match, "~desk_motionmarkpaths.skp")
+	}
 
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
