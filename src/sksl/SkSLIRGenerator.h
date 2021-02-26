@@ -150,8 +150,13 @@ private:
      */
     std::unique_ptr<ModifiersPool> releaseModifiers();
 
-    void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
-    void checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
+    void checkModifiers(int offset,
+                        const Modifiers& modifiers,
+                        int permittedModifierFlags,
+                        int permittedLayoutFlags);
+    void checkVarDeclaration(int offset,
+                             const Modifiers& modifiers,
+                             const Type* baseType,
                              Variable::Storage storage);
     std::unique_ptr<Variable> convertVar(int offset, const Modifiers& modifiers,
                                          const Type* baseType, StringFragment name, bool isArray,
