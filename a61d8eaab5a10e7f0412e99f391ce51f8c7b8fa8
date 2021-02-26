@@ -39,6 +39,30 @@
       },
       "revId": "a61d8eaab5a10e7f0412e99f391ce51f8c7b8fa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12c7166f_5c811d82",
+        "filename": "modules/skottie/src/effects/FractalNoiseEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-02-26T16:10:57Z",
+      "side": 1,
+      "message": "Not required, but likely safe: the inputs are pre-scaled down (layer_amp) to add up to a weighed average, so this should never overflow for clamped inputs.\n\n(AE has an \"HDR/overflow\" flag for the effect, which I\u0027m ignoring for now.  I\u0027m guessing it means individual layers are allowed to overflow, and for that mode I think you\u0027re right that kPlus saturation would get in the way.  But kPlus aside, I suspect we clamp the runtime shader output too - so we\u0027d have to solve that first.)",
+      "parentUuid": "9690479a_d83de5b5",
+      "range": {
+        "startLine": 220,
+        "startChar": 48,
+        "endLine": 220,
+        "endChar": 53
+      },
+      "revId": "a61d8eaab5a10e7f0412e99f391ce51f8c7b8fa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
