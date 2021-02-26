@@ -58,11 +58,11 @@ sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy,
 namespace {
 static unsigned gBitmapShaderKeyNamespaceLabel;
 
-struct BitmapShaderKey : public SkResourceCache::Key {
+struct PictureImageKey : public SkResourceCache::Key {
 public:
-    BitmapShaderKey(SkColorSpace* colorSpace,
+    PictureImageKey(SkColorSpace* colorSpace,
                     SkImage::BitDepth bitDepth,
-                    uint32_t shaderID,
+                    uint32_t pictureID,
                     const SkSize& scale)
         : fColorSpaceXYZHash(colorSpace->toXYZD50Hash())
         , fColorSpaceTransferFnHash(colorSpace->transferFnHash())
@@ -75,30 +75,30 @@ public:
                                       sizeof(fScale);
         // This better be packed.
         SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fColorSpaceXYZHash) == keySize);
-        this->init(&gBitmapShaderKeyNamespaceLabel, MakeSharedID(shaderID), keySize);
+        this->init(&gBitmapShaderKeyNamespaceLabel, MakeSharedID(pictureID), keySize);
     }
 
-    static uint64_t MakeSharedID(uint32_t shaderID) {
+    static uint64_t MakeSharedID(uint32_t pictureID) {
         uint64_t sharedID = SkSetFourByteTag('p', 's', 'd', 'r');
-        return (sharedID << 32) | shaderID;
+        return (sharedID << 32) | pictureID;
     }
 
 private:
-    uint32_t                   fColorSpaceXYZHash;
-    uint32_t                   fColorSpaceTransferFnHash;
-    SkImage::BitDepth          fBitDepth;
-    SkSize                     fScale;
+    uint32_t            fColorSpaceXYZHash;
+    uint32_t            fColorSpaceTransferFnHash;
+    SkImage::BitDepth   fBitDepth;
+    SkSize              fScale;
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
 };
 
-struct BitmapShaderRec : public SkResourceCache::Rec {
-    BitmapShaderRec(const BitmapShaderKey& key, SkShader* tileShader)
+struct PictureImageRec : public SkResourceCache::Rec {
+    PictureImageRec(const PictureImageKey& key, sk_sp<SkImage> image)
         : fKey(key)
-        , fShader(SkRef(tileShader)) {}
+        , fImage(std::move(image)) {}
 
-    BitmapShaderKey fKey;
-    sk_sp<SkShader> fShader;
+    PictureImageKey fKey;
+    sk_sp<SkImage>  fImage;
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
@@ -109,10 +109,10 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
     SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return nullptr; }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextShader) {
-        const BitmapShaderRec& rec = static_cast<const BitmapShaderRec&>(baseRec);
-        sk_sp<SkShader>* result = reinterpret_cast<sk_sp<SkShader>*>(contextShader);
+        const PictureImageRec& rec = static_cast<const PictureImageRec&>(baseRec);
+        sk_sp<SkImage>* result = reinterpret_cast<sk_sp<SkImage>*>(contextShader);
 
-        *result = rec.fShader;
+        *result = rec.fImage;
 
         // The bitmap shader is backed by an image generator, thus it can always re-generate its
         // pixels if discarded.
@@ -145,7 +145,7 @@ SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, SkTileMode tmx, SkTil
 
 SkPictureShader::~SkPictureShader() {
     if (fAddedToCache.load()) {
-        SkResourceCache::PostPurgeSharedID(BitmapShaderKey::MakeSharedID(fUniqueID));
+        SkResourceCache::PostPurgeSharedID(PictureImageKey::MakeSharedID(fUniqueID));
     }
 }
 
@@ -261,30 +261,29 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
             dstColorType >= kRGBA_F16Norm_SkColorType
             ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
 
-    BitmapShaderKey key(imgCS.get(), bitDepth, fUniqueID, tileScale);
+    PictureImageKey key(imgCS.get(), bitDepth, fPicture->uniqueID(), tileScale);
 
-    sk_sp<SkShader> tileShader;
-    if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
+    sk_sp<SkImage> tileImage;
+    if (!SkResourceCache::Find(key, PictureImageRec::Visitor, &tileImage)) {
         SkMatrix tileMatrix = SkMatrix::RectToRect(fTile, SkRect::MakeIWH(tileSize.width(),
                                                                           tileSize.height()));
 
-        sk_sp<SkImage> tileImage = SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix,
-                                                            nullptr, bitDepth, std::move(imgCS));
+        tileImage = SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix,
+                                             nullptr, bitDepth, std::move(imgCS));
         if (!tileImage) {
             return nullptr;
         }
-
-        SkFilterMode filter;
-        if (fFilter == kInheritFromPaint) {
-            filter = paintFilter;
-        } else {
-            filter = (SkFilterMode)fFilter;
-        }
-        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(filter), nullptr);
-
-        SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
+        SkResourceCache::Add(new PictureImageRec(key, tileImage));
         fAddedToCache.store(true);
     }
+
+    SkFilterMode filter;
+    if (fFilter == kInheritFromPaint) {
+        filter = paintFilter;
+    } else {
+        filter = (SkFilterMode)fFilter;
+    }
+    auto tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(filter), nullptr);
 
     if (tileScale.width() != 1 || tileScale.height() != 1) {
         localMatrix->writable()->preScale(1 / tileScale.width(), 1 / tileScale.height());
