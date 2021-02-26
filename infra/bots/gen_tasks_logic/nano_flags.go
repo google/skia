@@ -240,6 +240,33 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
+	if (b.model("Pixel5")) {
+		// skia:11152
+		match = append(match, "~^linepath$")
+		match = append(match, "~^largeclippedpath_evenodd$")
+		match = append(match, "~^largeclippedpath_winding$")
+		match = append(match, "~^inverse_paths$")
+		match = append(match, "~^path_huge_aa$")
+		match = append(match, "~^path_huge_crbug_800804$")
+		match = append(match, "~^hittestpath$")
+		match = append(match, "~^getpostextpath$")
+		match = append(match, "~^fatpathfill$")
+		match = append(match, "~^emptypath$")
+		match = append(match, "~^path_effect_empty_result$")
+		match = append(match, "~^longpathdash$")
+		match = append(match, "~^trimpatheffect$")
+		match = append(match, "~^cubicclosepath$")
+		match = append(match, "~^cubicpath$")
+		match = append(match, "~^convexpaths$")
+		match = append(match, "~^convex-lineonly-paths-stroke-and-fill$")
+		match = append(match, "~^convex-lineonly-paths$")
+		match = append(match, "~^conicpaths$")
+		match = append(match, "~^concavepaths$")
+		match = append(match, "~^complexclip2_path_aa$")
+		match = append(match, "~^complexclip2_path_bw$")
+		match = append(match, "~^collapsepaths$")
+		match = append(match, "~^parsedpaths$")
+	}
 
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
