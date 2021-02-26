@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a14c243_8a13672e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-02-26T20:45:29Z",
+      "side": 1,
+      "message": "In GPay project thousands of test images don\u0027t much because we cannot find Roboto \u0027\\n\u0027 and resolve it with something else.",
+      "revId": "a4cd44e444bbc04792fad610b84ee9fd274bdeca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
