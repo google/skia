@@ -276,9 +276,6 @@ public:
      */
     size_t gpuMemorySize() const {
         SkASSERT(!this->isFullyLazy());
-        if (fTarget) {
-            return fTarget->gpuMemorySize();
-        }
         if (kInvalidGpuMemorySize == fGpuMemorySize) {
             fGpuMemorySize = this->onUninstantiatedGpuMemorySize();
             SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
@@ -438,8 +435,8 @@ private:
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.
     // If the proxy computes its own answer that answer is checked (in debug mode) in
-    // the instantiation method.
-    mutable size_t         fGpuMemorySize;
+    // the instantiation method. The image may be shared between threads, hence atomic.
+    mutable std::atomic<size_t>         fGpuMemorySize{kInvalidGpuMemorySize};
     SkDEBUGCODE(SkString   fDebugName;)
 };
 
