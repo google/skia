@@ -15,7 +15,9 @@
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkLRUCache.h"
 #include "src/core/SkMatrixProvider.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkUtils.h"
@@ -125,7 +127,42 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     return false;
 }
 
+SK_BEGIN_REQUIRE_DENSE;
+struct Key {
+    uint32_t skslHashA;
+    uint32_t skslHashB;
+    int      inlineThreshold;
+
+    bool operator==(const Key& that) const {
+        return this->skslHashA        == that.skslHashA
+            && this->skslHashB        == that.skslHashB
+            && this->inlineThreshold  == that.inlineThreshold;
+    }
+
+    Key(const SkString& sksl, const SkRuntimeEffect::Options& options)
+        : skslHashA(SkOpts::hash(sksl.c_str(), sksl.size(), 0))
+        , skslHashB(SkOpts::hash(sksl.c_str(), sksl.size(), 1))
+        , inlineThreshold(options.inlineThreshold) {}
+};
+SK_END_REQUIRE_DENSE;
+
+static SkMutex gCacheLock;
+
+static SkLRUCache<Key, sk_sp<SkRuntimeEffect>>* cache() {
+    gCacheLock.assertHeld();
+    static auto* cache = new SkLRUCache<Key, sk_sp<SkRuntimeEffect>>(11/*totally arbitrary*/);
+    return cache;
+}
+
 SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
+    Key key(sksl, options);
+    {
+        SkAutoMutexExclusive _(gCacheLock);
+        if (sk_sp<SkRuntimeEffect>* found = cache()->find(key)) {
+            return Result{*found, SkString()};
+        }
+    }
+
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
     settings.fInlineThreshold = options.inlineThreshold;
@@ -246,6 +283,10 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
                                                       std::move(varyings),
                                                       usesSampleCoords,
                                                       allowColorFilter));
+    {
+        SkAutoMutexExclusive _(gCacheLock);
+        cache()->insert_or_update(key, effect);
+    }
     return Result{std::move(effect), SkString()};
 }
 
