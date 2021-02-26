@@ -543,7 +543,7 @@ int main(int argc, char** argv) {
 
     sk_sp<SkColorSpace> cs = FLAGS_legacy ? nullptr
                                           : SkColorSpace::MakeRGB(tf,gamut);
-    const SkImageInfo unsized_info = SkImageInfo::Make(0,0, ct,at,cs);
+    const SkColorInfo color_info{ct,at,cs};
 
     AutoreleasePool pool;
     for (auto source : sources) {
@@ -551,7 +551,7 @@ int main(int argc, char** argv) {
         fprintf(stdout, "%50s", source.name.c_str());
         fflush(stdout);
 
-        const SkImageInfo info = unsized_info.makeDimensions(source.size);
+        const SkImageInfo info = SkImageInfo::Make(source.size, color_info);
 
         auto draw = [&source](SkCanvas* canvas) {
             Result result = source.draw(canvas);
