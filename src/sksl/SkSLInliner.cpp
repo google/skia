@@ -363,7 +363,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kPrefix: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
-            return std::make_unique<PrefixExpression>(p.getOperator(), expr(p.operand()));
+            return PrefixExpression::Make(*fContext, p.getOperator(), expr(p.operand()));
         }
         case Expression::Kind::kPostfix: {
             const PostfixExpression& p = expression.as<PostfixExpression>();
