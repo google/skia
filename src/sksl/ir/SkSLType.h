@@ -358,6 +358,8 @@ public:
         return fHighPrecision;
     }
 
+    bool isOrContainsArray() const;
+
     /**
      * Returns the corresponding vector or matrix type with the specified number of columns and
      * rows.
