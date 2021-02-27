@@ -527,8 +527,8 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             std::unique_ptr<Expression> test = this->expression();
             std::unique_ptr<Expression> ifTrue = this->expression();
             std::unique_ptr<Expression> ifFalse = this->expression();
-            return std::make_unique<TernaryExpression>(-1, std::move(test), std::move(ifTrue),
-                                                       std::move(ifFalse));
+            return TernaryExpression::Make(fContext, std::move(test),
+                                           std::move(ifTrue), std::move(ifFalse));
         }
         case Rehydrator::kVariableReference_Command: {
             const Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);

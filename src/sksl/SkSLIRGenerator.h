@@ -227,9 +227,6 @@ private:
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
                                                  StringFragment field);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base, String fields);
-    std::unique_ptr<Expression> convertTernaryExpression(std::unique_ptr<Expression> test,
-                                                         std::unique_ptr<Expression> ifTrue,
-                                                         std::unique_ptr<Expression> ifFalse);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
     std::unique_ptr<Statement> convertWhile(const ASTNode& w);
