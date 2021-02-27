@@ -6,12 +6,15 @@
  */
 
 #include "include/core/SkTypes.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperators.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 
 Operator::Precedence Operator::getBinaryPrecedence() const {
-    switch (fKind) {
+    switch (this->kind()) {
         case Kind::TK_STAR:         // fall through
         case Kind::TK_SLASH:        // fall through
         case Kind::TK_PERCENT:      return Precedence::kMultiplicative;
@@ -91,7 +94,7 @@ bool Operator::isOperator() const {
 }
 
 const char* Operator::operatorName() const {
-    switch (fKind) {
+    switch (this->kind()) {
         case Kind::TK_PLUS:         return "+";
         case Kind::TK_MINUS:        return "-";
         case Kind::TK_STAR:         return "*";
@@ -133,7 +136,7 @@ const char* Operator::operatorName() const {
 }
 
 bool Operator::isAssignment() const {
-    switch (fKind) {
+    switch (this->kind()) {
         case Kind::TK_EQ:           // fall through
         case Kind::TK_PLUSEQ:       // fall through
         case Kind::TK_MINUSEQ:      // fall through
@@ -152,7 +155,7 @@ bool Operator::isAssignment() const {
 }
 
 Operator Operator::removeAssignment() const {
-    switch (fKind) {
+    switch (this->kind()) {
         case Kind::TK_PLUSEQ:       return Operator{Kind::TK_PLUS};
         case Kind::TK_MINUSEQ:      return Operator{Kind::TK_MINUS};
         case Kind::TK_STAREQ:       return Operator{Kind::TK_STAR};
@@ -168,7 +171,7 @@ Operator Operator::removeAssignment() const {
 }
 
 bool Operator::isLogical() const {
-    switch (kind()) {
+    switch (this->kind()) {
         case Token::Kind::TK_LT:
         case Token::Kind::TK_GT:
         case Token::Kind::TK_LTEQ:
@@ -180,7 +183,7 @@ bool Operator::isLogical() const {
 }
 
 bool Operator::isOnlyValidForIntegralTypes() const {
-    switch (kind()) {
+    switch (this->kind()) {
         case Token::Kind::TK_SHL:
         case Token::Kind::TK_SHR:
         case Token::Kind::TK_BITWISEAND:
@@ -200,7 +203,7 @@ bool Operator::isOnlyValidForIntegralTypes() const {
 }
 
 bool Operator::isValidForMatrixOrVector() const {
-    switch (kind()) {
+    switch (this->kind()) {
         case Token::Kind::TK_PLUS:
         case Token::Kind::TK_MINUS:
         case Token::Kind::TK_STAR:
@@ -225,6 +228,176 @@ bool Operator::isValidForMatrixOrVector() const {
         default:
             return false;
     }
+}
+
+bool Operator::isMatrixMultiply(const Type& left, const Type& right) {
+    if (this->kind() != Token::Kind::TK_STAR && this->kind() != Token::Kind::TK_STAREQ) {
+        return false;
+    }
+    if (left.isMatrix()) {
+        return right.isMatrix() || right.isVector();
+    }
+    return left.isVector() && right.isMatrix();
+}
+
+/**
+ * Determines the operand and result types of a binary expression. Returns true if the expression is
+ * legal, false otherwise. If false, the values of the out parameters are undefined.
+ */
+bool Operator::determineBinaryType(const Context& context,
+                                   const Type& left,
+                                   const Type& right,
+                                   const Type** outLeftType,
+                                   const Type** outRightType,
+                                   const Type** outResultType) {
+    const bool allowNarrowing = context.fConfig->fSettings.fAllowNarrowingConversions;
+    switch (this->kind()) {
+        case Token::Kind::TK_EQ:  // left = right
+            *outLeftType = &left;
+            *outRightType = &left;
+            *outResultType = &left;
+            return right.canCoerceTo(left, allowNarrowing);
+
+        case Token::Kind::TK_EQEQ:   // left == right
+        case Token::Kind::TK_NEQ: {  // left != right
+            CoercionCost rightToLeft = right.coercionCost(left),
+                         leftToRight = left.coercionCost(right);
+            if (rightToLeft < leftToRight) {
+                if (rightToLeft.isPossible(allowNarrowing)) {
+                    *outLeftType = &left;
+                    *outRightType = &left;
+                    *outResultType = context.fTypes.fBool.get();
+                    return true;
+                }
+            } else {
+                if (leftToRight.isPossible(allowNarrowing)) {
+                    *outLeftType = &right;
+                    *outRightType = &right;
+                    *outResultType = context.fTypes.fBool.get();
+                    return true;
+                }
+            }
+            return false;
+        }
+        case Token::Kind::TK_LOGICALOR:   // left || right
+        case Token::Kind::TK_LOGICALAND:  // left && right
+        case Token::Kind::TK_LOGICALXOR:  // left ^^ right
+            *outLeftType = context.fTypes.fBool.get();
+            *outRightType = context.fTypes.fBool.get();
+            *outResultType = context.fTypes.fBool.get();
+            return left.canCoerceTo(*context.fTypes.fBool, allowNarrowing) &&
+                   right.canCoerceTo(*context.fTypes.fBool, allowNarrowing);
+
+        case Token::Kind::TK_COMMA:  // left, right
+            *outLeftType = &left;
+            *outRightType = &right;
+            *outResultType = &right;
+            return true;
+
+        default:
+            break;
+    }
+
+    // Boolean types only support the operators listed above (, = == != || && ^^).
+    // If we've gotten this far with a boolean, we have an unsupported operator.
+    const Type& leftComponentType = left.componentType();
+    const Type& rightComponentType = right.componentType();
+    if (leftComponentType.isBoolean() || rightComponentType.isBoolean()) {
+        return false;
+    }
+
+    bool isAssignment = this->isAssignment();
+    if (this->isMatrixMultiply(left, right)) {  // left * right
+        // Determine final component type.
+        if (!this->determineBinaryType(context, left.componentType(), right.componentType(),
+                                       outLeftType, outRightType, outResultType)) {
+            return false;
+        }
+        // Convert component type to compound.
+        *outLeftType = &(*outResultType)->toCompound(context, left.columns(), left.rows());
+        *outRightType = &(*outResultType)->toCompound(context, right.columns(), right.rows());
+        int leftColumns = left.columns(), leftRows = left.rows();
+        int rightColumns = right.columns(), rightRows = right.rows();
+        if (right.isVector()) {
+            // `matrix * vector` treats the vector as a column vector; we need to transpose it.
+            std::swap(rightColumns, rightRows);
+            SkASSERT(rightColumns == 1);
+        }
+        if (rightColumns > 1) {
+            *outResultType = &(*outResultType)->toCompound(context, rightColumns, leftRows);
+        } else {
+            // The result was a column vector. Transpose it back to a row.
+            *outResultType = &(*outResultType)->toCompound(context, leftRows, rightColumns);
+        }
+        if (isAssignment && ((*outResultType)->columns() != leftColumns ||
+                             (*outResultType)->rows() != leftRows)) {
+            return false;
+        }
+        return leftColumns == rightRows;
+    }
+
+    bool leftIsVectorOrMatrix = left.isVector() || left.isMatrix();
+    bool validMatrixOrVectorOp = this->isValidForMatrixOrVector();
+
+    if (leftIsVectorOrMatrix && validMatrixOrVectorOp && right.isScalar()) {
+        // Determine final component type.
+        if (!this->determineBinaryType(context, left.componentType(), right,
+                                       outLeftType, outRightType, outResultType)) {
+            return false;
+        }
+        // Convert component type to compound.
+        *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
+        if (!this->isLogical()) {
+            *outResultType = &(*outResultType)->toCompound(context, left.columns(), left.rows());
+        }
+        return true;
+    }
+
+    bool rightIsVectorOrMatrix = right.isVector() || right.isMatrix();
+
+    if (!isAssignment && rightIsVectorOrMatrix && validMatrixOrVectorOp && left.isScalar()) {
+        // Determine final component type.
+        if (!this->determineBinaryType(context, left, right.componentType(),
+                                       outLeftType, outRightType, outResultType)) {
+            return false;
+        }
+        // Convert component type to compound.
+        *outRightType = &(*outRightType)->toCompound(context, right.columns(), right.rows());
+        if (!this->isLogical()) {
+            *outResultType = &(*outResultType)->toCompound(context, right.columns(), right.rows());
+        }
+        return true;
+    }
+
+    CoercionCost rightToLeftCost = right.coercionCost(left);
+    CoercionCost leftToRightCost = isAssignment ? CoercionCost::Impossible()
+                                                : left.coercionCost(right);
+
+    if ((left.isScalar() && right.isScalar()) || (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
+        if (this->isOnlyValidForIntegralTypes()) {
+            if (!leftComponentType.isInteger() || !rightComponentType.isInteger()) {
+                return false;
+            }
+        }
+        if (rightToLeftCost.isPossible(allowNarrowing) && rightToLeftCost < leftToRightCost) {
+            // Right-to-Left conversion is possible and cheaper
+            *outLeftType = &left;
+            *outRightType = &left;
+            *outResultType = &left;
+        } else if (leftToRightCost.isPossible(allowNarrowing)) {
+            // Left-to-Right conversion is possible (and at least as cheap as Right-to-Left)
+            *outLeftType = &right;
+            *outRightType = &right;
+            *outResultType = &right;
+        } else {
+            return false;
+        }
+        if (this->isLogical()) {
+            *outResultType = context.fTypes.fBool.get();
+        }
+        return true;
+    }
+    return false;
 }
 
 }  // namespace SkSL
