@@ -448,9 +448,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             std::unique_ptr<Expression> left = this->expression();
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> right = this->expression();
-            const Type* type = this->type();
-            return std::make_unique<BinaryExpression>(-1, std::move(left), op, std::move(right),
-                                                      type);
+            return BinaryExpression::Make(fContext, std::move(left), op, std::move(right));
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
