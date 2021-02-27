@@ -144,6 +144,7 @@ sksl_error_tests = [
   "/sksl/errors/Ossfuzz29845.sksl",
   "/sksl/errors/Ossfuzz29849.sksl",
   "/sksl/errors/Ossfuzz31410.sksl",
+  "/sksl/errors/Ossfuzz31469.sksl",
   "/sksl/errors/OverflowFloatLiteral.sksl",
   "/sksl/errors/OverflowIntLiteral.sksl",
   "/sksl/errors/OverflowParamArraySize.sksl",
