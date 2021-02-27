@@ -1688,59 +1688,6 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     return result;
 }
 
-std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
-                                                              std::unique_ptr<Expression> test,
-                                                              std::unique_ptr<Expression> ifTrue,
-                                                              std::unique_ptr<Expression> ifFalse) {
-    test = this->coerce(std::move(test), *fContext.fTypes.fBool);
-    if (!test || !ifTrue || !ifFalse) {
-        return nullptr;
-    }
-    int offset = test->fOffset;
-    const Type* trueType;
-    const Type* falseType;
-    const Type* resultType;
-    Operator equalityOp(Token::Kind::TK_EQEQ);
-    if (!equalityOp.determineBinaryType(fContext, ifTrue->type(), ifFalse->type(),
-                                        &trueType, &falseType, &resultType) ||
-        trueType != falseType) {
-        this->errorReporter().error(offset, "ternary operator result mismatch: '" +
-                                            ifTrue->type().displayName() + "', '" +
-                                            ifFalse->type().displayName() + "'");
-        return nullptr;
-    }
-    if (trueType->componentType().isOpaque()) {
-        this->errorReporter().error(offset, "ternary expression of opaque type '" +
-                                            trueType->displayName() + "' not allowed");
-        return nullptr;
-    }
-    if (this->strictES2Mode() && trueType->isOrContainsArray()) {
-        this->errorReporter().error(offset, "ternary operator result may not be an array (or "
-                                            "struct containing an array)");
-        return nullptr;
-    }
-    ifTrue = this->coerce(std::move(ifTrue), *trueType);
-    if (!ifTrue) {
-        return nullptr;
-    }
-    ifFalse = this->coerce(std::move(ifFalse), *falseType);
-    if (!ifFalse) {
-        return nullptr;
-    }
-    if (test->is<BoolLiteral>()) {
-        // static boolean test, just return one of the branches
-        if (test->as<BoolLiteral>().value()) {
-            return ifTrue;
-        } else {
-            return ifFalse;
-        }
-    }
-    return std::make_unique<TernaryExpression>(offset,
-                                               std::move(test),
-                                               std::move(ifTrue),
-                                               std::move(ifFalse));
-}
-
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode& node) {
     SkASSERT(node.fKind == ASTNode::Kind::kTernary);
     auto iter = node.begin();
@@ -1756,7 +1703,8 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
     if (!ifFalse) {
         return nullptr;
     }
-    return this->convertTernaryExpression(std::move(test), std::move(ifTrue), std::move(ifFalse));
+    return TernaryExpression::Make(fContext, std::move(test),
+                                   std::move(ifTrue), std::move(ifFalse));
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
