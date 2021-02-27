@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "666f54a4_050c876d",
+        "filename": "tests/sksl/errors/Ossfuzz31469.glsl",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-02-27T13:28:29Z",
+      "side": 1,
+      "message": "Control-flow analysis also detects and reports a similar error, but apparently this error doesn\u0027t prevent the inliner from running.",
+      "range": {
+        "startLine": 3,
+        "startChar": 10,
+        "endLine": 3,
+        "endChar": 57
+      },
+      "revId": "792b6bea5400792dee9f315d2b3eb80aca28133b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
