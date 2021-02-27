@@ -1612,175 +1612,6 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     return type.coerceExpression(std::move(expr), fContext);
 }
 
-static bool is_matrix_multiply(const Type& left, Operator op, const Type& right) {
-    if (op.kind() != Token::Kind::TK_STAR && op.kind() != Token::Kind::TK_STAREQ) {
-        return false;
-    }
-    if (left.isMatrix()) {
-        return right.isMatrix() || right.isVector();
-    }
-    return left.isVector() && right.isMatrix();
-}
-
-/**
- * Determines the operand and result types of a binary expression. Returns true if the expression is
- * legal, false otherwise. If false, the values of the out parameters are undefined.
- */
-static bool determine_binary_type(const Context& context,
-                                  bool allowNarrowing,
-                                  Operator op,
-                                  const Type& left,
-                                  const Type& right,
-                                  const Type** outLeftType,
-                                  const Type** outRightType,
-                                  const Type** outResultType) {
-    switch (op.kind()) {
-        case Token::Kind::TK_EQ:  // left = right
-            *outLeftType = &left;
-            *outRightType = &left;
-            *outResultType = &left;
-            return right.canCoerceTo(left, allowNarrowing);
-
-        case Token::Kind::TK_EQEQ:   // left == right
-        case Token::Kind::TK_NEQ: {  // left != right
-            CoercionCost rightToLeft = right.coercionCost(left),
-                         leftToRight = left.coercionCost(right);
-            if (rightToLeft < leftToRight) {
-                if (rightToLeft.isPossible(allowNarrowing)) {
-                    *outLeftType = &left;
-                    *outRightType = &left;
-                    *outResultType = context.fTypes.fBool.get();
-                    return true;
-                }
-            } else {
-                if (leftToRight.isPossible(allowNarrowing)) {
-                    *outLeftType = &right;
-                    *outRightType = &right;
-                    *outResultType = context.fTypes.fBool.get();
-                    return true;
-                }
-            }
-            return false;
-        }
-        case Token::Kind::TK_LOGICALOR:   // left || right
-        case Token::Kind::TK_LOGICALAND:  // left && right
-        case Token::Kind::TK_LOGICALXOR:  // left ^^ right
-            *outLeftType = context.fTypes.fBool.get();
-            *outRightType = context.fTypes.fBool.get();
-            *outResultType = context.fTypes.fBool.get();
-            return left.canCoerceTo(*context.fTypes.fBool, allowNarrowing) &&
-                   right.canCoerceTo(*context.fTypes.fBool, allowNarrowing);
-
-        case Token::Kind::TK_COMMA:  // left, right
-            *outLeftType = &left;
-            *outRightType = &right;
-            *outResultType = &right;
-            return true;
-
-        default:
-            break;
-    }
-
-    // Boolean types only support the operators listed above (, = == != || && ^^).
-    // If we've gotten this far with a boolean, we have an unsupported operator.
-    const Type& leftComponentType = left.componentType();
-    const Type& rightComponentType = right.componentType();
-    if (leftComponentType.isBoolean() || rightComponentType.isBoolean()) {
-        return false;
-    }
-
-    bool isAssignment = op.isAssignment();
-    if (is_matrix_multiply(left, op, right)) {  // left * right
-        // Determine final component type.
-        if (!determine_binary_type(context, allowNarrowing, op,
-                                   left.componentType(), right.componentType(),
-                                   outLeftType, outRightType, outResultType)) {
-            return false;
-        }
-        *outLeftType = &(*outResultType)->toCompound(context, left.columns(), left.rows());
-        *outRightType = &(*outResultType)->toCompound(context, right.columns(), right.rows());
-        int leftColumns = left.columns(), leftRows = left.rows();
-        int rightColumns = right.columns(), rightRows = right.rows();
-        if (right.isVector()) {
-            // `matrix * vector` treats the vector as a column vector; we need to transpose it.
-            std::swap(rightColumns, rightRows);
-            SkASSERT(rightColumns == 1);
-        }
-        if (rightColumns > 1) {
-            *outResultType = &(*outResultType)->toCompound(context, rightColumns, leftRows);
-        } else {
-            // The result was a column vector. Transpose it back to a row.
-            *outResultType = &(*outResultType)->toCompound(context, leftRows, rightColumns);
-        }
-        if (isAssignment && ((*outResultType)->columns() != leftColumns ||
-                             (*outResultType)->rows() != leftRows)) {
-            return false;
-        }
-        return leftColumns == rightRows;
-    }
-
-    bool leftIsVectorOrMatrix = left.isVector() || left.isMatrix();
-    bool validMatrixOrVectorOp = op.isValidForMatrixOrVector();
-
-    if (leftIsVectorOrMatrix && validMatrixOrVectorOp && right.isScalar()) {
-        if (determine_binary_type(context, allowNarrowing, op, left.componentType(), right,
-                                  outLeftType, outRightType, outResultType)) {
-            *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
-            if (!op.isLogical()) {
-                *outResultType = &(*outResultType)->toCompound(context, left.columns(),
-                                                               left.rows());
-            }
-            return true;
-        }
-        return false;
-    }
-
-    bool rightIsVectorOrMatrix = right.isVector() || right.isMatrix();
-
-    if (!isAssignment && rightIsVectorOrMatrix && validMatrixOrVectorOp && left.isScalar()) {
-        if (determine_binary_type(context, allowNarrowing, op, left, right.componentType(),
-                                  outLeftType, outRightType, outResultType)) {
-            *outRightType = &(*outRightType)->toCompound(context, right.columns(), right.rows());
-            if (!op.isLogical()) {
-                *outResultType = &(*outResultType)->toCompound(context, right.columns(),
-                                                               right.rows());
-            }
-            return true;
-        }
-        return false;
-    }
-
-    CoercionCost rightToLeftCost = right.coercionCost(left);
-    CoercionCost leftToRightCost = isAssignment ? CoercionCost::Impossible()
-                                                : left.coercionCost(right);
-
-    if ((left.isScalar() && right.isScalar()) || (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
-        if (op.isOnlyValidForIntegralTypes()) {
-            if (!leftComponentType.isInteger() || !rightComponentType.isInteger()) {
-                return false;
-            }
-        }
-        if (rightToLeftCost.isPossible(allowNarrowing) && rightToLeftCost < leftToRightCost) {
-            // Right-to-Left conversion is possible and cheaper
-            *outLeftType = &left;
-            *outRightType = &left;
-            *outResultType = &left;
-        } else if (leftToRightCost.isPossible(allowNarrowing)) {
-            // Left-to-Right conversion is possible (and at least as cheap as Right-to-Left)
-            *outLeftType = &right;
-            *outRightType = &right;
-            *outResultType = &right;
-        } else {
-            return false;
-        }
-        if (op.isLogical()) {
-            *outResultType = context.fTypes.fBool.get();
-        }
-        return true;
-    }
-    return false;
-}
-
 std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& expression) {
     SkASSERT(expression.fKind == ASTNode::Kind::kBinary);
     auto iter = expression.begin();
@@ -1833,12 +1664,11 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                                       &fContext.fErrors)) {
         return nullptr;
     }
-    if (!determine_binary_type(fContext, this->settings().fAllowNarrowingConversions, op,
-                               *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
-        this->errorReporter().error(
-                offset, String("type mismatch: '") + op.operatorName() +
-                                "' cannot operate on '" + left->type().displayName() + "', '" +
-                                right->type().displayName() + "'");
+    if (!op.determineBinaryType(fContext, *rawLeftType, *rawRightType,
+                                &leftType, &rightType, &resultType)) {
+        this->errorReporter().error(offset, String("type mismatch: '") + op.operatorName() +
+                                            "' cannot operate on '" + left->type().displayName() +
+                                            "', '" + right->type().displayName() + "'");
         return nullptr;
     }
     if (isAssignment && leftType->componentType().isOpaque()) {
@@ -1883,9 +1713,9 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
     const Type* trueType;
     const Type* falseType;
     const Type* resultType;
-    if (!determine_binary_type(fContext, this->settings().fAllowNarrowingConversions,
-                               Token::Kind::TK_EQEQ, ifTrue->type(), ifFalse->type(),
-                               &trueType, &falseType, &resultType) ||
+    Operator equalityOp(Token::Kind::TK_EQEQ);
+    if (!equalityOp.determineBinaryType(fContext, ifTrue->type(), ifFalse->type(),
+                                        &trueType, &falseType, &resultType) ||
         trueType != falseType) {
         this->errorReporter().error(offset, "ternary operator result mismatch: '" +
                                             ifTrue->type().displayName() + "', '" +
@@ -1893,15 +1723,13 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
         return nullptr;
     }
     if (trueType->componentType().isOpaque()) {
-        this->errorReporter().error(
-                offset,
-                "ternary expression of opaque type '" + trueType->displayName() + "' not allowed");
+        this->errorReporter().error(offset, "ternary expression of opaque type '" +
+                                            trueType->displayName() + "' not allowed");
         return nullptr;
     }
     if (this->strictES2Mode() && type_is_or_contains_array(trueType)) {
-        this->errorReporter().error(
-                offset,
-                "ternary operator result may not be an array (or struct containing an array)");
+        this->errorReporter().error(offset, "ternary operator result may not be an array (or "
+                                            "struct containing an array)");
         return nullptr;
     }
     ifTrue = this->coerce(std::move(ifTrue), *trueType);
@@ -1912,7 +1740,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
     if (!ifFalse) {
         return nullptr;
     }
-    if (test->kind() == Expression::Kind::kBoolLiteral) {
+    if (test->is<BoolLiteral>()) {
         // static boolean test, just return one of the branches
         if (test->as<BoolLiteral>().value()) {
             return ifTrue;
