@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "348e274e_77ee0af5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-02-27T17:38:24Z",
+      "side": 1,
+      "message": "oh duh, yeah, no static initializers, but it did add a static destructor.",
+      "revId": "4a4fbe8140cb76fff675139159256b45d63c8302",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
