@@ -760,15 +760,22 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                         &arguments[i]->type())));
     }
 
-    if (resultExpr != nullptr) {
-        // Return our result variable as our replacement expression.
+    if (resultExpr) {
+        // Return our result expression as-is.
         inlinedCall.fReplacementExpr = std::move(resultExpr);
-    } else {
+    } else if (function.declaration().returnType() == *fContext->fTypes.fVoid) {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.
         inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(*fContext,
                                                                      offset,
                                                                      /*value=*/false);
+    } else {
+        // It's a non-void function, but it never created a result expression--that is, it never
+        // returned anything! Discard our output and generate an error.
+        fContext->fErrors.error(function.fOffset, String("function '") +
+                                                  function.declaration().name() +
+                                                  "' exits without returning a value");
+        inlinedCall = {};
     }
 
     return inlinedCall;
@@ -1198,24 +1205,28 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
         // Convert the function call to its inlined equivalent.
         InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols,
                                                    &candidate.fEnclosingFunction->declaration());
-        if (inlinedCall.fInlinedBody) {
-            // Ensure that the inlined body has a scope if it needs one.
-            this->ensureScopedBlocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt->get());
 
-            // Add references within the inlined body
-            usage->add(inlinedCall.fInlinedBody.get());
-
-            // Move the enclosing statement to the end of the unscoped Block containing the inlined
-            // function, then replace the enclosing statement with that Block.
-            // Before:
-            //     fInlinedBody = Block{ stmt1, stmt2, stmt3 }
-            //     fEnclosingStmt = stmt4
-            // After:
-            //     fInlinedBody = null
-            //     fEnclosingStmt = Block{ stmt1, stmt2, stmt3, stmt4 }
-            inlinedCall.fInlinedBody->children().push_back(std::move(*candidate.fEnclosingStmt));
-            *candidate.fEnclosingStmt = std::move(inlinedCall.fInlinedBody);
+        // Stop if an error was detected during the inlining process.
+        if (!inlinedCall.fInlinedBody && !inlinedCall.fReplacementExpr) {
+            break;
         }
+
+        // Ensure that the inlined body has a scope if it needs one.
+        this->ensureScopedBlocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt->get());
+
+        // Add references within the inlined body
+        usage->add(inlinedCall.fInlinedBody.get());
+
+        // Move the enclosing statement to the end of the unscoped Block containing the inlined
+        // function, then replace the enclosing statement with that Block.
+        // Before:
+        //     fInlinedBody = Block{ stmt1, stmt2, stmt3 }
+        //     fEnclosingStmt = stmt4
+        // After:
+        //     fInlinedBody = null
+        //     fEnclosingStmt = Block{ stmt1, stmt2, stmt3, stmt4 }
+        inlinedCall.fInlinedBody->children().push_back(std::move(*candidate.fEnclosingStmt));
+        *candidate.fEnclosingStmt = std::move(inlinedCall.fInlinedBody);
 
         // Replace the candidate function call with our replacement expression.
         usage->replace(candidate.fCandidateExpr->get(), inlinedCall.fReplacementExpr.get());
