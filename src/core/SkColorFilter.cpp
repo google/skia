@@ -443,13 +443,16 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
         return cf1;
     }
 
-    auto [effect,err] = SkRuntimeEffect::Make(SkString{
-        "uniform shader cf0;"
-        "uniform shader cf1;"
-        "uniform half   weight;"
-        "half4 main() { return mix(sample(cf0), sample(cf1), weight); }"
-    });
-    SkASSERT(effect && err.isEmpty());
+    static SkRuntimeEffect* effect = [&]{
+        auto [effect,err] = SkRuntimeEffect::Make(SkString{
+            "uniform shader cf0;"
+            "uniform shader cf1;"
+            "uniform half   weight;"
+            "half4 main() { return mix(sample(cf0), sample(cf1), weight); }"
+        });
+        SkASSERT(effect && err.isEmpty());
+        return effect.release();
+    }();
 
     sk_sp<SkColorFilter> inputs[] = {cf0,cf1};
     return effect->makeColorFilter(SkData::MakeWithCopy(&weight, sizeof(weight)),
