@@ -19,6 +19,7 @@
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
 
 namespace SkSL {
 
@@ -155,9 +156,8 @@ public:
 
     static DSLPossibleExpression Select(DSLExpression test, DSLExpression ifTrue,
                                         DSLExpression ifFalse) {
-        return DSLWriter::IRGenerator().convertTernaryExpression(test.release(),
-                                                                 ifTrue.release(),
-                                                                 ifFalse.release());
+        return TernaryExpression::Make(DSLWriter::Context(), test.release(),
+                                       ifTrue.release(), ifFalse.release());
     }
 
     static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {

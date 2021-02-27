@@ -377,8 +377,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = expression.as<TernaryExpression>();
-            return std::make_unique<TernaryExpression>(offset, expr(t.test()),
-                                                       expr(t.ifTrue()), expr(t.ifFalse()));
+            return TernaryExpression::Make(*fContext, expr(t.test()),
+                                           expr(t.ifTrue()), expr(t.ifFalse()));
         }
         case Expression::Kind::kTypeReference:
             return expression.clone();
