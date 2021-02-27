@@ -275,4 +275,18 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     return Constructor::Make(context, offset, this->scalarTypeForLiteral(), std::move(args));
 }
 
+bool Type::isOrContainsArray() const {
+    if (this->isStruct()) {
+        for (const Field& f : this->fields()) {
+            if (f.fType->isOrContainsArray()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    return this->isArray();
+}
+
+
 }  // namespace SkSL

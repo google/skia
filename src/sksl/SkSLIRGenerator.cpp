@@ -1008,19 +1008,6 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
     Finalizer(this, &f.declaration()).visitStatement(*f.body());
 }
 
-static bool type_is_or_contains_array(const Type* type) {
-    if (type->isStruct()) {
-        for (const auto& f : type->fields()) {
-            if (type_is_or_contains_array(f.fType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    return type->isArray();
-}
-
 void IRGenerator::convertFunction(const ASTNode& f) {
     SkASSERT(fReferencedIntrinsics.empty());
     SK_AT_SCOPE_EXIT(fReferencedIntrinsics.clear());
@@ -1035,7 +1022,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 f.fOffset, "functions may not return type '" + returnType->displayName() + "'");
         return;
     }
-    if (this->strictES2Mode() && type_is_or_contains_array(returnType)) {
+    if (this->strictES2Mode() && returnType->isOrContainsArray()) {
         this->errorReporter().error(f.fOffset,
                                     "functions may not return structs containing arrays");
         return;
@@ -1675,7 +1662,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
         this->errorReporter().error(offset, "assignments to opaque type '" +
                                             left->type().displayName() + "' are not permitted");
     }
-    if (this->strictES2Mode() && type_is_or_contains_array(leftType)) {
+    if (this->strictES2Mode() && leftType->isOrContainsArray()) {
         // Most operators are already rejected on arrays, but GLSL ES 1.0 is very explicit that the
         // *only* operator allowed on arrays is subscripting (and the rules against assignment,
         // comparison, and even sequence apply to structs containing arrays as well).
@@ -1727,7 +1714,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
                                             trueType->displayName() + "' not allowed");
         return nullptr;
     }
-    if (this->strictES2Mode() && type_is_or_contains_array(trueType)) {
+    if (this->strictES2Mode() && trueType->isOrContainsArray()) {
         this->errorReporter().error(offset, "ternary operator result may not be an array (or "
                                             "struct containing an array)");
         return nullptr;
