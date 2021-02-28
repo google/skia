@@ -563,12 +563,7 @@ namespace {
             if (SkLRUCache<Key, skvm::Program>* cache = try_acquire_program_cache()) {
                 auto cache_program = [&](skvm::Program&& program, Coverage coverage) {
                     if (!program.empty()) {
-                        Key key = fKey.withCoverage(coverage);
-                        if (skvm::Program* found = cache->find(key)) {
-                            *found = std::move(program);
-                        } else {
-                            cache->insert(key, std::move(program));
-                        }
+                        cache->insert_or_update(fKey.withCoverage(coverage), std::move(program));
                     }
                 };
                 cache_program(std::move(fBlitH),         Coverage::Full);
