@@ -16,6 +16,24 @@
       "message": "Sorry for slow review. This slipped off my radar. It lgtm, but it makes me wonder whether we should make this more generic so that content that repeatedly draw other shapes that batch also benefit. ",
       "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fe17acd_67b3d58c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-01T14:29:25Z",
+      "side": 1,
+      "message": "I think adding to rectangles would be a marginal benefit, but I don\u0027t think I have seen other ops combine. Do you have an skp where ops other than rect or text combine?",
+      "parentUuid": "dde8ee90_2549831f",
+      "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
