@@ -71,6 +71,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83c1d609_d8ac715b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-01T14:37:47Z",
+      "side": 1,
+      "message": "As Chris\u0027 new path renderer becomes the norm, many more path ops will be combinable. Currently, some of the specialized ops are limited in what they can combine because they require the view matrix to be the same. (way down the future), when we can update uniforms within an op\u0027s execution, this can be avoided. This would also allow us to merge ops that aren\u0027t otherwise mergeable due to FP uniform state being different (even if the program is the same, e.g. gradients with different colors).\n\nI\u0027m not opposed to trying this out directly for text and learning from it, but I do think we should try and keep in mind a general solution that we can get to for all ops, once the rest of the GPU backend (path rendering, pipeline updating, etc.) can handle it.",
+      "parentUuid": "72bf8337_52cd0914",
+      "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "828137e8_f50a397f",
