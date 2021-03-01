@@ -22,6 +22,30 @@
       },
       "revId": "24fc94f2b714d42a96be4061c13ff8884f1e8a30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc4727a3_d8d6eb35",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-01T18:53:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7307e1aa_4a6df394",
+      "range": {
+        "startLine": 6,
+        "startChar": 36,
+        "endLine": 6,
+        "endChar": 92
+      },
+      "revId": "24fc94f2b714d42a96be4061c13ff8884f1e8a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
