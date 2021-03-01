@@ -33,6 +33,7 @@
 
 #include <chrono>
 #include <functional>
+#include <future>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -78,6 +79,7 @@ static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
 static DEFINE_bool   (quick, false, "Skip image hashing and encoding?");
+static DEFINE_int    (race, 0, "If >0, use threads to induce race conditions?");
 
 static DEFINE_string(writeShaders, "", "Write GLSL shaders to this directory if set.");
 
@@ -420,7 +422,8 @@ int main(int argc, char** argv) {
     }
 
     SkTArray<Source> sources;
-    for (const SkString& name : FLAGS_sources) {
+    for (const SkString& name : FLAGS_sources)
+    for (int replica = 0; replica < std::max(1, FLAGS_race); replica++) {
         Source* source = &sources.push_back();
         source->name = name;
 
@@ -545,7 +548,11 @@ int main(int argc, char** argv) {
                                           : SkColorSpace::MakeRGB(tf,gamut);
     const SkColorInfo color_info{ct,at,cs};
 
-    for (auto source : sources) {
+    std::vector<std::future<void>> pending;
+
+    for (auto source : sources)
+    pending.emplace_back(std::async(FLAGS_race ? std::launch::async
+                                               : std::launch::deferred, [=]{
         AutoreleasePool pool;
         const auto start = std::chrono::steady_clock::now();
         fprintf(stdout, "%50s", source.name.c_str());
@@ -584,13 +591,14 @@ int main(int argc, char** argv) {
                 ext  = ".pdf";
                 break;
             default:
-                image = draw_with_gpu(draw, info, (GrContextFactory::ContextType)backend, &factory);
+                image = draw_with_gpu(draw, info,
+                                      (GrContextFactory::ContextType)backend, &factory);
                 break;
         }
 
         if (!image && !blob) {
             fprintf(stdout, "\tskipped\n");
-            continue;
+            return;
         }
 
         // We read back a bitmap even when --quick is set and we won't use it,
@@ -638,6 +646,10 @@ int main(int argc, char** argv) {
         fprintf(stdout, "\t%s\t%7dms\n",
                 md5.c_str(),
                 (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+    }));
+
+    for (std::future<void>& work : pending) {
+        work.wait();
     }
 
     if (!FLAGS_writeShaders.isEmpty()) {
