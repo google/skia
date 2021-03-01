@@ -386,6 +386,9 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
     SkScalerContextFlags scalerContextFlags = this->colorInfo().isLinearlyBlended()
                                               ? SkScalerContextFlags::kBoostContrast
                                               : SkScalerContextFlags::kFakeGammaAndBoostContrast;
+    SkMatrix drawMatrix(viewMatrix.localToDevice());
+    SkPoint drawOrigin = glyphRunList.origin();
+    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
     sk_sp<GrTextBlob> blob;
     GrTextBlob::Key key;
@@ -412,12 +415,19 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         }
         key.fCanonicalColor = canonicalColor;
         key.fScalerContextFlags = scalerContextFlags;
+
+        key.fDrawingType = GrSDFTOptions::kPath;
+        // Find the minimum size that's not zero. If that doesn't exist, then use zero.
+        for (auto& run : glyphRunList) {
+            key.fDrawingType = std::min(key.fDrawingType,
+                                        options.drawingType(run.font(), drawPaint, drawMatrix));
+        }
+
+        key.fDrawMatrix = drawMatrix;
+
         blob = textBlobCache->find(key);
     }
 
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    SkPoint drawOrigin = glyphRunList.origin();
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.
