@@ -763,16 +763,14 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     fProgramElements->push_back(std::move(invokeDef));
     std::vector<std::unique_ptr<VarDeclaration>> variables;
     const Variable* loopIdx = &(*fSymbolTable)["sk_InvocationID"]->as<Variable>();
-    auto test = std::make_unique<BinaryExpression>(
-            /*offset=*/-1,
+    auto test = BinaryExpression::Make(
+            fContext,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx),
             Token::Kind::TK_LT,
-            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations),
-            fContext.fTypes.fBool.get());
+            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations));
     auto next = PostfixExpression::Make(
             fContext,
-            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
-                                                VariableReference::RefKind::kReadWrite),
+            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,VariableRefKind::kReadWrite),
             Token::Kind::TK_PLUSPLUS);
     ASTNode endPrimitiveID(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier, "EndPrimitive");
     std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
@@ -786,13 +784,11 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     loopBody.push_back(ExpressionStatement::Make(fContext, this->call(/*offset=*/-1,
                                                                       std::move(endPrimitive),
                                                                       ExpressionArray{})));
-    auto assignment = std::make_unique<BinaryExpression>(
-            /*offset=*/-1,
-            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,
-                                                VariableReference::RefKind::kWrite),
+    auto assignment = BinaryExpression::Make(
+            fContext,
+            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx, VariableRefKind::kWrite),
             Token::Kind::TK_EQ,
-            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0),
-            fContext.fTypes.fInt.get());
+            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
     auto initializer = ExpressionStatement::Make(fContext, std::move(assignment));
     auto loop = ForStatement::Make(
             fContext, /*offset=*/-1, std::move(initializer), std::move(test), std::move(next),
@@ -839,8 +835,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     };
     auto Op = [&](std::unique_ptr<Expression> left, Token::Kind op,
                   std::unique_ptr<Expression> right) -> std::unique_ptr<Expression> {
-        return std::make_unique<BinaryExpression>(/*offset=*/-1, std::move(left), op,
-                                                  std::move(right), fContext.fTypes.fFloat2.get());
+        return BinaryExpression::Make(fContext, std::move(left), op, std::move(right));
     };
 
     static const ComponentArray kXYIndices{0, 1};
@@ -1610,82 +1605,8 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     if (!right) {
         return nullptr;
     }
-    return this->convertBinaryExpression(std::move(left), expression.getOperator(),
-                                         std::move(right));
-}
-
-std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
-                                                                std::unique_ptr<Expression> left,
-                                                                Operator op,
-                                                                std::unique_ptr<Expression> right) {
-    if (!left || !right) {
-        return nullptr;
-    }
-    int offset = left->fOffset;
-    const Type* leftType;
-    const Type* rightType;
-    const Type* resultType;
-    const Type* rawLeftType;
-    if (left->is<IntLiteral>() && right->type().isInteger()) {
-        rawLeftType = &right->type();
-    } else {
-        rawLeftType = &left->type();
-    }
-    const Type* rawRightType;
-    if (right->is<IntLiteral>() && left->type().isInteger()) {
-        rawRightType = &left->type();
-    } else {
-        rawRightType = &right->type();
-    }
-    if (this->strictES2Mode() && !op.isAllowedInStrictES2Mode()) {
-        this->errorReporter().error(offset,
-                                    String("operator '") + op.operatorName() + "' is not allowed");
-        return nullptr;
-    }
-    bool isAssignment = op.isAssignment();
-    if (isAssignment &&
-        !Analysis::MakeAssignmentExpr(left.get(),
-                                      op.kind() != Token::Kind::TK_EQ
-                                              ? VariableReference::RefKind::kReadWrite
-                                              : VariableReference::RefKind::kWrite,
-                                      &fContext.fErrors)) {
-        return nullptr;
-    }
-    if (!op.determineBinaryType(fContext, *rawLeftType, *rawRightType,
-                                &leftType, &rightType, &resultType)) {
-        this->errorReporter().error(offset, String("type mismatch: '") + op.operatorName() +
-                                            "' cannot operate on '" + left->type().displayName() +
-                                            "', '" + right->type().displayName() + "'");
-        return nullptr;
-    }
-    if (isAssignment && leftType->componentType().isOpaque()) {
-        this->errorReporter().error(offset, "assignments to opaque type '" +
-                                            left->type().displayName() + "' are not permitted");
-    }
-    if (this->strictES2Mode() && leftType->isOrContainsArray()) {
-        // Most operators are already rejected on arrays, but GLSL ES 1.0 is very explicit that the
-        // *only* operator allowed on arrays is subscripting (and the rules against assignment,
-        // comparison, and even sequence apply to structs containing arrays as well).
-        this->errorReporter().error(
-                offset,
-                String("operator '") + op.operatorName() +
-                        "' can not operate on arrays (or structs containing arrays)");
-        return nullptr;
-    }
-    left = this->coerce(std::move(left), *leftType);
-    right = this->coerce(std::move(right), *rightType);
-    if (!left || !right) {
-        return nullptr;
-    }
-    std::unique_ptr<Expression> result;
-    if (!ConstantFolder::ErrorOnDivideByZero(fContext, offset, op, *right)) {
-        result = ConstantFolder::Simplify(fContext, offset, *left, op, *right);
-    }
-    if (!result) {
-        result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
-                                                    resultType);
-    }
-    return result;
+    return BinaryExpression::Make(fContext, std::move(left), expression.getOperator(),
+                                  std::move(right));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode& node) {

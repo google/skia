@@ -192,9 +192,6 @@ private:
     int convertArraySize(const Type& type, std::unique_ptr<Expression> s);
     bool containsConstantZero(Expression& expr);
     bool dividesByZero(Operator op, Expression& right);
-    std::unique_ptr<Expression> convertBinaryExpression(std::unique_ptr<Expression> left,
-                                                        Operator op,
-                                                        std::unique_ptr<Expression> right);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
     std::unique_ptr<Statement> convertContinue(const ASTNode& c);
