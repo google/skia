@@ -226,6 +226,16 @@ var (
 			path:           "win_toolchain",
 		},
 	}
+
+	// Enable reduceOpsTaskSplitting option on these models
+	// skbug.com/10877#c27
+	REDUCE_OPS_TASK_SPLITTING_MODELS = []string{
+		"AndroidOne",
+		"GalaxyS20",
+		"Nexus5x",
+		"Nexus7",
+		"NUC7i5BNK",
+	}
 )
 
 // Config contains general configuration information.
@@ -614,8 +624,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "OOPRDDL", "T8888",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
 				"GpuTess", "NonNVPR", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
-				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2",
-				"ReduceOpsTaskSplitting"}
+				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -1795,6 +1804,8 @@ func (b *jobBuilder) perf() {
 		b.recipeProps(EXTRA_PROPS)
 		if recipe == "perf" {
 			b.nanobenchFlags(doUpload)
+		} else if recipe == "skpbench" {
+			b.skpbenchFlags()
 		}
 		b.kitchenTask(recipe, OUTPUT_PERF)
 		b.cas(cas)
