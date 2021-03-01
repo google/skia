@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9c49922_0511e401",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-01T22:12:20Z",
+      "side": 1,
+      "message": "This comment is based on the idea that we\u0027re restricting ourselves to lvalues, which is true at the top-level when this is called...",
+      "range": {
+        "startLine": 567,
+        "startChar": 47,
+        "endLine": 567,
+        "endChar": 80
+      },
+      "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "488075bb_ee16d910",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-01T22:12:20Z",
+      "side": 1,
+      "message": "... but ceases to be true once we recurse here. I guess nothing will break, we\u0027ll just possibly not detect certain kinds of identical subexpressions?",
+      "range": {
+        "startLine": 585,
+        "startChar": 19,
+        "endLine": 586,
+        "endChar": 73
+      },
+      "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
