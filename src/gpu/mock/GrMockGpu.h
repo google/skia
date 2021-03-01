@@ -22,11 +22,14 @@ class GrMockGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(const GrMockOptions*, const GrContextOptions&, GrDirectContext*);
 
-    ~GrMockGpu() override {}
+    ~GrMockGpu() override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence) override { return true; }
     void deleteFence(GrFence) const override {}
+
+    GrFooBar* fooBar() override;
+    sk_sp<GrFooBar> refFooBar() override;
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
         return nullptr;

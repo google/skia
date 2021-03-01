@@ -482,6 +482,14 @@ void GrGLGpu::disconnect(DisconnectType type) {
     fFinishCallbacks.callAll(/* doDelete */ DisconnectType::kCleanup == type);
 }
 
+GrFooBar* GrGLGpu::fooBar() {
+    return nullptr;
+}
+
+sk_sp<GrFooBar> GrGLGpu::refFooBar() {
+    return nullptr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLGpu::onResetContext(uint32_t resetBits) {
@@ -3065,14 +3073,14 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kVertex,
                                                           sksl, settings, &glsl, errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
-                                                  GR_GL_VERTEX_SHADER, glsl, &fStats, errorHandler);
+                                                  GR_GL_VERTEX_SHADER, glsl, &(fProgramCache->stats()), errorHandler);
     SkASSERT(program->fInputs.isEmpty());
 
     sksl.assign(fshaderTxt.c_str(), fshaderTxt.size());
     program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kFragment, sksl, settings, &glsl,
                            errorHandler);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, glsl, &fStats,
+                                                  GR_GL_FRAGMENT_SHADER, glsl, &(fProgramCache->stats()),
                                                   errorHandler);
     SkASSERT(program->fInputs.isEmpty());
 
@@ -3218,14 +3226,14 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kVertex,
                                                           sksl, settings, &glsl, errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
-                                                  GR_GL_VERTEX_SHADER, glsl, &fStats, errorHandler);
+                                                  GR_GL_VERTEX_SHADER, glsl, &(fProgramCache->stats()), errorHandler);
     SkASSERT(program->fInputs.isEmpty());
 
     sksl.assign(fshaderTxt.c_str(), fshaderTxt.size());
     program = GrSkSLtoGLSL(this, SkSL::ProgramKind::kFragment, sksl, settings, &glsl,
                            errorHandler);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, glsl, &fStats,
+                                                  GR_GL_FRAGMENT_SHADER, glsl, &(fProgramCache->stats()),
                                                   errorHandler);
     SkASSERT(program->fInputs.isEmpty());
 
@@ -3675,14 +3683,14 @@ void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
 bool GrGLGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
     SkASSERT(!(GrProcessor::CustomFeatures::kSampleLocations & programInfo.requestedFeatures()));
 
-    Stats::ProgramCacheResult stat;
+    GrFooBar::Stats::ProgramCacheResult stat;
 
     sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(desc, programInfo, &stat);
     if (!tmp) {
         return false;
     }
 
-    return stat != Stats::ProgramCacheResult::kHit;
+    return stat != GrFooBar::Stats::ProgramCacheResult::kHit;
 }
 
 #if GR_TEST_UTILS

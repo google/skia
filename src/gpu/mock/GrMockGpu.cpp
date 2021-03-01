@@ -7,6 +7,7 @@
 
 #include "src/gpu/mock/GrMockGpu.h"
 
+#include "src/gpu/GrFooBar.h"
 #include "src/gpu/mock/GrMockAttachment.h"
 #include "src/gpu/mock/GrMockBuffer.h"
 #include "src/gpu/mock/GrMockCaps.h"
@@ -78,6 +79,11 @@ GrMockGpu::GrMockGpu(GrDirectContext* direct, const GrMockOptions& options,
         , fMockOptions(options) {
     this->initCapsAndCompiler(sk_make_sp<GrMockCaps>(contextOptions, options));
 }
+
+GrMockGpu::~GrMockGpu() {}
+
+GrFooBar* GrMockGpu::fooBar() { return nullptr; }
+sk_sp<GrFooBar> GrMockGpu::refFooBar() { return nullptr; }
 
 void GrMockGpu::querySampleLocations(GrRenderTarget* rt, SkTArray<SkPoint>* sampleLocations) {
     sampleLocations->reset();

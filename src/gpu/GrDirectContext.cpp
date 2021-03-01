@@ -190,7 +190,7 @@ bool GrDirectContext::init() {
         return false;
     }
 
-    fThreadSafeProxy->priv().init(fGpu->refCaps());
+    fThreadSafeProxy->priv().init1(fGpu->refCaps(), fGpu->refFooBar());
     if (!INHERITED::init()) {
         return false;
     }
