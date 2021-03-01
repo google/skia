@@ -46,7 +46,6 @@ namespace {
 //
 //
 // TODO:
-//   - Fractal Type
 //   - Invert
 //   - Contrast/Brightness
 
@@ -84,6 +83,9 @@ static constexpr char gNoiseEffectSkSL[] =
     // filter() placeholder
     "%s"
 
+    // fractal() placeholder
+    "%s"
+
     // Generate ceil(u_octaves) noise layers and combine based on persistentce and sublayer xform.
     "half4 main(vec2 xy) {"
         "half oct = u_octaves," // initial octave count (this is the effective loop counter)
@@ -103,7 +105,7 @@ static constexpr char gNoiseEffectSkSL[] =
             // e.g. for 6 loops and u_octaves = 2.3, this generates the sequence [1,1,.3,0,0]
             "half w = amp*saturate(oct);"
 
-            "n += w*filter(xy);"
+            "n += w*fractal(filter(xy));"
 
             "wacc += w;"
             "amp  *= u_persistence;"
@@ -152,6 +154,27 @@ static constexpr char gFilterSoftLinearSkSL[] =
         "return mix(mix(n00, n10, t.x), mix(n01, n11, t.x), t.y);"
     "}";
 
+static constexpr char gFractalBasicSkSL[] =
+    "half fractal(half n) {"
+        "return n;"
+    "}";
+
+static constexpr char gFractalTurbulentBasicSkSL[] =
+    "half fractal(half n) {"
+        "return 2*abs(0.5 - n);"
+    "}";
+
+static constexpr char gFractalTurbulentSmoothSkSL[] =
+    "half fractal(half n) {"
+        "n = 2*abs(0.5 - n);"
+        "return n*n;"
+    "}";
+
+static constexpr char gFractalTurbulentSharpSkSL[] =
+    "half fractal(half n) {"
+        "return sqrt(2*abs(0.5 - n));"
+    "}";
+
 enum class NoiseFilter {
     kNearest,
     kLinear,
@@ -159,8 +182,16 @@ enum class NoiseFilter {
     // TODO: kSpline?
 };
 
-sk_sp<SkRuntimeEffect> make_noise_effect(unsigned loops, const char* filter) {
-    auto result = SkRuntimeEffect::Make(SkStringPrintf(gNoiseEffectSkSL, filter, loops), {});
+enum class NoiseFractal {
+    kBasic,
+    kTurbulentBasic,
+    kTurbulentSmooth,
+    kTurbulentSharp,
+};
+
+sk_sp<SkRuntimeEffect> make_noise_effect(unsigned loops, const char* filter, const char* fractal) {
+    auto result =
+            SkRuntimeEffect::Make(SkStringPrintf(gNoiseEffectSkSL, filter, fractal, loops), {});
 
     if (0 && !result.effect) {
         printf("!!! %s\n", result.errorText.c_str());
@@ -169,7 +200,7 @@ sk_sp<SkRuntimeEffect> make_noise_effect(unsigned loops, const char* filter) {
     return std::move(result.effect);
 }
 
-template <unsigned LOOPS, NoiseFilter F>
+template <unsigned LOOPS, NoiseFilter FILTER, NoiseFractal FRACTAL>
 sk_sp<SkRuntimeEffect> noise_effect() {
     static constexpr char const* gFilters[] = {
         gFilterNearestSkSL,
@@ -177,8 +208,21 @@ sk_sp<SkRuntimeEffect> noise_effect() {
         gFilterSoftLinearSkSL
     };
 
+    static constexpr char const* gFractals[] = {
+        gFractalBasicSkSL,
+        gFractalTurbulentBasicSkSL,
+        gFractalTurbulentSmoothSkSL,
+        gFractalTurbulentSharpSkSL
+    };
+
+    static_assert(static_cast<size_t>(FILTER)  < SK_ARRAY_COUNT(gFilters));
+    static_assert(static_cast<size_t>(FRACTAL) < SK_ARRAY_COUNT(gFractals));
+
     static const SkRuntimeEffect* effect =
-            make_noise_effect(LOOPS, gFilters[static_cast<size_t>(F)]).release();
+            make_noise_effect(LOOPS,
+                              gFilters[static_cast<size_t>(FILTER)],
+                              gFractals[static_cast<size_t>(FRACTAL)])
+            .release();
 
     SkASSERT(effect);
     return sk_ref_sp(effect);
@@ -188,26 +232,42 @@ class FractalNoiseNode final : public sksg::CustomRenderNode {
 public:
     explicit FractalNoiseNode(sk_sp<RenderNode> child) : INHERITED({std::move(child)}) {}
 
-    SG_ATTRIBUTE(Matrix      , SkMatrix   , fMatrix     )
-    SG_ATTRIBUTE(SubMatrix   , SkMatrix   , fSubMatrix  )
+    SG_ATTRIBUTE(Matrix      , SkMatrix    , fMatrix     )
+    SG_ATTRIBUTE(SubMatrix   , SkMatrix    , fSubMatrix  )
 
-    SG_ATTRIBUTE(NoiseFilter , NoiseFilter, fFilter     )
-    SG_ATTRIBUTE(Octaves     , float      , fOctaves    )
-    SG_ATTRIBUTE(Persistence , float      , fPersistence)
-    SG_ATTRIBUTE(Evolution   , float      , fEvolution  )
+    SG_ATTRIBUTE(NoiseFilter , NoiseFilter , fFilter     )
+    SG_ATTRIBUTE(NoiseFractal, NoiseFractal, fFractal    )
+    SG_ATTRIBUTE(Octaves     , float       , fOctaves    )
+    SG_ATTRIBUTE(Persistence , float       , fPersistence)
+    SG_ATTRIBUTE(Evolution   , float       , fEvolution  )
 
 private:
-    template <NoiseFilter F>
+    template <NoiseFilter FI, NoiseFractal FR>
     sk_sp<SkRuntimeEffect> getEffect() const {
         // Bin the loop counter based on the number of octaves (range: [1..20]).
         // Low complexities are common, so we maximize resolution for the low end.
-        if (fOctaves > 8) return noise_effect<20, F>();
-        if (fOctaves > 4) return noise_effect< 8, F>();
-        if (fOctaves > 3) return noise_effect< 4, F>();
-        if (fOctaves > 2) return noise_effect< 3, F>();
-        if (fOctaves > 1) return noise_effect< 2, F>();
+        if (fOctaves > 8) return noise_effect<20, FI, FR>();
+        if (fOctaves > 4) return noise_effect< 8, FI, FR>();
+        if (fOctaves > 3) return noise_effect< 4, FI, FR>();
+        if (fOctaves > 2) return noise_effect< 3, FI, FR>();
+        if (fOctaves > 1) return noise_effect< 2, FI, FR>();
 
-        return noise_effect<1, F>();
+        return noise_effect<1, FI, FR>();
+    }
+
+    template <NoiseFilter FI>
+    sk_sp<SkRuntimeEffect> getEffect() const {
+        switch (fFractal) {
+            case NoiseFractal::kBasic:
+                return this->getEffect<FI, NoiseFractal::kBasic>();
+            case NoiseFractal::kTurbulentBasic:
+                return this->getEffect<FI, NoiseFractal::kTurbulentBasic>();
+            case NoiseFractal::kTurbulentSmooth:
+                return this->getEffect<FI, NoiseFractal::kTurbulentSmooth>();
+            case NoiseFractal::kTurbulentSharp:
+                return this->getEffect<FI, NoiseFractal::kTurbulentSharp>();
+        }
+        SkUNREACHABLE;
     }
 
     sk_sp<SkRuntimeEffect> getEffect() const {
@@ -262,12 +322,13 @@ private:
 
     sk_sp<SkShader> fEffectShader;
 
-    SkMatrix    fMatrix,
-                fSubMatrix;
-    NoiseFilter fFilter      = NoiseFilter::kNearest;
-    float       fOctaves     = 1,
-                fPersistence = 1,
-                fEvolution   = 0;
+    SkMatrix     fMatrix,
+                 fSubMatrix;
+    NoiseFilter  fFilter      = NoiseFilter::kNearest;
+    NoiseFractal fFractal     = NoiseFractal::kBasic;
+    float        fOctaves     = 1,
+                 fPersistence = 1,
+                 fEvolution   = 0;
 
     using INHERITED = sksg::CustomRenderNode;
 };
@@ -356,6 +417,16 @@ private:
         SkUNREACHABLE;
     }
 
+    NoiseFractal noiseFractal() const {
+        switch (SkScalarRoundToInt(fFractalType)) {
+            case 1:  return NoiseFractal::kBasic;
+            case 3:  return NoiseFractal::kTurbulentSmooth;
+            case 4:  return NoiseFractal::kTurbulentBasic;
+            default: return NoiseFractal::kTurbulentSharp;
+        }
+        SkUNREACHABLE;
+    }
+
     void onSync() override {
         const auto& n = this->node();
 
@@ -363,6 +434,7 @@ private:
         n->setPersistence(SkTPin(fSubInfluence * 0.01f, 0.0f, 100.0f));
         n->setEvolution(this->evolution());
         n->setNoiseFilter(this->noiseFilter());
+        n->setNoiseFractal(this->noiseFractal());
         n->setMatrix(this->shaderMatrix());
         n->setSubMatrix(this->subMatrix());
     }
