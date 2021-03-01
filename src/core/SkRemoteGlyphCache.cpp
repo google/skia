@@ -819,7 +819,10 @@ protected:
         #if SK_SUPPORT_GPU
         GrContextOptions ctxOptions;
         GrSDFTOptions options =
-                {ctxOptions.fMinDistanceFieldFontSize, ctxOptions.fGlyphsAsPathsFontSize};
+                GrSDFTOptions{fDFTSupport,
+                              this->surfaceProps().isUseDeviceIndependentFonts(),
+                              ctxOptions.fMinDistanceFieldFontSize,
+                              ctxOptions.fGlyphsAsPathsFontSize};
 
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
@@ -827,8 +830,6 @@ protected:
             fPainter.processGlyphRun(glyphRun,
                                      drawMatrix,
                                      glyphRunList.paint(),
-                                     this->surfaceProps(),
-                                     fDFTSupport,
                                      options,
                                      nullptr);
         }
