@@ -49,7 +49,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         SkGlyphRunListPainter painter{props, kUnknown_SkColorType,
                                       colorSpace.get(), SkStrikeCache::GlobalStrikeCache()};
 
-        GrSDFTOptions options{256, 256};
+        GrSDFTOptions options{false, props.isUseDeviceIndependentFonts(), 256, 256};
         const SkPoint drawOrigin = glyphRunList.origin();
         const SkPaint& drawPaint = glyphRunList.paint();
 
