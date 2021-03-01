@@ -1492,15 +1492,11 @@ void GrTextBlob::makeSubRuns(SkGlyphRunListPainter* painter,
                              const SkGlyphRunList& glyphRunList,
                              const SkMatrix& drawMatrix,
                              const SkPaint& runPaint,
-                             const SkSurfaceProps& props,
-                             bool contextSupportsDistanceFieldText,
                              const GrSDFTOptions& options) {
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(glyphRun,
                                  drawMatrix,
                                  runPaint,
-                                 props,
-                                 contextSupportsDistanceFieldText,
                                  options,
                                  this);
     }

@@ -364,7 +364,10 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    GrSDFTOptions options = fContext->priv().SDFTOptions();
+    GrSDFTOptions options =
+            this->recordingContext()->priv().getSDFTOptions(
+                    this->surfaceProps().isUseDeviceIndependentFonts());
+
     GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
 
     // Get the first paint to use as the key paint.
@@ -424,13 +427,10 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         }
 
         blob = GrTextBlob::Make(glyphRunList, drawMatrix);
-        bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
         blob->makeSubRuns(&fGlyphPainter,
                           glyphRunList,
                           drawMatrix,
                           drawPaint,
-                          fSurfaceProps,
-                          supportsSDFT,
                           options);
 
         if (canCache) {

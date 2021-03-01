@@ -404,8 +404,6 @@ public:
             const SkGlyphRunList& glyphRunList,
             const SkMatrix& drawMatrix,
             const SkPaint& runPaint,
-            const SkSurfaceProps& props,
-            bool contextSupportsDistanceFieldText,
             const GrSDFTOptions& options);
 
     static const Key& GetKey(const GrTextBlob& blob);
