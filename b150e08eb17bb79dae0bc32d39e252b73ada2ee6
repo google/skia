@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "889f5b54_2c8f7105",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-01T16:40:15Z",
+      "side": 1,
+      "message": "I get an error when I try to run:\n\n   error: 270: call to \u0027eval_stroke_edge\u0027 expected 10 arguments, but found 9\n\nOtherwise this looks like the right idea! I think the first step is to create an SkPathEffect that uses your other stuff to \"apply\" the variable stroke by creating a normal SkPath that any backend can draw. Then once that\u0027s done, we can work to check this CL in as an optimization of the variable stroke width path effect.",
+      "revId": "b150e08eb17bb79dae0bc32d39e252b73ada2ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81f7e097_e4549da2",
+        "filename": "src/core/SkGeometry.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-01T16:40:15Z",
+      "side": 1,
+      "message": "I think we might as well add one that chops a 4d cubic using skvx::vec\u003c4,float\u003e",
+      "revId": "b150e08eb17bb79dae0bc32d39e252b73ada2ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b66a1ec4_63b2cec6",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-01T16:40:15Z",
+      "side": 1,
+      "message": "Here we will need to figure out the max stroke width instead of using the stroke\u0027s width.",
+      "range": {
+        "startLine": 833,
+        "startChar": 24,
+        "endLine": 833,
+        "endChar": 43
+      },
+      "revId": "b150e08eb17bb79dae0bc32d39e252b73ada2ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72a21c75_ffe1afc9",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-01T16:40:15Z",
+      "side": 1,
+      "message": "At this point I wonder if each cubic variable needs to be in its own array.\n\n float x[]\n float y[]\n float dist[]\n\nAlso, I\u0027ve been meaning to see if it\u0027s better to not re-send all this chopped data and instead let each stage chop again. We might want to try that and see if we like it better before adding more outputs here.",
+      "range": {
+        "startLine": 137,
+        "startChar": 11,
+        "endLine": 137,
+        "endChar": 24
+      },
+      "revId": "b150e08eb17bb79dae0bc32d39e252b73ada2ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe70b0e1_96a540b8",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-01T16:40:15Z",
+      "side": 1,
+      "message": "This needs to be max stroke radius. Maybe updateDynamicStroke needs to find the max?",
+      "range": {
+        "startLine": 178,
+        "startChar": 34,
+        "endLine": 178,
+        "endChar": 51
+      },
+      "revId": "b150e08eb17bb79dae0bc32d39e252b73ada2ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22cb964d_8b499072",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-01T16:40:15Z",
+      "side": 1,
+      "message": "Here we need to use the maximum stroke width to ensure we get enough radial segments",
+      "range": {
+        "startLine": 449,
+        "startChar": 58,
+        "endLine": 449,
+        "endChar": 74
+      },
+      "revId": "b150e08eb17bb79dae0bc32d39e252b73ada2ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4180868f_2936c66c",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-01T16:40:15Z",
+      "side": 1,
+      "message": "Ultimately we want a new ShaderFlag for variable stroke width. Then everything can go behind that flag.",
+      "range": {
+        "startLine": 35,
+        "startChar": 15,
+        "endLine": 35,
+        "endChar": 26
+      },
+      "revId": "b150e08eb17bb79dae0bc32d39e252b73ada2ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
