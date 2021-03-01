@@ -1540,7 +1540,9 @@ void SkVMGenerator::writeContinueStatement() {
 void SkVMGenerator::writeForStatement(const ForStatement& f) {
     // We require that all loops be ES2-compliant (unrollable), and actually unroll them here
     Analysis::UnrollableLoopInfo loop;
-    SkAssertResult(Analysis::ForLoopIsValidForES2(f, &loop, /*errors=*/nullptr));
+    SkAssertResult(Analysis::ForLoopIsValidForES2(f.fOffset, f.initializer().get(), f.test().get(),
+                                                  f.next().get(), f.statement().get(), &loop,
+                                                  /*errors=*/nullptr));
     SkASSERT(slot_count(loop.fIndex->type()) == 1);
 
     size_t indexSlot = this->getSlot(*loop.fIndex);
