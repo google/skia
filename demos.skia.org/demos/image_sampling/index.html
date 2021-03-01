@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<title>Custom Filtering</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+</style>
+
+<body>
+  <h1>Image Scaling</h1>
+
+  <div class="slidecontainer">
+      <input type="range" min="0" max="1000" value="500" class="slider" id="canvas_scale">
+      <input type="range" min="0" max="900" value="300" class="slider" id="cubic_B">
+      <input type="range" min="0" max="900" value="300" class="slider" id="cubic_C">
+  </div>
+
+  <canvas id=draw width=2048 height=2048></canvas>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://particles.skia.org/dist/' + file });
+
+  ckLoaded.then((CanvasKit) => {
+    const surface = CanvasKit.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+    const canvas_scale = document.getElementById("canvas_scale");
+
+    const prog = `
+    uniform shader image;
+
+    half4 main(float2 p) {
+      return sample(image, p);
+    }`;
+    var effect = null;
+    if (CanvasKit.RuntimeEffect) {
+        effect = CanvasKit.RuntimeEffect.Make(prog);
+    }
+
+    const paint = new CanvasKit.Paint();
+    const image = function() {
+        var surf = CanvasKit.MakeSurface(4, 4);
+        var c = surf.getCanvas();
+        const g = [0,  4,  8, 12,
+                   7, 11, 15, 3,
+                   2, 14, 10, 6,
+                   13,  1,  5, 9];
+        var i = 0;
+        for (y = 0; y < 4; y++) {
+            for (x = 0; x < 4; x++) {
+                const v = Math.sqrt(g[i++] / 15.0);
+                paint.setColor([v, v, v, 1]);
+                c.drawRect([x, y, x+1, y+1], paint);
+            }
+        }
+        return surf.makeImageSnapshot();
+    }();
+
+    const imageShader = image.makeShaderOptions(CanvasKit.TileMode.Clamp,
+                                                CanvasKit.TileMode.Clamp,
+                                                CanvasKit.FilterMode.Nearest,
+                                                CanvasKit.MipmapMode.None);
+
+    canvas_scale.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+    cubic_B.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+    cubic_C.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+
+    drawFrame = function(canvas) {
+      if (effect) {
+        paint.setShader(effect.makeShader([], true, [imageShader]));
+      }
+
+      const B = cubic_B.value / 900.0;
+      const C = cubic_C.value / 900.0;
+      const scale = 100;
+      canvas.save();
+      canvas.scale(scale, scale);
+
+      canvas.drawRect([0, 0, 4, 4], paint);
+      canvas.drawImageOptions(image, 4.1, 0, CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None, null);
+      canvas.drawImageCubic(image, 0, 4.1, B, C, null);
+      canvas.drawImage(image, 4.1, 4.1, null);
+      canvas.restore();
+    }
+
+    surface.requestAnimationFrame(drawFrame);
+  });
+
+</script>
