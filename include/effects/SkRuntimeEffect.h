@@ -196,7 +196,7 @@ private:
  * Note that SkRuntimeShaderBuilder is built entirely on the public API of SkRuntimeEffect,
  * so can be used as-is or serve as inspiration for other interfaces or binding techniques.
  */
-class SkRuntimeShaderBuilder {
+class SK_API SkRuntimeShaderBuilder {
 public:
     SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect>);
     ~SkRuntimeShaderBuilder();
