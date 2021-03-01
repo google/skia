@@ -427,6 +427,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, "glestestprecompile")
 		}
 
+		// Test reduceOpsTaskSplitting option on these models
+		// See skbug.com/10877#c27
+		if b.model("GalaxyS20", "Nexus7", "Nexus5x", "AndroidOne") {
+			args = append(args, "--reduceOpsTaskSplitting", "true")
+		}
+
 		// Test rendering to wrapped dsts on a few bots
 		// Also test "glenarrow", which hits F16 surfaces and F16 vertex colors.
 		if b.extraConfig("BonusConfigs") {
