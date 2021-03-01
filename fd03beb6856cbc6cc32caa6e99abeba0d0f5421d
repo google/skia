@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d00a673_23a0b1d6",
+        "filename": "infra/bots/gen_tasks_logic/skpbench_flags.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-01T16:47:20Z",
+      "side": 1,
+      "message": "If we plan on making these the same for dm/nanobench/skpbench, we could use a global \"constant\" variable, eg. in gen_tasks_logic.go.",
+      "range": {
+        "startLine": 14,
+        "startChar": 12,
+        "endLine": 14,
+        "endChar": 71
+      },
+      "revId": "fd03beb6856cbc6cc32caa6e99abeba0d0f5421d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
