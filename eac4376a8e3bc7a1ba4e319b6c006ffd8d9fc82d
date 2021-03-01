@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83fa9e43_ccb5279a",
+        "filename": "infra/bots/gen_tasks_logic/compile_cas.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-01T14:54:55Z",
+      "side": 1,
+      "message": "Update comment?  Also this implies we now need to set path_to_skia in other repos\u0027 cfg.json, right?",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 69,
+        "endChar": 17
+      },
+      "revId": "eac4376a8e3bc7a1ba4e319b6c006ffd8d9fc82d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
