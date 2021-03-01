@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9869b940_5a0f65af",
+        "filename": "tests/sksl/errors/Ossfuzz29085.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-01T14:55:38Z",
+      "side": 0,
+      "message": "The input here is\n\n       int i; (i\u003di).x1x.xx.x;\n\nWhich is now being simplified to\n\n       i.x1x.xx.x\n\nApparently our swizzle-expression does not fail if the variable is unassigned.",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 35
+      },
+      "revId": "a1e1d25b3ca8302f36b5ccb9edadb3462e179836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
