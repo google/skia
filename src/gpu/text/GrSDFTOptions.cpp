@@ -28,50 +28,57 @@ static const int kLargeDFFontLimit = 162;
 static const int kExtraLargeDFFontSize = 256;
 #endif
 
-GrSDFTOptions::GrSDFTOptions(SkScalar min, SkScalar max)
-        : fMinDistanceFieldFontSize{min}
-        , fMaxDistanceFieldFontSize{max} {
-    SkASSERT_RELEASE(min > 0 && max >= min);
+SkScalar GrSDFTOptions::MinSDFTRange(bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min) {
+    if (!ableToUseSDFT) {
+        return kLargeDFFontSize;
+    } else if (!useSDFTForSmallText) {
+        return kLargeDFFontLimit;
+    }
+    return min;
 }
 
-bool GrSDFTOptions::canDrawAsDistanceFields(const SkPaint& paint, const SkFont& font,
-                                            const SkMatrix& viewMatrix,
-                                            const SkSurfaceProps& props,
-                                            bool contextSupportsDistanceFieldText) const {
-    // mask filters modify alpha, which doesn't translate well to distance
-    if (paint.getMaskFilter() || !contextSupportsDistanceFieldText) {
-        return false;
+SkScalar GrSDFTOptions::MaxSDFTRange(bool ableToUseSDFT, SkScalar max) {
+    if (!ableToUseSDFT) {
+        return kLargeDFFontLimit;
+    }
+    return max;
+}
+
+GrSDFTOptions::GrSDFTOptions(
+        bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max)
+        : fMinDistanceFieldFontSize{MinSDFTRange(ableToUseSDFT, useSDFTForSmallText, min)}
+        , fMaxDistanceFieldFontSize{MaxSDFTRange(ableToUseSDFT, max)} {
+    SkASSERT_RELEASE(0 < min && min <= max);
+}
+
+auto GrSDFTOptions::drawingType(
+        const SkFont& font, const SkPaint& paint, const SkMatrix& viewMatrix) const -> DrawingType {
+
+    // hairline glyphs are fast enough so we don't need to cache them
+    if ((paint.getStyle() == SkPaint::kStroke_Style && paint.getStrokeWidth() == 0)
+            || viewMatrix.hasPerspective()) {
+        return kPath;
     }
 
-    // TODO: add some stroking support
-    if (paint.getStyle() != SkPaint::kFill_Style) {
-        return false;
+    SkScalar maxScale = viewMatrix.getMaxScale();
+    SkScalar scaledTextSize = maxScale * font.getSize();
+
+    if (fMinDistanceFieldFontSize == fMaxDistanceFieldFontSize
+        || paint.getMaskFilter()
+        || paint.getStyle() != SkPaint::kFill_Style) {
+            return scaledTextSize < 256 ? kDirect : kPath;
     }
 
-    if (viewMatrix.hasPerspective()) {
-        // Don't use SDF for perspective. Paths look better.
-        return false;
-    } else {
-        SkScalar maxScale = viewMatrix.getMaxScale();
-        SkScalar scaledTextSize = maxScale * font.getSize();
-        // Hinted text looks far better at small resolutions
-        // Scaling up beyond 2x yields undesirable artifacts
-        if (scaledTextSize < fMinDistanceFieldFontSize ||
-            scaledTextSize > fMaxDistanceFieldFontSize) {
-            return false;
-        }
+    // Hinted text looks far better at small resolutions
+    // Scaling up beyond 2x yields undesirable artifacts
 
-        bool useDFT = props.isUseDeviceIndependentFonts();
-#if SK_FORCE_DISTANCE_FIELD_TEXT
-        useDFT = true;
-#endif
-
-        if (!useDFT && scaledTextSize < kLargeDFFontSize) {
-            return false;
-        }
+    if (scaledTextSize < fMinDistanceFieldFontSize) {
+        return kDirect;
+    } else if (fMaxDistanceFieldFontSize < scaledTextSize) {
+        return kPath;
     }
 
-    return true;
+    return kSDFT;
 }
 
 SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
