@@ -420,6 +420,11 @@ func main() {
 			imgs = filter(imgs, func(s string) bool { return !rawExts[normalizedExt(s)] })
 		}
 
+		if strings.Contains(*bot, "TSAN") {
+			// Run each test a few times in parallel to uncover races.
+			commonFlags = append(commonFlags, "--race", "4")
+		}
+
 		if CPU_or_GPU == "CPU" {
 			commonFlags = append(commonFlags, "-b", "cpu")
 
