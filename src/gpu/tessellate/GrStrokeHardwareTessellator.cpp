@@ -158,6 +158,10 @@ public:
         fDynamicColor.set(color, wideColor);
     }
 
+    void setDistanceFunction(const float distanceFunction[4]) {
+        memcpy(fDistanceFunction, distanceFunction, sizeof(float) * 4);
+    }
+
     void moveTo(SkPoint pt) {
         fCurrContourStartPoint = pt;
         fHasLastControlPoint = false;
@@ -188,33 +192,40 @@ public:
     // tessellation patches.
     void writeCubicConvex180PatchesTo(const SkPoint p[4]) {
         SkPoint chops[10];
+        float distFncChops[10];
         float chopT[2];
         bool areCusps;
         int numChops = GrPathUtils::findCubicConvex180Chops(p, chopT, &areCusps);
         if (numChops == 0) {
             // The curve is already convex and rotates no more than 180 degrees.
-            this->internalCubicConvex180PatchesTo(fStrokeJoinType, p);
+            this->internalCubicConvex180PatchesTo(fStrokeJoinType, p, fDistanceFunction);
         } else if (numChops == 1) {
             SkChopCubicAt(p, chops, chopT[0]);
+            SkChopScalarCubicAt(fDistanceFunction, distFncChops, chopT[0]);
             if (areCusps) {
                 // When chopping on a perfect cusp, these 3 points will be equal.
                 chops[2] = chops[4] = chops[3];
+                distFncChops[2] = distFncChops[4] = distFncChops[3];
             }
-            this->internalCubicConvex180PatchesTo(fStrokeJoinType, chops);
-            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 3);
+            this->internalCubicConvex180PatchesTo(fStrokeJoinType, chops, distFncChops);
+            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 3, distFncChops + 3);
         } else {
             SkASSERT(numChops == 2);
             SkChopCubicAt(p, chops, chopT[0], chopT[1]);
+            SkChopScalarCubicAt(fDistanceFunction, distFncChops, chopT[0], chopT[1]);
             // Two cusps are only possible on a flat line with two 180-degree turnarounds.
             if (areCusps) {
+                // Not yet implemented for vari-stroke:
+                SkASSERT(fDistanceFunction[0] == 1.f && fDistanceFunction[1] == 1.f &&
+                         fDistanceFunction[2] == 1.f && fDistanceFunction[3] == 1.f);
                 this->writeLineTo(chops[0], chops[3]);
                 this->writeLineTo(JoinType::kBowtie, chops[3], chops[6]);
                 this->writeLineTo(JoinType::kBowtie, chops[6], chops[9]);
                 return;
             }
-            this->internalCubicConvex180PatchesTo(fStrokeJoinType, chops);
-            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 3);
-            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 6);
+            this->internalCubicConvex180PatchesTo(fStrokeJoinType, chops, distFncChops);
+            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 3, distFncChops + 3);
+            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 6, distFncChops + 6);
         }
     }
 
@@ -222,7 +233,7 @@ public:
     // number of segments. Possibly chops its previous join until the segments fit in tessellation
     // patches.
     SK_ALWAYS_INLINE void writePatchTo(bool prevJoinFitsInPatch, const SkPoint p[4],
-                                       SkPoint endControlPoint) {
+                                       SkPoint endControlPoint, const float* distFnc) {
         SkASSERT(fStrokeJoinType != JoinType::kBowtie);
 
         if (!fHasLastControlPoint) {
@@ -242,6 +253,11 @@ public:
 
         if (this->allocPatch()) {
             fPatchWriter.write(fLastControlPoint);
+            if (distFnc) {
+                fPatchWriter.writeArray(distFnc, 4);
+            } else {
+                fPatchWriter.writeArray(fDistanceFunction, 4);
+            }
             fPatchWriter.writeArray(p, 4);
             this->writeDynamicAttribs();
         }
@@ -436,7 +452,9 @@ private:
 
     // Recursively chops the given cubic and its previous join until the segments fit in
     // tessellation patches. The cubic must be convex and must not rotate more than 180 degrees.
-    void internalCubicConvex180PatchesTo(JoinType prevJoinType, const SkPoint p[4],
+    void internalCubicConvex180PatchesTo(JoinType prevJoinType,
+                                         const SkPoint p[4],
+                                         const float distFnc[4],
                                          int maxDepth = -1) {
         // The stroke tessellation shader assigns special meaning to p0==p1==p2 and p1==p2==p3. If
         // this is the case then we need to rewrite the cubic.
@@ -449,7 +467,8 @@ private:
         if (this->stroke180FitsInPatch(numParametricSegments_pow4) || maxDepth == 0) {
             this->internalPatchTo(prevJoinType,
                                   this->stroke180FitsInPatch_withJoin(numParametricSegments_pow4),
-                                  p, p[3]);
+                                  p, p[3],
+                                  distFnc);
             return;
         }
 
@@ -463,6 +482,7 @@ private:
         if (numCombinedSegments > fMaxTessellationSegments) {
             // The hardware doesn't support enough segments for this curve. Chop and recurse.
             SkPoint chops[7];
+            float distFncChops[7];
             if (maxDepth < 0) {
                 // Decide on an extremely conservative upper bound for when to quit chopping. This
                 // is solely to protect us from infinite recursion in instances where FP error
@@ -473,23 +493,25 @@ private:
             }
             if (numParametricSegments >= numRadialSegments) {
                 SkChopCubicAtHalf(p, chops);
+                SkChopScalarCubicAt(distFnc, distFncChops, 0.5f);
             } else {
                 SkChopCubicAtMidTangent(p, chops);
+                SkChopScalarCubicAt(distFnc, distFncChops, SkFindCubicMidTangent(p));
             }
-            this->internalCubicConvex180PatchesTo(prevJoinType, chops, maxDepth - 1);
-            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 3, maxDepth - 1);
+            this->internalCubicConvex180PatchesTo(prevJoinType, chops, distFncChops, maxDepth - 1);
+            this->internalCubicConvex180PatchesTo(JoinType::kBowtie, chops + 3, distFncChops + 3, maxDepth - 1);
             return;
         }
 
         this->internalPatchTo(prevJoinType, (numCombinedSegments <= fMaxCombinedSegments_withJoin),
-                              p, p[3]);
+                              p, p[3], distFnc);
     }
 
     // Writes out the given stroke patch exactly as provided, without chopping or checking the
     // number of segments. Possibly chops its previous join until the segments fit in tessellation
     // patches. It is valid for prevJoinType to be kBowtie.
     void internalPatchTo(JoinType prevJoinType, bool prevJoinFitsInPatch, const SkPoint p[4],
-                         SkPoint endPt) {
+                         SkPoint endPt, const float* distFnc = nullptr) {
         if (prevJoinType == JoinType::kBowtie) {
             SkASSERT(fHasLastControlPoint);
             // Bowtie joins are only used on internal chops, and internal chops almost always have
@@ -526,7 +548,7 @@ private:
             }
         }
 
-        this->writePatchTo(prevJoinFitsInPatch, p, (p[2] != endPt) ? p[2] : p[1]);
+        this->writePatchTo(prevJoinFitsInPatch, p, (p[2] != endPt) ? p[2] : p[1], distFnc);
     }
 
     // Recursively chops the given join until the segments fit in tessellation patches.
@@ -581,6 +603,7 @@ private:
 
         if (this->allocPatch()) {
             fPatchWriter.write(fLastControlPoint, junctionPoint);
+            fPatchWriter.writeArray(fDistanceFunction, 4);
             if (joinType == JoinType::kBowtie) {
                 // {prevControlPoint, [p0, p0, p0, p3]} is a reserved patch pattern that means this
                 // patch is a bowtie. The bowtie is anchored on p0 and its tangent angles go from
@@ -671,6 +694,9 @@ private:
     // Additional info on the current stroke radius/join type.
     bool fSoloRoundJoinAlwaysFitsInPatch;
     JoinType fStrokeJoinType;
+
+    // Current distance function (scalar cubic Bezier curve) for variable stroke width
+    float fDistanceFunction[4];
 
     // Variables related to the patch chunk that we are currently writing out during prepareBuffers.
     int fCurrChunkPatchCount = 0;
@@ -810,6 +836,8 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
             patchWriter.updateDynamicColor(pathStroke->fColor);
         }
 
+        patchWriter.setDistanceFunction(pathStroke->fDistanceFnc);
+
         const SkPath& path = pathStroke->fPath;
         bool contourIsEmpty = true;
         for (auto [verb, p, w] : SkPathPriv::Iterate(path)) {
@@ -946,7 +974,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     break;
                 }
             }
-            patchWriter.writePatchTo(prevJoinFitsInPatch, patchPts, endControlPoint);
+            patchWriter.writePatchTo(prevJoinFitsInPatch, patchPts, endControlPoint, pathStroke->fDistanceFnc);
         }
         if (!contourIsEmpty) {
             const SkPoint* p = SkPathPriv::PointData(path);

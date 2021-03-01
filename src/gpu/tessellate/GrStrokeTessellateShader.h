@@ -162,7 +162,7 @@ public:
 
     // Size in bytes of a tessellation patch with the given shader flags.
     static size_t PatchStride(ShaderFlags shaderFlags) {
-        return sizeof(SkPoint) * 5 + DynamicStateStride(shaderFlags);
+        return sizeof(SkPoint) * 5 + sizeof(float) * 4 + DynamicStateStride(shaderFlags);
     }
 
     // Size in bytes of an indirect draw instance with the given shader flags.
@@ -196,6 +196,8 @@ public:
         if (fMode == Mode::kTessellation) {
             // A join calculates its starting angle using prevCtrlPtAttr.
             fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+            // Distance function has one scalar control point per spatial control point.
+            fAttribs.emplace_back("distanceFncCtrlPtsAttr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
             // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
             // with w=p3.x.
             //
@@ -271,7 +273,7 @@ private:
     const SkStrokeRec fStroke;
     const SkPMColor4f fColor;
 
-    constexpr static int kMaxAttribCount = 5;
+    constexpr static int kMaxAttribCount = 6;
     SkSTArray<kMaxAttribCount, Attribute> fAttribs;
 
     class TessellationImpl;

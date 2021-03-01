@@ -450,6 +450,8 @@ inline static skvx::Vec<N,T> unchecked_mix(const skvx::Vec<N,T>& a, const skvx::
     return (b - a)*t + a;
 }
 
+inline static float unchecked_mix(float a, float b, float t) { return (b - a) * t + a; }
+
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     using float2 = skvx::Vec<2,float>;
     SkASSERT(0 <= t && t <= 1);
@@ -480,6 +482,32 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     dst[4] = skvx::bit_pun<SkPoint>(bcd);
     dst[5] = skvx::bit_pun<SkPoint>(cd);
     dst[6] = skvx::bit_pun<SkPoint>(p3);
+}
+
+void SkChopScalarCubicAt(const float src[4], float dst[7], SkScalar t) {
+    SkASSERT(0 <= t && t <= 1);
+
+    if (t == 1) {
+        memcpy(dst, src, sizeof(float) * 4);
+        dst[4] = dst[5] = dst[6] = src[3];
+        return;
+    }
+
+    // TODO: vectorize
+    float ab = unchecked_mix(src[0], src[1], t);
+    float bc = unchecked_mix(src[1], src[2], t);
+    float cd = unchecked_mix(src[2], src[3], t);
+    float abc = unchecked_mix(ab, bc, t);
+    float bcd = unchecked_mix(bc, cd, t);
+    float abcd = unchecked_mix(abc, bcd, t);
+
+    dst[0] = src[0];
+    dst[1] = ab;
+    dst[2] = abc;
+    dst[3] = abcd;
+    dst[4] = bcd;
+    dst[5] = cd;
+    dst[6] = src[3];
 }
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
@@ -519,6 +547,27 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
     dst[7] = skvx::bit_pun<SkPoint>(bcd.hi);
     dst[8] = skvx::bit_pun<SkPoint>(cd.hi);
     dst[9] = skvx::bit_pun<SkPoint>(p33.hi);
+}
+
+void SkChopScalarCubicAt(const float src[4], float dst[10], float t0, float t1) {
+    SkASSERT(0 <= t0 && t0 <= t1 && t1 <= 1);
+
+    if (t1 == 1) {
+        SkChopScalarCubicAt(src, dst, t0);
+        dst[7] = dst[8] = dst[9] = src[3];
+        return;
+    }
+
+    // TODO: this can likely be optimized
+    const float tRel = t0 / t1;
+
+    float first[10];
+    SkChopScalarCubicAt(src, first, t0);
+    memcpy(dst + 0, first, sizeof(float) * 4);
+
+    float second[10];
+    SkChopScalarCubicAt(first, second, tRel);
+    memcpy(dst + 3, second, sizeof(float) * 7);
 }
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],

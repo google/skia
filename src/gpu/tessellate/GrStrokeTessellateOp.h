@@ -27,6 +27,7 @@ public:
         SkStrokeRec fStroke;
         SkPMColor4f fColor;
         PathStrokeList* fNext = nullptr;
+        static constexpr float fDistanceFnc[4] = {1.f, 0.50f, 0.25f, 0.0f};
     };
 
     GrStrokeTessellator(ShaderFlags shaderFlags, PathStrokeList* pathStrokeList)

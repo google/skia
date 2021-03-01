@@ -60,6 +60,9 @@ float unchecked_mix(float a, float b, float T) {
 float2 unchecked_mix(float2 a, float2 b, float T) {
     return fma(b - a, float2(T), a);
 }
+float3 unchecked_mix(float3 a, float3 b, float T) {
+    return fma(b - a, float3(T), a);
+}
 float4 unchecked_mix(float4 a, float4 b, float4 T) {
     return fma(b - a, T, a);
 })";
@@ -131,6 +134,10 @@ private:
         v->declareGlobal(GrShaderVar("vsPts89", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsTans01", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsTans23", kFloat4_GrSLType, TypeModifier::Out));
+        v->declareGlobal(GrShaderVar("vsDist0123", kFloat4_GrSLType, TypeModifier::Out));
+        v->declareGlobal(GrShaderVar("vsDist4567", kFloat4_GrSLType, TypeModifier::Out));
+        v->declareGlobal(GrShaderVar("vsDist89", kFloat2_GrSLType, TypeModifier::Out));
+
         if (shader.hasDynamicStroke()) {
             // [NUM_RADIAL_SEGMENTS_PER_RADIAN, STROKE_RADIUS]
             v->declareGlobal(GrShaderVar("vsStrokeArgs", kFloat2_GrSLType, TypeModifier::Out));
@@ -192,6 +199,8 @@ private:
         v->codeAppend(R"(
         // Unpack the control points.
         float2 prevControlPoint = prevCtrlPtAttr;
+        // Offset distance function control points
+        float4 DistP = distanceFncCtrlPtsAttr;
         float4x2 P = float4x2(pts01Attr, pts23Attr);)");
 
         if (shader.fStroke.isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
@@ -363,30 +372,45 @@ private:
         }
 
         // Chop the curve at chopT[0] and chopT[1].
-        float4 ab = unchecked_mix(P[0].xyxy, P[1].xyxy, chopT.sstt);
-        float4 bc = unchecked_mix(P[1].xyxy, P[2].xyxy, chopT.sstt);
-        float4 cd = isinf(P[3].y) ? P[2].xyxy : unchecked_mix(P[2].xyxy, P[3].xyxy, chopT.sstt);
-        float4 abc = unchecked_mix(ab, bc, chopT.sstt);
-        float4 bcd = unchecked_mix(bc, cd, chopT.sstt);
-        float4 abcd = unchecked_mix(abc, bcd, chopT.sstt);
-        float4 middle = unchecked_mix(abc, bcd, chopT.ttss);
+        float3 s_ab = unchecked_mix(float3(P[0].xy, DistP[0]), float3(P[1].xy, DistP[1]), chopT.s);
+        float3 s_bc = unchecked_mix(float3(P[1].xy, DistP[1]), float3(P[2].xy, DistP[2]), chopT.s);
+        float3 s_cd = isinf(P[3].y)
+                          ? float3(P[2].xy, DistP[2])
+                          : unchecked_mix(float3(P[2].xy, DistP[2]), float3(P[3].xy, DistP[3]), chopT.s);
+        float3 s_abc = unchecked_mix(s_ab, s_bc, chopT.s);
+        float3 s_bcd = unchecked_mix(s_bc, s_cd, chopT.s);
+        float3 s_abcd = unchecked_mix(s_abc, s_bcd, chopT.s);
+        float3 s_middle = unchecked_mix(s_abc, s_bcd, chopT.t);
+
+        float3 t_ab = unchecked_mix(float3(P[0].xy, DistP[0]), float3(P[1].xy, DistP[1]), chopT.t);
+        float3 t_bc = unchecked_mix(float3(P[1].xy, DistP[1]), float3(P[2].xy, DistP[2]), chopT.t);
+        float3 t_cd = isinf(P[3].y)
+                          ? float3(P[2].xy, DistP[2])
+                          : unchecked_mix(float3(P[2].xy, DistP[2]), float3(P[3].xy, DistP[3]), chopT.t);
+        float3 t_abc = unchecked_mix(t_ab, t_bc, chopT.t);
+        float3 t_bcd = unchecked_mix(t_bc, t_cd, chopT.t);
+        float3 t_abcd = unchecked_mix(t_abc, t_bcd, chopT.t);
+        float3 t_middle = unchecked_mix(t_abc, t_bcd, chopT.s);
 
         // Find tangents at the chop points if an inner tangent wasn't specified.
         if (innerTangents[0] == float2(0)) {
-            innerTangents[0] = bcd.xy - abc.xy;
+            innerTangents[0] = s_bcd.xy - s_abc.xy;
         }
         if (innerTangents[1] == float2(0)) {
-            innerTangents[1] = bcd.zw - abc.zw;
+            innerTangents[1] = t_bcd.xy - t_abc.xy;
         }
 
         // Pack curve args for the tessellation control stage.
-        vsPts01 = float4(P[0], ab.xy);
-        vsPts23 = float4(abc.xy, abcd.xy);
-        vsPts45 = middle;
-        vsPts67 = float4(abcd.zw, bcd.zw);
-        vsPts89 = float4(cd.zw, P[3]);
+        vsPts01 = float4(P[0], s_ab.xy);
+        vsPts23 = float4(s_abc.xy, s_abcd.xy);
+        vsPts45 = float4(s_middle.xy, t_middle.xy);
+        vsPts67 = float4(t_abcd.xy, t_bcd.xy);
+        vsPts89 = float4(t_cd.xy, P[3]);
         vsTans01 = float4(tan0, innerTangents[0]);
-        vsTans23 = float4(innerTangents[1], tan1);)");
+        vsTans23 = float4(innerTangents[1], tan1);
+        vsDist0123 = float4(DistP[0], s_ab.z, s_abc.z, s_abcd.z);
+        vsDist4567 = float4(s_middle.z, t_middle.z, t_abcd.z, t_bcd.z);
+        vsDist89 = float2(t_cd.z, DistP[3]);)");
         if (shader.hasDynamicStroke()) {
             v->codeAppend(R"(
             vsStrokeArgs = float2(NUM_RADIAL_SEGMENTS_PER_RADIAN, STROKE_RADIUS);)");
@@ -509,7 +533,10 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     in vec4 vsPts67[];
     in vec4 vsPts89[];
     in vec4 vsTans01[];
-    in vec4 vsTans23[];)");
+    in vec4 vsTans23[];
+    in vec4 vsDist0123[];
+    in vec4 vsDist4567[];
+    in vec2 vsDist89[];)");
     if (this->hasDynamicStroke()) {
         code.append(R"(
         in vec2 vsStrokeArgs[];)");
@@ -522,6 +549,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     code.append(R"(
     out vec4 tcsPts01[];
     out vec4 tcsPt2Tan0[];
+    out vec4 tcsDistFnc[];
     out vec4 tcsTessArgs[];  // [numCombinedSegments, numParametricSegments, angle0, radsPerSegment]
     patch out vec4 tcsJoinArgs0; // [numSegmentsInJoin, innerJoinRadiusMultiplier,
                                  //  prevJoinTangent.xy]
@@ -554,18 +582,22 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // Unpack the curve args from the vertex shader.
         mat4x2 P;
         mat2 tangents;
+        float4 Dist;
         if (gl_InvocationID == 0) {
             // This is the first section of the curve.
             P = mat4x2(vsPts01[0], vsPts23[0]);
             tangents = mat2(vsTans01[0]);
+            Dist = vsDist0123[0];
         } else if (gl_InvocationID == 1) {
             // This is the middle section of the curve.
             P = mat4x2(vsPts23[0].zw, vsPts45[0], vsPts67[0].xy);
             tangents = mat2(vsTans01[0].zw, vsTans23[0].xy);
+            Dist = float4(vsDist0123[0].w, vsDist4567[0].xyz);
         } else {
             // This is the final section of the curve.
             P = mat4x2(vsPts67[0], vsPts89[0]);
             tangents = mat2(vsTans23[0]);
+            Dist = float4(vsDist4567[0].zw, vsDist89[0]);
         }
 
         // Calculate the number of parametric segments. The final tessellated strip will be a
@@ -629,6 +661,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // Pack the args for the evaluation stage.
         tcsPts01[gl_InvocationID] = vec4(P[0], P[1]);
         tcsPt2Tan0[gl_InvocationID] = vec4(P[2], tangents[0]);
+        tcsDistFnc[gl_InvocationID] = Dist;
         tcsTessArgs[gl_InvocationID] = vec4(numCombinedSegments, numParametricSegments, angle0,
                                             rotation / numRadialSegments);
         if (gl_InvocationID == 2) {
@@ -669,7 +702,7 @@ static void append_eval_stroke_edge_fn(SkString* code, bool hasConics) {
     code->append(R"(
     void eval_stroke_edge(in float4x2 P, in float w, in float numParametricSegments,
                           in float combinedEdgeID, in float2 tan0, in float radsPerSegment,
-                          in float angle0, out float2 tangent, out float2 position) {
+                          in float angle0, out float2 tangent, out float2 position, out float T) {
         // Start by finding the tangent function's power basis coefficients. These define a tangent
         // direction (scaled by some uniform value) as:
         //                                                 |T^2|
@@ -784,7 +817,7 @@ static void append_eval_stroke_edge_fn(SkString* code, bool hasConics) {
 
         // Now that we've identified the T values of the last parametric and radial edges, our final
         // T value for combinedEdgeID is whichever is larger.
-        float T = max(parametricT, radialT);
+        T = max(parametricT, radialT);
 
         // Evaluate the cubic at T. Use De Casteljau's for its accuracy and stability.
         float2 ab = unchecked_mix(P[0], P[1], T);
@@ -861,6 +894,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     code.append(R"(
     in vec4 tcsPts01[];
     in vec4 tcsPt2Tan0[];
+    in vec4 tcsDistFnc[];
     in vec4 tcsTessArgs[];  // [numCombinedSegments, numParametricSegments, angle0, radsPerSegment]
     patch in vec4 tcsJoinArgs0;  // [numSegmentsInJoin, innerJoinRadiusMultiplier,
                                  //  prevJoinTangent.xy]
@@ -897,6 +931,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         // Determine which section we belong to, and where we fall relative to its first edge.
         float localEdgeID = totalEdgeID;
         mat4x2 P;
+        float4 distFnc;
         vec2 tan0;
         vec3 tessellationArgs;
         float strokeRadius = STROKE_RADIUS;
@@ -904,6 +939,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         if (localEdgeID < numSegmentsInJoin || numSegmentsInJoin == numTotalCombinedSegments) {
             // Our edge belongs to the join preceding the curve.
             P = mat4x2(tcsPts01[0].xyxy, tcsPts01[0].xyxy);
+            distFnc = tcsDistFnc[0];
             tan0 = tcsJoinArgs0.zw;
             tessellationArgs = vec3(1, tcsJoinArgs1.xy);
             strokeRadius *= (localEdgeID == 1.0) ? tcsJoinArgs0.y : 1.0;
@@ -911,17 +947,20 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         } else if ((localEdgeID -= numSegmentsInJoin) < tcsTessArgs[0].x) {
             // Our edge belongs to the first curve section.
             P = mat4x2(tcsPts01[0], tcsPt2Tan0[0].xy, tcsPts01[1].xy);
+            distFnc = tcsDistFnc[0];
             tan0 = tcsPt2Tan0[0].zw;
             tessellationArgs = tcsTessArgs[0].yzw;
         } else if ((localEdgeID -= tcsTessArgs[0].x) < tcsTessArgs[1].x) {
             // Our edge belongs to the second curve section.
             P = mat4x2(tcsPts01[1], tcsPt2Tan0[1].xy, tcsPts01[2].xy);
+            distFnc = tcsDistFnc[1];
             tan0 = tcsPt2Tan0[1].zw;
             tessellationArgs = tcsTessArgs[1].yzw;
         } else {
             // Our edge belongs to the third curve section.
             localEdgeID -= tcsTessArgs[1].x;
             P = mat4x2(tcsPts01[2], tcsPt2Tan0[2].xy, tcsEndPtEndTan.xy);
+            distFnc = tcsDistFnc[2];
             tan0 = tcsPt2Tan0[2].zw;
             tessellationArgs = tcsTessArgs[2].yzw;
         }
@@ -940,9 +979,18 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     }
 
     code.append(R"(
+        float T;
         float2 tangent, position;
         eval_stroke_edge(P, w, numParametricSegments, localEdgeID, tan0, radsPerSegment, angle0,
-                         tangent, position);
+                         tangent, position, T);
+
+        // Compute distance function multiplier (using De Casteljau)
+        float dist_ab = unchecked_mix(distFnc[0], distFnc[1], T);
+        float dist_bc = unchecked_mix(distFnc[1], distFnc[2], T);
+        float dist_cd = unchecked_mix(distFnc[2], distFnc[3], T);
+        float dist_abc = unchecked_mix(dist_ab, dist_bc, T);
+        float dist_bcd = unchecked_mix(dist_bc, dist_cd, T);
+        float distMul = unchecked_mix(dist_abc, dist_bcd, T);
 
         if (localEdgeID == 0.0) {
             // The first local edge of each section uses the provided tan0. This ensures continuous
@@ -956,12 +1004,13 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
             // ensures crack-free seaming between patches.
             tangent = tcsEndPtEndTan.zw;
             position = P[3];
+            distMul = distFnc[3];
         }
 
         // Determine how far to outset our vertex orthogonally from the curve.
         float outset = gl_TessCoord.y * 2.0 - 1.0;
         outset = clamp(outset, strokeOutsetClamp.x, strokeOutsetClamp.y);
-        outset *= strokeRadius;
+        outset *= strokeRadius * distMul;
 
         vec2 vertexPos = position + normalize(vec2(-tangent.y, tangent.x)) * outset;)");
 
