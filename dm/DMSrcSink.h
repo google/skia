@@ -20,6 +20,8 @@
 
 #include <functional>
 
+using sk_gpu_test::ContextInfo;
+
 //#define TEST_VIA_SVG
 
 namespace skiagm {
@@ -502,12 +504,14 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
 private:
+    static constexpr int kNumRecordingThreads = 1;
+    static constexpr int kNumTileDivisions = 3;
+
     Result ddlDraw(const Src&,
                    sk_sp<SkSurface> dstSurface,
                    SkTaskGroup* recordingTaskGroup,
                    SkTaskGroup* gpuTaskGroup,
-                   sk_gpu_test::TestContext* gpuTestCtx,
-                   GrDirectContext* gpuThreadCtx) const;
+                   const std::array<ContextInfo, kNumRecordingThreads+1>& contexts) const;
 
     std::unique_ptr<SkExecutor> fRecordingExecutor;
     std::unique_ptr<SkExecutor> fGPUExecutor;
