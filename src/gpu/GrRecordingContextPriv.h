@@ -102,9 +102,7 @@ public:
         return &fContext->fStats;
     }
 
-    GrSDFTOptions SDFTOptions() const {
-        return {this->options().fMinDistanceFieldFontSize, this->options().fGlyphsAsPathsFontSize};
-    }
+    GrSDFTOptions getSDFTOptions(bool useSDFTForSmallText) const;
 
     /**
      * Create a GrRecordingContext without a resource cache
