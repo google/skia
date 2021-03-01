@@ -386,6 +386,9 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
     SkScalerContextFlags scalerContextFlags = this->colorInfo().isLinearlyBlended()
                                               ? SkScalerContextFlags::kBoostContrast
                                               : SkScalerContextFlags::kFakeGammaAndBoostContrast;
+    SkMatrix drawMatrix(viewMatrix.localToDevice());
+    SkPoint drawOrigin = glyphRunList.origin();
+    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
     sk_sp<GrTextBlob> blob;
     GrTextBlob::Key key;
@@ -412,14 +415,33 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         }
         key.fCanonicalColor = canonicalColor;
         key.fScalerContextFlags = scalerContextFlags;
+
+        // Calculate the set of drawing types.
+        key.fSetOfDrawingTypes = 0;
+        for (auto& run : glyphRunList) {
+            key.fSetOfDrawingTypes |= options.drawingType(run.font(), drawPaint, drawMatrix);
+        }
+
+        if (key.fSetOfDrawingTypes & GrSDFTOptions::kDirect) {
+            // Store the fractional offset of the position. We know that the matrix can't be
+            // perspective at this point.
+            SkPoint mappedOrigin = drawMatrix.mapOrigin();
+            key.fDrawMatrix = drawMatrix;
+            key.fDrawMatrix.setTranslateX(
+                    mappedOrigin.x() - SkScalarFloorToScalar(mappedOrigin.x()));
+            key.fDrawMatrix.setTranslateY(
+                    mappedOrigin.y() - SkScalarFloorToScalar(mappedOrigin.y()));
+        } else {
+            // For path and SDFT, the matrix doesn't matter.
+            key.fDrawMatrix = SkMatrix::I();
+        }
+
         blob = textBlobCache->find(key);
     }
 
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    SkPoint drawOrigin = glyphRunList.origin();
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
         if (blob != nullptr) {
+            SkASSERT(!drawMatrix.hasPerspective());
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
             //      but we'd have to clear the SubRun information
