@@ -12,6 +12,7 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrFooBar.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrSurfaceContext.h"
@@ -112,14 +113,16 @@ void GrDirectContextPriv::resetGpuStats() const {
 
 void GrDirectContextPriv::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
-    return fContext->fGpu->stats()->dump(out);
+    fContext->fGpu->stats()->dump1(out);
+    fContext->fGpu->fooBar()->dump(out);
 #endif
 }
 
 void GrDirectContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
                                                     SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
+    fContext->fGpu->stats()->dumpKeyValuePairs1(keys, values);
+    fContext->fGpu->fooBar()->dumpKeyValuePairs(keys, values);
 #endif
 }
 

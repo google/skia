@@ -12,6 +12,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
+#include "src/gpu/GrFooBar.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -36,6 +37,9 @@ public:
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;
+
+    GrFooBar* fooBar() override;
+    sk_sp<GrFooBar> refFooBar() override;
 
     const GrGLContext& glContext() const { return *fGLContext; }
 
@@ -352,7 +356,7 @@ private:
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
-    class ProgramCache : public ::SkNoncopyable {
+    class ProgramCache : public GrFooBar {
     public:
         ProgramCache(GrGLGpu* gpu);
         ~ProgramCache();
@@ -365,9 +369,9 @@ private:
                                                Stats::ProgramCacheResult* stat) {
             sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, stat);
             if (!tmp) {
-                fGpu->fStats.incNumPreCompilationFailures();
+                fStats.incNumPreCompilationFailures();
             } else {
-                fGpu->fStats.incNumPreProgramCacheResult(*stat);
+                fStats.incNumPreProgramCacheResult(*stat);
             }
 
             return tmp;
@@ -390,7 +394,7 @@ private:
 
         SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
-        GrGLGpu* fGpu;
+        GrGLGpu* fGpu1;
     };
 
     void flushPatchVertexCount(uint8_t count);

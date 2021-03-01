@@ -71,7 +71,7 @@ private:
     // Updates the loction of the Uniforms if we cannot bind uniform locations manually
     void getUniformLocations(GrGLuint programID, const GrGLCaps& caps, bool force);
 
-    const GrGLGpu* glGpu() const;
+    const GrGLGpu* glGpu1() const;
 
     typedef GrGLProgramDataManager::GLUniformInfo GLUniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
