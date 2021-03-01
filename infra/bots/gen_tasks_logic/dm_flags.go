@@ -427,6 +427,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, "glestestprecompile")
 		}
 
+		if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
+			args = append(args, "--reduceOpsTaskSplitting", "true")
+		}
+
 		// Test rendering to wrapped dsts on a few bots
 		// Also test "glenarrow", which hits F16 surfaces and F16 vertex colors.
 		if b.extraConfig("BonusConfigs") {
@@ -473,10 +477,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = suffix(filter(configs, "gl", "vk", "mtl"), "ooprddl")
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
-		}
-		if b.extraConfig("ReduceOpsTaskSplitting") {
-			configs = filter(configs, "gl", "vk", "mtl")
-			args = append(args, "--reduceOpsTaskSplitting", "true")
 		}
 	}
 
