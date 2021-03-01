@@ -23,6 +23,9 @@ def main():
   # This is the unstripped out/android_release/libflutter.so
   # The symbols in it are needed to get the compileunits data.
   symbols_file = sys.argv[6]
+  config = sys.argv[7]
+  sub_result = sys.argv[8]
+  lib_name = sys.argv[9]
 
   results = {
     'key': { },
@@ -74,18 +77,17 @@ def main():
 
   r = {
     # Use the default config as stats about the whole binary
-    'skia_in_flutter' : {
-      'total_size_bytes': grand_total
+    config : {
+      sub_result: grand_total
     },
   }
 
-  name = 'libflutter.so'
-  results['results'][name] = r
+  results['results'][lib_name] = r
 
   # Make debugging easier
   print json.dumps(results, indent=2)
 
-  with open(os.path.join(out_dir, name+'.json'), 'w') as output:
+  with open(os.path.join(out_dir, lib_name+'.json'), 'w') as output:
     output.write(json.dumps(results, indent=2))
 
 
