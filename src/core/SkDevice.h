@@ -183,6 +183,7 @@ public:
     void replaceClip(const SkIRect& rect) {
         this->onReplaceClip(rect);
     }
+
     void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->onSetDeviceClipRestriction(mutableClipRestriction);
     }
@@ -537,7 +538,7 @@ protected:
     bool isNoPixelsDevice() const override { return true; }
 
 private:
-struct ClipState {
+    struct ClipState {
         SkConservativeClip fClip;
         int fDeferredSaveCount = 0;
 

@@ -74,11 +74,15 @@ struct Vector {
 template<typename T>
 class ParameterSpace {
 public:
+    ParameterSpace() = default;
     explicit ParameterSpace(const T& data) : fData(data) {}
     explicit ParameterSpace(T&& data) : fData(std::move(data)) {}
 
     explicit operator const T&() const { return fData; }
 
+    static const ParameterSpace<T>* Optional(const T* ptr) {
+        return static_cast<const ParameterSpace<T>*>(reinterpret_cast<const void*>(ptr));
+    }
 private:
     T fData;
 };
@@ -92,6 +96,7 @@ private:
 template<typename T>
 class DeviceSpace {
 public:
+    DeviceSpace() = default;
     explicit DeviceSpace(const T& data) : fData(data) {}
     explicit DeviceSpace(T&& data) : fData(std::move(data)) {}
 
@@ -244,6 +249,8 @@ public:
         return LayerSpace<IVector>(IVector(fData - p.fData));
     }
 
+    LayerSpace<IVector> operator-() const { return LayerSpace<IVector>({-fData.fX, -fData.fY}); }
+
 private:
     SkIPoint fData;
 };
@@ -282,6 +289,8 @@ public:
     LayerSpace<Vector> operator-(const LayerSpace<SkPoint>& p) {
         return LayerSpace<Vector>(Vector(fData - p.fData));
     }
+
+    LayerSpace<Vector> operator-() const { return LayerSpace<Vector>({-fData.fX, -fData.fY}); }
 
 private:
     SkPoint fData;
@@ -338,6 +347,8 @@ public:
     explicit operator const SkIRect&() const { return fData; }
 
     // Parrot the SkIRect API while preserving coord space
+    bool isEmpty() const { return fData.isEmpty(); }
+
     int32_t left() const { return fData.fLeft; }
     int32_t top() const { return fData.fTop; }
     int32_t right() const { return fData.fRight; }
@@ -368,6 +379,8 @@ public:
     explicit operator const SkRect&() const { return fData; }
 
     // Parrot the SkRect API while preserving coord space and usage
+    bool isEmpty() const { return fData.isEmpty(); }
+
     SkScalar left() const { return fData.fLeft; }
     SkScalar top() const { return fData.fTop; }
     SkScalar right() const { return fData.fRight; }
@@ -401,6 +414,8 @@ private:
 // variants, which can then be used and reasoned about by SkImageFilter implementations.
 class Mapping {
 public:
+    Mapping() = default;
+
     // This constructor allows the decomposition to be explicitly provided
     Mapping(const SkMatrix& layerToDev, const SkMatrix& paramToLayer)
             : fLayerToDevMatrix(layerToDev)
@@ -410,10 +425,24 @@ public:
     static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                                 const skif::ParameterSpace<SkPoint>& representativePoint);
 
-    // Return a new Mapping object whose parameter-to-layer matrix is equal to this->layerMatrix() *
-    // local, but both share the same layer-to-device matrix.
-    Mapping concatLocal(const SkMatrix& local) const {
-        return Mapping(fLayerToDevMatrix, SkMatrix::Concat(fParamToLayerMatrix, local));
+    // Update the mapping's parameter-to-layer matrix to be pre-concatenated with the specified
+    // local space transformation. This changes the definition of parameter space, any
+    // skif::ParameterSpace<> values are interpreted anew. Layer space and device space are
+    // unchanged.
+    void concatLocal(const SkMatrix& local) { fParamToLayerMatrix.preConcat(local); }
+
+    // Update the mapping's layer space coordinate system by post-concatenating the given matrix
+    // to it's parameter-to-layer transform, and pre-concatenating the inverse of the matrix with
+    // it's layer-to-device transform. The net effect is that neither the parameter nor device
+    // coordinate systems are changed, but skif::LayerSpace is adjusted.
+    //
+    // Returns false if the layer matrix cannot be inverted, and this mapping is left unmodified.
+    bool adjustLayerSpace(const SkMatrix& layer);
+
+    // Update the mapping's layer space so that the point 'origin' in the current layer coordinate
+    // space maps to (0, 0) in the adjusted coordinate space.
+    void applyOrigin(const LayerSpace<SkIPoint>& origin) {
+        SkAssertResult(this->adjustLayerSpace(SkMatrix::Translate(-origin.x(), -origin.y())));
     }
 
     const SkMatrix& deviceMatrix() const { return fLayerToDevMatrix; }
