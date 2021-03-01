@@ -55,16 +55,17 @@ std::unique_ptr<Statement> ForStatement::Make(const Context& context, int offset
             return nullptr;
         }
     }
-
-    auto forStmt = std::make_unique<ForStatement>(offset, std::move(initializer), std::move(test),
-                                                  std::move(next), std::move(statement),
-                                                  std::move(symbolTable));
     if (context.fConfig->strictES2Mode()) {
-        if (!Analysis::ForLoopIsValidForES2(*forStmt, /*outLoopInfo=*/nullptr, &context.fErrors)) {
+        if (!Analysis::ForLoopIsValidForES2(offset, initializer.get(), test.get(), next.get(),
+                                            statement.get(), /*outLoopInfo=*/nullptr,
+                                            &context.fErrors)) {
             return nullptr;
         }
     }
-    return std::move(forStmt);
+
+    return std::make_unique<ForStatement>(offset, std::move(initializer), std::move(test),
+                                          std::move(next), std::move(statement),
+                                          std::move(symbolTable));
 }
 
 std::unique_ptr<Statement> ForStatement::MakeWhile(const Context& context, int offset,
