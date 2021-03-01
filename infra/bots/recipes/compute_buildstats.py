@@ -177,6 +177,9 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
         logs['bloaty_symbol_file_short'] = sections[3].split('\n')
         logs['bloaty_symbol_file_full']  = sections[4].split('\n')
         logs['perf_json'] = sections[5].split('\n')
+        # Extract out and add to all analyze_*_file functions.
+        # Baseline??
+        result.presentation.properties['binary_size_plugin'] = logs['perf_json']
 
 
 # Get the size of skia in flutter and a few metrics from bloaty
