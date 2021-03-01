@@ -11,7 +11,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/private/SkSLSampleUsage.h"
 
@@ -20,6 +19,7 @@
 class GrRecordingContext;
 class SkColorFilter;
 class SkImage;
+class SkShader;
 
 namespace SkSL {
 class FunctionDefinition;
@@ -196,7 +196,7 @@ private:
  * Note that SkRuntimeShaderBuilder is built entirely on the public API of SkRuntimeEffect,
  * so can be used as-is or serve as inspiration for other interfaces or binding techniques.
  */
-class SK_API SkRuntimeShaderBuilder {
+class SkRuntimeShaderBuilder {
 public:
     SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect>);
     ~SkRuntimeShaderBuilder();
