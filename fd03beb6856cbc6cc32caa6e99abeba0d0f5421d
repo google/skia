@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98347d30_340ccdf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-01T16:56:26Z",
+      "side": 1,
+      "message": "Yeah, we\u0027ll need to mimic what we do for dm and nanobench, ie. add a recipe property containing the flags (https://skia.googlesource.com/skia/+/master/infra/bots/gen_tasks_logic/nano_flags.go#325), and have the recipe read the property and add the flags to the command (https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf.py#52).",
+      "parentUuid": "30e8b901_587da884",
+      "revId": "fd03beb6856cbc6cc32caa6e99abeba0d0f5421d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d00a673_23a0b1d6",
@@ -55,6 +73,30 @@
       "side": 1,
       "message": "OK we do intend to do that. Should we just do the args-append right in gen_tasks_logic.go, or would this variable be visible to the `_flags.go` files automatically, or would we need to pass that variable into these functions?",
       "parentUuid": "5d00a673_23a0b1d6",
+      "range": {
+        "startLine": 14,
+        "startChar": 12,
+        "endLine": 14,
+        "endChar": 71
+      },
+      "revId": "fd03beb6856cbc6cc32caa6e99abeba0d0f5421d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e04d20dd_583c37ef",
+        "filename": "infra/bots/gen_tasks_logic/skpbench_flags.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-01T16:56:26Z",
+      "side": 1,
+      "message": "These files are all in the same package; global variables within the package are visible to everything in the package, regardless of the file.  I\u0027d add the list in this section: https://skia-review.googlesource.com/c/skia/+/377856/4/infra/bots/gen_tasks_logic/gen_tasks_logic.go#87",
+      "parentUuid": "4cf1a50f_b150959f",
       "range": {
         "startLine": 14,
         "startChar": 12,
