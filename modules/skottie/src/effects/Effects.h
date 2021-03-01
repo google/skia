@@ -53,6 +53,8 @@ private:
                                                            sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachFillEffect              (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachFractalNoiseEffect      (const skjson::ArrayValue&,
+                                                           sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachGaussianBlurEffect      (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachGradientEffect          (const skjson::ArrayValue&,
