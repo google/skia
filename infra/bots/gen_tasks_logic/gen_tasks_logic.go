@@ -256,6 +256,10 @@ type Config struct {
 	// List of task names for which we'll never upload results.
 	NoUpload []string `json:"no_upload"`
 
+	// PathToSkia is the relative path from the root of the current checkout to
+	// the root of the Skia checkout.
+	PathToSkia string `json:"path_to_skia"`
+
 	// Swarming pool used for triggering tasks.
 	Pool string `json:"pool"`
 
@@ -494,7 +498,7 @@ func GenTasks(cfg *Config) {
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_WHOLE_REPO, CAS_SPEC_WHOLE_REPO)
-	generateCompileCAS(b)
+	generateCompileCAS(b, cfg)
 
 	builder.MustFinish()
 }
