@@ -45,6 +45,30 @@
       },
       "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edc462a0_cb6143cb",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-01T22:14:31Z",
+      "side": 1,
+      "message": "This case is why we have IntLiteral above.\nIt won\u0027t catch things like `x[y+1] \u003d x[y+1]` but I\u0027m OK with this (you could get pretty deep down this rabbit hole)\nDid you have other ideas?",
+      "parentUuid": "488075bb_ee16d910",
+      "range": {
+        "startLine": 585,
+        "startChar": 19,
+        "endLine": 586,
+        "endChar": 73
+      },
+      "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
