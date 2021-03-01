@@ -548,8 +548,6 @@ int main(int argc, char** argv) {
     AutoreleasePool pool;
     for (auto source : sources) {
         const auto start = std::chrono::steady_clock::now();
-        fprintf(stdout, "%50s", source.name.c_str());
-        fflush(stdout);
 
         const SkImageInfo info = SkImageInfo::Make(source.size, color_info);
 
@@ -589,7 +587,8 @@ int main(int argc, char** argv) {
         }
 
         if (!image && !blob) {
-            fprintf(stdout, "\tskipped\n");
+            fprintf(stdout, "%50s  skipped\n", source.name.c_str());
+            fflush(stdout);
             continue;
         }
 
@@ -635,9 +634,11 @@ int main(int argc, char** argv) {
         }
 
         const auto elapsed = std::chrono::steady_clock::now() - start;
-        fprintf(stdout, "\t%s\t%7dms\n",
+        fprintf(stdout, "%50s  %s  %7dms\n",
+                source.name.c_str(),
                 md5.c_str(),
                 (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+        fflush(stdout);
         pool.drain();
     }
 
