@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72bf8337_52cd0914",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-01T14:34:03Z",
+      "side": 1,
+      "message": "The direction I would prefer to go, for a general solution, is to be able to append mergeable draws to an existing op directly. This would address the performance here, and also work for rectangles. When testing this idea on the texture op, it was a drastic improvement. N drawImage calls went from an order of magnitude slower than 1 drawImageSet(with N entries) to only about 10% slower than the pre-batched call.",
+      "parentUuid": "1fe17acd_67b3d58c",
+      "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "828137e8_f50a397f",
