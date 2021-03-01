@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7396101_555fb687",
+        "filename": "src/core/SkGlyphBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-01T21:07:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2a76f80_230c7cdb",
+      "range": {
+        "startLine": 73,
+        "startChar": 24,
+        "endLine": 73,
+        "endChar": 34
+      },
+      "revId": "476e5b08aec835dfa95f114f356cf7a28ec70c42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9e6a14d_de5c30b3",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-01T15:26:48Z",
       "side": 1,
       "message": "Should this be renamed ?",
+      "range": {
+        "startLine": 172,
+        "startChar": 28,
+        "endLine": 172,
+        "endChar": 38
+      },
+      "revId": "476e5b08aec835dfa95f114f356cf7a28ec70c42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "422cfdc0_ad3e7335",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-01T21:07:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9e6a14d_de5c30b3",
       "range": {
         "startLine": 172,
         "startChar": 28,
