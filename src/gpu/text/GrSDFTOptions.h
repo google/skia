@@ -18,10 +18,10 @@ class GrSDFTOptions {
 public:
     GrSDFTOptions(bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max);
 
-    enum DrawingType {
-        kDirect,
-        kSDFT,
-        kPath
+    enum DrawingType : uint8_t {
+        kDirect = 1,
+        kSDFT = 2,
+        kPath = 4
     };
 
     DrawingType drawingType(

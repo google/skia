@@ -364,6 +364,7 @@ struct GrSubRunList {
 //
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
 public:
+    SK_BEGIN_REQUIRE_DENSE
     struct Key {
         Key();
         uint32_t fUniqueID;
@@ -372,17 +373,21 @@ public:
         // luminance. For each luminance bucket there is a "canonical color" that
         // represents the bucket.  This functionality is currently only supported for A8
         SkColor fCanonicalColor;
-        SkPaint::Style fStyle;
         SkScalar fFrameWidth;
         SkScalar fMiterLimit;
-        SkPaint::Join fJoin;
         SkPixelGeometry fPixelGeometry;
-        bool fHasBlur;
         SkMaskFilterBase::BlurRec fBlurRec;
         uint32_t fScalerContextFlags;
+        SkMatrix fDrawMatrix;
+        // Below here fields are of size 1 byte.
+        uint8_t fSetOfDrawingTypes;
+        bool fHasBlur;
+        SkPaint::Style fStyle;
+        SkPaint::Join fJoin;
 
         bool operator==(const Key& other) const;
     };
+    SK_END_REQUIRE_DENSE
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 
