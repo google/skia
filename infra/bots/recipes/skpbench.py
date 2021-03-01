@@ -47,7 +47,6 @@ def skpbench_steps(api):
   is_mskp = 'Mskp' in api.vars.builder_name
   is_ddl = 'DDL' in api.vars.builder_name
   is_9x9 = '9x9' in api.vars.builder_name
-  is_reduce_ops_task_splitting = 'ReduceOpsTaskSplitting' in api.vars.builder_name
 
   api.file.ensure_directory(
       'makedirs perf_dir', api.flavor.host_dirs.perf_data_dir)
@@ -86,9 +85,6 @@ def skpbench_steps(api):
     skpbench_args += [
         '--ddlNumRecordingThreads', 9,
         '--ddlTilingWidthHeight', 3]
-  if is_reduce_ops_task_splitting:
-    skpbench_args += [
-        '--reduceOpsTaskSplitting']
   if is_android:
     skpbench_args += [
         '--adb',
@@ -111,6 +107,9 @@ def skpbench_steps(api):
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
   else:
     skpbench_args += [api.flavor.device_dirs.skp_dir]
+
+  if api.properties.get('reduce_ops_task_splitting') == 'true':
+    skpbench_args += ['--reduceOpsTaskSplitting']
 
   api.run(api.python, 'skpbench',
       script=skpbench_dir.join('skpbench.py'),
@@ -174,8 +173,6 @@ TEST_BUILDERS = [
    'Android_Skpbench_Mskp'),
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_CCPR_Skpbench'),
-  ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
-   'Android_ReduceOpsTaskSplitting_Skpbench'),
   ('Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-'
    'Android_AllPathsVolatile_Skpbench'),
   ('Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-'
@@ -217,7 +214,8 @@ def GenTests(api):
     api.properties(buildername=b,
                    revision='abc123',
                    path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   reduce_ops_task_splitting='true') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',

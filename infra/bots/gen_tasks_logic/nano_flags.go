@@ -241,6 +241,10 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
 
+	if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
+		args = append(args, "--reduceOpsTaskSplitting", "true")
+	}
+
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
 	match = append(match, "~inc0.gif")
