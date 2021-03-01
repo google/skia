@@ -380,6 +380,8 @@ public:
         bool fHasBlur;
         SkMaskFilterBase::BlurRec fBlurRec;
         uint32_t fScalerContextFlags;
+        SkMatrix fDrawMatrix;
+        GrSDFTOptions::DrawingType fDrawingType;
 
         bool operator==(const Key& other) const;
     };
