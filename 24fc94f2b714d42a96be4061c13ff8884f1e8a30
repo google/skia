@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7307e1aa_4a6df394",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-01T12:37:43Z",
+      "side": 1,
+      "message": "If you need to use RuntimeEffect, then you\u0027ll need to use the particles.skia.org build until 0.25.0 is released and then you could use https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js",
+      "range": {
+        "startLine": 6,
+        "startChar": 36,
+        "endLine": 6,
+        "endChar": 92
+      },
+      "revId": "24fc94f2b714d42a96be4061c13ff8884f1e8a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
