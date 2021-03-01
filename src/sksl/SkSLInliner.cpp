@@ -319,12 +319,10 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
     switch (expression.kind()) {
         case Expression::Kind::kBinary: {
             const BinaryExpression& binaryExpr = expression.as<BinaryExpression>();
-            return std::make_unique<BinaryExpression>(
-                    offset,
-                    expr(binaryExpr.left()),
-                    binaryExpr.getOperator(),
-                    expr(binaryExpr.right()),
-                    binaryExpr.type().clone(symbolTableForExpression));
+            return BinaryExpression::Make(*fContext,
+                                          expr(binaryExpr.left()),
+                                          binaryExpr.getOperator(),
+                                          expr(binaryExpr.right()));
         }
         case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kIntLiteral:
@@ -502,12 +500,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             SkASSERT(*resultExpr);
             auto assignment = ExpressionStatement::Make(
                     *fContext,
-                    std::make_unique<BinaryExpression>(
-                            offset,
-                            clone_with_ref_kind(**resultExpr, VariableReference::RefKind::kWrite),
+                    BinaryExpression::Make(
+                            *fContext,
+                            clone_with_ref_kind(**resultExpr, VariableRefKind::kWrite),
                             Token::Kind::TK_EQ,
-                            expr(r.expression()),
-                            (*resultExpr)->type().clone(symbolTableForStatement)));
+                            expr(r.expression())));
 
             // Early returns are wrapped in a for loop; we need to synthesize a continue statement
             // to "leave" the function.
@@ -708,12 +705,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                           &initialValue);
 
         // _1_loop < 1;
-        std::unique_ptr<Expression> test = std::make_unique<BinaryExpression>(
-                /*offset=*/-1,
+        std::unique_ptr<Expression> test = BinaryExpression::Make(
+                *fContext,
                 std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol),
                 Token::Kind::TK_LT,
-                std::make_unique<IntLiteral>(/*offset=*/-1, /*value=*/1, intType),
-                fContext->fTypes.fBool.get());
+                std::make_unique<IntLiteral>(/*offset=*/-1, /*value=*/1, intType));
 
         // _1_loop++
         std::unique_ptr<Expression> increment = PostfixExpression::Make(
@@ -752,12 +748,10 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         SkASSERT(varMap.find(p) != varMap.end());
         inlineStatements->push_back(ExpressionStatement::Make(
                 *fContext,
-                std::make_unique<BinaryExpression>(
-                        offset,
-                        clone_with_ref_kind(*arguments[i], VariableReference::RefKind::kWrite),
-                        Token::Kind::TK_EQ,
-                        std::move(varMap[p]),
-                        &arguments[i]->type())));
+                BinaryExpression::Make(*fContext,
+                                       clone_with_ref_kind(*arguments[i], VariableRefKind::kWrite),
+                                       Token::Kind::TK_EQ,
+                                       std::move(varMap[p]))));
     }
 
     if (resultExpr) {

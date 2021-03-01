@@ -262,7 +262,6 @@ void Dehydrator::write(const Expression* e) {
                 this->write(b.left().get());
                 this->writeU8((int) b.getOperator().kind());
                 this->write(b.right().get());
-                this->write(b.type());
                 break;
             }
             case Expression::Kind::kBoolLiteral: {

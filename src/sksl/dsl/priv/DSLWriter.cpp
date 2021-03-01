@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/DSLCore.h"
 #include "src/sksl/dsl/DSLErrorHandling.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -118,7 +119,7 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expression> left,
                                                            Operator op,
                                                            std::unique_ptr<Expression> right) {
-    return IRGenerator().convertBinaryExpression(std::move(left), op, std::move(right));
+    return BinaryExpression::Make(Context(), std::move(left), op, std::move(right));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
