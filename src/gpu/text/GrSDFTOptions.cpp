@@ -34,6 +34,35 @@ GrSDFTOptions::GrSDFTOptions(SkScalar min, SkScalar max)
     SkASSERT_RELEASE(min > 0 && max >= min);
 }
 
+auto GrSDFTOptions::drawingType(
+        bool useSDFT, SkScalar textSize, const SkMatrix& viewMatrix) -> DrawingType {
+    if (viewMatrix.hasPerspective()) {
+        // Don't use SDF for perspective. Paths look better.
+        return kPath;
+    } else {
+        SkScalar maxScale = viewMatrix.getMaxScale();
+        SkScalar scaledTextSize = maxScale * textSize;
+        // Hinted text looks far better at small resolutions
+        // Scaling up beyond 2x yields undesirable artifacts
+
+        if (scaledTextSize < fMinDistanceFieldFontSize) {
+            return kDirect;
+        } else if (scaledTextSize > fMaxDistanceFieldFontSize) {
+            return kPath;
+        }
+
+#if SK_FORCE_DISTANCE_FIELD_TEXT
+        useSDFT = true;
+#endif
+
+        if (!useSDFT && scaledTextSize < kLargeDFFontSize) {
+            return kDirect;
+        }
+    }
+
+    return kSDFT;
+}
+
 bool GrSDFTOptions::canDrawAsDistanceFields(const SkPaint& paint, const SkFont& font,
                                             const SkMatrix& viewMatrix,
                                             const SkSurfaceProps& props,

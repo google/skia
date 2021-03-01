@@ -383,6 +383,9 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
     SkScalerContextFlags scalerContextFlags = this->colorInfo().isLinearlyBlended()
                                               ? SkScalerContextFlags::kBoostContrast
                                               : SkScalerContextFlags::kFakeGammaAndBoostContrast;
+    SkMatrix drawMatrix(viewMatrix.localToDevice());
+    SkPoint drawOrigin = glyphRunList.origin();
+    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
     sk_sp<GrTextBlob> blob;
     GrTextBlob::Key key;
@@ -409,12 +412,26 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         }
         key.fCanonicalColor = canonicalColor;
         key.fScalerContextFlags = scalerContextFlags;
+
+        // Find the minimum size that's not zero. If that doesn't exist, then use zero.
+        SkScalar minTextSize = std::numeric_limits<SkScalar>::max();
+        for (auto& run : glyphRunList) {
+            SkScalar size = run.font().getSize();
+            if (size != 0) {
+                minTextSize = std::min(minTextSize, size);
+            }
+        }
+        if (minTextSize == std::numeric_limits<SkScalar>::max()) {
+            minTextSize = 0;
+        }
+
+        key.fDrawMatrix = drawMatrix;
+        bool useSDFT = fSurfaceProps.isUseDeviceIndependentFonts();
+        key.fDrawingType = options.drawingType(useSDFT, minTextSize, drawMatrix);
+
         blob = textBlobCache->find(key);
     }
 
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    SkPoint drawOrigin = glyphRunList.origin();
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.

@@ -18,9 +18,18 @@ class GrSDFTOptions {
 public:
     GrSDFTOptions(SkScalar min, SkScalar max);
 
+    enum DrawingType {
+        kDirect,
+        kSDFT,
+        kPath
+    };
+
+    DrawingType drawingType(bool useSDFT, SkScalar textSize, const SkMatrix& viewMatrix);
+
     bool canDrawAsDistanceFields(const SkPaint&, const SkFont&, const SkMatrix& viewMatrix,
                                  const SkSurfaceProps& props,
                                  bool contextSupportsDistanceFieldText) const;
+
     SkFont getSDFFont(const SkFont& font,
                       const SkMatrix& viewMatrix,
                       SkScalar* textRatio) const;
