@@ -385,6 +385,11 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
                 } else if (mRepeatCounter == 0) {
                     mIsRunning = false;
                     mProgress = 1;
+                    if (this.getListeners() != null) {
+                        for (AnimatorListener l : this.getListeners()) {
+                            l.onAnimationEnd(this);
+                        }
+                    }
                 }
             }
         }
