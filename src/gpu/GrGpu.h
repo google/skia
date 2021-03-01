@@ -28,6 +28,7 @@ class GrBackendRenderTarget;
 class GrBackendSemaphore;
 struct GrContextOptions;
 class GrDirectContext;
+class GrFooBar;
 class GrGpuBuffer;
 class GrGLContext;
 class GrPath;
@@ -62,6 +63,8 @@ public:
      */
     const GrCaps* caps() const { return fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fCaps; }
+
+    virtual sk_sp<GrFooBar> refFooBar() = 0; //{ return nullptr; }
 
     GrPathRendering* pathRendering() { return fPathRendering.get();  }
 

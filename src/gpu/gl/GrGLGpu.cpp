@@ -482,6 +482,10 @@ void GrGLGpu::disconnect(DisconnectType type) {
     fFinishCallbacks.callAll(/* doDelete */ DisconnectType::kCleanup == type);
 }
 
+sk_sp<GrFooBar> GrGLGpu::refFooBar() {
+    return nullptr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLGpu::onResetContext(uint32_t resetBits) {

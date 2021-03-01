@@ -40,6 +40,8 @@ public:
 
     ~GrVkGpu() override;
 
+    sk_sp<GrFooBar> refFooBar() override;
+
     void disconnect(DisconnectType) override;
     bool disconnected() const { return fDisconnected; }
 

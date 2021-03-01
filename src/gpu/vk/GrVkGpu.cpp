@@ -18,6 +18,7 @@
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrFooBar.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrNativeRect.h"
@@ -276,6 +277,9 @@ GrVkGpu::~GrVkGpu() {
     fMemoryAllocator.reset();
 }
 
+sk_sp<GrFooBar> GrVkGpu::refFooBar() {
+    return nullptr;
+}
 
 void GrVkGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);

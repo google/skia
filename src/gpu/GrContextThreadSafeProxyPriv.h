@@ -21,9 +21,7 @@
  */
 class GrContextThreadSafeProxyPriv {
 public:
-    void init(sk_sp<const GrCaps> caps) const {
-        fProxy->init(std::move(caps));
-    }
+    void init1(sk_sp<const GrCaps> caps, sk_sp<GrFooBar> fb) const;
 
     bool matches(GrContext_Base* candidate) const {
         return fProxy == candidate->threadSafeProxy().get();
