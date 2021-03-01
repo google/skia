@@ -13,10 +13,10 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
-                                                    std::unique_ptr<Expression> test,
-                                                    std::unique_ptr<Expression> ifTrue,
-                                                    std::unique_ptr<Expression> ifFalse) {
+std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
+                                                       std::unique_ptr<Expression> test,
+                                                       std::unique_ptr<Expression> ifTrue,
+                                                       std::unique_ptr<Expression> ifFalse) {
     test = context.fTypes.fBool->coerceExpression(std::move(test), context);
     if (!test || !ifTrue || !ifFalse) {
         return nullptr;
@@ -28,7 +28,7 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
     Operator equalityOp(Token::Kind::TK_EQEQ);
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
-        trueType != falseType) {
+        (*trueType != *falseType)) {
         context.fErrors.error(offset, "ternary operator result mismatch: '" +
                                       ifTrue->type().displayName() + "', '" +
                                       ifFalse->type().displayName() + "'");
@@ -52,6 +52,17 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
     if (!ifFalse) {
         return nullptr;
     }
+    return TernaryExpression::Make(context, std::move(test), std::move(ifTrue), std::move(ifFalse));
+}
+
+std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
+                                                    std::unique_ptr<Expression> test,
+                                                    std::unique_ptr<Expression> ifTrue,
+                                                    std::unique_ptr<Expression> ifFalse) {
+    SkASSERT(ifTrue->type() == ifFalse->type());
+    SkASSERT(!ifTrue->type().componentType().isOpaque());
+    SkASSERT(!context.fConfig->strictES2Mode() || !ifTrue->type().isOrContainsArray());
+
     if (test->is<BoolLiteral>()) {
         // static boolean test, just return one of the branches
         if (test->as<BoolLiteral>().value()) {
@@ -60,10 +71,8 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
             return ifFalse;
         }
     }
-    return std::make_unique<TernaryExpression>(offset,
-                                               std::move(test),
-                                               std::move(ifTrue),
-                                               std::move(ifFalse));
+    return std::make_unique<TernaryExpression>(test->fOffset, std::move(test),
+                                               std::move(ifTrue), std::move(ifFalse));
 }
 
 }  // namespace SkSL

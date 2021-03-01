@@ -43,12 +43,12 @@ String ForStatement::description() const {
     return result;
 }
 
-std::unique_ptr<Statement> ForStatement::Make(const Context& context, int offset,
-                                              std::unique_ptr<Statement> initializer,
-                                              std::unique_ptr<Expression> test,
-                                              std::unique_ptr<Expression> next,
-                                              std::unique_ptr<Statement> statement,
-                                              std::shared_ptr<SymbolTable> symbolTable) {
+std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int offset,
+                                                 std::unique_ptr<Statement> initializer,
+                                                 std::unique_ptr<Expression> test,
+                                                 std::unique_ptr<Expression> next,
+                                                 std::unique_ptr<Statement> statement,
+                                                 std::shared_ptr<SymbolTable> symbolTable) {
     if (test) {
         test = context.fTypes.fBool->coerceExpression(std::move(test), context);
         if (!test) {
@@ -63,21 +63,37 @@ std::unique_ptr<Statement> ForStatement::Make(const Context& context, int offset
         }
     }
 
-    return std::make_unique<ForStatement>(offset, std::move(initializer), std::move(test),
-                                          std::move(next), std::move(statement),
-                                          std::move(symbolTable));
+    return ForStatement::Make(context, offset, std::move(initializer), std::move(test),
+                              std::move(next), std::move(statement), std::move(symbolTable));
 }
 
-std::unique_ptr<Statement> ForStatement::MakeWhile(const Context& context, int offset,
-                                                   std::unique_ptr<Expression> test,
-                                                   std::unique_ptr<Statement> statement,
-                                                   std::shared_ptr<SymbolTable> symbolTable) {
+std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context, int offset,
+                                                      std::unique_ptr<Expression> test,
+                                                      std::unique_ptr<Statement> statement,
+                                                      std::shared_ptr<SymbolTable> symbolTable) {
     if (context.fConfig->strictES2Mode()) {
         context.fErrors.error(offset, "while loops are not supported");
         return nullptr;
     }
-    return Make(context, offset, /*initializer=*/nullptr, std::move(test), /*next=*/nullptr,
-                std::move(statement), std::move(symbolTable));
+    return ForStatement::Convert(context, offset, /*initializer=*/nullptr, std::move(test),
+                                 /*next=*/nullptr, std::move(statement), std::move(symbolTable));
+}
+
+std::unique_ptr<Statement> ForStatement::Make(const Context& context, int offset,
+                                              std::unique_ptr<Statement> initializer,
+                                              std::unique_ptr<Expression> test,
+                                              std::unique_ptr<Expression> next,
+                                              std::unique_ptr<Statement> statement,
+                                              std::shared_ptr<SymbolTable> symbolTable) {
+    SkASSERT(!test || test->type() == *context.fTypes.fBool);
+    SkASSERT(!context.fConfig->strictES2Mode() ||
+             Analysis::ForLoopIsValidForES2(offset, initializer.get(), test.get(), next.get(),
+                                            statement.get(), /*outLoopInfo=*/nullptr,
+                                            /*errors=*/nullptr));
+
+    return std::make_unique<ForStatement>(offset, std::move(initializer), std::move(test),
+                                          std::move(next), std::move(statement),
+                                          std::move(symbolTable));
 }
 
 }  // namespace SkSL

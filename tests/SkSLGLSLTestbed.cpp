@@ -34,6 +34,7 @@ DEF_TEST(SkSLGLSLTestbed, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              void main() {
+                 float d = -67.0 / (3.0 - 3);
                  sk_FragColor = half4(0);
              }
          )__SkSL__");

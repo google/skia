@@ -620,8 +620,8 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
         return nullptr;
     }
 
-    return ForStatement::Make(fContext, f.fOffset, std::move(initializer), std::move(test),
-                              std::move(next), std::move(statement), fSymbolTable);
+    return ForStatement::Convert(fContext, f.fOffset, std::move(initializer), std::move(test),
+                                 std::move(next), std::move(statement), fSymbolTable);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
@@ -638,8 +638,8 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     if (this->detectVarDeclarationWithoutScope(*statement)) {
         return nullptr;
     }
-    return ForStatement::MakeWhile(fContext, w.fOffset, std::move(test), std::move(statement),
-                                   fSymbolTable);
+    return ForStatement::ConvertWhile(fContext, w.fOffset, std::move(test), std::move(statement),
+                                      fSymbolTable);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
@@ -656,7 +656,7 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     if (this->detectVarDeclarationWithoutScope(*statement)) {
         return nullptr;
     }
-    return DoStatement::Make(fContext, std::move(statement), std::move(test));
+    return DoStatement::Convert(fContext, std::move(statement), std::move(test));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
@@ -1605,8 +1605,8 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     if (!right) {
         return nullptr;
     }
-    return BinaryExpression::Make(fContext, std::move(left), expression.getOperator(),
-                                  std::move(right));
+    return BinaryExpression::Convert(fContext, std::move(left), expression.getOperator(),
+                                     std::move(right));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode& node) {
@@ -1624,8 +1624,8 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
     if (!ifFalse) {
         return nullptr;
     }
-    return TernaryExpression::Make(fContext, std::move(test),
-                                   std::move(ifTrue), std::move(ifFalse));
+    return TernaryExpression::Convert(fContext, std::move(test),
+                                      std::move(ifTrue), std::move(ifFalse));
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
@@ -1814,7 +1814,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
     if (!base) {
         return nullptr;
     }
-    return PrefixExpression::Make(fContext, expression.getOperator(), std::move(base));
+    return PrefixExpression::Convert(fContext, expression.getOperator(), std::move(base));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
@@ -2093,7 +2093,7 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode&
     if (!base) {
         return nullptr;
     }
-    return PostfixExpression::Make(fContext, std::move(base), expression.getOperator());
+    return PostfixExpression::Convert(fContext, std::move(base), expression.getOperator());
 }
 
 void IRGenerator::checkValid(const Expression& expr) {

@@ -375,10 +375,9 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<Expression> next = this->expression();
             std::unique_ptr<Statement> body = this->statement();
             std::shared_ptr<SymbolTable> symbols = this->symbolTable();
-            return std::unique_ptr<Statement>(new ForStatement(-1, std::move(initializer),
-                                                               std::move(test), std::move(next),
-                                                               std::move(body),
-                                                               std::move(symbols)));
+            return ForStatement::Make(fContext, /*offset=*/-1, std::move(initializer),
+                                      std::move(test), std::move(next), std::move(body),
+                                      std::move(symbols));
         }
         case Rehydrator::kIf_Command: {
             bool isStatic = this->readU8();

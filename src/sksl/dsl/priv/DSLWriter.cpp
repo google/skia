@@ -119,7 +119,7 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expression> left,
                                                            Operator op,
                                                            std::unique_ptr<Expression> right) {
-    return BinaryExpression::Make(Context(), std::move(left), op, std::move(right));
+    return BinaryExpression::Convert(Context(), std::move(left), op, std::move(right));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
@@ -134,12 +134,12 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expres
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr,
                                                             Operator op) {
-    return PostfixExpression::Make(Context(), std::move(expr), op);
+    return PostfixExpression::Convert(Context(), std::move(expr), op);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,
                                                            std::unique_ptr<Expression> expr) {
-    return PrefixExpression::Make(Context(), op, std::move(expr));
+    return PrefixExpression::Convert(Context(), op, std::move(expr));
 }
 
 DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
