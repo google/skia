@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4388afa_1cba659f",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-01T19:49:05Z",
+      "side": 1,
+      "message": "Nit: this is the same logic as in end() - maybe extract as a private void notifyAnimationEnd() helper and reuse in both places?",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 392,
+        "endChar": 21
+      },
+      "revId": "19ed5dd4d9e22412413c91dffe42020bef1e3975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
