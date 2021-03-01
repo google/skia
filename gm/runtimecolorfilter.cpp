@@ -98,6 +98,7 @@ const char* gEarlyReturn = R"(
 
 
 DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256 * 2) {
+    __builtin_debugtrap();
     sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_256.png");
 
     auto draw_filter = [&](const char* src) {
