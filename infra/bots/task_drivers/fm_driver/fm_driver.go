@@ -268,7 +268,17 @@ func main() {
 	}
 	queue := make(chan Work, 1<<20) // Arbitrarily huge buffer to avoid ever blocking.
 
-	for i := 0; i < runtime.NumCPU(); i++ {
+	// Generally we want to scale with the number of CPUs.
+	nworkers := runtime.NumCPU()
+	if strings.Contains(*bot, "TSAN") {
+		// FM will run work using threads, so pull way back on the process-level parallelism.
+		nworkers /= 8
+	}
+	if nworkers < 1 {
+		nworkers = 1
+	}
+
+	for i := 0; i < nworkers; i++ {
 		go func() {
 			for w := range queue {
 				func() {
@@ -309,11 +319,8 @@ func main() {
 		pendingBatches := &sync.WaitGroup{}
 		failures := new(int32)
 
-		// Arbitrary, nice to scale ~= cores.
-		approxNumBatches := runtime.NumCPU()
-
-		// Round up batch size to avoid empty batches, making approxNumBatches approximate.
-		batchSize := (len(sources) + approxNumBatches - 1) / approxNumBatches
+		// Spread work over workers, rounding up to avoid empty batches.
+		batchSize := (len(sources) + nworkers - 1) / nworkers
 
 		util.ChunkIter(len(sources), batchSize, func(start, end int) error {
 			pendingBatches.Add(1)
@@ -418,6 +425,11 @@ func main() {
 		if strings.Contains(OS, "Win") {
 			// We can't decode these formats on Windows.
 			imgs = filter(imgs, func(s string) bool { return !rawExts[normalizedExt(s)] })
+		}
+
+		if strings.Contains(*bot, "TSAN") {
+			// Run each test a few times in parallel to uncover races.
+			commonFlags = append(commonFlags, "--race", "2")
 		}
 
 		if CPU_or_GPU == "CPU" {
