@@ -307,13 +307,13 @@ Prepare the variables.
 
 &mdash; **def [analyze\_flutter\_lib](/infra/bots/recipes/compute_buildstats.py#153)(api, checkout_root, out_dir, files):**
 
-&mdash; **def [analyze\_wasm\_file](/infra/bots/recipes/compute_buildstats.py#183)(api, checkout_root, out_dir, files):**
+&mdash; **def [analyze\_wasm\_file](/infra/bots/recipes/compute_buildstats.py#186)(api, checkout_root, out_dir, files):**
 
 &mdash; **def [analyze\_web\_file](/infra/bots/recipes/compute_buildstats.py#126)(api, checkout_root, out_dir, files):**
 
 &mdash; **def [keys\_and\_props](/infra/bots/recipes/compute_buildstats.py#102)(api):**
 
-&mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#209)(api, checkout_root, out_dir, files):**
+&mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#212)(api, checkout_root, out_dir, files):**
 ### *recipes* / [compute\_test](/infra/bots/recipes/compute_test.py)
 
 [DEPS](/infra/bots/recipes/compute_test.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)

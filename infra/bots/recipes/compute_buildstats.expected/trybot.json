@@ -406,7 +406,8 @@
       "@@@STEP_LOG_LINE@perf_json@  \"some\": \"json\"@@@",
       "@@@STEP_LOG_LINE@perf_json@}@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
-      "@@@STEP_LOG_END@perf_json@@@"
+      "@@@STEP_LOG_END@perf_json@@@",
+      "@@@SET_BUILD_PROPERTY@binary_size_plugin@\"\\n{\\n  \\\"some\\\": \\\"json\\\"\\n}\\n\"@@@"
     ]
   },
   {
