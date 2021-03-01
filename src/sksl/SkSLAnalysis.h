@@ -115,11 +115,15 @@ struct Analysis {
         int fCount;
     };
 
-    // Ensures that 'loop' meets the strict requirements of The OpenGL ES Shading Language 1.00,
+    // Ensures that a for-loop meets the strict requirements of The OpenGL ES Shading Language 1.00,
     // Appendix A, Section 4.
     // Information about the loop's structure are placed in outLoopInfo (if not nullptr).
     // If the function returns false, specific reasons are reported via errors (if not nullptr).
-    static bool ForLoopIsValidForES2(const ForStatement& loop,
+    static bool ForLoopIsValidForES2(int offset,
+                                     const Statement* loopInitializer,
+                                     const Expression* loopTest,
+                                     const Expression* loopNext,
+                                     const Statement* loopStatement,
                                      UnrollableLoopInfo* outLoopInfo,
                                      ErrorReporter* errors);
 
