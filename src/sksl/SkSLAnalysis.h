@@ -88,6 +88,11 @@ struct Analysis {
     // - myStruct.myArrayField[7].xyz
     static bool IsTrivialExpression(const Expression& expr);
 
+    // Returns true if both expression trees are the same. The left side is expected to be an
+    // lvalue. This only needs to check for trees that can plausibly terminate in a variable, so
+    // some basic candidates like `FloatLiteral` are missing.
+    static bool IsSelfAssignment(const Expression& left, const Expression& right);
+
     // Is 'expr' a constant-expression, as defined by GLSL 1.0, section 5.10? A constant expression
     // is one of:
     //

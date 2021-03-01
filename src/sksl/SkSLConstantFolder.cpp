@@ -195,6 +195,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         return right.clone();
     }
 
+    // If this is the assignment operator, and both sides are the same trivial expression, this is
+    // self-assignment (i.e., `var = var`) and can be reduced to just a variable reference (`var`).
+    // This can happen when other parts of the assignment are optimized away.
+    if (op.kind() == Token::Kind::TK_EQ && Analysis::IsSelfAssignment(left, right)) {
+        return right.clone();
+    }
+
     // Simplify the expression when both sides are constant Boolean literals.
     if (left.is<BoolLiteral>() && right.is<BoolLiteral>()) {
         bool leftVal  = left.as<BoolLiteral>().value();
