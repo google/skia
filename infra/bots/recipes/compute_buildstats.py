@@ -4,6 +4,8 @@
 
 # Recipe which analyzes a compiled binary for information (e.g. file size)
 
+import ast
+
 DEPS = [
   'checkout',
   'env',
@@ -161,9 +163,12 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
       stripped = api.vars.build_dir.join('libflutter_stripped.so')
       script = skia_dir.join('infra', 'bots', 'buildstats',
                              'buildstats_flutter.py')
+      config = "skia_in_flutter"
+      sub_result = "total_size_bytes"
+      lib_name = "libflutter.so"
       step_data = api.run(api.python, 'Analyze flutter', script=script,
                          args=[stripped, out_dir, keystr, propstr, bloaty_exe,
-                               f],
+                               f, config, sub_result, lib_name],
                          stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         magic_seperator = '#$%^&*'
@@ -177,6 +182,12 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
         logs['bloaty_symbol_file_short'] = sections[3].split('\n')
         logs['bloaty_symbol_file_full']  = sections[4].split('\n')
         logs['perf_json'] = sections[5].split('\n')
+        # Extract out and add to all analyze_*_file functions.
+        # Baseline??
+        result.presentation.properties['binary_size_plugin'] = (
+            ast.literal_eval(sections[5])
+                .get('results', {}).get(lib_name, {}).get(config, {})
+                .get(sub_result, {}))
 
 
 # Get the size of skia in flutter and a few metrics from bloaty
@@ -291,6 +302,13 @@ Report D
     Total size: 80 bytes
 #$%^&*
 {
-  "some": "json"
+  "some": "json",
+  "results": {
+    "libflutter.so": {
+      "skia_in_flutter": {
+        "total_size_bytes": 1256676
+      }
+    }
+  }
 }
 """
