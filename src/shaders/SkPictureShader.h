@@ -24,8 +24,6 @@ class SkPicture;
  */
 class SkPictureShader : public SkShaderBase {
 public:
-    ~SkPictureShader() override;
-
     enum FilterEnum {
         kNearest,           // SkFilterMode::kNearest
         kLinear,            // SkFilterMode::kLinear
@@ -63,7 +61,8 @@ private:
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                     SkColorType dstColorType, SkColorSpace* dstColorSpace,
                                     SkFilterMode paintFilter,
-                                    const int maxTextureSize = 0) const;
+                                    const int maxTextureSize = 0,
+                                    GrRecordingContext* = nullptr) const;
 
     class PictureShaderContext : public Context {
     public:
@@ -86,8 +85,7 @@ private:
     SkTileMode          fTmx, fTmy;
     FilterEnum          fFilter;
 
-    const uint32_t            fUniqueID;
-    mutable std::atomic<bool> fAddedToCache;
+    const uint32_t      fUniqueID;  // needed?
 
     using INHERITED = SkShaderBase;
 };
