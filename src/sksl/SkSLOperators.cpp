@@ -383,12 +383,12 @@ bool Operator::determineBinaryType(const Context& context,
             // Right-to-Left conversion is possible and cheaper
             *outLeftType = &left;
             *outRightType = &left;
-            *outResultType = &left;
+            *outResultType = &left.scalarTypeForLiteral();
         } else if (leftToRightCost.isPossible(allowNarrowing)) {
             // Left-to-Right conversion is possible (and at least as cheap as Right-to-Left)
             *outLeftType = &right;
             *outRightType = &right;
-            *outResultType = &right;
+            *outResultType = &right.scalarTypeForLiteral();
         } else {
             return false;
         }
