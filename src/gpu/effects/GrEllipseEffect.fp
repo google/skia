@@ -20,8 +20,7 @@ float2 prevRadii = float2(-1);
 // The last two terms can underflow when float != fp32, so we also provide a workaround.
 uniform float4 ellipse;
 
-bool medPrecision = !sk_Caps.floatIs32Bits;
-layout(when=medPrecision) uniform float2 scale;
+layout(when=!sk_Caps.floatIs32Bits) uniform float2 scale;
 
 @make {
     static GrFPResult Make(std::unique_ptr<GrFragmentProcessor> inputFP, GrClipEdgeType edgeType,
@@ -82,7 +81,7 @@ half4 main() {
     // that is normalized by the larger radius or 128, whichever is smaller. The scale uniform will
     // be scale, 1/scale. The inverse squared radii uniform values are already in this normalized space.
     // The center is not.
-    @if (medPrecision) {
+    @if (!sk_Caps.floatIs32Bits) {
         d *= scale.y;
     }
     float2 Z = d * ellipse.zw;
@@ -91,13 +90,13 @@ half4 main() {
     // grad_dot is the squared length of the gradient of the implicit.
     float grad_dot = 4 * dot(Z, Z);
     // Avoid calling inversesqrt on zero.
-    @if (medPrecision) {
+    @if (!sk_Caps.floatIs32Bits) {
         grad_dot = max(grad_dot, 6.1036e-5);
     } else {
         grad_dot = max(grad_dot, 1.1755e-38);
     }
     float approx_dist = implicit * inversesqrt(grad_dot);
-    @if (medPrecision) {
+    @if (!sk_Caps.floatIs32Bits) {
         approx_dist *= scale.x;
     }
 
