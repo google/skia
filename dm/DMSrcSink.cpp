@@ -1812,12 +1812,10 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADataTypes(*dContext);
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADataTypes);
-    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
-    if (!compressedPictureData) {
+    sk_sp<SkPicture> newSKP = promiseImageHelper.recreateSKP(inputPicture.get(), dContext);
+    if (!newSKP) {
         return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
     }
-
-    promiseImageHelper.createCallbackContexts(dContext);
 
     // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
     // thread w/o a context.
@@ -1833,15 +1831,12 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // one. About all it can be consistently used for is GrCaps access and 'defaultBackendFormat'
     // calls.
     constexpr int kNumDivisions = 3;
-    DDLTileHelper tiles(dContext, dstCharacterization, viewport, kNumDivisions,
+    DDLTileHelper tiles(dContext, dstCharacterization, viewport, kNumDivisions, kNumDivisions,
                         /* addRandomPaddingToDst */ false);
 
     tiles.createBackendTextures(gpuTaskGroup, dContext);
 
-    // Reinflate the compressed picture.
-    tiles.createSKP(dContext->threadSafeProxy(), compressedPictureData.get(), promiseImageHelper);
-
-    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, dContext);
+    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, dContext, newSKP.get());
 
     // We have to wait for the recording threads to schedule all their work on the gpu thread
     // before we can schedule the composition draw and the flush. Note that the gpu thread
@@ -2256,11 +2251,6 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     // this is our ultimate final drawing area/rect
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
 
-    DDLPromiseImageHelper promiseImageHelper(SkYUVAPixmapInfo::SupportedDataTypes::All());
-    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
-    if (!compressedPictureData) {
-        return Result::Fatal("ViaDDL: Couldn't deflate SkPicture");
-    }
     auto draw = [&](SkCanvas* canvas) -> Result {
         auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
                                                  : nullptr;
@@ -2276,7 +2266,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         SkSurfaceCharacterization dstCharacterization;
         SkAssertResult(dstSurface->characterize(&dstCharacterization));
 
-        promiseImageHelper.createCallbackContexts(direct);
+        DDLPromiseImageHelper promiseImageHelper(SkYUVAPixmapInfo::SupportedDataTypes::All());
 
         // This is here bc this is the first point where we have access to the context
         promiseImageHelper.uploadAllToGPU(nullptr, direct);
@@ -2287,7 +2277,8 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
                 canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
-            DDLTileHelper tiles(direct, dstCharacterization, viewport, fNumDivisions,
+            DDLTileHelper tiles(direct, dstCharacterization, viewport,
+                                fNumDivisions, fNumDivisions,
                                 /* addRandomPaddingToDst */ false);
 
             tiles.createBackendTextures(nullptr, direct);
@@ -2296,11 +2287,18 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // This recreates the promise SkImages on each replay iteration. We are currently
             // relying on this to test using a SkPromiseImageTexture to fulfill different
             // SkImages. On each replay the promise SkImages are recreated in createSKP.
+            sk_sp<SkPicture> newSKP = promiseImageHelper.recreateSKP(inputPicture.get(), direct);
+            if (!newSKP) {
+                return Result::Fatal("ViaDDL: Couldn't deflate SkPicture");
+            }
+
+#if 0
             tiles.createSKP(direct->threadSafeProxy(), compressedPictureData.get(),
                             promiseImageHelper);
+#endif
 
             // Third, create the DDLs in parallel
-            tiles.createDDLsInParallel();
+            tiles.createDDLsInParallel(newSKP.get());
 
             if (replay == fNumReplays - 1) {
                 // All the DDLs are created and they ref any created promise images which,
@@ -2314,7 +2312,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             // Fourth, synchronously render the display lists into the dest tiles
             // TODO: it would be cool to not wait until all the tiles are drawn to begin
             // drawing to the GPU and composing to the final surface
-            tiles.precompileAndDrawAllTiles(direct);
+            tiles.precompileAndDrawAllTiles(direct, newSKP.get());
 
             if (replay == fNumReplays - 1) {
                 // At this point the compose DDL holds refs to the composition promise images
