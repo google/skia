@@ -241,6 +241,12 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
 
+	// Test reduceOpsTaskSplitting option on these models
+	// See skbug.com/10877#c27
+	if b.model("GalaxyS20", "Nexus7", "Nexus5x", "AndroidOne", "NUC7i5BNK") {
+		args = append(args, "--reduceOpsTaskSplitting", "true")
+	}
+
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
 	match = append(match, "~inc0.gif")
