@@ -34,6 +34,46 @@
       "parentUuid": "dde8ee90_2549831f",
       "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86998aed_8653c646",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-01T14:31:32Z",
+      "side": 1,
+      "message": "I like ~6% improvement but I\u0027m also curious why we don\u0027t see a similar benefit using the memory pool? \n\nIs it because this can reuse the last atlas op\u0027s allocation regardless of ordering with other ops, whereas the memory pool can only reuse the last op\u0027s memory that was merged?",
+      "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "828137e8_f50a397f",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-01T14:31:32Z",
+      "side": 1,
+      "message": "Do we need to make this have a destructor so that the held atlas text op gets deleted when the thread ends?\n\nUnless I\u0027m missing something, we could end up with a scenario where you add several atlas text ops, and the last created op is merged into one of the older ones. That would then have it stored in gGrAtlasTextOpCache instead of going through ::delete. But if that was the last op in the frame being flushed on the thread, and then the thread ends, no new op will come along to reclaim it. In the worst case scenario, if someone is making lots of threads over time to build DDLs, we could start accumulating unreclaimable memory, right?",
+      "range": {
+        "startLine": 35,
+        "startChar": 7,
+        "endLine": 35,
+        "endChar": 25
+      },
+      "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
