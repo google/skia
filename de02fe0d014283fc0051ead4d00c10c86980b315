@@ -34,6 +34,24 @@
       "parentUuid": "7be2ffa3_c3f0f027",
       "revId": "de02fe0d014283fc0051ead4d00c10c86980b315",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab226618_9213c973",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T18:12:54Z",
+      "side": 1,
+      "message": "... probably not. It doesn\u0027t make much sense to copy. (I almost suggested that, which would involve changing whatever\u0027s in Android, then decided that it was at least safe to be copied, but that doesn\u0027t make it correct).",
+      "parentUuid": "3592b64c_458eac90",
+      "revId": "de02fe0d014283fc0051ead4d00c10c86980b315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
