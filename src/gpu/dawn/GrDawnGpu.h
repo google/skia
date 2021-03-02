@@ -34,6 +34,9 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    GrFooBar* fooBar() override;
+    sk_sp<GrFooBar> refFooBar() override;
+
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
     void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) override;
 

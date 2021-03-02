@@ -43,6 +43,9 @@ public:
     void disconnect(DisconnectType) override;
     bool disconnected() const { return fDisconnected; }
 
+    GrFooBar* fooBar() override;
+    sk_sp<GrFooBar> refFooBar() override;
+
     const GrVkInterface* vkInterface() const { return fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 

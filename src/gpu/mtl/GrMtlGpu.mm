@@ -167,6 +167,14 @@ void GrMtlGpu::disconnect(DisconnectType type) {
     }
 }
 
+GrFooBar* GrMtlGpu::fooBar() {
+    return nullptr;
+}
+
+sk_sp<GrFooBar> GrMtlGpu::refFooBar() {
+    return nullptr;
+}
+
 void GrMtlGpu::destroyResources() {
     this->submitCommandBuffer(SyncQueue::kForce_SyncQueue);
 

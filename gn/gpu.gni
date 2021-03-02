@@ -108,6 +108,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrFinishCallbacks.h",
   "$_src/gpu/GrFixedClip.cpp",
   "$_src/gpu/GrFixedClip.h",
+  "$_src/gpu/GrFooBar.cpp",
+  "$_src/gpu/GrFooBar.h",
   "$_src/gpu/GrFragmentProcessor.cpp",
   "$_src/gpu/GrFragmentProcessor.h",
   "$_src/gpu/GrGeometryProcessor.h",
