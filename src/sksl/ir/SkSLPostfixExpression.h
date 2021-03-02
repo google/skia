@@ -26,9 +26,16 @@ public:
         , fOperand(std::move(operand))
         , fOperator(op) {}
 
+    // Creates an SkSL postfix expression; uses the ErrorReporter to report errors.
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                               std::unique_ptr<Expression> base,
+                                               Operator op);
+
+    // Creates an SkSL postfix expression; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             std::unique_ptr<Expression> base,
                                             Operator op);
+
     Operator getOperator() const {
         return fOperator;
     }

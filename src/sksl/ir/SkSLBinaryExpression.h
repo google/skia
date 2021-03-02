@@ -29,7 +29,6 @@ class BinaryExpression final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kBinary;
 
-    // Use BinaryExpression::Make to get a potentially-simplified form of the expression.
     BinaryExpression(int offset, std::unique_ptr<Expression> left, Operator op,
                      std::unique_ptr<Expression> right, const Type* type)
         : INHERITED(offset, kExpressionKind, type)
@@ -40,10 +39,27 @@ public:
         SkASSERT(!op.isAssignment() || CheckRef(*this->left()));
     }
 
+    // Creates a potentially-simplified form of the expression. Determines the result type
+    // programmatically. Typechecks and coerces input expressions; reports errors via ErrorReporter.
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                               std::unique_ptr<Expression> left,
+                                               Operator op,
+                                               std::unique_ptr<Expression> right);
+
+    // Creates a potentially-simplified form of the expression. Determines the result type
+    // programmatically. Asserts if the expressions do not typecheck or are otherwise invalid.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             std::unique_ptr<Expression> left,
                                             Operator op,
                                             std::unique_ptr<Expression> right);
+
+    // Creates a potentially-simplified form of the expression. Result type is passed in.
+    // Asserts if the expressions do not typecheck or are otherwise invalid.
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> left,
+                                            Operator op,
+                                            std::unique_ptr<Expression> right,
+                                            const Type* resultType);
 
     std::unique_ptr<Expression>& left() {
         return fLeft;
