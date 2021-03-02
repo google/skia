@@ -38,6 +38,9 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    GrFooBar* fooBar() override;
+    sk_sp<GrFooBar> refFooBar() override;
+
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
     id<MTLDevice> device() const { return fDevice; }

@@ -145,6 +145,14 @@ void GrDawnGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
 }
 
+GrFooBar* GrDawnGpu::fooBar() {
+    return nullptr;
+}
+
+sk_sp<GrFooBar> GrDawnGpu::refFooBar() {
+    return nullptr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
