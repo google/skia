@@ -70,6 +70,24 @@
       "parentUuid": "ff446d65_3037e556",
       "revId": "fdb2f06cb3da8554345e72f2fae4323385a35d12",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cae7f5bc_196cc464",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-02T15:48:39Z",
+      "side": 1,
+      "message": "So far static caching has worked well, but this effect is kinda pushing it with three template variables.  Will land as is for now, maybe I get some bright cleanup ideas later.",
+      "parentUuid": "6b0534c4_446f3798",
+      "revId": "fdb2f06cb3da8554345e72f2fae4323385a35d12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
