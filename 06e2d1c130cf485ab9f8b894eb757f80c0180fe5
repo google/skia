@@ -39,6 +39,24 @@
       "message": "Not new to this CL, but fTile should be captured in the cache key too (offset may be sufficient in conjunction with scale).  Otherwise, picture shaders with the same backing picture but different tile rects will hash to the same key when the scale matches.",
       "revId": "06e2d1c130cf485ab9f8b894eb757f80c0180fe5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef49a5d4_5564beca",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-02T21:00:50Z",
+      "side": 1,
+      "message": "Wow, very good catch!\n\nThat sucks, since there are phases that *could* share images...",
+      "parentUuid": "04e983b8_049f0adb",
+      "revId": "06e2d1c130cf485ab9f8b894eb757f80c0180fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
