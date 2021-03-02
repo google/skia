@@ -145,6 +145,9 @@ void GrDawnOpsRenderPass::onEnd() {
 bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                          const SkRect& drawBounds) {
     fCurrentProgram = fGpu->getOrCreateRenderPipeline(fRenderTarget, programInfo);
+    if (!fCurrentProgram) {
+        return false;
+    }
     this->applyState(fCurrentProgram.get(), programInfo);
     return true;
 }
