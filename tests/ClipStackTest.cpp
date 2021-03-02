@@ -1186,7 +1186,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         // list.
 
         // Not passing in tighter bounds is tested for consistency.
-        static const struct SUPPRESS_VISIBILITY_WARNING {
+        const struct SUPPRESS_VISIBILITY_WARNING {
             SkRect testBounds;
             int reducedClipCount;
             uint32_t reducedGenID;
