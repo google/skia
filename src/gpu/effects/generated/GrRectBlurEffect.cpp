@@ -48,7 +48,7 @@ public:
                                                         kFloat3x3_GrSLType, "invVM");
         }
         fragBuilder->codeAppendf(
-                R"SkSL(/* key */ bool highPrecision = %s;
+                R"SkSL(/* key */ const bool highPrecision = %s;
 half xCoverage;
 half yCoverage;
 
