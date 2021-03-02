@@ -288,6 +288,10 @@ static void run_reserve_test(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(GrTBlockList, reporter) {
+    // C::gInstCnt is global state, so this test is not reentrant without locking.
+    static SkMutex mutex;
+    SkAutoMutexExclusive _(mutex);
+
     // Test combinations of allocators with and without stack storage and with different block sizes
     GrTBlockList<C> a1(1);
     run_allocator_test(&a1, reporter);

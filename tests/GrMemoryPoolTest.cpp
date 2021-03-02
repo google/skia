@@ -173,6 +173,10 @@ struct Rec {
 };
 
 DEF_TEST(GrMemoryPool, reporter) {
+    // The type A uses global state, making this test non-reentrant.
+    static SkMutex mutex;
+    SkAutoMutexExclusive _(mutex);
+
     // prealloc and min alloc sizes for the pool
     static const size_t gSizes[][2] = {
         {0, 0},
