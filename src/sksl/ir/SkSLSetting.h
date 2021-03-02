@@ -26,7 +26,12 @@ public:
         : INHERITED(offset, kExpressionKind, type)
         , fName(std::move(name)) {}
 
-    static std::unique_ptr<Expression> Make(const Context& context, int offset, const String& name);
+    // Creates an SkSL setting expression if `fReplaceSettings` is false, or the current value of
+    // the setting when it is true. Reports errors via the ErrorReporter.
+    // (There's no failsafe Make equivalent, because there really isn't a good fallback expression
+    // to produce when the `name` lookup fails. We wouldn't even know the expected type.)
+    static std::unique_ptr<Expression> Convert(const Context& context, int offset,
+                                               const String& name);
 
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<Setting>(fOffset, this->name(), &this->type());
