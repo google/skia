@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "846f0525_a21d3afa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-02T17:34:30Z",
+      "side": 1,
+      "message": "Ran into this when putting together the Metal precompilation step.",
+      "revId": "2193a6b1e478a339b26115ad19bf57cc8fdd4d66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
