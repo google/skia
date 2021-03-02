@@ -26,7 +26,6 @@ class SwitchStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kSwitch;
 
-    // Use SwitchStatement::Make to check invariants when creating switch statements.
     SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
                     const std::shared_ptr<SymbolTable> symbols)
@@ -36,20 +35,22 @@ public:
         , fCases(std::move(cases))
         , fSymbols(std::move(symbols)) {}
 
-    /** Create a `switch` statement with an array of case-values and case-statements.
+    /**
+     * Create a `switch` statement with an array of case-values and case-statements.
      * Coerces case values to the proper type and reports an error if cases are duplicated.
+     * Reports errors via the ErrorReporter.
      */
-    static std::unique_ptr<Statement> Make(const Context& context,
-                                           int offset,
-                                           bool isStatic,
-                                           std::unique_ptr<Expression> value,
-                                           ExpressionArray caseValues,
-                                           SkTArray<StatementArray> caseStatements,
-                                           std::shared_ptr<SymbolTable> symbolTable);
+    static std::unique_ptr<Statement> Convert(const Context& context,
+                                              int offset,
+                                              bool isStatic,
+                                              std::unique_ptr<Expression> value,
+                                              ExpressionArray caseValues,
+                                              SkTArray<StatementArray> caseStatements,
+                                              std::shared_ptr<SymbolTable> symbolTable);
 
     /**
-     * Create a `switch` statement with an array of SwitchCases.
-     * The array of SwitchCases must already contain non-overlapping, correctly-typed case values.
+     * Create a `switch` statement with an array of SwitchCases. The array of SwitchCases must
+     * already contain non-overlapping, correctly-typed case values. Reports errors via ASSERT.
      */
     static std::unique_ptr<Statement> Make(const Context& context,
                                            int offset,

@@ -113,13 +113,13 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
     for (DSLExpression& arg : rawArgs) {
         args.push_back(arg.release());
     }
-    return SkSL::Constructor::Make(Context(), /*offset=*/-1, type, std::move(args));
+    return SkSL::Constructor::Convert(Context(), /*offset=*/-1, type, std::move(args));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expression> left,
                                                            Operator op,
                                                            std::unique_ptr<Expression> right) {
-    return BinaryExpression::Make(Context(), std::move(left), op, std::move(right));
+    return BinaryExpression::Convert(Context(), std::move(left), op, std::move(right));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
@@ -134,20 +134,20 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expres
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr,
                                                             Operator op) {
-    return PostfixExpression::Make(Context(), std::move(expr), op);
+    return PostfixExpression::Convert(Context(), std::move(expr), op);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,
                                                            std::unique_ptr<Expression> expr) {
-    return PrefixExpression::Make(Context(), op, std::move(expr));
+    return PrefixExpression::Convert(Context(), op, std::move(expr));
 }
 
 DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               SkTArray<SkSL::StatementArray> caseStatements) {
-    return SwitchStatement::Make(Context(), /*offset=*/-1, /*isStatic=*/false, std::move(value),
-                                 std::move(caseValues), std::move(caseStatements),
-                                 IRGenerator().fSymbolTable);
+    return SwitchStatement::Convert(Context(), /*offset=*/-1, /*isStatic=*/false, std::move(value),
+                                    std::move(caseValues), std::move(caseStatements),
+                                    IRGenerator().fSymbolTable);
 }
 
 void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
