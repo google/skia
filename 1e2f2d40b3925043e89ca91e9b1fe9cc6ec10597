@@ -93,6 +93,30 @@
       },
       "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "caaec889_0785988a",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T14:12:27Z",
+      "side": 1,
+      "message": "Yeah, I don\u0027t think it\u0027s a real big problem - and don\u0027t think it\u0027s worth making this logic much more complicated just to handle array self-assignment. Just wanted to validate my thinking (and maybe we update the comment?)",
+      "parentUuid": "76be15ba_23f5572b",
+      "range": {
+        "startLine": 585,
+        "startChar": 19,
+        "endLine": 586,
+        "endChar": 73
+      },
+      "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
