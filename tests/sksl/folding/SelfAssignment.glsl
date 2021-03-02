@@ -8,7 +8,7 @@ struct S {
 };
 vec4 main() {
     vec4 x = vec4(3.0, 2.0, 1.0, 0.0);
-    x.xyz = vec3(1.0, 2.0, 3.0);
+    x.xyz = x.zyx;
     S s;
     s.i = 2.0;
     s.j = 2.0;
