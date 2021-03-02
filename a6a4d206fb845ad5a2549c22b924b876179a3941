@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa43d0b8_c71cf571",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T18:20:37Z",
+      "side": 1,
+      "message": "Debugging the dawn failures now...",
+      "revId": "a6a4d206fb845ad5a2549c22b924b876179a3941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f07940b9_b8a353f4",
@@ -43,6 +60,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f064393d_1afda69f",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T18:20:37Z",
+      "side": 1,
+      "message": "This was just to avoid the vcall.",
+      "parentUuid": "f07940b9_b8a353f4",
+      "range": {
+        "startLine": 156,
+        "startChar": 17,
+        "endLine": 156,
+        "endChar": 43
+      },
+      "revId": "a6a4d206fb845ad5a2549c22b924b876179a3941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8af3233_c809440b",
         "filename": "src/gpu/GrProgramDesc.h",
         "patchSetId": 6
@@ -54,6 +95,24 @@
       "writtenOn": "2021-03-02T18:12:00Z",
       "side": 1,
       "message": "Will we need/want a version of this that also takes the description?",
+      "revId": "a6a4d206fb845ad5a2549c22b924b876179a3941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb970f03_a0965824",
+        "filename": "src/gpu/GrProgramDesc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T18:20:37Z",
+      "side": 1,
+      "message": "Today this is only used when ingesting cache entries (as part of the shader precompile API). The GrProgramDescs built this way are temporary, and never stored back to the cache.",
+      "parentUuid": "b8af3233_c809440b",
       "revId": "a6a4d206fb845ad5a2549c22b924b876179a3941",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
