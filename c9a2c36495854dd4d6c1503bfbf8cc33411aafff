@@ -46,6 +46,30 @@
       },
       "revId": "c9a2c36495854dd4d6c1503bfbf8cc33411aafff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b015a5f3_959fc14f",
+        "filename": "src/sksl/SkSLConstantFolder.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-02T21:51:29Z",
+      "side": 1,
+      "message": "OK, after going back to the code, I made a few changes:\n- Changed this comparison to an assert\n- Avoided recursion\n- Either return the expression as-is, or a constant value; no half-conversions. The previous implementation would convert \u0027y\u0027 into \u0027x\u0027 for no reason:\n\nconst float x \u003d abs(sin(123));\nconst float y \u003d x;",
+      "parentUuid": "d3b8fd3a_ca6648df",
+      "range": {
+        "startLine": 190,
+        "startChar": 11,
+        "endLine": 190,
+        "endChar": 23
+      },
+      "revId": "c9a2c36495854dd4d6c1503bfbf8cc33411aafff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
