@@ -600,7 +600,11 @@ bool Analysis::IsSelfAssignment(const Expression& left, const Expression& right)
     }
 }
 
-static const char* invalid_for_ES2(const ForStatement& loop,
+static const char* invalid_for_ES2(int offset,
+                                   const Statement* loopInitializer,
+                                   const Expression* loopTest,
+                                   const Expression* loopNext,
+                                   const Statement* loopStatement,
                                    Analysis::UnrollableLoopInfo& loopInfo) {
     auto getConstant = [&](const std::unique_ptr<Expression>& expr, double* val) {
         if (!expr->isCompileTimeConstant()) {
@@ -619,13 +623,13 @@ static const char* invalid_for_ES2(const ForStatement& loop,
     //
     // init_declaration has the form: type_specifier identifier = constant_expression
     //
-    if (!loop.initializer()) {
+    if (!loopInitializer) {
         return "missing init declaration";
     }
-    if (!loop.initializer()->is<VarDeclaration>()) {
+    if (!loopInitializer->is<VarDeclaration>()) {
         return "invalid init declaration";
     }
-    const VarDeclaration& initDecl = loop.initializer()->as<VarDeclaration>();
+    const VarDeclaration& initDecl = loopInitializer->as<VarDeclaration>();
     if (!initDecl.baseType().isNumber()) {
         return "invalid type for loop index";
     }
@@ -649,13 +653,13 @@ static const char* invalid_for_ES2(const ForStatement& loop,
     //
     // condition has the form: loop_index relational_operator constant_expression
     //
-    if (!loop.test()) {
+    if (!loopTest) {
         return "missing condition";
     }
-    if (!loop.test()->is<BinaryExpression>()) {
+    if (!loopTest->is<BinaryExpression>()) {
         return "invalid condition";
     }
-    const BinaryExpression& cond = loop.test()->as<BinaryExpression>();
+    const BinaryExpression& cond = loopTest->as<BinaryExpression>();
     if (!is_loop_index(cond.left())) {
         return "expected loop index on left hand side of condition";
     }
@@ -685,12 +689,12 @@ static const char* invalid_for_ES2(const ForStatement& loop,
     // The spec doesn't mention prefix increment and decrement, but there is some consensus that
     // it's an oversight, so we allow those as well.
     //
-    if (!loop.next()) {
+    if (!loopNext) {
         return "missing loop expression";
     }
-    switch (loop.next()->kind()) {
+    switch (loopNext->kind()) {
         case Expression::Kind::kBinary: {
-            const BinaryExpression& next = loop.next()->as<BinaryExpression>();
+            const BinaryExpression& next = loopNext->as<BinaryExpression>();
             if (!is_loop_index(next.left())) {
                 return "expected loop index in loop expression";
             }
@@ -705,7 +709,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
             }
         } break;
         case Expression::Kind::kPrefix: {
-            const PrefixExpression& next = loop.next()->as<PrefixExpression>();
+            const PrefixExpression& next = loopNext->as<PrefixExpression>();
             if (!is_loop_index(next.operand())) {
                 return "expected loop index in loop expression";
             }
@@ -717,7 +721,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
             }
         } break;
         case Expression::Kind::kPostfix: {
-            const PostfixExpression& next = loop.next()->as<PostfixExpression>();
+            const PostfixExpression& next = loopNext->as<PostfixExpression>();
             if (!is_loop_index(next.operand())) {
                 return "expected loop index in loop expression";
             }
@@ -736,7 +740,7 @@ static const char* invalid_for_ES2(const ForStatement& loop,
     // Within the body of the loop, the loop index is not statically assigned to, nor is it used as
     // argument to a function 'out' or 'inout' parameter.
     //
-    if (Analysis::StatementWritesToVariable(*loop.statement(), initDecl.var())) {
+    if (Analysis::StatementWritesToVariable(*loopStatement, initDecl.var())) {
         return "loop index must not be modified within body of the loop";
     }
 
@@ -771,14 +775,19 @@ static const char* invalid_for_ES2(const ForStatement& loop,
     return nullptr;  // All checks pass
 }
 
-bool Analysis::ForLoopIsValidForES2(const ForStatement& loop,
+bool Analysis::ForLoopIsValidForES2(int offset,
+                                    const Statement* loopInitializer,
+                                    const Expression* loopTest,
+                                    const Expression* loopNext,
+                                    const Statement* loopStatement,
                                     Analysis::UnrollableLoopInfo* outLoopInfo,
                                     ErrorReporter* errors) {
     UnrollableLoopInfo ignored,
                        *loopInfo = outLoopInfo ? outLoopInfo : &ignored;
-    if (const char* msg = invalid_for_ES2(loop, *loopInfo)) {
+    if (const char* msg = invalid_for_ES2(
+                offset, loopInitializer, loopTest, loopNext, loopStatement, *loopInfo)) {
         if (errors) {
-            errors->error(loop.fOffset, msg);
+            errors->error(offset, msg);
         }
         return false;
     }
