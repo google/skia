@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "599d376c_beeaa869",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T21:51:36Z",
+      "side": 1,
+      "message": "It took me a moment to get what this is saying. I think I might find it clearer if it said something like \"so the byte count of the processor key must be \u003c 2^21\".",
+      "range": {
+        "startLine": 74,
+        "startChar": 25,
+        "endLine": 74,
+        "endChar": 57
+      },
+      "revId": "fdfb57ca1e30eea520d0cf76fe210770b3041e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "7ac768ad_53c580e2",
