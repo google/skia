@@ -51,6 +51,24 @@
       "parentUuid": "3712d03a_6b8a584b",
       "revId": "a4cd44e444bbc04792fad610b84ee9fd274bdeca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94f1a62b_9cdd83e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-02T15:37:22Z",
+      "side": 1,
+      "message": "Open a bug for needing to do this (break up the input around control characters interpreted by Paragraph and shape each run, the possibly join them all back up for later), put that bug in the commit message as well, and I\u0027ll be fine with this.",
+      "parentUuid": "e8c3cecf_09a11b9b",
+      "revId": "a4cd44e444bbc04792fad610b84ee9fd274bdeca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
