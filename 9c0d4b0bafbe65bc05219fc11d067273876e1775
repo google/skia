@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b13532d_8c6668f8",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-02T14:13:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8ecc268_cbcdb6a7",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 7
+      },
+      "revId": "9c0d4b0bafbe65bc05219fc11d067273876e1775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4104677_8e7832d3",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08eebc22_06e21f6f",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-02T14:13:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4104677_8e7832d3",
+      "range": {
+        "startLine": 61,
+        "startChar": 18,
+        "endLine": 61,
+        "endChar": 31
+      },
+      "revId": "9c0d4b0bafbe65bc05219fc11d067273876e1775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1cab86e5_077ebaa2",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-03-01T19:14:56Z",
       "side": 1,
       "message": "let y (and let x in the nested for loop)",
+      "range": {
+        "startLine": 74,
+        "startChar": 13,
+        "endLine": 74,
+        "endChar": 14
+      },
+      "revId": "9c0d4b0bafbe65bc05219fc11d067273876e1775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc92310d_62244fe9",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-02T14:13:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cab86e5_077ebaa2",
       "range": {
         "startLine": 74,
         "startChar": 13,
