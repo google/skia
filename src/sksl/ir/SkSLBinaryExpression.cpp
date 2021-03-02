@@ -12,14 +12,14 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
-                                                   std::unique_ptr<Expression> left,
-                                                   Operator op,
-                                                   std::unique_ptr<Expression> right) {
+std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
+                                                      std::unique_ptr<Expression> left,
+                                                      Operator op,
+                                                      std::unique_ptr<Expression> right) {
     if (!left || !right) {
         return nullptr;
     }
-    int offset = left->fOffset;
+    const int offset = left->fOffset;
 
     const Type* rawLeftType;
     if (left->is<IntLiteral>() && right->type().isInteger()) {
@@ -35,11 +35,6 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
         rawRightType = &right->type();
     }
 
-    if (context.fConfig->strictES2Mode() && !op.isAllowedInStrictES2Mode()) {
-        context.fErrors.error(offset, String("operator '") + op.operatorName() +
-                                      "' is not allowed");
-        return nullptr;
-    }
     bool isAssignment = op.isAssignment();
     if (isAssignment &&
         !Analysis::MakeAssignmentExpr(left.get(),
@@ -60,17 +55,26 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
                                       "', '" + right->type().displayName() + "'");
         return nullptr;
     }
+
     if (isAssignment && leftType->componentType().isOpaque()) {
         context.fErrors.error(offset, "assignments to opaque type '" + left->type().displayName() +
                                       "' are not permitted");
-    }
-    if (context.fConfig->strictES2Mode() && leftType->isOrContainsArray()) {
-        // Most operators are already rejected on arrays, but GLSL ES 1.0 is very explicit that the
-        // *only* operator allowed on arrays is subscripting (and the rules against assignment,
-        // comparison, and even sequence apply to structs containing arrays as well).
-        context.fErrors.error(offset, String("operator '") + op.operatorName() +
-                                      "' can not operate on arrays (or structs containing arrays)");
         return nullptr;
+    }
+    if (context.fConfig->strictES2Mode()) {
+        if (!op.isAllowedInStrictES2Mode()) {
+            context.fErrors.error(offset, String("operator '") + op.operatorName() +
+                                          "' is not allowed");
+            return nullptr;
+        }
+        if (leftType->isOrContainsArray()) {
+            // Most operators are already rejected on arrays, but GLSL ES 1.0 is very explicit that
+            // the *only* operator allowed on arrays is subscripting (and the rules against
+            // assignment, comparison, and even sequence apply to structs containing arrays as well)
+            context.fErrors.error(offset, String("operator '") + op.operatorName() + "' can not "
+                                          "operate on arrays (or structs containing arrays)");
+            return nullptr;
+        }
     }
 
     left = leftType->coerceExpression(std::move(left), context);
@@ -79,15 +83,49 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
         return nullptr;
     }
 
-    std::unique_ptr<Expression> result;
+    return BinaryExpression::Make(context, std::move(left), op, std::move(right), resultType);
+}
+
+std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
+                                                   std::unique_ptr<Expression> left,
+                                                   Operator op,
+                                                   std::unique_ptr<Expression> right) {
+    // Determine the result type of the binary expression.
+    const Type* leftType;
+    const Type* rightType;
+    const Type* resultType;
+    SkAssertResult(op.determineBinaryType(context, left->type(), right->type(),
+                                          &leftType, &rightType, &resultType));
+
+    return BinaryExpression::Make(context, std::move(left), op, std::move(right), resultType);
+}
+
+std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
+                                                   std::unique_ptr<Expression> left,
+                                                   Operator op,
+                                                   std::unique_ptr<Expression> right,
+                                                   const Type* resultType) {
+    // We should have detected non-ES2 compliant behavior in Convert.
+    SkASSERT(!context.fConfig->strictES2Mode() || op.isAllowedInStrictES2Mode());
+    SkASSERT(!context.fConfig->strictES2Mode() || !left->type().isOrContainsArray());
+
+    // We should have detected non-assignable assignment expressions in Convert.
+    SkASSERT(!op.isAssignment() || Analysis::IsAssignable(*left));
+    SkASSERT(!op.isAssignment() || !left->type().componentType().isOpaque());
+
+    // If we can detect division-by-zero, we should synthesize an error, but our caller is still
+    // expecting to receive a binary expression back; don't return nullptr.
+    const int offset = left->fOffset;
     if (!ConstantFolder::ErrorOnDivideByZero(context, offset, op, *right)) {
-        result = ConstantFolder::Simplify(context, offset, *left, op, *right);
+        std::unique_ptr<Expression> result =
+                ConstantFolder::Simplify(context, offset, *left, op, *right);
+        if (result) {
+            return result;
+        }
     }
-    if (!result) {
-        result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
-                                                    resultType);
-    }
-    return result;
+
+    return std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
+                                              resultType);
 }
 
 bool BinaryExpression::CheckRef(const Expression& expr) {

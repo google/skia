@@ -99,7 +99,9 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
             U value = foldFn(left.getVecComponent<T>(i), right.getVecComponent<T>(i));
             args.push_back(std::make_unique<Literal<T>>(left.fOffset, value, &componentType));
         }
-        return Constructor::Make(context, left.fOffset, type, std::move(args));
+        auto foldedCtor = Constructor::Convert(context, left.fOffset, type, std::move(args));
+        SkASSERT(foldedCtor);
+        return foldedCtor;
     };
 
     switch (op.kind()) {

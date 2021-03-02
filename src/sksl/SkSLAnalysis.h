@@ -62,7 +62,7 @@ struct Analysis {
     struct AssignmentInfo {
         VariableReference* fAssignedVar = nullptr;
     };
-    static bool IsAssignable(Expression& expr, AssignmentInfo* info,
+    static bool IsAssignable(Expression& expr, AssignmentInfo* info = nullptr,
                              ErrorReporter* errors = nullptr);
 
     // Updates the `refKind` field of exactly one VariableReference inside `expr`.

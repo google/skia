@@ -89,19 +89,19 @@ public:
     }
 
     static DSLPossibleStatement Do(DSLStatement stmt, DSLExpression test) {
-        return DoStatement::Make(DSLWriter::Context(), stmt.release(), test.release());
+        return DoStatement::Convert(DSLWriter::Context(), stmt.release(), test.release());
     }
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
                                     DSLExpression next, DSLStatement stmt) {
-        return ForStatement::Make(DSLWriter::Context(), /*offset=*/-1, initializer.release(),
-                                  test.release(), next.release(), stmt.release(),
-                                  DSLWriter::SymbolTable());
+        return ForStatement::Convert(DSLWriter::Context(), /*offset=*/-1, initializer.release(),
+                                     test.release(), next.release(), stmt.release(),
+                                     DSLWriter::SymbolTable());
     }
 
     static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse) {
-        return IfStatement::Make(DSLWriter::Context(), /*offset=*/-1, /*isStatic=*/false,
-                                 test.release(), ifTrue.release(), ifFalse.release());
+        return IfStatement::Convert(DSLWriter::Context(), /*offset=*/-1, /*isStatic=*/false,
+                                    test.release(), ifTrue.release(), ifFalse.release());
     }
 
     static DSLPossibleStatement Return(DSLExpression value, PositionInfo pos) {
@@ -119,8 +119,8 @@ public:
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::MakeWith01(DSLWriter::Context(), base.release(),
-                                                 ComponentArray{a}),
+        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+                                              ComponentArray{a}),
                              pos);
     }
 
@@ -128,8 +128,8 @@ public:
                                  SkSL::SwizzleComponent::Type a,
                                  SkSL::SwizzleComponent::Type b,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::MakeWith01(DSLWriter::Context(), base.release(),
-                                                 ComponentArray{a, b}),
+        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+                                              ComponentArray{a, b}),
                              pos);
     }
 
@@ -138,8 +138,8 @@ public:
                                  SkSL::SwizzleComponent::Type b,
                                  SkSL::SwizzleComponent::Type c,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::MakeWith01(DSLWriter::Context(), base.release(),
-                                                 ComponentArray{a, b, c}),
+        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+                                              ComponentArray{a, b, c}),
                              pos);
     }
 
@@ -149,20 +149,20 @@ public:
                                  SkSL::SwizzleComponent::Type c,
                                  SkSL::SwizzleComponent::Type d,
                                  PositionInfo pos) {
-        return DSLExpression(Swizzle::MakeWith01(DSLWriter::Context(), base.release(),
-                                                 ComponentArray{a,b,c,d}),
+        return DSLExpression(Swizzle::Convert(DSLWriter::Context(), base.release(),
+                                              ComponentArray{a,b,c,d}),
                              pos);
     }
 
     static DSLPossibleExpression Select(DSLExpression test, DSLExpression ifTrue,
                                         DSLExpression ifFalse) {
-        return TernaryExpression::Make(DSLWriter::Context(), test.release(),
-                                       ifTrue.release(), ifFalse.release());
+        return TernaryExpression::Convert(DSLWriter::Context(), test.release(),
+                                          ifTrue.release(), ifFalse.release());
     }
 
     static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {
-        return ForStatement::MakeWhile(DSLWriter::Context(), /*offset=*/-1, test.release(),
-                                       stmt.release(), DSLWriter::SymbolTable());
+        return ForStatement::ConvertWhile(DSLWriter::Context(), /*offset=*/-1, test.release(),
+                                          stmt.release(), DSLWriter::SymbolTable());
     }
 };
 

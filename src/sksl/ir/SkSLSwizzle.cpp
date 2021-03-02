@@ -10,9 +10,9 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> Swizzle::MakeWith01(const Context& context,
-                                                std::unique_ptr<Expression> base,
-                                                ComponentArray inComponents) {
+std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
+                                             std::unique_ptr<Expression> base,
+                                             ComponentArray inComponents) {
     const int offset = base->fOffset;
     const Type& baseType = base->type();
 
@@ -96,8 +96,8 @@ std::unique_ptr<Expression> Swizzle::MakeWith01(const Context& context,
                     // Synthesize a 'type(0)' argument at the end of the constructor.
                     ExpressionArray zeroArgs;
                     zeroArgs.push_back(std::make_unique<IntLiteral>(context, offset,/*fValue=*/0));
-                    constructorArgs.push_back(Constructor::Make(context, offset, *numberType,
-                                                                std::move(zeroArgs)));
+                    constructorArgs.push_back(Constructor::Convert(context, offset, *numberType,
+                                                                   std::move(zeroArgs)));
                     constantZeroIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantZeroIdx);
@@ -107,8 +107,8 @@ std::unique_ptr<Expression> Swizzle::MakeWith01(const Context& context,
                     // Synthesize a 'type(1)' argument at the end of the constructor.
                     ExpressionArray oneArgs;
                     oneArgs.push_back(std::make_unique<IntLiteral>(context, offset, /*fValue=*/1));
-                    constructorArgs.push_back(Constructor::Make(context, offset, *numberType,
-                                                                std::move(oneArgs)));
+                    constructorArgs.push_back(Constructor::Convert(context, offset, *numberType,
+                                                                   std::move(oneArgs)));
                     constantOneIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantOneIdx);
@@ -120,9 +120,12 @@ std::unique_ptr<Expression> Swizzle::MakeWith01(const Context& context,
         }
     }
 
-    expr = Constructor::Make(context, offset,
-                             numberType->toCompound(context, constantFieldIdx, /*rows=*/1),
-                             std::move(constructorArgs));
+    expr = Constructor::Convert(context, offset,
+                                numberType->toCompound(context, constantFieldIdx, /*rows=*/1),
+                                std::move(constructorArgs));
+    if (!expr) {
+        return nullptr;
+    }
 
     return Swizzle::Make(context, std::move(expr), swizzleComponents);
 }
@@ -130,7 +133,6 @@ std::unique_ptr<Expression> Swizzle::MakeWith01(const Context& context,
 std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                                           std::unique_ptr<Expression> expr,
                                           ComponentArray components) {
-    // The IRGenerator is responsible for enforcing these invariants.
     const Type& exprType = expr->type();
     SkASSERTF(exprType.isVector() || exprType.isScalar(),
               "cannot swizzle type '%s'", exprType.description().c_str());
@@ -151,9 +153,12 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
 
         ExpressionArray ctorArgs;
         ctorArgs.push_back(std::move(expr));
-        return Constructor::Make(context, offset,
-                                 exprType.toCompound(context, components.size(), /*rows=*/1),
-                                 std::move(ctorArgs));
+
+        auto ctor = Constructor::Convert(context, offset,
+                                         exprType.toCompound(context, components.size(),/*rows=*/1),
+                                         std::move(ctorArgs));
+        SkASSERT(ctor);
+        return ctor;
     }
 
     if (context.fConfig->fSettings.fOptimize) {

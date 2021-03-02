@@ -31,14 +31,24 @@ String IfStatement::description() const {
     return result;
 }
 
-std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset, bool isStatic,
-                                             std::unique_ptr<Expression> test,
-                                             std::unique_ptr<Statement> ifTrue,
-                                             std::unique_ptr<Statement> ifFalse) {
+std::unique_ptr<Statement> IfStatement::Convert(const Context& context, int offset, bool isStatic,
+                                                std::unique_ptr<Expression> test,
+                                                std::unique_ptr<Statement> ifTrue,
+                                                std::unique_ptr<Statement> ifFalse) {
     test = context.fTypes.fBool->coerceExpression(std::move(test), context);
     if (!test) {
         return nullptr;
     }
+    return IfStatement::Make(context, offset, isStatic, std::move(test),
+                             std::move(ifTrue), std::move(ifFalse));
+}
+
+std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset, bool isStatic,
+                                             std::unique_ptr<Expression> test,
+                                             std::unique_ptr<Statement> ifTrue,
+                                             std::unique_ptr<Statement> ifFalse) {
+    SkASSERT(test->type() == *context.fTypes.fBool);
+
     if (test->is<BoolLiteral>()) {
         // Static Boolean values can fold down to a single branch.
         if (test->as<BoolLiteral>().value()) {

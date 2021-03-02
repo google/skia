@@ -330,9 +330,11 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expression.as<Constructor>();
-            return Constructor::Make(*fContext, offset,
-                                     *constructor.type().clone(symbolTableForExpression),
-                                     argList(constructor.arguments()));
+            auto inlinedCtor = Constructor::Convert(
+                    *fContext, offset, *constructor.type().clone(symbolTableForExpression),
+                    argList(constructor.arguments()));
+            SkASSERT(inlinedCtor);
+            return inlinedCtor;
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();

@@ -120,7 +120,8 @@ static std::unique_ptr<Expression> get_value(const Context& context, int offset,
     return nullptr;
 }
 
-std::unique_ptr<Expression> Setting::Make(const Context& context, int offset, const String& name) {
+std::unique_ptr<Expression> Setting::Convert(const Context& context, int offset,
+                                             const String& name) {
     SkASSERT(context.fConfig);
 
     if (context.fConfig->fSettings.fReplaceSettings) {

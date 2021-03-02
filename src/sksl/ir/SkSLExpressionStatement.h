@@ -24,6 +24,8 @@ public:
         : INHERITED(expression->fOffset, kStatementKind)
         , fExpression(std::move(expression)) {}
 
+    // Creates an SkSL expression-statement. Note that there is never any type-coercion and no error
+    // cases are reported; any Expression can be an ExpressionStatement.
     static std::unique_ptr<Statement> Make(const Context& context,
                                            std::unique_ptr<Expression> expr);
 
