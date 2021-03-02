@@ -93,6 +93,30 @@
       },
       "revId": "24fc94f2b714d42a96be4061c13ff8884f1e8a30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49796c50_a7b68e8c",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-02T14:42:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9211af37_041003a8",
+      "range": {
+        "startLine": 6,
+        "startChar": 69,
+        "endLine": 6,
+        "endChar": 75
+      },
+      "revId": "24fc94f2b714d42a96be4061c13ff8884f1e8a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
