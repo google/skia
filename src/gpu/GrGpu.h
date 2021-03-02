@@ -23,11 +23,14 @@
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
 
+#include "src/gpu/GrFooBar.h"
+
 class GrAttachment;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
 struct GrContextOptions;
 class GrDirectContext;
+//class GrFooBar;
 class GrGpuBuffer;
 class GrGLContext;
 class GrPath;
@@ -62,6 +65,9 @@ public:
      */
     const GrCaps* caps() const { return fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fCaps; }
+
+    virtual GrFooBar* fooBar() = 0; //{ return nullptr; }
+    virtual sk_sp<GrFooBar> refFooBar() = 0; //{ return nullptr; }
 
     GrPathRendering* pathRendering() { return fPathRendering.get();  }
 
@@ -414,16 +420,6 @@ public:
 
     class Stats {
     public:
-        enum class ProgramCacheResult {
-            kHit,       // the program was found in the cache
-            kMiss,      // the program was not found in the cache (and was, thus, compiled)
-            kPartial,   // a precompiled version was found in the persistent cache
-
-            kLast = kPartial
-        };
-
-        static const int kNumProgramCacheResults = (int)ProgramCacheResult::kLast + 1;
-
 #if GR_GPU_STATS
         Stats() = default;
 
@@ -431,9 +427,6 @@ public:
 
         int renderTargetBinds() const { return fRenderTargetBinds; }
         void incRenderTargetBinds() { fRenderTargetBinds++; }
-
-        int shaderCompilations() const { return fShaderCompilations; }
-        void incShaderCompilations() { fShaderCompilations++; }
 
         int textureCreates() const { return fTextureCreates; }
         void incTextureCreates() { fTextureCreates++; }
@@ -468,42 +461,12 @@ public:
         int numScratchMSAAAttachmentsReused() const { return fNumScratchMSAAAttachmentsReused; }
         void incNumScratchMSAAAttachmentsReused() { ++fNumScratchMSAAAttachmentsReused; }
 
-        int numInlineCompilationFailures() const { return fNumInlineCompilationFailures; }
-        void incNumInlineCompilationFailures() { ++fNumInlineCompilationFailures; }
-
-        int numInlineProgramCacheResult(ProgramCacheResult stat) const {
-            return fInlineProgramCacheStats[(int) stat];
-        }
-        void incNumInlineProgramCacheResult(ProgramCacheResult stat) {
-            ++fInlineProgramCacheStats[(int) stat];
-        }
-
-        int numPreCompilationFailures() const { return fNumPreCompilationFailures; }
-        void incNumPreCompilationFailures() { ++fNumPreCompilationFailures; }
-
-        int numPreProgramCacheResult(ProgramCacheResult stat) const {
-            return fPreProgramCacheStats[(int) stat];
-        }
-        void incNumPreProgramCacheResult(ProgramCacheResult stat) {
-            ++fPreProgramCacheStats[(int) stat];
-        }
-
-        int numCompilationFailures() const { return fNumCompilationFailures; }
-        void incNumCompilationFailures() { ++fNumCompilationFailures; }
-
-        int numPartialCompilationSuccesses() const { return fNumPartialCompilationSuccesses; }
-        void incNumPartialCompilationSuccesses() { ++fNumPartialCompilationSuccesses; }
-
-        int numCompilationSuccesses() const { return fNumCompilationSuccesses; }
-        void incNumCompilationSuccesses() { ++fNumCompilationSuccesses; }
-
 #if GR_TEST_UTILS
-        void dump(SkString*);
-        void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
+        void dump1(SkString*);
+        void dumpKeyValuePairs1(SkTArray<SkString>* keys, SkTArray<double>* values);
 #endif
     private:
         int fRenderTargetBinds = 0;
-        int fShaderCompilations = 0;
         int fTextureCreates = 0;
         int fTextureUploads = 0;
         int fTransfersToTexture = 0;
@@ -516,24 +479,13 @@ public:
         int fNumScratchTexturesReused = 0;
         int fNumScratchMSAAAttachmentsReused = 0;
 
-        int fNumInlineCompilationFailures = 0;
-        int fInlineProgramCacheStats[kNumProgramCacheResults] = { 0 };
-
-        int fNumPreCompilationFailures = 0;
-        int fPreProgramCacheStats[kNumProgramCacheResults] = { 0 };
-
-        int fNumCompilationFailures = 0;
-        int fNumPartialCompilationSuccesses = 0;
-        int fNumCompilationSuccesses = 0;
-
 #else
 
 #if GR_TEST_UTILS
-        void dump(SkString*) {}
-        void dumpKeyValuePairs(SkTArray<SkString>*, SkTArray<double>*) {}
+        void dump1(SkString*) {}
+        void dumpKeyValuePairs1(SkTArray<SkString>*, SkTArray<double>*) {}
 #endif
         void incRenderTargetBinds() {}
-        void incShaderCompilations() {}
         void incTextureCreates() {}
         void incTextureUploads() {}
         void incTransfersToTexture() {}
@@ -545,13 +497,6 @@ public:
         void incNumSubmitToGpus() {}
         void incNumScratchTexturesReused() {}
         void incNumScratchMSAAAttachmentsReused() {}
-        void incNumInlineCompilationFailures() {}
-        void incNumInlineProgramCacheResult(ProgramCacheResult stat) {}
-        void incNumPreCompilationFailures() {}
-        void incNumPreProgramCacheResult(ProgramCacheResult stat) {}
-        void incNumCompilationFailures() {}
-        void incNumPartialCompilationSuccesses() {}
-        void incNumCompilationSuccesses() {}
 #endif
     };
 

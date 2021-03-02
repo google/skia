@@ -13,6 +13,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrFooBar.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/image/SkSurface_Gpu.h"
@@ -37,10 +38,11 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
-void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
+void GrContextThreadSafeProxy::init1(sk_sp<const GrCaps> caps, sk_sp<GrFooBar> foobar) {
     fCaps = std::move(caps);
     fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
     fThreadSafeCache = std::make_unique<GrThreadSafeCache>();
+    fFooBar = std::move(foobar);
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
@@ -165,5 +167,9 @@ sk_sp<GrContextThreadSafeProxy> GrContextThreadSafeProxyPriv::Make(
                              GrBackendApi backend,
                              const GrContextOptions& options) {
     return sk_sp<GrContextThreadSafeProxy>(new GrContextThreadSafeProxy(backend, options));
+}
+
+void GrContextThreadSafeProxyPriv::init1(sk_sp<const GrCaps> caps, sk_sp<GrFooBar> fb) const {
+    fProxy->init1(std::move(caps), std::move(fb));
 }
 

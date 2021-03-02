@@ -36,6 +36,9 @@ public:
 
     GrD3DResourceProvider& resourceProvider() { return fResourceProvider; }
 
+    GrFooBar* fooBar() override;
+    sk_sp<GrFooBar> refFooBar() override;
+
     ID3D12Device* device() const { return fDevice.get(); }
     ID3D12CommandQueue* queue() const { return fQueue.get(); }
 

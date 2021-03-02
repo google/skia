@@ -29,6 +29,15 @@
 #include <DXProgrammableCapture.h>
 #endif
 
+GrFooBar* GrD3DGpu::fooBar() {
+    return nullptr;
+}
+
+sk_sp<GrFooBar> GrD3DGpu::refFooBar() {
+    return nullptr;
+}
+
+
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
                             const GrContextOptions& contextOptions, GrDirectContext* direct) {
     sk_sp<GrD3DMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
