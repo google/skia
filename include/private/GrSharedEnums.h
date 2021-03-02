@@ -29,7 +29,8 @@ enum class GrClipEdgeType {
 enum class PMConversion {
     kToPremul        = 0,
     kToUnpremul      = 1,
-    kPMConversionCnt = 2
+
+    kLast = kToUnpremul
 };
 
 #endif

@@ -38,8 +38,8 @@ void GrKeyIn::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuil
     uint16_t green = SkFloatToHalf(color.fG);
     uint16_t blue = SkFloatToHalf(color.fB);
     uint16_t alpha = SkFloatToHalf(color.fA);
-    b->add32(((uint32_t)red << 16) | green);
-    b->add32(((uint32_t)blue << 16) | alpha);
+    b->add32(((uint32_t)red << 16) | green, "color.rg");
+    b->add32(((uint32_t)blue << 16) | alpha, "color.ba");
 }
 bool GrKeyIn::onIsEqual(const GrFragmentProcessor& other) const {
     const GrKeyIn& that = other.cast<GrKeyIn>();
