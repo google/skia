@@ -89,6 +89,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40d29ea0_acf09995",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-02T22:50:11Z",
+      "side": 1,
+      "message": "I don\u0027t know the answer, but I would guess that the very short code path, and hot memory are causing the effect.",
+      "parentUuid": "86998aed_8653c646",
+      "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "828137e8_f50a397f",
@@ -102,6 +120,30 @@
       "writtenOn": "2021-03-01T14:31:32Z",
       "side": 1,
       "message": "Do we need to make this have a destructor so that the held atlas text op gets deleted when the thread ends?\n\nUnless I\u0027m missing something, we could end up with a scenario where you add several atlas text ops, and the last created op is merged into one of the older ones. That would then have it stored in gGrAtlasTextOpCache instead of going through ::delete. But if that was the last op in the frame being flushed on the thread, and then the thread ends, no new op will come along to reclaim it. In the worst case scenario, if someone is making lots of threads over time to build DDLs, we could start accumulating unreclaimable memory, right?",
+      "range": {
+        "startLine": 35,
+        "startChar": 7,
+        "endLine": 35,
+        "endChar": 25
+      },
+      "revId": "a0765bffe95d691b6ce9c5e0f5b67daeb20deb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e62afc5_89978320",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-02T22:50:11Z",
+      "side": 1,
+      "message": "I\u0027ve added code to clear the thread_local in ~GrRecordingContext().",
+      "parentUuid": "828137e8_f50a397f",
       "range": {
         "startLine": 35,
         "startChar": 7,
