@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "896d8a30_f9912c60",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-02T19:04:27Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 174,
+        "startChar": 40,
+        "endLine": 174,
+        "endChar": 41
+      },
+      "revId": "ddfff2edfb73950a3f61ad7ebaf88b1bff711aeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
