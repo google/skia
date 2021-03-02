@@ -397,15 +397,27 @@ func main() {
 		parts := strings.Split(*bot, "-")
 		OS, model, CPU_or_GPU := parts[1], parts[3], parts[4]
 
-		// Bots use portable fonts except where we explicitly opt-in to native fonts.
-		defaultFlags := []string{"--nonativeFonts"}
+		// We'll pass `flag: value` as `--flag value` to FM.
+		type F = map[string]string
 
-		run := func(sources []string, extraFlags string) {
+		// Bots use portable fonts except where we explicitly opt-in to native fonts.
+		defaultFlags := F{"nativeFonts": "false"}
+
+		run := func(sources []string, extraFlags F) {
 			// Default then extra to allow overriding the defaults.
-			flags := []string{}
-			flags = append(flags, defaultFlags...)
-			flags = append(flags, strings.Fields(extraFlags)...)
-			kickoff(sources, flags)
+			flags := F{}
+			for k, v := range defaultFlags {
+				flags[k] = v
+			}
+			for k, v := range extraFlags {
+				flags[k] = v
+			}
+
+			flattened := []string{}
+			for k, v := range flags {
+				flattened = append(flattened, "--"+k, v)
+			}
+			kickoff(sources, flattened)
 		}
 
 		gms := shorthands["gms"]
@@ -430,34 +442,38 @@ func main() {
 
 		if strings.Contains(*bot, "TSAN") {
 			// Run each test a few times in parallel to uncover races.
-			defaultFlags = append(defaultFlags, "--race", "4")
+			defaultFlags["race"] = "4"
 		}
 
 		if CPU_or_GPU == "CPU" {
-			defaultFlags = append(defaultFlags, "-b", "cpu")
+			defaultFlags["backend"] = "cpu"
 
 			// FM's default ct/gamut/tf flags are equivalent to --config srgb in DM.
-			run(gms, "")
-			run(gms, "--nativeFonts")
-			run(imgs, "")
-			run(svgs, "")
-			run(skps, "--clipW 1000 --clipH 1000")
-			run(tests, "--race 0") // Several unit tests are not reentrant.
+			run(gms, F{})
+			run(gms, F{"nativeFonts": "true"})
+			run(imgs, F{})
+			run(svgs, F{})
+			run(skps, F{"clipW": "1000", "clipH": "1000"})
+			run(tests, F{"race": "0"}) // Several unit tests are not reentrant.
 
 			if model == "GCE" {
-				run(gms, "--ct g8 --legacy")                      // --config g8
-				run(gms, "--ct 565 --legacy")                     // --config 565
-				run(gms, "--ct 8888 --legacy")                    // --config 8888.
-				run(gms, "--ct f16")                              // --config esrgb
-				run(gms, "--ct f16 --tf linear")                  // --config f16
-				run(gms, "--ct 8888 --gamut p3")                  // --config p3
-				run(gms, "--ct 8888 --gamut narrow --tf 2.2")     // --config narrow
-				run(gms, "--ct f16 --gamut rec2020 --tf rec2020") // --config erec2020
+				run(gms, F{"ct": "g8", "legacy": "true"})                     // --config g8
+				run(gms, F{"ct": "565", "legacy": "true"})                    // --config 565
+				run(gms, F{"ct": "8888", "legacy": "true"})                   // --config 8888
+				run(gms, F{"ct": "f16"})                                      // --config esrgb
+				run(gms, F{"ct": "f16", "tf": "linear"})                      // --config f16
+				run(gms, F{"ct": "8888", "gamut": "p3"})                      // --config p3
+				run(gms, F{"ct": "8888", "gamut": "narrow", "tf": "2.2"})     // --config narrow
+				run(gms, F{"ct": "f16", "gamut": "rec2020", "tf": "rec2020"}) // --config erec2020
 
-				run(gms, "--skvm")
-				run(gms, "--skvm --ct f16")
+				run(gms, F{"skvm": "true"})
+				run(gms, F{"skvm": "true", "ct": "f16"})
 
-				run(imgs, "--decodeToDst --ct f16 --gamut rec2020 --tf rec2020")
+				run(imgs, F{
+					"decodeToDst": "true",
+					"ct":          "f16",
+					"gamut":       "rec2020",
+					"tf":          "rec2020"})
 			}
 
 			// TODO: pic-8888 equivalent?
