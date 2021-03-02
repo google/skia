@@ -22,6 +22,30 @@
       },
       "revId": "c9a2c36495854dd4d6c1503bfbf8cc33411aafff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3b8fd3a_ca6648df",
+        "filename": "src/sksl/SkSLConstantFolder.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-02T21:21:39Z",
+      "side": 1,
+      "message": "I\u0027ll change it to an assertion. I was being very defensive since I was on an ASAN-hunt.",
+      "parentUuid": "1dfda441_82a6b217",
+      "range": {
+        "startLine": 190,
+        "startChar": 11,
+        "endLine": 190,
+        "endChar": 23
+      },
+      "revId": "c9a2c36495854dd4d6c1503bfbf8cc33411aafff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
