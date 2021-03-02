@@ -50,13 +50,13 @@ GrVkResourceProvider::PipelineStateCache::~PipelineStateCache() {
     // dump stats
 #ifdef SK_DEBUG
     if (c_DisplayVkPipelineCache) {
-        using CacheResult = GrGpu::Stats::ProgramCacheResult;
+        using CacheResult = Stats::ProgramCacheResult;
 
-        int misses = fGpu->stats()->numInlineProgramCacheResult(CacheResult::kMiss) +
-                     fGpu->stats()->numPreProgramCacheResult(CacheResult::kMiss);
+        int misses = fStats.numInlineProgramCacheResult(CacheResult::kMiss) +
+                     fStats.numPreProgramCacheResult(CacheResult::kMiss);
 
-        int total = misses + fGpu->stats()->numInlineProgramCacheResult(CacheResult::kHit) +
-                             fGpu->stats()->numPreProgramCacheResult(CacheResult::kHit);
+        int total = misses + fStats.numInlineProgramCacheResult(CacheResult::kHit) +
+                             fStats.numPreProgramCacheResult(CacheResult::kHit);
 
         SkDebugf("--- Pipeline State Cache ---\n");
         SkDebugf("Total requests: %d\n", total);
@@ -94,14 +94,14 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         return nullptr;
     }
 
-    GrGpu::Stats::ProgramCacheResult stat;
+    Stats::ProgramCacheResult stat;
     auto tmp = this->findOrCreatePipelineState(renderTarget, desc, programInfo,
                                                compatibleRenderPass, overrideSubpassForResolveLoad,
                                                &stat);
     if (!tmp) {
-        fGpu->stats()->incNumInlineCompilationFailures();
+        fStats.incNumInlineCompilationFailures();
     } else {
-        fGpu->stats()->incNumInlineProgramCacheResult(stat);
+        fStats.incNumInlineProgramCacheResult(stat);
     }
 
     return tmp;
@@ -113,15 +113,15 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
         bool overrideSubpassForResolveLoad,
-        GrGpu::Stats::ProgramCacheResult* stat) {
+        Stats::ProgramCacheResult* stat) {
     if (stat) {
-        *stat = GrGpu::Stats::ProgramCacheResult::kHit;
+        *stat = Stats::ProgramCacheResult::kHit;
     }
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
         if (stat) {
-            *stat = GrGpu::Stats::ProgramCacheResult::kMiss;
+            *stat = Stats::ProgramCacheResult::kMiss;
         }
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
                 fGpu, renderTarget, desc, programInfo, compatibleRenderPass,
