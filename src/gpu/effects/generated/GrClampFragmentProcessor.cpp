@@ -50,7 +50,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrClampFragmentProcessor::onMakeProgram
 }
 void GrClampFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
-    b->add32((uint32_t)clampToPremul);
+    b->addBits(1, (uint32_t)clampToPremul, "clampToPremul");
 }
 bool GrClampFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrClampFragmentProcessor& that = other.cast<GrClampFragmentProcessor>();

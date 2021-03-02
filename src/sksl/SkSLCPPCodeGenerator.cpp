@@ -1281,15 +1281,22 @@ void CPPCodeGenerator::writeGetKey() {
                                  HCodeGenerator::FieldName(name).c_str());
                     this->writef("    uint16_t alpha = SkFloatToHalf(%s.fA);\n",
                                  HCodeGenerator::FieldName(name).c_str());
-                    this->write("    b->add32(((uint32_t)red << 16) | green);\n");
-                    this->write("    b->add32(((uint32_t)blue << 16) | alpha);\n");
+                    this->writef("    b->add32(((uint32_t)red << 16) | green, \"%s.rg\");\n", name);
+                    this->writef("    b->add32(((uint32_t)blue << 16) | alpha, \"%s.ba\");\n",
+                                 name);
                 } else if (varType == *fContext.fTypes.fHalf ||
                            varType == *fContext.fTypes.fFloat) {
-                    this->writef("    b->add32(sk_bit_cast<uint32_t>(%s));\n",
-                                 HCodeGenerator::FieldName(name).c_str());
+                    this->writef("    b->add32(sk_bit_cast<uint32_t>(%s), \"%s\");\n",
+                                 HCodeGenerator::FieldName(name).c_str(), name);
                 } else if (varType.isInteger() || varType.isBoolean() || varType.isEnum()) {
-                    this->writef("    b->add32((uint32_t) %s);\n",
-                                 HCodeGenerator::FieldName(name).c_str());
+                    int numBits = 32;
+                    if (varType.isBoolean()) {
+                        numBits = 1;
+                    } else if (varType.isEnum()) {
+                        // TODO(skia:11372): Compute # of bits needed based on all enum values
+                    }
+                    this->writef("    b->addBits(%d, (uint32_t) %s, \"%s\");\n",
+                                 numBits, HCodeGenerator::FieldName(name).c_str(), name);
                 } else {
                     SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                              varType.displayName().c_str());

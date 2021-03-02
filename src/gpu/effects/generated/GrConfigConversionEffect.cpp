@@ -53,7 +53,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrConfigConversionEffect::onMakeProgram
 }
 void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
-    b->add32((uint32_t)pmConversion);
+    b->addBits(32, (uint32_t)pmConversion, "pmConversion");
 }
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConfigConversionEffect& that = other.cast<GrConfigConversionEffect>();
