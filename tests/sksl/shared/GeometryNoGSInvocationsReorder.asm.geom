@@ -36,6 +36,7 @@ OpDecorate %_arr_sk_PerVertex_int_1 ArrayStride 32
 %float_0 = OpConstant %float 0
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %float_n0_5 = OpConstant %float -0.5
+%false = OpConstantFalse %bool
 %main = OpFunction %void None %16
 %17 = OpLabel
 OpStore %sk_InvocationID %int_0
@@ -69,9 +70,9 @@ OpEmitVertex
 OpEndPrimitive
 OpBranch %22
 %22 = OpLabel
-%50 = OpLoad %int %sk_InvocationID
-%51 = OpIAdd %int %50 %int_1
-OpStore %sk_InvocationID %51
+%51 = OpLoad %int %sk_InvocationID
+%52 = OpIAdd %int %51 %int_1
+OpStore %sk_InvocationID %52
 OpBranch %19
 %23 = OpLabel
 OpReturn
