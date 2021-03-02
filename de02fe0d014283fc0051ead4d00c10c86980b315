@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7be2ffa3_c3f0f027",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T18:04:10Z",
+      "side": 1,
+      "message": "I think this is okay. I had to go through the fields and convince myself, though. The uniforms are the trickiest one - nothing is thread-safe (but doesn\u0027t promise to be). The odd part is that initially, the two copies will refer to the same SkData (via sk_sp). Luckily, the copy-on-write logic that already exists (to protect against writing to uniforms after calling makeShader) will also handle that case.",
+      "revId": "de02fe0d014283fc0051ead4d00c10c86980b315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
