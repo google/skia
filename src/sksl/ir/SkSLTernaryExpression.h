@@ -29,6 +29,14 @@ public:
         SkASSERT(this->ifTrue()->type() == this->ifFalse()->type());
     }
 
+    // Creates a potentially-simplified form of the ternary. Typechecks and coerces input
+    // expressions; reports errors via ErrorReporter.
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                            std::unique_ptr<Expression> test,
+                                            std::unique_ptr<Expression> ifTrue,
+                                            std::unique_ptr<Expression> ifFalse);
+
+    // Creates a potentially-simplified form of the ternary; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             std::unique_ptr<Expression> test,
                                             std::unique_ptr<Expression> ifTrue,
