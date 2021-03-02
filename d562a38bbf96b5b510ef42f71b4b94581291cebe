@@ -33,6 +33,24 @@
       "message": "Can you add something to DSLTest to verify that this is working?",
       "revId": "d562a38bbf96b5b510ef42f71b4b94581291cebe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce6aba77_8884f383",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-02T16:16:31Z",
+      "side": 1,
+      "message": "Actually, hmm, this works at the GrGLSLShaderBuilder level.\nCould this be an issue outside of GrGLSLShaderBuilder? e.g. what if I try to use DSL to write a SkSL function inside SkSL itself?",
+      "parentUuid": "390d0f9b_f7333546",
+      "revId": "d562a38bbf96b5b510ef42f71b4b94581291cebe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
