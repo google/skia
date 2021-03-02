@@ -50,7 +50,7 @@ sk_sp<GrVkAttachment> GrVkAttachment::MakeStencil(GrVkGpu* gpu,
     VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
                                      VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     return GrVkAttachment::Make(gpu, dimensions, UsageFlags::kStencilAttachment, sampleCnt, format,
-                                vkUsageFlags, GrProtected::kNo, SkBudgeted::kYes);
+                                /*mipLevels=*/1, vkUsageFlags, GrProtected::kNo, SkBudgeted::kYes);
 }
 
 sk_sp<GrVkAttachment> GrVkAttachment::MakeMSAA(GrVkGpu* gpu,
@@ -64,14 +64,39 @@ sk_sp<GrVkAttachment> GrVkAttachment::MakeMSAA(GrVkGpu* gpu,
                                      VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                                      VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     return GrVkAttachment::Make(gpu, dimensions, UsageFlags::kColorAttachment, numSamples, format,
-                                vkUsageFlags, isProtected, SkBudgeted::kYes);
+                                /*mipLevels=*/1, vkUsageFlags, isProtected, SkBudgeted::kYes);
 }
+
+sk_sp<GrVkAttachment> GrVkAttachment::MakeTexture(GrVkGpu* gpu,
+                                                  SkISize dimensions,
+                                                  VkFormat format,
+                                                  uint32_t mipLevels,
+                                                  GrRenderable renderable,
+                                                  int numSamples,
+                                                  SkBudgeted budgeted,
+                                                  GrProtected isProtected) {
+    UsageFlags usageFlags = UsageFlags::kTexture;
+    VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if (renderable == GrRenderable::kYes) {
+        usageFlags |= UsageFlags::kColorAttachment;
+        vkUsageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        // We always make our render targets support being used as input attachments
+        vkUsageFlags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    }
+
+    return GrVkAttachment::Make(gpu, dimensions, usageFlags, numSamples, format, mipLevels,
+                                vkUsageFlags, isProtected, budgeted);
+}
+
 
 sk_sp<GrVkAttachment> GrVkAttachment::Make(GrVkGpu* gpu,
                                            SkISize dimensions,
                                            UsageFlags attachmentUsages,
                                            int sampleCnt,
                                            VkFormat format,
+                                           uint32_t mipLevels,
                                            VkImageUsageFlags vkUsageFlags,
                                            GrProtected isProtected,
                                            SkBudgeted budgeted) {
@@ -80,7 +105,7 @@ sk_sp<GrVkAttachment> GrVkAttachment::Make(GrVkGpu* gpu,
     imageDesc.fFormat = format;
     imageDesc.fWidth = dimensions.width();
     imageDesc.fHeight = dimensions.height();
-    imageDesc.fLevels = 1;
+    imageDesc.fLevels = mipLevels;
     imageDesc.fSamples = sampleCnt;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = vkUsageFlags;

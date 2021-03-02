@@ -28,6 +28,15 @@ public:
                                           VkFormat format,
                                           GrProtected isProtected);
 
+    static sk_sp<GrVkAttachment> MakeTexture(GrVkGpu* gpu,
+                                             SkISize dimensions,
+                                             VkFormat format,
+                                             uint32_t mipLevels,
+                                             GrRenderable renderable,
+                                             int numSamples,
+                                             SkBudgeted budgeted,
+                                             GrProtected isProtected);
+
     static sk_sp<GrAttachment> MakeWrapped(GrVkGpu* gpu,
                                            SkISize dimensions,
                                            const GrVkImageInfo&,
@@ -53,6 +62,7 @@ private:
                                       UsageFlags attachmentUsages,
                                       int sampleCnt,
                                       VkFormat format,
+                                      uint32_t mipLevels,
                                       VkImageUsageFlags vkUsageFlags,
                                       GrProtected isProtected,
                                       SkBudgeted);
