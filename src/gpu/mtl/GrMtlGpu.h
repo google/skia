@@ -38,6 +38,9 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    GrThreadSafePipelineBuilder_Base* pipelineBuilder() override;
+    sk_sp<GrThreadSafePipelineBuilder_Base> refPipelineBuilder() override;
+
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
     id<MTLDevice> device() const { return fDevice; }
