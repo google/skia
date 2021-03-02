@@ -34,6 +34,24 @@
       "parentUuid": "a137b647_995775d6",
       "revId": "fdb2f06cb3da8554345e72f2fae4323385a35d12",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff446d65_3037e556",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T15:37:06Z",
+      "side": 1,
+      "message": "Aha, I had overlooked the caching via static variables. Makes sense. It\u0027s worth noting that mtklein has landed the SkRuntimeEffect cache, although it\u0027s currently sized fairly small, so you may not want to rely on it exclusively.",
+      "parentUuid": "3c7711c4_28eca569",
+      "revId": "fdb2f06cb3da8554345e72f2fae4323385a35d12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
