@@ -8,8 +8,8 @@
 #ifndef SKSL_SWIZZLE
 #define SKSL_SWIZZLE
 
+#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLConstructor.h"

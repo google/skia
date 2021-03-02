@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "src/sksl/SkSLDefines.h"
+#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLOperators.h"
 
 namespace SkSL {

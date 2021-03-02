@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/dsl/DSLCore.h"
+#include "include/sksl/DSLCore.h"
 
+#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -160,6 +160,11 @@ public:
                                        ifTrue.release(), ifFalse.release());
     }
 
+    static DSLPossibleStatement Switch(DSLExpression value, SkSL::ExpressionArray values,
+                                       SkTArray<StatementArray> statements) {
+        return DSLWriter::ConvertSwitch(value.release(), std::move(values), std::move(statements));
+    }
+
     static DSLPossibleStatement While(DSLExpression test, DSLStatement stmt) {
         return ForStatement::MakeWhile(DSLWriter::Context(), /*offset=*/-1, test.release(),
                                        stmt.release(), DSLWriter::SymbolTable());
@@ -212,6 +217,11 @@ DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifF
                      PositionInfo pos) {
     return DSLExpression(DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse)),
                          pos);
+}
+
+DSLPossibleStatement Switch(DSLExpression value, SkSL::ExpressionArray values,
+                            SkTArray<StatementArray> statements) {
+    return DSLCore::Switch(std::move(value), std::move(values), std::move(statements));
 }
 
 DSLStatement While(DSLExpression test, DSLStatement stmt, PositionInfo pos) {

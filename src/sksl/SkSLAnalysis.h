@@ -8,8 +8,8 @@
 #ifndef SkSLAnalysis_DEFINED
 #define SkSLAnalysis_DEFINED
 
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "src/sksl/SkSLDefines.h"
 
 #include <memory>
 

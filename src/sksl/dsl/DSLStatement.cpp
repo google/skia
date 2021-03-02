@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/dsl/DSLStatement.h"
+#include "include/sksl/DSLStatement.h"
 
+#include "include/sksl/DSLBlock.h"
+#include "include/sksl/DSLExpression.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/dsl/DSLBlock.h"
-#include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 
@@ -20,6 +20,8 @@
 namespace SkSL {
 
 namespace dsl {
+
+DSLStatement::DSLStatement() {}
 
 DSLStatement::DSLStatement(DSLBlock block)
     : fStatement(block.release()) {}

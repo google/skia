@@ -8,8 +8,8 @@
 #ifndef SKSL_DSL_MODIFIERS
 #define SKSL_DSL_MODIFIERS
 
+#include "include/private/SkSLModifiers.h"
 #include "include/private/SkTArray.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 
 namespace SkSL {
 

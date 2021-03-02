@@ -8,8 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
-#include "src/sksl/dsl/DSLModifiers.h"
-#include "src/sksl/ir/SkSLIRNode.h"
+#include "include/sksl/DSLModifiers.h"
 
 #include <cstdint>
 

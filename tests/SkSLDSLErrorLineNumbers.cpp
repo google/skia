@@ -9,10 +9,10 @@
  * This class tests that errors are reported at the correct line numbers, so note that shifting the
  * code up or down will break tests.
  *****/
+#include "include/sksl/DSL.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/sksl/SkSLIRGenerator.h"
-#include "src/sksl/dsl/DSL.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 
