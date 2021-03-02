@@ -18,7 +18,8 @@ GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  SkISize dimensions,
                                  UsageFlags supportedUsages,
                                  const id<MTLTexture> view)
-        : GrAttachment(gpu, dimensions, supportedUsages, view.sampleCount, GrProtected::kNo)
+        : GrAttachment(gpu, dimensions, supportedUsages, view.sampleCount, GrMipmapped::kNo,
+                       GrProtected::kNo)
         , fView(view) {
     this->registerWithCache(SkBudgeted::kYes);
 }

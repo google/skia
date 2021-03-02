@@ -18,7 +18,7 @@ GrDawnAttachment::GrDawnAttachment(GrDawnGpu* gpu,
                                    int samples,
                                    wgpu::Texture texture,
                                    wgpu::TextureView view)
-        : INHERITED(gpu, dimensions, supportedUsages, samples, GrProtected::kNo)
+        : INHERITED(gpu, dimensions, supportedUsages, samples, GrMipmapped::kNo, GrProtected::kNo)
         , fTexture(texture)
         , fView(view) {
     this->registerWithCache(SkBudgeted::kYes);
