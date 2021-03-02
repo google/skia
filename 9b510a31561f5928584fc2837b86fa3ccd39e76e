@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "385b0f79_c57c0022",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T15:34:27Z",
+      "side": 0,
+      "message": "This was always 0.",
+      "revId": "9b510a31561f5928584fc2837b86fa3ccd39e76e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6279986f_b0001ada",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T15:34:27Z",
+      "side": 0,
+      "message": "Was used to call a function that didn\u0027t depend on the PP, so it\u0027s now static.",
+      "range": {
+        "startLine": 143,
+        "startChar": 40,
+        "endLine": 143,
+        "endChar": 76
+      },
+      "revId": "9b510a31561f5928584fc2837b86fa3ccd39e76e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
