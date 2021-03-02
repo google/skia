@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2556f333_188660db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2021-03-02T14:29:29Z",
+      "side": 1,
+      "message": "It seems this CL broke Android roll: \nout/soong/.intermediates/frameworks/base/libs/hwui/libhwui/linux_glibc_x86_64_static/obj/frameworks/base/libs/hwui/pipeline/skia/SkiaRecordingCanvas.o frameworks/base/libs/hwui/pipeline/skia/SkiaRecordingCanvas.cpp\nIn file included from frameworks/base/libs/hwui/pipeline/skia/SkiaRecordingCanvas.cpp:27:\nframeworks/base/libs/hwui/pipeline/skia/AnimatedDrawables.h:70:15: error: call to deleted constructor of \u0027SkRuntimeShaderBuilder\u0027\n            , mRuntimeEffectBuilder(effectBuilder) {}\n              ^                     ~~~~~~~~~~~~~\nexternal/skia/include/effects/SkRuntimeEffect.h:204:5: note: \u0027SkRuntimeShaderBuilder\u0027 has been explicitly marked deleted here\n    SkRuntimeShaderBuilder(const SkRuntimeShaderBuilder\u0026) \u003d delete;\n    ^\n1 error generated.\nhttps://skia.googlesource.com/skia.git/+log/95d0badecf4c..67808983c677",
+      "revId": "2960b6a62ca1e5094eb5645dc1e3dc53a8003086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
