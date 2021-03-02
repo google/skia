@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61dbf7cd_4ba12e90",
+        "filename": "src/gpu/text/GrSDFTOptions.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-02T23:10:08Z",
+      "side": 0,
+      "message": "Do we not care about this any more ?",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 32
+      },
+      "revId": "00f1276a7eba274b11a900833a687c8ccfb5f4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
