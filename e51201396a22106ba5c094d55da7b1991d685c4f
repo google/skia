@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21019b1d_b3207c1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T20:39:12Z",
+      "side": 1,
+      "message": "I stopp",
+      "revId": "e51201396a22106ba5c094d55da7b1991d685c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e3c42c9_dea0c1d2",
+        "filename": "src/gpu/GrAttachment.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T20:39:12Z",
+      "side": 1,
+      "message": "mipmapped (and for params below)",
+      "range": {
+        "startLine": 40,
+        "startChar": 16,
+        "endLine": 40,
+        "endChar": 25
+      },
+      "revId": "e51201396a22106ba5c094d55da7b1991d685c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebddfda3_f02938ca",
+        "filename": "src/gpu/GrAttachment.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T20:39:12Z",
+      "side": 1,
+      "message": "fMipmapped",
+      "range": {
+        "startLine": 94,
+        "startChar": 16,
+        "endLine": 94,
+        "endChar": 26
+      },
+      "revId": "e51201396a22106ba5c094d55da7b1991d685c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "731234b8_86b30b2f",
+        "filename": "src/gpu/d3d/GrD3DAttachment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T20:39:12Z",
+      "side": 1,
+      "message": "GrMipmapped (here and elsewhere). GrMipMapped is a deprecated type alias.",
+      "range": {
+        "startLine": 20,
+        "startChar": 80,
+        "endLine": 20,
+        "endChar": 91
+      },
+      "revId": "e51201396a22106ba5c094d55da7b1991d685c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
