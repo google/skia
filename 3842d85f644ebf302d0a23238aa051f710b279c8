@@ -121,6 +121,24 @@
       "parentUuid": "802566c9_104ee767",
       "revId": "3842d85f644ebf302d0a23238aa051f710b279c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c382714_d0e0b14a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-02T15:55:05Z",
+      "side": 1,
+      "message": "Oh good, that\u0027s reassuring.",
+      "parentUuid": "1cff2eb5_64e28ad8",
+      "revId": "3842d85f644ebf302d0a23238aa051f710b279c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
