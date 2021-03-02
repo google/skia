@@ -7,6 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 
+#include "include/private/GrThreadSafePipelineBuilder_Base.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
@@ -166,6 +167,14 @@ void GrMtlGpu::disconnect(DisconnectType type) {
         this->destroyResources();
         fDisconnected = true;
     }
+}
+
+GrThreadSafePipelineBuilder_Base* GrMtlGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder_Base> GrMtlGpu::refPipelineBuilder() {
+    return nullptr;
 }
 
 void GrMtlGpu::destroyResources() {
