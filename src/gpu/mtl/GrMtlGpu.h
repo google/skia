@@ -38,6 +38,9 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    GrThreadSafePipelineBuilder_Base* pipelineBuilder() override;
+    sk_sp<GrThreadSafePipelineBuilder_Base> refPipelineBuilder() override;
+
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
     id<MTLDevice> device() const { return fDevice; }
@@ -108,8 +111,6 @@ public:
                                      const SkIRect* bounds) {
         this->didWriteToSurface(surface, origin, bounds);
     }
-
-    bool precompileShader(const SkData& key, const SkData& data) override;
 
 private:
     GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
