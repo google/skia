@@ -52,6 +52,24 @@
       "parentUuid": "3c7711c4_28eca569",
       "revId": "fdb2f06cb3da8554345e72f2fae4323385a35d12",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b0534c4_446f3798",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-02T15:39:17Z",
+      "side": 1,
+      "message": "If it\u0027s a choice between having to do something weird or having to increase that cache size so you can rely on it, I\u0027d just increase the cache size.  But if the static caching is something you like anyway, seems fine to me.",
+      "parentUuid": "ff446d65_3037e556",
+      "revId": "fdb2f06cb3da8554345e72f2fae4323385a35d12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
