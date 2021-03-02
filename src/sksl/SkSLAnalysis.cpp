@@ -562,16 +562,15 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
             IsTrivialExpression(*expr.as<IndexExpression>().base()));
 }
 
-/**
- * Returns true if both expression trees are the same. The left side is expected to be an lvalue.
- * This only needs to check for trees that can plausibly terminate in a variable, so some basic
- * candidates like `FloatLiteral` are missing.
- */
 bool Analysis::IsSelfAssignment(const Expression& left, const Expression& right) {
     if (left.kind() != right.kind() || left.type() != right.type()) {
         return false;
     }
 
+    // This isn't a fully exhaustive list of expressions that could be involved in a self-
+    // assignment, particularly when arrays are involved; for instance, `x[y+1] = x[y+1]` isn't
+    // detected because we don't look at BinaryExpressions. Since this is intended to be used for
+    // optimization purposes, handling the common cases is sufficient.
     switch (left.kind()) {
         case Expression::Kind::kIntLiteral:
             return left.as<IntLiteral>().value() == right.as<IntLiteral>().value();
