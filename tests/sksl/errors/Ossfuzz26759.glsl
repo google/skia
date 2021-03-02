@@ -1,4 +1,5 @@
-### Compilation failed:
 
-error: 1: 'i' has not been assigned
-1 error
+void main() {
+    int i;
+    i-- - 0 * ivec3(i);
+}
