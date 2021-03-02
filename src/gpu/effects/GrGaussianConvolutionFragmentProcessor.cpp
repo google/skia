@@ -60,12 +60,21 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     Var coord(kFloat2, "coord");
     Declare(coord, sk_SampleCoord() - ce.fRadius * increment);
 
+
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
         if (i != 0) {
             coord += increment;
         }
-        color += SampleChild(/*index=*/0, coord) * kernel[i / 4][i & 0x3];
+
+        Var kernelValue(kHalf, "kernelValue");
+        Declare(kernelValue, kernel[i / 4][i & 0x3]);
+
+        Var sampleColor(kHalf4, "sampleColor");
+        Declare(sampleColor, SampleChild(/*index=*/0, coord));
+
+        sampleColor *= kernelValue;
+        color += sampleColor;
     }
     Return(color);
     EndFragmentProcessor();
