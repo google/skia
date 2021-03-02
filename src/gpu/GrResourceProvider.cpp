@@ -518,8 +518,8 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
         GrProtected isProtected = rt->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         GrAttachment::ComputeSharedAttachmentUniqueKey(
                 *this->caps(), stencilFormat, rt->dimensions(),
-                GrAttachment::UsageFlags::kStencilAttachment, numStencilSamples, isProtected,
-                &sbKey);
+                GrAttachment::UsageFlags::kStencilAttachment, numStencilSamples, GrMipMapped::kNo,
+                isProtected, &sbKey);
         auto stencil = this->findByUniqueKey<GrAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
@@ -577,7 +577,7 @@ sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensi
     GrScratchKey key;
     GrAttachment::ComputeScratchKey(*this->caps(), format, dimensions,
                                     GrAttachment::UsageFlags::kColorAttachment, sampleCnt,
-                                    isProtected, &key);
+                                    GrMipMapped::kNo, isProtected, &key);
     GrGpuResource* resource = fCache->findAndRefScratchResource(key);
     if (resource) {
         fGpu->stats()->incNumScratchMSAAAttachmentsReused();
