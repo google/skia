@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9085b3da_3bfc8721",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-02T15:02:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c9c49922_0511e401",
+      "range": {
+        "startLine": 567,
+        "startChar": 47,
+        "endLine": 567,
+        "endChar": 80
+      },
+      "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "488075bb_ee16d910",
@@ -109,6 +133,30 @@
       "side": 1,
       "message": "Yeah, I don\u0027t think it\u0027s a real big problem - and don\u0027t think it\u0027s worth making this logic much more complicated just to handle array self-assignment. Just wanted to validate my thinking (and maybe we update the comment?)",
       "parentUuid": "76be15ba_23f5572b",
+      "range": {
+        "startLine": 585,
+        "startChar": 19,
+        "endLine": 586,
+        "endChar": 73
+      },
+      "revId": "1e2f2d40b3925043e89ca91e9b1fe9cc6ec10597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cf525d9_b9fe28d6",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-02T15:02:55Z",
+      "side": 1,
+      "message": "http://review.skia.org/378317",
+      "parentUuid": "caaec889_0785988a",
       "range": {
         "startLine": 585,
         "startChar": 19,
