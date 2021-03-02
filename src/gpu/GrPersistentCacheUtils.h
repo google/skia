@@ -28,7 +28,7 @@ struct ShaderMetadata {
 };
 
 // Increment this whenever the serialization format of cached shaders changes
-static constexpr int kCurrentVersion = 2;
+static constexpr int kCurrentVersion = 3;
 
 static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
                                               const SkSL::String shaders[],
@@ -53,6 +53,7 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
             writer.writeBool(meta->fSettings->fFlipY);
             writer.writeBool(meta->fSettings->fFragColorIsInOut);
             writer.writeBool(meta->fSettings->fForceHighPrecision);
+            writer.writeBool(meta->fSettings->fUsePushConstants);
         }
 
         writer.writeInt(meta->fAttributeNames.count());
@@ -99,6 +100,7 @@ static inline bool UnpackCachedShaders(SkReadBuffer* reader,
             meta->fSettings->fFlipY              = reader->readBool();
             meta->fSettings->fFragColorIsInOut   = reader->readBool();
             meta->fSettings->fForceHighPrecision = reader->readBool();
+            meta->fSettings->fUsePushConstants   = reader->readBool();
         }
 
         meta->fAttributeNames.resize(reader->readInt());
