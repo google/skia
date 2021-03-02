@@ -1,4 +1,4 @@
-/*#pragma settings NoInline*/
+/*#pragma settings NoInline NoControlFlowAnalysis*/
 
 uniform half4 colorGreen, colorRed;
 
@@ -11,10 +11,10 @@ half4 live_fn(half4 a, half4 b) {
 }
 
 half4 main() {
-    bool TRUE = true, FALSE = false;
+    const bool TRUE = true, FALSE = false;
     half4 a, b;
 
-    if (FALSE) {
+    @if (FALSE) {
         // Dead stripping a user function.
         half4 unused = dead_fn(half4(0.5), half4(2));
     } else {
@@ -22,7 +22,7 @@ half4 main() {
         a = live_fn(half4(3), half4(-5));
     }
 
-    if (TRUE) {
+    @if (TRUE) {
         // A live built-in function.
         b = unpremul(half4(1));
     } else {
