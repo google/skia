@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] - 2021-03-02
+
 ### Added
  - A full build of CanvasKit is now in /bin/full.
  - `CanvasKit.rt_effect` to test if the RuntimeEffect code was compiled in.
