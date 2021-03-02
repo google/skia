@@ -40,13 +40,14 @@ DEF_TEST(SkOnce_Multithreaded, r) {
     REPORTER_ASSERT(r, 6 == x);
 }
 
-static int gX = 0;
-static void inc_gX() { gX++; }
-
 DEF_TEST(SkOnce_NoArg, r) {
+    int x = 0;
+    auto inc_x = [&]{ x++; };
+
     SkOnce once;
-    once(inc_gX);
-    once(inc_gX);
-    once(inc_gX);
-    REPORTER_ASSERT(r, 1 == gX);
+    once(inc_x);
+    once(inc_x);
+    once(inc_x);
+
+    REPORTER_ASSERT(r, x == 1);
 }
