@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a137b647_995775d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T14:35:12Z",
+      "side": 1,
+      "message": "This all looks okay, but I do wonder about the need for templates (vs. just regular switch statements). You get compile-time checking of the values being in range, but the tradeoff is code bloat (12 copies of noise_effect), and the need to switch and then manually dispatch to the correct one?",
+      "revId": "fdb2f06cb3da8554345e72f2fae4323385a35d12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
