@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ac768ad_53c580e2",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T21:40:54Z",
+      "side": 1,
+      "message": "The Dawn failure was because we were actually failing (generating a program with a key that exceeded the size constraints). I\u0027ve fixed Dawn to fail gracefully like all other backends (https://skia-review.googlesource.com/c/skia/+/378457), but also updated this so that we now use 24 bits for the processor key size (to accommodate the fact that it\u0027s now # of bits, not # of bytes), so we shouldn\u0027t be failing like that either.",
+      "range": {
+        "startLine": 76,
+        "startChar": 41,
+        "endLine": 76,
+        "endChar": 43
+      },
+      "revId": "fdfb57ca1e30eea520d0cf76fe210770b3041e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
