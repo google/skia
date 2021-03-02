@@ -159,9 +159,9 @@ void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     bool highPrecision = ((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
                           abs(rect.right()) > 16000.0) ||
                          abs(rect.bottom()) > 16000.0;
-    b->add32((uint32_t)highPrecision);
-    b->add32((uint32_t)applyInvVM);
-    b->add32((uint32_t)isFast);
+    b->addBits(1, (uint32_t)highPrecision, "highPrecision");
+    b->addBits(1, (uint32_t)applyInvVM, "applyInvVM");
+    b->addBits(1, (uint32_t)isFast, "isFast");
 }
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRectBlurEffect& that = other.cast<GrRectBlurEffect>();
