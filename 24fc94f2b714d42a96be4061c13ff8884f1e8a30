@@ -46,6 +46,29 @@
       },
       "revId": "24fc94f2b714d42a96be4061c13ff8884f1e8a30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63c70b0c_7f5563a7",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-02T12:59:17Z",
+      "side": 1,
+      "message": "Try using unpkg again with 0.25.0 now that it\u0027s out. Don\u0027t forget to update line 27",
+      "range": {
+        "startLine": 6,
+        "startChar": 69,
+        "endLine": 6,
+        "endChar": 75
+      },
+      "revId": "24fc94f2b714d42a96be4061c13ff8884f1e8a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
