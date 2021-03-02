@@ -9,6 +9,7 @@
 #define GrVkResourceProvider_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/GrThreadSafePipelineBuilder_Base.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
@@ -41,6 +42,10 @@ class GrVkResourceProvider {
 public:
     GrVkResourceProvider(GrVkGpu* gpu);
     ~GrVkResourceProvider();
+
+    void incShaderCompilations() {
+        fPipelineStateCache->stats().incShaderCompilations();
+    }
 
     // Set up any initial vk objects
     void init();
@@ -139,7 +144,7 @@ public:
             const GrProgramDesc&,
             const GrProgramInfo&,
             VkRenderPass compatibleRenderPass,
-            GrGpu::Stats::ProgramCacheResult* stat);
+            GrThreadSafePipelineBuilder_Base::Stats::ProgramCacheResult* stat);
 
     sk_sp<const GrVkPipeline> findOrCreateMSAALoadPipeline(
             const GrVkRenderPass& renderPass,
@@ -210,9 +215,9 @@ public:
 
 private:
 
-    class PipelineStateCache : public ::SkNoncopyable {
+    class PipelineStateCache : public GrThreadSafePipelineBuilder_Base {
     public:
-        PipelineStateCache(GrVkGpu* gpu);
+        PipelineStateCache(GrVkGpu* gpu, bool foo);
         ~PipelineStateCache();
 
         void release();
@@ -223,7 +228,7 @@ private:
         GrVkPipelineState* findOrCreatePipelineState(const GrProgramDesc& desc,
                                                      const GrProgramInfo& programInfo,
                                                      VkRenderPass compatibleRenderPass,
-                                                     GrGpu::Stats::ProgramCacheResult* stat) {
+                                                     Stats::ProgramCacheResult* stat) {
             return this->findOrCreatePipelineState(nullptr, desc, programInfo,
                                                    compatibleRenderPass, false, stat);
         }
@@ -236,7 +241,7 @@ private:
                                                      const GrProgramInfo&,
                                                      VkRenderPass compatibleRenderPass,
                                                      bool overrideSubpassForResolveLoad,
-                                                     GrGpu::Stats::ProgramCacheResult*);
+                                                     Stats::ProgramCacheResult*);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
@@ -313,7 +318,7 @@ private:
     SkTDynamicHash<GrVkSamplerYcbcrConversion, GrVkSamplerYcbcrConversion::Key> fYcbcrConversions;
 
     // Cache of GrVkPipelineStates
-    PipelineStateCache* fPipelineStateCache;
+    sk_sp<PipelineStateCache> fPipelineStateCache;
 
     SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
