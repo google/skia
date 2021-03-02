@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce362aee_60159b91",
+        "filename": "src/gpu/GrRecordingContextPriv.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-02T19:12:07Z",
+      "side": 1,
+      "message": "There is a little bit of ambiguity w/ this name due to the \"Capitalized first letter -\u003e static\" rule",
+      "range": {
+        "startLine": 17,
+        "startChar": 38,
+        "endLine": 17,
+        "endChar": 49
+      },
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0e54bb8_9a3f0302",
+        "filename": "src/gpu/text/GrSDFTOptions.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-02T19:12:07Z",
+      "side": 1,
+      "message": "kAboveIsPath ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 18,
+        "endLine": 62,
+        "endChar": 30
+      },
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f9b1153_70f68da6",
+        "filename": "src/gpu/text/GrSDFTOptions.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-02T19:12:07Z",
+      "side": 1,
+      "message": "Aren\u0027t all the cool kids using enum classes?",
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbe212c9_7265a1f1",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-02T19:12:07Z",
+      "side": 1,
+      "message": "This is unused now - which might yield some unexpected results (since the answer will not depend on \u0027direct\u0027",
+      "range": {
+        "startLine": 686,
+        "startChar": 19,
+        "endLine": 686,
+        "endChar": 31
+      },
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
