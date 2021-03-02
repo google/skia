@@ -149,9 +149,7 @@ void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> 
 
 // Check for integer translate with the same 2x2 matrix.
 std::tuple<bool, SkVector> check_integer_translate(
-        const GrTextBlob& blob, const SkMatrix& drawMatrix) {
-    const SkMatrix& initialMatrix = blob.initialMatrix();
-
+        const SkMatrix& initialMatrix, const SkMatrix& drawMatrix) {
     if (initialMatrix.getScaleX() != drawMatrix.getScaleX() ||
         initialMatrix.getScaleY() != drawMatrix.getScaleY() ||
         initialMatrix.getSkewX()  != drawMatrix.getSkewX()  ||
@@ -285,7 +283,7 @@ bool PathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) cons
         return false;
     }
 
-    auto [reuse, _] = check_integer_translate(fBlob, drawMatrix);
+    auto [reuse, _] = check_integer_translate(fBlob.initialMatrix(), drawMatrix);
     return reuse;
 }
 
@@ -585,7 +583,7 @@ DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) con
         return false;
     }
 
-    auto [reuse, translation] = check_integer_translate(*fBlob, drawMatrix);
+    auto [reuse, translation] = check_integer_translate(fBlob->initialMatrix(), drawMatrix);
 
     // If glyphs were excluded because of position bounds, then this subrun can only be reused if
     // there is no change in position.
