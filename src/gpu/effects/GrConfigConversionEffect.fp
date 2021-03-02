@@ -148,7 +148,7 @@ half4 main() {
 
 @test(data) {
     PMConversion pmConv = static_cast<PMConversion>(
-            data->fRandom->nextULessThan((int)PMConversion::kPMConversionCnt));
+            data->fRandom->nextRangeU(0, (int)PMConversion::kLast));
     return std::unique_ptr<GrFragmentProcessor>(
             new GrConfigConversionEffect(GrProcessorUnitTest::MakeChildFP(data), pmConv));
 }

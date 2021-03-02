@@ -136,7 +136,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrEllipseEffect::onMakeProgramImpl() co
 }
 void GrEllipseEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
-    b->add32((uint32_t)edgeType);
+    b->addBits(2, (uint32_t)edgeType, "edgeType");
 }
 bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrEllipseEffect& that = other.cast<GrEllipseEffect>();
