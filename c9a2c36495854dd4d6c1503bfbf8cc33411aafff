@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1dfda441_82a6b217",
+        "filename": "src/sksl/SkSLConstantFolder.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-02T21:20:52Z",
+      "side": 1,
+      "message": "Fine to keep this defensive, but it should be impossible for initialValue to be nullptr here (see convertVarDeclaration).",
+      "range": {
+        "startLine": 190,
+        "startChar": 11,
+        "endLine": 190,
+        "endChar": 23
+      },
+      "revId": "c9a2c36495854dd4d6c1503bfbf8cc33411aafff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
