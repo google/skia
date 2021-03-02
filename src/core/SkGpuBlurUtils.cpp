@@ -594,48 +594,56 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
         // Rather than run a potentially multi-pass rescaler on single rows/columns we just do a
         // single bilerp draw. If we find this quality unacceptable we should think more about how
         // to rescale these with better quality but without 4 separate multi-pass downscales.
-        // These all batch together into a single draw (and with the above rescaling when there
-        // is only one pass in the interior rescale).
-        auto cheapDownscale = [&](SkIRect dstRect, SkRect srcRect) {
-            rescaledSDC->drawTexture(nullptr,
-                                     srcCtx->readSurfaceView(),
-                                     srcAlphaType,
-                                     GrSamplerState::Filter::kLinear,
-                                     GrSamplerState::MipmapMode::kNone,
-                                     SkBlendMode::kSrc,
-                                     SK_PMColor4fWHITE,
-                                     srcRect,
-                                     SkRect::Make(dstRect),
-                                     GrAA::kNo,
-                                     GrQuadAAFlags::kNone,
-                                     SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint,
-                                     SkMatrix::I(),
-                                     nullptr);
+        auto cheapDownscale = [&](SkIRect dstRect, SkIRect srcRect) {
+                rescaledSDC->drawTexture(nullptr,
+                                         srcCtx->readSurfaceView(),
+                                         srcAlphaType,
+                                         GrSamplerState::Filter::kLinear,
+                                         GrSamplerState::MipmapMode::kNone,
+                                         SkBlendMode::kSrc,
+                                         SK_PMColor4fWHITE,
+                                         SkRect::Make(srcRect),
+                                         SkRect::Make(dstRect),
+                                         GrAA::kNo,
+                                         GrQuadAAFlags::kNone,
+                                         SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint,
+                                         SkMatrix::I(),
+                                         nullptr);
         };
-        auto [dw, dh] = rescaledSDC->dimensions();
+        auto [dw, dh] = rescaledSize;
         // The are the src rows and columns from the source that we will scale into the dst padding.
         float sLCol = srcBounds.left();
         float sTRow = srcBounds.top();
         float sRCol = srcBounds.right() - 1;
         float sBRow = srcBounds.bottom() - 1;
 
-        // Calculate src offsets and lengths for y when copying a col and x when copying a row.
-        float isx = 1.f/scaleX;
-        float isy = 1.f/scaleY;
-        float sx = srcBounds.left()   - isx;
-        float sy = srcBounds.top()    - isy;
-        float sw = srcBounds.width()  + 2*isx;
-        float sh = srcBounds.height() + 2*isy;
+        int sx = srcBounds.left();
+        int sy = srcBounds.top();
+        int sw = srcBounds.width();
+        int sh = srcBounds.height();
 
-        // We double hit the four corners (last hit wins) rather than complicate the rects here.
-        cheapDownscale(SkIRect::MakeXYWH(     0,      0,  1, dh),
-                        SkRect::MakeXYWH( sLCol,     sy,  1, sh));
-        cheapDownscale(SkIRect::MakeXYWH(     0,      0, dw,  1),
-                        SkRect::MakeXYWH(    sx,  sTRow, sw,  1));
-        cheapDownscale(SkIRect::MakeXYWH(dw - 1,      0,  1, dh),
-                        SkRect::MakeXYWH( sRCol,     sy,  1, sh));
-        cheapDownscale(SkIRect::MakeXYWH(     0, dh - 1, dw,  1),
-                        SkRect::MakeXYWH(    sx,  sBRow, sw,  1));
+        // Downscale the edges from the original source. These draws should batch together (and with
+        // the above interior rescaling when it is a single pass).
+        cheapDownscale(SkIRect::MakeXYWH(     0,      1,  1, dh),
+                       SkIRect::MakeXYWH( sLCol,     sy,  1, sh));
+        cheapDownscale(SkIRect::MakeXYWH(     1,      0, dw,  1),
+                       SkIRect::MakeXYWH(    sx,  sTRow, sw,  1));
+        cheapDownscale(SkIRect::MakeXYWH(dw + 1,      1,  1, dh),
+                       SkIRect::MakeXYWH( sRCol,     sy,  1, sh));
+        cheapDownscale(SkIRect::MakeXYWH(     1, dh + 1, dw,  1),
+                       SkIRect::MakeXYWH(    sx,  sBRow, sw,  1));
+
+        // Copy the corners from the original source. These would batch with the edges except that
+        // at time of writing we recognize these can use kNearest and downgrade the filter. So they
+        // batch with each other but not the edge draws.
+        cheapDownscale(SkIRect::MakeXYWH(    0,     0,  1, 1),
+                       SkIRect::MakeXYWH(sLCol, sTRow,  1, 1));
+        cheapDownscale(SkIRect::MakeXYWH(dw + 1,     0, 1, 1),
+                       SkIRect::MakeXYWH(sRCol, sTRow,  1, 1));
+        cheapDownscale(SkIRect::MakeXYWH(dw + 1,dh + 1, 1, 1),
+                       SkIRect::MakeXYWH(sRCol, sBRow,  1, 1));
+        cheapDownscale(SkIRect::MakeXYWH(    0, dh + 1, 1, 1),
+                       SkIRect::MakeXYWH(sLCol, sBRow,  1, 1));
     }
     srcView = rescaledSDC->readSurfaceView();
     // Drop the contexts so we don't hold the proxies longer than necessary.
