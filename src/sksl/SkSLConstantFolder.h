@@ -38,6 +38,12 @@ public:
     static bool GetConstantFloat(const Expression& value, SKSL_FLOAT* out);
 
     /**
+     * If the expression is a const variable with a known compile-time-constant value, returns that
+     * value. If not, returns the original expression as-is.
+     */
+    static const Expression* GetConstantValueForVariable(const Expression& value);
+
+    /**
      * Reports an error and returns true if op is a division / mod operator and right is zero or
      * contains a zero element.
      */
