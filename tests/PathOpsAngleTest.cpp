@@ -223,21 +223,21 @@ public:
     }
 };
 
-struct CircleData {
-    const CubicPts fPts;
-    const int fPtCount;
-    SkPoint fShortPts[4];
-};
 
-static CircleData circleDataSet[] = {
-    { {{{313.0155029296875, 207.90290832519531}, {320.05078125, 227.58743286132812}}}, 2, {} },
-    { {{{313.0155029296875, 207.90290832519531}, {313.98246891063195, 219.33615203830394},
-            {320.05078125, 227.58743286132812}}}, 3, {} },
-};
-
-static const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
 
 DEF_TEST(PathOpsAngleCircle, reporter) {
+    struct CircleData {
+        const CubicPts fPts;
+        const int fPtCount;
+        SkPoint fShortPts[4];
+    };
+    CircleData circleDataSet[] = {
+        { {{{313.0155029296875, 207.90290832519531}, {320.05078125, 227.58743286132812}}}, 2, {} },
+        { {{{313.0155029296875, 207.90290832519531}, {313.98246891063195, 219.33615203830394},
+                {320.05078125, 227.58743286132812}}}, 3, {} },
+    };
+    const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
+
     SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
