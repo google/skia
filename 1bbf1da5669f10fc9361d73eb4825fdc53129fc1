@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a79df42_0fc4559e",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-02T19:22:50Z",
+      "side": 1,
+      "message": "Doesn\u0027t this matter for only one type of drawing? Can it be set to the identity matrix for the others?",
+      "revId": "1bbf1da5669f10fc9361d73eb4825fdc53129fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abfeaa4c_50f7616d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-02T19:22:50Z",
+      "side": 1,
+      "message": "Update comment ?",
+      "revId": "1bbf1da5669f10fc9361d73eb4825fdc53129fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
