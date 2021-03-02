@@ -115,6 +115,14 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
         return true;
     }
 
+    private void notifyAnimationEnd() {
+        if (this.getListeners() != null) {
+            for (AnimatorListener l : this.getListeners()) {
+                l.onAnimationEnd(this);
+            }
+        }
+    }
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -177,11 +185,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
             Log.e(LOG_TAG, "stop failed", t);
             throw new RuntimeException(t);
         }
-        if (this.getListeners() != null) {
-            for (AnimatorListener l : this.getListeners()) {
-                l.onAnimationEnd(this);
-            }
-        }
+        notifyAnimationEnd();
     }
 
     @Override
@@ -385,6 +389,7 @@ public class SkottieAnimation extends Animator implements Choreographer.FrameCal
                 } else if (mRepeatCounter == 0) {
                     mIsRunning = false;
                     mProgress = 1;
+                    notifyAnimationEnd();
                 }
             }
         }
