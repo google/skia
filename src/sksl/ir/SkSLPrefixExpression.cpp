@@ -47,7 +47,10 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
                 for (std::unique_ptr<Expression>& arg : ctor.arguments()) {
                     args.push_back(negate_operand(context, std::move(arg)));
                 }
-                return Constructor::Make(context, ctor.fOffset, ctor.type(), std::move(args));
+                auto negatedCtor = Constructor::Convert(context, ctor.fOffset,
+                                                        ctor.type(), std::move(args));
+                SkASSERT(negatedCtor);
+                return negatedCtor;
             }
             break;
 
@@ -71,8 +74,9 @@ static std::unique_ptr<Expression> logical_not_operand(const Context& context,
     return std::make_unique<PrefixExpression>(Token::Kind::TK_LOGICALNOT, std::move(operand));
 }
 
-std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Operator op,
-                                                   std::unique_ptr<Expression> base) {
+std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
+                                                      Operator op,
+                                                      std::unique_ptr<Expression> base) {
     const Type& baseType = base->type();
     switch (op.kind()) {
         case Token::Kind::TK_PLUS:
@@ -81,7 +85,7 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
                                       "'+' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
-            return base;
+            break;
 
         case Token::Kind::TK_MINUS:
             if (!baseType.componentType().isNumber()) {
@@ -89,21 +93,9 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
                                       "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
-            return negate_operand(context, std::move(base));
-
-        case Token::Kind::TK_PLUSPLUS:
-            if (!baseType.isNumber()) {
-                context.fErrors.error(base->fOffset,
-                                      String("'") + op.operatorName() + "' cannot operate on '" +
-                                      baseType.displayName() + "'");
-                return nullptr;
-            }
-            if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
-                                              &context.fErrors)) {
-                return nullptr;
-            }
             break;
 
+        case Token::Kind::TK_PLUSPLUS:
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
                 context.fErrors.error(base->fOffset,
@@ -124,7 +116,7 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
                                       baseType.displayName() + "'");
                 return nullptr;
             }
-            return logical_not_operand(context, std::move(base));
+            break;
 
         case Token::Kind::TK_BITWISENOT:
             if (context.fConfig->strictES2Mode()) {
@@ -148,6 +140,41 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
 
         default:
             SK_ABORT("unsupported prefix operator\n");
+    }
+
+    return PrefixExpression::Make(context, op, std::move(base));
+
+}
+
+std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Operator op,
+                                                   std::unique_ptr<Expression> base) {
+    switch (op.kind()) {
+        case Token::Kind::TK_PLUS:
+            SkASSERT(base->type().componentType().isNumber());
+            return base;
+
+        case Token::Kind::TK_MINUS:
+            SkASSERT(base->type().componentType().isNumber());
+            return negate_operand(context, std::move(base));
+
+        case Token::Kind::TK_LOGICALNOT:
+            SkASSERT(base->type().isBoolean());
+            return logical_not_operand(context, std::move(base));
+
+        case Token::Kind::TK_PLUSPLUS:
+        case Token::Kind::TK_MINUSMINUS:
+            SkASSERT(base->type().isNumber());
+            SkASSERT(Analysis::IsAssignable(*base));
+            break;
+
+        case Token::Kind::TK_BITWISENOT:
+            SkASSERT(!context.fConfig->strictES2Mode());
+            SkASSERT(base->type().isInteger());
+            SkASSERT(!base->type().isLiteral());
+            break;
+
+        default:
+            SkDEBUGFAILF("unsupported prefix operator: %s", op.operatorName());
     }
 
     return std::make_unique<PrefixExpression>(op, std::move(base));

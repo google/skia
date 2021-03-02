@@ -179,13 +179,13 @@ std::unique_ptr<Statement> SwitchStatement::BlockForCase(
                                    std::move(symbolTable));
 }
 
-std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
-                                                 int offset,
-                                                 bool isStatic,
-                                                 std::unique_ptr<Expression> value,
-                                                 ExpressionArray caseValues,
-                                                 SkTArray<StatementArray> caseStatements,
-                                                 std::shared_ptr<SymbolTable> symbolTable) {
+std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
+                                                    int offset,
+                                                    bool isStatic,
+                                                    std::unique_ptr<Expression> value,
+                                                    ExpressionArray caseValues,
+                                                    SkTArray<StatementArray> caseStatements,
+                                                    std::shared_ptr<SymbolTable> symbolTable) {
     SkASSERT(caseValues.size() == caseStatements.size());
     if (context.fConfig->strictES2Mode()) {
         context.fErrors.error(offset, "switch statements are not supported");

@@ -22,8 +22,6 @@ class IfStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kIf;
 
-    // Use IfStatement::Make to automatically flatten out `if` statements that can be resolved at
-    // IR generation time.
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
         : INHERITED(offset, kStatementKind)
@@ -32,6 +30,14 @@ public:
         , fIfFalse(std::move(ifFalse))
         , fIsStatic(isStatic) {}
 
+    // Creates a potentially-simplified form of the if-statement. Typechecks and coerces the test
+    // expression; reports errors via ErrorReporter.
+    static std::unique_ptr<Statement> Convert(const Context& context, int offset, bool isStatic,
+                                              std::unique_ptr<Expression> test,
+                                              std::unique_ptr<Statement> ifTrue,
+                                              std::unique_ptr<Statement> ifFalse);
+
+    // Creates a potentially-simplified form of the if-statement; reports errors via ASSERT.
     static std::unique_ptr<Statement> Make(const Context& context, int offset, bool isStatic,
                                            std::unique_ptr<Expression> test,
                                            std::unique_ptr<Statement> ifTrue,
