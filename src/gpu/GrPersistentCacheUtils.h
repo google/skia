@@ -53,6 +53,7 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
             writer.writeBool(meta->fSettings->fFlipY);
             writer.writeBool(meta->fSettings->fFragColorIsInOut);
             writer.writeBool(meta->fSettings->fForceHighPrecision);
+            writer.writeBool(meta->fSettings->fUsePushConstants);
         }
 
         writer.writeInt(meta->fAttributeNames.count());
@@ -99,6 +100,7 @@ static inline bool UnpackCachedShaders(SkReadBuffer* reader,
             meta->fSettings->fFlipY              = reader->readBool();
             meta->fSettings->fFragColorIsInOut   = reader->readBool();
             meta->fSettings->fForceHighPrecision = reader->readBool();
+            meta->fSettings->fUsePushConstants   = reader->readBool();
         }
 
         meta->fAttributeNames.resize(reader->readInt());
