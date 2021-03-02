@@ -279,6 +279,9 @@ func main() {
 					defer endStep(ctx)
 					if failures := worker(ctx, w.Sources, w.Flags); failures > 0 {
 						atomic.AddInt32(w.Failures, int32(failures))
+						if !*local { // Uninteresting to see on local runs.
+							failStep(ctx, fmt.Errorf("%v reruns failed\n", failures))
+						}
 					}
 				}()
 			}
@@ -327,7 +330,7 @@ func main() {
 			if *failures > 0 {
 				atomic.AddInt32(&totalFailures, *failures)
 				if !*local { // Uninteresting to see on local runs.
-					failStep(ctx, fmt.Errorf("%v runs failed\n", *failures))
+					failStep(ctx, fmt.Errorf("%v total reruns failed\n", *failures))
 				}
 			}
 			endStep(ctx)
