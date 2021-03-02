@@ -29,6 +29,7 @@ static void build_key(GrResourceKey::Builder* builder,
                       SkISize dimensions,
                       GrAttachment::UsageFlags requiredUsage,
                       int sampleCnt,
+                      GrMipmapped mipmapped,
                       GrProtected isProtected) {
     SkASSERT(!dimensions.isEmpty());
 
@@ -51,12 +52,13 @@ void GrAttachment::ComputeSharedAttachmentUniqueKey(const GrCaps& caps,
                                                     SkISize dimensions,
                                                     UsageFlags requiredUsage,
                                                     int sampleCnt,
+                                                    GrMipmapped mipmapped,
                                                     GrProtected isProtected,
                                                     GrUniqueKey* key) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
 
     GrUniqueKey::Builder builder(key, kDomain, 5);
-    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, isProtected);
+    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected);
 }
 
 void GrAttachment::ComputeScratchKey(const GrCaps& caps,
@@ -64,20 +66,20 @@ void GrAttachment::ComputeScratchKey(const GrCaps& caps,
                                      SkISize dimensions,
                                      UsageFlags requiredUsage,
                                      int sampleCnt,
+                                     GrMipmapped mipmapped,
                                      GrProtected isProtected,
                                      GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
 
-    SkASSERT(sampleCnt > 1);
-
     GrScratchKey::Builder builder(key, kType, 5);
-    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, isProtected);
+    build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, mipmapped, isProtected);
 }
 
 void GrAttachment::computeScratchKey(GrScratchKey* key) const {
-    if (fSupportedUsages & UsageFlags::kColorAttachment) {
+    if (!SkToBool(fSupportedUsages & UsageFlags::kStencilAttachment)) {
         auto isProtected = this->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         ComputeScratchKey(*this->getGpu()->caps(), this->backendFormat(), this->dimensions(),
-                          fSupportedUsages, this->numSamples(), isProtected, key);
+                          fSupportedUsages, this->numSamples(), this->mipmapped(), isProtected,
+                          key);
     }
 }

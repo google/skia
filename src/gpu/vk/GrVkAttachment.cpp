@@ -21,7 +21,8 @@ GrVkAttachment::GrVkAttachment(GrVkGpu* gpu,
                                sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                sk_sp<const GrVkImageView> view,
                                SkBudgeted budgeted)
-        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount, info.fProtected)
+        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount, GrMipmapped::kNo,
+                       info.fProtected)
         , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
         , fView(std::move(view)) {
     this->registerWithCache(budgeted);
@@ -35,7 +36,8 @@ GrVkAttachment::GrVkAttachment(GrVkGpu* gpu,
                                sk_sp<const GrVkImageView> view,
                                GrBackendObjectOwnership ownership,
                                GrWrapCacheable cacheable)
-        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount, info.fProtected)
+        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount, GrMipmapped::kNo,
+                       info.fProtected)
         , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , fView(std::move(view)) {
     this->registerWithCacheWrapped(cacheable);

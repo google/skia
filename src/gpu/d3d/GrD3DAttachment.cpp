@@ -17,7 +17,8 @@ GrD3DAttachment::GrD3DAttachment(GrD3DGpu* gpu,
                                  const GrD3DTextureResourceInfo& info,
                                  sk_sp<GrD3DResourceState> state,
                                  const GrD3DDescriptorHeap::CPUHandle& view)
-        : GrAttachment(gpu, dimensions, supportedUsages, desc.SampleDesc.Count, GrProtected::kNo)
+        : GrAttachment(gpu, dimensions, supportedUsages, desc.SampleDesc.Count, GrMipmapped::kNo,
+                       GrProtected::kNo)
         , GrD3DTextureResource(info, state)
         , fView(view)
         , fFormat(format) {

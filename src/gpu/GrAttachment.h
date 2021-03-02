@@ -27,6 +27,7 @@ public:
     enum class UsageFlags : uint8_t {
         kStencilAttachment = 0x1,
         kColorAttachment   = 0x2,
+        kTexture           = 0x4,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags);
 
@@ -35,6 +36,8 @@ public:
     UsageFlags supportedUsages() const { return fSupportedUsages; }
 
     int numSamples() const { return fSampleCnt; }
+
+    GrMipmapped mipmapped() const { return fMipmapped; }
 
     bool hasPerformedInitialClear() const { return fHasPerformedInitialClear; }
     void markHasPerformedInitialClear() { fHasPerformedInitialClear = true; }
@@ -49,6 +52,7 @@ public:
                                                  SkISize dimensions,
                                                  UsageFlags requiredUsage,
                                                  int sampleCnt,
+                                                 GrMipmapped mipmapped,
                                                  GrProtected isProtected,
                                                  GrUniqueKey* key);
 
@@ -59,15 +63,17 @@ public:
                                   SkISize dimensions,
                                   UsageFlags requiredUsage,
                                   int sampleCnt,
+                                  GrMipmapped mipmapped,
                                   GrProtected,
                                   GrScratchKey* key);
 
 protected:
     GrAttachment(GrGpu* gpu, SkISize dimensions, UsageFlags supportedUsages, int sampleCnt,
-                 GrProtected isProtected)
+                 GrMipmapped mipmapped, GrProtected isProtected)
             : INHERITED(gpu, dimensions, isProtected)
             , fSupportedUsages(supportedUsages)
-            , fSampleCnt(sampleCnt) {}
+            , fSampleCnt(sampleCnt)
+            , fMipmapped(mipmapped) {}
 
 private:
     size_t onGpuMemorySize() const final;
@@ -75,19 +81,17 @@ private:
     void computeScratchKey(GrScratchKey*) const final;
 
     const char* getResourceType() const override {
-        // TODO: Once attachments can have multiple usages this needs to be updated
-        switch (fSupportedUsages) {
-            case (UsageFlags::kColorAttachment):
-                return "ColorAttachment";
-            case (UsageFlags::kStencilAttachment):
-                return "StencilAttachment";
-            default:
-                SkUNREACHABLE;
+        if (fSupportedUsages == UsageFlags::kStencilAttachment) {
+            return "StencilAttachment";
         }
+
+        // This is a general grouping of all textures and color attachments.
+        return "Surface";
     }
 
     UsageFlags fSupportedUsages;
     int fSampleCnt;
+    GrMipmapped fMipmapped;
     bool fHasPerformedInitialClear = false;
 
     using INHERITED = GrSurface;
