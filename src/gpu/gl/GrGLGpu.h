@@ -9,6 +9,7 @@
 #define GrGLGpu_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/GrThreadSafePipelineBuilder_Base.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
@@ -36,6 +37,9 @@ public:
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;
+
+    GrThreadSafePipelineBuilder_Base* pipelineBuilder() override;
+    sk_sp<GrThreadSafePipelineBuilder_Base> refPipelineBuilder() override;
 
     const GrGLContext& glContext() const { return *fGLContext; }
 
@@ -352,7 +356,7 @@ private:
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
-    class ProgramCache : public ::SkNoncopyable {
+    class ProgramCache : public GrThreadSafePipelineBuilder_Base {
     public:
         ProgramCache(GrGLGpu* gpu);
         ~ProgramCache();
@@ -365,9 +369,9 @@ private:
                                                Stats::ProgramCacheResult* stat) {
             sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, stat);
             if (!tmp) {
-                fGpu->fStats.incNumPreCompilationFailures();
+                fStats.incNumPreCompilationFailures();
             } else {
-                fGpu->fStats.incNumPreProgramCacheResult(*stat);
+                fStats.incNumPreProgramCacheResult(*stat);
             }
 
             return tmp;
