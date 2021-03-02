@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65fd3e1c_a0ccb47f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-02T16:13:12Z",
+      "side": 1,
+      "message": "Ended up just hitting it with a big hammer. Since the ultimate goal is to hang on to a node tree instead of code strings anyway, this probably isn\u0027t unreasonable as a stopgap.",
+      "revId": "d562a38bbf96b5b510ef42f71b4b94581291cebe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
