@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e159a41_11712ecd",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-02T00:54:13Z",
+      "side": 1,
+      "message": "No longer caching a bitmap shader, maybe rename to PictureTileKey or such?",
+      "range": {
+        "startLine": 61,
+        "startChar": 7,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "06e2d1c130cf485ab9f8b894eb757f80c0180fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04e983b8_049f0adb",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-02T00:54:13Z",
+      "side": 1,
+      "message": "Not new to this CL, but fTile should be captured in the cache key too (offset may be sufficient in conjunction with scale).  Otherwise, picture shaders with the same backing picture but different tile rects will hash to the same key when the scale matches.",
+      "revId": "06e2d1c130cf485ab9f8b894eb757f80c0180fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
