@@ -33,6 +33,7 @@
 
 #include <chrono>
 #include <functional>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -74,6 +75,9 @@ static DEFINE_bool(decodeToDst, false,
 static DEFINE_double(rasterDPI, SK_ScalarDefaultRasterDPI,
                      "DPI for rasterized content in vector backends like --backend pdf.");
 static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
+
+static DEFINE_int(clipW, INT_MAX, "Limit source width.");
+static DEFINE_int(clipH, INT_MAX, "Limit source height.");
 
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
@@ -549,7 +553,10 @@ int main(int argc, char** argv) {
         AutoreleasePool pool;
         const auto start = std::chrono::steady_clock::now();
 
-        const SkImageInfo info = SkImageInfo::Make(source.size, color_info);
+        auto [w,h] = source.size;
+        w = std::min(w, FLAGS_clipW);
+        h = std::min(h, FLAGS_clipH);
+        const SkImageInfo info = SkImageInfo::Make({w,h}, color_info);
 
         auto draw = [&source](SkCanvas* canvas) {
             Result result = source.draw(canvas);

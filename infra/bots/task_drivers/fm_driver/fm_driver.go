@@ -431,7 +431,7 @@ func main() {
 			run(gms, "")
 			run(imgs, "")
 			run(svgs, "")
-			run(skps, "")
+			run(skps, "--clipW 1000 --clipH 1000")
 			run(tests, "")
 
 			if model == "GCE" {
