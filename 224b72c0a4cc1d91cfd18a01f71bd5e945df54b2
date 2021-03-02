@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ab79193_b9694b9e",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T18:12:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1f733495_075c219f",
+      "revId": "224b72c0a4cc1d91cfd18a01f71bd5e945df54b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b2e60c0_05bef9e9",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-03-02T15:34:27Z",
       "side": 1,
       "message": "This technically reduces the maximum key size by a factor of 8, but still allows for keys that are 2^13 (8k) in size, which seems like plenty. I also think we should reorganize how we build processor keys here in a follow-up.\n\nAdding the size of the key to the key is a strange pattern. The FP code also adds things in a strange order, so children are emitted mostly (but not entirely) before their parents. If each FP just emitted \"how many children do I have\" first, I think we could remove the size meta-data, and do things in a more consistent top-down order, with all data for one FP fully contiguous.",
+      "revId": "224b72c0a4cc1d91cfd18a01f71bd5e945df54b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4974ae72_d0265f8f",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T18:12:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4b2e60c0_05bef9e9",
       "revId": "224b72c0a4cc1d91cfd18a01f71bd5e945df54b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -52,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89aeee22_209652e3",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T18:12:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a64ad022_26adfdce",
+      "revId": "224b72c0a4cc1d91cfd18a01f71bd5e945df54b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4da5046f_5baaa1ee",
@@ -65,6 +119,24 @@
       "writtenOn": "2021-03-02T15:34:27Z",
       "side": 1,
       "message": "For now, the description logic is just tied to SK_DEBUG, but it\u0027s easy enough to make it a runtime switch. I didn\u0027t see the caps or context plumbed fully, so that could be another follow-up CL.",
+      "revId": "224b72c0a4cc1d91cfd18a01f71bd5e945df54b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25f68e94_e2b4e54c",
+        "filename": "src/gpu/GrProgramDesc.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T18:12:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4da5046f_5baaa1ee",
       "revId": "224b72c0a4cc1d91cfd18a01f71bd5e945df54b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }

@@ -16,6 +16,46 @@
       "message": "First pass of changing how keys are built. (Details of why are in the linked bug). There is lots more to be done, but I didn\u0027t want this CL to be huge. It includes the new structure, a handful of conversions to adding things bits-at-a-time (with metadata), and viewer integration for seeing the human-readable key descriptions.\n\nThe obvious next step is to add metadata and individual fields for the highest impact parts of the key (from a \"user uses this to understand what the key means\" standpoint): geometry processors and .fp generated fragment processors, plus texture effect. I also commented on several other avenues for follow-up work in the CL itself.",
       "revId": "a6a4d206fb845ad5a2549c22b924b876179a3941",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f07940b9_b8a353f4",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T18:12:00Z",
+      "side": 1,
+      "message": "Curious if here and in similar places below whether we\u0027re using a lambda because it\u0027s the only version of addString we have or if it\u0027s to save a vcall. If the former, maybe it makes sense to have an addString that takes const char* just for readability when the lambda isn\u0027t needed for performance reasons.",
+      "range": {
+        "startLine": 156,
+        "startChar": 17,
+        "endLine": 156,
+        "endChar": 43
+      },
+      "revId": "a6a4d206fb845ad5a2549c22b924b876179a3941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8af3233_c809440b",
+        "filename": "src/gpu/GrProgramDesc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-02T18:12:00Z",
+      "side": 1,
+      "message": "Will we need/want a version of this that also takes the description?",
+      "revId": "a6a4d206fb845ad5a2549c22b924b876179a3941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
