@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d0701cf_97b79200",
+        "filename": "src/gpu/GrRecordingContextPriv.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-02T19:29:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce362aee_60159b91",
+      "range": {
+        "startLine": 17,
+        "startChar": 38,
+        "endLine": 17,
+        "endChar": 49
+      },
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0e54bb8_9a3f0302",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-02T19:12:07Z",
       "side": 1,
       "message": "kAboveIsPath ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 18,
+        "endLine": 62,
+        "endChar": 30
+      },
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86b3f7db_443f5b53",
+        "filename": "src/gpu/text/GrSDFTOptions.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-02T19:29:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0e54bb8_9a3f0302",
       "range": {
         "startLine": 62,
         "startChar": 18,
@@ -64,6 +112,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a46d8d5_a4294fc4",
+        "filename": "src/gpu/text/GrSDFTOptions.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-02T19:29:22Z",
+      "side": 1,
+      "message": "I\u0027m not cool.",
+      "parentUuid": "5f9b1153_70f68da6",
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dbe212c9_7265a1f1",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-03-02T19:12:07Z",
       "side": 1,
       "message": "This is unused now - which might yield some unexpected results (since the answer will not depend on \u0027direct\u0027",
+      "range": {
+        "startLine": 686,
+        "startChar": 19,
+        "endLine": 686,
+        "endChar": 31
+      },
+      "revId": "6dfe2fad7171dc41ef051ee83c959230724e222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba84a965_be8a782d",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-02T19:29:22Z",
+      "side": 1,
+      "message": "Good catch.",
+      "parentUuid": "dbe212c9_7265a1f1",
       "range": {
         "startLine": 686,
         "startChar": 19,
