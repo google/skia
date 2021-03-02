@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<title>Custom Image Upscaling</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
+
+<style>
+  canvas {
+<!--    border: 1px dashed grey;   -->
+  }
+</style>
+
+<body>
+  <h1>Custom Image Upscaling</h1>
+
+  <div class="slidecontainer">
+      <input type="range" min="0" max="900" value="0"   class="slider" id="sharpen">
+      <input type="range" min="0" max="900" value="300" class="slider" id="cubic_B">
+      <input type="range" min="0" max="900" value="300" class="slider" id="cubic_C">
+  </div>
+
+  <canvas id=draw width=900 height=900></canvas>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => "https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/" + file });
+
+  ckLoaded.then((CanvasKit) => {
+    if (!CanvasKit.RuntimeEffect) {
+        console.log(CanvasKit.RuntimeEffect);
+        throw "Need RuntimeEffect";
+    }
+    const surface = CanvasKit.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+
+    const prog = `
+    uniform shader image;
+    uniform float  sharp;  // 1/m    0 --> NN, 1 --> Linear
+    uniform float  do_smooth;   // bool
+
+    float2 smooth(float2 t) {
+        return t * t * (3.0 - 2.0 * t);
+    }
+
+    float2 sharpen(float2 w) {
+        return saturate(sharp * (w - 0.5) + 0.5);
+    }
+
+    half4 main(float2 p) {
+        half4 pa = sample(image, float2(p.x-0.5, p.y-0.5));
+        half4 pb = sample(image, float2(p.x+0.5, p.y-0.5));
+        half4 pc = sample(image, float2(p.x-0.5, p.y+0.5));
+        half4 pd = sample(image, float2(p.x+0.5, p.y+0.5));
+        float2 w = sharpen(fract(p + 0.5));
+        if (do_smooth > 0) {
+            w = smooth(w);
+        }
+      return mix(mix(pa, pb, w.x), mix(pc, pd, w.x), w.y);
+    }
+    `;
+    const effect = CanvasKit.RuntimeEffect.Make(prog);
+
+    const paint = new CanvasKit.Paint();
+    const image = function() {
+        let surf = CanvasKit.MakeSurface(4, 4);
+        let c = surf.getCanvas();
+        const g = [0,  4,  8, 12,
+                   7, 11, 15, 3,
+                   2, 14, 10, 6,
+                   13,  1,  5, 9];
+        let i = 0;
+        for (let y = 0; y < 4; y++) {
+            for (let x = 0; x < 4; x++) {
+                paint.setColor([Math.random(), Math.random(), Math.random(), 1]);
+                c.drawRect([x, y, x+1, y+1], paint);
+            }
+        }
+        return surf.makeImageSnapshot();
+    }();
+
+    const imageShader = image.makeShaderOptions(CanvasKit.TileMode.Clamp,
+                                                CanvasKit.TileMode.Clamp,
+                                                CanvasKit.FilterMode.Nearest,
+                                                CanvasKit.MipmapMode.None);
+
+    sharpen.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+    cubic_B.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+    cubic_C.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+
+    drawFrame = function(canvas) {
+        const v = sharpen.value / 900.0;
+        const m = 1/Math.max(v, 0.00001);
+        const B = cubic_B.value / 900.0;
+        const C = cubic_C.value / 900.0;
+        const scale = 100;
+        const W = 4;
+
+        canvas.save();
+        canvas.scale(scale, scale);
+
+        paint.setShader(effect.makeShaderWithChildren([m, 0], true, [imageShader], null));
+        canvas.drawRect([0, 0, 4, 4], paint);
+
+        canvas.save();
+        canvas.translate(0, 4.1);
+        paint.setShader(effect.makeShaderWithChildren([m, 1], true, [imageShader], null));
+        canvas.drawRect([0, 0, 4, 4], paint);
+        canvas.restore();
+
+        canvas.drawImageOptions(image, 4.1, 0, CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None, null);
+        canvas.drawImageCubic(image, 4.1, 4.1, B, C, null);
+
+        canvas.restore();
+    }
+
+    surface.requestAnimationFrame(drawFrame);
+  });
+
+</script>
