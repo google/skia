@@ -43,6 +43,9 @@ public:
     void disconnect(DisconnectType) override;
     bool disconnected() const { return fDisconnected; }
 
+    GrThreadSafePipelineBuilder_Base* pipelineBuilder() override;
+    sk_sp<GrThreadSafePipelineBuilder_Base> refPipelineBuilder() override;
+
     const GrVkInterface* vkInterface() const { return fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
