@@ -36,6 +36,9 @@ public:
 
     GrD3DResourceProvider& resourceProvider() { return fResourceProvider; }
 
+    GrThreadSafePipelineBuilder_Base* pipelineBuilder() override;
+    sk_sp<GrThreadSafePipelineBuilder_Base> refPipelineBuilder() override;
+
     ID3D12Device* device() const { return fDevice.get(); }
     ID3D12CommandQueue* queue() const { return fQueue.get(); }
 
