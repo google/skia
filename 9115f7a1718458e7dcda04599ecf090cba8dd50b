@@ -16,6 +16,29 @@
       "message": "Thanks for the help Eric – I think we might have got it right.",
       "revId": "9115f7a1718458e7dcda04599ecf090cba8dd50b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5828df3c_58323c5c",
+        "filename": "infra/bots/recipes/skpbench.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-02T15:58:15Z",
+      "side": 1,
+      "message": "This is fine, but in the long term we should move to a similar model to dm and nanobench where as many flags are possible are generated in Go code.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 49
+      },
+      "revId": "9115f7a1718458e7dcda04599ecf090cba8dd50b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
