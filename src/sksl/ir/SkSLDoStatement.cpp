@@ -11,9 +11,9 @@
 
 namespace SkSL {
 
-std::unique_ptr<Statement> DoStatement::Make(const Context& context,
-                                             std::unique_ptr<Statement> stmt,
-                                             std::unique_ptr<Expression> test) {
+std::unique_ptr<Statement> DoStatement::Convert(const Context& context,
+                                                std::unique_ptr<Statement> stmt,
+                                                std::unique_ptr<Expression> test) {
     if (context.fConfig->strictES2Mode()) {
         context.fErrors.error(stmt->fOffset, "do-while loops are not supported");
         return nullptr;
@@ -22,6 +22,14 @@ std::unique_ptr<Statement> DoStatement::Make(const Context& context,
     if (!test) {
         return nullptr;
     }
+    return DoStatement::Make(context, std::move(stmt), std::move(test));
+}
+
+std::unique_ptr<Statement> DoStatement::Make(const Context& context,
+                                             std::unique_ptr<Statement> stmt,
+                                             std::unique_ptr<Expression> test) {
+    SkASSERT(!context.fConfig->strictES2Mode());
+    SkASSERT(test->type() == *context.fTypes.fBool);
     return std::make_unique<DoStatement>(stmt->fOffset, std::move(stmt), std::move(test));
 }
 
