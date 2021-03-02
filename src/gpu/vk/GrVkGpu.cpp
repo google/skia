@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/GrThreadSafePipelineBuilder_Base.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
@@ -276,7 +277,6 @@ GrVkGpu::~GrVkGpu() {
     fMemoryAllocator.reset();
 }
 
-
 void GrVkGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
     if (!fDisconnected) {
@@ -287,6 +287,14 @@ void GrVkGpu::disconnect(DisconnectType type) {
         fMainCmdBuffer = nullptr;
         fDisconnected = true;
     }
+}
+
+GrThreadSafePipelineBuilder_Base* GrVkGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder_Base> GrVkGpu::refPipelineBuilder() {
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1978,7 +1986,7 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
         return false;
     }
 
-    Stats::ProgramCacheResult stat;
+    GrThreadSafePipelineBuilder_Base::Stats::ProgramCacheResult stat;
 
     auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState(
                                     desc,
@@ -1989,7 +1997,7 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
         return false;
     }
 
-    return stat != Stats::ProgramCacheResult::kHit;
+    return stat != GrThreadSafePipelineBuilder_Base::Stats::ProgramCacheResult::kHit;
 }
 
 #if GR_TEST_UTILS

@@ -34,6 +34,9 @@ public:
 
     void disconnect(DisconnectType) override;
 
+    GrThreadSafePipelineBuilder_Base* pipelineBuilder() override;
+    sk_sp<GrThreadSafePipelineBuilder_Base> refPipelineBuilder() override;
+
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
     void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) override;
 

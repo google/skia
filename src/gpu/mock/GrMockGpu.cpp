@@ -7,6 +7,7 @@
 
 #include "src/gpu/mock/GrMockGpu.h"
 
+#include "include/private/GrThreadSafePipelineBuilder_Base.h"
 #include "src/gpu/mock/GrMockAttachment.h"
 #include "src/gpu/mock/GrMockBuffer.h"
 #include "src/gpu/mock/GrMockCaps.h"
@@ -77,6 +78,16 @@ GrMockGpu::GrMockGpu(GrDirectContext* direct, const GrMockOptions& options,
         : INHERITED(direct)
         , fMockOptions(options) {
     this->initCapsAndCompiler(sk_make_sp<GrMockCaps>(contextOptions, options));
+}
+
+GrMockGpu::~GrMockGpu() {}
+
+GrThreadSafePipelineBuilder_Base* GrMockGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder_Base> GrMockGpu::refPipelineBuilder() {
+    return nullptr;
 }
 
 void GrMockGpu::querySampleLocations(GrRenderTarget* rt, SkTArray<SkPoint>* sampleLocations) {
