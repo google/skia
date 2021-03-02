@@ -87,6 +87,24 @@
       "parentUuid": "40e3ab09_4803cbbe",
       "revId": "d562a38bbf96b5b510ef42f71b4b94581291cebe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "deca3928_d963f421",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-02T19:44:34Z",
+      "side": 1,
+      "message": "Thanks for the clarification! SGTM",
+      "parentUuid": "6af82efe_adbd3deb",
+      "revId": "d562a38bbf96b5b510ef42f71b4b94581291cebe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
