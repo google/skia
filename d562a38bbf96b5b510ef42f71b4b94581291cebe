@@ -69,6 +69,24 @@
       "parentUuid": "ce6aba77_8884f383",
       "revId": "d562a38bbf96b5b510ef42f71b4b94581291cebe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6af82efe_adbd3deb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-02T19:21:20Z",
+      "side": 1,
+      "message": "I added a test.\n\nThe danger is specifically due to how it was converting statements to strings as it went, throwing away the DSLStatements in the process.\n\nCreating an effect using stuff like DSLFunction.define() is safe because it avoids that dangerous convert-to-string-and-release pattern. RuntimeEffects aren\u0027t supported yet, but they\u0027ll be created using DSLFunction.define() and therefore be safe.",
+      "parentUuid": "40e3ab09_4803cbbe",
+      "revId": "d562a38bbf96b5b510ef42f71b4b94581291cebe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
