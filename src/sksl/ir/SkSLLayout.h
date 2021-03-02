@@ -243,7 +243,7 @@ struct Layout {
             result = "layout (" + result + ")";
         }
         if (fFlags & kKey_Flag) {
-            result += "/* key */";
+            result += "/* key */ const";
         }
         return result;
     }
