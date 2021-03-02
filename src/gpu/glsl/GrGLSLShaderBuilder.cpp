@@ -15,6 +15,7 @@
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/dsl/DSL.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
@@ -93,6 +94,9 @@ void GrGLSLShaderBuilder::codeAppend(std::unique_ptr<SkSL::Statement> stmt) {
     SkASSERT(SkSL::dsl::DSLWriter::CurrentProcessor());
     SkASSERT(stmt);
     this->codeAppend(stmt->description().c_str());
+    if (stmt->is<SkSL::VarDeclaration>()) {
+        fDeclarations.push_back(std::move(stmt));
+    }
 }
 
 static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {

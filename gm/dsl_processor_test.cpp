@@ -32,6 +32,12 @@ public:
             void emitCode(EmitArgs& args) override {
                 using namespace SkSL::dsl;
                 StartFragmentProcessor(this, &args);
+
+                // Test for skbug.com/11384
+                Var x(kInt);
+                Declare(x, 1);
+                SkASSERT(DSLWriter::Var(x).initialValue()->description() == "1");
+
                 Var blueAlpha(kUniform_Modifier, kHalf2);
                 fBlueAlphaUniform = VarUniformHandle(blueAlpha);
                 Var coords(kFloat4);
