@@ -355,11 +355,11 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                                            isScope);
         }
         case Rehydrator::kBreak_Command:
-            return std::unique_ptr<Statement>(new BreakStatement(-1));
+            return std::make_unique<BreakStatement>(/*offset=*/-1);
         case Rehydrator::kContinue_Command:
-            return std::unique_ptr<Statement>(new ContinueStatement(-1));
+            return std::make_unique<ContinueStatement>(/*offset=*/-1);
         case Rehydrator::kDiscard_Command:
-            return std::unique_ptr<Statement>(new DiscardStatement(-1));
+            return std::make_unique<DiscardStatement>(/*offset=*/-1);
         case Rehydrator::kDo_Command: {
             std::unique_ptr<Statement> stmt = this->statement();
             std::unique_ptr<Expression> expr = this->expression();
@@ -375,10 +375,9 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             std::unique_ptr<Expression> next = this->expression();
             std::unique_ptr<Statement> body = this->statement();
             std::shared_ptr<SymbolTable> symbols = this->symbolTable();
-            return std::unique_ptr<Statement>(new ForStatement(-1, std::move(initializer),
-                                                               std::move(test), std::move(next),
-                                                               std::move(body),
-                                                               std::move(symbols)));
+            return ForStatement::Make(fContext, /*offset=*/-1, std::move(initializer),
+                                      std::move(test), std::move(next), std::move(body),
+                                      std::move(symbols));
         }
         case Rehydrator::kIf_Command: {
             bool isStatic = this->readU8();
@@ -396,9 +395,9 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kReturn_Command: {
             std::unique_ptr<Expression> expr = this->expression();
             if (expr) {
-                return std::unique_ptr<Statement>(new ReturnStatement(std::move(expr)));
+                return std::make_unique<ReturnStatement>(std::move(expr));
             } else {
-                return std::unique_ptr<Statement>(new ReturnStatement(-1));
+                return std::make_unique<ReturnStatement>(/*offset=*/-1);
             }
         }
         case Rehydrator::kSwitch_Command: {
@@ -419,8 +418,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                 cases.push_back(std::make_unique<SwitchCase>(/*offset=*/-1, std::move(value),
                                                              std::move(statements)));
             }
-            return std::make_unique<SwitchStatement>(-1, isStatic, std::move(expr),
-                                                     std::move(cases), fSymbolTable);
+            return SwitchStatement::Make(fContext, /*offset=*/-1, isStatic, std::move(expr),
+                                         std::move(cases), fSymbolTable);
         }
         case Rehydrator::kVarDeclaration_Command: {
             Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
@@ -462,7 +461,9 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
-            return std::make_unique<Constructor>(/*offset=*/-1, *type, std::move(args));
+            auto ctor = Constructor::Convert(fContext, /*offset=*/-1, *type, std::move(args));
+            SkASSERT(ctor);
+            return ctor;
         }
         case Rehydrator::kFieldAccess_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -486,7 +487,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
-            return std::make_unique<FunctionCall>(-1, type, f, std::move(args));
+            return std::make_unique<FunctionCall>(/*offset=*/-1, type, f, std::move(args));
         }
         case Rehydrator::kIndex_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -510,7 +511,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         }
         case Rehydrator::kSetting_Command: {
             StringFragment name = this->readString();
-            return Setting::Make(fContext, /*offset=*/-1, name);
+            return Setting::Convert(fContext, /*offset=*/-1, name);
         }
         case Rehydrator::kSwizzle_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -519,7 +520,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < count; ++i) {
                 components.push_back(this->readU8());
             }
-            return std::make_unique<Swizzle>(fContext, std::move(base), components);
+            return Swizzle::Make(fContext, std::move(base), components);
         }
         case Rehydrator::kTernary_Command: {
             std::unique_ptr<Expression> test = this->expression();
