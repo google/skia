@@ -292,7 +292,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrUnrolledBinaryGradientColorizer::onMa
 }
 void GrUnrolledBinaryGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                               GrProcessorKeyBuilder* b) const {
-    b->add32((uint32_t)intervalCount);
+    b->add32((uint32_t)intervalCount, "intervalCount");
 }
 bool GrUnrolledBinaryGradientColorizer::onIsEqual(const GrFragmentProcessor& other) const {
     const GrUnrolledBinaryGradientColorizer& that = other.cast<GrUnrolledBinaryGradientColorizer>();

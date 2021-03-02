@@ -89,7 +89,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrAARectEffect::onMakeProgramImpl() con
 }
 void GrAARectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {
-    b->add32((uint32_t)edgeType);
+    b->addBits(2, (uint32_t)edgeType, "edgeType");
 }
 bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAARectEffect& that = other.cast<GrAARectEffect>();

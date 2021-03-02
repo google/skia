@@ -41,7 +41,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrSectionSetData::onMakeProgramImpl() c
     return std::make_unique<GrGLSLSectionSetData>();
 }
 void GrSectionSetData::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    b->add32(sk_bit_cast<uint32_t>(provided));
+    b->add32(sk_bit_cast<uint32_t>(provided), "provided");
 }
 bool GrSectionSetData::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSectionSetData& that = other.cast<GrSectionSetData>();

@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLCPPUniformCTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLHCodeGenerator.h"
+#include "src/sksl/ir/SkSLEnum.h"
 
 #include <algorithm>
 
@@ -1238,7 +1239,37 @@ void CPPCodeGenerator::writeTest() {
     }
 }
 
+static int bits_needed(uint32_t v) {
+    int bits = 1;
+    while (v >= (1u << bits)) {
+        bits++;
+    }
+    return bits;
+}
+
 void CPPCodeGenerator::writeGetKey() {
+    auto bitsForEnum = [&](const Type& type) {
+        for (const ProgramElement* e : fProgram.elements()) {
+            if (!e->is<Enum>() || type.name() != e->as<Enum>().typeName()) {
+                continue;
+            }
+            SKSL_INT minVal = 0, maxVal = 0;
+            auto gatherEnumRange = [&](StringFragment, SKSL_INT value) {
+                minVal = std::min(minVal, value);
+                maxVal = std::max(maxVal, value);
+            };
+            e->as<Enum>().foreach(gatherEnumRange);
+            if (minVal < 0) {
+                // Found a negative value in the enum, just use 32 bits
+                return 32;
+            }
+            SkASSERT(SkTFitsIn<uint32_t>(maxVal));
+            return bits_needed(maxVal);
+        }
+        SK_ABORT("Didn't find declaring element for enum type!");
+        return 32;
+    };
+
     this->writef("void %s::onGetGLSLProcessorKey(const GrShaderCaps& caps, "
                                                 "GrProcessorKeyBuilder* b) const {\n",
                  fFullName.c_str());
@@ -1281,15 +1312,23 @@ void CPPCodeGenerator::writeGetKey() {
                                  HCodeGenerator::FieldName(name).c_str());
                     this->writef("    uint16_t alpha = SkFloatToHalf(%s.fA);\n",
                                  HCodeGenerator::FieldName(name).c_str());
-                    this->write("    b->add32(((uint32_t)red << 16) | green);\n");
-                    this->write("    b->add32(((uint32_t)blue << 16) | alpha);\n");
+                    this->writef("    b->add32(((uint32_t)red << 16) | green, \"%s.rg\");\n", name);
+                    this->writef("    b->add32(((uint32_t)blue << 16) | alpha, \"%s.ba\");\n",
+                                 name);
                 } else if (varType == *fContext.fTypes.fHalf ||
                            varType == *fContext.fTypes.fFloat) {
-                    this->writef("    b->add32(sk_bit_cast<uint32_t>(%s));\n",
-                                 HCodeGenerator::FieldName(name).c_str());
-                } else if (varType.isInteger() || varType.isBoolean() || varType.isEnum()) {
-                    this->writef("    b->add32((uint32_t) %s);\n",
-                                 HCodeGenerator::FieldName(name).c_str());
+                    this->writef("    b->add32(sk_bit_cast<uint32_t>(%s), \"%s\");\n",
+                                 HCodeGenerator::FieldName(name).c_str(), name);
+                } else if (varType.isBoolean()) {
+                    this->writef("    b->addBits(1, (uint32_t) %s, \"%s\");\n",
+                                 HCodeGenerator::FieldName(name).c_str(), name);
+                } else if (varType.isEnum()) {
+                    this->writef("    b->addBits(%d, (uint32_t) %s, \"%s\");\n",
+                                 bitsForEnum(varType), HCodeGenerator::FieldName(name).c_str(),
+                                 name);
+                } else if (varType.isInteger()) {
+                    this->writef("    b->add32((uint32_t) %s, \"%s\");\n",
+                                 HCodeGenerator::FieldName(name).c_str(), name);
                 } else {
                     SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                              varType.displayName().c_str());

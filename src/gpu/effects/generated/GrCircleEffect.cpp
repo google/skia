@@ -100,7 +100,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrCircleEffect::onMakeProgramImpl() con
 }
 void GrCircleEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {
-    b->add32((uint32_t)edgeType);
+    b->addBits(2, (uint32_t)edgeType, "edgeType");
 }
 bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrCircleEffect& that = other.cast<GrCircleEffect>();
