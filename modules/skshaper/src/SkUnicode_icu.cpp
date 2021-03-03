@@ -24,6 +24,10 @@
 #include "SkLoadICU.h"
 #endif
 
+#ifndef ubrk_clone
+  #define ubrk_clone(bi, status) ubrk_safeClone(bi, nullptr, nullptr, status)
+#endif
+
 using SkUnicodeBidi = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
 using ICUBreakIterator = std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>>;
@@ -179,8 +183,6 @@ class SkIcuBreakIteratorCache {
         return instance;
     }
 
-#ifdef SK_ENABLE_ICU_UBRK_SAFECLONE
-
     ICUBreakIterator makeBreakIterator(SkUnicode::BreakType type) {
         UErrorCode status = U_ZERO_ERROR;
         ICUBreakIterator* cachedIterator;
@@ -198,27 +200,13 @@ class SkIcuBreakIteratorCache {
         }
         ICUBreakIterator iterator;
         if (cachedIterator) {
-            iterator.reset(ubrk_safeClone(cachedIterator->get(), nullptr, nullptr, &status));
+            iterator.reset(ubrk_clone(cachedIterator->get(), &status));
             if (U_FAILURE(status)) {
                 SkDEBUGF("Break error: %s", u_errorName(status));
             }
         }
         return iterator;
     }
-
-#else  // SK_ENABLE_ICU_UBRK_SAFECLONE
-
-    ICUBreakIterator makeBreakIterator(SkUnicode::BreakType type) {
-        UErrorCode status = U_ZERO_ERROR;
-        ICUBreakIterator iterator(ubrk_open(convertType(type), uloc_getDefault(), nullptr, 0, &status));
-        if (U_FAILURE(status)) {
-            SkDEBUGF("Break error: %s", u_errorName(status));
-        }
-        return iterator;
-    }
-
-#endif  // SK_ENABLE_ICU_UBRK_SAFECLONE
-
 };
 
 class SkScriptIterator_icu : public SkScriptIterator {
