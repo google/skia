@@ -34,10 +34,6 @@ class VariableReference;
 enum class VariableRefKind : int8_t;
 enum class VariableStorage : int8_t;
 
-using ComponentArray = SkSTArray<4, int8_t>; // for Swizzles
-using ExpressionArray = SkSTArray<2, std::unique_ptr<Expression>>;
-using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
-
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
  * version of the program (all types determined, everything validated), ready for code generation.

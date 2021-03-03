@@ -8,9 +8,8 @@
 #ifndef SKSL_DSL_VAR
 #define SKSL_DSL_VAR
 
-#include "src/gpu/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLModifiers.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLModifiers.h"
 
 namespace SkSL {
 
@@ -33,6 +32,8 @@ public:
     DSLVar(DSLModifiers modifiers, DSLType type, const char* name = "var");
 
     DSLVar(DSLVar&&) = delete;
+
+    ~DSLVar();
 
     DSLExpression x() {
         return DSLExpression(*this).x();
@@ -117,14 +118,9 @@ private:
         return fName;
     }
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    GrGLSLUniformHandler::UniformHandle fUniformHandle;
-
-    GrGLSLUniformHandler::UniformHandle uniformHandle() const;
-#endif
-
+    int fUniformHandle;
     std::unique_ptr<SkSL::Statement> fDeclaration;
-    std::unique_ptr<SkSL::Variable> fVar = nullptr;
+    std::unique_ptr<SkSL::Variable> fVar;
     const SkSL::Variable* fConstVar = nullptr;
     const char* fName;
 

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/DSLFPs.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/generated/GrAARectEffect.h"
@@ -12,7 +13,6 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/dsl/priv/DSLFPs.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

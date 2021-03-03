@@ -8,11 +8,13 @@
 #include "gm/gm.h"
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/DSLFPs.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"
-#include "src/sksl/dsl/priv/DSLFPs.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLVariable.h"
 #include "tools/ToolUtils.h"
 
 class SimpleDSLEffect : public GrFragmentProcessor {
