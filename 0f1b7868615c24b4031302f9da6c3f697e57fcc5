@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7045642_bf3e85de",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-03T18:48:40Z",
+      "side": 1,
+      "message": "Do we need this here?",
+      "range": {
+        "startLine": 73,
+        "startChar": 46,
+        "endLine": 73,
+        "endChar": 59
+      },
+      "revId": "0f1b7868615c24b4031302f9da6c3f697e57fcc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
