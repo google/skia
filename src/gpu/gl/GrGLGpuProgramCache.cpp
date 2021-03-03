@@ -28,9 +28,9 @@ struct GrGLGpu::ProgramCache::Entry {
     GrGLPrecompiledProgram fPrecompiledProgram;
 };
 
-GrGLGpu::ProgramCache::ProgramCache(GrGLGpu* gpu)
-    : fMap(gpu->getContext()->priv().options().fRuntimeProgramCacheSize)
-    , fGpu(gpu) {}
+GrGLGpu::ProgramCache::ProgramCache(int runtimeProgramCacheSize)
+    : fMap(runtimeProgramCacheSize) {
+}
 
 GrGLGpu::ProgramCache::~ProgramCache() {}
 
@@ -48,18 +48,20 @@ void GrGLGpu::ProgramCache::reset() {
     fMap.reset();
 }
 
-sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* renderTarget,
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* dContext,
+                                                              GrRenderTarget* renderTarget,
                                                               const GrProgramInfo& programInfo) {
-    const GrCaps& caps = *fGpu->caps();
+    const GrCaps* caps = dContext->priv().caps();
 
-    GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo);
+    GrProgramDesc desc = caps->makeDesc(renderTarget, programInfo);
     if (!desc.isValid()) {
-        GrCapsDebugf(&caps, "Failed to gl program descriptor!\n");
+        GrCapsDebugf(caps, "Failed to gl program descriptor!\n");
         return nullptr;
     }
 
     Stats::ProgramCacheResult stat;
-    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(renderTarget, desc, programInfo, &stat);
+    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, renderTarget, desc,
+                                                       programInfo, &stat);
     if (!tmp) {
         fStats.incNumInlineCompilationFailures();
     } else {
@@ -69,7 +71,8 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
     return tmp;
 }
 
-sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* renderTarget,
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* dContext,
+                                                              GrRenderTarget* renderTarget,
                                                               const GrProgramDesc& desc,
                                                               const GrProgramInfo& programInfo,
                                                               Stats::ProgramCacheResult* stat) {
@@ -79,7 +82,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
         const GrGLPrecompiledProgram* precompiledProgram = &((*entry)->fPrecompiledProgram);
         SkASSERT(precompiledProgram->fProgramID != 0);
-        (*entry)->fProgram = GrGLProgramBuilder::CreateProgram(fGpu, renderTarget, desc,
+        (*entry)->fProgram = GrGLProgramBuilder::CreateProgram(dContext, renderTarget, desc,
                                                                programInfo, precompiledProgram);
         if (!(*entry)->fProgram) {
             // Should we purge the program ID from the cache at this point?
@@ -91,7 +94,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
         *stat = Stats::ProgramCacheResult::kPartial;
     } else if (!entry) {
         // We have a cache miss
-        sk_sp<GrGLProgram> program = GrGLProgramBuilder::CreateProgram(fGpu, renderTarget,
+        sk_sp<GrGLProgram> program = GrGLProgramBuilder::CreateProgram(dContext, renderTarget,
                                                                        desc, programInfo);
         if (!program) {
             fStats.incNumCompilationFailures();
@@ -105,7 +108,9 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
     return (*entry)->fProgram;
 }
 
-bool GrGLGpu::ProgramCache::precompileShader(const SkData& key, const SkData& data) {
+bool GrGLGpu::ProgramCache::precompileShader(GrDirectContext* dContext,
+                                             const SkData& key,
+                                             const SkData& data) {
     GrProgramDesc desc;
     if (!GrProgramDesc::BuildFromData(&desc, key.data(), key.size())) {
         return false;
@@ -118,7 +123,7 @@ bool GrGLGpu::ProgramCache::precompileShader(const SkData& key, const SkData& da
     }
 
     GrGLPrecompiledProgram precompiledProgram;
-    if (!GrGLProgramBuilder::PrecompileProgram(&precompiledProgram, fGpu, data)) {
+    if (!GrGLProgramBuilder::PrecompileProgram(dContext, &precompiledProgram, data)) {
         return false;
     }
 

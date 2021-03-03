@@ -44,13 +44,13 @@ public:
      * be supplied to skip the shader compilation.
      * @return the created program if generation was successful.
      */
-    static sk_sp<GrGLProgram> CreateProgram(GrGLGpu*,
+    static sk_sp<GrGLProgram> CreateProgram(GrDirectContext*,
                                             GrRenderTarget*,
                                             const GrProgramDesc&,
                                             const GrProgramInfo&,
                                             const GrGLPrecompiledProgram* = nullptr);
 
-    static bool PrecompileProgram(GrGLPrecompiledProgram*, GrGLGpu*, const SkData&);
+    static bool PrecompileProgram(GrDirectContext*, GrGLPrecompiledProgram*, const SkData&);
 
     const GrCaps* caps() const override;
 
