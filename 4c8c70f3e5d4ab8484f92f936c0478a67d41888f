@@ -34,6 +34,24 @@
       "parentUuid": "7630f437_de169bc0",
       "revId": "4c8c70f3e5d4ab8484f92f936c0478a67d41888f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "486e71c3_f9458db0",
+        "filename": "src/sksl/ir/SkSLIfStatement.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-03T16:14:43Z",
+      "side": 1,
+      "message": "I was mostly curious because we were going out of our way to only do this when the optimization flag is on. I guess it doesn\u0027t matter much.",
+      "parentUuid": "882adf1c_38bb8ec0",
+      "revId": "4c8c70f3e5d4ab8484f92f936c0478a67d41888f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
