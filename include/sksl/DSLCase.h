@@ -8,8 +8,9 @@
 #ifndef SKSL_DSL_CASE
 #define SKSL_DSL_CASE
 
-#include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLStatement.h"
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLStatement.h"
 
 #include <memory>
 
@@ -29,17 +30,20 @@ public:
         (fStatements.push_back(DSLStatement(std::move(statements)).release()), ...);
     }
 
-    DSLCase(DSLExpression value, SkSL::StatementArray statements)
-        : fValue(std::move(value))
-        , fStatements(std::move(statements)) {}
+    DSLCase(DSLCase&&);
 
-    void append(DSLStatement stmt) {
-        fStatements.push_back(stmt.release());
-    }
+    DSLCase(DSLExpression value, SkSL::StatementArray statements);
 
-//private:
+    ~DSLCase();
+
+    void append(DSLStatement stmt);
+
+private:
     DSLExpression fValue;
     SkSL::StatementArray fStatements;
+
+    template<class... Cases>
+    friend DSLPossibleStatement Switch(DSLExpression value, Cases... cases);
 };
 
 } // namespace dsl
