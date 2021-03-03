@@ -183,6 +183,8 @@ public:
      */
     static uint32_t ComputeCoordTransformsKey(const GrFragmentProcessor& fp);
 
+    static constexpr int kCoordTransformKeyBits = 4;
+
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
      * processor's GL backend implementation.
@@ -200,8 +202,9 @@ public:
 
         auto add_attributes = [=](const Attribute* attrs, int attrCount) {
             for (int i = 0; i < attrCount; ++i) {
-                b->add32(attrs[i].isInitialized() ? (attrs[i].cpuType() << 16) | attrs[i].gpuType()
-                                                  : ~0);
+                const Attribute& attr = attrs[i];
+                b->addBits(8, attr.isInitialized() ? attr.cpuType() : 0xff, "attrType");
+                b->addBits(8, attr.isInitialized() ? attr.gpuType() : 0xff, "attrGpuType");
             }
         };
         add_attributes(fVertexAttributes.fAttributes, fVertexAttributes.fRawCount);

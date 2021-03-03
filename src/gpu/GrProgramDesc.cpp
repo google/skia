@@ -80,38 +80,13 @@ static bool processor_meta_data_fits(uint32_t classID, size_t keySize) {
 }
 
 /**
- * A function which emits a meta key into the key builder.  This is required because shader code may
- * be dependent on properties of the effect that the effect itself doesn't use
- * in its key (e.g. the pixel format of textures used). So we create a meta-key for
- * every effect using this function. It is also responsible for inserting the effect's class ID
- * which must be different for every GrProcessor subclass. It can fail if an effect uses too many
- * transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share this
- * function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
+ * Functions which emit a meta key into the key builder. These are required because shader code may
+ * be dependent on properties of the effect that the effect itself doesn't use in its key (e.g. the
+ * pixel format of textures used). So we create a meta-key for every effect.
+ * It is also responsible for inserting the effect's class ID which must be different for every
+ * GrProcessor subclass. It can fail if an effect uses too many transforms, etc, for the space
+ * allotted in the meta-key.
  */
-static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
-                            const GrCaps& caps,
-                            uint32_t transformKey,
-                            GrProcessorKeyBuilder* b) {
-    size_t processorKeySize = b->sizeInBits();
-    uint32_t classID = fp.classID();
-
-    if (!processor_meta_data_fits(classID, processorKeySize)) {
-        return false;
-    }
-
-    fp.visitTextureEffects([&](const GrTextureEffect& te) {
-        const GrBackendFormat& backendFormat = te.view().proxy()->backendFormat();
-        uint32_t samplerKey = sampler_key(backendFormat.textureType(), te.view().swizzle(), caps);
-        b->add32(samplerKey);
-        caps.addExtraSamplerKey(b, te.samplerState(), backendFormat);
-    });
-
-    b->addBits(kClassIDBits, classID,          "fpClassID");
-    b->addBits(kKeySizeBits, processorKeySize, "fpKeySize");
-    b->add32(transformKey,                     "fpTransforms");
-    return true;
-}
-
 static bool gen_pp_meta_key(const GrPrimitiveProcessor& pp,
                             const GrCaps& caps,
                             GrProcessorKeyBuilder* b) {
@@ -145,6 +120,21 @@ static bool gen_xp_meta_key(const GrXferProcessor& xp, GrProcessorKeyBuilder* b)
 static bool gen_frag_proc_and_meta_keys(const GrFragmentProcessor& fp,
                                         const GrCaps& caps,
                                         GrProcessorKeyBuilder* b) {
+    b->addString([&](){ return fp.name(); });
+    b->addBits(kClassIDBits, fp.classID(), "fpClassID");
+    b->addBits(GrPrimitiveProcessor::kCoordTransformKeyBits,
+               GrPrimitiveProcessor::ComputeCoordTransformsKey(fp), "fpTransforms");
+
+    fp.visitTextureEffects([&](const GrTextureEffect& te) {
+        const GrBackendFormat& backendFormat = te.view().proxy()->backendFormat();
+        uint32_t samplerKey = sampler_key(backendFormat.textureType(), te.view().swizzle(), caps);
+        b->add32(samplerKey, "fpSamplerKey");
+        caps.addExtraSamplerKey(b, te.samplerState(), backendFormat);
+    });
+
+    fp.getGLSLProcessorKey(*caps.shaderCaps(), b);
+    b->add32(fp.numChildProcessors(), "fpNumChildren");
+
     for (int i = 0; i < fp.numChildProcessors(); ++i) {
         if (auto child = fp.childProcessor(i)) {
             if (!gen_frag_proc_and_meta_keys(*child, caps, b)) {
@@ -152,14 +142,12 @@ static bool gen_frag_proc_and_meta_keys(const GrFragmentProcessor& fp,
             }
         } else {
             // Fold in a sentinel value as the "class ID" for any null children
-            b->add32(GrProcessor::ClassID::kNull_ClassID);
+            b->addString([&](){ return "Null"; });
+            b->addBits(kClassIDBits, GrProcessor::ClassID::kNull_ClassID, "fpClassID");
         }
     }
 
-    b->addString([&](){ return fp.name(); });
-    fp.getGLSLProcessorKey(*caps.shaderCaps(), b);
-
-    return gen_fp_meta_key(fp, caps, GrPrimitiveProcessor::ComputeCoordTransformsKey(fp), b);
+    return true;
 }
 
 bool GrProgramDesc::Build(GrProgramDesc* desc,

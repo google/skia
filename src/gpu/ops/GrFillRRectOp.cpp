@@ -307,7 +307,8 @@ public:
     const char* name() const final { return "GrFillRRectOp::Processor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
-        b->add32(((uint32_t)fFlags << 16) | (uint32_t)fAAType);
+        b->addBits(4, (uint32_t)fFlags,  "flags");
+        b->addBits(2, (uint32_t)fAAType, "aaType");
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;

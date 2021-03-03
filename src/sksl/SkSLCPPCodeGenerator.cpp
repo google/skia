@@ -1320,7 +1320,7 @@ void CPPCodeGenerator::writeGetKey() {
                     this->writef("    b->add32(sk_bit_cast<uint32_t>(%s), \"%s\");\n",
                                  HCodeGenerator::FieldName(name).c_str(), name);
                 } else if (varType.isBoolean()) {
-                    this->writef("    b->addBits(1, (uint32_t) %s, \"%s\");\n",
+                    this->writef("    b->addBool(%s, \"%s\");\n",
                                  HCodeGenerator::FieldName(name).c_str(), name);
                 } else if (varType.isEnum()) {
                     this->writef("    b->addBits(%d, (uint32_t) %s, \"%s\");\n",

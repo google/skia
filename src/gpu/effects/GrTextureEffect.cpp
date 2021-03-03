@@ -765,17 +765,17 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrTextureEffect::onMakeProgramImpl() co
 
 void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     auto m0 = static_cast<uint32_t>(fShaderModes[0]);
-    SkASSERT(SkTFitsIn<uint8_t>(m0));
+    b->addBits(8, m0, "shaderMode0");
 
     auto m1 = static_cast<uint32_t>(fShaderModes[1]);
-    SkASSERT(SkTFitsIn<uint8_t>(m1));
+    b->addBits(8, m1, "shaderMode1");
 
     // The origin only affects the shader code when we're doing last minute normalization
     // for lazy proxies.
-    uint32_t normInfo = fLazyProxyNormalization ? (this->view().origin() << 1 | 0x1) : 0x0;
-    SkASSERT(SkTFitsIn<uint8_t>(normInfo));
-
-    b->add32((m0 << 16) | m1 << 8 | normInfo);
+    b->addBool(fLazyProxyNormalization, "normalization");
+    if (fLazyProxyNormalization) {
+        b->addBits(1, this->view().origin(), "origin");
+    }
 }
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {

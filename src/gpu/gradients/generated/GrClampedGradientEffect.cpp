@@ -93,8 +93,8 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrClampedGradientEffect::onMakeProgramI
 }
 void GrClampedGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                     GrProcessorKeyBuilder* b) const {
-    b->addBits(1, (uint32_t)makePremul, "makePremul");
-    b->addBits(1, (uint32_t)layoutPreservesOpacity, "layoutPreservesOpacity");
+    b->addBool(makePremul, "makePremul");
+    b->addBool(layoutPreservesOpacity, "layoutPreservesOpacity");
 }
 bool GrClampedGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrClampedGradientEffect& that = other.cast<GrClampedGradientEffect>();

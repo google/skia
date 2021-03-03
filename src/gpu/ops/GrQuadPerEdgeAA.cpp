@@ -567,29 +567,33 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         // texturing, device-dimensions are single bit flags
-        uint32_t x = (fTexSubset.isInitialized() ? 0 : 0x1)
-                   | (fSampler.isInitialized()   ? 0 : 0x2)
-                   | (fNeedsPerspective          ? 0 : 0x4)
-                   | (fSaturate == Saturate::kNo ? 0 : 0x8);
-        // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
+        b->addBool(fTexSubset.isInitialized(),    "subset");
+        b->addBool(fSampler.isInitialized(),      "textured");
+        b->addBool(fNeedsPerspective,             "perspective");
+        b->addBool((fSaturate == Saturate::kYes), "saturate");
+
+        b->addBool(fLocalCoord.isInitialized(),   "hasLocalCoords");
         if (fLocalCoord.isInitialized()) {
-            x |= kFloat3_GrVertexAttribType == fLocalCoord.cpuType() ? 0x10 : 0x20;
+            // 2D (0) or 3D (1)
+            b->addBits(1, (kFloat3_GrVertexAttribType == fLocalCoord.cpuType()), "localCoordsType");
         }
-        // similar for colors, 00 for none, 01 for bytes, 10 for half-floats
+        b->addBool(fColor.isInitialized(),        "hasColor");
         if (fColor.isInitialized()) {
-            x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 0x40 : 0x80;
+            // bytes (0) or floats (1)
+            b->addBits(1, (kFloat4_GrVertexAttribType == fColor.cpuType()), "colorType");
         }
         // and coverage mode, 00 for none, 01 for withposition, 10 for withcolor, 11 for
         // position+geomsubset
+        uint32_t coverageKey = 0;
         SkASSERT(!fGeomSubset.isInitialized() || fCoverageMode == CoverageMode::kWithPosition);
         if (fCoverageMode != CoverageMode::kNone) {
-            x |= fGeomSubset.isInitialized()
-                         ? 0x300
-                         : (CoverageMode::kWithPosition == fCoverageMode ? 0x100 : 0x200);
+            coverageKey = fGeomSubset.isInitialized()
+                                  ? 0x3
+                                  : (CoverageMode::kWithPosition == fCoverageMode ? 0x1 : 0x2);
         }
+        b->addBits(2, coverageKey, "coverageMode");
 
-        b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
-        b->add32(x);
+        b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()), "colorSpaceXform");
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {

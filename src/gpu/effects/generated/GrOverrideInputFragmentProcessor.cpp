@@ -67,7 +67,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrOverrideInputFragmentProcessor::onMak
 }
 void GrOverrideInputFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                              GrProcessorKeyBuilder* b) const {
-    b->addBits(1, (uint32_t)useUniform, "useUniform");
+    b->addBool(useUniform, "useUniform");
     if (!useUniform) {
         uint16_t red = SkFloatToHalf(literalColor.fR);
         uint16_t green = SkFloatToHalf(literalColor.fG);

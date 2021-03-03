@@ -14,15 +14,15 @@
  * the transform code is applied.
  */
 enum SampleFlag {
-    kExplicitlySampled_Flag      = 0b00001,  // GrFP::isSampledWithExplicitCoords()
+    kExplicitlySampled_Flag      = 0b0001,  // GrFP::isSampledWithExplicitCoords()
 
-    kNone_SampleMatrix_Flag      = 0b00100, // GrFP::sampleUsage()::hasMatrix() == false
-    kUniform_SampleMatrix_Flag   = 0b01000, // GrFP::sampleUsage()::hasUniformMatrix()
-    kVariable_SampleMatrix_Flag  = 0b01100, // GrFP::sampleUsage()::hasVariableMatrix()
+    kNone_SampleMatrix_Flag      = 0b0010, // GrFP::sampleUsage()::hasMatrix() == false
+    kUniform_SampleMatrix_Flag   = 0b0100, // GrFP::sampleUsage()::hasUniformMatrix()
+    kVariable_SampleMatrix_Flag  = 0b0110, // GrFP::sampleUsage()::hasVariableMatrix()
 
     // Currently, sample(matrix) only specializes on no-perspective or general.
     // FIXME add new flags as more matrix types are supported.
-    kPersp_Matrix_Flag           = 0b10000, // GrFP::sampleUsage()::fHasPerspective
+    kPersp_Matrix_Flag           = 0b1000, // GrFP::sampleUsage()::fHasPerspective
 };
 
 GrPrimitiveProcessor::GrPrimitiveProcessor(ClassID classID) : GrProcessor(classID) {}

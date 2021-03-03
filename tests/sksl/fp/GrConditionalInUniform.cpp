@@ -55,7 +55,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrConditionalInUniform::onMakeProgramIm
     return std::make_unique<GrGLSLConditionalInUniform>();
 }
 void GrConditionalInUniform::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    b->addBits(1, (uint32_t) test, "test");
+    b->addBool(test, "test");
 }
 bool GrConditionalInUniform::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConditionalInUniform& that = other.cast<GrConditionalInUniform>();
