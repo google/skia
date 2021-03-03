@@ -798,11 +798,11 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     SkDEBUGCODE(this->validate());
 }
 
-bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
-                                         SkIRect srcRect,
-                                         sk_sp<GrSurfaceProxy> dst,
-                                         SkIPoint dstPoint,
-                                         GrSurfaceOrigin origin) {
+sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
+                                                        SkIRect srcRect,
+                                                        sk_sp<GrSurfaceProxy> dst,
+                                                        SkIPoint dstPoint,
+                                                        GrSurfaceOrigin origin) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
@@ -813,20 +813,22 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
     // task, then fail to make a copy task, the next active ops task may target the same proxy. This
     // will trip an assert related to unnecessary ops task splitting.
     if (src->framebufferOnly()) {
-        return false;
+        return nullptr;
     }
 
     this->closeActiveOpsTask();
 
-    GrRenderTask* task = this->appendTask(GrCopyRenderTask::Make(this,
-                                                                 src,
-                                                                 srcRect,
-                                                                 std::move(dst),
-                                                                 dstPoint,
-                                                                 origin));
+    sk_sp<GrRenderTask> task = GrCopyRenderTask::Make(this,
+                                                      src,
+                                                      srcRect,
+                                                      std::move(dst),
+                                                      dstPoint,
+                                                      origin);
     if (!task) {
-        return false;
+        return nullptr;
     }
+
+    this->appendTask(task);
 
     const GrCaps& caps = *fContext->priv().caps();
     // We always say GrMipmapped::kNo here since we are always just copying from the base layer to
@@ -838,7 +840,7 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
     // shouldn't be an active one.
     SkASSERT(!fActiveOpsTask);
     SkDEBUGCODE(this->validate());
-    return true;
+    return task;
 }
 
 bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,

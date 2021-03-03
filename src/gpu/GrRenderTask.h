@@ -52,6 +52,15 @@ public:
 
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
+    /**
+     * A task can be marked as able to be skipped. There is no guarantee that the task will
+     * actually be skipped. To remove the need for this we would need to support  minimal flushes
+     * (only flush that which is required for SkSurfaces/SkImages) and the ability to detect
+     * "orphaned tasks" that can never affect a SkSurface/SkImage and be able to them up in the
+     * DAG so they don't indefinitely accumulate.
+     */
+    void canSkip();
+
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
      */
@@ -239,6 +248,7 @@ private:
         }
     };
 
+    virtual void onCanSkip() {}
     virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
     virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
