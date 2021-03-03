@@ -112,11 +112,16 @@ DDLFuzzer::DDLFuzzer(Fuzz* fuzz, ContextType contextType) : fFuzz(fuzz) {
     sk_gpu_test::ContextInfo ctxInfo = fContextFactory.getContextInfo(contextType);
     sk_gpu_test::TestContext* testCtx = ctxInfo.testContext();
     fContext = ctxInfo.directContext();
+    if (!fContext) {
+        return;
+    }
     SkISize canvasSize = kPromiseImageSize;
     canvasSize.fWidth *= kPromiseImagesPerDDL;
     SkImageInfo ii = SkImageInfo::Make(canvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     fSurface = SkSurface::MakeRenderTarget(fContext, SkBudgeted::kNo, ii);
-    SkAssertResult(fSurface->characterize(&fSurfaceCharacterization));
+    if (!fSurface || !fSurface->characterize(&fSurfaceCharacterization)) {
+        return;
+    }
 
     testCtx->makeNotCurrent();
     fGpuTaskGroup.add([&]{
@@ -249,6 +254,9 @@ void DDLFuzzer::recordAndPlayDDL() {
 }
 
 void DDLFuzzer::run() {
+    if (!fSurface) {
+        return;
+    }
     fRecordingTaskGroup.batch(kIterationCount, [=](int i) {
         this->recordAndPlayDDL();
     });
