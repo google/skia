@@ -24,6 +24,22 @@
 #include "SkLoadICU.h"
 #endif
 
+// ubrk_clone added as draft in ICU69 and Android API 31 (first ICU NDK).
+// ubrk_safeClone deprecated in ICU69 and not exposed by Android.
+template<typename...> using void_t = void;
+template<typename T, typename = void>
+struct SkUbrkClone {
+    UBreakIterator* operator()(T bi, UErrorCode* status) {
+        return ubrk_safeClone(bi, nullptr, nullptr, status);
+    }
+};
+template<typename T>
+struct SkUbrkClone<T, void_t<decltype(ubrk_clone(std::declval<T>(), nullptr))>> {
+    UBreakIterator* operator()(T bi, UErrorCode* status) {
+        return ubrk_clone(bi, status);
+    }
+};
+
 using SkUnicodeBidi = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
 using ICUBreakIterator = std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close), ubrk_close>>;
@@ -179,8 +195,6 @@ class SkIcuBreakIteratorCache {
         return instance;
     }
 
-#ifdef SK_ENABLE_ICU_UBRK_SAFECLONE
-
     ICUBreakIterator makeBreakIterator(SkUnicode::BreakType type) {
         UErrorCode status = U_ZERO_ERROR;
         ICUBreakIterator* cachedIterator;
@@ -198,27 +212,13 @@ class SkIcuBreakIteratorCache {
         }
         ICUBreakIterator iterator;
         if (cachedIterator) {
-            iterator.reset(ubrk_safeClone(cachedIterator->get(), nullptr, nullptr, &status));
+            iterator.reset(SkUbrkClone<const UBreakIterator*>()(cachedIterator->get(), &status));
             if (U_FAILURE(status)) {
                 SkDEBUGF("Break error: %s", u_errorName(status));
             }
         }
         return iterator;
     }
-
-#else  // SK_ENABLE_ICU_UBRK_SAFECLONE
-
-    ICUBreakIterator makeBreakIterator(SkUnicode::BreakType type) {
-        UErrorCode status = U_ZERO_ERROR;
-        ICUBreakIterator iterator(ubrk_open(convertType(type), uloc_getDefault(), nullptr, 0, &status));
-        if (U_FAILURE(status)) {
-            SkDEBUGF("Break error: %s", u_errorName(status));
-        }
-        return iterator;
-    }
-
-#endif  // SK_ENABLE_ICU_UBRK_SAFECLONE
-
 };
 
 class SkScriptIterator_icu : public SkScriptIterator {
