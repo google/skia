@@ -3,7 +3,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.23.0/bin/canvaskit.js"></script>
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
 
 <style>
   canvas {
@@ -18,7 +18,7 @@
 </body>
 
 <script type="text/javascript" charset="utf-8">
-  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.23.0/bin/' + file });
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/' + file });
 
   ckLoaded.then((CanvasKit) => {
     const surface = CanvasKit.MakeCanvasSurface('draw');

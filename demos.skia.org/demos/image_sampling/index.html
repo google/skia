@@ -6,30 +6,46 @@
 <script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
 
 <style>
-  canvas {
-<!--    border: 1px dashed grey;   -->
-  }
+    figcaption {
+        max-width: 800px;
+    }
 </style>
 
 <body>
   <h1>Custom Image Upscaling</h1>
 
   <div class="slidecontainer">
-      <input type="range" min="0" max="900" value="0"   class="slider" id="sharpen">
-      <input type="range" min="0" max="900" value="300" class="slider" id="cubic_B">
-      <input type="range" min="0" max="900" value="300" class="slider" id="cubic_C">
+      <input type="range" min="0" max="1" value="0" step="0.01" class="slider" id="sharpen"
+             title="sharpen coefficient: 0 means nearest neighbor.">
+      <input type="range" min="0" max="1" value="0.3" step="0.01" class="slider" id="cubic_B"
+             title="cubic B">
+      <input type="range" min="0" max="1" value="0.3" step="0.01" class="slider" id="cubic_C"
+             title="cubic C">
   </div>
 
-  <canvas id=draw width=900 height=900></canvas>
+  <figure>
+    <canvas id=draw width=820 height=820></canvas>
+    <figcaption>
+        This demo shows off a custom image upscaling algorithm written in SkSL. The algorithm
+        can be between nearest neighbor and linear interpolation, depending if the value of the
+        sharpen (i.e. the first) slider is 0 or 1, respectively. The upper left quadrant shows
+        the results of a 100x zoom in on a 4 pixel by 4 pixel image of random colors with this
+        algorithm. The lower left is the same algorithm with a smoothing curve applied.
+        <br>
+        For comparison, the upper right shows a stock linear interpolation and the lower right
+        shows a cubic interpolation with the B and C values controlled by the two remaining
+        sliders.
+    </figcaption>
+  </figure>
+
 </body>
 
 <script type="text/javascript" charset="utf-8">
-  const ckLoaded = CanvasKitInit({ locateFile: (file) => "https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/" + file });
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/' + file });
 
   ckLoaded.then((CanvasKit) => {
     if (!CanvasKit.RuntimeEffect) {
-        console.log(CanvasKit.RuntimeEffect);
-        throw "Need RuntimeEffect";
+        throw 'Need RuntimeEffect';
     }
     const surface = CanvasKit.MakeCanvasSurface('draw');
     if (!surface) {
@@ -64,18 +80,15 @@
     const effect = CanvasKit.RuntimeEffect.Make(prog);
 
     const paint = new CanvasKit.Paint();
+    // image is a 4x4 image of 16 random colors. This very small image will be upscaled
+    // through various techniques.
     const image = function() {
-        let surf = CanvasKit.MakeSurface(4, 4);
-        let c = surf.getCanvas();
-        const g = [0,  4,  8, 12,
-                   7, 11, 15, 3,
-                   2, 14, 10, 6,
-                   13,  1,  5, 9];
-        let i = 0;
+        const surf = CanvasKit.MakeSurface(4, 4);
+        const c = surf.getCanvas();
         for (let y = 0; y < 4; y++) {
             for (let x = 0; x < 4; x++) {
                 paint.setColor([Math.random(), Math.random(), Math.random(), 1]);
-                c.drawRect([x, y, x+1, y+1], paint);
+                c.drawRect(CanvasKit.LTRBRect(x, y, x+1, y+1), paint);
             }
         }
         return surf.makeImageSnapshot();
@@ -86,35 +99,43 @@
                                                 CanvasKit.FilterMode.Nearest,
                                                 CanvasKit.MipmapMode.None);
 
-    sharpen.oninput = () => { surface.requestAnimationFrame(drawFrame); }
-    cubic_B.oninput = () => { surface.requestAnimationFrame(drawFrame); }
-    cubic_C.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+    sharpen.oninput = () => { surface.requestAnimationFrame(drawFrame); };
+    cubic_B.oninput = () => { surface.requestAnimationFrame(drawFrame); };
+    cubic_C.oninput = () => { surface.requestAnimationFrame(drawFrame); };
 
-    drawFrame = function(canvas) {
-        const v = sharpen.value / 900.0;
+    const drawFrame = function(canvas) {
+        const v = sharpen.valueAsNumber;
         const m = 1/Math.max(v, 0.00001);
-        const B = cubic_B.value / 900.0;
-        const C = cubic_C.value / 900.0;
-        const scale = 100;
-        const W = 4;
+        const B = cubic_B.valueAsNumber;
+        const C = cubic_C.valueAsNumber;
 
         canvas.save();
+        // Upscale all drawing by 100x; This is big enough to make the differences in technique
+        // more obvious.
+        const scale = 100;
         canvas.scale(scale, scale);
 
+        // Upper left, draw image using an algorithm (written in SkSL) between nearest neighbor and
+        // linear interpolation with no smoothing.
         paint.setShader(effect.makeShaderWithChildren([m, 0], true, [imageShader], null));
-        canvas.drawRect([0, 0, 4, 4], paint);
+        canvas.drawRect(CanvasKit.LTRBRect(0, 0, 4, 4), paint);
 
+        // Lower left, draw image using an algorithm (written in SkSL) between nearest neighbor and
+        // linear interpolation with smoothing enabled.
         canvas.save();
         canvas.translate(0, 4.1);
         paint.setShader(effect.makeShaderWithChildren([m, 1], true, [imageShader], null));
-        canvas.drawRect([0, 0, 4, 4], paint);
+        canvas.drawRect(CanvasKit.LTRBRect(0, 0, 4, 4), paint);
         canvas.restore();
 
+        // Upper right, draw image with built-in linear interpolation.
         canvas.drawImageOptions(image, 4.1, 0, CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None, null);
+
+        // Lower right, draw image with configurable cubic interpolation.
         canvas.drawImageCubic(image, 4.1, 4.1, B, C, null);
 
         canvas.restore();
-    }
+    };
 
     surface.requestAnimationFrame(drawFrame);
   });

@@ -2,7 +2,7 @@
 const worker = new Worker('worker.js');
 
 const canvasKitInitPromise =
-    CanvasKitInit({locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.23.0/bin/'+file});
+    CanvasKitInit({locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/'+file});
 
 const bigImagePromise =
     fetch('https://upload.wikimedia.org/wikipedia/commons/3/30/Large_Gautama_Buddha_statue_in_Buddha_Park_of_Ravangla%2C_Sikkim.jpg')
