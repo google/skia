@@ -16,6 +16,23 @@
       "message": "It looks like the GM has some issues with the vkddl config, but I\u0027m betting that\u0027s because of how the ddl configures its tiling windows and not reporting the proper full size for a clipped layer in these situations (the matrix convolution filter does this for repeat and mirror, but it ought to be done for clamp to). I dont\u0027 think we should worry about that too much since it\u0027s difficult to reason about with the current crop/bounds handling in image filters and it should a lot easier when cropping is it\u0027s own filter.",
       "revId": "4a134d927b53fc5307ee385f257b8ff4e8c13997",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a7c040e_6e0f225a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-03T14:15:16Z",
+      "side": 1,
+      "message": "Yeah, there is a general problem of background filters being very sensitive to devices bounds. Opening this GM in viewer and panning, zooming, and changing the window size show how sensitive it is. I think at this point the best we have is asking the client to enlarge the base device to account for the filter width.",
+      "revId": "4a134d927b53fc5307ee385f257b8ff4e8c13997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
