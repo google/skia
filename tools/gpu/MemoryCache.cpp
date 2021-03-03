@@ -94,17 +94,35 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
         SkSL::Program::Inputs inputsIgnored[kGrShaderTypeCount];
         SkSL::String shaders[kGrShaderTypeCount];
         const SkData* data = it->second.fData.get();
-        // Even with the SPIR-V switches, it seems like we must use .spv, or malisc tries to
-        // run glslang on the input.
-        const char* ext = GrBackendApi::kOpenGL == api ? "frag" : "spv";
+        const SkString& description = it->second.fDescription;
         SkReadBuffer reader(data->data(), data->size());
         GrPersistentCacheUtils::GetType(&reader); // Shader type tag
         GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders,
                                                     inputsIgnored, kGrShaderTypeCount);
 
-        SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(), ext);
-        SkFILEWStream file(filename.c_str());
-        file.write(shaders[kFragment_GrShaderType].c_str(), shaders[kFragment_GrShaderType].size());
+        // Even with the SPIR-V switches, it seems like we must use .spv, or malisc tries to
+        // run glslang on the input.
+        {
+            const char* ext = GrBackendApi::kOpenGL == api ? "frag" : "frag.spv";
+            SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(), ext);
+            SkFILEWStream file(filename.c_str());
+            file.write(shaders[kFragment_GrShaderType].c_str(),
+                       shaders[kFragment_GrShaderType].size());
+        }
+        {
+            const char* ext = GrBackendApi::kOpenGL == api ? "vert" : "vert.spv";
+            SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(), ext);
+            SkFILEWStream file(filename.c_str());
+            file.write(shaders[kVertex_GrShaderType].c_str(),
+                       shaders[kVertex_GrShaderType].size());
+        }
+
+        if (!description.isEmpty()) {
+            const char* ext = "key";
+            SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(), ext);
+            SkFILEWStream file(filename.c_str());
+            file.write(description.c_str(), description.size());
+        }
     }
 }
 
