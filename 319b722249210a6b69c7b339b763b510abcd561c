@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "541ee4f7_b1f1f856",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-03T16:47:31Z",
+      "side": 1,
+      "message": "I have matrix position canonicalized in the key.",
+      "revId": "319b722249210a6b69c7b339b763b510abcd561c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
