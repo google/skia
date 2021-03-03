@@ -10,7 +10,9 @@ OpMemberName %_UniformBuffer 0 "colorGreen"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
 OpName %_0_x "_0_x"
+OpName %x "x"
 OpName %_1_x "_1_x"
+OpName %y "y"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -21,7 +23,7 @@ OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %52 RelaxedPrecision
+OpDecorate %58 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -40,10 +42,10 @@ OpDecorate %52 RelaxedPrecision
 %float_2 = OpConstant %float 2
 %v2float = OpTypeVector %float 2
 %_ptr_Function_v2float = OpTypePointer Function %v2float
-%34 = OpConstantComposite %v2float %float_1 %float_2
+%37 = OpConstantComposite %v2float %float_1 %float_2
 %float_3 = OpConstant %float 3
 %float_4 = OpConstant %float 4
-%41 = OpConstantComposite %v2float %float_3 %float_4
+%45 = OpConstantComposite %v2float %float_3 %float_4
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
@@ -56,35 +58,43 @@ OpFunctionEnd
 %main = OpFunction %v4float None %18
 %19 = OpLabel
 %_0_x = OpVariable %_ptr_Function_float Function
+%x = OpVariable %_ptr_Function_float Function
 %_1_x = OpVariable %_ptr_Function_v2float Function
+%y = OpVariable %_ptr_Function_v2float Function
 OpStore %_0_x %float_1
-%23 = OpExtInst %float %1 Length %float_1
+%24 = OpLoad %float %_0_x
+%23 = OpExtInst %float %1 Length %24
 OpStore %_0_x %23
-%25 = OpLoad %float %_0_x
-%24 = OpExtInst %float %1 Distance %25 %float_2
-OpStore %_0_x %24
-%28 = OpLoad %float %_0_x
-%27 = OpFMul %float %28 %float_2
-OpStore %_0_x %27
-%30 = OpLoad %float %_0_x
-%29 = OpExtInst %float %1 Normalize %30
-OpStore %_0_x %29
-OpStore %_1_x %34
-%35 = OpExtInst %float %1 Length %34
-%36 = OpCompositeConstruct %v2float %35 %35
-OpStore %_1_x %36
-%38 = OpLoad %v2float %_1_x
-%37 = OpExtInst %float %1 Distance %38 %41
-%42 = OpCompositeConstruct %v2float %37 %37
-OpStore %_1_x %42
-%44 = OpLoad %v2float %_1_x
-%43 = OpDot %float %44 %41
-%45 = OpCompositeConstruct %v2float %43 %43
-OpStore %_1_x %45
-%47 = OpLoad %v2float %_1_x
-%46 = OpExtInst %v2float %1 Normalize %47
+%26 = OpLoad %float %_0_x
+%25 = OpExtInst %float %1 Distance %26 %float_2
+OpStore %_0_x %25
+%29 = OpLoad %float %_0_x
+%28 = OpFMul %float %29 %float_2
+OpStore %_0_x %28
+%31 = OpLoad %float %_0_x
+%30 = OpExtInst %float %1 Normalize %31
+OpStore %_0_x %30
+%33 = OpLoad %float %_0_x
+OpStore %x %33
+OpStore %_1_x %37
+%39 = OpLoad %v2float %_1_x
+%38 = OpExtInst %float %1 Length %39
+%40 = OpCompositeConstruct %v2float %38 %38
+OpStore %_1_x %40
+%42 = OpLoad %v2float %_1_x
+%41 = OpExtInst %float %1 Distance %42 %45
+%46 = OpCompositeConstruct %v2float %41 %41
 OpStore %_1_x %46
-%48 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%52 = OpLoad %v4float %48
-OpReturnValue %52
+%48 = OpLoad %v2float %_1_x
+%47 = OpDot %float %48 %45
+%49 = OpCompositeConstruct %v2float %47 %47
+OpStore %_1_x %49
+%51 = OpLoad %v2float %_1_x
+%50 = OpExtInst %v2float %1 Normalize %51
+OpStore %_1_x %50
+%53 = OpLoad %v2float %_1_x
+OpStore %y %53
+%54 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%58 = OpLoad %v4float %54
+OpReturnValue %58
 OpFunctionEnd
