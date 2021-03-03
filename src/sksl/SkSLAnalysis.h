@@ -49,6 +49,13 @@ struct Analysis {
     static bool SwitchCaseContainsUnconditionalExit(Statement& stmt);
 
     /**
+     * A switch-case "falls through" when it doesn't have an unconditional exit.
+     */
+    static bool SwitchCaseFallsThrough(Statement& stmt) {
+        return !SwitchCaseContainsUnconditionalExit(stmt);
+    }
+
+    /**
      * Finds conditional exits from a switch-case. Returns true if this statement contains a
      * conditional that wraps a potential exit from the switch (via continue, break or return).
      */
@@ -127,6 +134,9 @@ struct Analysis {
                                      ErrorReporter* errors);
 
     static void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
+
+    // Detects functions that fail to return a value on at least one path.
+    static bool CanExitWithoutReturningValue(const FunctionDefinition& funcDef);
 };
 
 /**

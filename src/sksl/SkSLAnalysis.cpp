@@ -336,6 +336,7 @@ public:
     bool visitStatement(const Statement& stmt) override {
         switch (stmt.kind()) {
             case Statement::Kind::kBlock:
+            case Statement::Kind::kSwitchCase:
                 return INHERITED::visitStatement(stmt);
 
             case Statement::Kind::kReturn:
@@ -388,6 +389,149 @@ public:
     int fInConditional = 0;
     int fInLoop = 0;
     int fInSwitch = 0;
+    using INHERITED = ProgramVisitor;
+};
+
+class ReturnsOnAllPathsVisitor : public ProgramVisitor {
+public:
+    bool visitExpression(const Expression& expr) override {
+        // We can avoid processing expressions entirely.
+        return false;
+    }
+
+    bool visitStatement(const Statement& stmt) override {
+        switch (stmt.kind()) {
+            // Returns, breaks, or continues will stop the scan, so only one of these should ever be
+            // true.
+            case Statement::Kind::kReturn:
+                fFoundReturn = true;
+                return true;
+
+            case Statement::Kind::kBreak:
+                fFoundBreak = true;
+                return true;
+
+            case Statement::Kind::kContinue:
+                fFoundContinue = true;
+                return true;
+
+            case Statement::Kind::kIf: {
+                const IfStatement& i = stmt.as<IfStatement>();
+                if (i.ifTrue() && i.ifFalse()) {
+                    ReturnsOnAllPathsVisitor trueVisitor;
+                    trueVisitor.visitStatement(*i.ifTrue());
+                    if (trueVisitor.fFoundReturn) {
+                        ReturnsOnAllPathsVisitor falseVisitor;
+                        falseVisitor.visitStatement(*i.ifFalse());
+                        if (falseVisitor.fFoundReturn) {
+                            // Both branches of the if-statement contain an unconditional return;
+                            // it's an exit path.
+                            fFoundReturn = true;
+                            return true;
+                        }
+                    }
+                }
+                break;
+            }
+            case Statement::Kind::kFor: {
+                const ForStatement& f = stmt.as<ForStatement>();
+                // We assume a for/while loop runs for at least one iteration; this isn't strictly
+                // guaranteed, but it's better to be slightly over-permissive here than to fail on
+                // reasonable code.
+                ReturnsOnAllPathsVisitor forVisitor;
+                forVisitor.visitStatement(*f.statement());
+                if (forVisitor.fFoundReturn) {
+                    fFoundReturn = true;
+                    return true;
+                }
+                break;
+            }
+            case Statement::Kind::kDo: {
+                const DoStatement& d = stmt.as<DoStatement>();
+                // Do-while blocks are always entered at least once.
+                ReturnsOnAllPathsVisitor doVisitor;
+                doVisitor.visitStatement(*d.statement());
+                if (doVisitor.fFoundReturn) {
+                    fFoundReturn = true;
+                    return true;
+                }
+                break;
+            }
+            case Statement::Kind::kBlock:
+                // Blocks are definitely entered and don't imply any additional control flow.
+                // (We don't need to use a secondary ReturnVisitor here.)
+                return INHERITED::visitStatement(stmt);
+
+            case Statement::Kind::kSwitch: {
+                // Switches are the most complex control flow we need to deal with; fortunately we
+                // already have good primitives for dissecting them. We need to verify that:
+                // - a default case exists, so that every possible input value is covered
+                // - every switch-case either (a) returns unconditionally, or
+                //                            (b) falls through to another case that does
+                const SwitchStatement& s = stmt.as<SwitchStatement>();
+                bool foundDefault = false;
+                bool fellThrough = false;
+                for (const std::unique_ptr<SwitchCase>& sc : s.cases()) {
+                    // The default case is indicated by a null value. A switch without a default
+                    // case cannot definitively return, as its value might not be in the cases list.
+                    if (!sc->value()) {
+                        foundDefault = true;
+                    }
+
+                    // If this switch-case falls through, by definition it can't contain an
+                    // unconditional return (but it might fall through to a case that does).
+                    fellThrough = Analysis::SwitchCaseFallsThrough(*sc);
+                    if (fellThrough) {
+                        continue;
+                    }
+
+                    // Conversely, since we now know this switch-case doesn't fall through, it must
+                    // contain some sort of unconditional exit (break, continue or return).
+                    ReturnsOnAllPathsVisitor caseVisitor;
+                    caseVisitor.visitStatement(*sc);
+
+                    // If we found an unconditional return, the switch is still a contender.
+                    if (caseVisitor.fFoundReturn) {
+                        continue;
+                    }
+
+                    // This switch contains a definitive exit that's not a return. Stop scanning it.
+                    SkASSERT(caseVisitor.fFoundBreak || caseVisitor.fFoundContinue);
+                    return false;
+                }
+
+                // If we didn't find a default case, or the very last case fell through, this switch
+                // doesn't meet our criteria.
+                if (fellThrough || !foundDefault) {
+                    return false;
+                }
+
+                // We scanned the entire switch, found a default case, and every section either fell
+                // through or contained an unconditional return.
+                fFoundReturn = true;
+                return true;
+            }
+
+            case Statement::Kind::kSwitchCase:
+                // Recurse into the switch-case.
+                return INHERITED::visitStatement(stmt);
+
+            case Statement::Kind::kDiscard:
+            case Statement::Kind::kExpression:
+            case Statement::Kind::kInlineMarker:
+            case Statement::Kind::kNop:
+            case Statement::Kind::kVarDeclaration:
+                // None of these statements could contain a return.
+                break;
+        }
+
+        return false;
+    }
+
+    bool fFoundReturn = false;
+    bool fFoundBreak = false;
+    bool fFoundContinue = false;
+
     using INHERITED = ProgramVisitor;
 };
 
@@ -905,6 +1049,12 @@ bool Analysis::IsConstantExpression(const Expression& expr) {
     return !visitor.visitExpression(expr);
 }
 
+bool Analysis::CanExitWithoutReturningValue(const FunctionDefinition& funcDef) {
+    ReturnsOnAllPathsVisitor visitor;
+    visitor.visitStatement(*funcDef.body());
+    return !visitor.fFoundReturn;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // ProgramVisitor
 
@@ -1006,6 +1156,18 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
             }
             return false;
 
+        case Statement::Kind::kSwitchCase: {
+            auto& sc = s.template as<SwitchCase>();
+            if (sc.value() && this->visitExpression(*sc.value())) {
+                return true;
+            }
+            for (auto& stmt : sc.statements()) {
+                if (stmt && this->visitStatement(*stmt)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         case Statement::Kind::kDo: {
             auto& d = s.template as<DoStatement>();
             return this->visitExpression(*d.test()) || this->visitStatement(*d.statement());
@@ -1036,13 +1198,8 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
                 return true;
             }
             for (const auto& c : sw.cases()) {
-                if (c->value() && this->visitExpression(*c->value())) {
+                if (this->visitStatement(*c)) {
                     return true;
-                }
-                for (auto& st : c->statements()) {
-                    if (st && this->visitStatement(*st)) {
-                        return true;
-                    }
                 }
             }
             return false;
