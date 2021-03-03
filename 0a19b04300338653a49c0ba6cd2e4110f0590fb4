@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a5e196f2_232cc4b6",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-03T21:09:53Z",
+      "side": 1,
+      "message": "you can probably write this as\n\n    mutable std::atomic\u003cbool\u003e fAddedToCache{false};\n\nto get the initialization you want",
+      "range": {
+        "startLine": 279,
+        "startChar": 43,
+        "endLine": 279,
+        "endChar": 44
+      },
+      "revId": "0a19b04300338653a49c0ba6cd2e4110f0590fb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "21efcdfe_06090436",
         "filename": "src/shaders/SkPictureShader.cpp",
         "patchSetId": 12
@@ -31,6 +54,30 @@
       "writtenOn": "2021-03-03T20:54:47Z",
       "side": 1,
       "message": "This seems somewhat fragile. Don\u0027t we always add new color types to the end of the enum to avoid breaking old serializations? We already have an 8 bit format thats \u003e kRGBA_F1Norm, it just happens to not be supported as a SkSurface (kR8G8_unorm).",
+      "range": {
+        "startLine": 247,
+        "startChar": 37,
+        "endLine": 247,
+        "endChar": 78
+      },
+      "revId": "0a19b04300338653a49c0ba6cd2e4110f0590fb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48789cc2_43f454ab",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-03T21:09:53Z",
+      "side": 1,
+      "message": "Yeah... using something like SkColorTypeShiftPerPixel() might get closer, but even there you need to use SkColorTypeChannelFlags() to distinguish RGBA 8888 from R16G16.  I can see it getting hairy fast.\n\nI think this sort of question probably merits a new SkImageInfoPriv.h function to answer it, e.g. SkColorTypeMaxBitsPerChannel() \u003e 8, or \u003e 10.",
+      "parentUuid": "21efcdfe_06090436",
       "range": {
         "startLine": 247,
         "startChar": 37,
