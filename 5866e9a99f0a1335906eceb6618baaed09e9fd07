@@ -16,6 +16,52 @@
       "message": "Pulled this out to land separately from the CL I\u0027m preparing that uses it.",
       "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "153a9ba0_e630edaf",
+        "filename": "src/sksl/ir/SkSLEnum.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T18:11:08Z",
+      "side": 1,
+      "message": "Let\u0027s prefer a struct with named fields over std::pair:\n\n    struct Enumerant { SKSL_INT value; StringFragment name; };\n    std::vector\u003cEnumerant\u003e enumerants;\n\nThe push_back can/should stay exactly the same.\nThe loop can technically work as-is too, but I\u0027d encourage `const auto\u0026 entry` and then use `entry.name` and `entry.value`.",
+      "range": {
+        "startLine": 60,
+        "startChar": 8,
+        "endLine": 60,
+        "endChar": 71
+      },
+      "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e14313a_c60b5363",
+        "filename": "src/sksl/ir/SkSLEnum.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T18:11:08Z",
+      "side": 1,
+      "message": "tiny nit: extra space here?",
+      "range": {
+        "startLine": 79,
+        "startChar": 32,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
