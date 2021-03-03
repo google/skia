@@ -21,6 +21,9 @@ float4 live_fn(float4 a, float4 b) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    const bool TRUE = true;
+    const bool FALSE = false;
+
     float4 a;
     float4 b;
 
