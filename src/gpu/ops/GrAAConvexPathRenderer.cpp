@@ -618,9 +618,8 @@ public:
                                   const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
-            uint32_t key = (uint32_t) qee.fUsesLocalCoords;
-            key |= ComputeMatrixKey(qee.fLocalMatrix) << 1;
-            b->add32(key);
+            b->addBits(1, qee.fUsesLocalCoords, "usesLocalCoords");
+            b->addBits(kMatrixKeyBits, ComputeMatrixKey(qee.fLocalMatrix), "localMatrixType");
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
