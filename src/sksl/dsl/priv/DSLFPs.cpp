@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/dsl/priv/DSLFPs.h"
+#include "include/private/DSLFPs.h"
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLCodeStringExpression.h"

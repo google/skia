@@ -9,8 +9,7 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/core/SkTypes.h"
-#include "src/sksl/dsl/DSLErrorHandling.h"
-#include "src/sksl/ir/SkSLIRNode.h"
+#include "include/sksl/DSLErrorHandling.h"
 
 #include <cstdint>
 #include <memory>
@@ -18,6 +17,7 @@
 namespace SkSL {
 
 class Expression;
+class Type;
 
 namespace dsl {
 
@@ -32,7 +32,7 @@ class DSLExpression {
 public:
     DSLExpression(const DSLExpression&) = delete;
 
-    DSLExpression(DSLExpression&&) = default;
+    DSLExpression(DSLExpression&&);
 
     DSLExpression();
 
@@ -171,7 +171,7 @@ class DSLPossibleExpression {
 public:
     DSLPossibleExpression(std::unique_ptr<SkSL::Expression> expression);
 
-    DSLPossibleExpression(DSLPossibleExpression&& other) = default;
+    DSLPossibleExpression(DSLPossibleExpression&& other);
 
     ~DSLPossibleExpression();
 

@@ -7,8 +7,8 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/SkSLString.h"
 #include "src/gpu/GrShaderUtils.h"
-#include "src/sksl/SkSLString.h"
 
 namespace GrShaderUtils {
 

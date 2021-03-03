@@ -7,9 +7,9 @@
 
 #include "src/sksl/SkSLBuiltinTypes.h"
 
+#include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/spirv.h"
 
 namespace SkSL {
