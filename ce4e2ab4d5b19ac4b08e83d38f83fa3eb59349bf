@@ -34,6 +34,24 @@
       "parentUuid": "63d78486_f905cf56",
       "revId": "ce4e2ab4d5b19ac4b08e83d38f83fa3eb59349bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb157157_9f8925ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-03T16:28:36Z",
+      "side": 1,
+      "message": "The discussion in the C++ chat room: The previous code was actually relying on Clang behavior that may even be a standards violation, wrt to sequencing of return value copy initialization vs. local object detructors. On MSVC (and GCC) it looks like the destructor was calling flush() on the local after the return value was copy-initialized, so the caller got a copy that was never flushed.\n\nGetting rid of the extra level of indirection (and just making GrKeyBuilder *be* GrProcessorKeyBuilder) was going to require a manual call like this anyway, so I didn\u0027t feel too bad about this fix. Now I have more reason to go that direction.",
+      "parentUuid": "153460fb_91d87f36",
+      "revId": "ce4e2ab4d5b19ac4b08e83d38f83fa3eb59349bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
