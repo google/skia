@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceCharacterization.h"
+#include "src/core/SkSpan.h"
 
 class DDLPromiseImageHelper;
 class PromiseImageCallbackContext;
@@ -40,13 +41,8 @@ public:
                   const SkIRect& clip,
                   const SkIRect& paddingOutsets);
 
-        // Convert the compressedPictureData into an SkPicture replacing each image-index
-        // with a promise image.
-        void createTileSpecificSKP(SkData* compressedPictureData,
-                                   const DDLPromiseImageHelper& helper);
-
         // Create the DDL for this tile (i.e., fill in 'fDisplayList').
-        void createDDL();
+        void createDDL(const SkPicture*);
 
         void dropDDL() { fDisplayList.reset(); }
 
@@ -56,7 +52,7 @@ public:
         // Just draw the re-inflated per-tile SKP directly into this tile w/o going through a DDL
         // first. This is used for determining the overhead of using DDLs (i.e., it replaces
         // a 'createDDL' and 'draw' pair.
-        void drawSKPDirectly(GrRecordingContext*);
+        void drawSKPDirectly(GrDirectContext*, const SkPicture*);
 
         // Replay the recorded DDL into the tile surface - filling in 'fBackendTexture'.
         void draw(GrDirectContext*);
@@ -73,7 +69,7 @@ public:
 
         SkDeferredDisplayList* ddl() { return fDisplayList.get(); }
 
-        sk_sp<SkImage> makePromiseImageForDst(SkDeferredDisplayListRecorder*);
+        sk_sp<SkImage> makePromiseImageForDst(sk_sp<GrContextThreadSafeProxy>);
         void dropCallbackContext() { fCallbackContext.reset(); }
 
         static void CreateBackendTexture(GrDirectContext*, TileData*);
@@ -99,9 +95,6 @@ public:
         // TODO: fix the ref-order so we don't need 'fTileSurface' here
         sk_sp<SkSurface>              fTileSurface;
 
-        sk_sp<SkPicture>              fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>      fPromiseImages;    // All the promise images in the
-                                                     // reconstituted picture
         sk_sp<SkDeferredDisplayList>  fDisplayList;
     };
 
@@ -111,7 +104,11 @@ public:
                   int numXDivisions, int numYDivisions,
                   bool addRandomPaddingToDst);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper&);
+    // TODO: Move this to PromiseImageHelper and have one method that does all the work and
+    // returns the shared SkP.
+    void createSKP(sk_sp<GrContextThreadSafeProxy>,
+                   SkData* compressedPictureData,
+                   const DDLPromiseImageHelper&);
 
     void kickOffThreadedWork(SkTaskGroup* recordingTaskGroup,
                              SkTaskGroup* gpuTaskGroup,
@@ -150,6 +147,9 @@ private:
     sk_sp<SkDeferredDisplayList>           fComposeDDL;
 
     const SkSurfaceCharacterization        fDstCharacterization;
+    sk_sp<SkPicture>                       fReconstitutedPicture;
+    SkTArray<sk_sp<SkImage>>               fPromiseImages; // All the promise images in the
+                                                           // reconstituted picture
 };
 
 #endif
