@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cebdbd55_c3a34d12",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-03T18:37:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e159a41_11712ecd",
+      "range": {
+        "startLine": 61,
+        "startChar": 7,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "06e2d1c130cf485ab9f8b894eb757f80c0180fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "04e983b8_049f0adb",
@@ -55,6 +79,24 @@
       "side": 1,
       "message": "Wow, very good catch!\n\nThat sucks, since there are phases that *could* share images...",
       "parentUuid": "04e983b8_049f0adb",
+      "revId": "06e2d1c130cf485ab9f8b894eb757f80c0180fe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65215bcd_70e3a798",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-03T18:37:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef49a5d4_5564beca",
       "revId": "06e2d1c130cf485ab9f8b894eb757f80c0180fe5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
