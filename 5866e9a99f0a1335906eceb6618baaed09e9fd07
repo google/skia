@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3740cd9f_e292cd69",
+        "filename": "src/sksl/ir/SkSLEnum.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-03T18:46:02Z",
+      "side": 1,
+      "message": "Done. Had to add an explicit comparator (I had written the pair version to take advantage of the automatic lexicographic ordering). Now that I\u0027m not doing that, I swapped the struct fields to match the \"expected\" order.",
+      "parentUuid": "153a9ba0_e630edaf",
+      "range": {
+        "startLine": 60,
+        "startChar": 8,
+        "endLine": 60,
+        "endChar": 71
+      },
+      "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e14313a_c60b5363",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-03T18:11:08Z",
       "side": 1,
       "message": "tiny nit: extra space here?",
+      "range": {
+        "startLine": 79,
+        "startChar": 32,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00da01a1_0f1c7bb0",
+        "filename": "src/sksl/ir/SkSLEnum.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-03T18:46:02Z",
+      "side": 1,
+      "message": "Fixed. Weird - clang-format insists that it should be there.",
+      "parentUuid": "4e14313a_c60b5363",
       "range": {
         "startLine": 79,
         "startChar": 32,
