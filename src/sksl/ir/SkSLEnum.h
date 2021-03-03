@@ -57,15 +57,14 @@ public:
     String code() const {
         String result = "enum class " + this->typeName() + " {\n";
         String separator;
-        std::vector<const Symbol*> sortedSymbols;
+        std::vector<std::pair<SKSL_INT, StringFragment>> sortedSymbols;
         sortedSymbols.reserve(symbols()->count());
-        this->symbols()->foreach([&](StringFragment, const Symbol* symbol) {
-            sortedSymbols.push_back(symbol);
+        this->foreach([&](StringFragment name, SKSL_INT value){
+            sortedSymbols.push_back({value, name});
         });
-        std::sort(sortedSymbols.begin(), sortedSymbols.end(),
-                  [](const Symbol* a, const Symbol* b) { return EnumValue(a) < EnumValue(b); });
-        for (const Symbol* s : sortedSymbols) {
-            result += separator + "    " + s->name() + " = " + to_string(EnumValue(s));
+        std::sort(sortedSymbols.begin(), sortedSymbols.end());
+        for (auto [value, name] : sortedSymbols) {
+            result += separator + "    " + name + " = " + to_string(value);
             separator = ",\n";
         }
         result += "\n};";
@@ -76,8 +75,13 @@ public:
         return this->code();
     }
 
+    template <typename Fn> void foreach (Fn&& fn) const {
+        this->symbols()->foreach (
+                [&fn](StringFragment name, const Symbol* symbol) { fn(name, EnumValue(symbol)); });
+    }
+
 private:
-    static int EnumValue(const Symbol* symbol) {
+    static SKSL_INT EnumValue(const Symbol* symbol) {
         return symbol->as<Variable>().initialValue()->as<IntLiteral>().value();
     }
 
