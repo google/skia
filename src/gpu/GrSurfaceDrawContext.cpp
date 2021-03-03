@@ -562,7 +562,8 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
                     this->clear(*constColor);
                     return QuadOptimization::kSubmitted;
                 } else if (GrClip::IsPixelAligned(drawBounds) &&
-                           drawBounds.width() > 256 && drawBounds.height() > 256) {
+                           drawBounds.width() > 256 && drawBounds.height() > 256 &&
+                           !this->caps()->performPartialClearsAsDraws()) {
                     // Scissor + clear (round shouldn't do anything since we are pixel aligned)
                     SkIRect scissorRect;
                     drawBounds.round(&scissorRect);
@@ -596,7 +597,7 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
             // Since the cropped quad became a rectangle which covered the bounds of the rrect,
             // we can draw the rrect directly and ignore the edge flags
             GrPaint paint;
-            ClearToGrPaint(constColor->array(), &paint);
+            ClearToGrPaint(constColor->array(), &paint, /*allowSrcOver=*/true);
             this->drawRRect(nullptr, std::move(paint), result.fAA, SkMatrix::I(), result.fRRect,
                             GrStyle::SimpleFill());
             return QuadOptimization::kSubmitted;

@@ -316,9 +316,10 @@ void GrSurfaceFillContext::addDrawOp(GrOp::Owner owner) {
                                   caps);
 }
 
-void GrSurfaceFillContext::ClearToGrPaint(std::array<float, 4> color, GrPaint* paint) {
+void GrSurfaceFillContext::ClearToGrPaint(std::array<float, 4> color, GrPaint* paint,
+                                          bool allowSrcOver) {
     paint->setColor4f({color[0], color[1], color[2], color[3]});
-    if (color[3] == 1.f) {
+    if (allowSrcOver && color[3] == 1.f) {
         // Can just rely on the src-over blend mode to do the right thing.
         // This may improve batching.
         paint->setPorterDuffXPFactory(SkBlendMode::kSrcOver);
@@ -429,7 +430,7 @@ void GrSurfaceFillContext::internalClear(const SkIRect* scissor,
                        (scissorState.enabled() && this->caps()->performPartialClearsAsDraws());
     if (clearAsDraw) {
         GrPaint paint;
-        ClearToGrPaint(color, &paint);
+        ClearToGrPaint(color, &paint, /*allowSrcOver=*/false);
         auto op = GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                               SkRect::Make(scissorState.rect()));
         this->addDrawOp(std::move(op));

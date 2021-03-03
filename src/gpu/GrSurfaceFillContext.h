@@ -204,8 +204,10 @@ public:
 protected:
     /**
      * Creates a constant color paint for a clear, using src-over if possible to improve batching.
+     *
+     * TODO: remove the allowSrcOver param once we convert all use cases to only using kSrc.
      */
-    static void ClearToGrPaint(std::array<float, 4> color, GrPaint* paint);
+    static void ClearToGrPaint(std::array<float, 4> color, GrPaint* paint, bool allowSrcOver);
 
     void addOp(GrOp::Owner);
 
