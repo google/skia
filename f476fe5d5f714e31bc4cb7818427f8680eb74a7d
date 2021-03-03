@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e36f7d07_9266df4d",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-03T14:07:32Z",
+      "side": 1,
+      "message": "not true for the lower image. I think just calling it \"sharpen\" may be sufficient.",
+      "range": {
+        "startLine": 19,
+        "startChar": 69,
+        "endLine": 19,
+        "endChar": 95
+      },
+      "revId": "f476fe5d5f714e31bc4cb7818427f8680eb74a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03e5ae5d_35337ab4",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-03T14:07:32Z",
+      "side": 1,
+      "message": "fragile to comment on the value, in case we change line 111",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 30
+      },
+      "revId": "f476fe5d5f714e31bc4cb7818427f8680eb74a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79a28884_2a672565",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-03T14:07:32Z",
+      "side": 1,
+      "message": "Not sure I think this is an improvement. Are we not supporting arrays?",
+      "range": {
+        "startLine": 120,
+        "startChar": 34,
+        "endLine": 120,
+        "endChar": 42
+      },
+      "revId": "f476fe5d5f714e31bc4cb7818427f8680eb74a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

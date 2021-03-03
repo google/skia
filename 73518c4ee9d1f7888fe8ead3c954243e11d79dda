@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc38a987_7f5cbca5",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-03T14:07:32Z",
+      "side": 0,
+      "message": "oops, thanks for deleting this",
+      "range": {
+        "startLine": 70,
+        "startChar": 18,
+        "endLine": 70,
+        "endChar": 19
+      },
+      "revId": "73518c4ee9d1f7888fe8ead3c954243e11d79dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
