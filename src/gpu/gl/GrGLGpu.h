@@ -147,7 +147,7 @@ public:
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
     bool precompileShader(const SkData& key, const SkData& data) override {
-        return fProgramCache->precompileShader(key, data);
+        return fProgramCache->precompileShader(this->getContext(), key, data);
     }
 
 #if GR_TEST_UTILS
@@ -358,16 +358,20 @@ private:
 
     class ProgramCache : public GrThreadSafePipelineBuilder {
     public:
-        ProgramCache(GrGLGpu* gpu);
+        ProgramCache(int runtimeProgramCacheSize);
         ~ProgramCache() override;
 
         void abandon();
         void reset();
-        sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*, const GrProgramInfo&);
-        sk_sp<GrGLProgram> findOrCreateProgram(const GrProgramDesc& desc,
+        sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
+                                               GrRenderTarget*,
+                                               const GrProgramInfo&);
+        sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext* dContext,
+                                               const GrProgramDesc& desc,
                                                const GrProgramInfo& programInfo,
                                                Stats::ProgramCacheResult* stat) {
-            sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, stat);
+            sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, nullptr, desc,
+                                                               programInfo, stat);
             if (!tmp) {
                 fStats.incNumPreCompilationFailures();
             } else {
@@ -376,12 +380,13 @@ private:
 
             return tmp;
         }
-        bool precompileShader(const SkData& key, const SkData& data);
+        bool precompileShader(GrDirectContext*, const SkData& key, const SkData& data);
 
     private:
         struct Entry;
 
-        sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*,
+        sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
+                                               GrRenderTarget*,
                                                const GrProgramDesc&,
                                                const GrProgramInfo&,
                                                Stats::ProgramCacheResult*);
@@ -393,8 +398,6 @@ private:
         };
 
         SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
-
-        GrGLGpu* fGpu;
     };
 
     void flushPatchVertexCount(uint8_t count);
