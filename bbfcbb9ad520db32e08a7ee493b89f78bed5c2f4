@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53a1ae28_072f94ff",
+        "filename": "fuzz/FuzzDDLThreading.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-03T17:51:36Z",
+      "side": 1,
+      "message": "I would suggest returning rather than asserting because we don\u0027t fuzz with asserts on",
+      "range": {
+        "startLine": 115,
+        "startChar": 13,
+        "endLine": 115,
+        "endChar": 21
+      },
+      "revId": "bbfcbb9ad520db32e08a7ee493b89f78bed5c2f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
