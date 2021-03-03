@@ -35,13 +35,6 @@ SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkISize size, ui
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
-void SkImage_GpuBase::resetContext(sk_sp<GrImageContext> newContext) {
-    SkASSERT(fContext->priv().matches(newContext.get()));
-    fContext = newContext;
-}
-#endif
-
 bool SkImage_GpuBase::ValidateBackendTexture(const GrCaps* caps, const GrBackendTexture& tex,
                                              GrColorType grCT, SkColorType ct, SkAlphaType at,
                                              sk_sp<SkColorSpace> cs) {
