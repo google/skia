@@ -277,7 +277,6 @@ GrVkGpu::~GrVkGpu() {
     fMemoryAllocator.reset();
 }
 
-
 void GrVkGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
     if (!fDisconnected) {

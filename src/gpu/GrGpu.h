@@ -23,6 +23,8 @@
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
 
+//#include "src/gpu/GrFooBar.h"
+
 class GrAttachment;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
@@ -480,8 +482,8 @@ public:
 #else
 
 #if GR_TEST_UTILS
-        void dump(SkString*) {}
-        void dumpKeyValuePairs(SkTArray<SkString>*, SkTArray<double>*) {}
+        void dump1(SkString*) {}
+        void dumpKeyValuePairs1(SkTArray<SkString>*, SkTArray<double>*) {}
 #endif
         void incRenderTargetBinds() {}
         void incTextureCreates() {}

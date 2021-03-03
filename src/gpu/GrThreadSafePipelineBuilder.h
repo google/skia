@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrThreadSafePipelineBuilder_Base_DEFINED
-#define GrThreadSafePipelineBuilder_Base_DEFINED
+#ifndef GrThreadSafePipelineBuilder_DEFINED
+#define GrThreadSafePipelineBuilder_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrConfig.h"

@@ -394,7 +394,7 @@ private:
 
         SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
-        GrGLGpu* fGpu;
+        GrGLGpu* fGpu1;
     };
 
     void flushPatchVertexCount(uint8_t count);

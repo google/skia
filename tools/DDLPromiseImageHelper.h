@@ -111,9 +111,7 @@ public:
     ~DDLPromiseImageHelper() = default;
 
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
-    sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
-
-    void createCallbackContexts(GrDirectContext*);
+    sk_sp<SkPicture> recreateSKP(const SkPicture* inputPicture, GrDirectContext* dContext);
 
     void uploadAllToGPU(SkTaskGroup*, GrDirectContext*);
     void deleteAllFromGPU(SkTaskGroup*, GrDirectContext*);
@@ -127,6 +125,12 @@ public:
     void reset() { fImageInfo.reset(); }
 
 private:
+    void createCallbackContexts(GrDirectContext*);
+
+    // reinflate a deflated SKP, replacing all the indices with promise images.
+    sk_sp<SkPicture> reinflateSKP(sk_sp<GrContextThreadSafeProxy>,
+                                  SkData* compressedPicture);
+
     // This is the information extracted into this class from the parsing of the skp file.
     // Once it has all been uploaded to the GPU and distributed to the promise images, it
     // is all dropped via "reset".
@@ -142,6 +146,7 @@ private:
 
         int overallWidth() const { return fImageInfo.width(); }
         int overallHeight() const { return fImageInfo.height(); }
+        SkISize overallDimensions() const { return fImageInfo.dimensions(); }
         SkColorType overallColorType() const { return fImageInfo.colorType(); }
         SkAlphaType overallAlphaType() const { return fImageInfo.alphaType(); }
         sk_sp<SkColorSpace> refOverallColorSpace() const { return fImageInfo.refColorSpace(); }
@@ -212,12 +217,9 @@ private:
         sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVAInfo::kMaxPlanes];
     };
 
-    // This stack-based context allows each thread to re-inflate the image indices into
-    // promise images while still using the same GrBackendTexture.
     struct PerRecorderContext {
-        SkDeferredDisplayListRecorder* fRecorder;
-        const DDLPromiseImageHelper*   fHelper;
-        SkTArray<sk_sp<SkImage>>*      fPromiseImages;
+        sk_sp<GrContextThreadSafeProxy> fThreadSafeProxy;
+        DDLPromiseImageHelper*          fHelper;
     };
 
     static void CreateBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
@@ -239,7 +241,11 @@ private:
     int findOrDefineImage(SkImage* image);
 
     SkYUVAPixmapInfo::SupportedDataTypes fSupportedYUVADataTypes;
-    SkTArray<PromiseImageInfo> fImageInfo;
+    SkTArray<PromiseImageInfo>           fImageInfo;
+
+    SkTArray<sk_sp<SkImage>>             fPromiseImages;    // All the promise images in the
+                                                            // reconstituted picture
+
 };
 
 #endif
