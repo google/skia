@@ -179,8 +179,6 @@ class SkIcuBreakIteratorCache {
         return instance;
     }
 
-#ifdef SK_ENABLE_ICU_UBRK_SAFECLONE
-
     ICUBreakIterator makeBreakIterator(SkUnicode::BreakType type) {
         UErrorCode status = U_ZERO_ERROR;
         ICUBreakIterator* cachedIterator;
@@ -205,20 +203,6 @@ class SkIcuBreakIteratorCache {
         }
         return iterator;
     }
-
-#else  // SK_ENABLE_ICU_UBRK_SAFECLONE
-
-    ICUBreakIterator makeBreakIterator(SkUnicode::BreakType type) {
-        UErrorCode status = U_ZERO_ERROR;
-        ICUBreakIterator iterator(ubrk_open(convertType(type), uloc_getDefault(), nullptr, 0, &status));
-        if (U_FAILURE(status)) {
-            SkDEBUGF("Break error: %s", u_errorName(status));
-        }
-        return iterator;
-    }
-
-#endif  // SK_ENABLE_ICU_UBRK_SAFECLONE
-
 };
 
 class SkScriptIterator_icu : public SkScriptIterator {
