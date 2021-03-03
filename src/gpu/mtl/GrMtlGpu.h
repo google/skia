@@ -55,6 +55,8 @@ public:
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
+    bool precompileShader(const SkData& key, const SkData& data) override;
+
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
@@ -108,8 +110,6 @@ public:
                                      const SkIRect* bounds) {
         this->didWriteToSurface(surface, origin, bounds);
     }
-
-    bool precompileShader(const SkData& key, const SkData& data) override;
 
 private:
     GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,

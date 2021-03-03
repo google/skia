@@ -33,17 +33,15 @@ public:
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
     static GrMtlPipelineState* CreatePipelineState(GrMtlGpu*,
-                                                   GrRenderTarget*,
                                                    const GrProgramDesc&,
                                                    const GrProgramInfo&);
 
     static bool PrecompileShaders(GrMtlGpu*, const SkData&);
 
 private:
-    GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*,
-                              const GrProgramDesc&, const GrProgramInfo&);
+    GrMtlPipelineStateBuilder(GrMtlGpu*, const GrProgramDesc&, const GrProgramInfo&);
 
-    GrMtlPipelineState* finalize(GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
+    GrMtlPipelineState* finalize(const GrProgramDesc&, const GrProgramInfo&);
 
     const GrCaps* caps() const override;
 

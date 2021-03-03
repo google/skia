@@ -26,10 +26,17 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
 }
 
+//GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
+//        GrRenderTarget* renderTarget,
+//        const GrProgramInfo& programInfo) {
+//
+//    return this->findOrCreateCompatiblePipelineState(desc, programInfo);
+//}
+//
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* renderTarget,
+        const GrProgramDesc& programDesc,
         const GrProgramInfo& programInfo) {
-    return fPipelineStateCache->refPipelineState(renderTarget, programInfo);
+    return fPipelineStateCache->refPipelineState(programDesc, programInfo);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,20 +121,11 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
-        GrRenderTarget* renderTarget,
+        const GrProgramDesc& desc,
         const GrProgramInfo& programInfo) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
-
-    const GrMtlCaps& caps = fGpu->mtlCaps();
-
-    GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo,
-                                       GrCaps::ProgramDescOverrideFlags::kNone);
-    if (!desc.isValid()) {
-        GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
-        return nullptr;
-    }
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
@@ -135,7 +133,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrMtlPipelineState* pipelineState(GrMtlPipelineStateBuilder::CreatePipelineState(
-            fGpu, renderTarget, desc, programInfo));
+            fGpu, desc, programInfo));
         if (!pipelineState) {
             return nullptr;
         }
