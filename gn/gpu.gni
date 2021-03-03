@@ -261,6 +261,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrTextureResolveRenderTask.h",
   "$_src/gpu/GrThreadSafeCache.cpp",
   "$_src/gpu/GrThreadSafeCache.h",
+  "$_src/gpu/GrThreadSafePipelineBuilder.cpp",
+  "$_src/gpu/GrThreadSafePipelineBuilder.h",
   "$_src/gpu/GrTracing.h",
   "$_src/gpu/GrTransferFromRenderTask.cpp",
   "$_src/gpu/GrTransferFromRenderTask.h",

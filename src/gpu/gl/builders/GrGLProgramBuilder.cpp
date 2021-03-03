@@ -106,7 +106,7 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::String& glsl,
                                                    programId,
                                                    type,
                                                    glsl,
-                                                   gpu->stats(),
+                                                   gpu->pipelineBuilder()->stats(),
                                                    errHandler);
     if (!shaderId) {
         return false;
@@ -614,7 +614,8 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
         }
 
         if (GrGLuint shaderID = GrGLCompileAndAttachShader(gpu->glContext(), programID, type, glsl,
-                                                           gpu->stats(), errorHandler)) {
+                                                           gpu->pipelineBuilder()->stats(),
+                                                           errorHandler)) {
             shadersToDelete.push_back(shaderID);
             return true;
         } else {

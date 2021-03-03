@@ -61,9 +61,9 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
     Stats::ProgramCacheResult stat;
     sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(renderTarget, desc, programInfo, &stat);
     if (!tmp) {
-        fGpu->fStats.incNumInlineCompilationFailures();
+        fStats.incNumInlineCompilationFailures();
     } else {
-        fGpu->fStats.incNumInlineProgramCacheResult(stat);
+        fStats.incNumInlineProgramCacheResult(stat);
     }
 
     return tmp;
@@ -84,20 +84,20 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrRenderTarget* re
         if (!(*entry)->fProgram) {
             // Should we purge the program ID from the cache at this point?
             SkDEBUGFAIL("Couldn't create program from precompiled program");
-            fGpu->fStats.incNumCompilationFailures();
+            fStats.incNumCompilationFailures();
             return nullptr;
         }
-        fGpu->fStats.incNumPartialCompilationSuccesses();
+        fStats.incNumPartialCompilationSuccesses();
         *stat = Stats::ProgramCacheResult::kPartial;
     } else if (!entry) {
         // We have a cache miss
         sk_sp<GrGLProgram> program = GrGLProgramBuilder::CreateProgram(fGpu, renderTarget,
                                                                        desc, programInfo);
         if (!program) {
-            fGpu->fStats.incNumCompilationFailures();
+            fStats.incNumCompilationFailures();
             return nullptr;
         }
-        fGpu->fStats.incNumCompilationSuccesses();
+        fStats.incNumCompilationSuccesses();
         entry = fMap.insert(desc, std::make_unique<Entry>(std::move(program)));
         *stat = Stats::ProgramCacheResult::kMiss;
     }

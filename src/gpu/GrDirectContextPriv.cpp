@@ -17,6 +17,7 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrConfigConversionEffect.h"
@@ -112,14 +113,20 @@ void GrDirectContextPriv::resetGpuStats() const {
 
 void GrDirectContextPriv::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
-    return fContext->fGpu->stats()->dump(out);
+    fContext->fGpu->stats()->dump(out);
+    if (auto builder = fContext->fGpu->pipelineBuilder()) {
+        builder->stats()->dump(out);
+    }
 #endif
 }
 
 void GrDirectContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
                                                     SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
+    fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
+    if (auto builder = fContext->fGpu->pipelineBuilder()) {
+        builder->stats()->dumpKeyValuePairs(keys, values);
+    }
 #endif
 }
 

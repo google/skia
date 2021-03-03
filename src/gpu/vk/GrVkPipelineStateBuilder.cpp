@@ -29,7 +29,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         VkRenderPass compatibleRenderPass,
         bool overrideSubpassForResolveLoad) {
 
-    gpu->stats()->incShaderCompilations();
+    GrVkResourceProvider& resourceProvider = gpu->resourceProvider();
+
+    resourceProvider.pipelineStateCache()->stats()->incShaderCompilations();
 
     // ensure that we use "." as a decimal separator when creating SkSL code
     GrAutoLocaleSetter als("C");

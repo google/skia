@@ -720,22 +720,9 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
 #if GR_TEST_UTILS
 
 #if GR_GPU_STATS
-static const char* cache_result_to_str(int i) {
-    const char* kCacheResultStrings[GrGpu::Stats::kNumProgramCacheResults] = {
-        "hits",
-        "misses",
-        "partials"
-    };
-    static_assert(0 == (int) GrGpu::Stats::ProgramCacheResult::kHit);
-    static_assert(1 == (int) GrGpu::Stats::ProgramCacheResult::kMiss);
-    static_assert(2 == (int) GrGpu::Stats::ProgramCacheResult::kPartial);
-    static_assert(GrGpu::Stats::kNumProgramCacheResults == 3);
-    return kCacheResultStrings[i];
-}
 
 void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
-    out->appendf("Shader Compilations: %d\n", fShaderCompilations);
     out->appendf("Textures Created: %d\n", fTextureCreates);
     out->appendf("Texture Uploads: %d\n", fTextureUploads);
     out->appendf("Transfers to Texture: %d\n", fTransfersToTexture);
@@ -746,26 +733,6 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Number of Scratch Textures reused %d\n", fNumScratchTexturesReused);
     out->appendf("Number of Scratch MSAA Attachments reused %d\n",
                  fNumScratchMSAAAttachmentsReused);
-
-    SkASSERT(fNumInlineCompilationFailures == 0);
-    out->appendf("Number of Inline compile failures %d\n", fNumInlineCompilationFailures);
-    for (int i = 0; i < Stats::kNumProgramCacheResults-1; ++i) {
-        out->appendf("Inline Program Cache %s %d\n", cache_result_to_str(i),
-                     fInlineProgramCacheStats[i]);
-    }
-
-    SkASSERT(fNumPreCompilationFailures == 0);
-    out->appendf("Number of precompile failures %d\n", fNumPreCompilationFailures);
-    for (int i = 0; i < Stats::kNumProgramCacheResults-1; ++i) {
-        out->appendf("Precompile Program Cache %s %d\n", cache_result_to_str(i),
-                     fPreProgramCacheStats[i]);
-    }
-
-    SkASSERT(fNumCompilationFailures == 0);
-    out->appendf("Total number of compilation failures %d\n", fNumCompilationFailures);
-    out->appendf("Total number of partial compilation successes %d\n",
-                 fNumPartialCompilationSuccesses);
-    out->appendf("Total number of compilation successes %d\n", fNumCompilationSuccesses);
 
     // enable this block to output CSV-style stats for program pre-compilation
 #if 0
@@ -785,7 +752,6 @@ void GrGpu::Stats::dump(SkString* out) {
 
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
     keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
-    keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
 }
 
 #endif // GR_GPU_STATS

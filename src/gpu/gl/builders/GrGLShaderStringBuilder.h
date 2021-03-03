@@ -25,7 +25,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
                                     const SkSL::String& glsl,
-                                    GrGpu::Stats*,
+                                    GrThreadSafePipelineBuilder::Stats*,
                                     GrContextOptions::ShaderErrorHandler* errorHandler);
 
 #endif
