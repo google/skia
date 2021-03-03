@@ -8,7 +8,7 @@
 #ifndef SKSL_MODIFIERS
 #define SKSL_MODIFIERS
 
-#include "src/sksl/ir/SkSLLayout.h"
+#include "include/private/SkSLLayout.h"
 
 #include <vector>
 
@@ -89,7 +89,8 @@ namespace std {
 template <>
 struct hash<SkSL::Modifiers> {
     size_t operator()(const SkSL::Modifiers& key) const {
-        return key.fFlags ^ (key.fLayout.fFlags << 8) ^ ((unsigned) key.fLayout.fBuiltin << 16);
+        return (size_t) key.fFlags ^ ((size_t) key.fLayout.fFlags << 8) ^
+               ((size_t) key.fLayout.fBuiltin << 16);
     }
 };
 
