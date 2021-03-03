@@ -19,7 +19,7 @@ vertex Outputs vertexMain(Inputs _in [[stage_in]], uint sk_VertexID [[vertex_id]
     int itop = (sk_InstanceID * 313) % 17;
     int ibot = (itop + 1) + (sk_InstanceID * 1901) % (17 - itop);
     float outset = 0.03125;
-    outset = 0 == (x + y) % 2 ? -0.03125 : 0.03125;
+    outset = 0 == (x + y) % 2 ? -outset : outset;
     float l = float(ileft) / 16.0 - outset;
     float r = float(iright) / 16.0 + outset;
     float t = float(itop) / 16.0 - outset;

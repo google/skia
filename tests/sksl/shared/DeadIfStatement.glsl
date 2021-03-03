@@ -1,7 +1,4 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-uniform vec4 colorGreen;
-uniform vec4 colorRed;
-vec4 main() {
-    return colorGreen;
-}
+error: 3: function 'main' can exit without returning a value
+1 error
