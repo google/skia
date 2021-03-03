@@ -928,6 +928,22 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
         ~Finalizer() override {
             SkASSERT(!fBreakableLevel);
             SkASSERT(!fContinuableLevel);
+
+            if (!fEncounteredReturnValue && this->functionReturnsValue()) {
+                // It's a non-void function, but it never created a result expression--that is, it
+                // never returned anything.
+                fIRGenerator->errorReporter().error(
+                        fFunction->fOffset,
+                        "function '" + fFunction->name() + "' exits without returning a value");
+            }
+        }
+
+        bool functionReturnsValue() const {
+            return fFunction->returnType() != *fIRGenerator->fContext.fTypes.fVoid;
+        }
+
+        bool encounteredReturnValue() const {
+            return fEncounteredReturnValue;
         }
 
         bool visitStatement(Statement& stmt) override {
@@ -940,22 +956,28 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
                     SkASSERT(fIRGenerator->programKind() != ProgramKind::kVertex ||
                              !fIRGenerator->fRTAdjust ||
                              fFunction->name() != "main");
-                    ReturnStatement& r = stmt.as<ReturnStatement>();
+
+                    // Verify that the return statement matches the function's return type.
+                    ReturnStatement& returnStmt = stmt.as<ReturnStatement>();
                     const Type& returnType = fFunction->returnType();
-                    std::unique_ptr<Expression> result;
-                    if (r.expression()) {
-                        if (returnType == *fIRGenerator->fContext.fTypes.fVoid) {
-                            fIRGenerator->errorReporter().error(r.fOffset,
-                                                     "may not return a value from a void function");
+                    if (returnStmt.expression()) {
+                        if (this->functionReturnsValue()) {
+                            // Coerce return expression to the function's return type.
+                            returnStmt.setExpression(fIRGenerator->coerce(
+                                    std::move(returnStmt.expression()), returnType));
+                            fEncounteredReturnValue = true;
                         } else {
-                            result = fIRGenerator->coerce(std::move(r.expression()), returnType);
+                            // Returning something from a function with a void return type.
+                            fIRGenerator->errorReporter().error(returnStmt.fOffset,
+                                                     "may not return a value from a void function");
                         }
-                    } else if (returnType != *fIRGenerator->fContext.fTypes.fVoid) {
-                        fIRGenerator->errorReporter().error(r.fOffset,
-                                                    "expected function to return '" +
-                                                    returnType.displayName() + "'");
+                    } else {
+                        if (this->functionReturnsValue()) {
+                            // Returning nothing from a function with a non-void return type.
+                            fIRGenerator->errorReporter().error(returnStmt.fOffset,
+                                  "expected function to return '" + returnType.displayName() + "'");
+                        }
                     }
-                    r.setExpression(std::move(result));
                     break;
                 }
                 case Statement::Kind::kDo:
@@ -998,6 +1020,8 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
         int fBreakableLevel = 0;
         // how deeply nested we are in continuable constructs (for, do).
         int fContinuableLevel = 0;
+        // have we found a return statement with a return value?
+        bool fEncounteredReturnValue = false;
 
         using INHERITED = ProgramWriter;
     };

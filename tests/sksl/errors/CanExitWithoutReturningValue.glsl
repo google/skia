@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: function 'foo' can exit without returning a value
+error: 4: function 'is_detected' exits without returning a value
 1 error

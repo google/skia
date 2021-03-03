@@ -1066,7 +1066,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     }
 
     {
-        ExpectError error(r, "error: expected function to return 'float'\n");
+        ExpectError error(r, "error: expected function to return 'float'\n"
+                             "error: function 'broken' exits without returning a value\n");
         DSLWriter::ProgramElements().clear();
         DSLFunction(kFloat, "broken").define(
             Return()

@@ -1,1 +1,4 @@
-int foo() { if (2 > 5) return 3; }
+// Expect 1 error
+
+int not_detected() { if (sqrt(1) == 1) return 3; } // function finalizer doesn't analyze all paths
+int is_detected()  { if (2 > 5) return 3; }        // optimizer reduces this to an empty function

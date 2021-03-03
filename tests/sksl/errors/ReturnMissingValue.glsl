@@ -1,4 +1,5 @@
 ### Compilation failed:
 
 error: 1: expected function to return 'int'
-1 error
+error: 1: function 'foo' exits without returning a value
+2 errors

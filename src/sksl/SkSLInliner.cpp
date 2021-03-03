@@ -767,10 +767,12 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                                      /*value=*/false);
     } else {
         // It's a non-void function, but it never created a result expression--that is, it never
-        // returned anything! Discard our output and generate an error.
-        fContext->fErrors.error(function.fOffset, String("function '") +
+        // returned anything on any path! This should have been detected in the function finalizer.
+        // Still, discard our output and generate an error.
+        SkDEBUGFAIL("inliner found non-void function that fails to return a value on any path");
+        fContext->fErrors.error(function.fOffset, "inliner found non-void function '" +
                                                   function.declaration().name() +
-                                                  "' exits without returning a value");
+                                                  "' that fails to return a value on any path");
         inlinedCall = {};
     }
 
