@@ -14841,7 +14841,6 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -14904,7 +14903,6 @@
           "clang_linux/bin"
         ]
       },
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -14967,7 +14965,6 @@
           "clang_linux/bin"
         ]
       },
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -15030,7 +15027,6 @@
           "clang_linux/bin"
         ]
       },
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -15079,7 +15075,6 @@
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -15128,7 +15123,6 @@
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -15177,7 +15171,6 @@
         "os:Mac-10.15.7",
         "pool:Skia"
       ],
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -15227,7 +15220,6 @@
         "os:Windows-Server-17763",
         "pool:Skia"
       ],
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -15277,7 +15269,6 @@
         "os:Windows-Server-17763",
         "pool:Skia"
       ],
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -15327,7 +15318,6 @@
         "os:Windows-Server-17763",
         "pool:Skia"
       ],
-      "expiration_ns": 900000000000,
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
