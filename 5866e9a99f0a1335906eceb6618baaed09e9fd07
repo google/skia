@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1690124_57ab7841",
+        "filename": "src/sksl/ir/SkSLEnum.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T18:51:02Z",
+      "side": 1,
+      "message": "Oh, gotcha. SGTM.",
+      "parentUuid": "3740cd9f_e292cd69",
+      "range": {
+        "startLine": 60,
+        "startChar": 8,
+        "endLine": 60,
+        "endChar": 71
+      },
+      "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e14313a_c60b5363",
@@ -102,6 +126,30 @@
       "side": 1,
       "message": "Fixed. Weird - clang-format insists that it should be there.",
       "parentUuid": "4e14313a_c60b5363",
+      "range": {
+        "startLine": 79,
+        "startChar": 32,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35e77233_4f409bdc",
+        "filename": "src/sksl/ir/SkSLEnum.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T18:51:02Z",
+      "side": 1,
+      "message": "Oh, weird, it looks like clang-format has an option to treat \"foreach\" as a magic builtin-like macro. http://osscs/android/platform/superproject/+/master:external/clang/lib/Format/Format.cpp;l\u003d525;drc\u003d4967a710c84587c654b56c828382219c3937dacb",
+      "parentUuid": "00da01a1_0f1c7bb0",
       "range": {
         "startLine": 79,
         "startChar": 32,
