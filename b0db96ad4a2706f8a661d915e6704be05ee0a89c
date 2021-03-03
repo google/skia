@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e622121a_f7f98c68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-03T13:17:08Z",
+      "side": 1,
+      "message": "Personally, I\u0027m not sure the extra cognitive load of having to mentally translate `\"key\": \"value\"` to `--key value` is worth it, but I defer to your judgment on that.",
+      "revId": "b0db96ad4a2706f8a661d915e6704be05ee0a89c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
