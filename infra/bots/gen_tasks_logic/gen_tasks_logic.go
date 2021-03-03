@@ -1582,7 +1582,7 @@ func (b *jobBuilder) fm() {
 			"--bot", b.Name,
 			"--gold="+strconv.FormatBool(!b.matchExtraConfig("SAN")),
 			"build/fm${EXECUTABLE_SUFFIX}")
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
 		b.swarmDimensions()
 		b.attempts(1)
 
