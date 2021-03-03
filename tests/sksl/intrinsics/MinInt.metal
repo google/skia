@@ -19,6 +19,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     int4 intValues = int4(_uniforms.testInputs * 100.0);
     int4 intGreen = int4(_uniforms.colorGreen * 100.0);
-    _out.sk_FragColor = ((((((min(intValues.x, 50) == -125 && all(min(intValues.xy, 50) == int2(-125, 0))) && all(min(intValues.xyz, 50) == int3(-125, 0, 50))) && all(min(intValues, 50) == int4(-125, 0, 50, 50))) && min(intValues.x, intGreen.x) == -125) && all(min(intValues.xy, intGreen.xy) == int2(-125, 0))) && all(min(intValues.xyz, intGreen.xyz) == int3(-125, 0, 0))) && all(min(intValues, intGreen) == int4(-125, 0, 0, 100)) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((min(intValues.x, 50) == int4(-125, 0, 50, 50).x && all(min(intValues.xy, 50) == int4(-125, 0, 50, 50).xy)) && all(min(intValues.xyz, 50) == int4(-125, 0, 50, 50).xyz)) && all(min(intValues, 50) == int4(-125, 0, 50, 50))) && min(intValues.x, intGreen.x) == int4(-125, 0, 0, 100).x) && all(min(intValues.xy, intGreen.xy) == int4(-125, 0, 0, 100).xy)) && all(min(intValues.xyz, intGreen.xyz) == int4(-125, 0, 0, 100).xyz)) && all(min(intValues, intGreen) == int4(-125, 0, 0, 100)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
