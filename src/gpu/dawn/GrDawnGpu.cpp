@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/GrThreadSafePipelineBuilder_Base.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
@@ -143,6 +144,14 @@ void GrDawnGpu::disconnect(DisconnectType type) {
     fQueue = nullptr;
     fDevice = nullptr;
     INHERITED::disconnect(type);
+}
+
+GrThreadSafePipelineBuilder_Base* GrDawnGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder_Base> GrDawnGpu::refPipelineBuilder() {
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

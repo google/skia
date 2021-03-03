@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "include/private/GrThreadSafePipelineBuilder_Base.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/GrBackendUtils.h"
@@ -28,6 +29,15 @@
 #if GR_TEST_UTILS
 #include <DXProgrammableCapture.h>
 #endif
+
+GrThreadSafePipelineBuilder_Base* GrD3DGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder_Base> GrD3DGpu::refPipelineBuilder() {
+    return nullptr;
+}
+
 
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
                             const GrContextOptions& contextOptions, GrDirectContext* direct) {
