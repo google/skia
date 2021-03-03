@@ -145,6 +145,14 @@ void GrDawnGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
 }
 
+GrThreadSafePipelineBuilder* GrDawnGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder> GrDawnGpu::refPipelineBuilder() {
+    return nullptr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(

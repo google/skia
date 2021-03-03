@@ -15,6 +15,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/GrWindowRectsState.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/gl/GrGLAttachment.h"
@@ -36,6 +37,9 @@ public:
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;
+
+    GrThreadSafePipelineBuilder* pipelineBuilder() override;
+    sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder() override;
 
     const GrGLContext& glContext() const { return *fGLContext; }
 
@@ -352,7 +356,7 @@ private:
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
-    class ProgramCache : public ::SkNoncopyable {
+    class ProgramCache : public GrThreadSafePipelineBuilder {
     public:
         ProgramCache(GrGLGpu* gpu);
         ~ProgramCache();
@@ -365,9 +369,9 @@ private:
                                                Stats::ProgramCacheResult* stat) {
             sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(nullptr, desc, programInfo, stat);
             if (!tmp) {
-                fGpu->fStats.incNumPreCompilationFailures();
+                fStats.incNumPreCompilationFailures();
             } else {
-                fGpu->fStats.incNumPreProgramCacheResult(*stat);
+                fStats.incNumPreProgramCacheResult(*stat);
             }
 
             return tmp;
@@ -390,7 +394,7 @@ private:
 
         SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
-        GrGLGpu* fGpu;
+        GrGLGpu* fGpu1;
     };
 
     void flushPatchVertexCount(uint8_t count);
