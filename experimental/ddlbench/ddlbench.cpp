@@ -286,14 +286,7 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
         exitf("failed to parse file %s", srcfile.c_str());
     }
 
-    sk_sp<SkData> compressedPictureData = promiseImageHelper->deflateSKP(skp.get());
-    if (!compressedPictureData) {
-        exitf("skp deflation failed %s", srcfile.c_str());
-    }
-
-    // TODO: use the new shared promise images to just create one skp here
-
-    return skp;
+    return promiseImageHelper->recreateSKP(skp.get(), dContext);
 }
 
 static void check_params(GrDirectContext* dContext,
@@ -384,8 +377,6 @@ int main(int argc, char** argv) {
 
     check_params(mainContext->fDirectContext, width, height, ct, at, FLAGS_numSamples);
 
-    promiseImageHelper.createCallbackContexts(mainContext->fDirectContext);
-
     // TODO: do this later on a utility thread!
     promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext);
 
@@ -408,36 +399,74 @@ int main(int argc, char** argv) {
         mainContext->fWorkElapsed = mainContext->fThreadStop - mainContext->fThreadStart;
         mainContext->fWorkUnit++;
     } else {
+        SkSurfaceCharacterization dstCharacterization;
+        SkAssertResult(dstSurface->characterize(&dstCharacterization));
+
+        SkIRect viewport = dstSurface->imageInfo().bounds();
+
+        DDLTileHelper tiles(mainContext->fDirectContext,
+                            dstCharacterization,
+                            viewport,
+                            FLAGS_numTilesX, FLAGS_numTilesY,
+                            /* addRandomPaddingToDst */ false);
+
+        tiles.createBackendTextures(nullptr, mainContext->fDirectContext);
+
         mainContext->fTestContext->makeNotCurrent();
 
         GrTaskGroup gpuTaskGroup(SkSpan<ThreadInfo>(mainContext.get(), 1));
         GrTaskGroup recordingTaskGroup(SkSpan<ThreadInfo>(utilityContexts.get(),
                                                           FLAGS_numRecordingThreads));
 
-        for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
-            recordingTaskGroup.add([] {
-                                       ThreadInfo* threadLocal = get_thread_local_info();
-                                       printf("%s: dContext %p\n", threadLocal->fName.c_str(),
-                                                                   threadLocal->fDirectContext);
-                                       std::this_thread::sleep_for(std::chrono::seconds(1));
-                                   });
+        for (int i = 0; i < tiles.numTiles(); ++i) {
+            DDLTileHelper::TileData* tile = tiles.tile(i);
+            if (!tile->initialized()) {
+                continue;
+            }
+
+            recordingTaskGroup.add([tile, gpuTaskGroup1 = &gpuTaskGroup, skp]() {
+                                        tile->createDDL(skp.get());
+
+                                        gpuTaskGroup1->add([tile]() {
+                                            ThreadInfo* threadLocal = get_thread_local_info();
+
+                                            tile->precompile(threadLocal->fDirectContext);
+
+                                            tile->draw(threadLocal->fDirectContext);
+
+                                            tile->dropDDL1();
+                                        });
+                                    });
         }
 
-        gpuTaskGroup.add([] {
-                             ThreadInfo* threadLocal = get_thread_local_info();
-                             printf("%s: dContext %p\n", threadLocal->fName.c_str(),
-                                                         threadLocal->fDirectContext);
-                         });
-
-        gpuTaskGroup.add([] {
-                             ThreadInfo* threadLocal = get_thread_local_info();
-                             threadLocal->fTestContext->makeNotCurrent();
-                         });
+        recordingTaskGroup.add([&tiles] { tiles.createComposeDDL(); });
 
         recordingTaskGroup.wait();
+
+        gpuTaskGroup.add([dstSurface, ddl = tiles.composeDDL()]() {
+                             dstSurface->draw(std::move(ddl));
+                        });
+
+        gpuTaskGroup.add([]() {
+                             ThreadInfo* threadLocal = get_thread_local_info();
+
+                             threadLocal->fDirectContext->flush();
+                             threadLocal->fDirectContext->submit(true);
+                        });
+
+        gpuTaskGroup.add([]() {
+                             ThreadInfo* threadLocal = get_thread_local_info();
+
+                             threadLocal->fTestContext->makeNotCurrent();
+                        });
+
         gpuTaskGroup.wait();
 
         mainContext->fTestContext->makeCurrent();
+
+        tiles.resetAllTiles();
+
+        tiles.deleteBackendTextures(nullptr, mainContext->fDirectContext);
     }
 
     maybe_save_file(dstSurface.get());
