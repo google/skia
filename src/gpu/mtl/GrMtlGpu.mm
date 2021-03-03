@@ -168,6 +168,14 @@ void GrMtlGpu::disconnect(DisconnectType type) {
     }
 }
 
+GrThreadSafePipelineBuilder* GrMtlGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder> GrMtlGpu::refPipelineBuilder() {
+    return nullptr;
+}
+
 void GrMtlGpu::destroyResources() {
     this->submitCommandBuffer(SyncQueue::kForce_SyncQueue);
 
