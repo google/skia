@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include "include/private/DSLFPs.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -19,7 +20,6 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/dsl/priv/DSLFPs.h"
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
