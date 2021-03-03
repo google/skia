@@ -16,6 +16,24 @@
       "message": "What\u0027s the point of replacing an empty statement with a nop? Aren\u0027t they basically the same thing? I mean, it\u0027s pretty much just \u0027{}\u0027 vs. \u0027;\u0027, right?",
       "revId": "4c8c70f3e5d4ab8484f92f936c0478a67d41888f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "882adf1c_38bb8ec0",
+        "filename": "src/sksl/ir/SkSLIfStatement.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T15:50:06Z",
+      "side": 1,
+      "message": "Well, an empty statement can also have nested blocks and Nops, like:\n\n   {{ ; ; ; ; { ; }}}\n\nThis probably won\u0027t happen very often if we get rid of dead-code elimination, though. I can remove this if you don\u0027t think it adds value.",
+      "parentUuid": "7630f437_de169bc0",
+      "revId": "4c8c70f3e5d4ab8484f92f936c0478a67d41888f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
