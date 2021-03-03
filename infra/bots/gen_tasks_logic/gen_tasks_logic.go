@@ -1584,7 +1584,6 @@ func (b *jobBuilder) fm() {
 			"build/fm${EXECUTABLE_SUFFIX}")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.swarmDimensions()
-		b.expiration(15 * time.Minute)
 		b.attempts(1)
 
 		if b.isLinux() && b.matchExtraConfig("SAN") {
