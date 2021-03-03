@@ -94,12 +94,11 @@ public:
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrBitmapTextGeoProc& btgp = proc.cast<GrBitmapTextGeoProc>();
-        uint32_t key = 0;
-        key |= btgp.usesW() ? 0x1 : 0x0;
-        key |= btgp.maskFormat() << 1;
-        key |= ComputeMatrixKey(btgp.localMatrix()) << 2;
-        b->add32(key);
-        b->add32(btgp.numTextureSamplers());
+        b->addBool(btgp.usesW(), "usesW");
+        static_assert(kLast_GrMaskFormat < (1u << 2));
+        b->addBits(2, btgp.maskFormat(), "maskFormat");
+        b->addBits(kMatrixKeyBits, ComputeMatrixKey(btgp.localMatrix()), "localMatrixType");
+        b->add32(btgp.numTextureSamplers(),"numTextures");
     }
 
 private:
