@@ -44,6 +44,10 @@ public:
         fKey->addBytes(numBytes, data, label);
     }
 
+    void addBool(bool b, const char* label) {
+        this->addBits(1, b, label);
+    }
+
     void add32(uint32_t v, const char* label = "unknown") {
         this->addBits(32, v, label);
     }

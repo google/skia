@@ -43,7 +43,7 @@ public:
 
     ~GrBitmapTextGeoProc() override {}
 
-    const char* name() const override { return "Texture"; }
+    const char* name() const override { return "BitmapText"; }
 
     const Attribute& inPosition() const { return fInPosition; }
     const Attribute& inColor() const { return fInColor; }

@@ -63,7 +63,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrArithmeticProcessor::onMakeProgramImp
 }
 void GrArithmeticProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
-    b->addBits(1, (uint32_t)enforcePMColor, "enforcePMColor");
+    b->addBool(enforcePMColor, "enforcePMColor");
 }
 bool GrArithmeticProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrArithmeticProcessor& that = other.cast<GrArithmeticProcessor>();

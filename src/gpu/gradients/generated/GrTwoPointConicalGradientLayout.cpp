@@ -151,11 +151,11 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrTwoPointConicalGradientLayout::onMake
 void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                             GrProcessorKeyBuilder* b) const {
     b->addBits(2, (uint32_t)type, "type");
-    b->addBits(1, (uint32_t)isRadiusIncreasing, "isRadiusIncreasing");
-    b->addBits(1, (uint32_t)isFocalOnCircle, "isFocalOnCircle");
-    b->addBits(1, (uint32_t)isWellBehaved, "isWellBehaved");
-    b->addBits(1, (uint32_t)isSwapped, "isSwapped");
-    b->addBits(1, (uint32_t)isNativelyFocal, "isNativelyFocal");
+    b->addBool(isRadiusIncreasing, "isRadiusIncreasing");
+    b->addBool(isFocalOnCircle, "isFocalOnCircle");
+    b->addBool(isWellBehaved, "isWellBehaved");
+    b->addBool(isSwapped, "isSwapped");
+    b->addBool(isNativelyFocal, "isNativelyFocal");
 }
 bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTwoPointConicalGradientLayout& that = other.cast<GrTwoPointConicalGradientLayout>();
