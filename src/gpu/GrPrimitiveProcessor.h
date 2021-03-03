@@ -200,8 +200,9 @@ public:
 
         auto add_attributes = [=](const Attribute* attrs, int attrCount) {
             for (int i = 0; i < attrCount; ++i) {
-                b->add32(attrs[i].isInitialized() ? (attrs[i].cpuType() << 16) | attrs[i].gpuType()
-                                                  : ~0);
+                const Attribute& attr = attrs[i];
+                b->addBits(8, attr.isInitialized() ? attr.cpuType() : 0xff, "attrType");
+                b->addBits(8, attr.isInitialized() ? attr.gpuType() : 0xff, "attrGpuType");
             }
         };
         add_attributes(fVertexAttributes.fAttributes, fVertexAttributes.fRawCount);
