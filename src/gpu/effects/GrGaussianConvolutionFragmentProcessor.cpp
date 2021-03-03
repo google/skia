@@ -7,6 +7,7 @@
 
 #include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 
+#include "include/private/DSLFPs.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -15,7 +16,6 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/dsl/priv/DSLFPs.h"
 
 // For brevity
 using UniformHandle = GrGLSLProgramDataManager::UniformHandle;

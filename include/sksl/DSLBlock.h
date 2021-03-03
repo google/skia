@@ -8,10 +8,9 @@
 #ifndef SKSL_DSL_BLOCK
 #define SKSL_DSL_BLOCK
 
-#include "include/private/SkTArray.h"
-#include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLStatement.h"
-#include "src/sksl/ir/SkSLIRNode.h"
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLStatement.h"
 
 #include <memory>
 
@@ -26,11 +25,16 @@ public:
     template<class... Statements>
     DSLBlock(Statements... statements) {
         fStatements.reserve_back(sizeof...(statements));
-        (fStatements.push_back(DSLStatement(std::move(statements)).release()), ...);
+        // in C++17, we could just do:
+        // (fStatements.push_back(DSLStatement(statements.release()).release()), ...);
+        int unused[] =
+            {0,
+            (static_cast<void>(fStatements.push_back(DSLStatement(statements.release()).release())),
+             0)...};
+        static_cast<void>(unused);
     }
 
-    DSLBlock(SkSL::StatementArray statements)
-        : fStatements(std::move(statements)) {}
+    DSLBlock(SkSL::StatementArray statements);
 
     void append(DSLStatement stmt);
 
