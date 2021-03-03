@@ -13,6 +13,8 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/sksl/dsl/priv/DSLFPs.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLVariable.h"
 #include "tools/ToolUtils.h"
 
 class SimpleDSLEffect : public GrFragmentProcessor {

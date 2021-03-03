@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLString.h"
-
+#include "include/private/SkSLString.h"
 #include "src/sksl/SkSLUtil.h"
 #include <algorithm>
 #include <cinttypes>

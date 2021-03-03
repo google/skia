@@ -8,7 +8,7 @@
 #ifndef SKSL_DSL
 #define SKSL_DSL
 
-#include "src/sksl/dsl/DSLCore.h"
+#include "include/sksl/DSLCore.h"
 
 namespace SkSL {
 
