@@ -47,7 +47,7 @@ static void cleanup_program(GrGLGpu* gpu, GrGLuint programID,
 }
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
-                                               GrGLGpu* gpu,
+                                               GrDirectContext* dContext,
                                                GrRenderTarget* renderTarget,
                                                const GrProgramDesc& desc,
                                                const GrProgramInfo& programInfo,
@@ -55,11 +55,13 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
     TRACE_EVENT0_ALWAYS("skia.gpu", "shader_compile");
     GrAutoLocaleSetter als("C");
 
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(dContext->priv().getGpu());
+
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrGLProgramBuilder builder(glGpu, renderTarget, desc, programInfo);
 
-    auto persistentCache = gpu->getContext()->priv().getPersistentCache();
+    auto persistentCache = dContext->priv().getPersistentCache();
     if (persistentCache && !precompiledProgram) {
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc.asKey(), desc.keyLength());
         builder.fCached = persistentCache->load(*key);
@@ -575,8 +577,8 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
                              fInstanceStride);
 }
 
-bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledProgram,
-                                           GrGLGpu* gpu,
+bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
+                                           GrGLPrecompiledProgram* precompiledProgram,
                                            const SkData& cachedData) {
     SkReadBuffer reader(cachedData.data(), cachedData.size());
     SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
@@ -585,11 +587,13 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
         return false;
     }
 
-    const GrGLInterface* gl = gpu->glInterface();
-    auto errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(dContext->priv().getGpu());
+
+    const GrGLInterface* gl = glGpu->glInterface();
+    auto errorHandler = dContext->priv().getShaderErrorHandler();
 
     SkSL::Program::Settings settings;
-    settings.fSharpenTextures = gpu->getContext()->priv().options().fSharpenMipmappedTextures;
+    settings.fSharpenTextures = dContext->priv().options().fSharpenMipmappedTextures;
     GrPersistentCacheUtils::ShaderMetadata meta;
     meta.fSettings = &settings;
 
@@ -609,13 +613,13 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
 
     auto compileShader = [&](SkSL::ProgramKind kind, const SkSL::String& sksl, GrGLenum type) {
         SkSL::String glsl;
-        auto program = GrSkSLtoGLSL(gpu, kind, sksl, settings, &glsl, errorHandler);
+        auto program = GrSkSLtoGLSL(glGpu, kind, sksl, settings, &glsl, errorHandler);
         if (!program) {
             return false;
         }
 
-        if (GrGLuint shaderID = GrGLCompileAndAttachShader(gpu->glContext(), programID, type, glsl,
-                                                           gpu->pipelineBuilder()->stats(),
+        if (GrGLuint shaderID = GrGLCompileAndAttachShader(glGpu->glContext(), programID, type,
+                                                           glsl, glGpu->pipelineBuilder()->stats(),
                                                            errorHandler)) {
             shadersToDelete.push_back(shaderID);
             return true;
@@ -634,34 +638,36 @@ bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledPr
          !compileShader(SkSL::ProgramKind::kGeometry,
                        shaders[kGeometry_GrShaderType],
                        GR_GL_GEOMETRY_SHADER))) {
-        cleanup_program(gpu, programID, shadersToDelete);
+        cleanup_program(glGpu, programID, shadersToDelete);
         return false;
     }
 
     for (int i = 0; i < meta.fAttributeNames.count(); ++i) {
-        GR_GL_CALL(gpu->glInterface(), BindAttribLocation(programID, i,
+        GR_GL_CALL(glGpu->glInterface(), BindAttribLocation(programID, i,
                                                           meta.fAttributeNames[i].c_str()));
     }
 
-    const GrGLCaps& caps = gpu->glCaps();
+    const GrGLCaps& caps = glGpu->glCaps();
     if (meta.fHasCustomColorOutput && caps.bindFragDataLocationSupport()) {
-        GR_GL_CALL(gpu->glInterface(), BindFragDataLocation(programID, 0,
-                GrGLSLFragmentShaderBuilder::DeclaredColorOutputName()));
+        GR_GL_CALL(glGpu->glInterface(),
+                   BindFragDataLocation(programID, 0,
+                                        GrGLSLFragmentShaderBuilder::DeclaredColorOutputName()));
     }
     if (meta.fHasSecondaryColorOutput && caps.shaderCaps()->mustDeclareFragmentShaderOutput()) {
-        GR_GL_CALL(gpu->glInterface(), BindFragDataLocationIndexed(programID, 0, 1,
-                GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
+        GR_GL_CALL(glGpu->glInterface(),
+                   BindFragDataLocationIndexed(programID, 0, 1,
+                               GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
     }
 
-    GR_GL_CALL(gpu->glInterface(), LinkProgram(programID));
+    GR_GL_CALL(glGpu->glInterface(), LinkProgram(programID));
     GrGLint linked = GR_GL_INIT_ZERO;
-    GR_GL_CALL(gpu->glInterface(), GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
+    GR_GL_CALL(glGpu->glInterface(), GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
     if (!linked) {
-        cleanup_program(gpu, programID, shadersToDelete);
+        cleanup_program(glGpu, programID, shadersToDelete);
         return false;
     }
 
-    cleanup_shaders(gpu, shadersToDelete);
+    cleanup_shaders(glGpu, shadersToDelete);
 
     precompiledProgram->fProgramID = programID;
     precompiledProgram->fInputs = inputs;
