@@ -9,6 +9,7 @@ void main() {
 
         gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(sk_InvocationID));
         EmitVertex();
+        false;
 
         EndPrimitive();
     }

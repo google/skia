@@ -65,9 +65,9 @@ void main() {
 
     sk_FragColor *= 1.25;
 
-    sk_FragColor *= color.xxyy * color.w;
+    sk_FragColor *= color.xxyy * color.zzww.w;
 
-    sk_FragColor *= color.zzww * color.y;
+    sk_FragColor *= color.zzww * color.xxyy.w;
 
     sk_FragColor *= blend_hue(color, color.wwww);
     sk_FragColor *= blend_hue(color, color.wzyx);

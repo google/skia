@@ -9,6 +9,12 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor.xyz = float3(1.0, 1.0, 1.0);
+    int x = 0;
+    int y = 0;
+    int z = 0;
+    x = 1;
+    y = 1;
+    z = 1;
+    _out.sk_FragColor.xyz = float3(float(x), float(y), float(z));
     return _out;
 }
