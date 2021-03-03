@@ -39,6 +39,30 @@
       },
       "revId": "72bde63557125e39471819299f9c69fdc36438ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfdc6aa5_e9942fdb",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1248,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-03T18:34:54Z",
+      "side": 1,
+      "message": "I don\u0027t think so. (I had hoped/assumed it would be). It\u0027s close to SkNextLog2 + 1, but even that returns different values for 2 and 3, which this code won\u0027t (and shouldn\u0027t). Maybe it\u0027s `SkNextLog2(x + 1) + 1` ?\n\nOnce I had to think this hard, I decided to write this helper instead. :)",
+      "parentUuid": "d435ecf7_ffad4d69",
+      "range": {
+        "startLine": 1242,
+        "startChar": 0,
+        "endLine": 1248,
+        "endChar": 1
+      },
+      "revId": "72bde63557125e39471819299f9c69fdc36438ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
