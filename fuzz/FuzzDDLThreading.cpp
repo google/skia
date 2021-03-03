@@ -112,10 +112,12 @@ DDLFuzzer::DDLFuzzer(Fuzz* fuzz, ContextType contextType) : fFuzz(fuzz) {
     sk_gpu_test::ContextInfo ctxInfo = fContextFactory.getContextInfo(contextType);
     sk_gpu_test::TestContext* testCtx = ctxInfo.testContext();
     fContext = ctxInfo.directContext();
+    SkASSERT(fContext);
     SkISize canvasSize = kPromiseImageSize;
     canvasSize.fWidth *= kPromiseImagesPerDDL;
     SkImageInfo ii = SkImageInfo::Make(canvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     fSurface = SkSurface::MakeRenderTarget(fContext, SkBudgeted::kNo, ii);
+    SkASSERT(fSurface);
     SkAssertResult(fSurface->characterize(&fSurfaceCharacterization));
 
     testCtx->makeNotCurrent();
