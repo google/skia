@@ -63,6 +63,29 @@
       },
       "revId": "72bde63557125e39471819299f9c69fdc36438ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4c95998_4edae8be",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T18:35:33Z",
+      "side": 1,
+      "message": "Seems like this might be cleaner just split up into three else-ifs, instead of if (a || b || c) { if (b) {...} if (c) {...} ... }",
+      "range": {
+        "startLine": 1322,
+        "startChar": 18,
+        "endLine": 1331,
+        "endChar": 16
+      },
+      "revId": "72bde63557125e39471819299f9c69fdc36438ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
