@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4286672_4923ca58",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-03T14:23:51Z",
+      "side": 1,
+      "message": "Sure - the figcaption explains it more thoroughly.",
+      "parentUuid": "e36f7d07_9266df4d",
+      "range": {
+        "startLine": 19,
+        "startChar": 69,
+        "endLine": 19,
+        "endChar": 95
+      },
+      "revId": "f476fe5d5f714e31bc4cb7818427f8680eb74a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03e5ae5d_35337ab4",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44c1432f_f4c1f625",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-03T14:23:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03e5ae5d_35337ab4",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 30
+      },
+      "revId": "f476fe5d5f714e31bc4cb7818427f8680eb74a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79a28884_2a672565",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-03-03T14:07:32Z",
       "side": 1,
       "message": "Not sure I think this is an improvement. Are we not supporting arrays?",
+      "range": {
+        "startLine": 120,
+        "startChar": 34,
+        "endLine": 120,
+        "endChar": 42
+      },
+      "revId": "f476fe5d5f714e31bc4cb7818427f8680eb74a7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e64b1c3_b080f253",
+        "filename": "demos.skia.org/demos/image_sampling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-03T14:23:51Z",
+      "side": 1,
+      "message": "We do support arrays. If we expect people who are not familiar with CanvasKit or Skia to look at these demos and understand what they do, I think LTRBRect is a bit more self-documenting than just an array.",
+      "parentUuid": "79a28884_2a672565",
       "range": {
         "startLine": 120,
         "startChar": 34,
