@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8238dc7e_becc6829",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-03T15:28:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0add9d9_8168a231",
+      "revId": "1bbf1da5669f10fc9361d73eb4825fdc53129fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5a79df42_0fc4559e",
@@ -35,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40ec6a7b_62ef591e",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-03T15:28:38Z",
+      "side": 1,
+      "message": "The matrix is only used for comparing direct drawing. See the key\u0027s operator \u003d\u003d().",
+      "parentUuid": "5a79df42_0fc4559e",
+      "revId": "1bbf1da5669f10fc9361d73eb4825fdc53129fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "abfeaa4c_50f7616d",
@@ -48,6 +84,24 @@
       "writtenOn": "2021-03-02T19:22:50Z",
       "side": 1,
       "message": "Update comment ?",
+      "revId": "1bbf1da5669f10fc9361d73eb4825fdc53129fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "edf520f6_870908c7",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-03T15:28:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abfeaa4c_50f7616d",
       "revId": "1bbf1da5669f10fc9361d73eb4825fdc53129fc1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
