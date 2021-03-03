@@ -1176,8 +1176,6 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
             break;
         }
         case Statement::Kind::kIf: {
-            // TODO(skia:11319): this optimization logic is redundant with the optimization code
-            // found in IfStatement.cpp.
             IfStatement& i = stmt->as<IfStatement>();
             if (i.test()->kind() == Expression::Kind::kBoolLiteral) {
                 // constant if, collapse down to a single branch

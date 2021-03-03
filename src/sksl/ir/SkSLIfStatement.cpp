@@ -5,11 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
-#include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -46,53 +43,25 @@ std::unique_ptr<Statement> IfStatement::Convert(const Context& context, int offs
                              std::move(ifTrue), std::move(ifFalse));
 }
 
-static std::unique_ptr<Statement> replace_empty_with_nop(std::unique_ptr<Statement> stmt,
-                                                         bool isEmpty) {
-    return (!isEmpty || (stmt && stmt->is<Nop>())) ? std::move(stmt)
-                                                   : std::make_unique<Nop>();
-}
-
 std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset, bool isStatic,
                                              std::unique_ptr<Expression> test,
                                              std::unique_ptr<Statement> ifTrue,
                                              std::unique_ptr<Statement> ifFalse) {
     SkASSERT(test->type() == *context.fTypes.fBool);
 
-    const bool optimize = context.fConfig->fSettings.fOptimize;
-    bool trueIsEmpty = false;
-    bool falseIsEmpty = false;
-
-    if (optimize) {
-        // If both sides are empty, the if statement can be reduced to its test expression.
-        trueIsEmpty = ifTrue->isEmpty();
-        falseIsEmpty = !ifFalse || ifFalse->isEmpty();
-        if (trueIsEmpty && falseIsEmpty) {
-            return ExpressionStatement::Make(context, std::move(test));
-        }
-    }
-
-    if (isStatic || optimize) {
+    if (test->is<BoolLiteral>()) {
         // Static Boolean values can fold down to a single branch.
-        const Expression* testValue = ConstantFolder::GetConstantValueForVariable(*test);
-        if (testValue->is<BoolLiteral>()) {
-            if (testValue->as<BoolLiteral>().value()) {
-                return replace_empty_with_nop(std::move(ifTrue), trueIsEmpty);
-            } else {
-                return replace_empty_with_nop(std::move(ifFalse), falseIsEmpty);
-            }
+        if (test->as<BoolLiteral>().value()) {
+            return ifTrue;
         }
-    }
-
-    if (optimize) {
-        // Replace an empty if-true branches with Nop; eliminate empty if-false branches entirely.
-        ifTrue = replace_empty_with_nop(std::move(ifTrue), trueIsEmpty);
-        if (falseIsEmpty) {
-            ifFalse = nullptr;
+        if (ifFalse) {
+            return ifFalse;
         }
+        // False, but no else-clause. Not an error, so don't return null!
+        return std::make_unique<Nop>();
     }
-
-    return std::make_unique<IfStatement>(offset, isStatic, std::move(test),
-                                         std::move(ifTrue), std::move(ifFalse));
+    return std::make_unique<IfStatement>(offset, isStatic, std::move(test), std::move(ifTrue),
+                                         std::move(ifFalse));
 }
 
 }  // namespace SkSL
