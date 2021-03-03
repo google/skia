@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7630f437_de169bc0",
+        "filename": "src/sksl/ir/SkSLIfStatement.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-03T15:45:43Z",
+      "side": 1,
+      "message": "What\u0027s the point of replacing an empty statement with a nop? Aren\u0027t they basically the same thing? I mean, it\u0027s pretty much just \u0027{}\u0027 vs. \u0027;\u0027, right?",
+      "revId": "4c8c70f3e5d4ab8484f92f936c0478a67d41888f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
