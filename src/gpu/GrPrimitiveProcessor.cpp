@@ -32,7 +32,7 @@ const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler
     return this->onTextureSampler(i);
 }
 
-uint32_t GrPrimitiveProcessor::ComputeCoordTransformsKey(const GrFragmentProcessor& fp) {
+uint32_t GrPrimitiveProcessor::computeCoordTransformsKey(const GrFragmentProcessor& fp) const {
     // This is highly coupled with the code in GrGLSLGeometryProcessor::collectTransforms().
 
     uint32_t key = 0;

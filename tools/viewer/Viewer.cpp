@@ -2349,7 +2349,7 @@ void Viewer::drawImGui() {
                 static bool gLoadPending = false;
                 if (gLoadPending) {
                     auto collectShaders = [this](sk_sp<const SkData> key, sk_sp<SkData> data,
-                                                 const SkString& description, int hitCount) {
+                                                 int hitCount) {
                         CachedShader& entry(fCachedShaders.push_back());
                         entry.fKey = key;
                         SkMD5 hash;
@@ -2358,7 +2358,6 @@ void Viewer::drawImGui() {
                         for (int i = 0; i < 16; ++i) {
                             entry.fKeyString.appendf("%02x", digest.data[i]);
                         }
-                        entry.fKeyDescription = description;
 
                         SkReadBuffer reader(data->data(), data->size());
                         entry.fShaderType = GrPersistentCacheUtils::GetType(&reader);
@@ -2415,10 +2414,6 @@ void Viewer::drawImGui() {
                             ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * std::min(lines, 30));
                             ImGui::InputTextMultiline(label, str, boxSize);
                         };
-                        if (ImGui::TreeNode("Key")) {
-                            ImGui::TextWrapped("%s", entry.fKeyDescription.c_str());
-                            ImGui::TreePop();
-                        }
                         stringBox("##VP", &entry.fShader[kVertex_GrShaderType]);
                         stringBox("##FP", &entry.fShader[kFragment_GrShaderType]);
                         ImGui::TreePop();
@@ -2466,7 +2461,7 @@ void Viewer::drawImGui() {
                                                                               entry.fShader,
                                                                               entry.fInputs,
                                                                               kGrShaderTypeCount);
-                        fPersistentCache.store(*entry.fKey, *data, entry.fKeyDescription);
+                        fPersistentCache.store(*entry.fKey, *data);
 
                         entry.fShader[kFragment_GrShaderType] = backup;
                     }

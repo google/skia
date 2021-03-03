@@ -1754,13 +1754,12 @@ void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
 
     GrVkSampler::Key key = GrVkSampler::GenerateKey(samplerState, *ycbcrInfo);
 
-    constexpr size_t numInts = (sizeof(key) + 3) / 4;
-    uint32_t tmp[numInts];
-    memcpy(tmp, &key, sizeof(key));
+    size_t numInts = (sizeof(key) + 3) / 4;
 
-    for (size_t i = 0; i < numInts; ++i) {
-        b->add32(tmp[i]);
-    }
+    uint32_t* tmp = b->add32n(numInts);
+
+    tmp[numInts - 1] = 0;
+    memcpy(tmp, &key, sizeof(key));
 }
 
 /**

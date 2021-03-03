@@ -181,7 +181,7 @@ public:
      * Computes a key for the transforms owned by an FP based on the shader code that will be
      * emitted by the primitive processor to implement them.
      */
-    static uint32_t ComputeCoordTransformsKey(const GrFragmentProcessor& fp);
+    uint32_t computeCoordTransformsKey(const GrFragmentProcessor& fp) const;
 
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry

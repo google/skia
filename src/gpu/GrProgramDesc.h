@@ -8,125 +8,14 @@
 #ifndef GrProgramDesc_DEFINED
 #define GrProgramDesc_DEFINED
 
-#include "include/core/SkString.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-
-#include <limits.h>
 
 class GrCaps;
 class GrProgramInfo;
 class GrRenderTarget;
 class GrShaderCaps;
-
-class GrKeyBuilder {
-public:
-    GrKeyBuilder() = default;
-    GrKeyBuilder(const GrKeyBuilder& other) = default;
-
-    void reset() { *this = GrKeyBuilder{}; }
-
-    void addBits(uint32_t numBits, uint32_t val, const char* label) {
-        SkASSERT(numBits > 0 && numBits <= 32);
-        SkASSERT(numBits == 32 || (val < (1u << numBits)));
-
-        SkDEBUGCODE(fDescription.appendf("%s: %u\n", label, val);)
-
-        fCurValue |= (val << fBitsUsed);
-        fBitsUsed += numBits;
-
-        if (fBitsUsed >= 32) {
-            // Overflow, start a new working value
-            fData.push_back(fCurValue);
-            uint32_t excess = fBitsUsed - 32;
-            fCurValue = excess ? (val >> (numBits - excess)) : 0;
-            fBitsUsed = excess;
-        }
-
-        SkASSERT(fCurValue < (1u << fBitsUsed));
-    }
-
-    void addBytes(uint32_t numBytes, const void* data, const char* label) {
-        // TODO: Make this smarter/faster?
-        const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
-        for (; numBytes --> 0; bytes++) {
-            this->addBits(8, *bytes, label);
-        }
-    }
-
-    template <typename StringFunc>
-    void addString(StringFunc&& sf) {
-        #ifdef SK_DEBUG
-            fDescription.append(sf());
-            fDescription.append("\n");
-        #endif
-    }
-
-    void flush() {
-        if (fBitsUsed) {
-            fData.push_back(fCurValue);
-            fCurValue = 0;
-            fBitsUsed = 0;
-        }
-    }
-
-    bool empty() const { return fData.empty() && !fBitsUsed; }
-
-    const uint32_t* data() const {
-        SkASSERT(fBitsUsed == 0);  // flush() must be called when construction is complete
-        return fData.begin();
-    }
-
-    size_t size() const {
-        return (fData.count() + (fBitsUsed ? 1 : 0)) * sizeof(uint32_t);
-    }
-
-    size_t sizeInBits() const {
-        return (fData.count() * sizeof(uint32_t) * CHAR_BIT) + fBitsUsed;
-    }
-
-    GrKeyBuilder& operator=(const GrKeyBuilder& other) = default;
-
-    bool operator==(const GrKeyBuilder& that) const {
-        return fBitsUsed == that.fBitsUsed &&
-               fCurValue == that.fCurValue &&
-               fData == that.fData;
-    }
-
-    bool operator!= (const GrKeyBuilder& other) const {
-        return !(*this == other);
-    }
-
-    void setData(const void* data, size_t length) {
-        SkASSERT(SkIsAlign4(length));
-        fData.reset(length / 4);
-        memcpy(fData.begin(), data, length);
-    }
-
-    SkString description() const {
-        #ifdef SK_DEBUG
-            return fDescription;
-        #else
-            return SkString{};
-        #endif
-    }
-
-private:
-    enum {
-        kHeaderSize            = 1,    // "header" in ::Build
-        kMaxPreallocProcessors = 8,
-        kIntsPerProcessor      = 4,    // This is an overestimate of the average effect key size.
-        kPreAllocSize = kHeaderSize +
-                        kMaxPreallocProcessors * kIntsPerProcessor,
-    };
-
-    SkSTArray<kPreAllocSize, uint32_t, true> fData;
-    uint32_t fCurValue = 0;
-    uint32_t fBitsUsed = 0;  // ... in current value
-
-    SkDEBUGCODE(SkString fDescription;)
-};
 
 /** This class is used to generate a generic program cache key. The Dawn, Metal and Vulkan
  *  backends derive backend-specific versions which add additional information.
@@ -139,21 +28,38 @@ public:
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
-        return fKey.data();
+        return reinterpret_cast<const uint32_t*>(fKey.begin());
     }
 
     // Gets the number of bytes in asKey(). It will be a 4-byte aligned value.
     uint32_t keyLength() const {
-        SkASSERT(0 == (fKey.size() % 4));
-        return fKey.size();
+        SkASSERT(0 == (fKey.count() % 4));
+        return fKey.count();
     }
 
-    SkString description() const { return fKey.description(); }
-
-    GrProgramDesc& operator= (const GrProgramDesc& other) = default;
+    GrProgramDesc& operator= (const GrProgramDesc& other) {
+        uint32_t keyLength = other.keyLength();
+        fKey.reset(SkToInt(keyLength));
+        memcpy(fKey.begin(), other.fKey.begin(), keyLength);
+        fInitialKeyLength = other.fInitialKeyLength;
+        return *this;
+    }
 
     bool operator== (const GrProgramDesc& that) const {
-        return this->fKey == that.fKey;
+        if (this->keyLength() != that.keyLength()) {
+            return false;
+        }
+
+        SkASSERT(SkIsAlign4(this->keyLength()));
+        int l = this->keyLength() >> 2;
+        const uint32_t* aKey = this->asKey();
+        const uint32_t* bKey = that.asKey();
+        for (int i = 0; i < l; ++i) {
+            if (aKey[i] != bKey[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     bool operator!= (const GrProgramDesc& other) const {
@@ -190,14 +96,23 @@ protected:
         if (!SkTFitsIn<int>(keyLength)) {
             return false;
         }
-        desc->fKey.setData(keyData, keyLength);
+        desc->fKey.reset(SkToInt(keyLength));
+        memcpy(desc->fKey.begin(), keyData, keyLength);
         return true;
     }
 
-    GrKeyBuilder& key() { return fKey; }
+    enum {
+        kHeaderSize            = 4,    // "header" in ::Build
+        kMaxPreallocProcessors = 8,
+        kIntsPerProcessor      = 4,    // This is an overestimate of the average effect key size.
+        kPreAllocSize = kHeaderSize +
+                        kMaxPreallocProcessors * sizeof(uint32_t) * kIntsPerProcessor,
+    };
+
+    SkSTArray<kPreAllocSize, uint8_t, true>& key() { return fKey; }
 
 private:
-    GrKeyBuilder fKey;
+    SkSTArray<kPreAllocSize, uint8_t, true> fKey;
     uint32_t fInitialKeyLength = 0;
 };
 
