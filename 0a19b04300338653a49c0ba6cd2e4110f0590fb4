@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e244849_b6622206",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-03T20:25:36Z",
+      "side": 1,
+      "message": "Caching turned on. PTAL.\n\nAm seeing tiny diffs -- will have to find some way to stage/suppress landing this on Chrome.",
+      "revId": "0a19b04300338653a49c0ba6cd2e4110f0590fb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
