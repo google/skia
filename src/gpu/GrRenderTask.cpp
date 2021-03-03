@@ -42,6 +42,11 @@ void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
     }
 }
 
+void GrRenderTask::canSkip() {
+    SkASSERT(this->isClosed());
+    this->onCanSkip();
+}
+
 #ifdef SK_DEBUG
 GrRenderTask::~GrRenderTask() {
     SkASSERT(this->isSetFlag(kDisowned_Flag));
@@ -277,6 +282,7 @@ void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, sk_sp<GrSurfaceProxy>
     SkASSERT(!fDrawingMgr || drawingMgr == fDrawingMgr);
     SkDEBUGCODE(fDrawingMgr = drawingMgr);
     drawingMgr->setLastRenderTask(proxy.get(), this);
+    proxy->isUsedAsTaskTarget();
     fTargets.emplace_back(std::move(proxy));
 }
 
