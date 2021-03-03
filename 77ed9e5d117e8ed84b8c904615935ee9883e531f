@@ -16,6 +16,23 @@
       "message": "+Brian for API review",
       "revId": "77ed9e5d117e8ed84b8c904615935ee9883e531f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4088781c_067765d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-03T15:25:14Z",
+      "side": 1,
+      "message": "lgtm, but curious if we really need \"_Base\" in the name. I think most uses of _Base are for cases where the _Base is a private class derived from a public class but is a base class for all other subclasses (e.g. all SkImage subclasses are dervied from SkImage_Base other than SkImage_Base itself).",
+      "revId": "77ed9e5d117e8ed84b8c904615935ee9883e531f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
