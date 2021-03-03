@@ -52,6 +52,24 @@
       "parentUuid": "882adf1c_38bb8ec0",
       "revId": "4c8c70f3e5d4ab8484f92f936c0478a67d41888f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2f40826_007879ec",
+        "filename": "src/sksl/ir/SkSLIfStatement.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T16:22:08Z",
+      "side": 1,
+      "message": "I was cribbing ideas from \n\nhttps://osscs.corp.google.com/skia/skia/+/master:src/sksl/SkSLCompiler.cpp;l\u003d1202;drc\u003d95d0badecf4c0ab72e57f646ca92ac0d687242bd\n\nbut in retrospect I guess I took it further than the original implementation did. The original optimization code didn\u0027t actually replace the ifTrue block with a Nop in this case.",
+      "parentUuid": "486e71c3_f9458db0",
+      "revId": "4c8c70f3e5d4ab8484f92f936c0478a67d41888f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
