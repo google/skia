@@ -918,6 +918,165 @@ void IRGenerator::checkModifiers(int offset,
     SkASSERT(layoutFlags == 0);
 }
 
+static void check_for_return_on_all_paths(const Context& context,
+                                          const FunctionDefinition& funcDef,
+                                          const Statement& stmt) {
+    class ReturnVisitor : public ProgramVisitor {
+    public:
+        ReturnVisitor(const Context& context) : fContext(context) {}
+
+        bool visitExpression(const Expression& expr) override {
+            // We can ignore expressions entirely.
+            return false;
+        }
+
+        bool visitStatement(const Statement& stmt) override {
+            switch (stmt.kind()) {
+                // Returns, breaks, or continues will stop the scan, so only one of these should
+                // ever be true.
+                case Statement::Kind::kReturn:
+                    fFoundReturn = true;
+                    return true;
+
+                case Statement::Kind::kBreak:
+                    fFoundBreak = true;
+                    return true;
+
+                case Statement::Kind::kContinue:
+                    fFoundContinue = true;
+                    return true;
+
+                case Statement::Kind::kIf: {
+                    const IfStatement& i = stmt.as<IfStatement>();
+                    ReturnVisitor trueVisitor{fContext};
+                    ReturnVisitor falseVisitor{fContext};
+                    if (i.ifTrue() && i.ifFalse()) {
+                        trueVisitor.visitStatement(*i.ifTrue());
+                        if (trueVisitor.fFoundReturn) {
+                            falseVisitor.visitStatement(*i.ifFalse());
+                            if (falseVisitor.fFoundReturn) {
+                                // If both branches of an if statement contain a return, it's an
+                                // exit path.
+                                fFoundReturn = true;
+                                return true;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case Statement::Kind::kFor: {
+                    const ForStatement& f = stmt.as<ForStatement>();
+                    // We assume a for/while loop runs for at least one iteration; this isn't
+                    // strictly guaranteed, but it's better to be slightly permissive here than to
+                    // fail on reasonable code. (This would complicate true reachability analysis.)
+                    ReturnVisitor forVisitor{fContext};
+                    forVisitor.visitStatement(*f.statement());
+                    if (forVisitor.fFoundReturn) {
+                        fFoundReturn = true;
+                        return true;
+                    }
+                    break;
+                }
+                case Statement::Kind::kDo: {
+                    const DoStatement& d = stmt.as<DoStatement>();
+                    // Do-while blocks are always entered.
+                    ReturnVisitor doVisitor{fContext};
+                    doVisitor.visitStatement(*d.statement());
+                    if (doVisitor.fFoundReturn) {
+                        fFoundReturn = true;
+                        return true;
+                    }
+                    break;
+                }
+                case Statement::Kind::kBlock:
+                    // Blocks are definitely entered and don't imply any additional control flow.
+                    return INHERITED::visitStatement(stmt);
+
+                case Statement::Kind::kSwitch: {
+                    const SwitchStatement& s = stmt.as<SwitchStatement>();
+                    bool foundDefault = false;
+                    bool fellThrough = false;
+                    for (const std::unique_ptr<SwitchCase>& sc : s.cases()) {
+                        fellThrough = Analysis::SwitchCaseFallsThrough(*sc);
+
+                        // The default case is indicated by a null value. A switch without a default
+                        // case cannot definitively return, as its value might not be specified by
+                        // any case, so we must keep track of this.
+                        if (!sc->value()) {
+                            foundDefault = true;
+                        }
+
+                        // If this switch-case falls through, we know that it doesn't contain an
+                        // unconditional return (but the block it falls-through to might).
+                        if (fellThrough) {
+                            continue;
+                        }
+
+                        // Conversely, since this switch-case DOESN'T fall through, we know it must
+                        // contain some sort of definitive exit (break/continue/return). Find it.
+                        ReturnVisitor caseVisitor{fContext};
+                        caseVisitor.visitStatement(*sc);
+
+                        // If we found an unconditional return, we can keep scanning the switch.
+                        if (caseVisitor.fFoundReturn) {
+                            continue;
+                        }
+
+                        // This switch contains a definitive exit that's not a return. It doesn't
+                        // definitively exit.
+                        SkASSERT(caseVisitor.fFoundBreak || caseVisitor.fFoundContinue);
+                        return false;
+                    }
+
+                    // If we didn't find a default case, this switch does not definitively return.
+                    if (!foundDefault) {
+                        break;
+                    }
+
+                    // If the very last case fell through, this switch does not definitively return.
+                    if (fellThrough) {
+                        break;
+                    }
+
+                    // OK, we scanned the entire switch, and every section either fell through or
+                    // terminated definitively at a return. This switch definitely returns!
+                    fFoundReturn = true;
+                    return true;
+                }
+
+                case Statement::Kind::kSwitchCase:
+                    // Recurse into the switch-case.
+                    return INHERITED::visitStatement(stmt);
+
+                case Statement::Kind::kDiscard:
+                case Statement::Kind::kExpression:
+                case Statement::Kind::kInlineMarker:
+                case Statement::Kind::kNop:
+                case Statement::Kind::kVarDeclaration:
+                    // None of these statements could contain a return.
+                    break;
+            }
+
+            return false;
+        }
+
+        const Context& fContext;
+        bool fFoundReturn = false;
+        bool fFoundBreak = false;
+        bool fFoundContinue = false;
+
+        using INHERITED = ProgramVisitor;
+    };
+
+    ReturnVisitor visitor{context};
+    visitor.visitStatement(stmt);
+    if (!visitor.fFoundReturn) {
+        // We found a path without a return statement.
+        context.fErrors.error(funcDef.fOffset, "function '" + funcDef.declaration().name() +
+                                               "' can exit without returning a value");
+    }
+}
+
 void IRGenerator::finalizeFunction(FunctionDefinition& f) {
     class Finalizer : public ProgramWriter {
     public:
@@ -1025,7 +1184,13 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
 
         using INHERITED = ProgramWriter;
     };
-    Finalizer(this, &f.declaration()).visitStatement(*f.body());
+
+    Finalizer finalizer{this, &f.declaration()};
+    finalizer.visitStatement(*f.body());
+
+    if (finalizer.functionReturnsValue()) {
+        check_for_return_on_all_paths(fContext, f, *f.body());
+    }
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
