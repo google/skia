@@ -25,7 +25,7 @@ class GrMtlResourceProvider {
 public:
     GrMtlResourceProvider(GrMtlGpu* gpu);
 
-    GrMtlPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
+    GrMtlPipelineState* findOrCreateCompatiblePipelineState(const GrProgramDesc&,
                                                             const GrProgramInfo&);
 
     // Finds or creates a compatible MTLDepthStencilState based on the GrStencilSettings.
@@ -53,7 +53,7 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrMtlPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&);
+        GrMtlPipelineState* refPipelineState(const GrProgramDesc&, const GrProgramInfo&);
 
     private:
         struct Entry;

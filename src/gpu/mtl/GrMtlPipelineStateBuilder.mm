@@ -28,23 +28,21 @@
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
                                                                 GrMtlGpu* gpu,
-                                                                GrRenderTarget* renderTarget,
                                                                 const GrProgramDesc& desc,
                                                                 const GrProgramInfo& programInfo) {
     GrAutoLocaleSetter als("C");
-    GrMtlPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrMtlPipelineStateBuilder builder(gpu, desc, programInfo);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
-    return builder.finalize(renderTarget, desc, programInfo);
+    return builder.finalize(desc, programInfo);
 }
 
 GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrMtlGpu* gpu,
-                                                     GrRenderTarget* renderTarget,
                                                      const GrProgramDesc& desc,
                                                      const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+        : INHERITED(nullptr, desc, programInfo)
         , fGpu(gpu)
         , fUniformHandler(this)
         , fVaryingHandler(this) {
@@ -357,8 +355,7 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
     return offset + offsetDiff;
 }
 
-GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTarget,
-                                                        const GrProgramDesc& desc,
+GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                         const GrProgramInfo& programInfo) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
@@ -509,7 +506,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(programInfo.primProc());
 
-    MTLPixelFormat pixelFormat = GrBackendFormatAsMTLPixelFormat(renderTarget->backendFormat());
+    MTLPixelFormat pixelFormat = GrBackendFormatAsMTLPixelFormat(programInfo.backendFormat());
     if (pixelFormat == MTLPixelFormatInvalid) {
         return nullptr;
     }
@@ -517,7 +514,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     pipelineDescriptor.colorAttachments[0] = create_color_attachment(pixelFormat,
                                                                      programInfo.pipeline());
     pipelineDescriptor.sampleCount = programInfo.numRasterSamples();
-    bool hasStencilAttachment = SkToBool(renderTarget->getStencilAttachment());
+    bool hasStencilAttachment = programInfo.isStencilEnabled();
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
     pipelineDescriptor.stencilAttachmentPixelFormat =
         hasStencilAttachment ? mtlCaps->preferredStencilFormat() : MTLPixelFormatInvalid;

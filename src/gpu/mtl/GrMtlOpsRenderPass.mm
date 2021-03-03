@@ -69,8 +69,15 @@ static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
 
 bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                         const SkRect& drawBounds) {
+    const GrMtlCaps& caps = fGpu->mtlCaps();
+    GrProgramDesc programDesc = caps.makeDesc(fRenderTarget, programInfo,
+                                              GrCaps::ProgramDescOverrideFlags::kNone);
+    if (!programDesc.isValid()) {
+        return false;
+    }
+
     fActivePipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
-            fRenderTarget, programInfo);
+            programDesc, programInfo);
     if (!fActivePipelineState) {
         return false;
     }

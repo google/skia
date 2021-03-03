@@ -1083,8 +1083,14 @@ void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     // Nothing to do here, will get cleaned up when the GrBackendTexture object goes away
 }
 
-bool GrMtlGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
-    return false;
+bool GrMtlGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
+    auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState(
+                                 desc, programInfo);
+    return SkToBool(pipelineState);
+}
+
+bool GrMtlGpu::precompileShader(const SkData& key, const SkData& data) {
+    return GrMtlPipelineStateBuilder::PrecompileShaders(this, data);
 }
 
 #if GR_TEST_UTILS
@@ -1454,10 +1460,6 @@ void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colo
             this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr, nullptr);
     SkASSERT(nil != cmdEncoder);
     cmdEncoder.label = @"resolveTexture";
-}
-
-bool GrMtlGpu::precompileShader(const SkData& key, const SkData& data) {
-    return GrMtlPipelineStateBuilder::PrecompileShaders(this, data);
 }
 
 #if GR_TEST_UTILS
