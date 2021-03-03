@@ -336,10 +336,10 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
     return sk_sp<GrGpu>(new GrGLGpu(std::move(glContext), direct));
 }
 
-GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* direct)
-        : GrGpu(direct)
+GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* dContext)
+        : GrGpu(dContext)
         , fGLContext(std::move(ctx))
-        , fProgramCache(new ProgramCache(this))
+        , fProgramCache(new ProgramCache(dContext->priv().options()))
         , fHWProgramID(0)
         , fTempSrcFBOID(0)
         , fTempDstFBOID(0)
