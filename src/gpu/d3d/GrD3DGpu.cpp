@@ -14,6 +14,7 @@
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/d3d/GrD3DAMDMemoryAllocator.h"
 #include "src/gpu/d3d/GrD3DAttachment.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
@@ -28,6 +29,15 @@
 #if GR_TEST_UTILS
 #include <DXProgrammableCapture.h>
 #endif
+
+GrThreadSafePipelineBuilder* GrD3DGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder> GrD3DGpu::refPipelineBuilder() {
+    return nullptr;
+}
+
 
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
                             const GrContextOptions& contextOptions, GrDirectContext* direct) {

@@ -21,6 +21,7 @@
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/dawn/GrDawnAttachment.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
 #include "src/gpu/dawn/GrDawnCaps.h"
@@ -143,6 +144,14 @@ void GrDawnGpu::disconnect(DisconnectType type) {
     fQueue = nullptr;
     fDevice = nullptr;
     INHERITED::disconnect(type);
+}
+
+GrThreadSafePipelineBuilder* GrDawnGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder> GrDawnGpu::refPipelineBuilder() {
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -22,7 +22,7 @@
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
     : fGpu(gpu)
     , fPipelineCache(VK_NULL_HANDLE) {
-    fPipelineStateCache = new PipelineStateCache(gpu);
+    fPipelineStateCache = sk_make_sp<PipelineStateCache>(gpu);
 }
 
 GrVkResourceProvider::~GrVkResourceProvider() {
@@ -30,7 +30,6 @@ GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fExternalRenderPasses.count());
     SkASSERT(0 == fMSAALoadPipelines.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
-    delete fPipelineStateCache;
 }
 
 VkPipelineCache GrVkResourceProvider::pipelineCache() {
@@ -266,14 +265,14 @@ GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
-        GrGpu::Stats::ProgramCacheResult* stat) {
+        GrThreadSafePipelineBuilder::Stats::ProgramCacheResult* stat) {
 
     auto tmp =  fPipelineStateCache->findOrCreatePipelineState(desc, programInfo,
                                                                compatibleRenderPass, stat);
     if (!tmp) {
-        fGpu->stats()->incNumPreCompilationFailures();
+        fPipelineStateCache->stats()->incNumPreCompilationFailures();
     } else {
-        fGpu->stats()->incNumPreProgramCacheResult(*stat);
+        fPipelineStateCache->stats()->incNumPreProgramCacheResult(*stat);
     }
 
     return tmp;
