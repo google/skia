@@ -15,6 +15,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
@@ -166,6 +167,14 @@ void GrMtlGpu::disconnect(DisconnectType type) {
         this->destroyResources();
         fDisconnected = true;
     }
+}
+
+GrThreadSafePipelineBuilder* GrMtlGpu::pipelineBuilder() {
+    return nullptr;
+}
+
+sk_sp<GrThreadSafePipelineBuilder> GrMtlGpu::refPipelineBuilder() {
+    return nullptr;
 }
 
 void GrMtlGpu::destroyResources() {
