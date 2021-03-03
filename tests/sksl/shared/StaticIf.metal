@@ -16,6 +16,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float4 result = _uniforms.colorRed;
+    const float x = 5.0;
+    const float y = 10.0;
     {
         result = _uniforms.colorGreen;
     }
