@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93664f6d_349e758e",
+        "filename": "src/sksl/generated/sksl_fp.dehydrated.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-03T18:37:46Z",
+      "side": 0,
+      "message": "(for the curious, this is string \"kPMConversionCnt\")",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 32,
+        "endChar": 63
+      },
+      "revId": "5866e9a99f0a1335906eceb6618baaed09e9fd07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
