@@ -1,9 +1,11 @@
+/*#pragma settings NoControlFlowAnalysis*/
+
 uniform half4 colorRed, colorGreen;
 
 half4 main() {
     half4 result = colorRed;
-    float x = 5;
-    float y = 10;
+    const float x = 5;
+    const float y = 10;
     @if (x < y) {
         result = colorGreen;
     }
