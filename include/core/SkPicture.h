@@ -213,6 +213,9 @@ public:
     */
     virtual size_t approximateBytesUsed() const = 0;
 
+#ifndef SK_SUPPORT_LEGACY_PICTURESHADER
+private:
+#endif
     /** Return a new shader that will draw with this picture.
      *
      *  @param tmx  The tiling mode to use when sampling in the x-direction.

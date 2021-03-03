@@ -17,6 +17,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 
+#ifdef SK_SUPPORT_LEGACY_PICTURESHADER
+
 DEF_SIMPLE_GM(bug6643, canvas, 200, 200) {
     SkColor colors[] = { SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorTRANSPARENT };
 
@@ -34,3 +36,5 @@ DEF_SIMPLE_GM(bug6643, canvas, 200, 200) {
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawPaint(p);
 }
+
+#endif

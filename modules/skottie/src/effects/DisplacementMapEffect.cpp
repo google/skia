@@ -20,6 +20,10 @@
 
 #include <tuple>
 
+#ifndef SK_SUPPORT_LEGACY_PICTURESHADER
+#define SK_SUPPORT_LEGACY_PICTURESHADER
+#endif
+
 namespace skottie::internal {
 
 namespace  {
@@ -64,6 +68,10 @@ static sk_sp<SkRuntimeEffect> displacement_effect_singleton() {
 
     return sk_ref_sp(effect);
 }
+
+#ifndef SK_SUPPORT_LEGACY_PICTURESHADER
+#define SK_SUPPORT_LEGACY_PICTURESHADER
+#endif
 
 class DisplacementNode final : public sksg::CustomRenderNode {
 public:

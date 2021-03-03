@@ -22,6 +22,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 
+#ifdef SK_SUPPORT_LEGACY_PICTURESHADER
+
 constexpr SkScalar kPictureSize = SK_Scalar1;
 constexpr SkScalar kFillSize = 100;
 constexpr unsigned kRowSize = 6;
@@ -163,3 +165,5 @@ private:
 };
 
 DEF_GM(return new PictureShaderTileGM;)
+#endif
+

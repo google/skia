@@ -19,6 +19,10 @@
 
 #include <cmath>
 
+#ifndef SK_SUPPORT_LEGACY_PICTURESHADER
+#define SK_SUPPORT_LEGACY_PICTURESHADER
+#endif
+
 namespace skottie {
 namespace internal {
 

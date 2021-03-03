@@ -890,6 +890,8 @@ static void draw_circle_shader(SkCanvas* canvas, SkScalar cx, SkScalar cy, SkSca
     canvas->drawCircle(cx, cy, r, p);
 }
 
+#ifdef SK_SUPPORT_LEGACY_PICTURESHADER
+
 DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
     draw_circle_shader(canvas, 150, 150, 100, []() -> sk_sp<SkShader> {
         // Checkerboard using two linear gradients + picture shader.
@@ -978,6 +980,7 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
                                                              SkTileMode::kClamp));
     });
 }
+#endif
 
 DEF_SIMPLE_GM(sweep_tiling, canvas, 690, 512) {
     static constexpr SkScalar size = 160;
