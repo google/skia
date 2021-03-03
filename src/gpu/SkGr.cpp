@@ -98,13 +98,18 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
                                                      SkBudgeted budgeted) {
     SkASSERT(baseProxy);
 
+    // We don't allow this for promise proxies i.e. if they need mips they need to give them
+    // to us upfront.
+    if (baseProxy->isPromiseProxy()) {
+        return nullptr;
+    }
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
-        return {};
+        return nullptr;
     }
     auto copy = GrSurfaceProxy::Copy(ctx, std::move(baseProxy), origin, GrMipmapped::kYes,
                                      SkBackingFit::kExact, budgeted);
     if (!copy) {
-        return {};
+        return nullptr;
     }
     SkASSERT(copy->asTextureProxy());
     return copy;

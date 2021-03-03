@@ -893,11 +893,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, !image);
 }
 
-static sk_sp<SkPromiseImageTexture> dummy_fulfill_proc(void*) {
-    SkASSERT(0);
-    return nullptr;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Test out the behavior of an invalid DDLRecorder
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
@@ -923,23 +918,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !c.isValid());
         REPORTER_ASSERT(reporter, !recorder.getCanvas());
         REPORTER_ASSERT(reporter, !recorder.detach());
-
-        GrBackendFormat format = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
-                                                                GrRenderable::kNo);
-        SkASSERT(format.isValid());
-
-        sk_sp<SkImage> image = recorder.makePromiseTexture(
-                format,
-                32, 32,
-                GrMipmapped::kNo,
-                kTopLeft_GrSurfaceOrigin,
-                kRGBA_8888_SkColorType,
-                kPremul_SkAlphaType,
-                nullptr,
-                dummy_fulfill_proc,
-                /*release proc*/ nullptr,
-                nullptr);
-        REPORTER_ASSERT(reporter, !image);
     }
 }
 
@@ -1093,12 +1071,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
                                                                GrRenderable::kNo);
         SkASSERT(format.isValid());
 
-        sk_sp<SkImage> promiseImage = recorder.makePromiseTexture(
-                format, 32, 32, GrMipmapped::kNo, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                kPremul_SkAlphaType, nullptr, tracking_fulfill_proc, tracking_release_proc,
-                &fulfillInfo);
-
         SkCanvas* canvas = recorder.getCanvas();
+
+        sk_sp<SkImage> promiseImage = SkImage::MakePromiseTexture(
+                                                      canvas->recordingContext()->threadSafeProxy(),
+                                                      format,
+                                                      SkISize::Make(32, 32),
+                                                      GrMipmapped::kNo,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      kRGBA_8888_SkColorType,
+                                                      kPremul_SkAlphaType,
+                                                      nullptr,
+                                                      tracking_fulfill_proc,
+                                                      tracking_release_proc,
+                                                      &fulfillInfo);
 
         canvas->clear(SK_ColorRED);
         canvas->drawImage(promiseImage, 0, 0);
@@ -1185,6 +1171,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
 }
 
 #ifdef SK_GL
+
+static sk_sp<SkPromiseImageTexture> dummy_fulfill_proc(void*) {
+    SkASSERT(0);
+    return nullptr;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Check that the texture-specific flags (i.e., for external & rectangle textures) work
 // for promise images. As such, this is a GL-only test.
@@ -1203,17 +1195,18 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
         for (auto mipMapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
             GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
 
-            sk_sp<SkImage> image = recorder.makePromiseTexture(
+            sk_sp<SkImage> image = SkImage::MakePromiseTexture(
+                    recorder.getCanvas()->recordingContext()->threadSafeProxy(),
                     format,
-                    32, 32,
+                    SkISize::Make(32, 32),
                     mipMapped,
                     kTopLeft_GrSurfaceOrigin,
                     kRGBA_8888_SkColorType,
                     kPremul_SkAlphaType,
-                    nullptr,
+                    /*color space*/nullptr,
                     dummy_fulfill_proc,
                     /*release proc*/ nullptr,
-                    nullptr);
+                    /*context*/nullptr);
             if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipmapped::kYes) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;
