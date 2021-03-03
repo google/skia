@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d96bb66a_51539456",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-03T18:06:51Z",
+      "side": 1,
+      "message": "Example of where this gets us with key descriptions: https://screenshot.googleplex.com/9jedPQUZeU2hyWE.png\n\nStill need to break out and label the fields of the GPs, but we\u0027re getting there.",
+      "revId": "72bde63557125e39471819299f9c69fdc36438ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
