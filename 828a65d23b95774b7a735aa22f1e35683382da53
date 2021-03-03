@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c82f0e0_a50676bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-03T15:35:59Z",
+      "side": 1,
+      "message": "It took Greg and I a while to re-learn why this caching is necessary, so putting it in writing. I had misremembered the history of how we got here. Long ago we allowed unique-key caching of any wrapped GrGpuResource (not *none* as I had misremembered). Then Greg added an exception for x-context image textures b/c of the one-context-at-time rule. Later I made the enum GrWrapCacheable and required stating whether each wrapped texture should be cacheable. At that time I made it so only promise image textures and these AHWB textures said \"yes\". Now we\u0027re down to just this case.",
+      "revId": "828a65d23b95774b7a735aa22f1e35683382da53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
