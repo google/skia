@@ -16,6 +16,52 @@
       "message": "Caching turned on. PTAL.\n\nAm seeing tiny diffs -- will have to find some way to stage/suppress landing this on Chrome.",
       "revId": "0a19b04300338653a49c0ba6cd2e4110f0590fb4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21efcdfe_06090436",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-03T20:54:47Z",
+      "side": 1,
+      "message": "This seems somewhat fragile. Don\u0027t we always add new color types to the end of the enum to avoid breaking old serializations? We already have an 8 bit format thats \u003e kRGBA_F1Norm, it just happens to not be supported as a SkSurface (kR8G8_unorm).",
+      "range": {
+        "startLine": 247,
+        "startChar": 37,
+        "endLine": 247,
+        "endChar": 78
+      },
+      "revId": "0a19b04300338653a49c0ba6cd2e4110f0590fb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a98dc035_b296614d",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-03T20:54:47Z",
+      "side": 1,
+      "message": "I think this might fail on GPUs that don\u0027t support F16.",
+      "range": {
+        "startLine": 449,
+        "startChar": 64,
+        "endLine": 449,
+        "endChar": 79
+      },
+      "revId": "0a19b04300338653a49c0ba6cd2e4110f0590fb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
