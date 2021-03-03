@@ -336,6 +336,7 @@ public:
     bool visitStatement(const Statement& stmt) override {
         switch (stmt.kind()) {
             case Statement::Kind::kBlock:
+            case Statement::Kind::kSwitchCase:
                 return INHERITED::visitStatement(stmt);
 
             case Statement::Kind::kReturn:
@@ -1006,6 +1007,18 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
             }
             return false;
 
+        case Statement::Kind::kSwitchCase: {
+            auto& sc = s.template as<SwitchCase>();
+            if (sc.value() && this->visitExpression(*sc.value())) {
+                return true;
+            }
+            for (auto& stmt : sc.statements()) {
+                if (stmt && this->visitStatement(*stmt)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         case Statement::Kind::kDo: {
             auto& d = s.template as<DoStatement>();
             return this->visitExpression(*d.test()) || this->visitStatement(*d.statement());
@@ -1036,13 +1049,8 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
                 return true;
             }
             for (const auto& c : sw.cases()) {
-                if (c->value() && this->visitExpression(*c->value())) {
+                if (this->visitStatement(*c)) {
                     return true;
-                }
-                for (auto& st : c->statements()) {
-                    if (st && this->visitStatement(*st)) {
-                        return true;
-                    }
                 }
             }
             return false;
