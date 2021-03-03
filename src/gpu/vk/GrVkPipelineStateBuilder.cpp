@@ -160,13 +160,11 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     // to the key right after the base key.
     sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(),
                                                 this->desc().initialKeyLength()+4);
-    const SkString& description = this->desc().description();
 
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
                                                                    inputs, kGrShaderTypeCount);
-
-    this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data, description);
+    this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,

@@ -576,7 +576,7 @@ void GrVkResourceProvider::storePipelineCacheData() {
     sk_sp<SkData> keyData = SkData::MakeWithoutCopy(&key, sizeof(uint32_t));
 
     fGpu->getContext()->priv().getPersistentCache()->store(
-            *keyData, *SkData::MakeWithoutCopy(data.get(), dataSize), SkString("VkPipelineCache"));
+            *keyData, *SkData::MakeWithoutCopy(data.get(), dataSize));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

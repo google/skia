@@ -220,7 +220,6 @@ private:
 
         sk_sp<const SkData> fKey;
         SkString            fKeyString;
-        SkString            fKeyDescription;
 
         SkFourByteTag         fShaderType;
         SkSL::String          fShader[kGrShaderTypeCount];
