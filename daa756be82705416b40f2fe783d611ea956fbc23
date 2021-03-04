@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0e0998c_9f4d2a4e",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:34:43Z",
+      "side": 1,
+      "message": "I don\u0027t think a proxy should ever be a task target on multiple recording contexts but wasn\u0027t sure...",
+      "range": {
+        "startLine": 447,
+        "startChar": 4,
+        "endLine": 447,
+        "endChar": 15
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
