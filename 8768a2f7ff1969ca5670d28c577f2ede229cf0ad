@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35cdba1b_49c48eff",
+        "filename": "gn/sksl.gni",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-04T15:20:36Z",
+      "side": 1,
+      "message": "nit: There\u0027s also SkSLModifiers in include/private now?",
+      "revId": "8768a2f7ff1969ca5670d28c577f2ede229cf0ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce1117a0_83da5184",
+        "filename": "include/sksl/DSLModifiers.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-04T15:20:36Z",
+      "side": 1,
+      "message": "Thinking about how to partition things so that internal code can see more SkSL features than external (runtime effect) code. For things like builtin-functions, it seems easy enough to just put them in different headers (include vs. src). Any ideas on enums like this, where some of the values don\u0027t make sense for clients to use? (We could do the ugly thing of a separate _Private enum that picks up where this leaves off, but it may not be worth it - especially if the factories will just produce an error if you try to use these?).",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 38
+      },
+      "revId": "8768a2f7ff1969ca5670d28c577f2ede229cf0ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd43d666_fab7cf1e",
+        "filename": "include/sksl/DSLType.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-04T15:20:36Z",
+      "side": 1,
+      "message": "Similar to above ... don\u0027t need to hold up landing, but is there a clean way to split the set of types so that runtime effect code can\u0027t use these? (at compile-time, vs. just failing in IR creation)?",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 12
+      },
+      "revId": "8768a2f7ff1969ca5670d28c577f2ede229cf0ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
