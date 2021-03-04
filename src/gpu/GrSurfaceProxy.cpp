@@ -250,7 +250,8 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted,
-                                           RectsMustMatch rectsMustMatch) {
+                                           RectsMustMatch rectsMustMatch,
+                                           sk_sp<GrRenderTask>* outTask) {
     SkASSERT(!src->isFullyLazy());
     int width;
     int height;
@@ -284,7 +285,11 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                                  mipMapped,
                                                  src->isProtected(),
                                                  budgeted);
-        if (dstContext && dstContext->copy(src, srcRect, dstPoint)) {
+        sk_sp<GrRenderTask> copyTask;
+        if (dstContext && (copyTask = dstContext->copy(src, srcRect, dstPoint))) {
+            if (outTask) {
+                *outTask = std::move(copyTask);
+            }
             return dstContext->asSurfaceProxyRef();
         }
     }
@@ -304,6 +309,9 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                                      budgeted);
         GrSurfaceProxyView view(std::move(src), origin, GrSwizzle::RGBA());
         if (dstContext && dstContext->blitTexture(std::move(view), srcRect, dstPoint)) {
+            if (outTask) {
+                *outTask = sk_ref_sp(dstContext->getOpsTask());
+            }
             return dstContext->asSurfaceProxyRef();
         }
     }
@@ -316,10 +324,19 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrSurfaceOrigin origin,
                                            GrMipmapped mipMapped,
                                            SkBackingFit fit,
-                                           SkBudgeted budgeted) {
+                                           SkBudgeted budgeted,
+                                           sk_sp<GrRenderTask>* outTask) {
     SkASSERT(!src->isFullyLazy());
     auto rect = SkIRect::MakeSize(src->dimensions());
-    return Copy(context, std::move(src), origin, mipMapped, rect, fit, budgeted);
+    return Copy(context,
+                std::move(src),
+                origin,
+                mipMapped,
+                rect,
+                fit,
+                budgeted,
+                RectsMustMatch::kNo,
+                outTask);
 }
 
 #if GR_TEST_UTILS
