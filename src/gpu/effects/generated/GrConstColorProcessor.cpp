@@ -26,8 +26,8 @@ public:
         (void)_outer;
         auto color = _outer.color;
         (void)color;
-        colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                    kHalf4_GrSLType, "color");
+        colorVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
                 R"SkSL(return %s;
 )SkSL",

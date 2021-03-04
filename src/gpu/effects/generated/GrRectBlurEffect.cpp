@@ -36,16 +36,16 @@ public:
                          abs(rect.right()) > 16000.0) ||
                         abs(rect.bottom()) > 16000.0;
         if (highPrecision) {
-            rectFVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                        kFloat4_GrSLType, "rectF");
+            rectFVar = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "rectF");
         }
         if (!highPrecision) {
-            rectHVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                        kHalf4_GrSLType, "rectH");
+            rectHVar = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "rectH");
         }
         if (applyInvVM) {
-            invVMVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                        kFloat3x3_GrSLType, "invVM");
+            invVMVar = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "invVM");
         }
         fragBuilder->codeAppendf(
                 R"SkSL(/* key */ const bool highPrecision = %s;
@@ -63,7 +63,8 @@ float2 pos = sk_FragCoord.xy;
     } else {
         xy = max(half2(float2(%s.xy) - pos), half2(pos - float2(%s.zw)));
     })SkSL",
-                (highPrecision ? "true" : "false"), (_outer.applyInvVM ? "true" : "false"),
+                (highPrecision ? "true" : "false"),
+                (_outer.applyInvVM ? "true" : "false"),
                 invVMVar.isValid() ? args.fUniformHandler->getUniformCStr(invVMVar) : "float3x3(1)",
                 (_outer.isFast ? "true" : "false"),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
@@ -102,7 +103,8 @@ float2 pos = sk_FragCoord.xy;
         fragBuilder->codeAppendf(
                 R"SkSL(
     xCoverage = (1.0 - %s.w) - %s.w;)SkSL",
-                _sample2.c_str(), _sample3.c_str());
+                _sample2.c_str(),
+                _sample3.c_str());
         SkString _coords4("float2(half2(rect.y, 0.5))");
         SkString _sample4 = this->invokeChild(1, args, _coords4.c_str());
         SkString _coords5("float2(half2(rect.w, 0.5))");
@@ -111,7 +113,8 @@ float2 pos = sk_FragCoord.xy;
                 R"SkSL(
     yCoverage = (1.0 - %s.w) - %s.w;
 })SkSL",
-                _sample4.c_str(), _sample5.c_str());
+                _sample4.c_str(),
+                _sample5.c_str());
         SkString _sample6 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
@@ -188,9 +191,20 @@ SkString GrRectBlurEffect::onDumpInfo() const {
     return SkStringPrintf(
             "(rect=float4(%f, %f, %f, %f), applyInvVM=%s, invVM=float3x3(%f, %f, %f, %f, %f, %f, "
             "%f, %f, %f), isFast=%s)",
-            rect.left(), rect.top(), rect.right(), rect.bottom(), (applyInvVM ? "true" : "false"),
-            invVM.rc(0, 0), invVM.rc(1, 0), invVM.rc(2, 0), invVM.rc(0, 1), invVM.rc(1, 1),
-            invVM.rc(2, 1), invVM.rc(0, 2), invVM.rc(1, 2), invVM.rc(2, 2),
+            rect.left(),
+            rect.top(),
+            rect.right(),
+            rect.bottom(),
+            (applyInvVM ? "true" : "false"),
+            invVM.rc(0, 0),
+            invVM.rc(1, 0),
+            invVM.rc(2, 0),
+            invVM.rc(0, 1),
+            invVM.rc(1, 1),
+            invVM.rc(2, 1),
+            invVM.rc(0, 2),
+            invVM.rc(1, 2),
+            invVM.rc(2, 2),
             (isFast ? "true" : "false"));
 }
 #endif
@@ -204,7 +218,7 @@ std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTes
     float height = data->fRandom->nextRangeF(200, 300);
     SkMatrix vm = GrTest::TestMatrixPreservesRightAngles(data->fRandom);
     auto rect = SkRect::MakeXYWH(x, y, width, height);
-    return GrRectBlurEffect::Make(data->inputFP(), data->context(), *data->caps()->shaderCaps(),
-                                  rect, vm, sigma);
+    return GrRectBlurEffect::Make(
+            data->inputFP(), data->context(), *data->caps()->shaderCaps(), rect, vm, sigma);
 }
 #endif

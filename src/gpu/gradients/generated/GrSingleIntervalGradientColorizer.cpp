@@ -29,15 +29,16 @@ public:
         (void)start;
         auto end = _outer.end;
         (void)end;
-        startVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                    kHalf4_GrSLType, "start");
-        endVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                  "end");
+        startVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "start");
+        endVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "end");
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x);
 return mix(%s, %s, t);
 )SkSL",
-                args.fSampleCoord, args.fUniformHandler->getUniformCStr(startVar),
+                args.fSampleCoord,
+                args.fUniformHandler->getUniformCStr(startVar),
                 args.fUniformHandler->getUniformCStr(endVar));
     }
 
@@ -90,7 +91,14 @@ std::unique_ptr<GrFragmentProcessor> GrSingleIntervalGradientColorizer::clone() 
 }
 #if GR_TEST_UTILS
 SkString GrSingleIntervalGradientColorizer::onDumpInfo() const {
-    return SkStringPrintf("(start=half4(%f, %f, %f, %f), end=half4(%f, %f, %f, %f))", start.fR,
-                          start.fG, start.fB, start.fA, end.fR, end.fG, end.fB, end.fA);
+    return SkStringPrintf("(start=half4(%f, %f, %f, %f), end=half4(%f, %f, %f, %f))",
+                          start.fR,
+                          start.fG,
+                          start.fB,
+                          start.fA,
+                          end.fR,
+                          end.fG,
+                          end.fB,
+                          end.fA);
 }
 #endif

@@ -31,8 +31,8 @@ public:
         auto radius = _outer.radius;
         (void)radius;
         prevRadius = -1.0;
-        circleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                     kFloat4_GrSLType, "circle");
+        circleVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "circle");
         fragBuilder->codeAppendf(
                 R"SkSL(float2 prevCenter;
 float prevRadius = %f;
@@ -42,7 +42,9 @@ half d;
 } else {
     d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);
 })SkSL",
-                prevRadius, (int)_outer.edgeType, (int)_outer.edgeType,
+                prevRadius,
+                (int)_outer.edgeType,
+                (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
@@ -59,7 +61,9 @@ half4 inputColor = %s;
     return d > 0.5 ? inputColor : half4(0.0);
 }
 )SkSL",
-                _sample0.c_str(), (int)_outer.edgeType, (int)_outer.edgeType);
+                _sample0.c_str(),
+                (int)_outer.edgeType,
+                (int)_outer.edgeType);
     }
 
 private:
@@ -85,8 +89,8 @@ private:
             } else {
                 effectiveRadius += 0.5f;
             }
-            pdman.set4f(circle, center.fX, center.fY, effectiveRadius,
-                        SkScalarInvert(effectiveRadius));
+            pdman.set4f(
+                    circle, center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius));
             prevCenter = center;
             prevRadius = radius;
         }
@@ -122,8 +126,11 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrCircleEffect::onDumpInfo() const {
-    return SkStringPrintf("(edgeType=%d, center=float2(%f, %f), radius=%f)", (int)edgeType,
-                          center.fX, center.fY, radius);
+    return SkStringPrintf("(edgeType=%d, center=float2(%f, %f), radius=%f)",
+                          (int)edgeType,
+                          center.fX,
+                          center.fY,
+                          radius);
 }
 #endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleEffect);

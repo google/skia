@@ -26,8 +26,12 @@ public:
             bool colorsAreOpaque) {
         bool layoutPreservesOpacity = gradLayout->preservesOpaqueInput();
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrTiledGradientEffect(std::move(colorizer), std::move(gradLayout), mirror,
-                                          makePremul, colorsAreOpaque, layoutPreservesOpacity));
+                new GrTiledGradientEffect(std::move(colorizer),
+                                          std::move(gradLayout),
+                                          mirror,
+                                          makePremul,
+                                          colorsAreOpaque,
+                                          layoutPreservesOpacity));
     }
     GrTiledGradientEffect(const GrTiledGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;

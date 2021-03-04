@@ -247,8 +247,8 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
     } else {
         // Rescale params to the size of the texture we're creating.
         SkScalar scale = kProfileTextureWidth / *textureRadius;
-        create_circle_profile(bm.getAddr8(0, 0), sigma * scale, circleR * scale,
-                              kProfileTextureWidth);
+        create_circle_profile(
+                bm.getAddr8(0, 0), sigma * scale, circleR * scale, kProfileTextureWidth);
     }
 
     bm.setImmutable();
@@ -303,8 +303,8 @@ public:
         (void)solidRadius;
         auto textureRadius = _outer.textureRadius;
         (void)textureRadius;
-        circleDataVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                         kHalf4_GrSLType, "circleData");
+        circleDataVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "circleData");
         fragBuilder->codeAppendf(
                 R"SkSL(half2 vec = half2((sk_FragCoord.xy - float2(%s.xy)) * float(%s.w));
 half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
@@ -339,7 +339,10 @@ private:
         UniformHandle& circleData = circleDataVar;
         (void)circleData;
 
-        data.set4f(circleData, circleRect.centerX(), circleRect.centerY(), solidRadius,
+        data.set4f(circleData,
+                   circleRect.centerX(),
+                   circleRect.centerY(),
+                   solidRadius,
                    1.f / textureRadius);
     }
     UniformHandle circleDataVar;
@@ -371,8 +374,12 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() cons
 #if GR_TEST_UTILS
 SkString GrCircleBlurFragmentProcessor::onDumpInfo() const {
     return SkStringPrintf("(circleRect=half4(%f, %f, %f, %f), solidRadius=%f, textureRadius=%f)",
-                          circleRect.left(), circleRect.top(), circleRect.right(),
-                          circleRect.bottom(), solidRadius, textureRadius);
+                          circleRect.left(),
+                          circleRect.top(),
+                          circleRect.right(),
+                          circleRect.bottom(),
+                          solidRadius,
+                          textureRadius);
 }
 #endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
@@ -382,7 +389,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(
     SkScalar wh = testData->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar sigma = testData->fRandom->nextRangeF(1.f, 10.f);
     SkRect circle = SkRect::MakeWH(wh, wh);
-    return GrCircleBlurFragmentProcessor::Make(testData->inputFP(), testData->context(), circle,
-                                               sigma);
+    return GrCircleBlurFragmentProcessor::Make(
+            testData->inputFP(), testData->context(), circle, sigma);
 }
 #endif

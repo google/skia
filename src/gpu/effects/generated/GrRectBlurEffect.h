@@ -51,8 +51,8 @@ public:
 
         if (view) {
             SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
-            return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m,
-                                         GrSamplerState::Filter::kLinear);
+            return GrTextureEffect::Make(
+                    std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
         }
 
         SkBitmap bitmap;
@@ -69,8 +69,8 @@ public:
         view = threadSafeCache->add(key, view);
 
         SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
-        return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m,
-                                     GrSamplerState::Filter::kLinear);
+        return GrTextureEffect::Make(
+                std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -109,8 +109,10 @@ public:
             if (!m.invert(&invM)) {
                 return nullptr;
             }
-            rect = {srcRect.left() * scale.width(), srcRect.top() * scale.height(),
-                    srcRect.right() * scale.width(), srcRect.bottom() * scale.height()};
+            rect = {srcRect.left() * scale.width(),
+                    srcRect.top() * scale.height(),
+                    srcRect.right() * scale.width(),
+                    srcRect.bottom() * scale.height()};
         }
 
         if (!caps.floatIs32Bits()) {
@@ -134,8 +136,10 @@ public:
         // inset the rect so that the edge of the inset rect corresponds to t = 0 in the texture.
         // It actually simplifies things a bit in the !isFast case, too.
         float threeSigma = sixSigma / 2;
-        SkRect insetRect = {rect.left() + threeSigma, rect.top() + threeSigma,
-                            rect.right() - threeSigma, rect.bottom() - threeSigma};
+        SkRect insetRect = {rect.left() + threeSigma,
+                            rect.top() + threeSigma,
+                            rect.right() - threeSigma,
+                            rect.bottom() - threeSigma};
 
         // In our fast variant we find the nearest horizontal and vertical edges and for each
         // do a lookup in the integral texture for each and multiply them. When the rect is

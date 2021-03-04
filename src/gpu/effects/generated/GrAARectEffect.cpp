@@ -29,8 +29,8 @@ public:
         auto rect = _outer.rect;
         (void)rect;
         prevRect = float4(-1.0);
-        rectUniformVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                          kFloat4_GrSLType, "rectUniform");
+        rectUniformVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "rectUniform");
         fragBuilder->codeAppendf(
                 R"SkSL(float4 prevRect = float4(%f, %f, %f, %f);
 half coverage;
@@ -47,10 +47,15 @@ half coverage;
 @if (%d == 2 || %d == 3) {
     coverage = 1.0 - coverage;
 })SkSL",
-                prevRect.left(), prevRect.top(), prevRect.right(), prevRect.bottom(),
-                (int)_outer.edgeType, args.fUniformHandler->getUniformCStr(rectUniformVar),
+                prevRect.left(),
+                prevRect.top(),
+                prevRect.right(),
+                prevRect.bottom(),
+                (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(rectUniformVar),
-                args.fUniformHandler->getUniformCStr(rectUniformVar), (int)_outer.edgeType,
+                args.fUniformHandler->getUniformCStr(rectUniformVar),
+                args.fUniformHandler->getUniformCStr(rectUniformVar),
+                (int)_outer.edgeType,
                 (int)_outer.edgeType);
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
@@ -109,8 +114,12 @@ std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrAARectEffect::onDumpInfo() const {
-    return SkStringPrintf("(edgeType=%d, rect=float4(%f, %f, %f, %f))", (int)edgeType, rect.left(),
-                          rect.top(), rect.right(), rect.bottom());
+    return SkStringPrintf("(edgeType=%d, rect=float4(%f, %f, %f, %f))",
+                          (int)edgeType,
+                          rect.left(),
+                          rect.top(),
+                          rect.right(),
+                          rect.bottom());
 }
 #endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAARectEffect);
