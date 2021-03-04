@@ -483,7 +483,7 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
     }
 
     auto rContext = rtc->recordingContext();
-    GrSDFTOptions SDFOptions =
+    GrSDFTControl SDFOptions =
             rContext->priv().getSDFTOptions(rtc->surfaceProps().isUseDeviceIndependentFonts());
 
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);

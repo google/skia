@@ -67,7 +67,7 @@
 #include "src/gpu/ops/GrStencilPathOp.h"
 #include "src/gpu/ops/GrStrokeRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
@@ -364,7 +364,7 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    GrSDFTOptions options =
+    GrSDFTControl options =
             this->recordingContext()->priv().getSDFTOptions(
                     this->surfaceProps().isUseDeviceIndependentFonts());
 
@@ -422,7 +422,7 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
             key.fSetOfDrawingTypes |= options.drawingType(run.font(), drawPaint, drawMatrix);
         }
 
-        if (key.fSetOfDrawingTypes & GrSDFTOptions::kDirect) {
+        if (key.fSetOfDrawingTypes & GrSDFTControl::kDirect) {
             // Store the fractional offset of the position. We know that the matrix can't be
             // perspective at this point.
             SkPoint mappedOrigin = drawMatrix.mapOrigin();

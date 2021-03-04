@@ -15,7 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/text/GrSDFMaskFilter.h"
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #endif
 
@@ -163,7 +163,7 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
 std::tuple<SkStrikeSpec, SkScalar, SkScalar>
 SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
-                       const GrSDFTOptions& options) {
+                       const GrSDFTControl& options) {
     SkPaint dfPaint{paint};
     dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
     SkScalar strikeToSourceRatio;
