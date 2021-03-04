@@ -220,6 +220,7 @@ public:
     using CodeUnitRangeVisitor = std::function<bool(TextRange textRange)>;
     void forEachCodeUnitPropertyRange(CodeUnitFlags property, CodeUnitRangeVisitor visitor);
     size_t getWhitespacesLength(TextRange textRange);
+    bool isSpace(TextRange textRange);
 
     bool codeUnitHasProperty(size_t index, CodeUnitFlags property) const { return (fCodeUnitProperties[index] & property) == property; }
 

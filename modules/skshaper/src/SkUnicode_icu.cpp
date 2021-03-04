@@ -459,6 +459,10 @@ public:
         return u_isWhitespace(utf8);
     }
 
+    bool isSpace(SkUnichar utf8) override {
+        return u_isspace(utf8);
+    }
+
     static bool isHardLineBreak(SkUnichar utf8) {
         auto property = u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
         return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;

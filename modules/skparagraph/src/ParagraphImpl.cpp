@@ -28,6 +28,11 @@ namespace textlayout {
 
 namespace {
 
+static inline SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
+    SkUnichar val = SkUTF::NextUTF8(ptr, end);
+    return val < 0 ? 0xFFFD : val;
+}
+
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
     auto val = std::fabs(a);
@@ -734,6 +739,18 @@ size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
         }
     }
     return len;
+}
+
+bool ParagraphImpl::isSpace(TextRange textRange) {
+    auto text = ParagraphImpl::text(textRange);
+    const char* ch = text.begin();
+    while (ch != text.end()) {
+        SkUnichar unicode = nextUtf8Unit(&ch, text.end());
+        if (!fUnicode->isSpace(unicode)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {
