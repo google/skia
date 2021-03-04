@@ -32,7 +32,7 @@ public:
 
 #if !defined(GR_OP_ALLOCATE_USE_POOL) && defined(GR_HAS_THREAD_LOCAL)
     void* operator new(size_t s);
-    void operator delete(void* b);
+    void operator delete(void* b) noexcept;
 #endif
 
     static const int kVerticesPerGlyph = GrAtlasSubRun::kVerticesPerGlyph;
