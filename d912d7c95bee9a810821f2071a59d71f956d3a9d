@@ -219,6 +219,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "13972701_e285c99f",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-04T17:57:42Z",
+      "side": 1,
+      "message": "Ahhh I misunderstood your comment. I was thinking you wanted to assert that the real size of the \u00270\u0027 sized attachments matched the size reported here. But I just see now that you were just saying assert what I claim them to be. Will do!",
+      "parentUuid": "830574f0_93fd92c6",
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "990e4e1b_083d0983",
         "filename": "tests/BackendAllocationTest.cpp",
         "patchSetId": 2
