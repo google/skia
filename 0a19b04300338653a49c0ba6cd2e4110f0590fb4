@@ -136,6 +136,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10938f00_a1819d1d",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T14:32:41Z",
+      "side": 1,
+      "message": "So, previously 101010 would have gone 8 bit and now goes F16. That seems better. But now I think you can get into the case in asFP where you\u0027re requesting F16 and it isn\u0027t supported. You might need to check GrRecordingContext::colorTypeSupportedAsSurface(kRGBA_F16Norm_SkColorType).",
+      "parentUuid": "cccc35aa_28ffe4c2",
+      "range": {
+        "startLine": 247,
+        "startChar": 37,
+        "endLine": 247,
+        "endChar": 78
+      },
+      "revId": "0a19b04300338653a49c0ba6cd2e4110f0590fb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a98dc035_b296614d",
