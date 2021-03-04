@@ -1007,15 +1007,28 @@ sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& bac
 
 sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                                    const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kVulkan, options));
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(GrBackendApi::kVulkan, options));
 
-    direct->fGpu = GrVkGpu::Make(backendContext, options, direct.get());
-    if (!direct->init()) {
+    dContext->fGpu = GrVkGpu::Make(backendContext, dContext->priv().options(), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
 
-    return direct;
+    return dContext;
 }
+
+sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
+                                                   sk_sp<GrContextThreadSafeProxy> proxy) {
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(proxy)));
+
+    dContext->fGpu = GrVkGpu::Make(backendContext, options, dContext.get());
+    if (!dContext->init()) {
+        return nullptr;
+    }
+
+    return dContext;
+}
+
 #endif
 
 #ifdef SK_METAL
@@ -1026,7 +1039,7 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& bac
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext,
-                                                     const GrContextOptions& options) {
+                                                  const GrContextOptions& options) {
     sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMetal, options));
 
     direct->fGpu = GrMtlTrampoline::MakeGpu(backendContext, options, direct.get());

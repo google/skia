@@ -24,7 +24,8 @@ public:
     void testAbandon() override {}
     void finish() override {}
 
-    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
+    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options,
+                                       GrDirectContext* sharedContext) override {
         return GrDirectContext::MakeMock(nullptr, options);
     }
 
