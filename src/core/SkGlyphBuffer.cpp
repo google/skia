@@ -90,9 +90,13 @@ void SkDrawableGlyphBuffer::startGPUDevice(
 
     for (auto [packedGlyphID, glyphID, pos]
             : SkMakeZip(fMultiBuffer.get(), source.get<0>(), fPositions.get())) {
+
         packedGlyphID = SkPackedGlyphID{glyphID, pos, roundingSpec.ignorePositionFieldMask};
+        uint32_t gid = packedGlyphID.packedID().value();
         // Store rounded device coords back in pos.
         pos = floor(pos);
+        // The gid has the sub pixel information packed in it.
+        SkDebugf("%u, pos: %g, %g\n", gid, pos.x(), pos.y());
     }
 
     SkDEBUGCODE(fPhase = kInput);

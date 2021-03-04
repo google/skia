@@ -775,6 +775,8 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, Gr
                          fLeftTopDevicePos.subspan(offset, count));
     };
 
+    SkDebugf("Vertex color %x\n", color);
+
     SkPoint originOffset = positionMatrix.mapOrigin() - fBlob->initialMatrix().mapOrigin();
     SkIPoint integralOriginOffset =
             {SkScalarRoundToInt(originOffset.x()), SkScalarRoundToInt(originOffset.y())};
