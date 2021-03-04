@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b50e288_4b8e1ec5",
+        "filename": "bench/GlyphQuadFillBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-04T16:12:40Z",
+      "side": 1,
+      "message": "Should all the variables \u0026 parameters also be renamed ?",
+      "range": {
+        "startLine": 52,
+        "startChar": 22,
+        "endLine": 52,
+        "endChar": 29
+      },
+      "revId": "85b1c80f43df9e054f31c64545247e8371aeb24d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
