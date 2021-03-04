@@ -49,14 +49,14 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         SkGlyphRunListPainter painter{props, kUnknown_SkColorType,
                                       colorSpace.get(), SkStrikeCache::GlobalStrikeCache()};
 
-        GrSDFTOptions options{false, props.isUseDeviceIndependentFonts(), 256, 256};
+        GrSDFTControl control{false, props.isUseDeviceIndependentFonts(), 256, 256};
         const SkPoint drawOrigin = glyphRunList.origin();
         const SkPaint& drawPaint = glyphRunList.paint();
 
         SkMatrix drawMatrix = view;
         drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
         for (auto& glyphRun : glyphRunList) {
-            painter.processGlyphRun(glyphRun, drawMatrix, drawPaint, options, fBlob.get());
+            painter.processGlyphRun(glyphRun, drawMatrix, drawPaint, control, fBlob.get());
         }
 
         SkASSERT(!fBlob->subRunList().isEmpty());

@@ -15,7 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/text/GrSDFMaskFilter.h"
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #endif
 
@@ -163,18 +163,18 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
 std::tuple<SkStrikeSpec, SkScalar, SkScalar>
 SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
-                       const GrSDFTOptions& options) {
+                       const GrSDFTControl& control) {
     SkPaint dfPaint{paint};
     dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
     SkScalar strikeToSourceRatio;
-    SkFont dfFont = options.getSDFFont(font, deviceMatrix, &strikeToSourceRatio);
+    SkFont dfFont = control.getSDFFont(font, deviceMatrix, &strikeToSourceRatio);
 
     // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
     SkScalerContextFlags flags = SkScalerContextFlags::kNone;
 
     SkScalar minScale, maxScale;
-    std::tie(minScale, maxScale) = options.computeSDFMinMaxScale(font.getSize(), deviceMatrix);
+    std::tie(minScale, maxScale) = control.computeSDFMinMaxScale(font.getSize(), deviceMatrix);
 
     SkStrikeSpec strikeSpec(dfFont, dfPaint, surfaceProps, flags,
                             SkMatrix::I(), strikeToSourceRatio);
