@@ -95,6 +95,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ddb0b622_57c1617d",
+        "filename": "src/gpu/vk/GrVkAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-04T16:06:40Z",
+      "side": 1,
+      "message": "So this is an unfortunate part of using GrAttachment as a class name for now. Long term there won\u0027t be a GrAttachment class at all. It will all be merged with GrSurface. So in that long term world I do think attachmentView makes sense since you really either view a resource as an attachment or a texture.\n\nWe can rename it framebufferAttachmentView(), but that starts getting a little long. framebufferView could also work but can be a little unclear as this isn\u0027t a view of a framebuffer, but a view of something that goes on a framebuffer.\n\nAnyways I\u0027m not really too attached to any names, so happy to take a suggestion if you prefer something.",
+      "parentUuid": "63ab925f_ba5dddb9",
+      "range": {
+        "startLine": 54,
+        "startChar": 25,
+        "endLine": 54,
+        "endChar": 39
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "76c0f15e_a773d592",
         "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
         "patchSetId": 2
@@ -129,6 +153,24 @@
       "writtenOn": "2021-03-04T15:49:25Z",
       "side": 1,
       "message": "Should we have some asserts here that the attachment\u0027s sizes agree with this comment?",
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d465f18c_02c6524c",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-04T16:06:40Z",
+      "side": 1,
+      "message": "Well we\u0027d then need to add some debug only size queries to attachments since we can\u0027t call gpuMemorySize as that will also return 0 for texture attachments. Something like selfGpuMemorySize()?",
+      "parentUuid": "3e1f61fc_9c7230b2",
       "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
