@@ -947,6 +947,10 @@ public:
             case Expression::Kind::kFloatLiteral:
                 return false;
 
+            // ... settings can appear in fragment processors; they will resolve when compiled
+            case Expression::Kind::kSetting:
+                return false;
+
             // ... a global or local variable qualified as 'const', excluding function parameters.
             // ... loop indices as defined in section 4. [constant-index-expression]
             case Expression::Kind::kVariableReference: {
@@ -981,7 +985,6 @@ public:
             case Expression::Kind::kDefined:
             case Expression::Kind::kExternalFunctionReference:
             case Expression::Kind::kFunctionReference:
-            case Expression::Kind::kSetting:
             case Expression::Kind::kTypeReference:
             default:
                 SkDEBUGFAIL("Unexpected expression type");

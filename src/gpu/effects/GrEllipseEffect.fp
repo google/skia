@@ -81,7 +81,8 @@ half4 main() {
     // that is normalized by the larger radius or 128, whichever is smaller. The scale uniform will
     // be scale, 1/scale. The inverse squared radii uniform values are already in this normalized space.
     // The center is not.
-    @if (!sk_Caps.floatIs32Bits) {
+    const bool medPrecision = !sk_Caps.floatIs32Bits;
+    @if (medPrecision) {
         d *= scale.y;
     }
     float2 Z = d * ellipse.zw;
@@ -90,13 +91,13 @@ half4 main() {
     // grad_dot is the squared length of the gradient of the implicit.
     float grad_dot = 4 * dot(Z, Z);
     // Avoid calling inversesqrt on zero.
-    @if (!sk_Caps.floatIs32Bits) {
+    @if (medPrecision) {
         grad_dot = max(grad_dot, 6.1036e-5);
     } else {
         grad_dot = max(grad_dot, 1.1755e-38);
     }
     float approx_dist = implicit * inversesqrt(grad_dot);
-    @if (!sk_Caps.floatIs32Bits) {
+    @if (medPrecision) {
         approx_dist *= scale.x;
     }
 
