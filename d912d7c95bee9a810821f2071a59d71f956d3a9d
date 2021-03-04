@@ -119,6 +119,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4347e4f5_9259e769",
+        "filename": "src/gpu/vk/GrVkAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T16:45:34Z",
+      "side": 1,
+      "message": "gotcha.. framebufferView doesn\u0027t seem so bad to me. or viewForFramebuffer and viewForTexture?",
+      "parentUuid": "ddb0b622_57c1617d",
+      "range": {
+        "startLine": 54,
+        "startChar": 25,
+        "endLine": 54,
+        "endChar": 39
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "76c0f15e_a773d592",
         "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
         "patchSetId": 2
@@ -171,6 +195,24 @@
       "side": 1,
       "message": "Well we\u0027d then need to add some debug only size queries to attachments since we can\u0027t call gpuMemorySize as that will also return 0 for texture attachments. Something like selfGpuMemorySize()?",
       "parentUuid": "3e1f61fc_9c7230b2",
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "830574f0_93fd92c6",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T16:45:34Z",
+      "side": 1,
+      "message": "I think I\u0027m a little confused. The comment says the texture attachment should return 0 and isn\u0027t that what you updated the attachment implementation of onGpuMemorySize() to do? Anyway it\u0027s not real important, it sounds like this stuff will be evolving more soon. If we thought nested resources was here to stay it might make sense to distinguish \"my own size\" from \"my subtree size\" but we\u0027re trying to get away from that.",
+      "parentUuid": "d465f18c_02c6524c",
       "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
