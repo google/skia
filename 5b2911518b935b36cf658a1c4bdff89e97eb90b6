@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "339c1adb_e60b19b1",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-04T19:35:22Z",
+      "side": 1,
+      "message": "I think we should have a comment here stating the ubrk_clone is added (draft) in ICU69 (it isn\u0027t actually public or in urename.h yet, need to keep on top of that). Independently it is added publicly to the Android NDK (it is in Android\u0027s urename.h now). ubrk_safeClone will never be in the Android NDK.\n\nWhich versions of the Android NDK did ubrk_clone get added to? Is there an existing locked down NDK version that we need to support without ubrk_clone and (of course without ubrk_safeClone)? This has been going on long enough that I cannot remember if a supported NDK has been released with an ICU with restricted available API.",
+      "revId": "5b2911518b935b36cf658a1c4bdff89e97eb90b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
