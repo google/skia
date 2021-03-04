@@ -22,6 +22,30 @@
       },
       "revId": "85b1c80f43df9e054f31c64545247e8371aeb24d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5f05fa6_486ce012",
+        "filename": "bench/GlyphQuadFillBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-04T19:22:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b50e288_4b8e1ec5",
+      "range": {
+        "startLine": 52,
+        "startChar": 22,
+        "endLine": 52,
+        "endChar": 29
+      },
+      "revId": "85b1c80f43df9e054f31c64545247e8371aeb24d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
