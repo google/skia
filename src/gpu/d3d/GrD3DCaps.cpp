@@ -1041,24 +1041,24 @@ GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
         return desc;
     }
 
-    GrProcessorKeyBuilder b(&desc.key());
+    GrProcessorKeyBuilder* b = desc.key();
 
     GrD3DRenderTarget* d3dRT = (GrD3DRenderTarget*) rt;
-    d3dRT->genKey(&b);
+    d3dRT->genKey(b);
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
-    stencil.genKey(&b, false);
+    stencil.genKey(b, false);
 
-    programInfo.pipeline().genKey(&b, *this);
+    programInfo.pipeline().genKey(b, *this);
     // The num samples is already added in the render target key so we don't need to add it here.
     SkASSERT(programInfo.numRasterSamples() == rt->numSamples());
 
     // D3D requires the full primitive type as part of its key
-    b.add32(programInfo.primitiveTypeKey());
+    b->add32(programInfo.primitiveTypeKey());
 
     SkASSERT(!this->mixedSamplesSupport());
 
-    b.flush();
+    b->flush();
     return desc;
 }
 
