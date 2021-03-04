@@ -38,6 +38,7 @@ class SkWStream;
 */
 class SK_API SkPicture : public SkRefCnt {
 public:
+    ~SkPicture() override;
 
     /** Recreates SkPicture that was serialized into a stream. Returns constructed SkPicture
         if successful; otherwise, returns nullptr. Fails if data does not permit
@@ -275,6 +276,7 @@ private:
     class SkPictureData* backport() const;
 
     uint32_t fUniqueID;
+    mutable std::atomic<bool> fAddedToCache{false};
 };
 
 #endif
