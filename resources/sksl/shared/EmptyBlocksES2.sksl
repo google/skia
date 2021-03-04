@@ -1,9 +1,9 @@
 half4 main() {
     half4 color = half4(0);
 
-    for (int counter=0; counter<10; ++counter) int x;
-    for (int counter=0; counter<10; ++counter) int y, z;
-    for (int counter=0; counter<10; ++counter) true;
+    for (int counter=0; counter<10; ++counter) ;
+    for (int counter=0; counter<10; ++counter) {}
+    for (int counter=0; counter<10; ++counter) { false, 1 == 2; sqrt(7); }
 
     if (sqrt(1) == 1) color.g = 1; else 1;
     if (sqrt(1) == 2) 0; else color.a = 1;

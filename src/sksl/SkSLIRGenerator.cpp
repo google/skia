@@ -619,6 +619,9 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     if (!statement) {
         return nullptr;
     }
+    if (this->detectVarDeclarationWithoutScope(*statement)) {
+        return nullptr;
+    }
 
     return ForStatement::Convert(fContext, f.fOffset, std::move(initializer), std::move(test),
                                  std::move(next), std::move(statement), fSymbolTable);
