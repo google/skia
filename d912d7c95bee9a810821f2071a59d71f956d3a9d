@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76c0f15e_a773d592",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-04T14:59:26Z",
+      "side": 1,
+      "message": "This particularly is the \"ugliest\" thing in this CL since we can\u0027t share the attachment with the GrVkTexture. But that all gets cleaned up in the follow on CL so this is short lived.",
+      "range": {
+        "startLine": 92,
+        "startChar": 27,
+        "endLine": 92,
+        "endChar": 39
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
