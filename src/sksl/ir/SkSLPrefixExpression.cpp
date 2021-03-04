@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2020 Google LLC
  *
@@ -7,6 +8,7 @@
 
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -16,25 +18,26 @@ namespace SkSL {
 
 static std::unique_ptr<Expression> negate_operand(const Context& context,
                                                   std::unique_ptr<Expression> operand) {
-    switch (operand->kind()) {
+    const Expression* value = ConstantFolder::GetConstantValueForVariable(*operand);
+    switch (value->kind()) {
         case Expression::Kind::kFloatLiteral:
             // Convert -floatLiteral(1) to floatLiteral(-1).
             return std::make_unique<FloatLiteral>(operand->fOffset,
-                                                  -operand->as<FloatLiteral>().value(),
-                                                  &operand->type());
+                                                  -value->as<FloatLiteral>().value(),
+                                                  &value->type());
 
         case Expression::Kind::kIntLiteral:
             // Convert -intLiteral(1) to intLiteral(-1).
             return std::make_unique<IntLiteral>(operand->fOffset,
-                                                -operand->as<IntLiteral>().value(),
-                                                &operand->type());
+                                                -value->as<IntLiteral>().value(),
+                                                &value->type());
 
         case Expression::Kind::kConstructor:
             // To be consistent with prior behavior, the conversion of a negated constructor into a
             // constructor of negative values is only performed when optimization is on.
             // Conceptually it's pretty similar to the int/float optimizations above, though.
-            if (context.fConfig->fSettings.fOptimize && operand->isCompileTimeConstant()) {
-                Constructor& ctor = operand->as<Constructor>();
+            if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
+                const Constructor& ctor = value->as<Constructor>();
 
                 // We've found a negated constant constructor, e.g.:
                 //     -float4(float3(floatLiteral(1)), floatLiteral(2))
@@ -44,8 +47,8 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
                 //     float4(float3(floatLiteral(-1)), floatLiteral(-2))
                 ExpressionArray args;
                 args.reserve_back(ctor.arguments().size());
-                for (std::unique_ptr<Expression>& arg : ctor.arguments()) {
-                    args.push_back(negate_operand(context, std::move(arg)));
+                for (const std::unique_ptr<Expression>& arg : ctor.arguments()) {
+                    args.push_back(negate_operand(context, arg->clone()));
                 }
                 auto negatedCtor = Constructor::Convert(context, ctor.fOffset,
                                                         ctor.type(), std::move(args));
@@ -64,9 +67,10 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
 
 static std::unique_ptr<Expression> logical_not_operand(const Context& context,
                                                        std::unique_ptr<Expression> operand) {
-    if (operand->is<BoolLiteral>()) {
+    const Expression* value = ConstantFolder::GetConstantValueForVariable(*operand);
+    if (value->is<BoolLiteral>()) {
         // Convert !boolLiteral(true) to boolLiteral(false).
-        const BoolLiteral& b = operand->as<BoolLiteral>();
+        const BoolLiteral& b = value->as<BoolLiteral>();
         return std::make_unique<BoolLiteral>(operand->fOffset, !b.value(), &operand->type());
     }
 
