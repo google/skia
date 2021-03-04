@@ -1,4 +1,98 @@
-// Expect 1 error
+/*#pragma settings NoControlFlowAnalysis*/
 
-int not_detected() { if (sqrt(1) == 1) return 3; } // function finalizer doesn't analyze all paths
-int is_detected()  { if (2 > 5) return 3; }        // optimizer reduces this to an empty function
+// Expect 17 errors
+
+int variable = 0;
+uniform half mystery;
+
+int if_only()                       { if (variable == 1) return 0; }
+int return_on_if_but_not_else()     { if (variable == 1) return 0; else variable *= 2; }
+int return_on_else_but_not_if()     { if (variable == 1) variable *= 2; else return 1; }
+
+int for_with_conditional_return()   { for (;;) { if (variable == 1) return 0; } }
+int for_with_conditional_break()    { for (;;) { if (variable == 1) break; return 0; } }
+int for_with_conditional_continue() { for (;;) { if (variable == 1) continue; return 0; } }
+
+bool bad_if_else_chain() {
+    if (mystery == 1)
+        return true;
+    else if (mystery == 2)
+        return false;
+    else if (mystery == 3)
+        return true;
+    else if (mystery == 4)
+        variable *= 2; // doesn't return
+    else
+        return true;
+}
+
+bool conditional_inside_do_loop() {
+    do {
+        if (mystery == 123) return true;
+    } while (true);
+}
+
+int switch_empty() {
+    switch (variable) {}
+}
+
+int switch_with_no_default() {
+    switch (variable) {
+        case 1: return 1;
+        case 2: return 2;
+    }
+}
+
+int switch_with_break() {
+    switch (variable) {
+        case 1:  return 1;
+        case 2:  break;
+        default: return 3;
+    }
+}
+
+int switch_with_continue() {
+    for (;;) switch (variable) {
+        case 1:  return 1;
+        case 2:  return 2;
+        default: continue;
+    }
+}
+
+int switch_with_fallthrough_off_bottom() {
+    switch (variable) {
+        case 1:  return 1;
+        case 2:  return 2;
+        default:
+    }
+}
+
+int switch_with_conditional_break() {
+    switch (variable) {
+        case 1:  if (mystery == 123) break; return 1;
+        case 2:  return 2;
+        default: return 3;
+    }
+}
+
+int switch_with_conditional_continue() {
+    for (;;) switch (variable) {
+        case 1:  if (mystery == 123) ; else continue; return 1;
+        case 2:  return 2;
+        default: return 3;
+    }
+}
+
+int switch_with_conditional_if_then_return() {
+    switch (variable) {
+        case 1:  if (mystery == 123) break; return 1;
+        default: return 2;
+    }
+}
+
+int switch_with_conditional_break_then_fallthrough() {
+    switch (variable) {
+        case 1:  if (mystery == 123) {} else break;
+        default: return 2;
+    }
+}

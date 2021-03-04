@@ -1,7 +1,7 @@
 uniform half4 colorGreen, colorRed;
 
 half4 main() {
-    bool x = true;
-    if (x) return colorGreen;
+    const bool x = true;
     if (!x) return colorRed;
+    if (x) return colorGreen;
 }
