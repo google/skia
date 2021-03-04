@@ -1389,14 +1389,6 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     } while (optimizationContext.fUpdated);
     SkASSERT(!optimizationContext.fNeedsRescan);
 
-    // check for missing return
-    if (f.declaration().returnType() != *fContext->fTypes.fVoid) {
-        if (cfg.fBlocks[cfg.fExit].fIsReachable) {
-            this->error(f.fOffset, String("function '" + String(f.declaration().name()) +
-                                          "' can exit without returning a value"));
-        }
-    }
-
     return madeChanges;
 }
 
