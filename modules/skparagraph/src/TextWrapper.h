@@ -41,7 +41,11 @@ class TextWrapper {
                 if (c->run() != nullptr) {
                     fMetrics.add(c->run());
                 }
+                if (c < e) {
+                    fWidth += c->width();
+                }
             }
+            fWidthWithGhostSpaces = fWidth;
         }
 
         inline SkScalar width() const { return fWidth; }

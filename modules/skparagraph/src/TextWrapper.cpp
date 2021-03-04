@@ -29,6 +29,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     fClusters.startFrom(fEndLine.startCluster(), fEndLine.startPos());
     fClip.startFrom(fEndLine.startCluster(), fEndLine.startPos());
 
+    Cluster* nextNonBreakingSpace = nullptr;
     for (auto cluster = fEndLine.endCluster(); cluster < endOfClusters; ++cluster) {
         // TODO: Trying to deal with flutter rounding problem. Must be removed...
         auto width = fWords.width() + fClusters.width() + cluster->width();
@@ -61,6 +62,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
 
             // Walk further to see if there is a too long word, cluster or glyph
             SkScalar nextWordLength = fClusters.width();
+            SkScalar nextShortWordLength = nextWordLength;
             for (auto further = cluster; further != endOfClusters; ++further) {
                 if (further->isSoftBreak() || further->isHardBreak() || further->isWhitespaces()) {
                     break;
@@ -69,6 +71,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                   // Placeholder ends the word
                   break;
                 }
+
+                if (further->isSpaces() && nextWordLength <= maxWidth) {
+                    // The cluster is spaces but not the end of the word in a normal sense
+                    nextNonBreakingSpace = further;
+                    nextShortWordLength = nextWordLength;
+                }
+
                 if (maxWidth == 0) {
                     // This is a tricky flutter case: layout(width:0) places 1 cluster on each line
                     nextWordLength = std::max(nextWordLength, further->width());
@@ -77,6 +86,22 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                 }
             }
             if (nextWordLength > maxWidth) {
+                if (nextNonBreakingSpace != nullptr) {
+                    // We only get here if the non-breaking space improves our situation
+                    // (allows us to break the text to fit the word)
+                    auto shortLength = littleRound(fWords.width() + nextShortWordLength);
+                    if (shortLength <= maxWidth) {
+                        // We can add the short word to the existing line
+                        fClusters = TextStretch(fClusters.startCluster(), nextNonBreakingSpace, fClusters.metrics().getForceStrut());
+                        fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, nextShortWordLength);
+                        fWords.extend(fClusters);
+                    } else {
+                        // We can place the short word on the next line
+                        fClusters.clean();
+                    }
+                    // Either way we are not in "word is too long" situation anymore
+                    break;
+                }
                 // If the word is too long we can break it right now and hope it's enough
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, nextWordLength);
                 if (fClusters.endPos() - fClusters.startPos() > 1 ||
