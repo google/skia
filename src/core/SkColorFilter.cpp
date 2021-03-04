@@ -18,6 +18,7 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -443,13 +444,13 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
         return cf1;
     }
 
-    auto [effect,err] = SkRuntimeEffect::Make(SkString{
+    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(
         "uniform shader cf0;"
         "uniform shader cf1;"
         "uniform half   weight;"
         "half4 main() { return mix(sample(cf0), sample(cf1), weight); }"
-    });
-    SkASSERT(effect && err.isEmpty());
+    );
+    SkASSERT(effect);
 
     sk_sp<SkColorFilter> inputs[] = {cf0,cf1};
     return effect->makeColorFilter(SkData::MakeWithCopy(&weight, sizeof(weight)),
