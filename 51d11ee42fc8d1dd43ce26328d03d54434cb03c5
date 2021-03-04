@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2fbbf58_01312772",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-04T16:07:32Z",
+      "side": 1,
+      "message": "Two thoughts:\n1) Do we think this could fail with other control-flow (eg, do-while or if-else)?\n2) It\u0027s still silly, (slightly less so), but you could write:\n    for (int i \u003d 0; i \u003c 10; ++i) float unused \u003d function_with_side_effects();\n  ... should we just be forcing scopes on loop bodies all the time, instead?",
+      "revId": "51d11ee42fc8d1dd43ce26328d03d54434cb03c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
