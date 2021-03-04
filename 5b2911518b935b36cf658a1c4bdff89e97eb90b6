@@ -16,6 +16,24 @@
       "message": "I think we should have a comment here stating the ubrk_clone is added (draft) in ICU69 (it isn\u0027t actually public or in urename.h yet, need to keep on top of that). Independently it is added publicly to the Android NDK (it is in Android\u0027s urename.h now). ubrk_safeClone will never be in the Android NDK.\n\nWhich versions of the Android NDK did ubrk_clone get added to? Is there an existing locked down NDK version that we need to support without ubrk_clone and (of course without ubrk_safeClone)? This has been going on long enough that I cannot remember if a supported NDK has been released with an ICU with restricted available API.",
       "revId": "5b2911518b935b36cf658a1c4bdff89e97eb90b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab4303f9_c1bb3b13",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-03-04T20:10:27Z",
+      "side": 1,
+      "message": "\u003e I think we should have a comment here stating the ubrk_clone is added (draft) in ICU69\n\n+1\n\n\u003e (it isn\u0027t actually public or in urename.h yet, need to keep on top of that). \n\nInteresting - do you know if there is a page we can watch for that? https://unicode-org.atlassian.net/browse/ICU-21455 tracks the addition, and it\u0027s marked as Done (unless I\u0027m missing something?). Or we just need to follow the next release of ICU?\n\n\u003e Independently it is added publicly to the Android NDK (it is in Android\u0027s urename.h now). ubrk_safeClone will never be in the Android NDK.\n\nAgreed.\n\n\u003e \n\u003e Which versions of the Android NDK did ubrk_clone get added to?\n\nJust the latest one (so far), which will be __ANDROID_API__ \u003e\u003d 31\n\n\u003e Is there an existing locked down NDK version that we need to support without ubrk_clone and (of course without ubrk_safeClone)? This has been going on long enough that I cannot remember if a supported NDK has been released with an ICU with restricted available API.\n\nNo. When building against older (30 and lower) versions of the NDK, clients will need to bundle in their own ICU.",
+      "parentUuid": "339c1adb_e60b19b1",
+      "revId": "5b2911518b935b36cf658a1c4bdff89e97eb90b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
