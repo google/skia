@@ -8,8 +8,8 @@
 #ifndef SkSLUniformCTypes_DEFINED
 #define SkSLUniformCTypes_DEFINED
 
+#include "include/private/SkSLString.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 

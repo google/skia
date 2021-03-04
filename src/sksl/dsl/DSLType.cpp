@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/dsl/DSLType.h"
+#include "include/sksl/DSLType.h"
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLConstructor.h"

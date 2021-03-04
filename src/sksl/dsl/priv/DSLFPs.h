@@ -8,7 +8,7 @@
 #ifndef SKSL_DSL_FPS
 #define SKSL_DSL_FPS
 
-#include "src/sksl/dsl/DSL.h"
+#include "include/sksl/DSL.h"
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 

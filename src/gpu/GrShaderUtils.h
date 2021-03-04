@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
-#include "src/sksl/SkSLString.h"
+#include "include/private/SkSLString.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 namespace GrShaderUtils {

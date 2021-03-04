@@ -8,8 +8,7 @@
 #ifndef SKSL_LAYOUT
 #define SKSL_LAYOUT
 
-#include "src/sksl/SkSLString.h"
-#include "src/sksl/SkSLUtil.h"
+#include "include/private/SkSLString.h"
 
 namespace SkSL {
 
