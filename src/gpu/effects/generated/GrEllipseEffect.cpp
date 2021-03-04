@@ -41,19 +41,20 @@ public:
                 R"SkSL(float2 prevCenter;
 float2 prevRadii = float2(%f, %f);
 float2 d = sk_FragCoord.xy - %s.xy;
-@if (!sk_Caps.floatIs32Bits) {
+const bool medPrecision = !sk_Caps.floatIs32Bits;
+@if (medPrecision) {
     d *= %s.y;
 }
 float2 Z = d * %s.zw;
 float implicit = dot(Z, d) - 1.0;
 float grad_dot = 4.0 * dot(Z, Z);
-@if (!sk_Caps.floatIs32Bits) {
+@if (medPrecision) {
     grad_dot = max(grad_dot, 6.1036000261083245e-05);
 } else {
     grad_dot = max(grad_dot, 1.1754999560161448e-38);
 }
 float approx_dist = implicit * inversesqrt(grad_dot);
-@if (!sk_Caps.floatIs32Bits) {
+@if (medPrecision) {
     approx_dist *= %s.x;
 }
 half alpha;
