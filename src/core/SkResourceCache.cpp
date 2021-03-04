@@ -520,6 +520,11 @@ void SkResourceCache::PurgeAll() {
     return get_cache()->purgeAll();
 }
 
+void SkResourceCache::CheckMessages() {
+    SkAutoMutexExclusive am(resource_cache_mutex());
+    return get_cache()->checkMessages();
+}
+
 bool SkResourceCache::Find(const Key& key, FindVisitor visitor, void* context) {
     SkAutoMutexExclusive am(resource_cache_mutex());
     return get_cache()->find(key, visitor, context);

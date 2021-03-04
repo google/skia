@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
+#include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixProvider.h"
@@ -257,9 +258,9 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 
 
     sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace): SkColorSpace::MakeSRGB();
-    SkImage::BitDepth bitDepth =
-            dstColorType >= kRGBA_F16Norm_SkColorType
-            ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
+    SkImage::BitDepth bitDepth = SkColorTypeMaxBitsPerChannel(dstColorType) >= 16
+                               ? SkImage::BitDepth::kF16
+                               : SkImage::BitDepth::kU8;
 
     BitmapShaderKey key(imgCS.get(), bitDepth, fUniqueID, tileScale);
 

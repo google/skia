@@ -165,6 +165,7 @@ public:
     static size_t GetEffectiveSingleAllocationByteLimit();
 
     static void PurgeAll();
+    static void CheckMessages();
 
     static void TestDumpMemoryStatistics();
 
