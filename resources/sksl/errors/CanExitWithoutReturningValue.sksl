@@ -1,4 +1,128 @@
-// Expect 1 error
+// Expect 13 errors
 
-int not_detected() { if (sqrt(1) == 1) return 3; } // function finalizer doesn't analyze all paths
-int is_detected()  { if (2 > 5) return 3; }        // optimizer reduces this to an empty function
+int variable = 0;
+uniform half mystery;
+
+int if_only()                       { if (variable == 1) return 0; }
+int return_on_if_but_not_else()     { if (variable == 1) return 0; else variable *= 2; }
+int return_on_else_but_not_if()     { if (variable == 1) variable *= 2; else return 1; }
+
+int for_with_conditional_return()   { for (;;) { if (variable == 1) return 0; } }
+int for_with_conditional_break()    { for (;;) { if (variable == 1) break; return 0; } }
+int for_with_conditional_continue() { for (;;) { if (variable == 1) continue; return 0; } }
+
+int switch_empty() {
+    switch (variable) {}
+}
+int switch_with_no_default() {
+    switch (variable) {
+        case 1: return 1;
+        case 2: return 2;
+    }
+}
+int switch_with_break() {
+    switch (variable) {
+        case 1:  return 1;
+        case 2:  break;
+        default: return 3;
+    }
+}
+int switch_with_continue() {
+    for (;;) switch (variable) {
+        case 1:  return 1;
+        case 2:  return 2;
+        default: continue;
+    }
+}
+int switch_with_fallthrough_off_bottom() {
+    switch (variable) {
+        case 1:  return 1;
+        case 2:  return 2;
+        default:
+    }
+}
+int switch_with_conditional_break() {
+    switch (variable) {
+        case 1:  if (mystery == 123) break; return 1;
+        case 2:  return 2;
+        default: return 3;
+    }
+}
+int switch_with_conditional_continue() {
+    for (;;) switch (variable) {
+        case 1:  if (mystery == 123) ; else continue; return 1;
+        case 2:  return 2;
+        default: return 3;
+    }
+}
+
+// These cases are valid and do not trigger an error:
+
+int return_on_both_sides() {
+    if (variable == 1) return 0; else return 1;
+}
+int for_inside_body() {
+    for (int x=0; x<=10; ++x) { return 0; }
+}
+int after_for_body() {
+    for (int x=0; x<=10; ++x) { variable *= 2; }
+    return 1;
+}
+int for_with_double_sided_conditional_return() {
+    for (int x=0; x<=10; ++x) {
+        if (variable == 1) return 0; else return 1;
+    }
+}
+int switch_with_all_returns() {
+    switch (variable) {
+        case 1:  return 1;
+        case 2:  return 2;
+        default: return 3;
+    }
+}
+int switch_only_default() {
+    switch (variable) {
+        default: return 1;
+    }
+}
+int switch_fallthrough() {
+    switch (variable) {
+        case 1:  return 1;
+        case 2:
+        default: return 3;
+    }
+}
+int switch_fallthrough_twice() {
+    switch (variable) {
+        case 1:
+        case 2:
+        default: return 3;
+    }
+}
+int switch_with_break_in_loop() {
+    switch (variable) {
+        case 1:  for (;;) { break; }
+        default: return 2;
+    }
+}
+int switch_with_continue_in_loop() {
+    switch (variable) {
+        case 1:  for (;;) { continue; }
+        default: return 2;
+    }
+}
+int switch_with_if_that_returns() {
+    switch (variable) {
+        case 1:  if (mystery == 123) return 1; else return 2;
+        default: return 3;
+    }
+}
+int switch_with_if_that_returns_and_dead_break() {
+    switch (variable) {
+        case 1:  if (mystery == 123) return 1; else return 2;
+                 break; // this shouldn't influence our detection
+        default: return 3;
+    }
+}
+
+
