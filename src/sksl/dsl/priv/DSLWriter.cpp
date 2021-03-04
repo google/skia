@@ -7,14 +7,14 @@
 
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
+#include "include/private/SkSLDefines.h"
+#include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLErrorHandling.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/mock/GrMockCaps.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIRGenerator.h"
-#include "src/sksl/dsl/DSLCore.h"
-#include "src/sksl/dsl/DSLErrorHandling.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
@@ -89,9 +89,14 @@ void DSLWriter::EndFragmentProcessor() {
 }
 
 GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLVar& var) {
-    return var.uniformHandle();
+    return GrGLSLUniformHandler::UniformHandle(var.fUniformHandle);
 }
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+
+std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& function,
+                                                  ExpressionArray arguments) {
+    return IRGenerator().call(/*offset=*/-1, function, std::move(arguments));
+}
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
     if (DSLWriter::Compiler().errorCount()) {

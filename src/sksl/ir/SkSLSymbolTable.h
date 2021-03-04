@@ -8,10 +8,10 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
+#include "include/private/SkSLString.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
 #include <memory>

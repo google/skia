@@ -8,9 +8,9 @@
 #ifndef SKIASL_TYPE
 #define SKIASL_TYPE
 
+#include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/spirv.h"
 #include <algorithm>

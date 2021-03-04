@@ -9,16 +9,14 @@
 #define SKSL_DSL_CORE
 
 #include "include/private/SkTArray.h"
-#include "src/sksl/SkSLDefines.h"
-#include "src/sksl/dsl/DSLBlock.h"
-#include "src/sksl/dsl/DSLCase.h"
-#include "src/sksl/dsl/DSLErrorHandling.h"
-#include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLFunction.h"
-#include "src/sksl/dsl/DSLStatement.h"
-#include "src/sksl/dsl/DSLType.h"
-#include "src/sksl/dsl/DSLVar.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
+#include "include/sksl/DSLBlock.h"
+#include "include/sksl/DSLCase.h"
+#include "include/sksl/DSLErrorHandling.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLFunction.h"
+#include "include/sksl/DSLStatement.h"
+#include "include/sksl/DSLType.h"
+#include "include/sksl/DSLVar.h"
 
 namespace SkSL {
 
@@ -111,6 +109,9 @@ DSLStatement Return(DSLExpression value = DSLExpression(), PositionInfo pos = Po
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      PositionInfo info = PositionInfo());
 
+DSLPossibleStatement Switch(DSLExpression value, SkSL::ExpressionArray values,
+                            SkTArray<StatementArray> statements);
+
 /**
  * switch (value) { cases }
  */
@@ -120,12 +121,13 @@ DSLPossibleStatement Switch(DSLExpression value, Cases... cases) {
     SkTArray<StatementArray> caseStatements;
     caseValues.reserve_back(sizeof...(cases));
     caseStatements.reserve_back(sizeof...(cases));
-    int unused[] = {0, (DSLWriter::Ignore(caseValues.push_back(cases.fValue.release())), 0)...};
-    static_cast<void>(unused);
-    (caseStatements.push_back(std::move(cases.fStatements)), ...);
-    return DSLWriter::ConvertSwitch(value.release(),
-                                    std::move(caseValues),
-                                    std::move(caseStatements));
+    // yet more workarounds until we can rely on C++17 support
+    int unused1[] = {0, (static_cast<void>(caseValues.push_back(cases.fValue.release())), 0)...};
+    static_cast<void>(unused1);
+    int unused2[] = {0, (static_cast<void>(caseStatements.push_back(std::move(cases.fStatements))),
+                         0)...};
+    static_cast<void>(unused2);
+    return Switch(std::move(value), std::move(caseValues), std::move(caseStatements));
 }
 
 /**

@@ -12,7 +12,7 @@
 #include <memory>
 #include "stdlib.h"
 #include "string.h"
-#include "src/sksl/SkSLDefines.h"
+#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLLexer.h"
 
 #ifndef SKSL_STANDALONE

@@ -6,12 +6,11 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkSLDefines.h"
 
 #include "src/core/SkOSFile.h"
 
 #include "src/gpu/GrDirectContextPriv.h"
-
-#include "src/sksl/SkSLDefines.h"
 
 #include "src/utils/SkOSPath.h"
 

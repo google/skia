@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLString.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLOperators.h"
-#include "src/sksl/SkSLString.h"
 
 namespace SkSL {
 

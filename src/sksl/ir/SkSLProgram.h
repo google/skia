@@ -11,15 +11,15 @@
 #include <vector>
 #include <memory>
 
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkSLModifiers.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 

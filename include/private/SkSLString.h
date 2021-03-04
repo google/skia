@@ -8,7 +8,7 @@
 #ifndef SKSL_STRING
 #define SKSL_STRING
 
-#include "src/sksl/SkSLDefines.h"
+#include "include/private/SkSLDefines.h"
 #include <cstring>
 #include <stdarg.h>
 #include <string>
@@ -124,7 +124,7 @@ namespace std {
         size_t operator()(const SkSL::StringFragment& s) const {
             size_t result = 0;
             for (size_t i = 0; i < s.fLength; ++i) {
-                result = result * 101 + s.fChars[i];
+                result = result * 101 + (size_t) s.fChars[i];
             }
             return result;
         }

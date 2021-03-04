@@ -10,9 +10,9 @@
 
 #include "include/core/SkData.h"
 #include "include/private/GrTypesPriv.h"
+#include "include/private/SkSLString.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 // The GrPersistentCache stores opaque blobs, as far as clients are concerned. It's helpful to

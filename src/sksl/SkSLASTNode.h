@@ -8,10 +8,10 @@
 #ifndef SKSL_ASTNODE
 #define SKSL_ASTNODE
 
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLString.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLOperators.h"
-#include "src/sksl/SkSLString.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 
 #include <algorithm>
 #include <vector>

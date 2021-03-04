@@ -5,14 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/dsl/DSLBlock.h"
+#include "include/sksl/DSLBlock.h"
 
-#include "src/sksl/dsl/DSLStatement.h"
+#include "include/sksl/DSLStatement.h"
 #include "src/sksl/ir/SkSLBlock.h"
 
 namespace SkSL {
 
 namespace dsl {
+
+DSLBlock::DSLBlock(SkSL::StatementArray statements)
+    : fStatements(std::move(statements)) {}
 
 std::unique_ptr<SkSL::Statement> DSLBlock::release() {
     return std::make_unique<SkSL::Block>(/*offset=*/-1, std::move(fStatements));

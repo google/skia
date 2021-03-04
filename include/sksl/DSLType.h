@@ -8,8 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
-#include "src/sksl/dsl/DSLModifiers.h"
-#include "src/sksl/ir/SkSLIRNode.h"
+#include "include/sksl/DSLModifiers.h"
 
 #include <cstdint>
 
@@ -113,7 +112,11 @@ template<typename... Field>
 DSLType Struct(const char* name, Field... fields) {
     SkTArray<DSLField> fieldTypes;
     fieldTypes.reserve_back(sizeof...(fields));
-    (fieldTypes.push_back(std::move(fields)), ...);
+    // in C++17, we could just do:
+    // (fieldTypes.push_back(std::move(fields)), ...);
+    int unused[] = {0, (fieldTypes.push_back(std::move(fields)), 0)...};
+    static_cast<void>(unused);
+
     return Struct(name, std::move(fieldTypes));
 }
 

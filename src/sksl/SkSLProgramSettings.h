@@ -8,7 +8,7 @@
 #ifndef SKSL_PROGRAMSETTINGS
 #define SKSL_PROGRAMSETTINGS
 
-#include "src/sksl/SkSLDefines.h"
+#include "include/private/SkSLDefines.h"
 
 namespace SkSL {
 

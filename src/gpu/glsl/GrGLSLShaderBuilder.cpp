@@ -7,13 +7,13 @@
 
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 
+#include "include/sksl/DSL.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
-#include "src/sksl/dsl/DSL.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 

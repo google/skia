@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/dsl/DSLExpression.h"
+#include "include/sksl/DSLExpression.h"
 
+#include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLVar.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
-#include "src/sksl/dsl/DSLCore.h"
-#include "src/sksl/dsl/DSLVar.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
@@ -28,6 +28,9 @@ namespace SkSL {
 namespace dsl {
 
 DSLExpression::DSLExpression() {}
+
+DSLExpression::DSLExpression(DSLExpression&& other)
+    : fExpression(std::move(other.fExpression)) {}
 
 DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
     : fExpression(std::move(expression)) {
@@ -200,6 +203,9 @@ std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Ty
 
 DSLPossibleExpression::DSLPossibleExpression(std::unique_ptr<SkSL::Expression> expr)
     : fExpression(std::move(expr)) {}
+
+DSLPossibleExpression::DSLPossibleExpression(DSLPossibleExpression&& other)
+    : fExpression(std::move(other.fExpression)) {}
 
 DSLPossibleExpression::~DSLPossibleExpression() {
     if (fExpression) {

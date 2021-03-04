@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/sksl/DSL.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/sksl/SkSLIRGenerator.h"
-#include "src/sksl/dsl/DSL.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 

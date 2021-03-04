@@ -8,17 +8,17 @@
 #ifndef SKSL_DSLWRITER
 #define SKSL_DSLWRITER
 
+#include "include/private/SkSLModifiers.h"
+#include "include/sksl/DSLExpression.h"
+#include "include/sksl/DSLStatement.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLOperators.h"
-#include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-
 #include <stack>
 
 class AutoDSLContext;
@@ -28,8 +28,10 @@ namespace SkSL {
 class Compiler;
 class Context;
 class IRGenerator;
+class ProgramElement;
 class SymbolTable;
 class Type;
+class Variable;
 
 namespace dsl {
 
@@ -127,6 +129,9 @@ public:
     static GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var);
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
+    static std::unique_ptr<SkSL::Expression> Call(const FunctionDeclaration& function,
+                                                  ExpressionArray arguments);
+
     /**
      * Reports an error if the argument is null. Returns its argument unmodified.
      */
@@ -154,8 +159,6 @@ public:
     static DSLPossibleStatement ConvertSwitch(std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               SkTArray<SkSL::StatementArray> caseStatements);
-
-    static void Ignore(std::unique_ptr<SkSL::Expression>&) {}
 
     /**
      * Sets the ErrorHandler associated with the current thread. This object will be notified when

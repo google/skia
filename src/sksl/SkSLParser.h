@@ -12,11 +12,11 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include "include/private/SkSLLayout.h"
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLLexer.h"
-#include "src/sksl/ir/SkSLLayout.h"
 
 namespace SkSL {
 

@@ -10,7 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "src/sksl/dsl/DSLErrorHandling.h"
+#include "include/sksl/DSLErrorHandling.h"
 
 #include <memory>
 
@@ -31,7 +31,7 @@ class DSLVar;
 
 class DSLStatement {
 public:
-    DSLStatement() {}
+    DSLStatement();
 
     DSLStatement(DSLExpression expr);
 

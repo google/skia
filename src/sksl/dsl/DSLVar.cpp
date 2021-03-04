@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/dsl/DSLVar.h"
+#include "include/sksl/DSLVar.h"
 
+#include "include/sksl/DSLModifiers.h"
+#include "include/sksl/DSLType.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/sksl/dsl/DSLModifiers.h"
-#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -21,7 +21,8 @@ namespace SkSL {
 namespace dsl {
 
 DSLVar::DSLVar(const char* name)
-    : fName(name) {
+    : fVar(nullptr)
+    , fName(name) {
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     if (!strcmp(name, "sk_SampleCoord")) {
         fName = DSLWriter::CurrentEmitArgs()->fSampleCoord;
@@ -78,7 +79,7 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name)
                                                                  grslType,
                                                                  this->name(),
                                                                  count,
-                                                                 &name);
+                                                                 &name).toIndex();
             fName = name;
         }
     }
@@ -94,12 +95,8 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name)
                                                storage);
 }
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-GrGLSLUniformHandler::UniformHandle DSLVar::uniformHandle() const {
-    SkASSERT(fVar->modifiers().fFlags & SkSL::Modifiers::kUniform_Flag);
-    return fUniformHandle;
+DSLVar::~DSLVar() {
 }
-#endif
 
 DSLPossibleExpression DSLVar::operator[](DSLExpression&& index) {
     return DSLExpression(*this)[std::move(index)];

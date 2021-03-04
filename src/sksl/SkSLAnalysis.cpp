@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLAnalysis.h"
 
+#include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -20,7 +21,6 @@
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSection.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 

@@ -8,7 +8,7 @@
 #ifndef SKSL_MANGLER
 #define SKSL_MANGLER
 
-#include "src/sksl/SkSLString.h"
+#include "include/private/SkSLString.h"
 
 namespace SkSL {
 

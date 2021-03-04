@@ -8,7 +8,7 @@
 #ifndef SKSL_MODIFIERSPOOL
 #define SKSL_MODIFIERSPOOL
 
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "include/private/SkSLModifiers.h"
 
 #include <unordered_set>
 

@@ -10,8 +10,8 @@
 #include <memory>
 #include "stdio.h"
 
+#include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLASTNode.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
