@@ -9,7 +9,7 @@
 #define GrRecordingContextPriv_DEFINED
 
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 
 class SkDeferredDisplayList;
 
@@ -102,7 +102,7 @@ public:
         return &fContext->fStats;
     }
 
-    GrSDFTOptions getSDFTOptions(bool useSDFTForSmallText) const;
+    GrSDFTControl getSDFTControl(bool useSDFTForSmallText) const;
 
     /**
      * Create a GrRecordingContext without a resource cache

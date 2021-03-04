@@ -67,7 +67,7 @@
 #include "src/gpu/ops/GrStencilPathOp.h"
 #include "src/gpu/ops/GrStrokeRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
@@ -364,8 +364,8 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    GrSDFTOptions options =
-            this->recordingContext()->priv().getSDFTOptions(
+    GrSDFTControl control =
+            this->recordingContext()->priv().getSDFTControl(
                     this->surfaceProps().isUseDeviceIndependentFonts());
 
     GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
@@ -419,10 +419,10 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         // Calculate the set of drawing types.
         key.fSetOfDrawingTypes = 0;
         for (auto& run : glyphRunList) {
-            key.fSetOfDrawingTypes |= options.drawingType(run.font(), drawPaint, drawMatrix);
+            key.fSetOfDrawingTypes |= control.drawingType(run.font(), drawPaint, drawMatrix);
         }
 
-        if (key.fSetOfDrawingTypes & GrSDFTOptions::kDirect) {
+        if (key.fSetOfDrawingTypes & GrSDFTControl::kDirect) {
             // Store the fractional offset of the position. We know that the matrix can't be
             // perspective at this point.
             SkPoint mappedOrigin = drawMatrix.mapOrigin();
@@ -453,7 +453,7 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
                           glyphRunList,
                           drawMatrix,
                           drawPaint,
-                          options);
+                          control);
 
         if (canCache) {
             blob->addKey(key);
