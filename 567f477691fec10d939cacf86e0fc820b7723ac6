@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec3a5ed1_10c5df8a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-04T19:22:08Z",
+      "side": 1,
+      "message": "Hey Michael,\n\nThis should print out the packed glyph IDs (glyphID + subpixel info), and the positions of each glyph. If these match for Server and Client, then the problem is environmental (i.e. surface props, color space, etc.)",
+      "revId": "567f477691fec10d939cacf86e0fc820b7723ac6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
