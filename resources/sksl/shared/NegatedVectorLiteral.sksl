@@ -1,7 +1,7 @@
 uniform half4 colorGreen, colorRed;
 
 bool test_float() {
-    float one = 1;
+    const float one = 1;
     float two = 2;
 
     float4 result;
@@ -10,12 +10,12 @@ bool test_float() {
     result.b = (-half4(two) == half4(-two, half3(-two))) ? 1 : 0;
     result.a = (-half2(-one, one + one) == -half2(one - two, two)) ? 1 : 0;
 
-    return bool(result.r * result.g * result.b * result.a);
+    return bool(result.r * result.g * result.b * -(-result.a));
 }
 
 bool test_int() {
     int one = 1;
-    int two = 2;
+    const int two = 2;
 
     int4 result;
     result.r = (int4(-1) == -int4(-int2(-1), int2(1))) ? 1 : 0;
@@ -23,7 +23,7 @@ bool test_int() {
     result.b = (-int4(two) == int4(-two, int3(-two))) ? 1 : 0;
     result.a = (-int2(-one, one + one) == -int2(one - two, two)) ? 1 : 0;
 
-    return bool(result.r * result.g * result.b * result.a);
+    return bool(-(-result.r) * result.g * result.b * result.a);
 }
 
 half4 main() {
