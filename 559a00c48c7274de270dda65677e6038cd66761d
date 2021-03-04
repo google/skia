@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0d90d2d_888fb778",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:52:33Z",
+      "side": 1,
+      "message": "Sending this to everyone who I think has maybe ever used clang-format in Skia. I can\u0027t take the bin packing anymore. It\u0027s too hard to read.",
+      "revId": "559a00c48c7274de270dda65677e6038cd66761d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
