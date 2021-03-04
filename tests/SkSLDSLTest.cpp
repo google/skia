@@ -1066,11 +1066,20 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     }
 
     {
-        ExpectError error(r, "error: expected function to return 'float'\n"
-                             "error: function 'broken' exits without returning a value\n");
+        ExpectError error(r, "error: expected function to return 'float'\n");
         DSLWriter::ProgramElements().clear();
         DSLFunction(kFloat, "broken").define(
             Return()
+        );
+    }
+
+    {
+        ExpectError error(r, "error: function 'broken' can exit without returning a value\n");
+        DSLWriter::ProgramElements().clear();
+        Var x(kFloat, "x");
+        DSLFunction(kFloat, "broken").define(
+            Declare(x, 0),
+            If(x == 1, Return(x))
         );
     }
 
@@ -1082,14 +1091,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
         );
     }
 
-/* TODO: detect this case
     {
-        ExpectError error(r, "error: expected function to return 'float'\n");
+        ExpectError error(r, "error: function 'broken' can exit without returning a value\n");
         DSLWriter::ProgramElements().clear();
         DSLFunction(kFloat, "broken").define(
         );
     }
-*/
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
