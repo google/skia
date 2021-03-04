@@ -113,6 +113,7 @@ class SKUNICODE_API SkUnicode {
 
         virtual bool isControl(SkUnichar utf8) = 0;
         virtual bool isWhitespace(SkUnichar utf8) = 0;
+        virtual bool isSpace(SkUnichar utf8) = 0;
         virtual SkString convertUtf16ToUtf8(const std::u16string& utf16) = 0;
 
         // Methods used in SkShaper

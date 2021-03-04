@@ -3446,21 +3446,14 @@ protected:
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(32);
-        text_style.setHeight(5.0);
-        text_style.setHeightOverride(true);
+        text_style.setFontSize(40);
         text_style.setColor(SK_ColorBLACK);
         builder.pushStyle(text_style);
-        builder.addText("Line1\nLine2\nLine3\nLine4\n");
+        builder.addText(u"Text1 Google\u00A0Pay Text2");
 
         auto paragraph = builder.Build();
         paragraph->layout(width());
         paragraph->paint(canvas, 0, 0);
-
-        std::vector<LineMetrics> metrics;
-        paragraph->getLineMetrics(metrics);
-
-        print_line_metrics(metrics);
     }
 
 private:
