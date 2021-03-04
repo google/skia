@@ -16,7 +16,7 @@
 #include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 class GrColorInfo;
 class GrSurfaceDrawContext;
 #endif
@@ -86,7 +86,7 @@ public:
     void processGlyphRun(const SkGlyphRun& glyphRun,
                          const SkMatrix& drawMatrix,
                          const SkPaint& drawPaint,
-                         const GrSDFTOptions& options,
+                         const GrSDFTControl& control,
                          SkGlyphRunPainterInterface* process);
 #endif  // SK_SUPPORT_GPU
 

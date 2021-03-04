@@ -409,7 +409,7 @@ public:
             const SkGlyphRunList& glyphRunList,
             const SkMatrix& drawMatrix,
             const SkPaint& runPaint,
-            const GrSDFTOptions& options);
+            const GrSDFTControl& control);
 
     static const Key& GetKey(const GrTextBlob& blob);
     static uint32_t Hash(const Key& key);

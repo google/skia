@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 
 #include "include/core/SkFont.h"
 #include "include/core/SkGraphics.h"
@@ -19,7 +19,7 @@
 
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above
 // kSmallDFFontLimit we will use the medium size. The large size is used up until the size at
-// which we switch over to drawing as paths as controlled by Options.
+// which we switch over to drawing as paths as controlled by Control.
 static const int kSmallDFFontSize = 32;
 static const int kSmallDFFontLimit = 32;
 static const int kMediumDFFontSize = 72;
@@ -30,14 +30,14 @@ static const int kLargeDFFontLimit = 162;
 static const int kExtraLargeDFFontSize = 256;
 #endif
 
-SkScalar GrSDFTOptions::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
+SkScalar GrSDFTControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
     if (!useSDFTForSmallText) {
         return kLargeDFFontSize;
     }
     return min;
 }
 
-GrSDFTOptions::GrSDFTOptions(
+GrSDFTControl::GrSDFTControl(
         bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max)
         : fMinDistanceFieldFontSize{MinSDFTRange(useSDFTForSmallText, min)}
         , fMaxDistanceFieldFontSize{max}
@@ -45,7 +45,7 @@ GrSDFTOptions::GrSDFTOptions(
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 
-auto GrSDFTOptions::drawingType(
+auto GrSDFTControl::drawingType(
         const SkFont& font, const SkPaint& paint, const SkMatrix& viewMatrix) const -> DrawingType {
 
     // Use paths as the first choice for hairlines and perspective.
@@ -95,7 +95,7 @@ SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
     return scaledTextSize;
 }
 
-SkFont GrSDFTOptions::getSDFFont(const SkFont& font,
+SkFont GrSDFTControl::getSDFFont(const SkFont& font,
                                  const SkMatrix& viewMatrix,
                                  SkScalar* textRatio) const {
     SkScalar textSize = font.getSize();
@@ -133,7 +133,7 @@ SkFont GrSDFTOptions::getSDFFont(const SkFont& font,
     return dfFont;
 }
 
-std::pair<SkScalar, SkScalar> GrSDFTOptions::computeSDFMinMaxScale(
+std::pair<SkScalar, SkScalar> GrSDFTControl::computeSDFMinMaxScale(
         SkScalar textSize, const SkMatrix& viewMatrix) const {
 
     SkScalar scaledTextSize = scaled_text_size(textSize, viewMatrix);
