@@ -7,7 +7,7 @@
 
 #include "src/sksl/SkSLPool.h"
 
-#include "src/sksl/SkSLDefines.h"
+#include "include/private/SkSLDefines.h"
 
 #define VLOG(...) // printf(__VA_ARGS__)
 

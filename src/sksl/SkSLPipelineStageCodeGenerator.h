@@ -8,7 +8,7 @@
 #ifndef SKSL_PIPELINESTAGECODEGENERATOR
 #define SKSL_PIPELINESTAGECODEGENERATOR
 
-#include "src/sksl/SkSLString.h"
+#include "include/private/SkSLString.h"
 
 #if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
