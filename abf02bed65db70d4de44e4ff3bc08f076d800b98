@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58e4059e_dbe6c23d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-04T16:34:56Z",
+      "side": 1,
+      "message": "Effectively changes it so that we\u0027re no longer passing around Key**, just Key*",
+      "revId": "abf02bed65db70d4de44e4ff3bc08f076d800b98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
