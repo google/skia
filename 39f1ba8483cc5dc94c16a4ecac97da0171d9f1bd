@@ -16,6 +16,24 @@
       "message": "Does nextNonBreakingSpace need to be rest to nullptr here now that it has been \u0027consumed\u0027 in some sense?",
       "revId": "39f1ba8483cc5dc94c16a4ecac97da0171d9f1bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e815e38f_6c6352a2",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-04T22:22:34Z",
+      "side": 1,
+      "message": "lookAhead method only looks for one line.We break out of the loop and we never use nextNonBreakingSpace again.",
+      "parentUuid": "b97b73ea_11604d57",
+      "revId": "39f1ba8483cc5dc94c16a4ecac97da0171d9f1bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
