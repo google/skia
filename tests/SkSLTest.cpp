@@ -132,7 +132,7 @@ SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
 SKSL_TEST(SkSLMatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
 SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
-//SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl") //skia:11267
+SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,             "folding/VectorVectorFolding.sksl")
 
 SKSL_TEST(SkSLIntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
