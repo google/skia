@@ -34,10 +34,10 @@ public:
         (void)colorsAreOpaque;
         auto layoutPreservesOpacity = _outer.layoutPreservesOpacity;
         (void)layoutPreservesOpacity;
-        leftBorderColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                              kHalf4_GrSLType, "leftBorderColor");
-        rightBorderColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                               kHalf4_GrSLType, "rightBorderColor");
+        leftBorderColorVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "leftBorderColor");
+        rightBorderColorVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "rightBorderColor");
         SkString _sample0 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 t = %s;
@@ -49,7 +49,8 @@ if (!%s && t.y < 0.0) {
 } else if (t.x > 1.0) {
     outColor = %s;
 } else {)SkSL",
-                _sample0.c_str(), (_outer.layoutPreservesOpacity ? "true" : "false"),
+                _sample0.c_str(),
+                (_outer.layoutPreservesOpacity ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(leftBorderColorVar),
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
         SkString _coords1("float2(half2(t.x, 0.0))");
@@ -63,7 +64,8 @@ if (!%s && t.y < 0.0) {
 }
 return outColor;
 )SkSL",
-                _sample1.c_str(), (_outer.makePremul ? "true" : "false"));
+                _sample1.c_str(),
+                (_outer.makePremul ? "true" : "false"));
     }
 
 private:
@@ -123,9 +125,16 @@ SkString GrClampedGradientEffect::onDumpInfo() const {
     return SkStringPrintf(
             "(leftBorderColor=half4(%f, %f, %f, %f), rightBorderColor=half4(%f, %f, %f, %f), "
             "makePremul=%s, colorsAreOpaque=%s, layoutPreservesOpacity=%s)",
-            leftBorderColor.fR, leftBorderColor.fG, leftBorderColor.fB, leftBorderColor.fA,
-            rightBorderColor.fR, rightBorderColor.fG, rightBorderColor.fB, rightBorderColor.fA,
-            (makePremul ? "true" : "false"), (colorsAreOpaque ? "true" : "false"),
+            leftBorderColor.fR,
+            leftBorderColor.fG,
+            leftBorderColor.fB,
+            leftBorderColor.fA,
+            rightBorderColor.fR,
+            rightBorderColor.fG,
+            rightBorderColor.fB,
+            rightBorderColor.fA,
+            (makePremul ? "true" : "false"),
+            (colorsAreOpaque ? "true" : "false"),
             (layoutPreservesOpacity ? "true" : "false"));
 }
 #endif

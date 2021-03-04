@@ -36,18 +36,18 @@ public:
         (void)xInvInset;
         auto yInvInset = _outer.yInvInset;
         (void)yInvInset;
-        boundsUniformVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "boundsUniform");
-        xInvZoomVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                       kFloat_GrSLType, "xInvZoom");
-        yInvZoomVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                       kFloat_GrSLType, "yInvZoom");
-        xInvInsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                        kFloat_GrSLType, "xInvInset");
-        yInvInsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                        kFloat_GrSLType, "yInvInset");
-        offsetVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                     kHalf2_GrSLType, "offset");
+        boundsUniformVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "boundsUniform");
+        xInvZoomVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "xInvZoom");
+        yInvZoomVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "yInvZoom");
+        xInvInsetVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "xInvInset");
+        yInvInsetVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat_GrSLType, "yInvInset");
+        offsetVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
         fragBuilder->codeAppendf(
                 R"SkSL(float2 zoom_coord = float2(%s) + %s * float2(%s, %s);
 float2 delta = (%s - %s.xy) * %s.zw;
@@ -63,9 +63,11 @@ if (delta.x < 2.0 && delta.y < 2.0) {
     float2 delta_squared = delta * delta;
     weight = min(min(delta_squared.x, delta_squared.y), 1.0);
 })SkSL",
-                args.fUniformHandler->getUniformCStr(offsetVar), args.fSampleCoord,
+                args.fUniformHandler->getUniformCStr(offsetVar),
+                args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
-                args.fUniformHandler->getUniformCStr(yInvZoomVar), args.fSampleCoord,
+                args.fUniformHandler->getUniformCStr(yInvZoomVar),
+                args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
@@ -107,8 +109,8 @@ private:
         (void)offset;
 
         pdman.set2f(offset, srcRect.x(), srcRect.y());
-        pdman.set4f(boundsUniform, bounds.x(), bounds.y(), 1.f / bounds.width(),
-                    1.f / bounds.height());
+        pdman.set4f(
+                boundsUniform, bounds.x(), bounds.y(), 1.f / bounds.width(), 1.f / bounds.height());
     }
     UniformHandle boundsUniformVar;
     UniformHandle offsetVar;
@@ -152,8 +154,17 @@ SkString GrMagnifierEffect::onDumpInfo() const {
     return SkStringPrintf(
             "(bounds=int4(%d, %d, %d, %d), srcRect=float4(%f, %f, %f, %f), xInvZoom=%f, "
             "yInvZoom=%f, xInvInset=%f, yInvInset=%f)",
-            bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), srcRect.left(),
-            srcRect.top(), srcRect.right(), srcRect.bottom(), xInvZoom, yInvZoom, xInvInset,
+            bounds.left(),
+            bounds.top(),
+            bounds.right(),
+            bounds.bottom(),
+            srcRect.left(),
+            srcRect.top(),
+            srcRect.right(),
+            srcRect.bottom(),
+            xInvZoom,
+            yInvZoom,
+            xInvInset,
             yInvInset);
 }
 #endif

@@ -26,9 +26,14 @@ public:
             bool makePremul,
             bool colorsAreOpaque) {
         bool layoutPreservesOpacity = gradLayout->preservesOpaqueInput();
-        return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(
-                std::move(colorizer), std::move(gradLayout), leftBorderColor, rightBorderColor,
-                makePremul, colorsAreOpaque, layoutPreservesOpacity));
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrClampedGradientEffect(std::move(colorizer),
+                                            std::move(gradLayout),
+                                            leftBorderColor,
+                                            rightBorderColor,
+                                            makePremul,
+                                            colorsAreOpaque,
+                                            layoutPreservesOpacity));
     }
     GrClampedGradientEffect(const GrClampedGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
