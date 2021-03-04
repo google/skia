@@ -190,6 +190,7 @@ sksl_error_tests = [
   "/sksl/errors/UnsupportedGLSLIdentifiers.sksl",
   "/sksl/errors/UnscopedVariableInDoWhile.sksl",
   "/sksl/errors/UnscopedVariableInElse.sksl",
+  "/sksl/errors/UnscopedVariableInFor.sksl",
   "/sksl/errors/UnscopedVariableInIf.sksl",
   "/sksl/errors/UnscopedVariableInWhile.sksl",
   "/sksl/errors/UseWithoutInitializeArrayIndex.sksl",
