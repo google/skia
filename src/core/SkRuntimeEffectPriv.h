@@ -8,6 +8,22 @@
 #ifndef SkRuntimeEffectPriv_DEFINED
 #define SkRuntimeEffectPriv_DEFINED
 
+#include "include/effects/SkRuntimeEffect.h"
+
+// These internal APIs for creating runtime effects vary from the public API in two ways:
+//
+//     1) they're used in contexts where it's not useful to receive an error message;
+//     2) they're cached.
+//
+// Users of the public SkRuntimeEffect::Make() can of course cache however they like themselves;
+// keeping these APIs private means users will not be forced into our cache or cache policy.
+
+sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString);
+
+inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(const char* sksl) {
+    return SkMakeCachedRuntimeEffect(SkString{sksl});
+}
+
 // This is mostly from skvm's rgb->hsl code, with some GPU-related finesse pulled from
 // GrHighContrastFilterEffect.fp, see next comment.
 constexpr char kRGB_to_HSL_sksl[] =

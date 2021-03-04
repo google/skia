@@ -42,11 +42,8 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
         }
     )";
 
-    auto [effect, err] = SkRuntimeEffect::Make(code);
-    if (!err.isEmpty()) {
-        SkDebugf("%s\n%s\n", code.c_str(), err.c_str());
-    }
-    SkASSERT(effect && err.isEmpty());
+    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(std::move(code));
+    SkASSERT(effect);
 
     // A contrast setting of exactly +1 would divide by zero (1+c)/(1-c), so pull in to +1-ε.
     // I'm not exactly sure why we've historically pinned -1 up to -1+ε, maybe just symmetry?

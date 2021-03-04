@@ -209,11 +209,8 @@ static sk_sp<SkColorFilter> MakeMatrix(const float array[20],
     }
     code += "}";
 
-    auto [effect, err] = SkRuntimeEffect::Make(code);
-    if (!err.isEmpty()) {
-        SkDebugf("%s\n%s\n", code.c_str(), err.c_str());
-    }
-    SkASSERT(effect && err.isEmpty());
+    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(std::move(code));
+    SkASSERT(effect);
 
     sk_sp<SkColorFilter> input = nullptr;
     SkAlphaType       unpremul = kUnpremul_SkAlphaType;
