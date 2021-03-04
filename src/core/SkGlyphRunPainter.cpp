@@ -16,7 +16,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
-#include "src/gpu/text/GrSDFTOptions.h"
+#include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #endif
 
@@ -140,15 +140,15 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkMatrix& drawMatrix,
                                             const SkPaint& runPaint,
-                                            const GrSDFTOptions& options,
+                                            const GrSDFTControl& options,
                                             SkGlyphRunPainterInterface* process) {
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
     fRejects.setSource(glyphRun.source());
     const SkFont& runFont = glyphRun.font();
 
-    GrSDFTOptions::DrawingType drawingType = options.drawingType(runFont, runPaint, drawMatrix);
+    GrSDFTControl::DrawingType drawingType = options.drawingType(runFont, runPaint, drawMatrix);
 
-    if (drawingType == GrSDFTOptions::kSDFT) {
+    if (drawingType == GrSDFTControl::kSDFT) {
         // Process SDFT - This should be the .009% case.
         const auto& [strikeSpec, minScale, maxScale] =
                 SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix, options);
@@ -169,7 +169,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         }
     }
 
-    if (drawingType != GrSDFTOptions::kPath && !fRejects.source().empty()) {
+    if (drawingType != GrSDFTControl::kPath && !fRejects.source().empty()) {
         // Process masks including ARGB - this should be the 99.99% case.
 
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(

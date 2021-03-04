@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSDFTOptions_DEFINED
-#define GrSDFTOptions_DEFINED
+#ifndef GrSDFTControl_DEFINED
+#define GrSDFTControl_DEFINED
 
 #include "include/core/SkFont.h"
 #include "include/core/SkScalar.h"
@@ -14,9 +14,9 @@
 class SkMatrix;
 class SkSurfaceProps;
 
-class GrSDFTOptions {
+class GrSDFTControl {
 public:
-    GrSDFTOptions(bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max);
+    GrSDFTControl(bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max);
 
     enum DrawingType : uint8_t {
         kDirect = 1,
@@ -45,4 +45,4 @@ private:
     const bool fAbleToUseSDFT;
 };
 
-#endif  // GrSDFTOptions_DEFINED
+#endif  // GrSDFTControl_DEFINED
