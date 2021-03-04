@@ -16,6 +16,24 @@
       "message": "out.glsl is spurious?",
       "revId": "1b71b0f1c9d4c043ee9ef3ea978277da867b20cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e29b208_0d5df204",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-04T19:35:07Z",
+      "side": 1,
+      "message": "Thanks, I\u0027ll fix.\nI found an edge case while writing tests that I\u0027m still working to patch up before I submit.\n\n  int switch_with_conditional_break_then_fallthrough() {\n    switch (variable) {\n      case 1:  if (mystery \u003d\u003d 123) break;\n      default: return 2;\n    }\n  }",
+      "parentUuid": "904dcd74_b7addbf5",
+      "revId": "1b71b0f1c9d4c043ee9ef3ea978277da867b20cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
