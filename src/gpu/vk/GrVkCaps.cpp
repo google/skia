@@ -1785,14 +1785,14 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
         return desc;
     }
 
-    GrProcessorKeyBuilder b(&desc.key());
+    GrProcessorKeyBuilder* b = desc.key();
 
     // This will become part of the sheared off key used to persistently cache
     // the SPIRV code. It needs to be added right after the base key so that,
     // when the base-key is sheared off, the shearing code can include it in the
     // reduced key (c.f. the +4s in the SkData::MakeWithCopy calls in
     // GrVkPipelineStateBuilder.cpp).
-    b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
+    b->add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
     GrVkRenderPass::SelfDependencyFlags selfDepFlags = GrVkRenderPass::SelfDependencyFlags::kNone;
     if (programInfo.renderPassBarriers() & GrXferBarrierFlags::kBlend) {
@@ -1825,7 +1825,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
         const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsResolve, needsStencil,
                                                              selfDepFlags, loadFromResolve);
         SkASSERT(rp);
-        rp->genKey(&b);
+        rp->genKey(b);
 
 #ifdef SK_DEBUG
         if (!rp->isExternal()) {
@@ -1850,26 +1850,26 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
         // kExternal_AttachmentFlag is only set for wrapped secondary command buffers - which
         // will always go through the above 'rt' path (i.e., we can always pass 0 as the final
         // parameter to GenKey).
-        GrVkRenderPass::GenKey(&b, attachmentFlags, attachmentsDescriptor, selfDepFlags,
+        GrVkRenderPass::GenKey(b, attachmentFlags, attachmentsDescriptor, selfDepFlags,
                                loadFromResolve, 0);
     }
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
-    stencil.genKey(&b, true);
+    stencil.genKey(b, true);
 
-    programInfo.pipeline().genKey(&b, *this);
-    b.add32(programInfo.numRasterSamples());
+    programInfo.pipeline().genKey(b, *this);
+    b->add32(programInfo.numRasterSamples());
 
     // Vulkan requires the full primitive type as part of its key
-    b.add32(programInfo.primitiveTypeKey());
+    b->add32(programInfo.primitiveTypeKey());
 
     if (this->mixedSamplesSupport()) {
         // Add "0" to indicate that coverage modulation will not be enabled, or the (non-zero)
         // raster sample count if it will.
-        b.add32(!programInfo.isMixedSampled() ? 0 : programInfo.numRasterSamples());
+        b->add32(!programInfo.isMixedSampled() ? 0 : programInfo.numRasterSamples());
     }
 
-    b.flush();
+    b->flush();
     return desc;
 }
 
