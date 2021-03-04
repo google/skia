@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b88dc79_fdc12eb7",
+        "filename": "gn/sksl.gni",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-04T16:38:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "35cdba1b_49c48eff",
+      "revId": "8768a2f7ff1969ca5670d28c577f2ede229cf0ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ce1117a0_83da5184",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "154e33a4_95360a3d",
+        "filename": "include/sksl/DSLModifiers.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-04T16:38:46Z",
+      "side": 1,
+      "message": "As discussed in chat, I think this is ok because we\u0027re not using an enum class and therefore none of these are type-safe.",
+      "parentUuid": "ce1117a0_83da5184",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 38
+      },
+      "revId": "8768a2f7ff1969ca5670d28c577f2ede229cf0ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd43d666_fab7cf1e",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-03-04T15:20:36Z",
       "side": 1,
       "message": "Similar to above ... don\u0027t need to hold up landing, but is there a clean way to split the set of types so that runtime effect code can\u0027t use these? (at compile-time, vs. just failing in IR creation)?",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 12
+      },
+      "revId": "8768a2f7ff1969ca5670d28c577f2ede229cf0ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea200a40_e3c65c78",
+        "filename": "include/sksl/DSLType.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-04T16:38:46Z",
+      "side": 1,
+      "message": "Same.",
+      "parentUuid": "bd43d666_fab7cf1e",
       "range": {
         "startLine": 41,
         "startChar": 0,
