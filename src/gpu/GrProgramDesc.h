@@ -64,7 +64,7 @@ public:
     }
 
     template <typename StringFunc>
-    void addString(StringFunc&& sf) {
+    void appendComment(StringFunc&& sf) {
         #ifdef SK_DEBUG
             fDescription.append(sf());
             fDescription.append("\n");
@@ -90,10 +90,6 @@ public:
 
     size_t size() const {
         return (fData.count() + (fBitsUsed ? 1 : 0)) * sizeof(uint32_t);
-    }
-
-    size_t sizeInBits() const {
-        return (fData.count() * sizeof(uint32_t) * CHAR_BIT) + fBitsUsed;
     }
 
     GrProcessorKeyBuilder& operator=(const GrProcessorKeyBuilder& other) = default;

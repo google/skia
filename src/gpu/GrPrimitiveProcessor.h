@@ -203,11 +203,14 @@ public:
         auto add_attributes = [=](const Attribute* attrs, int attrCount) {
             for (int i = 0; i < attrCount; ++i) {
                 const Attribute& attr = attrs[i];
+                b->appendComment([&attr](){ return attr.name(); });
                 b->addBits(8, attr.isInitialized() ? attr.cpuType() : 0xff, "attrType");
                 b->addBits(8, attr.isInitialized() ? attr.gpuType() : 0xff, "attrGpuType");
             }
         };
+        b->add32(fVertexAttributes.fRawCount, "numVertexAttributes");
         add_attributes(fVertexAttributes.fAttributes, fVertexAttributes.fRawCount);
+        b->add32(fVertexAttributes.fRawCount, "numInstanceAttributes");
         add_attributes(fInstanceAttributes.fAttributes, fInstanceAttributes.fRawCount);
     }
 
