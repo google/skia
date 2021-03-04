@@ -103,6 +103,7 @@ public:
     /// @name GrFragmentProcessors
 
     int numFragmentProcessors() const { return fFragmentProcessors.count(); }
+    int numColorFragmentProcessors() const { return fNumColorProcessors; }
     bool isColorFragmentProcessor(int idx) const { return idx < fNumColorProcessors; }
     bool isCoverageFragmentProcessor(int idx) const { return idx >= fNumColorProcessors; }
 
