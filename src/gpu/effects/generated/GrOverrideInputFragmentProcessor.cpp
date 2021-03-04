@@ -32,14 +32,17 @@ public:
         auto literalColor = _outer.literalColor;
         (void)literalColor;
         if (useUniform) {
-            uniformColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                               kHalf4_GrSLType, "uniformColor");
+            uniformColorVar = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "uniformColor");
         }
         SkString _input0 = SkStringPrintf(
-                "%s ? %s : half4(%f, %f, %f, %f)", (_outer.useUniform ? "true" : "false"),
+                "%s ? %s : half4(%f, %f, %f, %f)",
+                (_outer.useUniform ? "true" : "false"),
                 uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
                                           : "half4(0)",
-                _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
+                _outer.literalColor.fR,
+                _outer.literalColor.fG,
+                _outer.literalColor.fB,
                 _outer.literalColor.fA);
         SkString _sample0 = this->invokeChild(0, _input0.c_str(), args);
         fragBuilder->codeAppendf(
@@ -101,7 +104,14 @@ SkString GrOverrideInputFragmentProcessor::onDumpInfo() const {
     return SkStringPrintf(
             "(useUniform=%s, uniformColor=half4(%f, %f, %f, %f), literalColor=half4(%f, %f, %f, "
             "%f))",
-            (useUniform ? "true" : "false"), uniformColor.fR, uniformColor.fG, uniformColor.fB,
-            uniformColor.fA, literalColor.fR, literalColor.fG, literalColor.fB, literalColor.fA);
+            (useUniform ? "true" : "false"),
+            uniformColor.fR,
+            uniformColor.fG,
+            uniformColor.fB,
+            uniformColor.fA,
+            literalColor.fR,
+            literalColor.fG,
+            literalColor.fB,
+            literalColor.fA);
 }
 #endif

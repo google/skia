@@ -35,16 +35,16 @@ public:
         (void)bias23;
         auto threshold = _outer.threshold;
         (void)threshold;
-        scale01Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                      kFloat4_GrSLType, "scale01");
-        bias01Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                     kFloat4_GrSLType, "bias01");
-        scale23Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                      kFloat4_GrSLType, "scale23");
-        bias23Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                     kFloat4_GrSLType, "bias23");
-        thresholdVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                        kHalf_GrSLType, "threshold");
+        scale01Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale01");
+        bias01Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias01");
+        scale23Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale23");
+        bias23Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias23");
+        thresholdVar = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf_GrSLType, "threshold");
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x);
 float4 scale;
@@ -59,7 +59,8 @@ if (t < %s) {
 }
 return half4(float(t) * scale + bias);
 )SkSL",
-                args.fSampleCoord, args.fUniformHandler->getUniformCStr(thresholdVar),
+                args.fSampleCoord,
+                args.fUniformHandler->getUniformCStr(thresholdVar),
                 args.fUniformHandler->getUniformCStr(scale01Var),
                 args.fUniformHandler->getUniformCStr(bias01Var),
                 args.fUniformHandler->getUniformCStr(scale23Var),
@@ -145,9 +146,23 @@ SkString GrDualIntervalGradientColorizer::onDumpInfo() const {
     return SkStringPrintf(
             "(scale01=float4(%f, %f, %f, %f), bias01=float4(%f, %f, %f, %f), scale23=float4(%f, "
             "%f, %f, %f), bias23=float4(%f, %f, %f, %f), threshold=%f)",
-            scale01.fR, scale01.fG, scale01.fB, scale01.fA, bias01.fR, bias01.fG, bias01.fB,
-            bias01.fA, scale23.fR, scale23.fG, scale23.fB, scale23.fA, bias23.fR, bias23.fG,
-            bias23.fB, bias23.fA, threshold);
+            scale01.fR,
+            scale01.fG,
+            scale01.fB,
+            scale01.fA,
+            bias01.fR,
+            bias01.fG,
+            bias01.fB,
+            bias01.fA,
+            scale23.fR,
+            scale23.fG,
+            scale23.fB,
+            scale23.fA,
+            bias23.fR,
+            bias23.fG,
+            bias23.fB,
+            bias23.fA,
+            threshold);
 }
 #endif
 
@@ -167,8 +182,10 @@ std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::Make(const
     auto scale23 = (vc3 - vc2) / (1 - threshold);
     auto bias23 = vc2 - threshold * scale23;
 
-    return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(
-            {scale01[0], scale01[1], scale01[2], scale01[3]}, c0,
-            {scale23[0], scale23[1], scale23[2], scale23[3]},
-            {bias23[0], bias23[1], bias23[2], bias23[3]}, threshold));
+    return std::unique_ptr<GrFragmentProcessor>(
+            new GrDualIntervalGradientColorizer({scale01[0], scale01[1], scale01[2], scale01[3]},
+                                                c0,
+                                                {scale23[0], scale23[1], scale23[2], scale23[3]},
+                                                {bias23[0], bias23[1], bias23[2], bias23[3]},
+                                                threshold));
 }

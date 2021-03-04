@@ -63,70 +63,70 @@ public:
         (void)thresholds1_7;
         auto thresholds9_13 = _outer.thresholds9_13;
         (void)thresholds9_13;
-        scale0_1Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                       kFloat4_GrSLType, "scale0_1");
+        scale0_1Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale0_1");
         if (intervalCount > 1) {
-            scale2_3Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                           kFloat4_GrSLType, "scale2_3");
+            scale2_3Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale2_3");
         }
         if (intervalCount > 2) {
-            scale4_5Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                           kFloat4_GrSLType, "scale4_5");
+            scale4_5Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale4_5");
         }
         if (intervalCount > 3) {
-            scale6_7Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                           kFloat4_GrSLType, "scale6_7");
+            scale6_7Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale6_7");
         }
         if (intervalCount > 4) {
-            scale8_9Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                           kFloat4_GrSLType, "scale8_9");
+            scale8_9Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale8_9");
         }
         if (intervalCount > 5) {
-            scale10_11Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                             kFloat4_GrSLType, "scale10_11");
+            scale10_11Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale10_11");
         }
         if (intervalCount > 6) {
-            scale12_13Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                             kFloat4_GrSLType, "scale12_13");
+            scale12_13Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale12_13");
         }
         if (intervalCount > 7) {
-            scale14_15Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                             kFloat4_GrSLType, "scale14_15");
+            scale14_15Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "scale14_15");
         }
-        bias0_1Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                      kFloat4_GrSLType, "bias0_1");
+        bias0_1Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias0_1");
         if (intervalCount > 1) {
-            bias2_3Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                          kFloat4_GrSLType, "bias2_3");
+            bias2_3Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias2_3");
         }
         if (intervalCount > 2) {
-            bias4_5Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                          kFloat4_GrSLType, "bias4_5");
+            bias4_5Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias4_5");
         }
         if (intervalCount > 3) {
-            bias6_7Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                          kFloat4_GrSLType, "bias6_7");
+            bias6_7Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias6_7");
         }
         if (intervalCount > 4) {
-            bias8_9Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                          kFloat4_GrSLType, "bias8_9");
+            bias8_9Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias8_9");
         }
         if (intervalCount > 5) {
-            bias10_11Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "bias10_11");
+            bias10_11Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias10_11");
         }
         if (intervalCount > 6) {
-            bias12_13Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "bias12_13");
+            bias12_13Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias12_13");
         }
         if (intervalCount > 7) {
-            bias14_15Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "bias14_15");
+            bias14_15Var = args.fUniformHandler->addUniform(
+                    &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "bias14_15");
         }
-        thresholds1_7Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                            kHalf4_GrSLType, "thresholds1_7");
-        thresholds9_13Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
-                                                             kHalf4_GrSLType, "thresholds9_13");
+        thresholds1_7Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "thresholds1_7");
+        thresholds9_13Var = args.fUniformHandler->addUniform(
+                &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "thresholds9_13");
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x);
 float4 scale;
@@ -171,9 +171,12 @@ if (%d <= 4 || t < %s.w) {
 }
 return half4(float(t) * scale + bias);
 )SkSL",
-                args.fSampleCoord, _outer.intervalCount,
-                args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
-                args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
+                args.fSampleCoord,
+                _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds1_7Var),
+                _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds1_7Var),
+                _outer.intervalCount,
                 args.fUniformHandler->getUniformCStr(thresholds1_7Var),
                 args.fUniformHandler->getUniformCStr(scale0_1Var),
                 args.fUniformHandler->getUniformCStr(bias0_1Var),
@@ -181,7 +184,8 @@ return half4(float(t) * scale + bias);
                                       : "float4(0)",
                 bias2_3Var.isValid() ? args.fUniformHandler->getUniformCStr(bias2_3Var)
                                      : "float4(0)",
-                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds1_7Var),
+                _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds1_7Var),
                 scale4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(scale4_5Var)
                                       : "float4(0)",
                 bias4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(bias4_5Var)
@@ -190,8 +194,10 @@ return half4(float(t) * scale + bias);
                                       : "float4(0)",
                 bias6_7Var.isValid() ? args.fUniformHandler->getUniformCStr(bias6_7Var)
                                      : "float4(0)",
-                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
-                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds9_13Var),
                 scale8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(scale8_9Var)
                                       : "float4(0)",
                 bias8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(bias8_9Var)
@@ -200,7 +206,8 @@ return half4(float(t) * scale + bias);
                                         : "float4(0)",
                 bias10_11Var.isValid() ? args.fUniformHandler->getUniformCStr(bias10_11Var)
                                        : "float4(0)",
-                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds9_13Var),
                 scale12_13Var.isValid() ? args.fUniformHandler->getUniformCStr(scale12_13Var)
                                         : "float4(0)",
                 bias12_13Var.isValid() ? args.fUniformHandler->getUniformCStr(bias12_13Var)
@@ -261,10 +268,10 @@ private:
             if (bias14_15Var.isValid()) {
                 pdman.set4fv(bias14_15Var, 1, (_outer.bias14_15).vec());
             }
-            pdman.set4fv(thresholds1_7Var, 1,
-                         reinterpret_cast<const float*>(&(_outer.thresholds1_7)));
-            pdman.set4fv(thresholds9_13Var, 1,
-                         reinterpret_cast<const float*>(&(_outer.thresholds9_13)));
+            pdman.set4fv(
+                    thresholds1_7Var, 1, reinterpret_cast<const float*>(&(_outer.thresholds1_7)));
+            pdman.set4fv(
+                    thresholds9_13Var, 1, reinterpret_cast<const float*>(&(_outer.thresholds9_13)));
         }
     }
     UniformHandle scale0_1Var;
@@ -357,19 +364,78 @@ SkString GrUnrolledBinaryGradientColorizer::onDumpInfo() const {
             "bias8_9=float4(%f, %f, %f, %f), bias10_11=float4(%f, %f, %f, %f), "
             "bias12_13=float4(%f, %f, %f, %f), bias14_15=float4(%f, %f, %f, %f), "
             "thresholds1_7=half4(%f, %f, %f, %f), thresholds9_13=half4(%f, %f, %f, %f))",
-            intervalCount, scale0_1.fR, scale0_1.fG, scale0_1.fB, scale0_1.fA, scale2_3.fR,
-            scale2_3.fG, scale2_3.fB, scale2_3.fA, scale4_5.fR, scale4_5.fG, scale4_5.fB,
-            scale4_5.fA, scale6_7.fR, scale6_7.fG, scale6_7.fB, scale6_7.fA, scale8_9.fR,
-            scale8_9.fG, scale8_9.fB, scale8_9.fA, scale10_11.fR, scale10_11.fG, scale10_11.fB,
-            scale10_11.fA, scale12_13.fR, scale12_13.fG, scale12_13.fB, scale12_13.fA,
-            scale14_15.fR, scale14_15.fG, scale14_15.fB, scale14_15.fA, bias0_1.fR, bias0_1.fG,
-            bias0_1.fB, bias0_1.fA, bias2_3.fR, bias2_3.fG, bias2_3.fB, bias2_3.fA, bias4_5.fR,
-            bias4_5.fG, bias4_5.fB, bias4_5.fA, bias6_7.fR, bias6_7.fG, bias6_7.fB, bias6_7.fA,
-            bias8_9.fR, bias8_9.fG, bias8_9.fB, bias8_9.fA, bias10_11.fR, bias10_11.fG,
-            bias10_11.fB, bias10_11.fA, bias12_13.fR, bias12_13.fG, bias12_13.fB, bias12_13.fA,
-            bias14_15.fR, bias14_15.fG, bias14_15.fB, bias14_15.fA, thresholds1_7.left(),
-            thresholds1_7.top(), thresholds1_7.right(), thresholds1_7.bottom(),
-            thresholds9_13.left(), thresholds9_13.top(), thresholds9_13.right(),
+            intervalCount,
+            scale0_1.fR,
+            scale0_1.fG,
+            scale0_1.fB,
+            scale0_1.fA,
+            scale2_3.fR,
+            scale2_3.fG,
+            scale2_3.fB,
+            scale2_3.fA,
+            scale4_5.fR,
+            scale4_5.fG,
+            scale4_5.fB,
+            scale4_5.fA,
+            scale6_7.fR,
+            scale6_7.fG,
+            scale6_7.fB,
+            scale6_7.fA,
+            scale8_9.fR,
+            scale8_9.fG,
+            scale8_9.fB,
+            scale8_9.fA,
+            scale10_11.fR,
+            scale10_11.fG,
+            scale10_11.fB,
+            scale10_11.fA,
+            scale12_13.fR,
+            scale12_13.fG,
+            scale12_13.fB,
+            scale12_13.fA,
+            scale14_15.fR,
+            scale14_15.fG,
+            scale14_15.fB,
+            scale14_15.fA,
+            bias0_1.fR,
+            bias0_1.fG,
+            bias0_1.fB,
+            bias0_1.fA,
+            bias2_3.fR,
+            bias2_3.fG,
+            bias2_3.fB,
+            bias2_3.fA,
+            bias4_5.fR,
+            bias4_5.fG,
+            bias4_5.fB,
+            bias4_5.fA,
+            bias6_7.fR,
+            bias6_7.fG,
+            bias6_7.fB,
+            bias6_7.fA,
+            bias8_9.fR,
+            bias8_9.fG,
+            bias8_9.fB,
+            bias8_9.fA,
+            bias10_11.fR,
+            bias10_11.fG,
+            bias10_11.fB,
+            bias10_11.fA,
+            bias12_13.fR,
+            bias12_13.fG,
+            bias12_13.fB,
+            bias12_13.fA,
+            bias14_15.fR,
+            bias14_15.fG,
+            bias14_15.fB,
+            bias14_15.fA,
+            thresholds1_7.left(),
+            thresholds1_7.top(),
+            thresholds1_7.right(),
+            thresholds1_7.bottom(),
+            thresholds9_13.left(),
+            thresholds9_13.top(),
+            thresholds9_13.right(),
             thresholds9_13.bottom());
 }
 #endif
@@ -433,9 +499,23 @@ std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::Make(
     }
 
     return std::unique_ptr<GrFragmentProcessor>(new GrUnrolledBinaryGradientColorizer(
-            intervalCount, scales[0], scales[1], scales[2], scales[3], scales[4], scales[5],
-            scales[6], scales[7], biases[0], biases[1], biases[2], biases[3], biases[4], biases[5],
-            biases[6], biases[7],
+            intervalCount,
+            scales[0],
+            scales[1],
+            scales[2],
+            scales[3],
+            scales[4],
+            scales[5],
+            scales[6],
+            scales[7],
+            biases[0],
+            biases[1],
+            biases[2],
+            biases[3],
+            biases[4],
+            biases[5],
+            biases[6],
+            biases[7],
             SkRect::MakeLTRB(thresholds[0], thresholds[1], thresholds[2], thresholds[3]),
             SkRect::MakeLTRB(thresholds[4], thresholds[5], thresholds[6], 0.0)));
 }
