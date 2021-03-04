@@ -1,2 +1,4 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
+error: 7: 'x' has not been assigned
+1 error

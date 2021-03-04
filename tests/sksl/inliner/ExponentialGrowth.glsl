@@ -202,7 +202,6 @@ void fn6() {
 
 
 
-    false;
 
     sk_FragColor.x = 0.0;
 
@@ -405,7 +404,6 @@ void fn6() {
 
 
 
-    false;
 
     sk_FragColor.x = 0.0;
 
@@ -608,7 +606,6 @@ void fn6() {
 
 
 
-    false;
 
 }
 void fn7() {
@@ -1218,7 +1215,6 @@ void fn7() {
 
 
 
-    false;
 
     fn6();
     fn6();
