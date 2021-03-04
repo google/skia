@@ -49,9 +49,22 @@ public:
                                                      bool unpremulInput,
                                                      bool clampRGBOutput,
                                                      bool premulOutput) {
-        SkM44 m44(matrix[0], matrix[1], matrix[2], matrix[3], matrix[5], matrix[6], matrix[7],
-                  matrix[8], matrix[10], matrix[11], matrix[12], matrix[13], matrix[15], matrix[16],
-                  matrix[17], matrix[18]);
+        SkM44 m44(matrix[0],
+                  matrix[1],
+                  matrix[2],
+                  matrix[3],
+                  matrix[5],
+                  matrix[6],
+                  matrix[7],
+                  matrix[8],
+                  matrix[10],
+                  matrix[11],
+                  matrix[12],
+                  matrix[13],
+                  matrix[15],
+                  matrix[16],
+                  matrix[17],
+                  matrix[18]);
         SkV4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
         return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(
                 std::move(inputFP), m44, v4, unpremulInput, clampRGBOutput, premulOutput));

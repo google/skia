@@ -67,14 +67,20 @@ std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::TestCreate(GrProces
         SkPoint center = {d->fRandom->nextRangeScalar(0.0f, scale),
                           d->fRandom->nextRangeScalar(0.0f, scale)};
         SkScalar radius = d->fRandom->nextRangeScalar(0.0f, scale);
-        sk_sp<SkShader> shader =
-                params.fUseColors4f
-                        ? SkGradientShader::MakeRadial(center, radius, params.fColors4f,
-                                                       params.fColorSpace, params.fStops,
-                                                       params.fColorCount, params.fTileMode)
-                        : SkGradientShader::MakeRadial(center, radius, params.fColors,
-                                                       params.fStops, params.fColorCount,
-                                                       params.fTileMode);
+        sk_sp<SkShader> shader = params.fUseColors4f
+                                         ? SkGradientShader::MakeRadial(center,
+                                                                        radius,
+                                                                        params.fColors4f,
+                                                                        params.fColorSpace,
+                                                                        params.fStops,
+                                                                        params.fColorCount,
+                                                                        params.fTileMode)
+                                         : SkGradientShader::MakeRadial(center,
+                                                                        radius,
+                                                                        params.fColors,
+                                                                        params.fStops,
+                                                                        params.fColorCount,
+                                                                        params.fTileMode);
         // Degenerate params can create an Empty (non-null) shader, where fp will be nullptr
         fp = shader ? as_SB(shader)->asFragmentProcessor(asFPArgs.args()) : nullptr;
     } while (!fp);

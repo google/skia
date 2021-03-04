@@ -49,8 +49,10 @@ if (!%s && t.y < 0.0) {
         t.x = fract(t.x);
     }
     @if (!%s) {)SkSL",
-                _sample0.c_str(), (_outer.layoutPreservesOpacity ? "true" : "false"),
-                (_outer.mirror ? "true" : "false"), (_outer.makePremul ? "true" : "false"));
+                _sample0.c_str(),
+                (_outer.layoutPreservesOpacity ? "true" : "false"),
+                (_outer.mirror ? "true" : "false"),
+                (_outer.makePremul ? "true" : "false"));
         SkString _coords1("float2(half2(t.x, 0.0))");
         SkString _sample1 = this->invokeChild(0, args, _coords1.c_str());
         fragBuilder->codeAppendf(
@@ -107,7 +109,9 @@ std::unique_ptr<GrFragmentProcessor> GrTiledGradientEffect::clone() const {
 SkString GrTiledGradientEffect::onDumpInfo() const {
     return SkStringPrintf(
             "(mirror=%s, makePremul=%s, colorsAreOpaque=%s, layoutPreservesOpacity=%s)",
-            (mirror ? "true" : "false"), (makePremul ? "true" : "false"),
-            (colorsAreOpaque ? "true" : "false"), (layoutPreservesOpacity ? "true" : "false"));
+            (mirror ? "true" : "false"),
+            (makePremul ? "true" : "false"),
+            (colorsAreOpaque ? "true" : "false"),
+            (layoutPreservesOpacity ? "true" : "false"));
 }
 #endif

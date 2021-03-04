@@ -41,7 +41,8 @@ public:
 }
 return color;
 )SkSL",
-                _sample0.c_str(), (int)_outer.pmConversion);
+                _sample0.c_str(),
+                (int)_outer.pmConversion);
     }
 
 private:
