@@ -3,6 +3,98 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3f89fe29_dadf6cda",
+        "filename": "src/gpu/vk/GrVkAttachment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:49:25Z",
+      "side": 1,
+      "message": "\"then we shouldn\u0027t\"?",
+      "range": {
+        "startLine": 104,
+        "startChar": 36,
+        "endLine": 104,
+        "endChar": 50
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eea06ea7_609a76f0",
+        "filename": "src/gpu/vk/GrVkAttachment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:49:25Z",
+      "side": 1,
+      "message": "one more space",
+      "range": {
+        "startLine": 115,
+        "startChar": 44,
+        "endLine": 115,
+        "endChar": 46
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54877982_56ed0b07",
+        "filename": "src/gpu/vk/GrVkAttachment.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:49:25Z",
+      "side": 1,
+      "message": "one more space",
+      "range": {
+        "startLine": 123,
+        "startChar": 41,
+        "endLine": 123,
+        "endChar": 42
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63ab925f_ba5dddb9",
+        "filename": "src/gpu/vk/GrVkAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:49:25Z",
+      "side": 1,
+      "message": "Does this mean the view for a framebuffer? It\u0027s a little confusing because we\u0027re calling this class \"Attachment\" which but it doesn\u0027t always mean \"a thing that can be attached to a framebuffer\".",
+      "range": {
+        "startLine": 54,
+        "startChar": 25,
+        "endLine": 54,
+        "endChar": 39
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "76c0f15e_a773d592",
         "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
         "patchSetId": 2
@@ -19,6 +111,69 @@
         "startChar": 27,
         "endLine": 92,
         "endChar": 39
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e1f61fc_9c7230b2",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:49:25Z",
+      "side": 1,
+      "message": "Should we have some asserts here that the attachment\u0027s sizes agree with this comment?",
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "990e4e1b_083d0983",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:49:25Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 83,
+        "startChar": 61,
+        "endLine": 83,
+        "endChar": 63
+      },
+      "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c4374f5_dea55dcd",
+        "filename": "tests/TextureProxyTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-04T15:49:25Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 157,
+        "startChar": 36,
+        "endLine": 157,
+        "endChar": 38
       },
       "revId": "d912d7c95bee9a810821f2071a59d71f956d3a9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
