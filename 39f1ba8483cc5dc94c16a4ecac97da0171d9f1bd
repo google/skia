@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b97b73ea_11604d57",
+        "filename": "modules/skparagraph/src/TextWrapper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-04T22:08:02Z",
+      "side": 1,
+      "message": "Does nextNonBreakingSpace need to be rest to nullptr here now that it has been \u0027consumed\u0027 in some sense?",
+      "revId": "39f1ba8483cc5dc94c16a4ecac97da0171d9f1bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
