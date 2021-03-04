@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc371818_efa80365",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-04T16:02:55Z",
+      "side": 1,
+      "message": "+ethan: Relevant to our discussion about caching \u0026 serialization with the DSL.",
+      "revId": "98f8a3616cdd107aab05ab96594296e9c5e19227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
