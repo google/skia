@@ -117,8 +117,8 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     // expecting to receive a binary expression back; don't return nullptr.
     const int offset = left->fOffset;
     if (!ConstantFolder::ErrorOnDivideByZero(context, offset, op, *right)) {
-        std::unique_ptr<Expression> result =
-                ConstantFolder::Simplify(context, offset, *left, op, *right);
+        std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, offset, *left,
+                                                                      op, *right, *resultType);
         if (result) {
             return result;
         }

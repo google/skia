@@ -746,6 +746,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 delete_left(&b, iter, optimizationContext);
                 break;
             }
+
+            // TODO(skia:11319): this optimization logic is redundant with the optimization code
+            // found in ConstantFolder.cpp.
             Expression& left = *bin->left();
             Expression& right = *bin->right();
             const Type& leftType = left.type();
