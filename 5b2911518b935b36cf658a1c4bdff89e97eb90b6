@@ -34,6 +34,24 @@
       "parentUuid": "339c1adb_e60b19b1",
       "revId": "5b2911518b935b36cf658a1c4bdff89e97eb90b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1e4f212_cbcd1f41",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T15:33:45Z",
+      "side": 1,
+      "message": "Ok, so the comment should be something like\n\n    // ubrk_clone added as draft in ICU69 and Android API 31 (first ICU NDK).\n    // ubrk_safeClone deprecated in ICU69 and not exposed by Android.\n    // This detection depends on U_DISABLE_RENAMING not being defined,\n    // if U_DISABLE_RENAMING is defined, ubrk_safeClone will always be used.",
+      "parentUuid": "ab4303f9_c1bb3b13",
+      "revId": "5b2911518b935b36cf658a1c4bdff89e97eb90b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
