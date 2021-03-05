@@ -119,6 +119,7 @@ private:
     void setCurrentSlide(int);
     void setupCurrentSlide();
     void listNames() const;
+    void dumpShadersToResources();
 
     void updateUIState();
 
