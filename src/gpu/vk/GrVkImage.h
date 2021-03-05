@@ -45,6 +45,7 @@ public:
         SkASSERT(fResource);
         return fInfo.fAlloc;
     }
+    const GrVkImageInfo& vkImageInfo() const { return fInfo; }
     VkFormat imageFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
         if (fResource && this->ycbcrConversionInfo().isValid()) {
@@ -61,6 +62,7 @@ public:
         SkASSERT(fResource);
         return fInfo.fYcbcrConversionInfo;
     }
+    VkImageUsageFlags vkUsageFlags() { return fInfo.fImageUsageFlags; }
     bool supportsInputAttachmentUsage() const {
         return fInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
     }
