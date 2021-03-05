@@ -1,6 +1,6 @@
 /*#pragma settings NoInline*/
 
-float gInitialized = -1.0;
+const float gInitialized = -1.0;
 float gInitializedFromOther = -gInitialized;
 float gUninitialized;
 
