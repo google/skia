@@ -228,6 +228,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4832e334_5571e584",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T17:16:55Z",
+      "side": 1,
+      "message": "I guess, isn\u0027t the real criterion that the image is used on a different context than it was snapped on?",
+      "parentUuid": "f8a0c4e3_c6d1e61d",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 38
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "00618d5d_12ee0dec",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 9
@@ -520,6 +544,23 @@
       "writtenOn": "2021-03-05T16:12:54Z",
       "side": 1,
       "message": "// This is the number of render tasks the volatile proxy was a target of when\n// this image was snapped. The proxy\u0027s current target count being greater\n// than this when the image is about to be read signals that the copy task\n// is required.\n\n?\n\nAlso, could fVolatileProxyTargetCount be made const ?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91cc1c1f_0cefada6",
+        "filename": "tests/WrappedSurfaceCopyOnWriteTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T17:16:55Z",
+      "side": 1,
+      "message": "Couldn\u0027t we have a similar case where on the recording thread a recording context should be used to create an SkSurface and then make an SkImage that is then drawn into the main DDL target?",
       "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
