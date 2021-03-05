@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "88eb39a7_4ebaa3e5",
+        "filename": "src/sksl/ir/SkSLIndexExpression.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-05T22:46:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15370316_45579c80",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "6457c30cb7f6eae0a2e251c850073c4a445506f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5bef9990_cd49c551",
@@ -61,6 +85,30 @@
       "side": 1,
       "message": "Great idea, I\u0027ll add that.",
       "parentUuid": "5bef9990_cd49c551",
+      "range": {
+        "startLine": 51,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 31
+      },
+      "revId": "6457c30cb7f6eae0a2e251c850073c4a445506f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7717b5e_6f532624",
+        "filename": "src/sksl/ir/SkSLIndexExpression.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-05T22:46:44Z",
+      "side": 1,
+      "message": "Done (with bulked-up tests)",
+      "parentUuid": "26d07b08_64187db4",
       "range": {
         "startLine": 51,
         "startChar": 8,
