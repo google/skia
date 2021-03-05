@@ -28,8 +28,9 @@
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 
-#define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
-#define RETURN_FALSE_IF_ABANDONED  if (this->fContext->abandoned()) { return false; }
+#define ASSERT_SINGLE_OWNER         GR_ASSERT_SINGLE_OWNER(this->singleOwner())
+#define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }
+#define RETURN_NULLPTR_IF_ABANDONED if (this->fContext->abandoned()) { return nullptr; }
 
 std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* context,
                                                          GrSurfaceProxyView readView,
@@ -1059,9 +1060,11 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                   flushInfo);
 }
 
-bool GrSurfaceContext::copy(sk_sp<GrSurfaceProxy> src, SkIRect srcRect, SkIPoint dstPoint) {
+sk_sp<GrRenderTask> GrSurfaceContext::copy(sk_sp<GrSurfaceProxy> src,
+                                           SkIRect srcRect,
+                                           SkIPoint dstPoint) {
     ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
+    RETURN_NULLPTR_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContextPriv::copy");
 
@@ -1071,11 +1074,11 @@ bool GrSurfaceContext::copy(sk_sp<GrSurfaceProxy> src, SkIRect srcRect, SkIPoint
     SkASSERT(src->backendFormat() == this->asSurfaceProxy()->backendFormat());
 
     if (this->asSurfaceProxy()->framebufferOnly()) {
-        return false;
+        return nullptr;
     }
 
     if (!caps->canCopySurface(this->asSurfaceProxy(), src.get(), srcRect, dstPoint)) {
-        return false;
+        return nullptr;
     }
 
     return this->drawingManager()->newCopyRenderTask(std::move(src),

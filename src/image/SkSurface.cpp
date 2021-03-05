@@ -12,6 +12,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/image/SkImage_Base.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 #include "src/image/SkSurface_Base.h"
 
@@ -39,6 +40,11 @@ SkSurface_Base::~SkSurface_Base() {
     if (fCachedCanvas) {
         fCachedCanvas->setSurfaceBase(nullptr);
     }
+#if SK_SUPPORT_GPU
+    if (fCachedImage) {
+        as_IB(fCachedImage.get())->generatingSurfaceIsDeleted();
+    }
+#endif
 }
 
 GrRecordingContext* SkSurface_Base::onGetRecordingContext() {

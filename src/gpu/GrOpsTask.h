@@ -228,6 +228,7 @@ private:
         bool fSkipExecute = false;
     };
 
+    void onCanSkip() override;
 
     bool onIsUsed(GrSurfaceProxy*) const override;
 

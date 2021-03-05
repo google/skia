@@ -426,7 +426,6 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
                    &dstProxyView, caps);
 }
 
-
 void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
     fLastClipStackGenID = SK_InvalidUniqueID;
     this->deleteOps();
@@ -868,6 +867,13 @@ void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void GrOpsTask::onCanSkip() {
+    this->deleteOps();
+    fDeferredProxies.reset();
+    fColorLoadOp = GrLoadOp::kLoad;
+    SkASSERT(this->isNoOp());
+}
 
 bool GrOpsTask::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     bool used = false;

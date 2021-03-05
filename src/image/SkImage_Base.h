@@ -99,6 +99,9 @@ public:
 
     virtual bool isYUVA() const { return false; }
 
+    // If this image is the current cached image snapshot of a surface then this is called when the
+    // surface is destroyed to indicate no further writes may happen to surface backing store.
+    virtual void generatingSurfaceIsDeleted() {}
 #endif
 
     virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }

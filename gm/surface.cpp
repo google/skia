@@ -256,6 +256,48 @@ DEF_SURFACE_TESTS(copy_on_write_retain, canvas, 256, 256) {
     canvas->drawImage(surf->makeImageSnapshot(), 0, 0);
 }
 
+// Like copy_on_write_retain but draws the snapped image back to the surface it was snapped from.
+DEF_SURFACE_TESTS(copy_on_write_retain2, canvas, 256, 256) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    sk_sp<SkSurface> surf = make(info);
+
+    surf->getCanvas()->clear(SK_ColorBLUE);
+    // its important that image survives longer than the next draw, so the surface will see
+    // an outstanding image, and have to decide if it should retain or discard those pixels
+    sk_sp<SkImage> image = surf->makeImageSnapshot();
+
+    surf->getCanvas()->clear(SK_ColorRED);
+    // normally a clear+opaque should trigger the discard optimization, but since we have a clip
+    // it should not (we need the previous red pixels).
+    surf->getCanvas()->clipRect(SkRect::MakeWH(128, 256));
+    surf->getCanvas()->drawImage(image, 0, 0);
+
+    // expect to see two rects: blue | red
+    canvas->drawImage(surf->makeImageSnapshot(), 0, 0);
+}
+
+DEF_SURFACE_TESTS(simple_snap_image, canvas, 256, 256) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    sk_sp<SkSurface> surf = make(info);
+
+    surf->getCanvas()->clear(SK_ColorRED);
+    sk_sp<SkImage> image = surf->makeImageSnapshot();
+    // expect to see just red
+    canvas->drawImage(std::move(image), 0, 0);
+}
+
+// Like simple_snap_image but the surface dies before the image.
+DEF_SURFACE_TESTS(simple_snap_image2, canvas, 256, 256) {
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    sk_sp<SkSurface> surf = make(info);
+
+    surf->getCanvas()->clear(SK_ColorRED);
+    sk_sp<SkImage> image = surf->makeImageSnapshot();
+    surf.reset();
+    // expect to see just red
+    canvas->drawImage(std::move(image), 0, 0);
+}
+
 DEF_SURFACE_TESTS(copy_on_write_savelayer, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     sk_sp<SkSurface> surf = make(info);

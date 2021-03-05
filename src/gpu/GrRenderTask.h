@@ -52,6 +52,18 @@ public:
 
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
+    /**
+     * A task can be marked as able to be skipped. It must be used purely for optimization purposes
+     * at this point as not all tasks will actually skip their work. It would be better if we could
+     * detect tasks that can be skipped automatically. We'd need to support minimal flushes (i.e.,
+     * only flush that which is required for SkSurfaces/SkImages) and the ability to detect
+     * "orphaned tasks" and clean them out from the DAG so they don't indefinitely accumulate.
+     * Finally, we'd probably have to track whether a proxy's backing store was imported or ever
+     * exported to the client in case the client is doing direct reads outside of Skia and thus
+     * may require tasks targeting the proxy to execute even if our DAG contains no reads.
+     */
+    void canSkip();
+
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
      */
@@ -239,6 +251,7 @@ private:
         }
     };
 
+    virtual void onCanSkip() {}
     virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
     virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
