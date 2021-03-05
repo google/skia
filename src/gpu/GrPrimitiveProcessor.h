@@ -203,8 +203,7 @@ public:
         auto add_attributes = [=](const Attribute* attrs, int attrCount) {
             for (int i = 0; i < attrCount; ++i) {
                 const Attribute& attr = attrs[i];
-                b->appendComment(
-                        [&attr]() { return attr.isInitialized() ? attr.name() : "unusedAttr"; });
+                b->appendComment(attr.isInitialized() ? attr.name() : "unusedAttr");
                 b->addBits(8, attr.isInitialized() ? attr.cpuType() : 0xff, "attrType");
                 b->addBits(8, attr.isInitialized() ? attr.gpuType() : 0xff, "attrGpuType");
             }

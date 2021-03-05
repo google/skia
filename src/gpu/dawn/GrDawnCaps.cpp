@@ -169,31 +169,28 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
                                    ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
-        SkASSERT(!desc.isValid());
-        return desc;
-    }
+    GrProgramDesc::Build(&desc, rt, programInfo, *this);
 
-    GrProcessorKeyBuilder* b = desc.key();
     wgpu::TextureFormat format;
     if (!programInfo.backendFormat().asDawnFormat(&format)) {
-        b->reset();
+        desc.reset();
         SkASSERT(!desc.isValid());
         return desc;
     }
 
+    GrProcessorKeyBuilder b(desc.key());
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
-    stencil.genKey(b, true);
+    stencil.genKey(&b, true);
 
     // TODO: remove this reliance on the renderTarget
     bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
 
-    b->add32(static_cast<uint32_t>(format));
-    b->add32(static_cast<int32_t>(hasDepthStencil));
-    b->add32(get_blend_info_key(programInfo.pipeline()));
-    b->add32(programInfo.primitiveTypeKey());
+    b.add32(static_cast<uint32_t>(format));
+    b.add32(static_cast<int32_t>(hasDepthStencil));
+    b.add32(get_blend_info_key(programInfo.pipeline()));
+    b.add32(programInfo.primitiveTypeKey());
 
-    b->flush();
+    b.flush();
     return desc;
 }
 

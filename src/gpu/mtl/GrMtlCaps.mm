@@ -1081,16 +1081,13 @@ GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget* rt,
                                   ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
-        SkASSERT(!desc.isValid());
-        return desc;
-    }
+    GrProgramDesc::Build(&desc, rt, programInfo, *this);
 
-    GrProcessorKeyBuilder* b = desc.key();
+    GrProcessorKeyBuilder b(desc.key());
 
-    b->add32(programInfo.backendFormat().asMtlFormat());
+    b.add32(programInfo.backendFormat().asMtlFormat());
 
-    b->add32(programInfo.numRasterSamples());
+    b.add32(programInfo.numRasterSamples());
 
 #ifdef SK_DEBUG
     if (rt && programInfo.isStencilEnabled()) {
@@ -1098,16 +1095,16 @@ GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget* rt,
     }
 #endif
 
-    b->add32(rt && rt->getStencilAttachment() ? this->preferredStencilFormat()
+    b.add32(rt && rt->getStencilAttachment() ? this->preferredStencilFormat()
                                               : MTLPixelFormatInvalid);
-    b->add32((uint32_t)programInfo.isStencilEnabled());
+    b.add32((uint32_t)programInfo.isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
 
-    programInfo.pipeline().genKey(b, *this);
+    programInfo.pipeline().genKey(&b, *this);
 
-    b->add32(programInfo.primitiveTypeKey());
+    b.add32(programInfo.primitiveTypeKey());
 
-    b->flush();
+    b.flush();
     return desc;
 }
 

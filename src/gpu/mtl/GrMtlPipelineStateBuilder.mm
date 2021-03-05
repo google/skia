@@ -77,7 +77,10 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
     // program, and that only depends on the base GrProgramDesc data.
     sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(),
                                                 this->desc().initialKeyLength());
-    const SkString& description = this->desc().description();
+    // TODO(skia:11372): We don't have the render target here, so pass null. This just means that
+    // any render-target state won't be accurately included in the description.
+    SkString description =
+            GrProgramDesc::Describe(/*renderTarget=*/nullptr, fProgramInfo, *this->caps());
     sk_sp<SkData> data;
     if (isSkSL) {
         // source cache, plus metadata to allow for a complete precompile

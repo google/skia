@@ -168,7 +168,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         return;
     }
     sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(), this->desc().keyLength());
-    const SkString& description = this->desc().description();
+    SkString description = GrProgramDesc::Describe(fRenderTarget, fProgramInfo, *fGpu->caps());
     if (fGpu->glCaps().programBinarySupport()) {
         // binary cache
         GrGLsizei length = 0;
