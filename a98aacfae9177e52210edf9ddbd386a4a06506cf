@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ff691b8_4752d9cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-05T16:40:50Z",
+      "side": 1,
+      "message": "Hijacking this for a brief discussion\n- Have we already tried writing the equivalent with DWrite?\n- Do we have a working variant in Android (using ICU via NDK)?\n- Have we started writing formal tests, to ensure same(ish) behavior on all 4?\n    [HB, DW, CT, Android]\n",
+      "revId": "a98aacfae9177e52210edf9ddbd386a4a06506cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
