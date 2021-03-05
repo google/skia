@@ -110,13 +110,21 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         return nullptr;
     }
 
+    GrSurfaceProxyView srcView = sdc->readSurfaceView();
+
     SkBudgeted budgeted = sdc->asSurfaceProxy()->isBudgeted();
 
-    GrSurfaceProxyView srcView = sdc->readSurfaceView();
     if (subset || !srcView.asTextureProxy() || sdc->refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
-        // want to ever retarget the SkSurface at another buffer we create. Force a copy now to
-        // avoid copy-on-write.
+        // want to ever retarget the SkSurface at another buffer we create. If the source is a
+        // texture (and the image is not subsetted) we make a dual-proxied SkImage that will
+        // attempt to share the backing store until the surface writes to the shared backing store
+        // at which point it uses a copy.
+        if (!subset && srcView.asTextureProxy()) {
+            return SkImage_Gpu::MakeWithVolatileSrc(sk_ref_sp(rContext),
+                                                    srcView,
+                                                    fDevice->imageInfo().colorInfo());
+        }
         auto rect = subset ? *subset : SkIRect::MakeSize(sdc->dimensions());
         srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), sdc->mipmapped(), rect,
                                            SkBackingFit::kExact, budgeted);
