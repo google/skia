@@ -17,6 +17,7 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -114,6 +115,17 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
     }
 }
 
+static std::unique_ptr<Expression> cast_expression(const Context& context,
+                                                   const Expression& expr,
+                                                   const Type& type) {
+    ExpressionArray ctorArgs;
+    ctorArgs.push_back(expr.clone());
+    std::unique_ptr<Expression> ctor = Constructor::Convert(context, expr.fOffset, type,
+                                                            std::move(ctorArgs));
+    SkASSERT(ctor);
+    return ctor;
+}
+
 static Constructor splat_scalar(const Expression& scalar, const Type& type) {
     SkASSERT(type.isVector());
     SkASSERT(type.componentType() == scalar.type());
@@ -142,6 +154,12 @@ bool ConstantFolder::GetConstantFloat(const Expression& value, SKSL_FLOAT* out) 
     return true;
 }
 
+static bool is_constant_scalar_value(const Expression& inExpr, float match) {
+    const Expression* expr = ConstantFolder::GetConstantValueForVariable(inExpr);
+    return (expr->is<IntLiteral>()   && expr->as<IntLiteral>().value()   == match) ||
+           (expr->is<FloatLiteral>() && expr->as<FloatLiteral>().value() == match);
+}
+
 static bool contains_constant_zero(const Expression& expr) {
     if (expr.is<Constructor>()) {
         for (const auto& arg : expr.as<Constructor>().arguments()) {
@@ -151,9 +169,23 @@ static bool contains_constant_zero(const Expression& expr) {
         }
         return false;
     }
-    const Expression* value = ConstantFolder::GetConstantValueForVariable(expr);
-    return (value->is<IntLiteral>()   && value->as<IntLiteral>().value()   == 0.0) ||
-           (value->is<FloatLiteral>() && value->as<FloatLiteral>().value() == 0.0);
+    return is_constant_scalar_value(expr, 0.0);
+}
+
+static bool is_constant_value(const Expression& expr, float value) {
+    if (!expr.type().isScalar() && !expr.type().isVector()) {
+        // This check only supports scalars and vectors (and in particular, not matrices).
+        return false;
+    }
+    if (expr.is<Constructor>()) {
+        for (const auto& arg : expr.as<Constructor>().arguments()) {
+            if (!is_constant_value(*arg, value)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return is_constant_scalar_value(expr, value);
 }
 
 bool ConstantFolder::ErrorOnDivideByZero(const Context& context, int offset, Operator op,
@@ -203,7 +235,8 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                                      int offset,
                                                      const Expression& leftExpr,
                                                      Operator op,
-                                                     const Expression& rightExpr) {
+                                                     const Expression& rightExpr,
+                                                     const Type& resultType) {
     // Replace constant variables with trivial initial-values.
     const Expression* left = GetConstantValueForVariable(leftExpr);
     const Expression* right = GetConstantValueForVariable(rightExpr);
@@ -258,7 +291,77 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         return nullptr;
     }
 
-    // Other than the short-circuit cases above, constant folding requires both sides to be constant
+    // Optimize away no-op arithmetic like `x * 1`, `x *= 1`, `x + 0`, `x * 0`, `0 / x`, etc.
+    switch (op.kind()) {
+        case Token::Kind::TK_PLUS:
+            if (is_constant_value(*right, 0.0)) {  // x + 0
+                return cast_expression(context, *left, resultType);
+            }
+            if (is_constant_value(*left, 0.0)) {   // 0 + x
+                return cast_expression(context, *right, resultType);
+            }
+            break;
+
+        case Token::Kind::TK_STAR:
+            if (is_constant_value(*right, 1.0)) {  // x * 1
+                return cast_expression(context, *left, resultType);
+            }
+            if (is_constant_value(*left, 1.0)) {   // 1 * x
+                return cast_expression(context, *right, resultType);
+            }
+            if (is_constant_value(*right, 0.0) && !left->hasSideEffects()) {  // x * 0
+                return cast_expression(context, *right, resultType);
+            }
+            if (is_constant_value(*left, 0.0) && !right->hasSideEffects()) {  // 0 * x
+                return cast_expression(context, *left, resultType);
+            }
+            break;
+
+        case Token::Kind::TK_MINUS:
+            if (is_constant_value(*right, 0.0)) {  // x - 0
+                return cast_expression(context, *left, resultType);
+            }
+            if (is_constant_value(*left, 0.0)) {   // 0 - x
+                return PrefixExpression::Make(context,
+                                              Token::Kind::TK_MINUS,
+                                              cast_expression(context, *right, resultType));
+            }
+            break;
+
+        case Token::Kind::TK_SLASH:
+            if (is_constant_value(*right, 1.0)) {  // x / 1
+                return cast_expression(context, *left, resultType);
+            }
+            if (is_constant_value(*left, 0.0) &&
+                !is_constant_value(*right, 0.0) &&
+                !right->hasSideEffects()) {        // 0 / x (where x ≠ 0)
+                return cast_expression(context, *left, resultType);
+            }
+            break;
+
+        case Token::Kind::TK_PLUSEQ:
+        case Token::Kind::TK_MINUSEQ:
+            if (is_constant_value(*right, 0.0)) {  // x += 0, x -= 0
+                std::unique_ptr<Expression> result = cast_expression(context, *left, resultType);
+                Analysis::UpdateRefKind(result.get(), VariableRefKind::kRead);
+                return result;
+            }
+            break;
+
+        case Token::Kind::TK_STAREQ:
+        case Token::Kind::TK_SLASHEQ:
+            if (is_constant_value(*right, 1.0)) {  // x *= 1, x /= 1
+                std::unique_ptr<Expression> result = cast_expression(context, *left, resultType);
+                Analysis::UpdateRefKind(result.get(), VariableRefKind::kRead);
+                return result;
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    // Other than the cases above, constant folding requires both sides to be constant.
     if (!left->isCompileTimeConstant() || !right->isCompileTimeConstant()) {
         return nullptr;
     }

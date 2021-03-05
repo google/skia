@@ -1,7 +1,7 @@
 ### Compilation failed:
 
 error: 4: loop must guarantee termination in fewer iterations
-error: 5: loop must guarantee termination in fewer iterations
+error: 5: invalid loop expression
 error: 10: loop index must not be modified within body of the loop
 error: 11: loop index must not be modified within body of the loop
 error: 12: loop index must not be modified within body of the loop
