@@ -3,7 +3,7 @@ float gInitializedFromOther_0 = -gInitialized_0;
 float gUninitialized_0;
 void init_globals_0()
 {
-	gUninitialized_0 = gInitialized_0 + 2.0;
+	gUninitialized_0 = 1.0;
 }
 float4 main()
 {

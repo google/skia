@@ -395,6 +395,14 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Va
             return nullptr;
         }
     }
+    if (this->programKind() != ProgramKind::kFragmentProcessor &&
+        var->storage() == Variable::Storage::kGlobal && value) {
+        if (!Analysis::IsConstantExpression(*value)) {
+            this->errorReporter().error(
+                    value->fOffset, "global variable initializer must be a constant expression");
+            return nullptr;
+        }
+    }
     if (value) {
         if (var->type().isOpaque()) {
             this->errorReporter().error(
