@@ -76,12 +76,13 @@ public:
     // dstProxy with top left at dstPoint. If the src rect is clipped by the src bounds then  pixel
     // values in the dst rect corresponding to the area clipped by the src rect are not overwritten.
     // This method is not guaranteed to succeed depending on the type of surface, formats, etc, and
-    // the backend-specific limitations.
-    bool newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
-                           SkIRect srcRect,
-                           sk_sp<GrSurfaceProxy> dst,
-                           SkIPoint dstPoint,
-                           GrSurfaceOrigin);
+    // the backend-specific limitations. On success the task is returned so that the caller may
+    // mark it skippable if the copy is later deemed unnecessary.
+    sk_sp<GrRenderTask> newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
+                                          SkIRect srcRect,
+                                          sk_sp<GrSurfaceProxy> dst,
+                                          SkIPoint dstPoint,
+                                          GrSurfaceOrigin);
 
     // Adds a task that writes the data from the passed GrMipLevels to dst. The lifetime of the
     // pixel data in the levels should be tied to the passed SkData or the caller must flush the

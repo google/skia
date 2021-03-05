@@ -47,25 +47,197 @@
 #include <cstring>
 #include <type_traits>
 
-SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context, uint32_t uniqueID, GrSurfaceProxyView view,
-                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> colorSpace)
-        : INHERITED(std::move(context), view.proxy()->backingStoreDimensions(), uniqueID,
-                    ct, at, colorSpace)
-        , fView(std::move(view)) {
+inline SkImage_Gpu::ProxyChooser::ProxyChooser(sk_sp<GrSurfaceProxy> stableProxy)
+        : fStableProxy(std::move(stableProxy)) {
+    SkASSERT(fStableProxy);
+}
+
+inline SkImage_Gpu::ProxyChooser::ProxyChooser(sk_sp<GrSurfaceProxy> stableProxy,
+                                               sk_sp<GrSurfaceProxy> volatileProxy,
+                                               sk_sp<GrRenderTask> copyTask,
+                                               int volatileProxyTargetCount)
+        : fStableProxy(std::move(stableProxy))
+        , fVolatileProxy(std::move(volatileProxy))
+        , fVolatileToStableCopyTask(std::move(copyTask))
+        , fVolatileProxyTargetCount(volatileProxyTargetCount) {
+    SkASSERT(fStableProxy);
+    SkASSERT(fVolatileProxy);
+    SkASSERT(fVolatileToStableCopyTask);
+}
+
+inline SkImage_Gpu::ProxyChooser::~ProxyChooser() {
+    // The image is being destroyed. If there is a stable copy proxy but we've been able to use
+    // the volatile proxy for all requests then we can skip the copy.
+    if (fVolatileToStableCopyTask) {
+        fVolatileToStableCopyTask->canSkip();
+    }
+}
+
+inline sk_sp<GrSurfaceProxy> SkImage_Gpu::ProxyChooser::chooseProxy(GrRecordingContext* context) {
+    SkAutoSpinlock hold(fLock);
+    if (fVolatileProxy) {
+        SkASSERT(fVolatileProxyTargetCount <= fVolatileProxy->getTaskTargetCount());
+        // If this image is used off the direct context it originated on, i.e. on a recording-only
+        // context, we don't know how the recording context's actions are ordered WRT direct context
+        // actions until the recording context's DAG is imported into the direct context.
+        if (context->asDirectContext() &&
+            fVolatileProxyTargetCount == fVolatileProxy->getTaskTargetCount()) {
+            return fVolatileProxy;
+        }
+        fVolatileProxy.reset();
+        fVolatileToStableCopyTask.reset();
+        return fStableProxy;
+    }
+    return fStableProxy;
+}
+
+inline sk_sp<GrSurfaceProxy> SkImage_Gpu::ProxyChooser::switchToStableProxy() {
+    SkAutoSpinlock hold(fLock);
+    fVolatileProxy.reset();
+    fVolatileToStableCopyTask.reset();
+    return fStableProxy;
+}
+
+inline sk_sp<GrSurfaceProxy> SkImage_Gpu::ProxyChooser::makeVolatileProxyStable() {
+    SkAutoSpinlock hold(fLock);
+    if (fVolatileProxy) {
+        fStableProxy = std::move(fVolatileProxy);
+        fVolatileToStableCopyTask->canSkip();
+        fVolatileToStableCopyTask.reset();
+    }
+    return fStableProxy;
+}
+
+inline bool SkImage_Gpu::ProxyChooser::surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const {
+    SkAutoSpinlock hold(fLock);
+    return surfaceProxy->underlyingUniqueID() == fStableProxy->underlyingUniqueID();
+}
+
+inline size_t SkImage_Gpu::ProxyChooser::gpuMemorySize() const {
+    SkAutoSpinlock hold(fLock);
+    size_t size = fStableProxy->gpuMemorySize();
+    if (fVolatileProxy) {
+        SkASSERT(fVolatileProxy->gpuMemorySize() == size);
+    }
+    return size;
+}
+
+inline GrMipmapped SkImage_Gpu::ProxyChooser::mipmapped() const {
+    SkAutoSpinlock hold(fLock);
+    GrMipmapped mipmapped = fStableProxy->asTextureProxy()->mipmapped();
+    if (fVolatileProxy) {
+        SkASSERT(fVolatileProxy->asTextureProxy()->mipmapped() == mipmapped);
+    }
+    return mipmapped;
+}
+
 #ifdef SK_DEBUG
-    const GrBackendFormat& format = fView.proxy()->backendFormat();
+inline GrBackendFormat SkImage_Gpu::ProxyChooser::backendFormat() {
+    SkAutoSpinlock hold(fLock);
+    if (fVolatileProxy) {
+        SkASSERT(fVolatileProxy->backendFormat() == fStableProxy->backendFormat());
+    }
+    return fStableProxy->backendFormat();
+}
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context,
+                         uint32_t uniqueID,
+                         GrSurfaceProxyView view,
+                         SkColorType ct,
+                         SkAlphaType at,
+                         sk_sp<SkColorSpace> colorSpace)
+        : INHERITED(std::move(context),
+                    view.proxy()->backingStoreDimensions(),
+                    uniqueID,
+                    ct,
+                    at,
+                    std::move(colorSpace))
+        , fChooser(view.detachProxy())
+        , fSwizzle(view.swizzle())
+        , fOrigin(view.origin()) {
+#ifdef SK_DEBUG
+    const GrBackendFormat& format = fChooser.backendFormat();
     const GrCaps* caps = this->context()->priv().caps();
-    GrColorType grCT = SkColorTypeAndFormatToGrColorType(caps, ct, format);
+    GrColorType grCT = SkColorTypeAndFormatToGrColorType(caps, this->colorType(), format);
     SkASSERT(caps->isFormatCompressed(format) ||
              caps->areColorTypeAndFormatCompatible(grCT, format));
 #endif
 }
 
-SkImage_Gpu::~SkImage_Gpu() {}
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrDirectContext> dContext,
+                         GrSurfaceProxyView volatileSrc,
+                         sk_sp<GrSurfaceProxy> stableCopy,
+                         sk_sp<GrRenderTask> copyTask,
+                         int volatileSrcTargetCount,
+                         SkColorInfo colorInfo)
+        : INHERITED(std::move(dContext),
+                    volatileSrc.proxy()->backingStoreDimensions(),
+                    kNeedNewImageUniqueID,
+                    colorInfo.colorType(),
+                    colorInfo.alphaType(),
+                    colorInfo.refColorSpace())
+        , fChooser(std::move(stableCopy),
+                   volatileSrc.detachProxy(),
+                   std::move(copyTask),
+                   volatileSrcTargetCount)
+        , fSwizzle(volatileSrc.swizzle())
+        , fOrigin(volatileSrc.origin()) {
+#ifdef SK_DEBUG
+    const GrBackendFormat& format = fChooser.backendFormat();
+    const GrCaps* caps = this->context()->priv().caps();
+    GrColorType grCT = SkColorTypeAndFormatToGrColorType(caps, this->colorType(), format);
+    SkASSERT(caps->isFormatCompressed(format) ||
+             caps->areColorTypeAndFormatCompatible(grCT, format));
+#endif
+}
+
+sk_sp<SkImage> SkImage_Gpu::MakeWithVolatileSrc(sk_sp<GrRecordingContext> rContext,
+                                                GrSurfaceProxyView volatileSrc,
+                                                SkColorInfo colorInfo) {
+    SkASSERT(rContext);
+    SkASSERT(volatileSrc);
+    SkASSERT(volatileSrc.proxy()->asTextureProxy());
+    GrMipmapped mm = volatileSrc.proxy()->asTextureProxy()->mipmapped();
+    sk_sp<GrRenderTask> copyTask;
+    auto copy = GrSurfaceProxy::Copy(rContext.get(),
+                                     volatileSrc.refProxy(),
+                                     volatileSrc.origin(),
+                                     mm,
+                                     SkBackingFit::kExact,
+                                     SkBudgeted::kYes,
+                                     &copyTask);
+    if (!copy) {
+        return nullptr;
+    }
+    // We only attempt to make a dual-proxy image on a direct context. This optimziation requires
+    // knowing how things are ordered and recording-only contexts are not well ordered WRT other
+    // recording contexts.
+    if (auto direct = sk_ref_sp(rContext->asDirectContext())) {
+        int targetCount = volatileSrc.proxy()->getTaskTargetCount();
+        return sk_sp<SkImage>(new SkImage_Gpu(std::move(direct),
+                                              std::move(volatileSrc),
+                                              std::move(copy),
+                                              std::move(copyTask),
+                                              targetCount,
+                                              std::move(colorInfo)));
+    }
+    GrSurfaceProxyView copyView(std::move(copy), volatileSrc.origin(), volatileSrc.swizzle());
+    return sk_make_sp<SkImage_Gpu>(std::move(rContext),
+                                   kNeedNewImageUniqueID,
+                                   std::move(copyView),
+                                   std::move(colorInfo));
+}
+
+SkImage_Gpu::~SkImage_Gpu() = default;
 
 bool SkImage_Gpu::surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const {
-    return surfaceProxy->underlyingUniqueID() == fView.proxy()->underlyingUniqueID();
+    return fChooser.surfaceMustCopyOnWrite(surfaceProxy);
 }
+
+bool SkImage_Gpu::onHasMipmaps() const { return fChooser.mipmapped() == GrMipmapped::kYes; }
 
 GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFlushInfo& info) {
     if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
@@ -78,7 +250,9 @@ GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFl
         return GrSemaphoresSubmitted::kNo;
     }
 
-    return dContext->priv().flushSurface(fView.proxy(), SkSurface::BackendSurfaceAccess::kNoAccess,
+    sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext);
+    return dContext->priv().flushSurface(proxy.get(),
+                                         SkSurface::BackendSurfaceAccess::kNoAccess,
                                          info);
 }
 
@@ -90,7 +264,9 @@ GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
         return GrBackendTexture();  // invalid
     }
 
-    GrSurfaceProxy* proxy = fView.proxy();
+    // We don't know how client's use of the texture will be ordered WRT Skia's. Ensure the
+    // texture seen by the client won't be mutated by a SkSurface.
+    sk_sp<GrSurfaceProxy> proxy = fChooser.switchToStableProxy();
 
     if (!proxy->isInstantiated()) {
         auto resourceProvider = direct->priv().resourceProvider();
@@ -103,15 +279,17 @@ GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
     GrTexture* texture = proxy->peekTexture();
     if (texture) {
         if (flushPendingGrContextIO) {
-            direct->priv().flushSurface(proxy);
+            direct->priv().flushSurface(proxy.get());
         }
         if (origin) {
-            *origin = fView.origin();
+            *origin = fOrigin;
         }
         return texture->getBackendTexture();
     }
     return GrBackendTexture();  // invalid
 }
+
+size_t SkImage_Gpu::onTextureSize() const { return fChooser.gpuMemorySize(); }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS,
@@ -144,8 +322,15 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
 }
 
 sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fView, this->colorType(),
-                                   this->alphaType(), std::move(newCS));
+    // It doesn't seem worth the complexity of trying to share the ProxyChooser among multiple
+    // images. Just fall back to the stable copy.
+    GrSurfaceProxyView view(fChooser.switchToStableProxy(), fOrigin, fSwizzle);
+    return sk_make_sp<SkImage_Gpu>(fContext,
+                                   kNeedNewImageUniqueID,
+                                   std::move(view),
+                                   this->colorType(),
+                                   this->alphaType(),
+                                   std::move(newCS));
 }
 
 void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
@@ -160,7 +345,9 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
         callback(context, nullptr);
         return;
     }
-    auto ctx = GrSurfaceContext::Make(dContext, fView, this->imageInfo().colorInfo());
+    auto ctx = GrSurfaceContext::Make(dContext,
+                                      this->makeView(dContext),
+                                      this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;
@@ -183,7 +370,9 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
         callback(context, nullptr);
         return;
     }
-    auto ctx = GrSurfaceContext::Make(dContext, fView, this->imageInfo().colorInfo());
+    auto ctx = GrSurfaceContext::Make(dContext,
+                                      this->makeView(dContext),
+                                      this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;
@@ -198,6 +387,8 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
                                          callback,
                                          context);
 }
+
+void SkImage_Gpu::generatingSurfaceIsDeleted() { fChooser.makeVolatileProxyStable(); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -636,13 +827,18 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Gpu::onAsView(
         return {};
     }
     if (policy != GrImageTexGenPolicy::kDraw) {
-        return {CopyView(context, fView, mipmapped, policy),
+        return {CopyView(context, this->makeView(context), mipmapped, policy),
                 SkColorTypeToGrColorType(this->colorType())};
     }
+    GrSurfaceProxyView view = this->makeView(context);
     GrColorType ct = SkColorTypeAndFormatToGrColorType(context->priv().caps(),
                                                        this->colorType(),
-                                                       fView.proxy()->backendFormat());
+                                                       view.proxy()->backendFormat());
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    GrTextureAdjuster adjuster(context, fView, colorInfo, this->uniqueID());
+    GrTextureAdjuster adjuster(context, std::move(view), colorInfo, this->uniqueID());
     return {adjuster.view(mipmapped), adjuster.colorType()};
+}
+
+GrSurfaceProxyView SkImage_Gpu::makeView(GrRecordingContext* rContext) const {
+    return {fChooser.chooseProxy(rContext), fOrigin, fSwizzle};
 }
