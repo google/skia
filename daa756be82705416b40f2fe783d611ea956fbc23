@@ -1,6 +1,69 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "669f3250_5c56a2cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T14:38:12Z",
+      "side": 1,
+      "message": "Only part way through",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8a0df86_7edeea7d",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T14:38:12Z",
+      "side": 1,
+      "message": "extra \u0027(\u0027 ?",
+      "range": {
+        "startLine": 59,
+        "startChar": 7,
+        "endLine": 59,
+        "endChar": 8
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac47c714_9fc844bf",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T14:38:12Z",
+      "side": 1,
+      "message": "can be ?",
+      "range": {
+        "startLine": 306,
+        "startChar": 44,
+        "endLine": 306,
+        "endChar": 48
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0e0998c_9f4d2a4e",
@@ -19,6 +82,70 @@
         "startChar": 4,
         "endLine": 447,
         "endChar": 15
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6096499c_ac0db5f7",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T14:38:12Z",
+      "side": 1,
+      "message": "Yeah - a proxy shouldn\u0027t be a task target in multiple recording contexts",
+      "parentUuid": "b0e0998c_9f4d2a4e",
+      "range": {
+        "startLine": 447,
+        "startChar": 4,
+        "endLine": 447,
+        "endChar": 15
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb7a7007_015a36dd",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T14:38:12Z",
+      "side": 1,
+      "message": "// Notify this image that the SkSurface from which it was snapped\n// has been deleted so copy-on-write will no longer ever be required \n\n?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87292d0b_ff6cbc37",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T14:38:12Z",
+      "side": 1,
+      "message": "SK_EXCLUDES(fLock) ?\n\nAnd also on all the following methods ?",
+      "range": {
+        "startLine": 116,
+        "startChar": 70,
+        "endLine": 116,
+        "endChar": 71
       },
       "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
