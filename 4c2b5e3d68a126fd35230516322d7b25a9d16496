@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f11cbe6e_9df502c8",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T22:04:43Z",
+      "side": 1,
+      "message": "I suppose this can be written out here, but makes more sense in the deduction guide. In the deduction guide it\u0027s obvious that this is the only real type to use and is related to the definition of SkUbrkClone, putting it here seems strange since it\u0027s just explicitly repeating the type of the first parameter.",
+      "range": {
+        "startLine": 215,
+        "startChar": 38,
+        "endLine": 215,
+        "endChar": 61
+      },
+      "revId": "4c2b5e3d68a126fd35230516322d7b25a9d16496",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
