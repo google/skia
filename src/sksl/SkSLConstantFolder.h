@@ -55,7 +55,8 @@ public:
                                                 int offset,
                                                 const Expression& left,
                                                 Operator op,
-                                                const Expression& right);
+                                                const Expression& right,
+                                                const Type& resultType);
 };
 
 }  // namespace SkSL
