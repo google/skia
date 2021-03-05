@@ -169,7 +169,7 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
                 skvm::F32 vA = v*A,
                            K = F + 1.0f;
                 v = K*select(vA <= 1.0f, approx_powf(vA, B)
-                                       , approx_exp((v-E) * C + D));
+                                       , approx_exp((v-E) * C) + D);
             } break;
 
             case HLGinvish_TF:
