@@ -16,6 +16,24 @@
       "message": "Hijacking this for a brief discussion\n- Have we already tried writing the equivalent with DWrite?\n- Do we have a working variant in Android (using ICU via NDK)?\n- Have we started writing formal tests, to ensure same(ish) behavior on all 4?\n    [HB, DW, CT, Android]\n",
       "revId": "a98aacfae9177e52210edf9ddbd386a4a06506cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "094f39b9_67a7e8b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T16:49:10Z",
+      "side": 1,
+      "message": "\u003e Have we already tried writing the equivalent with DWrite?\nNo\n\n\u003eDo we have a working variant in Android (using ICU via NDK)?\nYes, that\u0027s the way the harfbuzz one works (and that is tested).\n\n\u003eHave we started writing formal tests, to ensure same(ish) behavior on all 4?\nNo",
+      "parentUuid": "3ff691b8_4752d9cc",
+      "revId": "a98aacfae9177e52210edf9ddbd386a4a06506cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
