@@ -75,6 +75,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f654bab0_37019d64",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8a0df86_7edeea7d",
+      "range": {
+        "startLine": 59,
+        "startChar": 7,
+        "endLine": 59,
+        "endChar": 8
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ac47c714_9fc844bf",
@@ -88,6 +112,30 @@
       "writtenOn": "2021-03-05T14:38:12Z",
       "side": 1,
       "message": "can be ?",
+      "range": {
+        "startLine": 306,
+        "startChar": 44,
+        "endLine": 306,
+        "endChar": 48
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd4c96b8_7077fbb3",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac47c714_9fc844bf",
       "range": {
         "startLine": 306,
         "startChar": 44,
@@ -169,6 +217,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c82e348_c05abce3",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Removed atomic.",
+      "parentUuid": "6096499c_ac0db5f7",
+      "range": {
+        "startLine": 447,
+        "startChar": 4,
+        "endLine": 447,
+        "endChar": 15
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb7a7007_015a36dd",
@@ -186,6 +258,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e721c489_1c1bb328",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb7a7007_015a36dd",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bedaaf21_2f3671c2",
@@ -199,6 +289,24 @@
       "writtenOn": "2021-03-05T16:12:54Z",
       "side": 1,
       "message": "// If the copy task hasn\u0027t been determined to be required by this point then it \n// certainly won\u0027t be required after this point\n\n?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c88c7a3_95b9e66d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bedaaf21_2f3671c2",
       "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -250,6 +358,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1c859cb_4cdfad0a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Because things are only well ordered on a direct context. If this image is drawn on a recording-only context we have to idea how it is ordered WRT direct context actions. Added a comment.",
+      "parentUuid": "f8a0c4e3_c6d1e61d",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 38
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00618d5d_12ee0dec",
@@ -267,6 +399,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "241a750c_10653427",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00618d5d_12ee0dec",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e51f5c2_9bbf0475",
@@ -280,6 +430,30 @@
       "writtenOn": "2021-03-05T16:57:25Z",
       "side": 1,
       "message": "std::move ?",
+      "range": {
+        "startLine": 151,
+        "startChar": 20,
+        "endLine": 151,
+        "endChar": 30
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c66351a8_2435b32e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e51f5c2_9bbf0475",
       "range": {
         "startLine": 151,
         "startChar": 20,
@@ -313,6 +487,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcda11a0_2002dbd7",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00c02df1_472ad3d2",
+      "range": {
+        "startLine": 164,
+        "startChar": 48,
+        "endLine": 164,
+        "endChar": 55
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e01040c7_5efac11b",
@@ -326,6 +524,30 @@
       "writtenOn": "2021-03-05T16:57:25Z",
       "side": 1,
       "message": "rContext ?",
+      "range": {
+        "startLine": 191,
+        "startChar": 74,
+        "endLine": 191,
+        "endChar": 81
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fe7eca0_0172622e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e01040c7_5efac11b",
       "range": {
         "startLine": 191,
         "startChar": 74,
@@ -359,6 +581,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c164e4a_002f6877",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Same reason: not well ordered WRT other rcontexts. In practice we don\u0027t allow wrapped SkSurfaces to be made on rcontexts at present anyway. It could be an assert but that seems like overkill as the current code would still work if that were relaxed.",
+      "parentUuid": "7924cdf1_1efe9cbb",
+      "range": {
+        "startLine": 209,
+        "startChar": 13,
+        "endLine": 209,
+        "endChar": 20
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3ceae98a_d3a2b525",
@@ -372,6 +618,30 @@
       "writtenOn": "2021-03-05T16:57:25Z",
       "side": 1,
       "message": "Can we not use sk_make_sp\u003cSkImage_Gpu\u003e here too ?",
+      "range": {
+        "startLine": 211,
+        "startChar": 15,
+        "endLine": 211,
+        "endChar": 45
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b74988c_5c326ea3",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "No, private constructor.",
+      "parentUuid": "3ceae98a_d3a2b525",
       "range": {
         "startLine": 211,
         "startChar": 15,
@@ -405,6 +675,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a4bd05b_847e5579",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f2baf49_e94e8ce1",
+      "range": {
+        "startLine": 219,
+        "startChar": 35,
+        "endLine": 219,
+        "endChar": 42
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bcf966e6_51300af2",
@@ -418,6 +712,24 @@
       "writtenOn": "2021-03-05T16:12:54Z",
       "side": 1,
       "message": "// If this image\u0027s surface is still extant we know we will need to copy here in \n// order to give the use a stable result.\n\n?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5edaf0fe_1b7e8b2a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bcf966e6_51300af2",
       "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -439,6 +751,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06d00f45_0d5b1650",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Added:\n    // It doesn\u0027t seem worth the complexity of trying to share the ProxyChooser among multiple\n    // images. Just fall back to the stable copy.",
+      "parentUuid": "f1eb0899_455c2b03",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75fba4e6_eaa5f59a",
@@ -452,6 +782,30 @@
       "writtenOn": "2021-03-05T16:57:25Z",
       "side": 1,
       "message": "rContext ?",
+      "range": {
+        "startLine": 829,
+        "startChar": 61,
+        "endLine": 829,
+        "endChar": 68
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90d97a6e_6cb97bcd",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75fba4e6_eaa5f59a",
       "range": {
         "startLine": 829,
         "startChar": 61,
@@ -485,6 +839,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e5f5c92_5b7061d7",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f5d1090_1b833c0b",
+      "range": {
+        "startLine": 100,
+        "startChar": 71,
+        "endLine": 100,
+        "endChar": 81
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2dc8e556_a67b963f",
@@ -498,6 +876,30 @@
       "writtenOn": "2021-03-05T16:12:54Z",
       "side": 1,
       "message": "If",
+      "range": {
+        "startLine": 114,
+        "startChar": 68,
+        "endLine": 114,
+        "endChar": 71
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "350ee82a_133ea8ed",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2dc8e556_a67b963f",
       "range": {
         "startLine": 114,
         "startChar": 68,
@@ -531,6 +933,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d5dabf1_96b58ab7",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87292d0b_ff6cbc37",
+      "range": {
+        "startLine": 116,
+        "startChar": 70,
+        "endLine": 116,
+        "endChar": 71
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e36482bd_12561f66",
@@ -548,6 +974,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d5ecdd0_b526c74e",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e36482bd_12561f66",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91cc1c1f_0cefada6",
@@ -561,6 +1005,24 @@
       "writtenOn": "2021-03-05T17:16:55Z",
       "side": 1,
       "message": "Couldn\u0027t we have a similar case where on the recording thread a recording context should be used to create an SkSurface and then make an SkImage that is then drawn into the main DDL target?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a0bca60_282f3687",
+        "filename": "tests/WrappedSurfaceCopyOnWriteTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-05T18:08:26Z",
+      "side": 1,
+      "message": "Yeah, I wrote that test case but it doesn\u0027t work because we don\u0027t allow a wrapped proxy to be created on a recording-only context. The surface creation just fails. It\u0027s only possible to create a wrapped surface (and therefore dual-proxy image) on a direct context.",
+      "parentUuid": "91cc1c1f_0cefada6",
       "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
