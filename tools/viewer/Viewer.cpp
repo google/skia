@@ -65,6 +65,10 @@
     #include "tools/viewer/SkRiveSlide.h"
 #endif
 
+namespace SkSL {
+extern bool gSkSLControlFlowAnalysis;
+}
+
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
 public:
     void compileError(const char* shader, const char* errors) override {
@@ -2391,7 +2395,9 @@ void Viewer::drawImGui() {
                 bool doView      = ImGui::Button("View"); ImGui::SameLine();
                 bool doApply     = ImGui::Button("Apply Changes"); ImGui::SameLine();
                 bool doDump      = ImGui::Button("Dump SkSL to resources/sksl/"); ImGui::SameLine();
-                bool skslChecked = ImGui::Checkbox("SkSL", &sksl);
+                bool skslChecked = ImGui::Checkbox("SkSL", &sksl); ImGui::SameLine();
+                bool doControlFlow = ImGui::Checkbox("Control-Flow Analysis",
+                                                     &SkSL::gSkSLControlFlowAnalysis);
 
                 // We always want to dump shaders in SkSL format, not the backend format.
                 if (doDump) {
@@ -2400,7 +2406,7 @@ void Viewer::drawImGui() {
 
                 // If SkSL was checked, or if we are dumping shaders, we want to reset the cache and
                 // redo everything.
-                if (doDump || skslChecked) {
+                if (doDump || doControlFlow || skslChecked) {
                     params.fGrContextOptions.fShaderCacheStrategy =
                             sksl ? GrContextOptions::ShaderCacheStrategy::kSkSL
                                  : GrContextOptions::ShaderCacheStrategy::kBackendSource;
