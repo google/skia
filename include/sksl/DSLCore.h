@@ -63,10 +63,9 @@ DSLStatement Break();
 DSLStatement Continue();
 
 /**
- * Creates a variable declaration statement with an initial value.
+ * Creates a variable declaration statement.
  */
-DSLStatement Declare(DSLVar& var, DSLExpression initialValue = DSLExpression(),
-                     PositionInfo pos = PositionInfo());
+DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo());
 
 /**
  * default: statements

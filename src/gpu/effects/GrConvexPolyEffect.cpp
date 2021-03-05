@@ -44,8 +44,8 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     StartFragmentProcessor(this, &args);
     Var edgeArray(kUniform_Modifier, Array(kHalf3, cpe.getEdgeCount()));
     fEdgeUniform = VarUniformHandle(edgeArray);
-    Var alpha(kHalf, "alpha");
-    Declare(alpha, 1);
+    Var alpha(kHalf, "alpha", 1);
+    Declare(alpha);
     Var edge(kHalf, "edge");
     Declare(edge);
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
