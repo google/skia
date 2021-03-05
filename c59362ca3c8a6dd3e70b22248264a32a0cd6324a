@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1ed18ce_e89571dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-05T20:54:00Z",
+      "side": 1,
+      "message": "It doesn\u0027t read quite as nicely, but it solves a big problem and I don\u0027t have any better suggestions :| ",
+      "revId": "c59362ca3c8a6dd3e70b22248264a32a0cd6324a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
