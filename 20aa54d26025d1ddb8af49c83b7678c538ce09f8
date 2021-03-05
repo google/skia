@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30558c07_58b4832f",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T21:28:21Z",
+      "side": 1,
+      "message": "I typed \u0027class\u0027 instead of \u0027typename\u0027 here before, but this should probably be \u0027typename\u0027 in order to be consistent.",
+      "range": {
+        "startLine": 29,
+        "startChar": 9,
+        "endLine": 29,
+        "endChar": 14
+      },
+      "revId": "20aa54d26025d1ddb8af49c83b7678c538ce09f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea078d0d_c74d6a50",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T21:28:21Z",
+      "side": 1,
+      "message": "When adding the deduction guide, this should be safe to remove.",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 43
+      },
+      "revId": "20aa54d26025d1ddb8af49c83b7678c538ce09f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3f94a03_dfe41556",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T21:28:21Z",
+      "side": 1,
+      "message": "-Wctad-maybe-unsupported is an interesting warning. Not sure why it warns here where there isn\u0027t anything to ctad since all the parameters are defaulted. I suppose one could try specifying those parameters to be something different though and the compiler doesn\u0027t know that these are only dependent for SFINAE reasons.\n\nI think this can be fixed by putting\n\n    SkUbrkClone() -\u003e SkUbrkClone\u003cconst UBreakIterator*\u003e;\n\nright here.",
+      "revId": "20aa54d26025d1ddb8af49c83b7678c538ce09f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
