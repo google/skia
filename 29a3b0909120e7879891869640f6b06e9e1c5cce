@@ -16,6 +16,24 @@
       "message": "Looks like at https://android.googlesource.com/platform/external/icu/+/5913e0373ec14e47310a77483e0e3f3349a91557/libicu/ndk_headers/uconfig_local.h#27 Android NDK sets U_DISABLE_RENAMING.",
       "revId": "29a3b0909120e7879891869640f6b06e9e1c5cce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df152107_47f0f0d0",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T20:26:17Z",
+      "side": 1,
+      "message": "Maybe this could be\n\n    template\u003cclass...\u003e using void_t \u003d void;\n    template\u003ctypename T \u003d const UBreakIterator*, typename \u003d void\u003e\n    struct SkUbrkClone {\n        UBreakIterator* operator()(T bi, UErrorCode* status) {\n            return ubrk_safeClone(bi, nullptr, nullptr, status);\n        }\n    };\n    template\u003ctypename T\u003e\n    struct SkUbrkClone\u003cT, void_t\u003cdecltype(ubrk_clone(std::declval\u003cT\u003e(), nullptr))\u003e\u003e {\n        UBreakIterator* operator()(T bi, UErrorCode* status) {\n            return ubrk_clone(bi, status);\n        }\n    };\n\ncalled like\n\n    iterator.reset(SkUbrkClone()(cachedIterator-\u003eget(), \u0026status));\n\nThis will call ubrk_clone if it has been declared, otherwise use ubrk_safeClone. It\u0027s somewhat complicated because the dependent type needs to be threaded all the way down in order to be SFINAE. This does not care about U_DISABLE_RENAMING since this is directly testing for existence instead of looking for the macro, so that part of the comment should be removed, though the rest should remain.",
+      "parentUuid": "ee946d4b_a01fd0c3",
+      "revId": "29a3b0909120e7879891869640f6b06e9e1c5cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
