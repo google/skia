@@ -44,7 +44,7 @@
 #include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/GrWritePixelsRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
-#include "src/gpu/text/GrSDFTControl.h"
+#include "src/gpu/text/GrSDFTOptions.h"
 #include "src/image/SkSurface_Gpu.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

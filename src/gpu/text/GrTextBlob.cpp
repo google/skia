@@ -1365,7 +1365,7 @@ bool GrTextBlob::Key::operator==(const GrTextBlob::Key& that) const {
         return false;
     }
 
-    if (fSetOfDrawingTypes & GrSDFTControl::kDirect) {
+    if (fSetOfDrawingTypes & GrSDFTOptions::kDirect) {
         auto [compatible, _] = check_integer_translate(fDrawMatrix, that.fDrawMatrix);
         return compatible;
     }
@@ -1487,12 +1487,12 @@ void GrTextBlob::makeSubRuns(SkGlyphRunListPainter* painter,
                              const SkGlyphRunList& glyphRunList,
                              const SkMatrix& drawMatrix,
                              const SkPaint& runPaint,
-                             const GrSDFTControl& control) {
+                             const GrSDFTOptions& options) {
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(glyphRun,
                                  drawMatrix,
                                  runPaint,
-                                 control,
+                                 options,
                                  this);
     }
 }
