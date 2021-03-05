@@ -719,6 +719,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             break;
         }
         case Expression::Kind::kTernary: {
+            // TODO(skia:11319): this optimization logic is redundant with the optimization code
+            // found in SkSLTernaryExpression.cpp.
+
             TernaryExpression* t = &expr->as<TernaryExpression>();
             if (t->test()->is<BoolLiteral>()) {
                 // ternary has a constant test, replace it with either the true or
