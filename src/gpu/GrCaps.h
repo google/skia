@@ -105,8 +105,6 @@ public:
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
-    bool preferTrianglesOverSampleMask() const { return fPreferTrianglesOverSampleMask; }
-
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
 
     bool avoidWritePixelsFastPath() const { return fAvoidWritePixelsFastPath; }
@@ -543,9 +541,6 @@ protected:
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
-
-    // On some platforms it's better to make more triangles than to use the sample mask (MSAA only).
-    bool fPreferTrianglesOverSampleMask              : 1;
 
     bool fFenceSyncSupport                           : 1;
     bool fSemaphoreSupport                           : 1;
