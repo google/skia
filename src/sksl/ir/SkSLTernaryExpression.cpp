@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -63,14 +64,15 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
     SkASSERT(!ifTrue->type().componentType().isOpaque());
     SkASSERT(!context.fConfig->strictES2Mode() || !ifTrue->type().isOrContainsArray());
 
-    if (test->is<BoolLiteral>()) {
-        // static boolean test, just return one of the branches
-        if (test->as<BoolLiteral>().value()) {
-            return ifTrue;
-        } else {
-            return ifFalse;
+    if (context.fConfig->fSettings.fOptimize) {
+        const Expression* testExpr = ConstantFolder::GetConstantValueForVariable(*test);
+        if (testExpr->is<BoolLiteral>()) {
+            // static boolean test, just return one of the branches
+            return testExpr->as<BoolLiteral>().value() ? std::move(ifTrue)
+                                                       : std::move(ifFalse);
         }
     }
+
     return std::make_unique<TernaryExpression>(test->fOffset, std::move(test),
                                                std::move(ifTrue), std::move(ifFalse));
 }

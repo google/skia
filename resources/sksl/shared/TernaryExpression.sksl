@@ -1,0 +1,26 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main() {
+    const bool TRUE = true;
+    const bool FALSE = false;
+
+    bool ok = true;
+
+    // Literal test
+    ok = ok && (true ? true : false);
+    ok = ok && (false ? false : true);
+
+    // Constant boolean test
+    ok = ok && (TRUE ? true : false);
+    ok = ok && (FALSE ? false : true);
+
+    // Constant-foldable test
+    ok = ok && (1 == 1 ? true : false);
+    ok = ok && (0 == 1 ? false : true);
+
+    // Unknown-value test
+    ok = ok && (colorGreen.g == 1 ? true : false);
+    ok = ok && (colorGreen.r == 1 ? false : true);
+
+    return ok ? colorGreen : colorRed;
+}

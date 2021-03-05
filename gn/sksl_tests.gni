@@ -431,6 +431,7 @@ sksl_shared_tests = [
   "/sksl/shared/SwizzleScalar.sksl",
   "/sksl/shared/TernaryAsLValueEntirelyFoldable.sksl",
   "/sksl/shared/TernaryAsLValueFoldableTest.sksl",
+  "/sksl/shared/TernaryExpression.sksl",
   "/sksl/shared/Texture1D.sksl",
   "/sksl/shared/Texture2D.sksl",
   "/sksl/shared/TextureSharpen.sksl",
