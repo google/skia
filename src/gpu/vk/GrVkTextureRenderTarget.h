@@ -61,46 +61,21 @@ private:
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             SkBudgeted budgeted,
                             SkISize dimensions,
-                            int sampleCnt,
                             const GrVkImageInfo& info,
                             sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                             sk_sp<const GrVkImageView> texView,
-                            sk_sp<GrVkAttachment> msaaAttachment,
-                            sk_sp<const GrVkImageView> colorAttachmentView,
-                            sk_sp<const GrVkImageView> resolveAttachmentView,
-                            GrMipmapStatus);
-
-    // non-MSAA, not-wrapped
-    GrVkTextureRenderTarget(GrVkGpu* gpu,
-                            SkBudgeted budgeted,
-                            SkISize dimensions,
-                            const GrVkImageInfo& info,
-                            sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                            sk_sp<const GrVkImageView> texView,
-                            sk_sp<const GrVkImageView> colorAttachmentView,
+                            sk_sp<GrVkAttachment> colorAttachment,
+                            sk_sp<GrVkAttachment> resolveAttachment,
                             GrMipmapStatus);
 
     // MSAA, wrapped
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             SkISize dimensions,
-                            int sampleCnt,
                             const GrVkImageInfo& info,
                             sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                             sk_sp<const GrVkImageView> texView,
-                            sk_sp<GrVkAttachment> msaaAttachment,
-                            sk_sp<const GrVkImageView> colorAttachmentView,
-                            sk_sp<const GrVkImageView> resolveAttachmentView,
-                            GrMipmapStatus,
-                            GrBackendObjectOwnership,
-                            GrWrapCacheable);
-
-    // non-MSAA, wrapped
-    GrVkTextureRenderTarget(GrVkGpu* gpu,
-                            SkISize dimensions,
-                            const GrVkImageInfo& info,
-                            sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                            sk_sp<const GrVkImageView> texView,
-                            sk_sp<const GrVkImageView> colorAttachmentView,
+                            sk_sp<GrVkAttachment> colorAttachment,
+                            sk_sp<GrVkAttachment> resolveAttachment,
                             GrMipmapStatus,
                             GrBackendObjectOwnership,
                             GrWrapCacheable);

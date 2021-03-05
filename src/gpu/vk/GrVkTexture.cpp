@@ -27,8 +27,8 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          sk_sp<const GrVkImageView> view,
                          GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipmapStatus)
+        , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
         , fTextureView(std::move(view))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == info.fLevelCount));
@@ -47,9 +47,9 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions, const GrVkImageInfo& 
                          GrMipmapStatus mipmapStatus, GrBackendObjectOwnership ownership,
                          GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , INHERITED(gpu, dimensions, info.fProtected,
                     isExternal ? GrTextureType::kExternal : GrTextureType::k2D, mipmapStatus)
+        , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , fTextureView(std::move(view))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == info.fLevelCount));
@@ -69,8 +69,8 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrMipmapStatus mipmapStatus,
                          GrBackendObjectOwnership ownership)
         : GrSurface(gpu, dimensions, info.fProtected)
-        , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipmapStatus)
+        , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , fTextureView(std::move(view))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == info.fLevelCount));
