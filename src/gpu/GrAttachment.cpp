@@ -14,13 +14,28 @@
 #include "src/gpu/GrGpu.h"
 
 size_t GrAttachment::onGpuMemorySize() const {
-    GrBackendFormat format = this->backendFormat();
-    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+    // The GrTexture[RenderTarget] is built up by a bunch of attachments each of which are their
+    // own GrGpuResource. Ideally the GrRenderTarget would not be a GrGpuResource and the GrTexture
+    // would just merge with the new GrSurface/Attachment world. Then we could just depend on each
+    // attachment to give its own size since we don't have GrGpuResources owning other
+    // GrGpuResources. Until we get to that point we need to live in some hybrid world. We will let
+    // the msaa and stencil attachments track their own size because they do get cached separately.
+    // For all GrTexture* based things we will continue to to use the GrTexture* to report size and
+    // the owned attachments will have no size and be uncached.
+    // TODO: Once we start using texture attachments this check really should be !texture. However,
+    // until then in GrVkTextureRenderTarget we make a wrapped attachment to use for the render
+    // target which duplicates the GrTexture. These will be merged once we use texture attachments.
+    if ((fSupportedUsages & UsageFlags::kStencilAttachment) ||
+        ((fSupportedUsages & UsageFlags::kColorAttachment) && fSampleCnt > 1)) {
+        GrBackendFormat format = this->backendFormat();
+        SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 
-    uint64_t size = GrNumBlocks(compression, this->dimensions());
-    size *= GrBackendFormatBytesPerBlock(this->backendFormat());
-    size *= this->numSamples();
-    return size;
+        uint64_t size = GrNumBlocks(compression, this->dimensions());
+        size *= GrBackendFormatBytesPerBlock(this->backendFormat());
+        size *= this->numSamples();
+        return size;
+    }
+    return 0;
 }
 
 static void build_key(GrResourceKey::Builder* builder,

@@ -24,7 +24,7 @@ class GrVkAttachment;
 
 struct GrVkImageInfo;
 
-class GrVkRenderTarget: public GrRenderTarget, public virtual GrVkImage {
+class GrVkRenderTarget: public GrRenderTarget {
 public:
     static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, SkISize, int sampleCnt,
                                                            const GrVkImageInfo&,
@@ -35,7 +35,7 @@ public:
 
     ~GrVkRenderTarget() override;
 
-    GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
+    GrBackendFormat backendFormat() const override { return fColorAttachment->getBackendFormat(); }
 
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
     using LoadFromResolve = GrVkRenderPass::LoadFromResolve;
@@ -51,22 +51,28 @@ public:
                                     renderPass.loadFromResolve());
     }
 
-    const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView.get(); }
+    GrVkAttachment* colorAttachment() const { return fColorAttachment.get(); }
+    const GrVkImageView* colorAttachmentView() const { return fColorAttachment->framebufferView(); }
 
-    /**
-     * If this render target is multisampled, this returns the MSAA image for rendering. This
-     * will be different than *this* when we have separate render/resolve images. If not
-     * multisampled returns nullptr.
-     */
-    GrVkImage* msaaImage();
+    GrVkAttachment* resolveAttachment() const { return fResolveAttachment.get(); }
+    const GrVkImageView* resolveAttachmentView() const {
+        return fResolveAttachment->framebufferView();
+    }
 
-    const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView.get(); }
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 
-    // Returns the main target for draws. If using MSAA and we have a resolve target, it will be the
-    // msaa attachment. Otherwise it will be this object.
-    GrVkImage* colorAttachmentImage();
+    // Returns the GrVkAttachment of the non-msaa attachment. If the color attachment has 1 sample,
+    // then the color attachment will be returned. Otherwise, the resolve attachment is returned.
+    // Note that in this second case the resolve attachment may be null if this was created by
+    // wrapping an msaa VkImage.
+    GrVkAttachment* nonMSAAAttachment() const;
+
+    // Returns the attachment that is used for all external client facing operations. This will be
+    // either a wrapped color attachment or the resolve attachment for created VkImages.
+    GrVkAttachment* externalAttachment() const {
+        return fResolveAttachment ? fResolveAttachment.get() : fColorAttachment.get();
+    }
 
     const GrVkRenderPass* getSimpleRenderPass(bool withResolve,
                                               bool withStencil,
@@ -118,71 +124,31 @@ public:
     }
 
 protected:
-    GrVkRenderTarget(GrVkGpu* gpu,
-                     SkISize dimensions,
-                     int sampleCnt,
-                     const GrVkImageInfo& info,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     sk_sp<GrVkAttachment> msaaAttachment,
-                     sk_sp<const GrVkImageView> colorAttachmentView,
-                     sk_sp<const GrVkImageView> resolveAttachmentView,
-                     GrBackendObjectOwnership);
+    enum class CreateType {
+        kDirectlyWrapped, // We need to register this in the ctor
+        kFromTextureRT,   // Skip registering this to cache since TexRT will handle it
+    };
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
-                     const GrVkImageInfo& info,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     sk_sp<const GrVkImageView> colorAttachmentView,
-                     GrBackendObjectOwnership);
+                     sk_sp<GrVkAttachment> colorAttachment,
+                     sk_sp<GrVkAttachment> resolveAttachment,
+                     CreateType createType);
 
     void onAbandon() override;
     void onRelease() override;
 
-    // This accounts for the texture's memory and any MSAA renderbuffer's memory.
-    size_t onGpuMemorySize() const override {
-        int numColorSamples = 0;
-        if (this->numSamples() > 1) {
-            // If we have an msaa attachment then its size will be handled by the attachment itself.
-            if (!fMSAAAttachment) {
-                numColorSamples += this->numSamples();
-            }
-            if (fResolveAttachmentView) {
-                // Add one to account for the resolved VkImage.
-                numColorSamples += 1;
-            }
-        } else {
-            SkASSERT(!fResolveAttachmentView);
-            numColorSamples = 1;
-        }
-
-        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipmapped::kNo);
-    }
+    // This returns zero since the memory should all be handled by the attachments
+    size_t onGpuMemorySize() const override { return 0; }
 
 private:
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
-                     int sampleCnt,
-                     const GrVkImageInfo& info,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     sk_sp<GrVkAttachment> msaaAttachment,
-                     sk_sp<const GrVkImageView> colorAttachmentView,
-                     sk_sp<const GrVkImageView> resolveAttachmentView);
-
-    GrVkRenderTarget(GrVkGpu* gpu,
-                     SkISize dimensions,
-                     const GrVkImageInfo& info,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     sk_sp<const GrVkImageView> colorAttachmentView);
-
-    GrVkRenderTarget(GrVkGpu* gpu,
-                     SkISize dimensions,
-                     const GrVkImageInfo& info,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                     sk_sp<GrVkAttachment> colorAttachment,
                      const GrVkRenderPass* renderPass,
                      VkCommandBuffer secondaryCommandBuffer);
 
-    void setFlags(const GrVkImageInfo& info);
+    void setFlags();
 
     GrVkGpu* getVkGpu() const;
 
@@ -200,15 +166,17 @@ private:
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).
     void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {
-        // Forward the release proc on to GrVkImage
-        this->setResourceRelease(std::move(releaseHelper));
+        // Forward the release proc on to the GrVkImage of the release attachment if we have one,
+        // otherwise the color attachment.
+        GrVkAttachment* attachment =
+                fResolveAttachment ? fResolveAttachment.get() : fColorAttachment.get();
+        attachment->setResourceRelease(std::move(releaseHelper));
     }
 
     void releaseInternalObjects();
 
-    sk_sp<const GrVkImageView> fColorAttachmentView;
-    sk_sp<GrVkAttachment>      fMSAAAttachment;
-    sk_sp<const GrVkImageView> fResolveAttachmentView;
+    sk_sp<GrVkAttachment> fColorAttachment;
+    sk_sp<GrVkAttachment> fResolveAttachment;
 
     // We can have a renderpass with and without resolve attachment, stencil attachment,
     // input attachment dependency, advanced blend dependency, and loading from resolve. All 5 of

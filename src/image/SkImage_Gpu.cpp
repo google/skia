@@ -743,10 +743,10 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
     }
 
     GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(backendFormat, grColorType);
-    GrSurfaceProxyView view(std::move(proxy), surfaceOrigin, swizzle);
+    GrSurfaceProxyView framebufferView(std::move(proxy), surfaceOrigin, swizzle);
     sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
                                                    kNeedNewImageUniqueID,
-                                                   view,
+                                                   framebufferView,
                                                    colorType,
                                                    pixmap.alphaType(),
                                                    pixmap.refColorSpace());
@@ -759,7 +759,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
         return nullptr;
     }
 
-    GrSurfaceContext surfaceContext(dContext, std::move(view), image->imageInfo().colorInfo());
+    GrSurfaceContext surfaceContext(
+            dContext, std::move(framebufferView),image->imageInfo().colorInfo());
 
     surfaceContext.writePixels(dContext, pixmap, {0, 0});
 

@@ -563,7 +563,10 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        srcImage = rt;
+        if (!rt->nonMSAAAttachment()) {
+            return false;
+        }
+        srcImage = rt->nonMSAAAttachment();
     } else {
         srcImage = static_cast<GrVkTexture*>(surface->asTexture());
     }
@@ -610,7 +613,7 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
     }
 
     SkASSERT(dst);
-    SkASSERT(src && src->numSamples() > 1 && src->msaaImage());
+    SkASSERT(src && src->colorAttachment() && src->colorAttachment()->numSamples() > 1);
 
     VkImageResolve resolveInfo;
     resolveInfo.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
@@ -621,36 +624,39 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
 
     GrVkImage* dstImage;
     GrRenderTarget* dstRT = dst->asRenderTarget();
-    if (dstRT) {
-        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
-        dstImage = vkRT;
+    GrTexture* dstTex = dst->asTexture();
+    if (dstTex) {
+        dstImage = static_cast<GrVkTexture*>(dstTex);
     } else {
-        SkASSERT(dst->asTexture());
-        dstImage = static_cast<GrVkTexture*>(dst->asTexture());
+        SkASSERT(dst->asRenderTarget());
+        dstImage = static_cast<GrVkRenderTarget*>(dstRT)->nonMSAAAttachment();
+        SkASSERT(dstImage);
     }
+
     dstImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              VK_ACCESS_TRANSFER_WRITE_BIT,
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                              false);
 
-    src->msaaImage()->setImageLayout(this,
-                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                     VK_ACCESS_TRANSFER_READ_BIT,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     false);
-    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(src));
+    src->colorAttachment()->setImageLayout(this,
+                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                           VK_ACCESS_TRANSFER_READ_BIT,
+                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                           false);
+    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(src->colorAttachment()));
     this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(dst));
-    this->currentCommandBuffer()->resolveImage(this, *src->msaaImage(), *dstImage, 1, &resolveInfo);
+    this->currentCommandBuffer()->resolveImage(this, *src->colorAttachment(), *dstImage, 1,
+                                               &resolveInfo);
 }
 
 void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
     SkASSERT(target->numSamples() > 1);
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
-    SkASSERT(rt->msaaImage());
     SkASSERT(rt->colorAttachmentView() && rt->resolveAttachmentView());
 
-    if (this->vkCaps().preferDiscardableMSAAAttachment() && rt->supportsInputAttachmentUsage()) {
+    if (this->vkCaps().preferDiscardableMSAAAttachment() && rt->resolveAttachment() &&
+        rt->resolveAttachment()->supportsInputAttachmentUsage()) {
         // We would have resolved the RT during the render pass;
         return;
     }
@@ -1936,18 +1942,20 @@ void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType barrierType) {
         dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         dstAccess = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
     }
+    GrVkAttachment* colorAttachment = vkRT->colorAttachment();
     VkImageMemoryBarrier barrier;
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.pNext = nullptr;
     barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     barrier.dstAccessMask = dstAccess;
-    barrier.oldLayout = vkRT->currentLayout();
-    barrier.newLayout = vkRT->currentLayout();
+    barrier.oldLayout = colorAttachment->currentLayout();
+    barrier.newLayout = barrier.oldLayout;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image = vkRT->image();
-    barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, vkRT->mipLevels(), 0, 1};
-    this->addImageMemoryBarrier(vkRT->resource(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    barrier.image = colorAttachment->image();
+    barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, colorAttachment->mipLevels(), 0, 1};
+    this->addImageMemoryBarrier(colorAttachment->resource(),
+                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                 dstStage, true, &barrier);
 }
 
@@ -2132,7 +2140,8 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
             } else {
                 GrRenderTarget* rt = proxy->peekRenderTarget();
                 SkASSERT(rt);
-                image = static_cast<GrVkRenderTarget*>(rt);
+                GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
+                image = vkRT->externalAttachment();
             }
             if (newState) {
                 const GrVkSharedImageInfo& newInfo = newState->fVkState;
@@ -2192,8 +2201,8 @@ void GrVkGpu::onReportSubmitHistograms() {
 static int get_surface_sample_cnt(GrSurface* surf, const GrVkCaps& caps) {
     if (const GrRenderTarget* rt = surf->asRenderTarget()) {
         auto vkRT = static_cast<const GrVkRenderTarget*>(rt);
-        if (caps.preferDiscardableMSAAAttachment() && vkRT->resolveAttachmentView() &&
-            vkRT->supportsInputAttachmentUsage()) {
+        if (caps.preferDiscardableMSAAAttachment() && vkRT->resolveAttachment() &&
+            vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
             return 1;
         }
         return rt->numSamples();
@@ -2367,11 +2376,11 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         if (vkRT->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        if (useDiscardableMSAA && vkRT->resolveAttachmentView() &&
-            vkRT->supportsInputAttachmentUsage()) {
-            dstImage = vkRT;
+        if (useDiscardableMSAA && vkRT->resolveAttachment() &&
+            vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+            dstImage = vkRT->resolveAttachment();
         } else {
-            dstImage = vkRT->colorAttachmentImage();
+            dstImage = vkRT->colorAttachment();
         }
     } else {
         SkASSERT(dst->asTexture());
@@ -2380,11 +2389,11 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     GrRenderTarget* srcRT = src->asRenderTarget();
     if (srcRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(srcRT);
-        if (useDiscardableMSAA && vkRT->resolveAttachmentView() &&
-            vkRT->supportsInputAttachmentUsage()) {
-            srcImage = vkRT;
+        if (useDiscardableMSAA && vkRT->resolveAttachment() &&
+            vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+            srcImage = vkRT->resolveAttachment();
         } else {
-            srcImage = vkRT->colorAttachmentImage();
+            srcImage = vkRT->colorAttachment();
         }
     } else {
         SkASSERT(src->asTexture());
@@ -2443,7 +2452,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        image = rt;
+        image = rt->nonMSAAAttachment();
     } else {
         image = static_cast<GrVkTexture*>(surface->asTexture());
     }

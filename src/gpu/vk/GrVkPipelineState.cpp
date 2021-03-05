@@ -221,8 +221,9 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
 bool GrVkPipelineState::setAndBindInputAttachment(GrVkGpu* gpu,
                                                   GrVkRenderTarget* renderTarget,
                                                   GrVkCommandBuffer* commandBuffer) {
-    SkASSERT(renderTarget->supportsInputAttachmentUsage());
+    SkASSERT(renderTarget->colorAttachment()->supportsInputAttachmentUsage());
     const GrVkDescriptorSet* descriptorSet = renderTarget->inputDescSet(gpu, /*forResolve=*/false);
+
     if (!descriptorSet) {
         return false;
     }
