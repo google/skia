@@ -152,20 +152,7 @@ static void basic_test(GrDirectContext* dContext,
     REPORTER_ASSERT(reporter, proxyProvider->findOrCreateProxyByUniqueKey(key));
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
 
-    // As we transition to using attachments instead of GrTextures and GrRenderTargets individual
-    // proxy instansiations may add multiple things to the cache. There would be an entry for the
-    // GrTexture/GrRenderTarget and entries for one or more attachments.
-    int cacheEntriesPerProxy = 1;
-    // We currently only have attachments on the vulkan backend
-    if (dContext->backend() == GrBackend::kVulkan) {
-        if (proxy->asRenderTargetProxy()) {
-            // If we ever have a test with multisamples this would have an additional attachment as
-            // well.
-            cacheEntriesPerProxy++;
-        }
-    }
-
-    int expectedCacheCount = startCacheCount + (proxy->isInstantiated() ? 0 : cacheEntriesPerProxy);
+    int expectedCacheCount = startCacheCount + (proxy->isInstantiated() ? 0 : 1);
 
     // Once instantiated, the backing resource should have the same key
     SkAssertResult(proxy->instantiate(resourceProvider));
@@ -187,7 +174,7 @@ static void basic_test(GrDirectContext* dContext,
     // deleting the proxy should delete it from the hash but not the cache
     proxy = nullptr;
     if (expectDeletingProxyToDeleteResource) {
-        expectedCacheCount -= cacheEntriesPerProxy;
+        expectedCacheCount -= 1;
     }
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
@@ -202,7 +189,7 @@ static void basic_test(GrDirectContext* dContext,
     proxy = nullptr;
     cache->purgeAllUnlocked();
     if (!expectResourceToOutliveProxy) {
-        expectedCacheCount -= cacheEntriesPerProxy;
+        expectedCacheCount--;
     }
     REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
 
@@ -217,7 +204,7 @@ static void basic_test(GrDirectContext* dContext,
         GrUniqueKeyInvalidatedMessage msg(texKey, dContext->priv().contextID());
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
         cache->purgeAsNeeded();
-        expectedCacheCount -= cacheEntriesPerProxy;
+        expectedCacheCount--;
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
         REPORTER_ASSERT(reporter, !proxy);
         REPORTER_ASSERT(reporter, expectedCacheCount == cache->getResourceCount());
