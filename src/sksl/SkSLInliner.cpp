@@ -358,8 +358,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = expression.as<IndexExpression>();
-            return std::make_unique<IndexExpression>(*fContext, expr(idx.base()),
-                                                     expr(idx.index()));
+            return IndexExpression::Make(*fContext, expr(idx.base()), expr(idx.index()));
         }
         case Expression::Kind::kPrefix: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
