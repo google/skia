@@ -37,6 +37,16 @@ if (skia_enable_skshaper) {
     sources = skia_shaper_primitive_sources
     if (skia_use_fonthost_mac) {
       sources += skia_shaper_coretext_sources
+      if (is_mac) {
+        frameworks = [ "ApplicationServices.framework" ]
+      }
+
+      if (is_ios) {
+        frameworks = [
+          "CoreFoundation.framework",
+          "CoreText.framework",
+        ]
+      }
     }
     if (skia_use_icu && skia_use_harfbuzz) {
       sources += skia_shaper_icu_sources
