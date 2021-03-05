@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "926aaccb_397a66ad",
+        "filename": "gm/thinrects.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T13:50:23Z",
+      "side": 1,
+      "message": "I\u0027m surprised the tools don\u0027t force this down a line",
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c59ec93_753138b5",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T13:50:23Z",
+      "side": 1,
+      "message": "analytic AA ?",
+      "range": {
+        "startLine": 547,
+        "startChar": 71,
+        "endLine": 547,
+        "endChar": 87
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "315a8b1f_00ea7156",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T13:50:23Z",
+      "side": 1,
+      "message": "analytic AA ?",
+      "range": {
+        "startLine": 598,
+        "startChar": 96,
+        "endLine": 599,
+        "endChar": 22
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "163830d3_6d44456b",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T13:50:23Z",
+      "side": 1,
+      "message": "nit: line up these comments ?",
+      "range": {
+        "startLine": 505,
+        "startChar": 36,
+        "endLine": 505,
+        "endChar": 38
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30691378_7c614b1e",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T13:50:23Z",
+      "side": 1,
+      "message": "analytic AA ?",
+      "range": {
+        "startLine": 447,
+        "startChar": 78,
+        "endLine": 447,
+        "endChar": 94
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
