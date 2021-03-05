@@ -13,9 +13,8 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/text/GrTextBlob.h"
 
-#if !defined(SK_BUILD_FOR_FLUTTER) && \
-    (!defined(SK_BUILD_FOR_IOS) || \
-        (defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_9_0))
+#if !defined(SK_BUILD_FOR_IOS) || \
+        (defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MIN_REQUIRED > __IPHONE_9_0)
     #define GR_HAS_THREAD_LOCAL
 #endif
 
@@ -33,7 +32,7 @@ public:
 
 #if !defined(GR_OP_ALLOCATE_USE_POOL) && defined(GR_HAS_THREAD_LOCAL)
     void* operator new(size_t s);
-    void operator delete(void* b) noexcept;
+    void operator delete(void* b);
 #endif
 
     static const int kVerticesPerGlyph = GrAtlasSubRun::kVerticesPerGlyph;
