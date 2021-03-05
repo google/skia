@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f191cc8f_6589cc50",
+        "filename": "demos.skia.org/demos/up_scaling/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-05T15:37:03Z",
+      "side": 1,
+      "message": "It\u0027s actually for correctness.  We saw grossly incorrect drawing results on some GPUs until rewriting an expression like sharp * (w - 0.5) + 0.5 to use mix().",
+      "range": {
+        "startLine": 52,
+        "startChar": 28,
+        "endLine": 52,
+        "endChar": 63
+      },
+      "revId": "ece7d4d0f81a4f19d67f7c86946dfdd00dfd94e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
