@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5789ca42_d7e7bb7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-05T16:51:04Z",
+      "side": 1,
+      "message": "This is going to bite us with anything that goes through the ConstantFolder.\n\n  Declare(c, 5),\n  a \u003d c * 1,                // \u003c-- will read the value from c while optimizing BinaryExpression\n  a \u003d Select(c \u003d\u003d 5, 1, 2); // \u003c-- will read the value from c while optimizing TernaryExpression\n  a \u003d -c;                   // \u003c-- will read the value from c while optimizing PrefixExpression\n\netc",
+      "revId": "08a68b037a82684ab65178c3d7de59f2c83e3751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
