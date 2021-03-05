@@ -8,9 +8,9 @@ half4 main() {
     z = (z / 2 * 3 + 4) - 2;
     bool b = (x > 4) == x < 2 || 2 >= sqrt(2) && y <= x;
     bool c = sqrt(2) > 2;
-    bool d = b ^^ c;
+    bool d = b ^^ !!c;
     bool e = b && c;
-    bool f = b || c;
+    bool f = !!b || c;
     x += 12;
     x -= 12;
     x *= y /= 10;
