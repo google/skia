@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e5d5c91_86d354a1",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-05T19:16:42Z",
+      "side": 0,
+      "message": "This was being optimized away and needed to become `a * 2`",
+      "range": {
+        "startLine": 404,
+        "startChar": 22,
+        "endLine": 404,
+        "endChar": 31
+      },
+      "revId": "a3c837fa66e7e3b9882b002b282730790ef560ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08c6207f_bd7eaa29",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-05T19:16:42Z",
+      "side": 0,
+      "message": "This was being optimized away and needed to become `a / 2`",
+      "range": {
+        "startLine": 435,
+        "startChar": 22,
+        "endLine": 435,
+        "endChar": 31
+      },
+      "revId": "a3c837fa66e7e3b9882b002b282730790ef560ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
