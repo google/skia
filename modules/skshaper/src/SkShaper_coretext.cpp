@@ -19,7 +19,7 @@
 #endif
 
 #include "include/ports/SkTypeface_mac.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/SkTemplates.h"
 #include "src/utils/SkUTF.h"
 #include "src/utils/mac/SkCGBase.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
@@ -251,9 +251,8 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             SkASSERT(sizeof(CGGlyph) == sizeof(uint16_t));
 
-            SkSTArenaAlloc<4096> arena;
-            CGSize* advances = arena.makeArrayDefault<CGSize>(runGlyphs);
-            CTRunGetAdvances(run, {0, runGlyphs}, advances);
+            SkAutoSTArray<4096, CGSize> advances(runGlyphs);
+            CTRunGetAdvances(run, {0, runGlyphs}, advances.data());
             SkScalar adv = 0;
             for (CFIndex k = 0; k < runGlyphs; ++k) {
                 adv += advances[k].width;
@@ -286,13 +285,12 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             CTRunGetGlyphs(run, {0, runGlyphs}, buffer.glyphs);
 
-            SkSTArenaAlloc<4096> arena;
-            CGPoint* positions = arena.makeArrayDefault<CGPoint>(runGlyphs);
-            CTRunGetPositions(run, {0, runGlyphs}, positions);
-            CFIndex* indices = nullptr;
+            SkAutoSTArray<4096, CGPoint> positions(runGlyphs);
+            CTRunGetPositions(run, {0, runGlyphs}, positions.data());
+            SkAutoSTArray<4096, CFIndex> indices;
             if (buffer.clusters) {
-                indices = arena.makeArrayDefault<CFIndex>(runGlyphs);
-                CTRunGetStringIndices(run, {0, runGlyphs}, indices);
+                indices.reset(runGlyphs);
+                CTRunGetStringIndices(run, {0, runGlyphs}, indices.data());
             }
 
             for (CFIndex k = 0; k < runGlyphs; ++k) {
