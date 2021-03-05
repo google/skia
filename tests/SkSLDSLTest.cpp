@@ -1146,12 +1146,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     }
 
     {
-        ExpectError error(r, "error: case value must be a constant integer\n");
-        Var b(kInt);
-        DSLStatement(Switch(0, Case(b))).release();
-    }
-
-    {
         ExpectError error(r, "error: continue statement must be inside a loop\n");
         DSLFunction(kVoid, "fail").define(
             Switch(5,

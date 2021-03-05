@@ -53,7 +53,7 @@ DSLExpression::DSLExpression(float value)
     }
 }
 
-DSLExpression::DSLExpression(int value)
+DSLExpression::DSLExpression(SKSL_INT value)
     : fExpression(std::make_unique<SkSL::IntLiteral>(DSLWriter::Context(),
                                                      /*offset=*/-1,
                                                      value)) {}

@@ -9,6 +9,7 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
 #include "include/sksl/DSLErrorHandling.h"
 
 #include <cstdint>
@@ -50,7 +51,13 @@ public:
     /**
      * Creates an expression representing a literal int.
      */
-    DSLExpression(int value);
+    DSLExpression(SKSL_INT value);
+
+    /**
+     * Creates an expression representing a literal int.
+     */
+    DSLExpression(int value)
+        : DSLExpression(static_cast<SKSL_INT>(value)) {}
 
     /**
      * Creates an expression representing a literal bool.

@@ -73,7 +73,7 @@ DSLStatement Declare(DSLVar& var, DSLExpression initialValue = DSLExpression(),
  */
 template<class... Statements>
 DSLCase Default(Statements... statements) {
-    return DSLCase(DSLExpression(), std::move(statements)...);
+    return DSLCase(DSLCase::Default(), std::move(statements)...);
 }
 
 /**
@@ -122,7 +122,7 @@ DSLPossibleStatement Switch(DSLExpression value, Cases... cases) {
     caseValues.reserve_back(sizeof...(cases));
     caseStatements.reserve_back(sizeof...(cases));
     // yet more workarounds until we can rely on C++17 support
-    int unused1[] = {0, (static_cast<void>(caseValues.push_back(cases.fValue.release())), 0)...};
+    int unused1[] = {0, (static_cast<void>(caseValues.push_back(cases.value())), 0)...};
     static_cast<void>(unused1);
     int unused2[] = {0, (static_cast<void>(caseStatements.push_back(std::move(cases.fStatements))),
                          0)...};

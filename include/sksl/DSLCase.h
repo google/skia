@@ -22,9 +22,29 @@ namespace dsl {
 
 class DSLCase {
 public:
-    // An empty expression means 'default:'.
+    class Value {
+    public:
+        Value(SKSL_INT value)
+            : fValue(value)
+            , fIsDefault(false) {}
+
+    private:
+        Value()
+            : fValue(-1)
+            , fIsDefault(true) {}
+
+        SKSL_INT fValue;
+        bool fIsDefault;
+
+        friend class DSLCase;
+    };
+
+    static Value Default() {
+        return Value();
+    }
+
     template<class... Statements>
-    DSLCase(DSLExpression value, Statements... statements)
+    DSLCase(Value value, Statements... statements)
         : fValue(std::move(value)) {
         fStatements.reserve_back(sizeof...(statements));
         // in C++17, we could just do:
@@ -38,14 +58,16 @@ public:
 
     DSLCase(DSLCase&&);
 
-    DSLCase(DSLExpression value, SkSL::StatementArray statements);
+    DSLCase(Value value, SkSL::StatementArray statements);
 
     ~DSLCase();
 
     void append(DSLStatement stmt);
 
 private:
-    DSLExpression fValue;
+    std::unique_ptr<Expression> value();
+
+    Value fValue;
     SkSL::StatementArray fStatements;
 
     template<class... Cases>
