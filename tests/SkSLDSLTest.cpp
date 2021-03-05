@@ -335,17 +335,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
-    Expression e1 = a + b;
-    EXPECT_EQUAL(e1, "(a + b)");
 
-    Expression e2 = a + 1;
-    EXPECT_EQUAL(e2, "(a + 1.0)");
-
-    Expression e3 = 0.5 + a + -99;
-    EXPECT_EQUAL(e3, "((0.5 + a) + -99.0)");
-
-    Expression e4 = a += b + 1;
-    EXPECT_EQUAL(e4, "(a += (b + 1.0))");
+    EXPECT_EQUAL(a + b,
+               "(a + b)");
+    EXPECT_EQUAL(a + 1,
+               "(a + 1.0)");
+    EXPECT_EQUAL(0.5 + a + -99,
+              "((0.5 + a) + -99.0)");
+    EXPECT_EQUAL(a += b + 1,
+               "(a += (b + 1.0))");
 
     {
         ExpectError error(r, "error: type mismatch: '+' cannot operate on 'bool2', 'float'\n");
@@ -366,17 +364,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
-    Expression e1 = a - b;
-    EXPECT_EQUAL(e1, "(a - b)");
 
-    Expression e2 = a - 1;
-    EXPECT_EQUAL(e2, "(a - 1)");
-
-    Expression e3 = 2 - a - b;
-    EXPECT_EQUAL(e3, "((2 - a) - b)");
-
-    Expression e4 = a -= b + 1;
-    EXPECT_EQUAL(e4, "(a -= (b + 1))");
+    EXPECT_EQUAL(a - b,
+               "(a - b)");
+    EXPECT_EQUAL(a - 1,
+               "(a - 1)");
+    EXPECT_EQUAL(2 - a - b,
+              "((2 - a) - b)");
+    EXPECT_EQUAL(a -= b + 1,
+               "(a -= (b + 1))");
 
     {
         ExpectError error(r, "error: type mismatch: '-' cannot operate on 'bool2', 'int'\n");
@@ -397,17 +393,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
-    Expression e1 = a * b;
-    EXPECT_EQUAL(e1, "(a * b)");
 
-    Expression e2 = a * 1;
-    EXPECT_EQUAL(e2, "(a * 1.0)");
-
-    Expression e3 = 0.5 * a * -99;
-    EXPECT_EQUAL(e3, "((0.5 * a) * -99.0)");
-
-    Expression e4 = a *= b + 1;
-    EXPECT_EQUAL(e4, "(a *= (b + 1.0))");
+    EXPECT_EQUAL(a * b,
+               "(a * b)");
+    EXPECT_EQUAL(a * 2,
+               "(a * 2.0)");
+    EXPECT_EQUAL(0.5 * a * -99,
+              "((0.5 * a) * -99.0)");
+    EXPECT_EQUAL(a *= b + 1,
+               "(a *= (b + 1.0))");
 
     {
         ExpectError error(r, "error: type mismatch: '*' cannot operate on 'bool2', 'float'\n");
@@ -428,20 +422,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
-    Expression e1 = a / b;
-    EXPECT_EQUAL(e1, "(a / b)");
 
-    Expression e2 = a / 1;
-    EXPECT_EQUAL(e2, "(a / 1.0)");
-
-    Expression e3 = 0.5 / a / -99;
-    EXPECT_EQUAL(e3, "((0.5 / a) / -99.0)");
-
-    Expression e4 = b / (a - 1);
-    EXPECT_EQUAL(e4, "(b / (a - 1.0))");
-
-    Expression e5 = a /= b + 1;
-    EXPECT_EQUAL(e5, "(a /= (b + 1.0))");
+    EXPECT_EQUAL(a / b,
+               "(a / b)");
+    EXPECT_EQUAL(a / 2,
+               "(a / 2.0)");
+    EXPECT_EQUAL(0.5 / a / -99,
+              "((0.5 / a) / -99.0)");
+    EXPECT_EQUAL(b / (a - 1),
+               "(b / (a - 1.0))");
+    EXPECT_EQUAL(a /= b + 1,
+               "(a /= (b + 1.0))");
 
     {
         ExpectError error(r, "error: type mismatch: '/' cannot operate on 'bool2', 'float'\n");
