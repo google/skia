@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05e14092_ddac7641",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T23:35:44Z",
+      "side": 1,
+      "message": "Seems fine, though the deduction guide is a bit cleaner.",
+      "revId": "4c2b5e3d68a126fd35230516322d7b25a9d16496",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f11cbe6e_9df502c8",
