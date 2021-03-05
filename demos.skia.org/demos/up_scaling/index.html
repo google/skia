@@ -59,15 +59,14 @@ function init() {
   half4 main(float2 p) {
       float h = 0.5;
       if (nearly_center(p)) {
-          return sample(image, p);
-      } else {
-          half4 pa = sample(image, float2(p.x-0.5, p.y-0.5));
-          half4 pb = sample(image, float2(p.x+0.5, p.y-0.5));
-          half4 pc = sample(image, float2(p.x-0.5, p.y+0.5));
-          half4 pd = sample(image, float2(p.x+0.5, p.y+0.5));
-          float2 w = sharpen(fract(p + 0.5));
-          return mix(mix(pa, pb, w.x), mix(pc, pd, w.x), w.y);
+          h = 0;
       }
+      half4 pa = sample(image, float2(p.x-h, p.y-h));
+      half4 pb = sample(image, float2(p.x+h, p.y-h));
+      half4 pc = sample(image, float2(p.x-h, p.y+h));
+      half4 pd = sample(image, float2(p.x+h, p.y+h));
+      float2 w = sharpen(fract(p + 0.5));
+      return mix(mix(pa, pb, w.x), mix(pc, pd, w.x), w.y);
   }
   `;
   const effect = CanvasKit.RuntimeEffect.Make(prog);
@@ -111,7 +110,7 @@ function init() {
       // Draw the prog version.
       canvas.save();
       canvas.scale(scale, 1.0);
-      shader_paint.setShader(effect.makeShaderWithChildren([scale], true, [imageShader], null));
+      shader_paint.setShader(effect.makeShaderWithChildren([Math.round(scale)], true, [imageShader], null));
       canvas.drawRect([0, 0, size, 100], shader_paint);
       canvas.restore();
 
