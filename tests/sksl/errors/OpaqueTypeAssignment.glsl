@@ -1,5 +1,5 @@
 ### Compilation failed:
 
-error: 2: opaque type 'sampler' cannot use initializer expressions
-error: 4: assignments to opaque type 'sampler' are not permitted
+error: 2: global variable initializer must be a constant expression
+error: 4: unknown identifier 'b'
 2 errors

@@ -1,48 +1,45 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-bool b = true;
-int s = int(sqrt(1.0));
-int i = int(sqrt(1.0));
-uint us = uint(sqrt(1.0));
-uint ui = uint(sqrt(1.0));
-float h = sqrt(1.0);
-float f = sqrt(1.0);
-int s2s = s;
-int i2s = i;
-int us2s = int(us);
-int ui2s = int(ui);
-int h2s = int(h);
-int f2s = int(f);
-int b2s = int(b);
-int s2i = s;
-int i2i = i;
-int us2i = int(us);
-int ui2i = int(ui);
-int h2i = int(h);
-int f2i = int(f);
-int b2i = int(b);
-uint s2us = uint(s);
-uint i2us = uint(i);
-uint us2us = us;
-uint ui2us = ui;
-uint h2us = uint(h);
-uint f2us = uint(f);
-uint b2us = uint(b);
-uint s2ui = uint(s);
-uint i2ui = uint(i);
-uint us2ui = us;
-uint ui2ui = ui;
-uint h2ui = uint(h);
-uint f2ui = uint(f);
-uint b2ui = uint(b);
-float s2f = float(s);
-float i2f = float(i);
-float us2f = float(us);
-float ui2f = float(ui);
-float h2f = h;
-float f2f = f;
-float b2f = float(b);
-void main() {
-    sk_FragColor.x = (((((((((((((((((((((float(s) + float(i)) + float(us)) + float(ui)) + h) + f) + float(s2s)) + float(i2s)) + float(us2s)) + float(ui2s)) + float(h2s)) + float(f2s)) + float(b2s)) + float(s2i)) + float(i2i)) + float(us2i)) + float(ui2i)) + float(h2i)) + float(f2i)) + float(b2i)) + float(s2us)) + float(i2us)) + float(us2us);
-    sk_FragColor.x += ((((((((((((((((float(ui2us) + float(h2us)) + float(f2us)) + float(b2us)) + float(s2ui)) + float(i2ui)) + float(us2ui)) + float(ui2ui)) + float(h2ui)) + float(f2ui)) + float(b2ui)) + s2f) + i2f) + us2f) + ui2f) + h2f) + f2f) + b2f;
-}
+error: 2: global variable initializer must be a constant expression
+error: 3: global variable initializer must be a constant expression
+error: 4: global variable initializer must be a constant expression
+error: 5: global variable initializer must be a constant expression
+error: 6: global variable initializer must be a constant expression
+error: 7: global variable initializer must be a constant expression
+error: 8: unknown identifier 's'
+error: 9: unknown identifier 'i'
+error: 10: unknown identifier 'us'
+error: 11: unknown identifier 'ui'
+error: 12: unknown identifier 'h'
+error: 13: unknown identifier 'f'
+error: 14: global variable initializer must be a constant expression
+error: 15: unknown identifier 's'
+error: 16: unknown identifier 'i'
+error: 17: unknown identifier 'us'
+error: 18: unknown identifier 'ui'
+error: 19: unknown identifier 'h'
+error: 20: unknown identifier 'f'
+error: 21: global variable initializer must be a constant expression
+error: 22: unknown identifier 's'
+error: 23: unknown identifier 'i'
+error: 24: unknown identifier 'us'
+error: 25: unknown identifier 'ui'
+error: 26: unknown identifier 'h'
+error: 27: unknown identifier 'f'
+error: 28: global variable initializer must be a constant expression
+error: 29: unknown identifier 's'
+error: 30: unknown identifier 'i'
+error: 31: unknown identifier 'us'
+error: 32: unknown identifier 'ui'
+error: 33: unknown identifier 'h'
+error: 34: unknown identifier 'f'
+error: 35: global variable initializer must be a constant expression
+error: 36: unknown identifier 's'
+error: 37: unknown identifier 'i'
+error: 38: unknown identifier 'us'
+error: 39: unknown identifier 'ui'
+error: 40: unknown identifier 'h'
+error: 41: unknown identifier 'f'
+error: 42: global variable initializer must be a constant expression
+error: 45: unknown identifier 's'
+42 errors
