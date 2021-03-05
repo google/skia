@@ -73,15 +73,12 @@ public:
         return std::unique_ptr<SkSL::Statement>(new SkSL::ContinueStatement(/*offset=*/-1));
     }
 
-    static DSLPossibleStatement Declare(DSLVar& var, DSLExpression initialValue) {
-        if (var.fConstVar) {
-            DSLWriter::ReportError("Variable already declared");
-            return DSLPossibleStatement(nullptr);
+    static DSLStatement Declare(DSLVar& var, PositionInfo pos) {
+        if (var.fDeclared) {
+            DSLWriter::ReportError("error: variable has already been declared\n", &pos);
         }
-        SkASSERT(var.fVar);
-        var.fConstVar = var.fVar.get();
-        return DSLWriter::IRGenerator().convertVarDeclaration(std::move(var.fVar),
-                                                              initialValue.release());
+        var.fDeclared = true;
+        return std::move(var.fDeclaration);
     }
 
     static DSLStatement Discard() {
@@ -187,8 +184,8 @@ DSLStatement Continue() {
     return DSLCore::Continue();
 }
 
-DSLStatement Declare(DSLVar& var, DSLExpression initialValue, PositionInfo pos) {
-    return DSLStatement(DSLCore::Declare(var, std::move(initialValue)), pos);
+DSLStatement Declare(DSLVar& var, PositionInfo pos) {
+    return DSLCore::Declare(var, pos);
 }
 
 DSLStatement Discard() {
