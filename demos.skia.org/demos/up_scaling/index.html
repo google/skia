@@ -47,27 +47,34 @@ function init() {
   uniform float  sharp;  // slope of the lerp section of the kernel (steeper == sharper)
 
   float2 sharpen(float2 w) {
-      return saturate(sharp * (w - 0.5) + 0.5);
+      // we think of sharp as a slope on a shifted line
+      // y = sharp * (w - 0.5) + 0.5
+      // Rewrite with mix needed for some GPUs to be correct
+      return saturate(mix(float2(0.5), w, sharp));
   }
 
   bool nearly_center(float2 p) {
-      float tolerance = 0.01;   // not sure what to use here
+      float tolerance = 1/255.0;
       p = abs(fract(p) - 0.5);
       return p.x < tolerance && p.y < tolerance;
   }
 
   half4 main(float2 p) {
-      float h = 0.5;
-      if (nearly_center(p)) {
-          return sample(image, p);
-      } else {
-          half4 pa = sample(image, float2(p.x-0.5, p.y-0.5));
-          half4 pb = sample(image, float2(p.x+0.5, p.y-0.5));
-          half4 pc = sample(image, float2(p.x-0.5, p.y+0.5));
-          half4 pd = sample(image, float2(p.x+0.5, p.y+0.5));
-          float2 w = sharpen(fract(p + 0.5));
-          return mix(mix(pa, pb, w.x), mix(pc, pd, w.x), w.y);
-      }
+      // p+1/2, p-1/2 can be numerically unstable when near the center, so we
+      // detect that case, and just sample at our center.
+      float h = nearly_center(p) ? 0.0 : 0.5;
+
+      // Manual bilerp logic
+      half4 pa = sample(image, float2(p.x-h, p.y-h));
+      half4 pb = sample(image, float2(p.x+h, p.y-h));
+      half4 pc = sample(image, float2(p.x-h, p.y+h));
+      half4 pd = sample(image, float2(p.x+h, p.y+h));
+
+      // Now 'sharpen' the weighting. This is the magic sauce where we different
+      // from a normal bilerp
+      float2 w = sharpen(fract(p + 0.5));
+      return mix(mix(pa, pb, w.x),
+                 mix(pc, pd, w.x), w.y);
   }
   `;
   const effect = CanvasKit.RuntimeEffect.Make(prog);
@@ -111,7 +118,7 @@ function init() {
       // Draw the prog version.
       canvas.save();
       canvas.scale(scale, 1.0);
-      shader_paint.setShader(effect.makeShaderWithChildren([scale], true, [imageShader], null));
+      shader_paint.setShader(effect.makeShaderWithChildren([Math.round(scale)], true, [imageShader], null));
       canvas.drawRect([0, 0, size, 100], shader_paint);
       canvas.restore();
 
