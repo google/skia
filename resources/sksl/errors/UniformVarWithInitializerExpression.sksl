@@ -1,3 +1,1 @@
 uniform float x = 1;
-float y;
-uniform float z = y = 1;
