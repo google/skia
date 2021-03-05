@@ -443,12 +443,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         SkASSERT(fMaxDrawIndirectDrawCount == 1 || features.features.multiDrawIndirect);
     }
 
-    if (kARM_VkVendor == properties.vendorID) {
-        // ARM seems to do better with more fine triangles as opposed to using the sample mask.
-        // (At least in our current round rect op.)
-        fPreferTrianglesOverSampleMask = true;
-    }
-
 #ifdef SK_BUILD_FOR_UNIX
     if (kNvidia_VkVendor == properties.vendorID) {
         // On nvidia linux we see a big perf regression when not using dedicated image allocations.
