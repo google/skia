@@ -87,6 +87,8 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fPreferVRAMUseOverFlushes = true;
 
+    fPreferTrianglesOverSampleMask = false;
+
     // Default to true, allow older versions of OpenGL to disable explicitly
     fClampToBorderSupport = true;
 
@@ -250,6 +252,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
+    writer->appendBool("Prefer more triangles over sample mask [MSAA only]",
+                       fPreferTrianglesOverSampleMask);
     writer->appendBool("Avoid stencil buffers [workaround]", fAvoidStencilBuffers);
     writer->appendBool("Avoid writePixels fast path [workaround]", fAvoidWritePixelsFastPath);
     writer->appendBool("Requires manual FB barrier after tessellated stencilDraw [workaround]",
