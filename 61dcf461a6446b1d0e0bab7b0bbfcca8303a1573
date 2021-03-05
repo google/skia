@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c56d27c5_167658ca",
+        "filename": "gm/thinrects.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-05T16:32:19Z",
+      "side": 1,
+      "message": "That\u0027s where I started, and the tools forced it up a line. I guess the sort order is capitals first.",
+      "parentUuid": "926aaccb_397a66ad",
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6c59ec93_753138b5",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-03-05T13:50:23Z",
       "side": 1,
       "message": "analytic AA ?",
+      "range": {
+        "startLine": 547,
+        "startChar": 71,
+        "endLine": 547,
+        "endChar": 87
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf707d67_4af93629",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-05T16:32:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c59ec93_753138b5",
       "range": {
         "startLine": 547,
         "startChar": 71,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "743862b7_58b0cf1a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-05T16:32:19Z",
+      "side": 1,
+      "message": "Actually, this isn\u0027t even true anymore now that we use analytic aa instead of sample mask. Removed.",
+      "parentUuid": "315a8b1f_00ea7156",
+      "range": {
+        "startLine": 598,
+        "startChar": 96,
+        "endLine": 599,
+        "endChar": 22
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "163830d3_6d44456b",
@@ -87,6 +153,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69cd5f77_085fa867",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-05T16:32:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "163830d3_6d44456b",
+      "range": {
+        "startLine": 505,
+        "startChar": 36,
+        "endLine": 505,
+        "endChar": 38
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "30691378_7c614b1e",
@@ -100,6 +190,30 @@
       "writtenOn": "2021-03-05T13:50:23Z",
       "side": 1,
       "message": "analytic AA ?",
+      "range": {
+        "startLine": 447,
+        "startChar": 78,
+        "endLine": 447,
+        "endChar": 94
+      },
+      "revId": "61dcf461a6446b1d0e0bab7b0bbfcca8303a1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d039528_e4292c2d",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-05T16:32:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30691378_7c614b1e",
       "range": {
         "startLine": 447,
         "startChar": 78,
