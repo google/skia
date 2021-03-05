@@ -14,8 +14,8 @@ void GrRecordingContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fContext->drawingManager()->moveRenderTasksToDDL(ddl);
 }
 
-GrSDFTControl GrRecordingContextPriv::getSDFTControl(bool useSDFTForSmallText) const {
-    return GrSDFTControl{
+GrSDFTOptions GrRecordingContextPriv::getSDFTOptions(bool useSDFTForSmallText) const {
+    return GrSDFTOptions{
             this->caps()->shaderCaps()->supportsDistanceFieldText(),
             useSDFTForSmallText,
             this->options().fMinDistanceFieldFontSize,
