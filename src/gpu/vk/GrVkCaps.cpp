@@ -1814,8 +1814,8 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
     if (rt) {
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
 
-        SkASSERT(!needsResolve || (vkRT->resolveAttachment() &&
-                                   vkRT->resolveAttachment()->supportsInputAttachmentUsage()));
+        SkASSERT(!needsResolve ||
+                 (vkRT->resolveAttachmentView() && vkRT->supportsInputAttachmentUsage()));
 
         bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
         // TODO: support failure in getSimpleRenderPass

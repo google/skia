@@ -51,46 +51,106 @@ static int renderpass_features_to_index(bool hasResolve, bool hasStencil,
 // constructor must be explicitly called.
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkISize dimensions,
-                                   sk_sp<GrVkAttachment> colorAttachment,
-                                   sk_sp<GrVkAttachment> resolveAttachment,
-                                   CreateType createType)
-        : GrSurface(gpu, dimensions,
-                    colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo)
+                                   int sampleCnt,
+                                   const GrVkImageInfo& info,
+                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                                   sk_sp<GrVkAttachment> msaaAttachment,
+                                   sk_sp<const GrVkImageView> colorAttachmentView,
+                                   sk_sp<const GrVkImageView> resolveAttachmentView)
+        : GrSurface(gpu, dimensions, info.fProtected)
+        , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kBorrowed)
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, dimensions, colorAttachment->numSamples(),
-                         colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , fColorAttachment(std::move(colorAttachment))
-        , fResolveAttachment(std::move(resolveAttachment))
+        , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
+        , fColorAttachmentView(std::move(colorAttachmentView))
+        , fMSAAAttachment(std::move(msaaAttachment))
+        , fResolveAttachmentView(std::move(resolveAttachmentView))
         , fCachedFramebuffers()
         , fCachedRenderPasses() {
-    SkASSERT(fColorAttachment);
-    SkASSERT(!resolveAttachment ||
-             (fResolveAttachment->isProtected() == fColorAttachment->isProtected()));
-    SkASSERT(SkToBool(fColorAttachment->vkUsageFlags() & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
-    this->setFlags();
-    if (createType == CreateType::kDirectlyWrapped) {
-        this->registerWithCacheWrapped(GrWrapCacheable::kNo);
-    }
+    SkASSERT((info.fProtected == GrProtected::kYes) == fMSAAAttachment->isProtected());
+    SkASSERT(sampleCnt > 1 && sampleCnt == fMSAAAttachment->numSamples());
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
+}
+
+// We're virtually derived from GrSurface (via GrRenderTarget) so its
+// constructor must be explicitly called.
+GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
+                                   SkISize dimensions,
+                                   int sampleCnt,
+                                   const GrVkImageInfo& info,
+                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                                   sk_sp<GrVkAttachment> msaaAttachment,
+                                   sk_sp<const GrVkImageView> colorAttachmentView,
+                                   sk_sp<const GrVkImageView> resolveAttachmentView,
+                                   GrBackendObjectOwnership ownership)
+        : GrSurface(gpu, dimensions, info.fProtected)
+        , GrVkImage(gpu, info, std::move(mutableState), ownership)
+        // for the moment we only support 1:1 color to stencil
+        , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
+        , fColorAttachmentView(std::move(colorAttachmentView))
+        , fMSAAAttachment(std::move(msaaAttachment))
+        , fResolveAttachmentView(std::move(resolveAttachmentView))
+        , fCachedFramebuffers()
+        , fCachedRenderPasses() {
+    SkASSERT((info.fProtected == GrProtected::kYes) == fMSAAAttachment->isProtected());
+    SkASSERT(sampleCnt > 1 && sampleCnt == fMSAAAttachment->numSamples());
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
+}
+
+// We're virtually derived from GrSurface (via GrRenderTarget) so its
+// constructor must be explicitly called.
+GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
+                                   SkISize dimensions,
+                                   const GrVkImageInfo& info,
+                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                                   sk_sp<const GrVkImageView> colorAttachmentView)
+        : GrSurface(gpu, dimensions, info.fProtected)
+        , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kBorrowed)
+        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected)
+        , fColorAttachmentView(std::move(colorAttachmentView))
+        , fCachedFramebuffers()
+        , fCachedRenderPasses() {
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
+}
+
+// We're virtually derived from GrSurface (via GrRenderTarget) so its
+// constructor must be explicitly called.
+GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
+                                   SkISize dimensions,
+                                   const GrVkImageInfo& info,
+                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                                   sk_sp<const GrVkImageView> colorAttachmentView,
+                                   GrBackendObjectOwnership ownership)
+        : GrSurface(gpu, dimensions, info.fProtected)
+        , GrVkImage(gpu, info, std::move(mutableState), ownership)
+        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected)
+        , fColorAttachmentView(std::move(colorAttachmentView))
+        , fCachedFramebuffers()
+        , fCachedRenderPasses() {
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
 }
 
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkISize dimensions,
-                                   sk_sp<GrVkAttachment> colorAttachment,
+                                   const GrVkImageInfo& info,
+                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                    const GrVkRenderPass* renderPass,
                                    VkCommandBuffer secondaryCommandBuffer)
-        : GrSurface(gpu, dimensions,
-                    colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , GrRenderTarget(gpu, dimensions, 1,
-                         colorAttachment->isProtected() ? GrProtected::kYes : GrProtected::kNo)
-        , fColorAttachment(std::move(colorAttachment))
+        : GrSurface(gpu, dimensions, info.fProtected)
+        , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kBorrowed, true)
+        , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
         , fCachedFramebuffers()
         , fCachedRenderPasses()
         , fSecondaryCommandBuffer(secondaryCommandBuffer) {
-    SkASSERT(fColorAttachment->numSamples() == 1);
+    SkASSERT(info.fSampleCount == 1);
     SkASSERT(fSecondaryCommandBuffer != VK_NULL_HANDLE);
-    SkASSERT(SkToBool(fColorAttachment->vkUsageFlags() & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
-    SkASSERT(!SkToBool(fColorAttachment->vkUsageFlags() & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT));
-    this->setFlags();
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
     // We use the cached renderpass with no stencil and no extra dependencies to hold the external
     // render pass.
@@ -99,9 +159,8 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     fCachedRenderPasses[exteralRPIndex] = renderPass;
 }
 
-void GrVkRenderTarget::setFlags() {
-    GrVkAttachment* nonMSAAAttachment = this->nonMSAAAttachment();
-    if (nonMSAAAttachment && nonMSAAAttachment->supportsInputAttachmentUsage()) {
+void GrVkRenderTarget::setFlags(const GrVkImageInfo& info) {
+    if (info.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT) {
         this->setVkRTSupportsInputAttachment();
     }
 }
@@ -121,23 +180,54 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
         return nullptr;
     }
 
-    sk_sp<GrVkAttachment> wrappedAttachment =
-            GrVkAttachment::MakeWrapped(gpu, dimensions, info, std::move(mutableState),
-                                        GrAttachment::UsageFlags::kColorAttachment,
-                                        kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
-    if (!wrappedAttachment) {
+    VkFormat pixelFormat = info.fFormat;
+
+    // create msaa surface if necessary
+    sk_sp<GrVkAttachment> vkMSAAAttachment;
+    sk_sp<const GrVkImageView> colorAttachmentView;
+    sk_sp<const GrVkImageView> resolveAttachmentView;
+    if (sampleCnt != wrappedImageSampleCnt) {
+        auto rp = gpu->getContext()->priv().resourceProvider();
+        sk_sp<GrAttachment> msaaAttachment =
+                rp->makeMSAAAttachment(dimensions, GrBackendFormat::MakeVk(info.fFormat),
+                                         sampleCnt, info.fProtected);
+        if (!msaaAttachment) {
+            return nullptr;
+        }
+        vkMSAAAttachment = sk_sp<GrVkAttachment>(
+                static_cast<GrVkAttachment*>(msaaAttachment.release()));
+
+        colorAttachmentView = sk_ref_sp<const GrVkImageView>(vkMSAAAttachment->view());
+
+        // Create Resolve attachment view. Attachment views on framebuffers must have a single mip
+        // level.
+        resolveAttachmentView =
+                GrVkImageView::Make(gpu, info.fImage, pixelFormat, GrVkImageView::kColor_Type,
+                                    /*miplevels=*/1, GrVkYcbcrConversionInfo());
+        if (!resolveAttachmentView) {
+            return nullptr;
+        }
+    } else {
+        // Attachment views on framebuffers must have a single mip level.
+        colorAttachmentView = GrVkImageView::Make(gpu, info.fImage, pixelFormat,
+                                                  GrVkImageView::kColor_Type, /*miplevels=*/1,
+                                                  GrVkYcbcrConversionInfo());
+    }
+
+    if (!colorAttachmentView) {
         return nullptr;
     }
 
-    sk_sp<GrVkAttachment> colorAttachment;
-    colorAttachment = std::move(wrappedAttachment);
-
-     if (!colorAttachment) {
-        return nullptr;
+    GrVkRenderTarget* vkRT;
+    if (resolveAttachmentView) {
+        vkRT = new GrVkRenderTarget(gpu, dimensions, sampleCnt, info, std::move(mutableState),
+                                    std::move(vkMSAAAttachment), std::move(colorAttachmentView),
+                                    std::move(resolveAttachmentView));
+    } else {
+        vkRT = new GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState),
+                                    std::move(colorAttachmentView));
     }
 
-    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, std::move(colorAttachment),
-                                                  nullptr, CreateType::kDirectlyWrapped);
     return sk_sp<GrVkRenderTarget>(vkRT);
 }
 
@@ -164,23 +254,10 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_QUEUE_FAMILY_IGNORED));
 
-    sk_sp<GrVkAttachment> scbAttachment =
-        GrVkAttachment::MakeWrapped(gpu, dimensions, info, std::move(mutableState),
-                                    GrAttachment::UsageFlags::kColorAttachment,
-                                    kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, true);
-
-    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, std::move(scbAttachment),
+    GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState),
                                                   rp, vkInfo.fSecondaryCommandBuffer);
 
     return sk_sp<GrVkRenderTarget>(vkRT);
-}
-
-GrVkAttachment* GrVkRenderTarget::nonMSAAAttachment() const {
-    if (fColorAttachment->numSamples() == 1) {
-        return fColorAttachment.get();
-    } else {
-        return fResolveAttachment.get();
-    }
 }
 
 bool GrVkRenderTarget::completeStencilAttachment() {
@@ -294,7 +371,7 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
     const GrVkImageView* stencilView = withStencil ? this->stencilAttachmentView() : nullptr;
     fCachedFramebuffers[cacheIndex] =
             GrVkFramebuffer::Create(gpu, this->width(), this->height(), renderPass,
-                                    this->colorAttachmentView(), resolveView, stencilView);
+                                    fColorAttachmentView.get(), resolveView, stencilView);
 
     return fCachedFramebuffers[cacheIndex];
 }
@@ -304,8 +381,8 @@ void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescr
                                                 bool withResolve,
                                                 bool withStencil) const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    desc->fColor.fFormat = fColorAttachment->imageFormat();
-    desc->fColor.fSamples = fColorAttachment->numSamples();
+    desc->fColor.fFormat = this->imageFormat();
+    desc->fColor.fSamples = this->numSamples();
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
@@ -373,10 +450,8 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
 }
 
 const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu, bool forResolve) {
-    // This needs to be fixed since we may want the resolve or color attachment here. Right??
-    SkASSERT(fColorAttachment->supportsInputAttachmentUsage());
+    SkASSERT(this->supportsInputAttachmentUsage());
     SkASSERT(this->numSamples() <= 1 || forResolve);
-
     if (fCachedInputDescriptorSet) {
         return fCachedInputDescriptorSet;
     }
@@ -414,8 +489,8 @@ const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu, bool forRe
 
 GrVkRenderTarget::~GrVkRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
-    SkASSERT(!fColorAttachment);
-    SkASSERT(!fResolveAttachment);
+    SkASSERT(!fResolveAttachmentView);
+    SkASSERT(!fColorAttachmentView);
 
     for (int i = 0; i < kNumCachedRenderPasses; ++i) {
         SkASSERT(!fCachedFramebuffers[i]);
@@ -430,22 +505,28 @@ void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer,
     commandBuffer.addGrSurface(sk_ref_sp<const GrSurface>(this));
     commandBuffer.addResource(this->getFramebuffer(renderPass));
     commandBuffer.addResource(this->colorAttachmentView());
-    commandBuffer.addResource(fColorAttachment->resource());
-
+    commandBuffer.addResource(fMSAAAttachment ? fMSAAAttachment->resource() : this->resource());
     if (this->stencilImageResource()) {
         commandBuffer.addResource(this->stencilImageResource());
         commandBuffer.addResource(this->stencilAttachmentView());
     }
     if (renderPass.hasResolveAttachment()) {
-        SkASSERT(fResolveAttachment);
-        commandBuffer.addResource(fResolveAttachment->resource());
+        commandBuffer.addResource(this->resource());
         commandBuffer.addResource(this->resolveAttachmentView());
     }
 }
 
 void GrVkRenderTarget::releaseInternalObjects() {
-    fColorAttachment.reset();
-    fResolveAttachment.reset();
+    if (fMSAAAttachment) {
+        fMSAAAttachment.reset();
+    }
+
+    if (fResolveAttachmentView) {
+        fResolveAttachmentView.reset();
+    }
+    if (fColorAttachmentView) {
+        fColorAttachmentView.reset();
+    }
 
     for (int i = 0; i < kNumCachedRenderPasses; ++i) {
         if (fCachedFramebuffers[i]) {
@@ -472,20 +553,33 @@ void GrVkRenderTarget::releaseInternalObjects() {
 
 void GrVkRenderTarget::onRelease() {
     this->releaseInternalObjects();
+    this->releaseImage();
     GrRenderTarget::onRelease();
 }
 
 void GrVkRenderTarget::onAbandon() {
     this->releaseInternalObjects();
+    this->releaseImage();
     GrRenderTarget::onAbandon();
 }
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    // If we have a resolve attachment that is what we return for the backend render target
-    const GrVkAttachment* beAttachment = this->externalAttachment();
-    return GrBackendRenderTarget(beAttachment->width(), beAttachment->height(),
-                                 beAttachment->vkImageInfo(), beAttachment->getMutableState());
+    return GrBackendRenderTarget(this->width(), this->height(), fInfo, this->getMutableState());
+}
+
+GrVkImage* GrVkRenderTarget::msaaImage() {
+    if (this->numSamples() == 1) {
+        SkASSERT(fColorAttachmentView && !fMSAAAttachment && !fResolveAttachmentView);
+        return nullptr;
+    }
+    if (!fMSAAAttachment) {
+        // In this case *this* object is MSAA (there is not a separate color and resolve buffer)
+        SkASSERT(!fResolveAttachmentView);
+        return this;
+    }
+    SkASSERT(fMSAAAttachment);
+    return fMSAAAttachment.get();
 }
 
 const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
@@ -504,10 +598,17 @@ const GrVkImageView* GrVkRenderTarget::stencilAttachmentView() const {
     const GrAttachment* stencil = this->getStencilAttachment();
     if (stencil) {
         const GrVkAttachment* vkStencil = static_cast<const GrVkAttachment*>(stencil);
-        return vkStencil->framebufferView();
+        return vkStencil->view();
     }
 
     return nullptr;
+}
+
+GrVkImage* GrVkRenderTarget::colorAttachmentImage() {
+    if (fMSAAAttachment) {
+        return fMSAAAttachment.get();
+    }
+    return this;
 }
 
 GrVkGpu* GrVkRenderTarget::getVkGpu() const {

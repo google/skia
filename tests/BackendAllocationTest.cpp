@@ -78,18 +78,7 @@ void test_wrapping(GrDirectContext* dContext,
             ERRORF(reporter, "Couldn't make SkSurface from backendTexture for %s\n",
                    ToolUtils::colortype_name(skColorType));
         } else {
-            // As we transition to using attachments instead of GrTextures and GrRenderTargets
-            // individual proxy instansiations may add multiple things to the cache. There would be
-            // an entry for the GrTexture/GrRenderTarget and entries for one or more attachments.
-            int cacheEntriesPerProxy = 1;
-            // We currently only have attachments on the vulkan backend
-            if (dContext->backend() == GrBackend::kVulkan) {
-                // If we ever make a rt with multisamples this would have an additional
-                // attachment as well.
-                cacheEntriesPerProxy++;
-            }
-            REPORTER_ASSERT(reporter,
-                            initialCount + cacheEntriesPerProxy == cache->getResourceCount());
+            REPORTER_ASSERT(reporter, initialCount+1 == cache->getResourceCount());
         }
     }
 

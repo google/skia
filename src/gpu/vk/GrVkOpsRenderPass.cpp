@@ -67,7 +67,7 @@ void GrVkOpsRenderPass::setAttachmentLayouts(LoadFromResolve loadFromResolve) {
     bool withResolve = fCurrentRenderPass->hasResolveAttachment();
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-    GrVkImage* targetImage = vkRT->colorAttachment();
+    GrVkImage* targetImage = vkRT->colorAttachmentImage();
 
     if (fSelfDependencyFlags == SelfDependencyFlags::kForInputAttachment) {
         // We need to use the GENERAL layout in this case since we'll be using texture barriers
@@ -91,16 +91,15 @@ void GrVkOpsRenderPass::setAttachmentLayouts(LoadFromResolve loadFromResolve) {
     }
 
     if (withResolve) {
-        GrVkAttachment* resolveAttachment = vkRT->resolveAttachment();
-        SkASSERT(resolveAttachment);
+        GrVkImage* resolveImage = vkRT;
         if (loadFromResolve == LoadFromResolve::kLoad) {
-            resolveAttachment->setImageLayout(fGpu,
-                                              VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                              VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
-                                              VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                              false);
+            resolveImage->setImageLayout(fGpu,
+                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                         VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
+                                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                         false);
         } else {
-            resolveAttachment->setImageLayout(
+            resolveImage->setImageLayout(
                     fGpu,
                     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
@@ -327,7 +326,7 @@ void GrVkOpsRenderPass::loadResolveIntoMSAA(const SkIRect& nativeBounds) {
     // internally to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL. Thus we need to update our tracking
     // of the layout to match the new layout.
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-    vkRT->resolveAttachment()->updateImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    vkRT->updateImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 }
 
 void GrVkOpsRenderPass::submit() {
@@ -411,7 +410,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
     bool withResolve = false;
     GrOpsRenderPass::LoadAndStoreInfo resolveInfo{GrLoadOp::kLoad, GrStoreOp::kStore, {}};
     if (fRenderTarget->numSamples() > 1 && fGpu->vkCaps().preferDiscardableMSAAAttachment() &&
-        vkRT->resolveAttachment() && vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+        vkRT->resolveAttachmentView() && vkRT->supportsInputAttachmentUsage()) {
         withResolve = true;
         localColorInfo.fStoreOp = GrStoreOp::kDiscard;
         if (colorInfo.fLoadOp == GrLoadOp::kLoad) {
@@ -869,7 +868,7 @@ void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHan
     }
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
-    GrVkImage* targetImage = target->colorAttachment();
+    GrVkImage* targetImage = target->colorAttachmentImage();
 
     VkRect2D bounds;
     bounds.offset = { 0, 0 };

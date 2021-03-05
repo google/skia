@@ -134,8 +134,7 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
         return false;
     }
 
-    if (!srcRT->resolveAttachment() ||
-        !srcRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+    if (!srcRT->supportsInputAttachmentUsage()) {
         return false;
     }
 
