@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "113b36b9_182ed1d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-05T20:32:52Z",
+      "side": 1,
+      "message": "This undoes some of the recent reorg, but the net result is much better. GrProgramDesc stores the minimal set of data (which is nice - it lives in our in-memory caches), and the strings are (re-)computed when needed, without impacting the performance in steady-state.",
+      "revId": "3f725368b0f9cdf45071ec71273bf62a48b86e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a9314f6_cef9ced6",
+        "filename": "src/gpu/GrProgramDesc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-05T20:32:52Z",
+      "side": 1,
+      "message": "If we want the backend (pipeline) data in the description, this functionality should move to GrCaps, alongside makeDesc. Not really necessary at this point.",
+      "revId": "3f725368b0f9cdf45071ec71273bf62a48b86e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

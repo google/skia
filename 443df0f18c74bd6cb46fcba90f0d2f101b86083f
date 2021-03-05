@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e2cdf2b_d453dac0",
+        "filename": "src/gpu/GrProgramDesc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-05T20:32:52Z",
+      "side": 1,
+      "message": "Cant\u0027 have template virtuals, so just went for the simple fix.",
+      "revId": "443df0f18c74bd6cb46fcba90f0d2f101b86083f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
