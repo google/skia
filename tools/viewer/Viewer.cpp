@@ -2386,17 +2386,37 @@ void Viewer::drawImGui() {
 #endif
                 }
 
-                // Defer actually doing the load/save logic so that we can trigger a save when we
+                // Defer actually doing the View/Apply logic so that we can trigger an Apply when we
                 // start or finish hovering on a tree node in the list below:
-                bool doLoad = ImGui::Button("Load"); ImGui::SameLine();
-                bool doSave = ImGui::Button("Save"); ImGui::SameLine();
-                if (ImGui::Checkbox("SkSL", &sksl)) {
+                bool doView      = ImGui::Button("View"); ImGui::SameLine();
+                bool doApply     = ImGui::Button("Apply Changes"); ImGui::SameLine();
+                bool doDump      = ImGui::Button("Dump SkSL to resources/sksl/"); ImGui::SameLine();
+                bool skslChecked = ImGui::Checkbox("SkSL", &sksl);
+
+                // We always want to dump shaders in SkSL format, not the backend format.
+                if (doDump) {
+                    sksl = true;
+                }
+
+                // If SkSL was checked, or if we are dumping shaders, we want to reset the cache and
+                // redo everything.
+                if (doDump || skslChecked) {
                     params.fGrContextOptions.fShaderCacheStrategy =
                             sksl ? GrContextOptions::ShaderCacheStrategy::kSkSL
                                  : GrContextOptions::ShaderCacheStrategy::kBackendSource;
                     paramsChanged = true;
-                    doLoad = true;
-                    fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
+                    doView = true;
+
+                    fDeferredActions.push_back([=]() {
+                        // Reset the cache.
+                        fPersistentCache.reset();
+                        // Dump the cache once we have drawn a frame with it.
+                        if (doDump) {
+                            fDeferredActions.push_back([this]() {
+                                this->dumpShadersToResources();
+                            });
+                        }
+                    });
                 }
 
                 ImGui::BeginChild("##ScrollingRegion");
@@ -2404,9 +2424,9 @@ void Viewer::drawImGui() {
                     bool inTreeNode = ImGui::TreeNode(entry.fKeyString.c_str());
                     bool hovered = ImGui::IsItemHovered();
                     if (hovered != entry.fHovered) {
-                        // Force a save to patch the highlight shader in/out
+                        // Force an Apply to patch the highlight shader in/out
                         entry.fHovered = hovered;
-                        doSave = true;
+                        doApply = true;
                     }
                     if (inTreeNode) {
                         auto stringBox = [](const char* label, std::string* str) {
@@ -2426,17 +2446,18 @@ void Viewer::drawImGui() {
                 }
                 ImGui::EndChild();
 
-                if (doLoad) {
+                if (doView) {
                     fPersistentCache.reset();
                     ctx->priv().getGpu()->resetShaderCacheForTesting();
                     gLoadPending = true;
                 }
+
                 // We don't support updating SPIRV shaders. We could re-assemble them (with edits),
                 // but I'm not sure anyone wants to do that.
                 if (isVulkan && !sksl) {
-                    doSave = false;
+                    doApply = false;
                 }
-                if (doSave) {
+                if (doApply) {
                     fPersistentCache.reset();
                     ctx->priv().getGpu()->resetShaderCacheForTesting();
                     for (auto& entry : fCachedShaders) {
@@ -2548,11 +2569,62 @@ void Viewer::drawImGui() {
     }
 }
 
-void Viewer::onIdle() {
-    for (int i = 0; i < fDeferredActions.count(); ++i) {
-        fDeferredActions[i]();
+void Viewer::dumpShadersToResources() {
+    // Sort the list of cached shaders so we can maintain some minimal level of consistency.
+    // It doesn't really matter, but it will keep files from switching places unpredictably.
+    std::vector<const CachedShader*> shaders;
+    shaders.reserve(fCachedShaders.size());
+    for (const CachedShader& shader : fCachedShaders) {
+        shaders.push_back(&shader);
     }
-    fDeferredActions.reset();
+
+    std::sort(shaders.begin(), shaders.end(), [](const CachedShader* a, const CachedShader* b) {
+        return std::tie(a->fShader[kFragment_GrShaderType], a->fShader[kVertex_GrShaderType]) <
+               std::tie(b->fShader[kFragment_GrShaderType], b->fShader[kVertex_GrShaderType]);
+    });
+
+    // Make the resources/sksl/SlideName/ directory.
+    SkString directory = SkStringPrintf("%ssksl/%s",
+                                        GetResourcePath().c_str(),
+                                        fSlides[fCurrentSlide]->getName().c_str());
+    if (!sk_mkdir(directory.c_str())) {
+        SkDEBUGFAILF("Unable to create directory '%s'", directory.c_str());
+        return;
+    }
+
+    int index = 0;
+    for (const auto& entry : shaders) {
+        SkString vertPath = SkStringPrintf("%s/Vertex_%02d.vert", directory.c_str(), index);
+        FILE* vertFile = sk_fopen(vertPath.c_str(), kWrite_SkFILE_Flag);
+        if (vertFile) {
+            const SkSL::String& vertText = entry->fShader[kVertex_GrShaderType];
+            SkAssertResult(sk_fwrite(vertText.c_str(), vertText.size(), vertFile));
+            sk_fclose(vertFile);
+        } else {
+            SkDEBUGFAILF("Unable to write shader to path '%s'", vertPath.c_str());
+        }
+
+        SkString fragPath = SkStringPrintf("%s/Fragment_%02d.frag", directory.c_str(), index);
+        FILE* fragFile = sk_fopen(fragPath.c_str(), kWrite_SkFILE_Flag);
+        if (fragFile) {
+            const SkSL::String& fragText = entry->fShader[kFragment_GrShaderType];
+            SkAssertResult(sk_fwrite(fragText.c_str(), fragText.size(), fragFile));
+            sk_fclose(fragFile);
+        } else {
+            SkDEBUGFAILF("Unable to write shader to path '%s'", fragPath.c_str());
+        }
+
+        ++index;
+    }
+}
+
+void Viewer::onIdle() {
+    SkTArray<std::function<void()>> actionsToRun;
+    actionsToRun.swap(fDeferredActions);
+
+    for (const auto& fn : actionsToRun) {
+        fn();
+    }
 
     fStatsLayer.beginTiming(fAnimateTimer);
     fAnimTimer.updateTime();
