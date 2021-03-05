@@ -4596,8 +4596,7 @@ GrProgramDesc GrGLCaps::makeDesc(GrRenderTarget* rt,
                                  ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;
-    SkDEBUGCODE(bool result =) GrProgramDesc::Build(&desc, rt, programInfo, *this);
-    SkASSERT(result == desc.isValid());
+    GrProgramDesc::Build(&desc, rt, programInfo, *this);
     return desc;
 }
 
