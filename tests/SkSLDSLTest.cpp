@@ -1167,44 +1167,32 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat4, "a");
 
-    Expression e1 = a.x();
-    EXPECT_EQUAL(e1, "a.x");
-
-    Expression e2 = a.y();
-    EXPECT_EQUAL(e2, "a.y");
-
-    Expression e3 = a.z();
-    EXPECT_EQUAL(e3, "a.z");
-
-    Expression e4 = a.w();
-    EXPECT_EQUAL(e4, "a.w");
-
-    Expression e5 = a.r();
-    EXPECT_EQUAL(e5, "a.x");
-
-    Expression e6 = a.g();
-    EXPECT_EQUAL(e6, "a.y");
-
-    Expression e7 = a.b();
-    EXPECT_EQUAL(e7, "a.z");
-
-    Expression e8 = a.a();
-    EXPECT_EQUAL(e8, "a.w");
-
-    Expression e9 = Swizzle(a, R);
-    EXPECT_EQUAL(e9, "a.x");
-
-    Expression e10 = Swizzle(a, ZERO, G);
-    EXPECT_EQUAL(e10, "float2(a.y, 0.0).yx");
-
-    Expression e11 = Swizzle(a, B, G, G);
-    EXPECT_EQUAL(e11, "a.zyy");
-
-    Expression e12 = Swizzle(a, R, G, B, ONE);
-    EXPECT_EQUAL(e12, "float4(a.xyz, 1.0)");
-
-    Expression e13 = Swizzle(a, R, G, B, ONE).r();
-    EXPECT_EQUAL(e13, "float4(a.xyz, 1.0).x");
+    EXPECT_EQUAL(a.x(),
+                "a.x");
+    EXPECT_EQUAL(a.y(),
+                "a.y");
+    EXPECT_EQUAL(a.z(),
+                "a.z");
+    EXPECT_EQUAL(a.w(),
+                "a.w");
+    EXPECT_EQUAL(a.r(),
+                "a.x");
+    EXPECT_EQUAL(a.g(),
+                "a.y");
+    EXPECT_EQUAL(a.b(),
+                "a.z");
+    EXPECT_EQUAL(a.a(),
+                "a.w");
+    EXPECT_EQUAL(Swizzle(a, R),
+                "a.x");
+    EXPECT_EQUAL(Swizzle(a, ZERO, G),
+                "float2(0.0, a.y)");
+    EXPECT_EQUAL(Swizzle(a, B, G, G),
+                "a.zyy");
+    EXPECT_EQUAL(Swizzle(a, R, G, B, ONE),
+                "float4(a.xyz, 1.0)");
+    EXPECT_EQUAL(Swizzle(a, B, G, R, ONE).r(),
+                "a.z");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {

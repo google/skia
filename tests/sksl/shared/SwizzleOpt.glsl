@@ -27,6 +27,6 @@ vec4 main() {
     v = vec4(colorRed.x, 1.0, colorRed.yz);
     v.wzyx = v;
     v.xw = v.yz;
-    v.wzyx.yzw = vec3(v.ww, 1.0);
+    v.zyx = vec3(v.ww, 1.0);
     return v == vec4(1.0) ? colorGreen : colorRed;
 }

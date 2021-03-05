@@ -40,7 +40,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     v = float4(_uniforms.colorRed.x, 1.0, _uniforms.colorRed.yz);
     v.wzyx = v;
     v.xw = v.yz;
-    v.wzyx.yzw = float3(v.ww, 1.0);
+    v.zyx = float3(v.ww, 1.0);
     _out.sk_FragColor = all(v == float4(1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

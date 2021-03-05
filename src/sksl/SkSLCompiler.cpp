@@ -946,6 +946,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             break;
         }
         case Expression::Kind::kSwizzle: {
+            // TODO(skia:11319): this optimization logic is redundant with the optimization code
+            // found in SkSLSwizzle.cpp.
+
             Swizzle& s = expr->as<Swizzle>();
             // Detect identity swizzles like `foo.rgba`.
             if ((int) s.components().size() == s.base()->type().columns()) {
