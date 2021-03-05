@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c640963_96ed87c4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1843,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-05T22:34:33Z",
+      "side": 0,
+      "message": "Bug I noticed: this was copying a vector of Fields every time",
+      "range": {
+        "startLine": 1843,
+        "startChar": 4,
+        "endLine": 1843,
+        "endChar": 8
+      },
+      "revId": "6457c30cb7f6eae0a2e251c850073c4a445506f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
