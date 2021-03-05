@@ -81,7 +81,7 @@ static constexpr uint32_t kClassIDBits = 8;
 static void gen_pp_key(const GrPrimitiveProcessor& pp,
                        const GrCaps& caps,
                        GrProcessorKeyBuilder* b) {
-    b->appendComment([&]() { return pp.name(); });
+    b->appendComment(pp.name());
     b->addBits(kClassIDBits, pp.classID(), "ppClassID");
 
     pp.getGLSLProcessorKey(*caps.shaderCaps(), b);
@@ -94,7 +94,7 @@ static void gen_xp_key(const GrXferProcessor& xp,
                        const GrCaps& caps,
                        const GrPipeline& pipeline,
                        GrProcessorKeyBuilder* b) {
-    b->appendComment([&](){ return xp.name(); });
+    b->appendComment(xp.name());
     b->addBits(kClassIDBits, xp.classID(), "xpClassID");
 
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
@@ -109,7 +109,7 @@ static void gen_xp_key(const GrXferProcessor& xp,
 static void gen_fp_key(const GrFragmentProcessor& fp,
                        const GrCaps& caps,
                        GrProcessorKeyBuilder* b) {
-    b->appendComment([&]() { return fp.name(); });
+    b->appendComment(fp.name());
     b->addBits(kClassIDBits, fp.classID(), "fpClassID");
     b->addBits(GrPrimitiveProcessor::kCoordTransformKeyBits,
                GrPrimitiveProcessor::ComputeCoordTransformsKey(fp), "fpTransforms");
@@ -129,30 +129,16 @@ static void gen_fp_key(const GrFragmentProcessor& fp,
             gen_fp_key(*child, caps, b);
         } else {
             // Fold in a sentinel value as the "class ID" for any null children
-            b->appendComment([&](){ return "Null"; });
+            b->appendComment("Null");
             b->addBits(kClassIDBits, GrProcessor::ClassID::kNull_ClassID, "fpClassID");
         }
     }
 }
 
-bool GrProgramDesc::Build(GrProgramDesc* desc,
-                          GrRenderTarget* renderTarget,
-                          const GrProgramInfo& programInfo,
-                          const GrCaps& caps) {
-#ifdef SK_DEBUG
-    if (renderTarget) {
-        SkASSERT(programInfo.backendFormat() == renderTarget->backendFormat());
-    }
-#endif
-
-    // The descriptor is used as a cache key. Thus when a field of the
-    // descriptor will not affect program generation (because of the attribute
-    // bindings in use or other descriptor field settings) it should be set
-    // to a canonical value to avoid duplicate programs with different keys.
-
-    GrProcessorKeyBuilder* b = desc->key();
-    b->reset();
-
+static void gen_key(GrProcessorKeyBuilder* b,
+                    GrRenderTarget* renderTarget,
+                    const GrProgramInfo& programInfo,
+                    const GrCaps& caps) {
     gen_pp_key(programInfo.primProc(), caps, b);
 
     const GrPipeline& pipeline = programInfo.pipeline();
@@ -182,7 +168,28 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     // Put a clean break between the "common" data written by this function, and any backend data
     // appended later. The initial key length will just be this portion (rounded to 4 bytes).
     b->flush();
-    desc->fInitialKeyLength = desc->keyLength();
+}
 
-    return true;
+void GrProgramDesc::Build(GrProgramDesc* desc,
+                          GrRenderTarget* renderTarget,
+                          const GrProgramInfo& programInfo,
+                          const GrCaps& caps) {
+    SkASSERT(!renderTarget || programInfo.backendFormat() == renderTarget->backendFormat());
+
+    desc->reset();
+    GrProcessorKeyBuilder b(desc->key());
+    gen_key(&b, renderTarget, programInfo, caps);
+    desc->fInitialKeyLength = desc->keyLength();
+}
+
+SkString GrProgramDesc::Describe(GrRenderTarget* renderTarget,
+                                 const GrProgramInfo& programInfo,
+                                 const GrCaps& caps) {
+    SkASSERT(!renderTarget || programInfo.backendFormat() == renderTarget->backendFormat());
+
+    GrProgramDesc desc;
+    GrProcessorStringKeyBuilder b(desc.key());
+    gen_key(&b, renderTarget, programInfo, caps);
+    b.flush();
+    return b.description();
 }
