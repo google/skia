@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bf38ee5_6842c699",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "Another chunk",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b8a0df86_7edeea7d",
@@ -130,6 +147,143 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bedaaf21_2f3671c2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "// If the copy task hasn\u0027t been determined to be required by this point then it \n// certainly won\u0027t be required after this point\n\n?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8a0c4e3_c6d1e61d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "Why does this depend on \u0027context\u0027 being a direct context ?",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 38
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00618d5d_12ee0dec",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "I guess we could assert:\n\nfVolatileProxyTargetCount \u003c fVolatileProxy-\u003egetTaskTargetCount()",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcf966e6_51300af2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "// If this image\u0027s surface is still extant we know we will need to copy here in \n// order to give the use a stable result.\n\n?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1eb0899_455c2b03",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "// If this image\u0027s surface is still extant we know we have to copy here to \n// avoid a conflict between the surface\u0027s color space and \u0027newCS\u0027\n\n?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f5d1090_1b833c0b",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "The image will cancel ?",
+      "range": {
+        "startLine": 100,
+        "startChar": 71,
+        "endLine": 100,
+        "endChar": 81
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dc8e556_a67b963f",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "If",
+      "range": {
+        "startLine": 114,
+        "startChar": 68,
+        "endLine": 114,
+        "endChar": 71
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "87292d0b_ff6cbc37",
         "filename": "src/image/SkImage_Gpu.h",
         "patchSetId": 9
@@ -147,6 +301,23 @@
         "endLine": 116,
         "endChar": 71
       },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e36482bd_12561f66",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:12:54Z",
+      "side": 1,
+      "message": "// This is the number of render tasks the volatile proxy was a target of when\n// this image was snapped. The proxy\u0027s current target count being greater\n// than this when the image is about to be read signals that the copy task\n// is required.\n\n?\n\nAlso, could fVolatileProxyTargetCount be made const ?",
       "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
