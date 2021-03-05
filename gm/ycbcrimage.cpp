@@ -60,12 +60,12 @@ protected:
                                                kTopLeft_GrSurfaceOrigin, kRGB_888x_SkColorType,
                                                kPremul_SkAlphaType, nullptr,
                                                release_ycbcrhelper, ycbcrHelper.get());
+        ycbcrHelper.release();
         if (!fYCbCrImage) {
             *errorMsg = "Failed to create I420 image.";
             return DrawResult::kFail;
         }
 
-        ycbcrHelper.release();
         return DrawResult::kOk;
     }
 
