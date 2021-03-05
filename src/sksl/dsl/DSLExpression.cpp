@@ -66,7 +66,7 @@ DSLExpression::DSLExpression(bool value)
 DSLExpression::DSLExpression(const DSLVar& var)
     : fExpression(std::make_unique<SkSL::VariableReference>(
                                                         /*offset=*/-1,
-                                                        var.var(),
+                                                        var.fVar,
                                                         SkSL::VariableReference::RefKind::kRead)) {}
 
 DSLExpression::DSLExpression(DSLPossibleExpression expr, PositionInfo pos) {

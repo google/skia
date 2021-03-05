@@ -60,6 +60,12 @@ const std::shared_ptr<SkSL::SymbolTable>& DSLWriter::SymbolTable() {
     return IRGenerator().fSymbolTable;
 }
 
+void DSLWriter::Reset() {
+    IRGenerator().popSymbolTable();
+    IRGenerator().pushSymbolTable();
+    ProgramElements().clear();
+}
+
 const SkSL::Modifiers* DSLWriter::Modifiers(SkSL::Modifiers modifiers) {
     return IRGenerator().fModifiers->addToPool(modifiers);
 }
@@ -170,7 +176,7 @@ void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
 }
 
 const SkSL::Variable& DSLWriter::Var(const DSLVar& var) {
-    return *var.var();
+    return *var.fVar;
 }
 
 #if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)

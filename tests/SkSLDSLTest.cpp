@@ -891,16 +891,16 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Statement x = Block();
     EXPECT_EQUAL(x, "{ }");
-    Var a(kInt, "a"), b(kInt, "b");
-    Statement y = Block(Declare(a, 1), Declare(b, 2), a = b);
+    Var a(kInt, "a", 1), b(kInt, "b", 2);
+    Statement y = Block(Declare(a), Declare(b), a = b);
     EXPECT_EQUAL(y, "{ int a = 1; int b = 2; (a = b); }");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var i(kInt, "i");
+    Var i(kInt, "i", 0);
     DSLFunction(kVoid, "success").define(
-        For(Declare(i, 0), i < 10, ++i, Block(
+        For(Declare(i), i < 10, ++i, Block(
             If(i > 5, Break())
         ))
     );
@@ -918,9 +918,9 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var i(kInt, "i");
+    Var i(kInt, "i", 0);
     DSLFunction(kVoid, "success").define(
-        For(Declare(i, 0), i < 10, ++i, Block(
+        For(Declare(i), i < 10, ++i, Block(
             If(i < 5, Continue())
         ))
     );
@@ -938,16 +938,23 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Var a(kHalf4, "a"), b(kHalf4, "b");
+    Var a(kHalf4, "a"), b(kHalf4, "b", Half4(1));
     Statement x = Declare(a);
     EXPECT_EQUAL(x, "half4 a;");
-    Statement y = Declare(b, Half4(1));
+    Statement y = Declare(b);
     EXPECT_EQUAL(y, "half4 b = half4(1.0);");
 
     {
-        Var c(kHalf4, "c");
+        Var c(kHalf4, "c", 1);
         ExpectError error(r, "error: expected 'half4', but found 'int'\n");
-        Declare(c, 1).release();
+        Declare(c).release();
+    }
+
+    {
+        Var d(kInt, "d");
+        Declare(d).release();
+        ExpectError error(r, "error: variable has already been declared\n");
+        Declare(d).release();
     }
 }
 
@@ -977,8 +984,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
     Statement x = For(Statement(), Expression(), Expression(), Block());
     EXPECT_EQUAL(x, "for (;;) {}");
 
-    Var i(kInt, "i");
-    Statement y = For(Declare(i, 0), i < 10, ++i, i += 5);
+    Var i(kInt, "i", 0);
+    Statement y = For(Declare(i), i < 10, ++i, i += 5);
     EXPECT_EQUAL(y, "for (int i = 0; (i < 10); ++i) (i += 5);");
 
     {
@@ -989,7 +996,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    DSLWriter::ProgramElements().clear();
     Var coords(kHalf2, "coords");
     DSLFunction(kVoid, "main", coords).define(
         sk_FragColor() = Half4(coords, 0, 1)
@@ -999,7 +1005,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
                  "void main(half2 coords) { (sk_FragColor = half4(coords, 0.0, 1.0)); }");
 
     {
-        DSLWriter::ProgramElements().clear();
+        DSLWriter::Reset();
         Var x(kFloat, "x");
         DSLFunction sqr(kFloat, "sqr", x);
         sqr.define(
@@ -1011,7 +1017,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     }
 
     {
-        DSLWriter::ProgramElements().clear();
+        DSLWriter::Reset();
         Var x(kFloat2, "x");
         Var y(kFloat2, "y");
         DSLFunction dot(kFloat2, "dot", x, y);
@@ -1027,7 +1033,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected 'float', but found 'bool'\n");
-        DSLWriter::ProgramElements().clear();
+        DSLWriter::Reset();
         DSLFunction(kFloat, "broken").define(
             Return(true)
         );
@@ -1035,7 +1041,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected function to return 'float'\n");
-        DSLWriter::ProgramElements().clear();
+        DSLWriter::Reset();
         DSLFunction(kFloat, "broken").define(
             Return()
         );
@@ -1043,17 +1049,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: function 'broken' can exit without returning a value\n");
-        DSLWriter::ProgramElements().clear();
-        Var x(kFloat, "x");
+        DSLWriter::Reset();
+        Var x(kFloat, "x", 0);
         DSLFunction(kFloat, "broken").define(
-            Declare(x, 0),
+            Declare(x),
             If(x == 1, Return(x))
         );
     }
 
     {
         ExpectError error(r, "error: may not return a value from a void function\n");
-        DSLWriter::ProgramElements().clear();
+        DSLWriter::Reset();
         DSLFunction(kVoid, "broken").define(
             Return(0)
         );
@@ -1061,7 +1067,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: function 'broken' can exit without returning a value\n");
-        DSLWriter::ProgramElements().clear();
+        DSLWriter::Reset();
         DSLFunction(kFloat, "broken").define(
         );
     }
@@ -1294,8 +1300,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
-    Var v1(kConst_Modifier, kInt, "v1");
-    Statement d1 = Declare(v1, 0);
+    Var v1(kConst_Modifier, kInt, "v1", 0);
+    Statement d1 = Declare(v1);
     EXPECT_EQUAL(d1, "const int v1 = 0;");
 
     // Most modifiers require an appropriate context to be legal. We can't yet give them that
@@ -1349,12 +1355,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
                  "SimpleStruct returnStruct() { SimpleStruct result; (result.x = 123.0);"
                  "(result.b = (result.x > 0.0)); (result.a[0] = result.x); return result; }");
 
-    DSLWriter::ProgramElements().clear();
     Struct("NestedStruct",
         Field(kInt, "x"),
         Field(simpleStruct, "simple")
     );
-    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
-    EXPECT_EQUAL(*DSLWriter::ProgramElements()[0],
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 3);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements()[2],
                  "struct NestedStruct { int x; SimpleStruct simple; };");
 }

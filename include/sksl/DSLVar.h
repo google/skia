@@ -27,9 +27,14 @@ public:
      * name conflicts and the variable's name is only important when debugging shaders, the name
      * parameter is optional.
      */
-    DSLVar(DSLType type, const char* name = "var");
+    DSLVar(DSLType type, const char* name = "var", DSLExpression initialValue = DSLExpression());
 
-    DSLVar(DSLModifiers modifiers, DSLType type, const char* name = "var");
+    DSLVar(DSLType type, DSLExpression initialValue);
+
+    DSLVar(DSLModifiers modifiers, DSLType type, const char* name = "var",
+           DSLExpression initialValue = DSLExpression());
+
+    DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
     DSLVar(DSLVar&&) = delete;
 
@@ -110,18 +115,14 @@ private:
      */
     DSLVar(const char* name);
 
-    const SkSL::Variable* var() const {
-        return fVar ? fVar.get() : fConstVar;
-    }
-
     const char* name() const {
         return fName;
     }
 
     int fUniformHandle;
     std::unique_ptr<SkSL::Statement> fDeclaration;
-    std::unique_ptr<SkSL::Variable> fVar;
-    const SkSL::Variable* fConstVar = nullptr;
+    bool fDeclared = false;
+    const SkSL::Variable* fVar;
     const char* fName;
 
     friend DSLVar sk_SampleCoord();

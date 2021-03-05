@@ -76,6 +76,8 @@ public:
      */
     static const std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
 
+    static void Reset();
+
     /**
      * Returns the final pointer to a pooled Modifiers object that should be used to represent the
      * given modifiers.
