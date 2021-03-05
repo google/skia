@@ -64,10 +64,12 @@ private:
     enum class ProcessorFlags {
         kNone             = 0,
         kUseHWDerivatives = 1 << 0,
-        kHasPerspective   = 1 << 1,
-        kHasLocalCoords   = 1 << 2,
-        kWideColor        = 1 << 3
+        kHasLocalCoords   = 1 << 1,
+        kWideColor        = 1 << 2,
+        kMSAAEnabled      = 1 << 3,
+        kFakeNonAA        = 1 << 4,
     };
+    constexpr static int kNumProcessorFlags = 5;
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ProcessorFlags);
 
@@ -77,7 +79,6 @@ private:
                 const SkPMColor4f& paintColor,
                 const SkMatrix& totalShapeMatrix,
                 const SkRRect&,
-                GrAAType,
                 ProcessorFlags,
                 const SkRect& devBounds);
 
@@ -121,7 +122,6 @@ private:
     sk_sp<const GrBuffer> fVertexBuffer;
     sk_sp<const GrBuffer> fIndexBuffer;
     int fBaseInstance = 0;
-    int fIndexCount = 0;
 
     // If this op is prePrepared the created programInfo will be stored here for use in
     // onExecute. In the prePrepared case it will have been stored in the record-time arena.
@@ -152,31 +152,19 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
     }
 
     ProcessorFlags flags = ProcessorFlags::kNone;
-    if (GrAAType::kCoverage == aaType) {
-        // TODO: Support perspective in a follow-on CL. This shouldn't be difficult, since we
-        // already use HW derivatives. The only trick will be adjusting the AA outset to account for
-        // perspective. (i.e., outset = 0.5 * z.)
-        if (viewMatrix.hasPerspective()) {
-            return nullptr;
-        }
-        if (can_use_hw_derivatives_with_coverage(*caps->shaderCaps(), viewMatrix, rrect)) {
-            // HW derivatives (more specifically, fwidth()) are consistently faster on all platforms
-            // in coverage mode. We use them as long as the approximation will be accurate enough.
-            flags |= ProcessorFlags::kUseHWDerivatives;
-        }
-    } else {
-        if (GrAAType::kMSAA == aaType) {
-            if (!caps->sampleLocationsSupport() || !caps->shaderCaps()->sampleMaskSupport() ||
-                caps->shaderCaps()->canOnlyUseSampleMaskWithStencil()) {
-                return nullptr;
-            }
-        }
-        if (viewMatrix.hasPerspective()) {
-            // HW derivatives are consistently slower on all platforms in sample mask mode. We
-            // therefore only use them when there is perspective, since then we can't interpolate
-            // the symbolic screen-space gradient.
-            flags |= ProcessorFlags::kUseHWDerivatives | ProcessorFlags::kHasPerspective;
-        }
+    // TODO: Support perspective in a follow-on CL. This shouldn't be difficult, since we already
+    // use HW derivatives. The only trick will be adjusting the AA outset to account for
+    // perspective. (i.e., outset = 0.5 * z.)
+    if (viewMatrix.hasPerspective()) {
+        return nullptr;
+    }
+    if (can_use_hw_derivatives_with_coverage(*caps->shaderCaps(), viewMatrix, rrect)) {
+        // HW derivatives (more specifically, fwidth()) are consistently faster on all platforms in
+        // coverage mode. We use them as long as the approximation will be accurate enough.
+        flags |= ProcessorFlags::kUseHWDerivatives;
+    }
+    if (aaType == GrAAType::kNone) {
+        flags |= ProcessorFlags::kFakeNonAA;
     }
 
     // Produce a matrix that draws the round rect from normalized [-1, -1, +1, +1] space.
@@ -189,59 +177,41 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
     m.postConcat(viewMatrix);
 
     SkRect devBounds;
-    if (!(flags & ProcessorFlags::kHasPerspective)) {
-        // Since m is an affine matrix that maps the rect [-1, -1, +1, +1] into the shape's
-        // device-space quad, it's quite simple to find the bounding rectangle:
-        devBounds = SkRect::MakeXYWH(m.getTranslateX(), m.getTranslateY(), 0, 0);
-        devBounds.outset(SkScalarAbs(m.getScaleX()) + SkScalarAbs(m.getSkewX()),
-                         SkScalarAbs(m.getSkewY()) + SkScalarAbs(m.getScaleY()));
-    } else {
-        viewMatrix.mapRect(&devBounds, rrect.rect());
-    }
+    // Since m is an affine matrix that maps the rect [-1, -1, +1, +1] into the shape's
+    // device-space quad, it's quite simple to find the bounding rectangle:
+    devBounds = SkRect::MakeXYWH(m.getTranslateX(), m.getTranslateY(), 0, 0);
+    devBounds.outset(SkScalarAbs(m.getScaleX()) + SkScalarAbs(m.getSkewX()),
+                     SkScalarAbs(m.getSkewY()) + SkScalarAbs(m.getScaleY()));
 
-    if (GrAAType::kMSAA == aaType && caps->preferTrianglesOverSampleMask()) {
-        // We are on a platform that prefers fine triangles instead of using the sample mask. See if
-        // the round rect is large enough that it will be faster for us to send it off to the
-        // default path renderer instead. The 200x200 threshold was arrived at using the
-        // "shapes_rrect" benchmark on an ARM Galaxy S9.
-        if (devBounds.height() * devBounds.width() > 200 * 200) {
-            return nullptr;
-        }
-    }
-
-    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), m, rrect, aaType,
-                                              flags, devBounds);
+    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), m, rrect, flags, devBounds);
 }
 
 FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                          const SkPMColor4f& paintColor,
                          const SkMatrix& totalShapeMatrix,
                          const SkRRect& rrect,
-                         GrAAType aaType,
                          ProcessorFlags processorFlags,
                          const SkRect& devBounds)
         : INHERITED(ClassID())
-        , fHelper(processorSet, aaType)
+        , fHelper(processorSet,
+                  (processorFlags & ProcessorFlags::kFakeNonAA)
+                          ? GrAAType::kNone
+                          : GrAAType::kCoverage)  // Use analytic AA even if the RT is MSAA.
         , fColor(paintColor)
         , fLocalRect(rrect.rect())
         , fProcessorFlags(processorFlags & ~(ProcessorFlags::kHasLocalCoords |
-                                             ProcessorFlags::kWideColor)) {
-    SkASSERT((fProcessorFlags & ProcessorFlags::kHasPerspective) ==
-                                                                totalShapeMatrix.hasPerspective());
+                                             ProcessorFlags::kWideColor |
+                                             ProcessorFlags::kMSAAEnabled)) {
+    // FillRRectOp::Make fails if there is perspective.
+    SkASSERT(!totalShapeMatrix.hasPerspective());
     this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsHairline::kNo);
 
     // Write the matrix attribs.
     const SkMatrix& m = totalShapeMatrix;
-    if (!(fProcessorFlags & ProcessorFlags::kHasPerspective)) {
-        // Affine 2D transformation (float2x2 plus float2 translate).
-        SkASSERT(!m.hasPerspective());
-        this->writeInstanceData(m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY());
-        this->writeInstanceData(m.getTranslateX(), m.getTranslateY());
-    } else {
-        // Perspective float3x3 transformation matrix.
-        SkASSERT(m.hasPerspective());
-        m.get9(this->appendInstanceData<float>(9));
-    }
+    // Affine 2D transformation (float2x2 plus float2 translate).
+    SkASSERT(!m.hasPerspective());
+    this->writeInstanceData(m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY());
+    this->writeInstanceData(m.getTranslateX(), m.getTranslateY());
 
     // Convert the radii to [-1, -1, +1, +1] space and write their attribs.
     Sk4f radiiX, radiiY;
@@ -307,8 +277,7 @@ public:
     const char* name() const final { return "GrFillRRectOp::Processor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
-        b->addBits(4, (uint32_t)fFlags,  "flags");
-        b->addBits(2, (uint32_t)fAAType, "aaType");
+        b->addBits(kNumProcessorFlags, (uint32_t)fFlags,  "flags");
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
@@ -316,22 +285,11 @@ public:
 private:
     Processor(GrAAType aaType, ProcessorFlags flags)
             : INHERITED(kGrFillRRectOp_Processor_ClassID)
-            , fAAType(aaType)
             , fFlags(flags) {
-        int numVertexAttribs = (GrAAType::kCoverage == fAAType) ? 3 : 2;
-        this->setVertexAttributes(kVertexAttribs, numVertexAttribs);
+        this->setVertexAttributes(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
 
-        if (!(fFlags & ProcessorFlags::kHasPerspective)) {
-            // Affine 2D transformation (float2x2 plus float2 translate).
-            fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-            fInstanceAttribs.emplace_back(
-                    "translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
-        } else {
-            // Perspective float3x3 transformation matrix.
-            fInstanceAttribs.emplace_back("persp_x", kFloat3_GrVertexAttribType, kFloat3_GrSLType);
-            fInstanceAttribs.emplace_back("persp_y", kFloat3_GrVertexAttribType, kFloat3_GrSLType);
-            fInstanceAttribs.emplace_back("persp_z", kFloat3_GrVertexAttribType, kFloat3_GrSLType);
-        }
+        fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
         fInstanceAttribs.emplace_back("radii_x", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         fInstanceAttribs.emplace_back("radii_y", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         fColorAttrib = &fInstanceAttribs.push_back(
@@ -341,10 +299,6 @@ private:
                     "local_rect", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         }
         this->setInstanceAttributes(fInstanceAttribs.begin(), fInstanceAttribs.count());
-
-        if (GrAAType::kMSAA == fAAType) {
-            this->setWillUseCustomFeature(CustomFeatures::kSampleLocations);
-        }
     }
 
     static constexpr Attribute kVertexAttribs[] = {
@@ -353,14 +307,12 @@ private:
             // Coverage only.
             {"aa_bloat_and_coverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
 
-    const GrAAType       fAAType;
     const ProcessorFlags fFlags;
 
     SkSTArray<6, Attribute> fInstanceAttribs;
     const Attribute* fColorAttrib;
 
-    class CoverageImpl;
-    class MSAAImpl;
+    class Impl;
 
     using INHERITED = GrGeometryProcessor;
 };
@@ -385,7 +337,7 @@ struct CoverageVertex {
 // rectangles.
 static constexpr float kOctoOffset = 1/(1 + SK_ScalarRoot2Over2);
 
-static constexpr CoverageVertex kCoverageVertexData[] = {
+static constexpr CoverageVertex kVertexData[] = {
         // Left inset edge.
         {{{0,0,0,1}},  {{-1,+1}},  {{0,-1}},  {{+1,0}},  1,  1},
         {{{1,0,0,0}},  {{-1,-1}},  {{0,+1}},  {{+1,0}},  1,  1},
@@ -452,9 +404,9 @@ static constexpr CoverageVertex kCoverageVertexData[] = {
         {{{0,0,0,1}},  {{-1,+1}},  {{0,-kOctoOffset}},  {{-1,+1}},  0,  0},
         {{{0,0,0,1}},  {{-1,+1}},  {{+kOctoOffset,0}},  {{-1,+1}},  0,  0}};
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gCoverageVertexBufferKey);
+GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
-static constexpr uint16_t kCoverageIndexData[] = {
+static constexpr uint16_t kIndexData[] = {
         // Inset octagon (solid coverage).
         0, 1, 7,
         1, 2, 7,
@@ -493,126 +445,35 @@ static constexpr uint16_t kCoverageIndexData[] = {
         39, 36, 38,
         36, 38, 37};
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gCoverageIndexBufferKey);
-
-
-// Our MSAA geometry consists of an inset octagon with full sample mask coverage, circumscribed
-// by a larger octagon that modifies the sample mask for the arc at each corresponding corner.
-struct MSAAVertex {
-    std::array<float, 4> fRadiiSelector;
-    std::array<float, 2> fCorner;
-    std::array<float, 2> fRadiusOutset;
-};
-
-static constexpr MSAAVertex kMSAAVertexData[] = {
-        // Left edge. (Negative radii selector indicates this is not an arc section.)
-        {{{0,0,0,-1}},  {{-1,+1}},  {{0,-1}}},
-        {{{-1,0,0,0}},  {{-1,-1}},  {{0,+1}}},
-
-        // Top edge.
-        {{{-1,0,0,0}},  {{-1,-1}},  {{+1,0}}},
-        {{{0,-1,0,0}},  {{+1,-1}},  {{-1,0}}},
-
-        // Right edge.
-        {{{0,-1,0,0}},  {{+1,-1}},  {{0,+1}}},
-        {{{0,0,-1,0}},  {{+1,+1}},  {{0,-1}}},
-
-        // Bottom edge.
-        {{{0,0,-1,0}},  {{+1,+1}},  {{-1,0}}},
-        {{{0,0,0,-1}},  {{-1,+1}},  {{+1,0}}},
-
-        // Top-left corner.
-        {{{1,0,0,0}},  {{-1,-1}},  {{0,+1}}},
-        {{{1,0,0,0}},  {{-1,-1}},  {{0,+kOctoOffset}}},
-        {{{1,0,0,0}},  {{-1,-1}},  {{+1,0}}},
-        {{{1,0,0,0}},  {{-1,-1}},  {{+kOctoOffset,0}}},
-
-        // Top-right corner.
-        {{{0,1,0,0}},  {{+1,-1}},  {{-1,0}}},
-        {{{0,1,0,0}},  {{+1,-1}},  {{-kOctoOffset,0}}},
-        {{{0,1,0,0}},  {{+1,-1}},  {{0,+1}}},
-        {{{0,1,0,0}},  {{+1,-1}},  {{0,+kOctoOffset}}},
-
-        // Bottom-right corner.
-        {{{0,0,1,0}},  {{+1,+1}},  {{0,-1}}},
-        {{{0,0,1,0}},  {{+1,+1}},  {{0,-kOctoOffset}}},
-        {{{0,0,1,0}},  {{+1,+1}},  {{-1,0}}},
-        {{{0,0,1,0}},  {{+1,+1}},  {{-kOctoOffset,0}}},
-
-        // Bottom-left corner.
-        {{{0,0,0,1}},  {{-1,+1}},  {{+1,0}}},
-        {{{0,0,0,1}},  {{-1,+1}},  {{+kOctoOffset,0}}},
-        {{{0,0,0,1}},  {{-1,+1}},  {{0,-1}}},
-        {{{0,0,0,1}},  {{-1,+1}},  {{0,-kOctoOffset}}}};
-
-GR_DECLARE_STATIC_UNIQUE_KEY(gMSAAVertexBufferKey);
-
-static constexpr uint16_t kMSAAIndexData[] = {
-        // Inset octagon. (Full sample mask.)
-        0, 1, 2,
-        0, 2, 3,
-        0, 3, 6,
-        3, 4, 5,
-        3, 5, 6,
-        6, 7, 0,
-
-        // Top-left arc. (Sample mask is set to the arc.)
-         8,  9, 10,
-         9, 11, 10,
-
-        // Top-right arc.
-        12, 13, 14,
-        13, 15, 14,
-
-        // Bottom-right arc.
-        16, 17, 18,
-        17, 19, 18,
-
-        // Bottom-left arc.
-        20, 21, 22,
-        21, 23, 22};
-
-GR_DECLARE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
+GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 void FillRRectOp::onPrepareDraws(Target* target) {
+    // We request no multisample, but some platforms don't support disabling it on MSAA targets.
+    if (target->rtProxy()->numSamples() > 1 && !target->caps().multisampleDisableSupport()) {
+        fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
+    }
+
     if (void* instanceData = target->makeVertexSpace(fInstanceStride, fInstanceCount,
                                                      &fInstanceBuffer, &fBaseInstance)) {
         SkASSERT(fInstanceStride * fInstanceCount == fInstanceData.count());
         memcpy(instanceData, fInstanceData.begin(), fInstanceData.count());
     }
 
-    if (GrAAType::kCoverage == fHelper.aaType()) {
-        GR_DEFINE_STATIC_UNIQUE_KEY(gCoverageIndexBufferKey);
+    GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
-        fIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
-                GrGpuBufferType::kIndex, sizeof(kCoverageIndexData), kCoverageIndexData,
-                gCoverageIndexBufferKey);
+    fIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
+                                                                      sizeof(kIndexData),
+                                                                      kIndexData, gIndexBufferKey);
 
-        GR_DEFINE_STATIC_UNIQUE_KEY(gCoverageVertexBufferKey);
+    GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
-        fVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
-                GrGpuBufferType::kVertex, sizeof(kCoverageVertexData), kCoverageVertexData,
-                gCoverageVertexBufferKey);
-
-        fIndexCount = SK_ARRAY_COUNT(kCoverageIndexData);
-    } else {
-        GR_DEFINE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
-
-        fIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
-                GrGpuBufferType::kIndex, sizeof(kMSAAIndexData), kMSAAIndexData,
-                gMSAAIndexBufferKey);
-
-        GR_DEFINE_STATIC_UNIQUE_KEY(gMSAAVertexBufferKey);
-
-        fVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
-                GrGpuBufferType::kVertex, sizeof(kMSAAVertexData), kMSAAVertexData,
-                gMSAAVertexBufferKey);
-
-        fIndexCount = SK_ARRAY_COUNT(kMSAAIndexData);
-    }
+    fVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(GrGpuBufferType::kVertex,
+                                                                      sizeof(kVertexData),
+                                                                      kVertexData,
+                                                                      gVertexBufferKey);
 }
 
-class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
+class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& proc = args.fGP.cast<Processor>();
         bool useHWDerivatives = (proc.fFlags & ProcessorFlags::kUseHWDerivatives);
@@ -627,11 +488,19 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         // Emit the vertex shader.
         GrGLSLVertexBuilder* v = args.fVertBuilder;
 
+        // When MSAA is enabled, we need to make sure every sample gets lit up on pixels that have
+        // fractional coverage. We do this by making the ramp wider.
+        v->codeAppendf("float aa_bloat_multiplier = %i;",
+                       (proc.fFlags & ProcessorFlags::kMSAAEnabled)
+                               ? 2    // Outset an entire pixel (2 radii).
+                       : (!(proc.fFlags & ProcessorFlags::kFakeNonAA))
+                               ? 1    // Outset one half pixel (1 radius).
+                               : 0);  // No AA bloat.
+
         // Unpack vertex attribs.
         v->codeAppend("float2 corner = corner_and_radius_outsets.xy;");
         v->codeAppend("float2 radius_outset = corner_and_radius_outsets.zw;");
         v->codeAppend("float2 aa_bloat_direction = aa_bloat_and_coverage.xy;");
-        v->codeAppend("float coverage = aa_bloat_and_coverage.z;");
         v->codeAppend("float is_linear_coverage = aa_bloat_and_coverage.w;");
 
         // Find the amount to bloat each edge for AA (in source space).
@@ -648,28 +517,44 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         v->codeAppend("float2 radii = radii_and_neighbors.xy;");
         v->codeAppend("float2 neighbor_radii = radii_and_neighbors.zw;");
 
+        v->codeAppend("float coverage_multiplier = 1;");
         v->codeAppend("if (any(greaterThan(aa_bloatradius, float2(1)))) {");
-                          // The rrect is more narrow than an AA coverage ramp. We can't draw as-is
-                          // or else opposite AA borders will overlap. Instead, fudge the size up to
-                          // the width of a coverage ramp, and then reduce total coverage to make
-                          // the rect appear more thin.
+                          // The rrect is more narrow than a half-pixel AA coverage ramp. We can't
+                          // draw as-is or else opposite AA borders will overlap. Instead, fudge the
+                          // size up to the width of a coverage ramp, and then reduce total coverage
+                          // to make the rect appear more thin.
         v->codeAppend(    "corner = max(abs(corner), aa_bloatradius) * sign(corner);");
-        v->codeAppend(    "coverage /= max(aa_bloatradius.x, 1) * max(aa_bloatradius.y, 1);");
+        v->codeAppend(    "coverage_multiplier = 1 / (max(aa_bloatradius.x, 1) * "
+                                                     "max(aa_bloatradius.y, 1));");
                           // Set radii to zero to ensure we take the "linear coverage" codepath.
                           // (The "coverage" variable only has effect in the linear codepath.)
         v->codeAppend(    "radii = float2(0);");
         v->codeAppend("}");
 
-        v->codeAppend("if (any(lessThan(radii, aa_bloatradius * 1.25))) {");
+        // Unpack coverage.
+        v->codeAppend("float coverage = aa_bloat_and_coverage.z;");
+        if (proc.fFlags & ProcessorFlags::kMSAAEnabled) {
+            // MSAA has a wider ramp that goes from -.5 to 1.5 instead of 0 to 1.
+            v->codeAppendf("coverage = (coverage - .5) * aa_bloat_multiplier + .5;");
+        }
+
+        v->codeAppend("if (any(lessThan(radii, aa_bloatradius * 1.5))) {");
                           // The radii are very small. Demote this arc to a sharp 90 degree corner.
-        v->codeAppend(    "radii = aa_bloatradius;");
-                          // Snap octagon vertices to the corner of the bounding box.
-        v->codeAppend(    "radius_outset = floor(abs(radius_outset)) * radius_outset;");
+        v->codeAppend(    "radii = float2(0);");
+                          // Convert to a standard picture frame for an AA rect instead of the round
+                          // rect geometry.
+        v->codeAppend(    "aa_bloat_direction = sign(corner);");
+        v->codeAppend(    "if (coverage > .5) {");  // Are we an inset edge?
+        v->codeAppend(        "aa_bloat_direction = -aa_bloat_direction;");
+        v->codeAppend(    "}");
         v->codeAppend(    "is_linear_coverage = 1;");
         v->codeAppend("} else {");
-                          // Don't let radii get smaller than a pixel.
-        v->codeAppend(    "radii = clamp(radii, pixellength, 2 - pixellength);");
-        v->codeAppend(    "neighbor_radii = clamp(neighbor_radii, pixellength, 2 - pixellength);");
+                          // Don't let radii get smaller than a coverage ramp plus an extra half
+                          // pixel for MSAA. Always use the same amount so we don't pop when
+                          // switching between MSAA and coverage.
+        v->codeAppend(    "radii = clamp(radii, pixellength * 1.5, 2 - pixellength * 1.5);");
+        v->codeAppend(    "neighbor_radii = clamp(neighbor_radii, pixellength * 1.5, "
+                                                 "2 - pixellength * 1.5);");
                           // Don't let neighboring radii get closer together than 1/16 pixel.
         v->codeAppend(    "float2 spacing = 2 - radii - neighbor_radii;");
         v->codeAppend(    "float2 extra_pad = max(pixellength * .0625 - spacing, float2(0));");
@@ -678,8 +563,32 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
 
         // Find our vertex position, adjusted for radii and bloated for AA. Our rect is drawn in
         // normalized [-1,-1,+1,+1] space.
-        v->codeAppend("float2 aa_outset = aa_bloat_direction.xy * aa_bloatradius;");
+        v->codeAppend("float2 aa_outset = "
+                              "aa_bloat_direction * aa_bloatradius * aa_bloat_multiplier;");
         v->codeAppend("float2 vertexpos = corner + radius_outset * radii + aa_outset;");
+
+        v->codeAppend("if (coverage > .5) {");  // Are we an inset edge?
+                          // Don't allow the aa insets to overlap. i.e., Don't let them inset past
+                          // the center (x=y=0). Since we don't allow the rect to become thinner
+                          // than 1px, this should only happen when using MSAA, where we inset by an
+                          // entire pixel instead of half.
+        v->codeAppend(    "if (aa_bloat_direction.x != 0 && vertexpos.x * corner.x < 0) {");
+        v->codeAppend(        "float backset = abs(vertexpos.x);");
+        v->codeAppend(        "vertexpos.x = 0;");
+        v->codeAppend(        "vertexpos.y += "
+                                      "backset * sign(corner.y) * pixellength.y/pixellength.x;");
+        v->codeAppend(        "coverage = (coverage - .5) * abs(corner.x) / "
+                                      "(abs(corner.x) + backset) + .5;");
+        v->codeAppend(    "}");
+        v->codeAppend(    "if (aa_bloat_direction.y != 0 && vertexpos.y * corner.y < 0) {");
+        v->codeAppend(        "float backset = abs(vertexpos.y);");
+        v->codeAppend(        "vertexpos.y = 0;");
+        v->codeAppend(        "vertexpos.x += "
+                                      "backset * sign(corner.x) * pixellength.x/pixellength.y;");
+        v->codeAppend(        "coverage = (coverage - .5) * abs(corner.y) / "
+                                      "(abs(corner.y) + backset) + .5;");
+        v->codeAppend(    "}");
+        v->codeAppend("}");
 
         // Write positions
         GrShaderVar localCoord("", kFloat2_GrSLType);
@@ -690,7 +599,6 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         }
 
         // Transform to device space.
-        SkASSERT(!(proc.fFlags & ProcessorFlags::kHasPerspective));
         v->codeAppend("float2x2 skewmatrix = float2x2(skew.xy, skew.zw);");
         v->codeAppend("float2 devcoord = vertexpos * skewmatrix + translate;");
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "devcoord");
@@ -701,7 +609,8 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         v->codeAppend("if (0 != is_linear_coverage) {");
                            // We are a non-corner piece: Set x=0 to indicate built-in coverage, and
                            // interpolate linear coverage across y.
-        v->codeAppendf(    "%s.xy = float2(0, coverage);", arcCoord.vsOut());
+        v->codeAppendf(    "%s.xy = float2(0, coverage * coverage_multiplier);",
+                           arcCoord.vsOut());
         v->codeAppend("} else {");
                            // Find the normalized arc coordinates for our corner ellipse.
                            // (i.e., the coordinate system where x^2 + y^2 == 1).
@@ -734,9 +643,19 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
             f->codeAppendf("float gx=%s.z, gy=%s.w;", arcCoord.fsIn(), arcCoord.fsIn());
             f->codeAppendf("float fnwidth = abs(gx) + abs(gy);");
         }
-        f->codeAppendf(    "half d = half(fn/fnwidth);");
-        f->codeAppendf(    "coverage = clamp(.5 - d, 0, 1);");
-        f->codeAppendf("}");
+        f->codeAppendf(    "coverage = .5 - half(fn/fnwidth);");
+        if (proc.fFlags & ProcessorFlags::kMSAAEnabled) {
+            // MSAA uses ramps larger than 1px, so we need to clamp in both branches.
+            f->codeAppendf("}");
+        }
+        f->codeAppendf("coverage = clamp(coverage, 0, 1);");
+        if (!(proc.fFlags & ProcessorFlags::kMSAAEnabled)) {
+            // When not using MSAA, we only need to clamp in the "arc" branch.
+            f->codeAppendf("}");
+        }
+        if (proc.fFlags & ProcessorFlags::kFakeNonAA) {
+            f->codeAppendf("coverage = (coverage >= .5) ? 1 : 0;");
+        }
         f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
     }
 
@@ -744,112 +663,9 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
 };
 
 
-class FillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& proc = args.fGP.cast<Processor>();
-        bool useHWDerivatives = (proc.fFlags & ProcessorFlags::kUseHWDerivatives);
-        bool hasPerspective = (proc.fFlags & ProcessorFlags::kHasPerspective);
-        bool hasLocalCoords = (proc.fFlags & ProcessorFlags::kHasLocalCoords);
-        SkASSERT(useHWDerivatives == hasPerspective);
-
-        SkASSERT(proc.vertexStride() == sizeof(MSAAVertex));
-
-        // Emit the vertex shader.
-        GrGLSLVertexBuilder* v = args.fVertBuilder;
-
-        GrGLSLVaryingHandler* varyings = args.fVaryingHandler;
-        varyings->emitAttributes(proc);
-        varyings->addPassThroughAttribute(*proc.fColorAttrib, args.fOutputColor,
-                                          GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-
-        // Unpack vertex attribs.
-        v->codeAppendf("float2 corner = corner_and_radius_outsets.xy;");
-        v->codeAppendf("float2 radius_outset = corner_and_radius_outsets.zw;");
-
-        // Identify our radii.
-        v->codeAppend("float2 radii;");
-        v->codeAppend("radii.x = dot(radii_selector, radii_x);");
-        v->codeAppend("radii.y = dot(radii_selector, radii_y);");
-        v->codeAppendf("bool is_arc_section = (radii.x > 0);");
-        v->codeAppendf("radii = abs(radii);");
-
-        // Find our vertex position, adjusted for radii. Our rect is drawn in normalized
-        // [-1,-1,+1,+1] space.
-        v->codeAppend("float2 vertexpos = corner + radius_outset * radii;");
-
-        // Write positions
-        GrShaderVar localCoord("", kFloat2_GrSLType);
-        if (hasLocalCoords) {
-            v->codeAppend("float2 localcoord = (local_rect.xy * (1 - vertexpos) + "
-                                               "local_rect.zw * (1 + vertexpos)) * .5;");
-            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
-        }
-
-        // Transform to device space.
-        if (!hasPerspective) {
-            v->codeAppend("float2x2 skewmatrix = float2x2(skew.xy, skew.zw);");
-            v->codeAppend("float2 devcoord = vertexpos * skewmatrix + translate;");
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "devcoord");
-        } else {
-            v->codeAppend("float3x3 persp_matrix = float3x3(persp_x, persp_y, persp_z);");
-            v->codeAppend("float3 devcoord = float3(vertexpos, 1) * persp_matrix;");
-            gpArgs->fPositionVar.set(kFloat3_GrSLType, "devcoord");
-        }
-
-        // Determine normalized arc coordinates for the implicit function.
-        GrGLSLVarying arcCoord((useHWDerivatives) ? kFloat2_GrSLType : kFloat4_GrSLType);
-        varyings->addVarying("arccoord", &arcCoord);
-        v->codeAppendf("if (is_arc_section) {");
-        v->codeAppendf(    "%s.xy = 1 - abs(radius_outset);", arcCoord.vsOut());
-        if (!useHWDerivatives) {
-            // The gradient is order-1: Interpolate it across arccoord.zw.
-            // This doesn't work with perspective.
-            SkASSERT(!hasPerspective);
-            v->codeAppendf("float2x2 derivatives = inverse(skewmatrix);");
-            v->codeAppendf("%s.zw = derivatives * (%s.xy/radii * corner * 2);",
-                           arcCoord.vsOut(), arcCoord.vsOut());
-        }
-        v->codeAppendf("} else {");
-        if (useHWDerivatives) {
-            v->codeAppendf("%s = float2(0);", arcCoord.vsOut());
-        } else {
-            v->codeAppendf("%s = float4(0);", arcCoord.vsOut());
-        }
-        v->codeAppendf("}");
-
-        // Emit the fragment shader.
-        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-
-        f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
-
-        // If x,y == 0, then we are drawing a triangle that does not track an arc.
-        f->codeAppendf("if (float2(0) != %s.xy) {", arcCoord.fsIn());
-        f->codeAppendf(    "float fn = dot(%s.xy, %s.xy) - 1;", arcCoord.fsIn(), arcCoord.fsIn());
-        if (GrAAType::kMSAA == proc.fAAType) {
-            using ScopeFlags = GrGLSLFPFragmentBuilder::ScopeFlags;
-            if (!useHWDerivatives) {
-                f->codeAppendf("float2 grad = %s.zw;", arcCoord.fsIn());
-                f->applyFnToMultisampleMask("fn", "grad", ScopeFlags::kInsidePerPrimitiveBranch);
-            } else {
-                f->applyFnToMultisampleMask("fn", nullptr, ScopeFlags::kInsidePerPrimitiveBranch);
-            }
-        } else {
-            f->codeAppendf("if (fn > 0) {");
-            f->codeAppendf(    "%s = half4(0);", args.fOutputCoverage);
-            f->codeAppendf("}");
-        }
-        f->codeAppendf("}");
-    }
-
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
-};
-
 GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
         const GrShaderCaps&) const {
-    if (GrAAType::kCoverage != fAAType) {
-        return new MSAAImpl();
-    }
-    return new CoverageImpl();
+    return new Impl();
 }
 
 void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
@@ -880,7 +696,8 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
     flushState->bindBuffers(std::move(fIndexBuffer), std::move(fInstanceBuffer),
                             std::move(fVertexBuffer));
-    flushState->drawIndexedInstanced(fIndexCount, 0, fInstanceCount, fBaseInstance, 0);
+    flushState->drawIndexedInstanced(SK_ARRAY_COUNT(kIndexData), 0, fInstanceCount, fBaseInstance,
+                                     0);
 }
 
 // Will the given corner look good if we use HW derivatives?
