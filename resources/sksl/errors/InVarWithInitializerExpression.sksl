@@ -1,3 +1,1 @@
 in float x = 1;
-float y;
-in float z = y = 1;
