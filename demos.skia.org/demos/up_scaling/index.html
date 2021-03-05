@@ -1,0 +1,174 @@
+<!doctype HTML>
+
+<!DOCTYPE html>
+<title>Custom Image Upscaling</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
+
+<style>
+canvas {
+  border: 1px dashed grey;
+}
+</style>
+
+<body>
+  <h1>Custom Image Upscaling</h1>
+
+  <div id=scale_text></div>
+  <div class="slidecontainer">
+      <input type="range" min="100" max="500" value="100"   class="slider" id="scale_slider">
+      <input type="range" min="0" max="900" value="0"   class="slider" id="sharpen">
+  </div>
+
+  <canvas id=draw width=1000 height=400></canvas>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+let CanvasKit;
+onload = async () => {
+  CanvasKit = await CanvasKitInit({ locateFile: (file) => "https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/" + file });
+  init();
+};
+
+function init() {
+  if (!CanvasKit.RuntimeEffect) {
+      console.log(CanvasKit.RuntimeEffect);
+      throw "Need RuntimeEffect";
+  }
+  const surface = CanvasKit.MakeCanvasSurface('draw');
+  if (!surface) {
+    throw 'Could not make surface';
+  }
+
+  const prog = `
+  uniform shader image;
+  uniform float  sharp;  // slope of the lerp section of the kernel (steeper == sharper)
+
+  float2 sharpen(float2 w) {
+      return saturate(sharp * (w - 0.5) + 0.5);
+  }
+
+  bool nearly_center(float2 p) {
+      float tolerance = 0.01;   // not sure what to use here
+      p = abs(fract(p) - 0.5);
+      return p.x < tolerance && p.y < tolerance;
+  }
+
+  half4 main(float2 p) {
+      float h = 0.5;
+      if (nearly_center(p)) {
+          return sample(image, p);
+      } else {
+          half4 pa = sample(image, float2(p.x-0.5, p.y-0.5));
+          half4 pb = sample(image, float2(p.x+0.5, p.y-0.5));
+          half4 pc = sample(image, float2(p.x-0.5, p.y+0.5));
+          half4 pd = sample(image, float2(p.x+0.5, p.y+0.5));
+          float2 w = sharpen(fract(p + 0.5));
+          return mix(mix(pa, pb, w.x), mix(pc, pd, w.x), w.y);
+      }
+  }
+  `;
+  const effect = CanvasKit.RuntimeEffect.Make(prog);
+
+  const size = 100;
+  const shader_paint = new CanvasKit.Paint();
+  const color_paint = new CanvasKit.Paint();
+
+  const image = function() {
+    let surf = CanvasKit.MakeSurface(size, size);
+    let c = surf.getCanvas();
+
+    color_paint.setColor([1, 1, 1, 1]);
+    c.drawRect([0, 0, size, size], color_paint);
+
+    color_paint.setColor([0, 0, 0, 1]);
+    for (let x = 0; x < size; x += 2) {
+      c.drawRect([x, 0, x+1, size], color_paint);
+    }
+    return surf.makeImageSnapshot();
+  }();
+
+  const imageShader = image.makeShaderOptions(CanvasKit.TileMode.Clamp,
+                                              CanvasKit.TileMode.Clamp,
+                                              CanvasKit.FilterMode.Nearest,
+                                              CanvasKit.MipmapMode.None);
+
+  sharpen.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+  scale_slider.oninput = () => { surface.requestAnimationFrame(drawFrame); }
+
+  const fract = function(value) {
+      return value - Math.floor(value);
+  }
+
+  drawFrame = function(canvas) {
+      const scale = scale_slider.value / 100.0;
+      scale_text.innerText = scale
+
+      canvas.clear();
+
+      // Draw the prog version.
+      canvas.save();
+      canvas.scale(scale, 1.0);
+      shader_paint.setShader(effect.makeShaderWithChildren([scale], true, [imageShader], null));
+      canvas.drawRect([0, 0, size, 100], shader_paint);
+      canvas.restore();
+
+      // magify
+      drawMagnified(canvas, 0, 100);
+
+      // Draw the two-pass version
+      let intScale = Math.max(1, Math.floor(scale + 0.5));
+      let intImage = imageAtScale(intScale);
+
+      canvas.save();
+      canvas.scale(scale / intScale, 1);
+      canvas.drawImageOptions(intImage, 0, 200, CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None, null);
+      canvas.restore();
+
+      // magnify
+      drawMagnified(canvas, 200, 300);
+  }
+
+  function drawMagnified(canvas, sampleY, dstY) {
+    let pixels = canvas.readPixels(
+        0, sampleY,
+        { width: 50,
+          height: 1,
+          colorType: CanvasKit.ColorType.RGBA_8888,
+          alphaType: CanvasKit.AlphaType.Premul,
+          colorSpace: CanvasKit.ColorSpace.DISPLAY_P3
+        }
+    );
+
+    for (let i = 0; i < 50; i++) {
+      let color =
+        [ pixels[i*4 + 0] / 255.0,
+          pixels[i*4 + 1] / 255.0,
+          pixels[i*4 + 2] / 255.0,
+          pixels[i*4 + 3] / 255.0 ];
+      color_paint.setColor(color);
+      canvas.drawRect([i*20, dstY, (i+1)*20, dstY + 100], color_paint);
+    }
+  }
+
+  function imageAtScale(s) {
+      let surf = CanvasKit.MakeSurface(s * size, size);
+      let c = surf.getCanvas();
+
+      color_paint.setColor([1, 1, 1, 1]);
+      c.drawRect([0, 0, s * size, size], color_paint);
+
+      color_paint.setColor([0, 0, 0, 1]);
+      for (let x = 0; x < size; x += 2) {
+        c.drawRect([x * s, 0, (x+1) * s, size], color_paint);
+      }
+      return surf.makeImageSnapshot();
+  }
+
+  surface.requestAnimationFrame(drawFrame);
+}
+
+</script>
+
