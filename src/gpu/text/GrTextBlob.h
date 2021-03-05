@@ -366,7 +366,11 @@ class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainter
 public:
     SK_BEGIN_REQUIRE_DENSE
     struct Key {
-        Key();
+        static std::tuple<bool, Key> Make(const SkGlyphRunList& glyphRunList,
+                                          const SkSurfaceProps& surfaceProps,
+                                          const GrColorInfo& colorInfo,
+                                          const SkMatrix& drawMatrix,
+                                          const GrSDFTControl& control);
         uint32_t fUniqueID;
         // Color may affect the gamma of the mask we generate, but in a fairly limited way.
         // Each color is assigned to on of a fixed number of buckets based on its
@@ -408,7 +412,6 @@ public:
             SkGlyphRunListPainter* painter,
             const SkGlyphRunList& glyphRunList,
             const SkMatrix& drawMatrix,
-            const SkPaint& runPaint,
             const GrSDFTControl& control);
 
     static const Key& GetKey(const GrTextBlob& blob);

@@ -85,7 +85,7 @@ public:
     // callbacks will be called.
     void processGlyphRun(const SkGlyphRun& glyphRun,
                          const SkMatrix& drawMatrix,
-                         const SkPaint& drawPaint,
+                         const SkPaint& runPaint,
                          const GrSDFTControl& control,
                          SkGlyphRunPainterInterface* process);
 #endif  // SK_SUPPORT_GPU

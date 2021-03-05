@@ -142,6 +142,7 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkPaint& runPaint,
                                             const GrSDFTControl& control,
                                             SkGlyphRunPainterInterface* process) {
+
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
     fRejects.setSource(glyphRun.source());
     const SkFont& runFont = glyphRun.font();
