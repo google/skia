@@ -20,9 +20,6 @@ flutter_defines = [
   "SK_DISABLE_LEGACY_SHADERCONTEXT",
   "SK_DISABLE_LOWP_RASTER_PIPELINE",
   "SK_FORCE_RASTER_PIPELINE_BLITTER",
-
-  # Signal that we are building for Flutter.
-  "SK_BUILD_FOR_FLUTTER",
 ]
 
 if (!is_fuchsia) {
