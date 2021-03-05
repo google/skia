@@ -10,6 +10,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
@@ -30,6 +31,10 @@ GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         const GrProgramDesc& programDesc,
         const GrProgramInfo& programInfo) {
     return fPipelineStateCache->refPipelineState(programDesc, programInfo);
+}
+
+bool GrMtlResourceProvider::precompileShader(const SkData& key, const SkData& data) {
+    return fPipelineStateCache->precompileShader(key, data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,12 +81,16 @@ static const bool c_DisplayMtlPipelineCache{false};
 #endif
 
 struct GrMtlResourceProvider::PipelineStateCache::Entry {
-    Entry(GrMtlGpu* gpu, GrMtlPipelineState* pipelineState)
-    : fGpu(gpu)
-    , fPipelineState(pipelineState) {}
+    Entry(GrMtlPipelineState* pipelineState)
+            : fPipelineState(pipelineState) {}
+    Entry(const GrMtlPrecompiledLibraries& precompiledLibraries)
+            : fPipelineState(nullptr)
+            , fPrecompiledLibraries(precompiledLibraries) {}
 
-    GrMtlGpu* fGpu;
     std::unique_ptr<GrMtlPipelineState> fPipelineState;
+
+    // TODO: change to one library once we can build that
+    GrMtlPrecompiledLibraries fPrecompiledLibraries;
 };
 
 GrMtlResourceProvider::PipelineStateCache::PipelineStateCache(GrMtlGpu* gpu)
@@ -121,17 +130,60 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 #endif
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
-    if (!entry) {
+    if (entry && !(*entry)->fPipelineState) {
+        // We've pre-compiled the MSL shaders but don't have the pipelineState
+        const GrMtlPrecompiledLibraries* precompiledLibs = &((*entry)->fPrecompiledLibraries);
+        SkASSERT(precompiledLibs->fVertexLibrary);
+        SkASSERT(precompiledLibs->fFragmentLibrary);
+        (*entry)->fPipelineState.reset(
+                GrMtlPipelineStateBuilder::CreatePipelineState(fGpu, desc, programInfo,
+                                                               precompiledLibs));
+        if (!(*entry)->fPipelineState) {
+            // Should we purge the precompiled shaders from the cache at this point?
+            SkDEBUGFAIL("Couldn't create pipelineState from precompiled shaders");
+            // TODO: add new stat tracking
+            return nullptr;
+        }
+        // release the libraries
+        (*entry)->fPrecompiledLibraries.fVertexLibrary = nil;
+        (*entry)->fPrecompiledLibraries.fFragmentLibrary = nil;
+
+        // TODO: add new stat tracking
+    } else if (!entry) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
+        // TODO: add new stat tracking
         ++fCacheMisses;
 #endif
-        GrMtlPipelineState* pipelineState(GrMtlPipelineStateBuilder::CreatePipelineState(
-                fGpu, desc, programInfo));
+        GrMtlPipelineState* pipelineState(
+                GrMtlPipelineStateBuilder::CreatePipelineState(fGpu, desc, programInfo));
         if (!pipelineState) {
             return nullptr;
         }
-        entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, pipelineState)));
+        entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(pipelineState)));
         return (*entry)->fPipelineState.get();
     }
     return (*entry)->fPipelineState.get();
+}
+
+bool GrMtlResourceProvider::PipelineStateCache::precompileShader(const SkData& key,
+                                                                 const SkData& data) {
+    GrProgramDesc desc;
+    if (!GrProgramDesc::BuildFromData(&desc, key.data(), key.size())) {
+        return false;
+    }
+
+    std::unique_ptr<Entry>* entry = fMap.find(desc);
+    if (entry) {
+        // We've already seen/compiled this shader
+        return true;
+    }
+
+    GrMtlPrecompiledLibraries precompiledLibraries;
+    if (!GrMtlPipelineStateBuilder::PrecompileShaders(fGpu, data, &precompiledLibraries)) {
+        return false;
+    }
+
+    fMap.insert(desc, std::make_unique<Entry>(precompiledLibraries));
+    return true;
+
 }
