@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22f20255_1ac722d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "Almost there - everything but the unit test",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b8a0df86_7edeea7d",
@@ -130,6 +147,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "42716b92_08a5e153",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "We could, I guess, track the targeting context and debug and assert it never changes",
+      "parentUuid": "6096499c_ac0db5f7",
+      "range": {
+        "startLine": 447,
+        "startChar": 4,
+        "endLine": 447,
+        "endChar": 15
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb7a7007_015a36dd",
         "filename": "src/image/SkImage_Base.h",
         "patchSetId": 9
@@ -204,6 +245,144 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3e51f5c2_9bbf0475",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 151,
+        "startChar": 20,
+        "endLine": 151,
+        "endChar": 30
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00c02df1_472ad3d2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "dContext ?",
+      "range": {
+        "startLine": 164,
+        "startChar": 48,
+        "endLine": 164,
+        "endChar": 55
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e01040c7_5efac11b",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "rContext ?",
+      "range": {
+        "startLine": 191,
+        "startChar": 74,
+        "endLine": 191,
+        "endChar": 81
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7924cdf1_1efe9cbb",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "dContext ?\n\nand, I guess, why is this limited to direct contexts ?",
+      "range": {
+        "startLine": 209,
+        "startChar": 13,
+        "endLine": 209,
+        "endChar": 20
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ceae98a_d3a2b525",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "Can we not use sk_make_sp\u003cSkImage_Gpu\u003e here too ?",
+      "range": {
+        "startLine": 211,
+        "startChar": 15,
+        "endLine": 211,
+        "endChar": 45
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f2baf49_e94e8ce1",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 219,
+        "startChar": 35,
+        "endLine": 219,
+        "endChar": 42
+      },
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bcf966e6_51300af2",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 9
@@ -232,6 +411,29 @@
       "writtenOn": "2021-03-05T16:12:54Z",
       "side": 1,
       "message": "// If this image\u0027s surface is still extant we know we have to copy here to \n// avoid a conflict between the surface\u0027s color space and \u0027newCS\u0027\n\n?",
+      "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75fba4e6_eaa5f59a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-05T16:57:25Z",
+      "side": 1,
+      "message": "rContext ?",
+      "range": {
+        "startLine": 829,
+        "startChar": 61,
+        "endLine": 829,
+        "endChar": 68
+      },
       "revId": "daa756be82705416b40f2fe783d611ea956fbc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
