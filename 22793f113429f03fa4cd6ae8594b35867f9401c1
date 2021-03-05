@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9881020_1a8d7a1d",
+        "filename": "demos.skia.org/demos/up_scaling/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-05T15:34:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2a49a09_0ac73dab",
+      "range": {
+        "startLine": 50,
+        "startChar": 22,
+        "endLine": 50,
+        "endChar": 45
+      },
+      "revId": "22793f113429f03fa4cd6ae8594b35867f9401c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f304e24d_4ede2ca1",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-05T15:12:17Z",
       "side": 1,
       "message": "Might be nice to\n\n   const float h \u003d nearly_center(p) ? 0.0 : 0.5;\n\n?",
+      "range": {
+        "startLine": 60,
+        "startChar": 15,
+        "endLine": 60,
+        "endChar": 20
+      },
+      "revId": "22793f113429f03fa4cd6ae8594b35867f9401c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc7ee231_865eb25e",
+        "filename": "demos.skia.org/demos/up_scaling/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-05T15:34:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f304e24d_4ede2ca1",
       "range": {
         "startLine": 60,
         "startChar": 15,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2dced10_dd4a794b",
+        "filename": "demos.skia.org/demos/up_scaling/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-05T15:34:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb1989e3_08a5b3c5",
+      "range": {
+        "startLine": 69,
+        "startChar": 6,
+        "endLine": 69,
+        "endChar": 58
+      },
+      "revId": "22793f113429f03fa4cd6ae8594b35867f9401c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cea68d3f_7d60102f",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-03-05T15:12:17Z",
       "side": 1,
       "message": "Did you mean to leave this round in?  I thought the idea was to set sharp\u003d4.2 if the scale was 4.2x?",
+      "range": {
+        "startLine": 113,
+        "startChar": 60,
+        "endLine": 113,
+        "endChar": 77
+      },
+      "revId": "22793f113429f03fa4cd6ae8594b35867f9401c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26be3731_119a6e43",
+        "filename": "demos.skia.org/demos/up_scaling/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-05T15:34:24Z",
+      "side": 1,
+      "message": "I thought so too (meaning, I think that makes more sense), but rounding makes us match the brute-force technique perfectly (which I can believe since it involves \u0027rounding\u0027 to the nearest NN size and then lerping).",
+      "parentUuid": "cea68d3f_7d60102f",
       "range": {
         "startLine": 113,
         "startChar": 60,
