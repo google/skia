@@ -36,6 +36,15 @@ public:
     , fOwnerKind(ownerKind)
     , fBase(std::move(base)) {}
 
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                               std::unique_ptr<Expression> base,
+                                               StringFragment field);
+
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            std::unique_ptr<Expression> base,
+                                            int fieldIndex,
+                                            OwnerKind ownerKind = OwnerKind::kDefault);
+
     std::unique_ptr<Expression>& base() {
         return fBase;
     }
