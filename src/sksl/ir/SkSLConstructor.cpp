@@ -129,6 +129,47 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
         return nullptr;
     }
 
+    if (context.fConfig->fSettings.fOptimize) {
+        // Find constructors embedded inside constructors and flatten them out where possible.
+        //   -  float4(float2(1, 2), 3, 4)                -->  float4(1, 2, 3, 4)
+        //   -  float4(w, float3(sin(x), cos(y), tan(z))) -->  float4(w, sin(x), cos(y), tan(z))
+
+        // Inspect each constructor argument to see if it's a candidate for flattening.
+        // Remember matched arguments in a bitfield, "argsToOptimize".
+        int argsToOptimize = 0;
+        int currBit = 1;
+        for (const std::unique_ptr<Expression>& arg : args) {
+            if (arg->is<Constructor>()) {
+                Constructor& inner = arg->as<Constructor>();
+                if (inner.arguments().size() > 1 &&
+                    inner.type().componentType() == type.componentType()) {
+                    argsToOptimize |= currBit;
+                }
+            }
+            currBit <<= 1;
+        }
+
+        if (argsToOptimize) {
+            // We found at least one argument that could be flattened out. Re-walk the constructor
+            // args and flatten the candidates we found during our initial pass.
+            ExpressionArray flattened;
+            flattened.reserve_back(type.columns());
+            currBit = 1;
+            for (std::unique_ptr<Expression>& arg : args) {
+                if (argsToOptimize & currBit) {
+                    Constructor& inner = arg->as<Constructor>();
+                    for (std::unique_ptr<Expression>& innerArg : inner.arguments()) {
+                        flattened.push_back(std::move(innerArg));
+                    }
+                } else {
+                    flattened.push_back(std::move(arg));
+                }
+                currBit <<= 1;
+            }
+            args = std::move(flattened);
+        }
+    }
+
     return std::make_unique<Constructor>(offset, type, std::move(args));
 }
 
