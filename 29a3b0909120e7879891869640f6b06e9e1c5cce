@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee946d4b_a01fd0c3",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-05T18:43:43Z",
+      "side": 1,
+      "message": "Looks like at https://android.googlesource.com/platform/external/icu/+/5913e0373ec14e47310a77483e0e3f3349a91557/libicu/ndk_headers/uconfig_local.h#27 Android NDK sets U_DISABLE_RENAMING.",
+      "revId": "29a3b0909120e7879891869640f6b06e9e1c5cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
