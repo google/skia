@@ -597,7 +597,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kARM_GrGLVendor == ctxInfo.vendor()) {
         // ARM seems to do better with larger quantities of fine triangles, as opposed to using the
         // sample mask. (At least in our current round rect op.)
-        fPreferTrianglesOverSampleMask = true;
+        fPreferTrianglesOverAnalyticAA = true;
     }
 
     if (kChromium_GrGLDriver == ctxInfo.driver()) {
