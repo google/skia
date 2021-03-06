@@ -76,6 +76,8 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
         return false;
     }
 
+    SkASSERT(SkToBool(fRenderTarget->getStencilAttachment()) ==
+             (programInfo.numStencilSamples() > 0));
     fActivePipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
             programDesc, programInfo);
     if (!fActivePipelineState) {
