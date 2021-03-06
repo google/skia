@@ -50,13 +50,11 @@ public:
     static sk_sp<const GrGpuBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
     enum class CoverageMode : bool {
-        kCoverageCount,
         kLiteral
     };
 
     static GrColorType GetColorTypeFromCoverageMode(CoverageMode mode) {
-        return mode == CoverageMode::kCoverageCount ? GrColorType::kAlpha_F16
-            : GrColorType::kAlpha_8;
+        return GrColorType::kAlpha_8;
     }
 
     GrCCPathProcessor(CoverageMode, const GrTexture* atlasTexture, const GrSwizzle&,

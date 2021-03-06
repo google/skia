@@ -13,7 +13,6 @@
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCFiller.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
-#include "src/gpu/ccpr/GrCCStroker.h"
 #include "src/gpu/ccpr/GrStencilAtlasOp.h"
 
 class GrCCPathCache;
@@ -115,7 +114,6 @@ public:
 
     // Accessors used by draw calls, once the resources have been finalized.
     const GrCCFiller& filler() const { SkASSERT(!this->isMapped()); return fFiller; }
-    const GrCCStroker& stroker() const { SkASSERT(!this->isMapped()); return fStroker; }
     sk_sp<const GrGpuBuffer> indexBuffer() const {
         SkASSERT(!this->isMapped());
         return fIndexBuffer;
@@ -146,7 +144,6 @@ private:
 
     const SkAutoSTArray<32, SkPoint> fLocalDevPtsBuffer;
     GrCCFiller fFiller;
-    GrCCStroker fStroker;
     GrCCAtlasStack fCopyAtlasStack;
     GrCCAtlasStack fRenderedAtlasStack;
 

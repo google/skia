@@ -32,7 +32,6 @@
 
 static constexpr int kCanvasSize = 100;
 
-enum class DoCoverageCount { kNo = false, kYes };
 enum class DoStroke { kNo = false, kYes };
 
 class CCPRClip : public GrClip {
@@ -135,7 +134,7 @@ private:
 
 class CCPRTest {
 public:
-    void run(skiatest::Reporter* reporter, DoCoverageCount doCoverageCount, DoStroke doStroke) {
+    void run(skiatest::Reporter* reporter, DoStroke doStroke) {
         GrMockOptions mockOptions;
         mockOptions.fDrawInstancedSupport = true;
         mockOptions.fHalfFloatVertexAttributeSupport = true;
@@ -151,7 +150,6 @@ public:
         mockOptions.fFlatInterpolationSupport = true;
 
         GrContextOptions ctxOptions;
-        ctxOptions.fDisableCoverageCountingPaths = (DoCoverageCount::kNo == doCoverageCount);
         ctxOptions.fAllowPathMaskCaching = false;
         ctxOptions.fGpuPathRenderers = GpuPathRenderers::kCoverageCounting;
 
@@ -189,10 +187,7 @@ protected:
 #define DEF_CCPR_TEST(name) \
     DEF_GPUTEST(name, reporter, /* options */) { \
         name test; \
-        test.run(reporter, DoCoverageCount::kYes, DoStroke::kNo); \
-        test.run(reporter, DoCoverageCount::kYes, DoStroke::kYes); \
-        test.run(reporter, DoCoverageCount::kNo, DoStroke::kNo); \
-        /* FIXME: test.run(reporter, (DoCoverageCount::kNo, DoStroke::kYes) once supported. */ \
+        test.run(reporter, DoStroke::kNo); \
     }
 
 class CCPR_cleanup : public CCPRTest {
