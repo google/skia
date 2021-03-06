@@ -73,6 +73,7 @@ samples_sources = [
   "$_samplecode/SampleStringArt.cpp",
   "$_samplecode/SampleStrokePath.cpp",
   "$_samplecode/SampleStrokeRect.cpp",
+  "$_samplecode/SampleStrokeVerb.cpp",
   "$_samplecode/SampleTessellatedWedge.cpp",
   "$_samplecode/SampleTextBox.cpp",
   "$_samplecode/SampleTextEffects.cpp",
@@ -86,5 +87,3 @@ samples_sources = [
   "$_samplecode/SampleXfermodesBlur.cpp",
   "$_samplecode/vertexdump.cpp",
 ]
-
-samples_sources_ccpr = [ "$_samplecode/SampleCCPRGeometry.cpp" ]
