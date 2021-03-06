@@ -89,7 +89,7 @@ public:
 private:
     GrUniqueKeyInvalidatedMessage fMsg;
 
-    void changed() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
+    void changed() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(std::move(fMsg)); }
 };
 
 class StaticVertexAllocator : public GrEagerVertexAllocator {

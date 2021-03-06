@@ -726,7 +726,7 @@ private:
         size_t fRowBytes;
     };
     SkSTArray<3, Plane> fPlanes;
-    uint32_t fInboxID;
+    const uint32_t fInboxID;
 };
 
 void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
