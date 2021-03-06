@@ -202,7 +202,7 @@ static void basic_test(GrDirectContext* dContext,
     if (expectResourceToOutliveProxy) {
         proxy.reset();
         GrUniqueKeyInvalidatedMessage msg(texKey, dContext->priv().contextID());
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(std::move(msg));
         cache->purgeAsNeeded();
         expectedCacheCount--;
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);

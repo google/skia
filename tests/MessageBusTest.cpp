@@ -21,8 +21,13 @@ static inline bool SkShouldPostMessageToBus(const TestMessage&, uint32_t) {
     return true;
 }
 
+static inline bool SkShouldPostMessageToBus(const sk_sp<TestMessage>&, uint32_t) {
+    return true;
+}
+
 }  // namespace
 DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage)
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<TestMessage>)
 
 DEF_TEST(MessageBus, r) {
     // Register two inboxes to receive all TestMessages.
@@ -31,8 +36,8 @@ DEF_TEST(MessageBus, r) {
     // Send two messages.
     const TestMessage m1 = { 5, 4.2f };
     const TestMessage m2 = { 6, 4.3f };
-    SkMessageBus<TestMessage>::Post(m1);
-    SkMessageBus<TestMessage>::Post(m2);
+    SkMessageBus<TestMessage>::Post(std::move(m1));
+    SkMessageBus<TestMessage>::Post(std::move(m2));
 
     // Make sure we got two.
     SkTArray<TestMessage> messages;

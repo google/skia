@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/SkNoncopyable.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -331,7 +332,7 @@ static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1, GrUnique
 }
 
 // The cache listens for these messages to purge junk resources proactively.
-class GrUniqueKeyInvalidatedMessage {
+class GrUniqueKeyInvalidatedMessage : SkNoncopyable {
 public:
     GrUniqueKeyInvalidatedMessage() = default;
     GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID,
@@ -340,9 +341,18 @@ public:
         SkASSERT(SK_InvalidUniqueID != contextUniqueID);
     }
 
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage&) = default;
+    GrUniqueKeyInvalidatedMessage(GrUniqueKeyInvalidatedMessage&& other) {
+        *this = std::move(other);
+    }
 
-    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage&) = default;
+    GrUniqueKeyInvalidatedMessage& operator=(GrUniqueKeyInvalidatedMessage&& other) {
+        fKey = std::move(other.fKey);
+        fContextID = other.fContextID;
+        fInThreadSafeCache = other.fInThreadSafeCache;
+        other.fContextID = SK_InvalidUniqueID;
+        other.fInThreadSafeCache = false;
+        return *this;
+    }
 
     const GrUniqueKey& key() const { return fKey; }
     uint32_t contextID() const { return fContextID; }

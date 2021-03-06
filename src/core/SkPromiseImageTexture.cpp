@@ -19,8 +19,8 @@ SkPromiseImageTexture::SkPromiseImageTexture(const GrBackendTexture& backendText
 }
 
 SkPromiseImageTexture::~SkPromiseImageTexture() {
-    for (const auto& msg : fMessages) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+    for (auto& msg : fMessages) {
+        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(std::move(msg));
     }
 }
 
