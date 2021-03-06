@@ -613,7 +613,8 @@ void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
                                           GrPaint&& paint,
                                           GrAA aa,
                                           DrawQuad* quad,
-                                          const GrUserStencilSettings* ss) {
+                                          const GrUserStencilSettings* ss,
+                                          GrSimpleMeshDrawOpHelper::InputFlags inputFlags) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -635,7 +636,7 @@ void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
         GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
                              : this->chooseAAType(aa);
         this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType,
-                                                      quad, ss));
+                                                      quad, ss, inputFlags));
     }
     // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
