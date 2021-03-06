@@ -240,6 +240,10 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
+	if (b.model("Pixel5")) {
+		// skia:11152
+		match = append(match, "~path")
+	}
 
 	if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		args = append(args, "--reduceOpsTaskSplitting", "true")
