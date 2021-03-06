@@ -33,15 +33,12 @@ public:
     };
 
     enum class CoverageType {
-        kFP16_CoverageCount,
         kA8_Multisample,
         kA8_LiteralCoverage
     };
 
     static constexpr GrColorType CoverageTypeToColorType(CoverageType coverageType) {
         switch (coverageType) {
-            case CoverageType::kFP16_CoverageCount:
-                return GrColorType::kAlpha_F16;
             case CoverageType::kA8_Multisample:
             case CoverageType::kA8_LiteralCoverage:
                 return GrColorType::kAlpha_8;
@@ -52,7 +49,6 @@ public:
     static constexpr InternalMultisample CoverageTypeHasInternalMultisample(
             CoverageType coverageType) {
         switch (coverageType) {
-            case CoverageType::kFP16_CoverageCount:
             case CoverageType::kA8_LiteralCoverage:
                 return InternalMultisample::kNo;
             case CoverageType::kA8_Multisample:
@@ -63,9 +59,7 @@ public:
 
     static constexpr GrCCPathProcessor::CoverageMode CoverageTypeToPathCoverageMode(
             CoverageType coverageType) {
-        return (GrCCAtlas::CoverageType::kFP16_CoverageCount == coverageType)
-                ? GrCCPathProcessor::CoverageMode::kCoverageCount
-                : GrCCPathProcessor::CoverageMode::kLiteral;
+        return GrCCPathProcessor::CoverageMode::kLiteral;
     }
 
     static sk_sp<GrTextureProxy> MakeLazyAtlasProxy(LazyInstantiateAtlasCallback&& callback,
@@ -86,8 +80,6 @@ public:
     // rendering atlas content.
     void setFillBatchID(int id);
     int getFillBatchID() const { return fFillBatchID; }
-    void setStrokeBatchID(int id);
-    int getStrokeBatchID() const { return fStrokeBatchID; }
     void setEndStencilResolveInstance(int idx);
     int getEndStencilResolveInstance() const { return fEndStencilResolveInstance; }
 
@@ -96,7 +88,6 @@ public:
 private:
     const CoverageType fCoverageType;
     int fFillBatchID;
-    int fStrokeBatchID;
     int fEndStencilResolveInstance;
     sk_sp<GrCCCachedAtlas> fCachedAtlas;
 };

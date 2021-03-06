@@ -375,12 +375,7 @@ public:
     /// op instead of using glClear seems to resolve the issue.
     bool performStencilClearsAsDraws() const { return fPerformStencilClearsAsDraws; }
 
-    // Can we use coverage counting shortcuts to render paths? Coverage counting can cause artifacts
-    // along shared edges if care isn't taken to ensure both contours wind in the same direction.
-    bool allowCoverageCounting() const { return fAllowCoverageCounting; }
-
     // Should we disable the CCPR code due to a faulty driver?
-    bool driverDisableCCPR() const { return fDriverDisableCCPR; }
     bool driverDisableMSAACCPR() const { return fDriverDisableMSAACCPR; }
 
     // Should we disable GrTessellationPathRenderer due to a faulty driver?
@@ -522,7 +517,6 @@ protected:
     bool fPerformColorClearsAsDraws                  : 1;
     bool fAvoidLargeIndexBufferDraws                 : 1;
     bool fPerformStencilClearsAsDraws                : 1;
-    bool fAllowCoverageCounting                      : 1;
     bool fTransferFromBufferToTextureSupport         : 1;
     bool fTransferFromSurfaceToBufferSupport         : 1;
     bool fWritePixelsRowBytesSupport                 : 1;
@@ -531,7 +525,6 @@ protected:
     bool fMustSyncGpuDuringAbandon                   : 1;
 
     // Driver workaround
-    bool fDriverDisableCCPR                          : 1;
     bool fDriverDisableMSAACCPR                      : 1;
     bool fDisableTessellationPathRenderer            : 1;
     bool fAvoidStencilBuffers                        : 1;
