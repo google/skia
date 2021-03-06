@@ -442,12 +442,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{"gles"}
 		}
 
-		// Test coverage counting path renderer.
-		if b.extraConfig("CCPR") {
-			configs = filter(configs, "gl", "gles")
-			args = append(args, "--pr", "ccpr", "--cc", "true", "--cachePathMasks", "false")
-		}
-
 		// Test GPU tessellation path renderer.
 		if b.extraConfig("GpuTess") {
 			configs = []string{glPrefix + "msaa4"}
