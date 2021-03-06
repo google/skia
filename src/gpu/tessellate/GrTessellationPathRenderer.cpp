@@ -38,10 +38,12 @@ constexpr static int kMaxAtlasPathHeight = 128;
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
+#if 0
            // We see perf regressions on platforms that don't have native support for indirect
            // draws. Disable while we investigate, unless hw tessellation support exists.
            // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
            (caps.nativeDrawIndirectSupport() || caps.shaderCaps()->tessellationSupport()) &&
+#endif
            caps.shaderCaps()->vertexIDSupport() &&
            !caps.disableTessellationPathRenderer();
 }

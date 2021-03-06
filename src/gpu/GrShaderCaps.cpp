@@ -175,9 +175,9 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fMustWriteToFragColor);
         SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
     }
-    if (!options.fEnableExperimentalHardwareTessellation) {
+    // if (!options.fEnableExperimentalHardwareTessellation) {
         fMaxTessellationSegments = 0;
-    }
+    // }
 #if GR_TEST_UTILS
     if (options.fSuppressDualSourceBlending) {
         fDualSourceBlendingSupport = false;
