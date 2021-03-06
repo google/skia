@@ -2029,9 +2029,6 @@ if (skia_enable_tools) {
   import("gn/samples.gni")
   test_lib("samples") {
     sources = samples_sources
-    if (skia_enable_ccpr) {
-      sources += samples_sources_ccpr
-    }
     public_deps = [ ":tool_utils" ]
     deps = [
       ":flags",
