@@ -26,9 +26,10 @@
 template <typename Message>
 class SkMessageBus : SkNoncopyable {
 public:
+    // TODO(crbug.com/1153592): Make sure Message is derived from SkNoncopyable?
     // Post a message to be received by Inboxes for this Message type. Checks
     // SkShouldPostMessageToBus() for each inbox. Threadsafe.
-    static void Post(const Message& m);
+    static void Post(Message m);
 
     class Inbox {
     public:
@@ -112,12 +113,12 @@ template <typename Message>
 SkMessageBus<Message>::SkMessageBus() {}
 
 template <typename Message>
-/*static*/ void SkMessageBus<Message>::Post(const Message& m) {
+/*static*/ void SkMessageBus<Message>::Post(Message m) {
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
     SkAutoMutexExclusive lock(bus->fInboxesMutex);
     for (int i = 0; i < bus->fInboxes.count(); i++) {
         if (SkShouldPostMessageToBus(m, bus->fInboxes[i]->fUniqueID)) {
-            bus->fInboxes[i]->receive(m);
+            bus->fInboxes[i]->receive(std::move(m));
         }
     }
 }
