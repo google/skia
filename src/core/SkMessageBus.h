@@ -8,12 +8,18 @@
 #ifndef SkMessageBus_DEFINED
 #define SkMessageBus_DEFINED
 
+#include <type_traits>
+
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
+
+template <typename T> struct is_sk_sp : std::false_type {};
+template <typename T> struct is_sk_sp<sk_sp<T>> : std::true_type {};
 
 /**
  * The following method must have a specialization for type 'Message':
@@ -26,9 +32,15 @@
 template <typename Message>
 class SkMessageBus : SkNoncopyable {
 public:
+    // We want to make sure the caller of Post() method will not keep a ref or copy of the message,
+    // so the message type must be sk_sp, non copyable or trivially copyable.
+    static_assert(std::is_trivially_copyable<Message>::value ||
+                          !std::is_copy_constructible<Message>::value || is_sk_sp<Message>::value,
+                  "The message type must be sk_sp, non copyable or trivially copyable.");
+
     // Post a message to be received by Inboxes for this Message type. Checks
     // SkShouldPostMessageToBus() for each inbox. Threadsafe.
-    static void Post(const Message& m);
+    static void Post(Message m);
 
     class Inbox {
     public:
@@ -46,11 +58,13 @@ public:
         uint32_t           fUniqueID;
 
         friend class SkMessageBus;
-        void receive(const Message& m);  // SkMessageBus is a friend only to call this.
+        void receive(Message m);  // SkMessageBus is a friend only to call this.
     };
 
 private:
     SkMessageBus();
+    template <typename T> static void AssertMessageUnique(const T& m);
+    template <typename T> static void AssertMessageUnique(const sk_sp<T>& m);
     static SkMessageBus* Get();
 
     SkTDArray<Inbox*> fInboxes;
@@ -92,10 +106,9 @@ SkMessageBus<Message>::Inbox::~Inbox() {
     }
 }
 
-template<typename Message>
-void SkMessageBus<Message>::Inbox::receive(const Message& m) {
+template <typename Message> void SkMessageBus<Message>::Inbox::receive(Message m) {
     SkAutoMutexExclusive lock(fMessagesMutex);
-    fMessages.push_back(m);
+    fMessages.push_back(std::move(m));
 }
 
 template<typename Message>
@@ -112,12 +125,23 @@ template <typename Message>
 SkMessageBus<Message>::SkMessageBus() {}
 
 template <typename Message>
-/*static*/ void SkMessageBus<Message>::Post(const Message& m) {
+template <typename T>
+/* static */ void SkMessageBus<Message>::AssertMessageUnique(const T& m) {}
+
+template <typename Message>
+template <typename T>
+/* static */ void SkMessageBus<Message>::AssertMessageUnique(const sk_sp<T>& m) {
+    SkASSERT(m->unique());
+}
+
+template <typename Message>
+/*static*/ void SkMessageBus<Message>::Post(Message m) {
+    AssertMessageUnique(m);
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
     SkAutoMutexExclusive lock(bus->fInboxesMutex);
     for (int i = 0; i < bus->fInboxes.count(); i++) {
         if (SkShouldPostMessageToBus(m, bus->fInboxes[i]->fUniqueID)) {
-            bus->fInboxes[i]->receive(m);
+            bus->fInboxes[i]->receive(std::move(m));
         }
     }
 }
