@@ -22,6 +22,7 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/text/GrTextBlob.h"
 
 class GrBackendSemaphore;
@@ -574,13 +575,15 @@ public:
                      GrAA doStencilMSAA,
                      const SkMatrix& viewMatrix,
                      const SkRect& rect,
-                     const SkMatrix* localMatrix = nullptr) {
+                     const SkMatrix* localMatrix = nullptr,
+                     GrSimpleMeshDrawOpHelper::InputFlags inputFlags =
+                             GrSimpleMeshDrawOpHelper::InputFlags::kNone) {
         // Since this provides stencil settings to drawFilledQuad, it performs a different AA type
         // resolution compared to regular rect draws, which is the main reason it remains separate.
         DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),
                       localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix) : GrQuad(rect),
                       GrQuadAAFlags::kNone};
-        this->drawFilledQuad(clip, std::move(paint), doStencilMSAA, &quad, ss);
+        this->drawFilledQuad(clip, std::move(paint), doStencilMSAA, &quad, ss, inputFlags);
     }
 
     void stencilPath(const GrHardClip*,
@@ -690,7 +693,9 @@ private:
                         GrPaint&& paint,
                         GrAA aa,
                         DrawQuad* quad,
-                        const GrUserStencilSettings* ss = nullptr);
+                        const GrUserStencilSettings* ss = nullptr,
+                        GrSimpleMeshDrawOpHelper::InputFlags =
+                                GrSimpleMeshDrawOpHelper::InputFlags::kNone);
 
     // Like drawFilledQuad but does not require using a GrPaint or FP for texturing.
     // 'quad' may be modified in place to reflect final geometry.
