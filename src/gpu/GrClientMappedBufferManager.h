@@ -29,10 +29,17 @@ public:
      * Set fInboxID to inboxID(). fBuffer must have been previously passed to insert().
      */
     struct BufferFinishedMessage {
+        BufferFinishedMessage(sk_sp<GrGpuBuffer> buffer, uint32_t indexId)
+                : fBuffer(std::move(buffer)), fInboxID(indexId) {}
+        BufferFinishedMessage(BufferFinishedMessage&& other) {
+            fBuffer = std::move(other.fBuffer);
+            fInboxID = other.fInboxID;
+            other.fInboxID = 0;
+        }
         sk_sp<GrGpuBuffer> fBuffer;
         uint32_t fInboxID;
     };
-    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage>;
+    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage, false>;
 
     GrClientMappedBufferManager(uint32_t contextID);
     GrClientMappedBufferManager(const GrClientMappedBufferManager&) = delete;

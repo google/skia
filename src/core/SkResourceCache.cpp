@@ -19,7 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage)
+DECLARE_SKMESSAGEBUS_MESSAGE(SkResourceCache::PurgeSharedIDMessage, true)
 
 static inline bool SkShouldPostMessageToBus(
         const SkResourceCache::PurgeSharedIDMessage&, uint32_t) {
