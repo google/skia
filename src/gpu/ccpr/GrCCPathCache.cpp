@@ -13,7 +13,7 @@
 
 static constexpr int kMaxKeyDataCountU32 = 256;  // 1kB of uint32_t's.
 
-DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key>);
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key>, true);
 
 static inline uint32_t next_path_cache_id() {
     static std::atomic<uint32_t> gNextID(1);
