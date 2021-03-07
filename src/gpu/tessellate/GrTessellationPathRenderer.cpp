@@ -15,7 +15,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
@@ -416,8 +415,8 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
     }
 
     // Finally, draw a fullscreen rect to convert our stencilled paths into alpha coverage masks.
-    auto aaType = GrAAType::kMSAA;
-    auto fillRectFlags = GrFillRectOp::InputFlags::kNone;
+    auto aa = GrAA::kYes;
+    auto fillRectFlags = GrSimpleMeshDrawOpHelper::InputFlags::kNone;
 
     // This will be the final op in the surfaceDrawContext. So if Ganesh is planning to discard the
     // stencil values anyway, then we might not actually need to reset the stencil values back to 0.
@@ -428,9 +427,9 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
         // MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for the cover
         // geometry, the stencil test is still multisampled and will still produce smooth results.)
         if (onFlushRP->caps()->conservativeRasterSupport()) {
-            fillRectFlags |= GrFillRectOp::InputFlags::kConservativeRaster;
+            fillRectFlags |= GrSimpleMeshDrawOpHelper::InputFlags::kConservativeRaster;
         } else {
-            aaType = GrAAType::kNone;
+            aa = GrAA::kNo;
         }
         mustResetStencil = true;
     }
@@ -445,15 +444,9 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
         stencil = &kTestStencil;
     }
 
-    GrQuad coverQuad(coverRect);
-    DrawQuad drawQuad{coverQuad, coverQuad, GrQuadAAFlags::kAll};
-
     GrPaint paint;
     paint.setColor4f(SK_PMColor4fWHITE);
-
-    auto coverOp = GrFillRectOp::Make(rtc->recordingContext(), std::move(paint), aaType, &drawQuad,
-                                      stencil, fillRectFlags);
-    rtc->addDrawOp(nullptr, std::move(coverOp));
+    rtc->stencilRect(nullptr, stencil, std::move(paint), aa, SkMatrix::I(), coverRect);
 
     if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {
         onFlushRP->addTextureResolveTask(sk_ref_sp(rtc->asTextureProxy()),
