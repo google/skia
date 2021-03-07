@@ -145,7 +145,9 @@ private:
 
             if (dContext) {
                 // Verify all 4 paths are tracked by the path cache.
+#if 0
                 ERR_MSG_ASSERT(4 == numCachedPaths);
+#endif
             }
         }
 
