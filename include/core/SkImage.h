@@ -677,40 +677,6 @@ public:
 
     using CubicResampler = SkCubicResampler;
 
-#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
-    /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
-        SkTileMode rules to fill drawn area outside SkImage. localMatrix permits
-        transforming SkImage before SkCanvas matrix is applied.
-
-        Note: since no filter-quality is specified, it will be determined at draw time using
-              the paint.
-
-        @param tmx          tiling in the x direction
-        @param tmy          tiling in the y direction
-        @param localMatrix  SkImage transformation, or nullptr
-        @return             SkShader containing SkImage
-    */
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
-                               const SkMatrix* localMatrix = nullptr) const;
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix& localMatrix) const {
-        return this->makeShader(tmx, tmy, &localMatrix);
-    }
-
-    /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
-        SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits
-        transforming SkImage before SkCanvas matrix is applied.
-
-        @param localMatrix  SkImage transformation, or nullptr
-        @return             SkShader containing SkImage
-    */
-    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
-        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
-    }
-    sk_sp<SkShader> makeShader(const SkMatrix& localMatrix) const {
-        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &localMatrix);
-    }
-#endif
-
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
         is available, and returns true. If pixel address is not available, return
         false and leave pixmap unchanged.

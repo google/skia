@@ -347,14 +347,6 @@ public:
     }
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
                                        const CropRect& cropRect = {});
-#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
-    // As above, but the filter quality defines what is used in image shaders that defer to the
-    // quality stored on an SkPaint. NOTE: this default behavior is deprecated, so prefer creating
-    // image shaders with explicit sampling parameters and call the other Shader() factory instead.
-    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
-                                       SkFilterQuality filterQuality,
-                                       const CropRect& cropRect = {});
-#endif
 
     /**
      *  Create a tile image filter.
