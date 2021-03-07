@@ -10,6 +10,8 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkResourceCache.h"
 #include "src/shaders/SkPictureShader.h"
 #include "tests/Test.h"
 
@@ -46,11 +48,6 @@ DEF_TEST(PictureShader_caching, reporter) {
     // All but the local ref should be gone now.
     REPORTER_ASSERT(reporter, picture->unique());
 }
-
-#ifndef SK_SUPPORT_LEGACY_PICTURESHADER_MATH
-
-#include "src/core/SkPicturePriv.h"
-#include "src/core/SkResourceCache.h"
 
 /*
  *  Check caching of picture-shaders
@@ -111,4 +108,3 @@ DEF_TEST(PictureShader_caching2, reporter) {
     SkResourceCache::VisitAll(counter, &data);
     REPORTER_ASSERT(reporter, data.counter == 0);
 }
-#endif
