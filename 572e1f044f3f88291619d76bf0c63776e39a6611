@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "952fce26_d7fc597e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-07T21:56:29Z",
+      "side": 1,
+      "message": "Just so you are aware, the plan going forward is to delete everything in CCPR except for the clip atlas management code. The MSAA atlas will be rendered like:\n\n  for (;;) {\n      surfaceDrawContext-\u003estencilPath();  // Stencil the paths.\n  }\n  surfaceDrawContext-\u003estencilRect(atlasBounds);  // Transfer stenciled paths to coverage.\n\nI already have CLs lined up to do this, but wanted to land this one first so we have some test coverage as they come in.\n\nOnce the rest of CCPR is deleted, we will be free to rename GrCoverageCountingPathRenderer and integrate the atlas code into something dedicated to clipping.",
+      "revId": "572e1f044f3f88291619d76bf0c63776e39a6611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79baad9c_0e0b5c11",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-07T21:56:29Z",
+      "side": 1,
+      "message": "Thoughts on this number? It\u0027s pretty big. Maybe 256*256 would be better.",
+      "range": {
+        "startLine": 67,
+        "startChar": 48,
+        "endLine": 67,
+        "endChar": 57
+      },
+      "revId": "572e1f044f3f88291619d76bf0c63776e39a6611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
