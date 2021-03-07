@@ -57,19 +57,6 @@ sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dithe
     return SkShaderImageFilter::Make(paint, cropRect);
 }
 
-#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
-sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dither,
-                                            SkFilterQuality filterQuality,
-                                            const CropRect& cropRect) {
-    SkPaint paint;
-    paint.setShader(std::move(shader));
-    paint.setDither((bool) dither);
-    // For SkImage::makeShader() shaders using SkImageShader::kInheritFromPaint sampling options
-    paint.setFilterQuality(filterQuality);
-    return SkShaderImageFilter::Make(paint, cropRect);
-}
-#endif
-
 void SkRegisterShaderImageFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkShaderImageFilter);
     // TODO (michaelludwig) - Remove after grace period for SKPs to stop using old name
