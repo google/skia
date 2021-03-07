@@ -1134,15 +1134,6 @@ public:
         return this->makeShader(sampling, &localMatrix);
     }
 
-#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
-                               const SkMatrix* localMatrix = nullptr) const;
-    // defaults to Clamp in x, and y
-    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
-        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
-    }
-#endif
-
     /**
      *  Returns a new image from the bitmap. If the bitmap is marked immutable, this will
      *  share the pixel buffer. If not, it will make a copy of the pixels for the image.

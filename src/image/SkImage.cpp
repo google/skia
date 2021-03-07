@@ -138,15 +138,6 @@ SkColorSpace* SkImage::colorSpace() const { return fInfo.colorSpace(); }
 
 sk_sp<SkColorSpace> SkImage::refColorSpace() const { return fInfo.refColorSpace(); }
 
-#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
-sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
-                                    const SkMatrix* localMatrix) const {
-    const SkSamplingOptions* inherit_from_paint = nullptr;
-    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy, inherit_from_paint,
-                               localMatrix);
-}
-#endif
-
 sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                     const SkSamplingOptions& sampling,
                                     const SkMatrix* localMatrix) const {
