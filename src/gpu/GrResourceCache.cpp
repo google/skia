@@ -25,9 +25,9 @@
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
+DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage, true);
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage);
+DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage, true);
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fSingleOwner)
 

@@ -7,7 +7,7 @@
 
 #include "src/gpu/text/GrTextBlobCache.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage)
+DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage, true)
 
 // This function is captured by the above macro using implementations from SkMessageBus.h
 static inline bool SkShouldPostMessageToBus(
