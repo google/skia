@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2be2162_587d689a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-07T16:11:47Z",
+      "side": 1,
+      "message": "Clearly assuming stencil samples \u003e 0 \u003d\u003d stencil attachment doesn\u0027t quite work. I guess there are three choices:\n* Ensure that stencil samples \u003e 0 \u003d\u003d stencil attachment\n* Add a new field to GrProgramInfo for stencil format\n* Reinclude use of RT in Pipeline creation. I\u0027d rather not do this unless it\u0027s necessary for precompilation reasons.\n\nWe can chat Monday.",
+      "revId": "a6560bb4261bcbd4bd5148f6a3ff30d9e93b6989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
