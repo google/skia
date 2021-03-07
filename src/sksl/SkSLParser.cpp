@@ -569,7 +569,7 @@ ASTNode::ID Parser::structDeclaration() {
             return ASTNode::ID::Invalid();
         }
         ASTNode& declsNode = getNode(decls);
-        Modifiers modifiers = declsNode.begin()->getModifiers();
+        const Modifiers& modifiers = declsNode.begin()->getModifiers();
         if (modifiers.fFlags != Modifiers::kNo_Flag) {
             String desc = modifiers.description();
             desc.pop_back();  // remove trailing space
@@ -587,7 +587,7 @@ ASTNode::ID Parser::structDeclaration() {
 
         for (auto iter = declsNode.begin() + 2; iter != declsNode.end(); ++iter) {
             ASTNode& var = *iter;
-            ASTNode::VarData vd = var.getVarData();
+            const ASTNode::VarData& vd = var.getVarData();
 
             // Read array size if one is present.
             if (vd.fIsArray) {
