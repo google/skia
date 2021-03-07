@@ -35,10 +35,6 @@
 #include "src/image/SkImage_Base.h"
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_PICTURESHADER_MATH
-#include "src/shaders/SkPictureShader.cpp.legacy"
-#else
-
 sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMode filter,
                                       const SkMatrix* localMatrix, const SkRect* tile) const {
     if (localMatrix && !localMatrix->invert(nullptr)) {
@@ -474,5 +470,3 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
                                  *ctx->priv().caps());
 }
 #endif
-
-#endif  // !legacy

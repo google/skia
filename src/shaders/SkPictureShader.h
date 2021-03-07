@@ -16,10 +16,6 @@ class SkArenaAlloc;
 class SkBitmap;
 class SkPicture;
 
-#ifdef SK_SUPPORT_LEGACY_PICTURESHADER_MATH
-#include "src/shaders/SkPictureShader.h.legacy"
-#else
-
 /*
  * An SkPictureShader can be used to draw SkPicture-based patterns.
  *
@@ -91,6 +87,5 @@ private:
 
     using INHERITED = SkShaderBase;
 };
-#endif  // !legacy
 
 #endif // SkPictureShader_DEFINED
