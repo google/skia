@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e547cbd_f4df45c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-08T20:59:09Z",
+      "side": 1,
+      "message": "This is the CL that will let us remove SampleMask/SampleLocations 🪓🪓🪓🪓🪓",
+      "revId": "dad94aa267090f1838d12c9764adb5cb5e03383f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
