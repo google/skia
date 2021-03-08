@@ -33,6 +33,24 @@
       "message": "Can we add a comment explaining that none of these types have nontrivial/important destructors, so we don\u0027t need to worry about manually invoking them?",
       "revId": "355c25a21920daaca74ea7f1995dd906338407e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "195131a4_17a0fb7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-08T16:16:16Z",
+      "side": 1,
+      "message": "Good idea. Done.",
+      "parentUuid": "f4fd6a5c_aef79bf7",
+      "revId": "355c25a21920daaca74ea7f1995dd906338407e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
