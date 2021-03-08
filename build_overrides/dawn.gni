@@ -5,15 +5,9 @@
 
 # These are variables that are overridable by projects that include Dawn.
 
-# The paths to Dawn's dependencies. For now, we leave these unset to
-# use Dawn's DEPS. Eventually, we'll move to Skia's copies of as
-# many of these as possible. This will require updating Skia's
-# SPIRV-Tools and Shaderc at a minimum.
-
 # Skia doesn't have Chromium's //build directory. Tell Dawn to do without.
 dawn_has_build = false
 
 dawn_jinja2_dir = "//third_party/externals/jinja2"
-dawn_shaderc_dir = "//third_party/shaderc"
 dawn_spirv_tools_dir = "//third_party/spirv-tools"
 dawn_spirv_cross_dir = "//third_party/externals/spirv-cross"
