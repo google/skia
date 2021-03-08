@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4428be06_e0ea6da7",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-08T03:52:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30558c07_58b4832f",
+      "range": {
+        "startLine": 29,
+        "startChar": 9,
+        "endLine": 29,
+        "endChar": 14
+      },
+      "revId": "20aa54d26025d1ddb8af49c83b7678c538ce09f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea078d0d_c74d6a50",
@@ -95,6 +119,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbcfcc2b_42bd19bb",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-08T03:52:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea078d0d_c74d6a50",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 43
+      },
+      "revId": "20aa54d26025d1ddb8af49c83b7678c538ce09f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3f94a03_dfe41556",
@@ -108,6 +156,24 @@
       "writtenOn": "2021-03-05T21:28:21Z",
       "side": 1,
       "message": "-Wctad-maybe-unsupported is an interesting warning. Not sure why it warns here where there isn\u0027t anything to ctad since all the parameters are defaulted. I suppose one could try specifying those parameters to be something different though and the compiler doesn\u0027t know that these are only dependent for SFINAE reasons.\n\nI think this can be fixed by putting\n\n    SkUbrkClone() -\u003e SkUbrkClone\u003cconst UBreakIterator*\u003e;\n\nright here.",
+      "revId": "20aa54d26025d1ddb8af49c83b7678c538ce09f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12c825a5_9de989ad",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-08T03:52:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3f94a03_dfe41556",
       "revId": "20aa54d26025d1ddb8af49c83b7678c538ce09f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
