@@ -18,6 +18,46 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0be0a660_2af29dd4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-08T16:36:20Z",
+      "side": 1,
+      "message": "For context, did we get perf hits after fully disabling ccpr?",
+      "revId": "572e1f044f3f88291619d76bf0c63776e39a6611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4027f787_35d88668",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-08T16:36:20Z",
+      "side": 1,
+      "message": "So we\u0027ll have the CCPR in the list of path renderers, it\u0027ll just always report kNo for a regular draw. The only times it\u0027ll be used is when the clip stack grabs the CCPR directly and invokes it, right?",
+      "range": {
+        "startLine": 84,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 28
+      },
+      "revId": "572e1f044f3f88291619d76bf0c63776e39a6611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79baad9c_0e0b5c11",
@@ -31,6 +71,30 @@
       "writtenOn": "2021-03-07T21:56:29Z",
       "side": 1,
       "message": "Thoughts on this number? It\u0027s pretty big. Maybe 256*256 would be better.",
+      "range": {
+        "startLine": 67,
+        "startChar": 48,
+        "endLine": 67,
+        "endChar": 57
+      },
+      "revId": "572e1f044f3f88291619d76bf0c63776e39a6611",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eae5d6ef_1b4684e6",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-08T16:36:20Z",
+      "side": 1,
+      "message": "256x256 is what I used for converting a drawRect to a scissor+clear (although it required it to be larger than those dimensions). 512x512 does feel pretty big for an entry into an atlas.",
+      "parentUuid": "79baad9c_0e0b5c11",
       "range": {
         "startLine": 67,
         "startChar": 48,
