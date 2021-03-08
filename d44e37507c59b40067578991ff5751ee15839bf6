@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78413066_bd078409",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-08T20:52:00Z",
+      "side": 1,
+      "message": "tiny nit: two blank lines in a row",
+      "range": {
+        "startLine": 350,
+        "startChar": 28,
+        "endLine": 352,
+        "endChar": 0
+      },
+      "revId": "d44e37507c59b40067578991ff5751ee15839bf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
