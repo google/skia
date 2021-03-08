@@ -30,15 +30,9 @@ public:
             GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code, const char* position,
             const char* coverage, const char* cornerCoverage, const char* wind) override;
 
-    void emitFragmentCoverageCode(
-            GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
-
     void emitSampleMaskCode(GrGLSLFPFragmentBuilder*) const override;
 
 private:
-    void calcHullCoverage(SkString* code, const char* klmAndEdge, const char* gradMatrix,
-                          const char* outputCoverage) const;
-
     const GrShaderVar fKLMMatrix{"klm_matrix", kFloat3x3_GrSLType};
     GrGLSLVarying fKLM_fEdge;
     GrGLSLVarying fGradMatrix;
