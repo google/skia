@@ -129,11 +129,6 @@ public:
         return this->onIsUsed(proxy);
     }
 
-    // Drops any pending operations that reference proxies that are not instantiated.
-    // NOTE: Derived classes don't need to check targets. That is handled when the
-    // drawingManager calls isInstantiated.
-    virtual void handleInternalAllocationFailure() = 0;
-
     // Feed proxy usage intervals to the GrResourceAllocator class
     virtual void gatherProxyIntervals(GrResourceAllocator*) const = 0;
 

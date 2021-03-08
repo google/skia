@@ -39,8 +39,6 @@ public:
 private:
     bool onIsUsed(GrSurfaceProxy*) const override;
 
-    void handleInternalAllocationFailure() override;
-
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) override;

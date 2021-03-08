@@ -181,9 +181,8 @@ private:
                              const DstProxyView*, const GrAppliedClip*, const GrCaps&,
                              GrRecordingContext::Arenas*, GrAuditTrail*);
 
-        void setSkipExecuteFlag() { fSkipExecute = true; }
         bool shouldExecute() const {
-            return SkToBool(this->head()) && !fSkipExecute;
+            return SkToBool(this->head());
         }
 
     private:
@@ -222,17 +221,11 @@ private:
         DstProxyView fDstProxyView;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
-
-        // We set this flag to true if any of the ops' proxies fail to instantiate so that we know
-        // not to try and draw the op.
-        bool fSkipExecute = false;
     };
 
     void onCanSkip() override;
 
     bool onIsUsed(GrSurfaceProxy*) const override;
-
-    void handleInternalAllocationFailure() override;
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 

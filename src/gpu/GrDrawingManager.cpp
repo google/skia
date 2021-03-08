@@ -211,29 +211,9 @@ bool GrDrawingManager::flush(
             task->gatherProxyIntervals(&alloc);
         }
 
-        GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
-        alloc.assign(&error);
-        if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
-            for (const auto& renderTask : fDAG) {
-                SkASSERT(renderTask);
-                if (!renderTask->isInstantiated()) {
-                    // No need to call the renderTask's handleInternalAllocationFailure
-                    // since we will already skip executing the renderTask since it is not
-                    // instantiated.
-                    continue;
-                }
-                // TODO: If we're going to remove all the render tasks do we really need this call?
-                renderTask->handleInternalAllocationFailure();
-            }
-            this->removeRenderTasks();
-        }
-
-        if (this->executeRenderTasks(&flushState)) {
-            flushed = true;
-        }
+        flushed = alloc.assign() && this->executeRenderTasks(&flushState);
     }
-
-    SkASSERT(fDAG.empty());
+    this->removeRenderTasks();
 
 #ifdef SK_DEBUG
     // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
@@ -350,8 +330,6 @@ bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
     // those that are written to in the RenderTasks. This helps to make sure the most recently used
     // resources are the last to be purged by the resource cache.
     flushState->reset();
-
-    this->removeRenderTasks();
 
     return anyRenderTasksExecuted;
 }

@@ -64,12 +64,6 @@ bool GrDDLTask::onIsUsed(GrSurfaceProxy* proxy) const {
     return false;
 }
 
-void GrDDLTask::handleInternalAllocationFailure() {
-    for (auto& task : fDDL->priv().renderTasks()) {
-        task->handleInternalAllocationFailure();
-    }
-}
-
 void GrDDLTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // We don't have any proxies, but the resource allocator will still bark
     // if a task doesn't claim any op indices, so we oblige it.
