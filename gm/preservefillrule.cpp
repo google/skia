@@ -143,10 +143,13 @@ private:
                 ++numCachedPaths;
             }
 
+            // CCPR is currently disabled.
+#if 0
             if (dContext) {
                 // Verify all 4 paths are tracked by the path cache.
                 ERR_MSG_ASSERT(4 == numCachedPaths);
             }
+#endif
         }
 
         return DrawResult::kOk;
