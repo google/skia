@@ -8,7 +8,7 @@ void main() {
     int itop = (gl_InstanceID * 313) % 17;
     int ibot = (itop + 1) + (gl_InstanceID * 1901) % (17 - itop);
     float outset = 0.03125;
-    outset = 0 == (x + y) % 2 ? -0.03125 : 0.03125;
+    outset = 0 == (x + y) % 2 ? -outset : outset;
     float l = float(ileft) / 16.0 - outset;
     float r = float(iright) / 16.0 + outset;
     float t = float(itop) / 16.0 - outset;
