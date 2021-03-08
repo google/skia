@@ -325,7 +325,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // If this is the assignment operator, and both sides are the same trivial expression, this is
     // self-assignment (i.e., `var = var`) and can be reduced to just a variable reference (`var`).
     // This can happen when other parts of the assignment are optimized away.
-    if (op.kind() == Token::Kind::TK_EQ && Analysis::IsSelfAssignment(*left, *right)) {
+    if (op.kind() == Token::Kind::TK_EQ && Analysis::IsSameExpressionTree(*left, *right)) {
         return right->clone();
     }
 
@@ -360,6 +360,18 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
         // We can't use short-circuiting, but we can still optimize away no-op Boolean expressions.
         return eliminate_no_op_boolean(*left, op, *right);
+    }
+
+    if (op.kind() == Token::Kind::TK_EQEQ && Analysis::IsSameExpressionTree(*left, *right)) {
+        // With == comparison, if both sides are the same trivial expression, this is self-
+        // comparison and is always true. (We are not concerned with NaN.)
+        return std::make_unique<BoolLiteral>(context, leftExpr.fOffset, /*value=*/true);
+    }
+
+    if (op.kind() == Token::Kind::TK_NEQ && Analysis::IsSameExpressionTree(*left, *right)) {
+        // With != comparison, if both sides are the same trivial expression, this is self-
+        // comparison and is always false. (We are not concerned with NaN.)
+        return std::make_unique<BoolLiteral>(context, leftExpr.fOffset, /*value=*/false);
     }
 
     if (ErrorOnDivideByZero(context, offset, op, *right)) {

@@ -468,7 +468,7 @@ static bool dead_assignment(const BinaryExpression& b, ProgramUsage* usage) {
 
 static bool self_assignment(const BinaryExpression& b) {
     return b.getOperator().kind() == Token::Kind::TK_EQ &&
-           Analysis::IsSelfAssignment(*b.left(), *b.right());
+           Analysis::IsSameExpressionTree(*b.left(), *b.right());
 }
 
 void Compiler::computeDataFlow(CFG* cfg) {
