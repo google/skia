@@ -23,6 +23,13 @@ class GrMtlGpu;
 class GrMtlPipelineState;
 class SkReadBuffer;
 
+struct GrMtlPrecompiledLibraries {
+    // TODO: wrap these in sk_cfp<> or unique_ptr<> when we remove ARC
+    id<MTLLibrary> fVertexLibrary;
+    id<MTLLibrary> fFragmentLibrary;
+    bool fRTHeight = false;
+};
+
 class GrMtlPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
     /** Generates a pipeline state.
@@ -32,16 +39,20 @@ public:
      * available to be used.
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
-    static GrMtlPipelineState* CreatePipelineState(GrMtlGpu*,
-                                                   const GrProgramDesc&,
-                                                   const GrProgramInfo&);
+    static GrMtlPipelineState* CreatePipelineState(
+                                       GrMtlGpu*,
+                                       const GrProgramDesc&,
+                                       const GrProgramInfo&,
+                                       const GrMtlPrecompiledLibraries* precompiledLibs = nullptr);
 
-    static bool PrecompileShaders(GrMtlGpu*, const SkData&);
+    static bool PrecompileShaders(GrMtlGpu*, const SkData&,
+                                  GrMtlPrecompiledLibraries* precompiledLibs);
 
 private:
     GrMtlPipelineStateBuilder(GrMtlGpu*, const GrProgramDesc&, const GrProgramInfo&);
 
-    GrMtlPipelineState* finalize(const GrProgramDesc&, const GrProgramInfo&);
+    GrMtlPipelineState* finalize(const GrProgramDesc&, const GrProgramInfo&,
+                                 const GrMtlPrecompiledLibraries* precompiledLibraries);
 
     const GrCaps* caps() const override;
 
