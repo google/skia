@@ -448,12 +448,7 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
             textBlobCache->remove(blob.get());
         }
 
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
-        blob->makeSubRuns(&fGlyphPainter,
-                          glyphRunList,
-                          drawMatrix,
-                          drawPaint,
-                          control);
+        blob = GrTextBlob::Make(glyphRunList, drawMatrix, control, &fGlyphPainter);
 
         if (canCache) {
             blob->addKey(key);

@@ -391,10 +391,11 @@ public:
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 
-    // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
-    // adding SubRuns.
+    // Make a GrTextBlob and its sub runs.
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
-                                  const SkMatrix& drawMatrix);
+                                  const SkMatrix& drawMatrix,
+                                  const GrSDFTControl& control,
+                                  SkGlyphRunListPainter* painter);
 
     ~GrTextBlob() override;
 
@@ -403,13 +404,6 @@ public:
     void operator delete(void* p);
     void* operator new(size_t);
     void* operator new(size_t, void* p);
-
-    void makeSubRuns(
-            SkGlyphRunListPainter* painter,
-            const SkGlyphRunList& glyphRunList,
-            const SkMatrix& drawMatrix,
-            const SkPaint& runPaint,
-            const GrSDFTControl& control);
 
     const Key& key() { return fKey; }
 

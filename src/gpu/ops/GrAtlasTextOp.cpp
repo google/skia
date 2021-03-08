@@ -486,14 +486,9 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
     GrSDFTControl control =
             rContext->priv().getSDFTControl(rtc->surfaceProps().isUseDeviceIndependentFonts());
 
-    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
     SkGlyphRunListPainter* painter = rtc->glyphRunPainter();
-    painter->processGlyphRun(
-            *glyphRunList.begin(),
-            drawMatrix,
-            glyphRunList.paint(),
-            control,
-            blob.get());
+    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix, control, painter);
+
     if (blob->subRunList().isEmpty()) {
         return nullptr;
     }
