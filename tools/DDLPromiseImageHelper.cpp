@@ -278,13 +278,13 @@ void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrDirectCon
 }
 
 sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
-                                                   sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                                                   SkDeferredDisplayListRecorder* recorder,
                                                    SkData* compressedPictureData,
                                                    SkTArray<sk_sp<SkImage>>* promiseImages) const {
-    DeserialImageProcContext procContext { std::move(threadSafeProxy), this, promiseImages };
+    PerRecorderContext perRecorderContext { recorder, this, promiseImages };
 
     SkDeserialProcs procs;
-    procs.fImageCtx = (void*) &procContext;
+    procs.fImageCtx = (void*) &perRecorderContext;
     procs.fImageProc = CreatePromiseImages;
 
     return SkPicture::MakeFromData(compressedPictureData, &procs);
@@ -295,8 +295,9 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
 // promise images referring to the same GrBackendTexture.
 sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                                                           size_t length, void* ctxIn) {
-    DeserialImageProcContext* procContext = static_cast<DeserialImageProcContext*>(ctxIn);
-    const DDLPromiseImageHelper* helper = procContext->fHelper;
+    PerRecorderContext* perRecorderContext = static_cast<PerRecorderContext*>(ctxIn);
+    const DDLPromiseImageHelper* helper = perRecorderContext->fHelper;
+    SkDeferredDisplayListRecorder* recorder = perRecorderContext->fRecorder;
 
     SkASSERT(length == sizeof(int));
 
@@ -330,13 +331,13 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                                                      backendFormats,
                                                      GrMipmapped::kNo,
                                                      kTopLeft_GrSurfaceOrigin);
-        image = SkImage::MakePromiseYUVATexture(
-                                            procContext->fThreadSafeProxy,
-                                            yuvaBackendTextures,
-                                            curImage.refOverallColorSpace(),
-                                            PromiseImageCallbackContext::PromiseImageFulfillProc,
-                                            PromiseImageCallbackContext::PromiseImageReleaseProc,
-                                            contexts);
+
+        image = recorder->makeYUVAPromiseTexture(
+                yuvaBackendTextures,
+                curImage.refOverallColorSpace(),
+                PromiseImageCallbackContext::PromiseImageFulfillProc,
+                PromiseImageCallbackContext::PromiseImageReleaseProc,
+                contexts);
         if (!image) {
             return nullptr;
         }
@@ -348,20 +349,22 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
         const GrBackendFormat& backendFormat = curImage.backendFormat(0);
         SkASSERT(backendFormat.isValid());
 
-        image = SkImage::MakePromiseTexture(procContext->fThreadSafeProxy,
-                                            backendFormat,
-                                            curImage.overallDimensions(),
-                                            curImage.mipMapped(0),
-                                            GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                            curImage.overallColorType(),
-                                            curImage.overallAlphaType(),
-                                            curImage.refOverallColorSpace(),
-                                            PromiseImageCallbackContext::PromiseImageFulfillProc,
-                                            PromiseImageCallbackContext::PromiseImageReleaseProc,
-                                            (void*)curImage.refCallbackContext(0).release());
+        // Each DDL recorder gets its own ref on the promise callback context for the
+        // promise images it creates.
+        image = recorder->makePromiseTexture(backendFormat,
+                                             curImage.overallWidth(),
+                                             curImage.overallHeight(),
+                                             curImage.mipMapped(0),
+                                             GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                             curImage.overallColorType(),
+                                             curImage.overallAlphaType(),
+                                             curImage.refOverallColorSpace(),
+                                             PromiseImageCallbackContext::PromiseImageFulfillProc,
+                                             PromiseImageCallbackContext::PromiseImageReleaseProc,
+                                             (void*)curImage.refCallbackContext(0).release());
         curImage.callbackContext(0)->wasAddedToImage();
     }
-    procContext->fPromiseImages->push_back(image);
+    perRecorderContext->fPromiseImages->push_back(image);
     SkASSERT(image);
     return image;
 }
