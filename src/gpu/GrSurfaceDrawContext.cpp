@@ -324,31 +324,6 @@ GrMipmapped GrSurfaceDrawContext::mipmapped() const {
     return GrMipmapped::kNo;
 }
 
-static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
-    SkColor canonicalColor = SkPaintPriv::ComputeLuminanceColor(paint);
-    if (lcd) {
-        // This is the correct computation for canonicalColor, but there are tons of cases where LCD
-        // can be modified. For now we just regenerate if any run in a textblob has LCD.
-        // TODO figure out where all of these modifications are and see if we can incorporate that
-        //      logic at a higher level *OR* use sRGB
-        //canonicalColor = SkMaskGamma::CanonicalColor(canonicalColor);
-
-        // TODO we want to figure out a way to be able to use the canonical color on LCD text,
-        // see the note above.  We pick a dummy value for LCD text to ensure we always match the
-        // same key
-        return SK_ColorTRANSPARENT;
-    } else {
-        // A8, though can have mixed BMP text but it shouldn't matter because BMP text won't have
-        // gamma corrected masks anyways, nor color
-        U8CPU lum = SkComputeLuminance(SkColorGetR(canonicalColor),
-                                       SkColorGetG(canonicalColor),
-                                       SkColorGetB(canonicalColor));
-        // reduce to our finite number of bits
-        canonicalColor = SkMaskGamma::CanonicalColor(SkColorSetRGB(lum, lum, lum));
-    }
-    return canonicalColor;
-}
-
 void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
                                             const SkMatrixProvider& viewMatrix,
                                             const SkGlyphRunList& glyphRunList) {
@@ -364,82 +339,26 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
+    SkMatrix drawMatrix(viewMatrix.localToDevice());
+    drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
+
     GrSDFTControl control =
             this->recordingContext()->priv().getSDFTControl(
                     this->surfaceProps().isUseDeviceIndependentFonts());
 
-    GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
-
-    // Get the first paint to use as the key paint.
-    const SkPaint& drawPaint = glyphRunList.paint();
-
-    SkMaskFilterBase::BlurRec blurRec;
-    // It might be worth caching these things, but its not clear at this time
-    // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
-    const SkMaskFilter* mf = drawPaint.getMaskFilter();
-    bool canCache = glyphRunList.canCache() &&
-            !(drawPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
-
-    // If we're doing linear blending, then we can disable the gamma hacks.
-    // Otherwise, leave them on. In either case, we still want the contrast boost:
-    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
-    SkScalerContextFlags scalerContextFlags = this->colorInfo().isLinearlyBlended()
-                                              ? SkScalerContextFlags::kBoostContrast
-                                              : SkScalerContextFlags::kFakeGammaAndBoostContrast;
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    SkPoint drawOrigin = glyphRunList.origin();
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    auto [canCache, key] = GrTextBlob::Key::Make(glyphRunList,
+                                                 fSurfaceProps,
+                                                 this->colorInfo(),
+                                                 drawMatrix,
+                                                 control);
 
     sk_sp<GrTextBlob> blob;
-    GrTextBlob::Key key;
+    GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
     if (canCache) {
-        bool hasLCD = glyphRunList.anyRunsLCD();
-
-        // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
-        SkPixelGeometry pixelGeometry =
-                hasLCD ? fSurfaceProps.pixelGeometry() : kUnknown_SkPixelGeometry;
-
-        GrColor canonicalColor = compute_canonical_color(drawPaint, hasLCD);
-
-        key.fPixelGeometry = pixelGeometry;
-        key.fUniqueID = glyphRunList.uniqueID();
-        key.fStyle = drawPaint.getStyle();
-        if (key.fStyle != SkPaint::kFill_Style) {
-            key.fFrameWidth = drawPaint.getStrokeWidth();
-            key.fMiterLimit = drawPaint.getStrokeMiter();
-            key.fJoin = drawPaint.getStrokeJoin();
-        }
-        key.fHasBlur = SkToBool(mf);
-        if (key.fHasBlur) {
-            key.fBlurRec = blurRec;
-        }
-        key.fCanonicalColor = canonicalColor;
-        key.fScalerContextFlags = scalerContextFlags;
-
-        // Calculate the set of drawing types.
-        key.fSetOfDrawingTypes = 0;
-        for (auto& run : glyphRunList) {
-            key.fSetOfDrawingTypes |= control.drawingType(run.font(), drawPaint, drawMatrix);
-        }
-
-        if (key.fSetOfDrawingTypes & GrSDFTControl::kDirect) {
-            // Store the fractional offset of the position. We know that the matrix can't be
-            // perspective at this point.
-            SkPoint mappedOrigin = drawMatrix.mapOrigin();
-            key.fDrawMatrix = drawMatrix;
-            key.fDrawMatrix.setTranslateX(
-                    mappedOrigin.x() - SkScalarFloorToScalar(mappedOrigin.x()));
-            key.fDrawMatrix.setTranslateY(
-                    mappedOrigin.y() - SkScalarFloorToScalar(mappedOrigin.y()));
-        } else {
-            // For path and SDFT, the matrix doesn't matter.
-            key.fDrawMatrix = SkMatrix::I();
-        }
-
         blob = textBlobCache->find(key);
     }
 
-    if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
+    if (blob == nullptr || !blob->canReuse(glyphRunList.paint(), drawMatrix)) {
         if (blob != nullptr) {
             SkASSERT(!drawMatrix.hasPerspective());
             // We have to remake the blob because changes may invalidate our masks.
