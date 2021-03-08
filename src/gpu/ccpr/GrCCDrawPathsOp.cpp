@@ -252,11 +252,8 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
             } else {
                 // Suggest that this path be copied to a literal coverage atlas, to save memory.
                 // (The client may decline this copy via DoCopiesToA8Coverage::kNo.)
-                int idx = (fShape.style().strokeRec().isFillStyle())
-                        ? GrCCPerFlushResourceSpecs::kFillIdx
-                        : GrCCPerFlushResourceSpecs::kStrokeIdx;
-                ++specs->fNumCopiedPaths[idx];
-                specs->fCopyPathStats[idx].statPath(path);
+                ++specs->fNumCopiedPaths;
+                specs->fCopyPathStats.statPath(path);
                 specs->fCopyAtlasSpecs.accountForSpace(fCacheEntry->width(), fCacheEntry->height());
             }
             return;
@@ -270,11 +267,8 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
     }
 
     // Plan on rendering this path in a new atlas.
-    int idx = (fShape.style().strokeRec().isFillStyle())
-            ? GrCCPerFlushResourceSpecs::kFillIdx
-            : GrCCPerFlushResourceSpecs::kStrokeIdx;
-    ++specs->fNumRenderedPaths[idx];
-    specs->fRenderedPathStats[idx].statPath(path);
+    ++specs->fNumRenderedPaths;
+    specs->fRenderedPathStats.statPath(path);
     specs->fRenderedAtlasSpecs.accountForSpace(fMaskDevIBounds.width(), fMaskDevIBounds.height());
 }
 
@@ -382,9 +376,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
             fColor = (CoverageType::kA8_LiteralCoverage == fCachedAtlasCoverageType) ?
                     SkPMColor4f{0,0,.25,.25} : SkPMColor4f{0,.25,0,.25};
 #endif
-            auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(fCachedAtlasCoverageType);
-            op->recordInstance(coverageMode, fCachedAtlasProxy.get(),
-                               resources->nextPathInstanceIdx());
+            op->recordInstance(fCachedAtlasProxy.get(), resources->nextPathInstanceIdx());
             resources->appendDrawPathInstance().set(*fCacheEntry, fCachedMaskShift, fColor,
                                                     fillRule);
 
@@ -402,9 +394,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     if (auto atlas = resources->renderShapeInAtlas(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
                 &devToAtlasOffset)) {
-        auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
-                resources->renderedPathCoverageType());
-        op->recordInstance(coverageMode, atlas->textureProxy(), resources->nextPathInstanceIdx());
+        op->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
         resources->appendDrawPathInstance().set(octoBounds, devToAtlasOffset, fColor, fillRule);
 
         if (fDoCachePathMask) {
@@ -417,15 +407,13 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     }
 }
 
-inline void GrCCDrawPathsOp::recordInstance(
-        GrCCPathProcessor::CoverageMode coverageMode, GrTextureProxy* atlasProxy, int instanceIdx) {
+inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int instanceIdx) {
     if (fInstanceRanges.empty()) {
-        fInstanceRanges.push_back({coverageMode, atlasProxy, instanceIdx});
+        fInstanceRanges.push_back({atlasProxy, instanceIdx});
     } else if (fInstanceRanges.back().fAtlasProxy != atlasProxy) {
         fInstanceRanges.back().fEndInstanceIdx = instanceIdx;
-        fInstanceRanges.push_back({coverageMode, atlasProxy, instanceIdx});
+        fInstanceRanges.push_back({atlasProxy, instanceIdx});
     }
-    SkASSERT(fInstanceRanges.back().fCoverageMode == coverageMode);
     SkASSERT(fInstanceRanges.back().fAtlasProxy == atlasProxy);
 }
 
@@ -461,10 +449,10 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
 
         GrSurfaceProxy* atlas = range.fAtlasProxy;
         if (atlas->isInstantiated()) {  // Instantiation can fail in exceptional circumstances.
-            GrColorType ct = GrCCPathProcessor::GetColorTypeFromCoverageMode(range.fCoverageMode);
-            GrSwizzle swizzle = flushState->caps().getReadSwizzle(atlas->backendFormat(), ct);
-            GrCCPathProcessor pathProc(range.fCoverageMode, atlas->peekTexture(), swizzle,
-                                       GrCCAtlas::kTextureOrigin, fViewMatrixIfUsingLocalCoords);
+            GrSwizzle swizzle = flushState->caps().getReadSwizzle(atlas->backendFormat(),
+                                                                  GrColorType::kAlpha_8);
+            GrCCPathProcessor pathProc(atlas->peekTexture(), swizzle, GrCCAtlas::kTextureOrigin,
+                                       fViewMatrixIfUsingLocalCoords);
             pathProc.drawPaths(flushState, pipeline, *atlas, *resources, baseInstance,
                                range.fEndInstanceIdx, this->bounds());
         }
