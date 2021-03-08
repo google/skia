@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bd5e886_44e379ed",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-08T17:20:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38b78dda_4cb3eba2",
+      "range": {
+        "startLine": 214,
+        "startChar": 18,
+        "endLine": 214,
+        "endChar": 19
+      },
+      "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0fb12b34_02323696",
@@ -76,6 +100,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21226a88_55c3ef76",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-08T17:20:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b3558c99_fd7700df",
+      "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a1bebfad_bac4b984",
@@ -89,6 +131,30 @@
       "writtenOn": "2021-02-17T18:49:54Z",
       "side": 1,
       "message": "Shouldn\u0027t there be a \u0027!\u0027 here ?",
+      "range": {
+        "startLine": 305,
+        "startChar": 14,
+        "endLine": 305,
+        "endChar": 15
+      },
+      "revId": "d01946e910abaaa0db59307978840677ebf6b41e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a4c8384_51a109ec",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-08T17:20:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1bebfad_bac4b984",
       "range": {
         "startLine": 305,
         "startChar": 14,
