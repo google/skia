@@ -39,6 +39,30 @@
       },
       "revId": "1055dd2c2bc965cb3934fd8fce967cea9b490ab3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59fe50c2_927b09f5",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-08T22:53:23Z",
+      "side": 1,
+      "message": "I\u0027m not sure -- I\u0027ve just added the comment for now.",
+      "parentUuid": "507e3258_71a4100f",
+      "range": {
+        "startLine": 1095,
+        "startChar": 0,
+        "endLine": 1103,
+        "endChar": 68
+      },
+      "revId": "1055dd2c2bc965cb3934fd8fce967cea9b490ab3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
