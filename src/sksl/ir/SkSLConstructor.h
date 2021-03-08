@@ -49,9 +49,6 @@ public:
         return fArguments;
     }
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override;
-
     // If the passed-in expression is a literal, performs a constructor-conversion of the literal
     // value to the constructor's type and returns that converted value as a new literal. e.g., the
     // constructor expression `short(3.14)` would be represented as `FloatLiteral(3.14)` along with
