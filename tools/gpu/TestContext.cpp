@@ -8,6 +8,7 @@
 
 #include "tools/gpu/TestContext.h"
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/gpu/FlushFinishTracker.h"
@@ -22,6 +23,10 @@ TestContext::~TestContext() {
 }
 
 sk_sp<GrDirectContext> TestContext::makeContext(const GrContextOptions&) {
+    return nullptr;
+}
+
+sk_sp<GrDirectContext> TestContext::makeContext(sk_sp<GrContextThreadSafeProxy>) {
     return nullptr;
 }
 
