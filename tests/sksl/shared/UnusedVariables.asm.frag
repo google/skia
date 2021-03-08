@@ -7,8 +7,11 @@ OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
+OpName %a "a"
 OpName %b "b"
+OpName %c "c"
 OpName %d "d"
+OpName %e "e"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -25,9 +28,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %12 = OpTypeFunction %void
 %15 = OpTypeFunction %v4float
 %_ptr_Function_float = OpTypePointer Function %float
+%float_1 = OpConstant %float 1
 %float_2 = OpConstant %float 2
 %float_3 = OpConstant %float 3
-%float_1 = OpConstant %float 1
 %float_0 = OpConstant %float 0
 %float_5 = OpConstant %float 5
 %float_4 = OpConstant %float 4
@@ -39,28 +42,36 @@ OpReturn
 OpFunctionEnd
 %main = OpFunction %v4float None %15
 %16 = OpLabel
+%a = OpVariable %_ptr_Function_float Function
 %b = OpVariable %_ptr_Function_float Function
+%c = OpVariable %_ptr_Function_float Function
 %d = OpVariable %_ptr_Function_float Function
+%e = OpVariable %_ptr_Function_float Function
+OpStore %a %float_1
 OpStore %b %float_2
-OpStore %d %float_3
-%22 = OpLoad %float %b
-%24 = OpFAdd %float %22 %float_1
-OpStore %b %24
-%25 = OpLoad %float %d
-%26 = OpFAdd %float %25 %float_1
-OpStore %d %26
-%27 = OpLoad %float %b
-%28 = OpFOrdEqual %bool %27 %float_2
-%29 = OpSelect %float %28 %float_1 %float_0
-%31 = OpLoad %float %b
-%32 = OpFOrdEqual %bool %31 %float_3
-%33 = OpSelect %float %32 %float_1 %float_0
-%34 = OpLoad %float %d
-%36 = OpFOrdEqual %bool %34 %float_5
-%37 = OpSelect %float %36 %float_1 %float_0
-%38 = OpLoad %float %d
-%40 = OpFOrdEqual %bool %38 %float_4
-%41 = OpSelect %float %40 %float_1 %float_0
-%42 = OpCompositeConstruct %v4float %29 %33 %37 %41
-OpReturnValue %42
+OpStore %c %float_3
+%25 = OpLoad %float %c
+OpStore %d %25
+%27 = OpLoad %float %d
+OpStore %e %27
+%28 = OpLoad %float %b
+%29 = OpFAdd %float %28 %float_1
+OpStore %b %29
+%30 = OpLoad %float %d
+%31 = OpFAdd %float %30 %float_1
+OpStore %d %31
+%32 = OpLoad %float %b
+%33 = OpFOrdEqual %bool %32 %float_2
+%34 = OpSelect %float %33 %float_1 %float_0
+%36 = OpLoad %float %b
+%37 = OpFOrdEqual %bool %36 %float_3
+%38 = OpSelect %float %37 %float_1 %float_0
+%39 = OpLoad %float %d
+%41 = OpFOrdEqual %bool %39 %float_5
+%42 = OpSelect %float %41 %float_1 %float_0
+%43 = OpLoad %float %d
+%45 = OpFOrdEqual %bool %43 %float_4
+%46 = OpSelect %float %45 %float_1 %float_0
+%47 = OpCompositeConstruct %v4float %34 %38 %42 %46
+OpReturnValue %47
 OpFunctionEnd

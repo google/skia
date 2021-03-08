@@ -6,6 +6,7 @@ OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %main "main"
+OpName %x "x"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -20,10 +21,15 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %void = OpTypeVoid
 %11 = OpTypeFunction %void
+%_ptr_Function_float = OpTypePointer Function %float
 %float_0 = OpConstant %float 0
-%14 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %main = OpFunction %void None %11
 %12 = OpLabel
-OpStore %sk_FragColor %14
+%x = OpVariable %_ptr_Function_float Function
+OpStore %x %float_0
+OpStore %x %float_0
+%16 = OpLoad %float %x
+%17 = OpCompositeConstruct %v4float %16 %16 %16 %16
+OpStore %sk_FragColor %17
 OpReturn
 OpFunctionEnd

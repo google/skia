@@ -15,8 +15,10 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    const bool TRUE = true;
+    const bool FALSE = false;
     bool ok = true;
-    ok = _uniforms.colorGreen.y == 1.0 ? true : false;
+    ok = ok && (_uniforms.colorGreen.y == 1.0 ? true : false);
     ok = ok && (_uniforms.colorGreen.x == 1.0 ? false : true);
     _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;

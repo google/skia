@@ -38,7 +38,7 @@ void main() {
     --_0_x;
     --_0_x;
     _0_x = 456.0;
-    float _1_x = 456.0;
+    float _1_x = _0_x;
     ++_1_x;
     ++_1_x;
     ++_1_x;
@@ -74,7 +74,7 @@ void main() {
     --_1_x;
     --_1_x;
     _1_x = 123.0;
-    sk_FragColor = vec4(123.0);
+    sk_FragColor = vec4(_1_x);
 
 
 }
