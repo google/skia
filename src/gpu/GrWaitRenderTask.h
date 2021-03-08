@@ -25,7 +25,6 @@ private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         return proxy == fWaitedOn.proxy();
     }
-    void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {

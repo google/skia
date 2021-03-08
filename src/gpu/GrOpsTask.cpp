@@ -890,22 +890,6 @@ bool GrOpsTask::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     return used;
 }
 
-void GrOpsTask::handleInternalAllocationFailure() {
-    bool hasUninstantiatedProxy = false;
-    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p, GrMipmapped) {
-        if (!p->isInstantiated()) {
-            hasUninstantiatedProxy = true;
-        }
-    };
-    for (OpChain& recordedOp : fOpChains) {
-        hasUninstantiatedProxy = false;
-        recordedOp.visitProxies(checkInstantiation);
-        if (hasUninstantiatedProxy) {
-            recordedOp.setSkipExecuteFlag();
-        }
-    }
-}
-
 void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
         SkASSERT(!fDeferredProxies[i]->isInstantiated());

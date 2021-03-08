@@ -25,7 +25,6 @@ public:
 #ifdef SK_DEBUG
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override { return; }
 #endif
-    void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override {}
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override { SkUNREACHABLE; }
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
