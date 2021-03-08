@@ -392,6 +392,7 @@ config("warnings") {
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
       "-Wno-psabi",
+      "-Wno-format-truncation",
     ]
     cflags_cc += [
       "-Wnon-virtual-dtor",

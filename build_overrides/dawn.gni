@@ -9,5 +9,5 @@
 dawn_has_build = false
 
 dawn_jinja2_dir = "//third_party/externals/jinja2"
-dawn_spirv_tools_dir = "//third_party/spirv-tools"
+dawn_spirv_tools_dir = "//third_party/externals/spirv-tools"
 dawn_spirv_cross_dir = "//third_party/externals/spirv-cross"
