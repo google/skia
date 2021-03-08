@@ -108,10 +108,6 @@ test-continuous:
 test-continuous-headless:
 	npx karma start ./karma.conf.js --no-single-run --watch-poll --headless
 
-.PHONY: perf
-perf:
-	npx karma start ./karma.bench.conf.js --single-run
-
 node-example:
 	node ./npm_build/node.example.js --expose-wasm
 
