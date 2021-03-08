@@ -61,3 +61,24 @@ void half4x2_2()               { half4x2 m;      half2   v = m[2]; }
 void half4x2_3()               { half4x2 m;      half2   v = m[3]; }
 void half4x2_4()               { half4x2 m;      half2   v = m[4]; }
 void half4x2_huge()            { half4x2 m;      half2   v = m[1000000000]; }
+
+void half2_neg1_constidx()     { half2 h;        const int INDEX = -1;         half v = h[INDEX]; }
+void half2_0_constidx()        { half2 h;        const int INDEX = 0;          half v = h[INDEX]; }
+void half2_1_constidx()        { half2 h;        const int INDEX = 1;          half v = h[INDEX]; }
+void half2_2_constidx()        { half2 h;        const int INDEX = 2;          half v = h[INDEX]; }
+void half2_huge_constidx()     { half2 h;        const int INDEX = 1000000000; half v = h[INDEX]; }
+
+void half3_neg1_constidx()     { half3 h;        const int INDEX = -1;         half v = h[INDEX]; }
+void half3_0_constidx()        { half3 h;        const int INDEX = 0;          half v = h[INDEX]; }
+void half3_1_constidx()        { half3 h;        const int INDEX = 1;          half v = h[INDEX]; }
+void half3_2_constidx()        { half3 h;        const int INDEX = 2;          half v = h[INDEX]; }
+void half3_3_constidx()        { half3 h;        const int INDEX = 3;          half v = h[INDEX]; }
+void half3_huge_constidx()     { half3 h;        const int INDEX = 1000000000; half v = h[INDEX]; }
+
+void half4_neg1_constidx()     { half4 h;        const int INDEX = -1;         half v = h[INDEX]; }
+void half4_0_constidx()        { half4 h;        const int INDEX = 0;          half v = h[INDEX]; }
+void half4_1_constidx()        { half4 h;        const int INDEX = 1;          half v = h[INDEX]; }
+void half4_2_constidx()        { half4 h;        const int INDEX = 2;          half v = h[INDEX]; }
+void half4_3_constidx()        { half4 h;        const int INDEX = 3;          half v = h[INDEX]; }
+void half4_4_constidx()        { half4 h;        const int INDEX = 4;          half v = h[INDEX]; }
+void half4_huge_constidx()     { half4 h;        const int INDEX = 1000000000; half v = h[INDEX]; }
