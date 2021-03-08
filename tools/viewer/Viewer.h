@@ -230,6 +230,14 @@ private:
 
     sk_gpu_test::MemoryCache fPersistentCache;
     SkTArray<CachedShader>   fCachedShaders;
+
+    enum ShaderOptLevel : int {
+        kShaderOptLevel_Source,
+        kShaderOptLevel_Compile,
+        kShaderOptLevel_Optimize,
+        kShaderOptLevel_Inline,
+        kShaderOptLevel_ControlFlow
+    };
 };
 
 #endif

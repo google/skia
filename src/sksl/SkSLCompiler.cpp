@@ -72,7 +72,10 @@
 
 namespace SkSL {
 
-// TODO(skia:11319): Set to `false` to disable control-flow analysis unilaterally.
+// Set these flags to `false` to disable optimization passes unilaterally.
+// These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
+bool gSkSLOptimizer = true;
+bool gSkSLInliner = true;
 bool gSkSLControlFlowAnalysis = true;
 
 using RefKind = VariableReference::RefKind;
@@ -710,8 +713,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         case Expression::Kind::kVariableReference: {
             const VariableReference& ref = expr->as<VariableReference>();
             const Variable* var = ref.variable();
-            if (gSkSLControlFlowAnalysis &&
-                fContext->fConfig->fSettings.fDeadCodeElimination &&
+            if (fContext->fConfig->fSettings.fDeadCodeElimination &&
                 ref.refKind() != VariableReference::RefKind::kWrite &&
                 ref.refKind() != VariableReference::RefKind::kPointer &&
                 var->storage() == Variable::Storage::kLocal && !definitions.get(var) &&
@@ -1321,7 +1323,7 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     CFG cfg = CFGGenerator().getCFG(f);
     this->computeDataFlow(&cfg);
 
-    if (gSkSLControlFlowAnalysis && fContext->fConfig->fSettings.fDeadCodeElimination) {
+    if (fContext->fConfig->fSettings.fDeadCodeElimination) {
         // Check for unreachable code.
         for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
             const BasicBlock& block = cfg.fBlocks[i];
@@ -1360,7 +1362,7 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
             }
 
             BasicBlock& b = cfg.fBlocks[blockId];
-            if (gSkSLControlFlowAnalysis && fContext->fConfig->fSettings.fDeadCodeElimination) {
+            if (fContext->fConfig->fSettings.fDeadCodeElimination) {
                 if (blockId > 0 && !b.fIsReachable) {
                     // Block was reachable before optimization, but has since become unreachable. In
                     // addition to being dead code, it's broken - since control flow can't reach it,
@@ -1425,6 +1427,16 @@ std::unique_ptr<Program> Compiler::convertProgram(
     auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
     AutoProgramConfig autoConfig(fContext, config.get());
 
+    // Honor our global optimization-disable flags.
+    config->fSettings.fOptimize &= gSkSLOptimizer;
+    config->fSettings.fControlFlowAnalysis &= gSkSLControlFlowAnalysis;
+    config->fSettings.fInlineThreshold *= (int)gSkSLInliner;
+
+    // Disable optimization settings that depend on a parent setting which has been disabled.
+    config->fSettings.fControlFlowAnalysis &= config->fSettings.fOptimize;
+    config->fSettings.fInlineThreshold *= (int)config->fSettings.fOptimize;
+    config->fSettings.fDeadCodeElimination &= config->fSettings.fControlFlowAnalysis;
+
     fErrorText = "";
     fErrorCount = 0;
     fInliner.reset(fIRGenerator->fModifiers.get());
@@ -1455,7 +1467,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
     bool success = false;
     if (fErrorCount) {
         // Do not return programs that failed to compile.
-    } else if (settings.fOptimize && !this->optimize(*program)) {
+    } else if (!this->optimize(*program)) {
         // Do not return programs that failed to optimize.
     } else {
         // We have a successful program!
@@ -1536,7 +1548,7 @@ bool Compiler::optimize(LoadedModule& module) {
         bool madeChanges = false;
 
         // Scan and optimize based on the control-flow graph for each function.
-        if (gSkSLControlFlowAnalysis && config.fSettings.fControlFlowAnalysis) {
+        if (config.fSettings.fControlFlowAnalysis) {
             for (const auto& element : module.fElements) {
                 if (element->is<FunctionDefinition>()) {
                     madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage.get());
@@ -1555,6 +1567,11 @@ bool Compiler::optimize(LoadedModule& module) {
 }
 
 bool Compiler::optimize(Program& program) {
+    // The optimizer only needs to run when it is enabled.
+    if (!program.fConfig->fSettings.fOptimize) {
+        return true;
+    }
+
     SkASSERT(!fErrorCount);
     ProgramUsage* usage = program.fUsage.get();
 
@@ -1562,7 +1579,7 @@ bool Compiler::optimize(Program& program) {
         bool madeChanges = false;
 
         // Scan and optimize based on the control-flow graph for each function.
-        if (gSkSLControlFlowAnalysis && program.fConfig->fSettings.fControlFlowAnalysis) {
+        if (program.fConfig->fSettings.fControlFlowAnalysis) {
             for (const auto& element : program.ownedElements()) {
                 if (element->is<FunctionDefinition>()) {
                     madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage);

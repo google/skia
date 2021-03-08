@@ -238,10 +238,7 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpMemberDecorate:
             break;
         default:
-            if (gSkSLControlFlowAnalysis &&
-                fProgram.fConfig->fSettings.fOptimize &&
-                fProgram.fConfig->fSettings.fControlFlowAnalysis &&
-                fProgram.fConfig->fSettings.fDeadCodeElimination) {
+            if (fProgram.fConfig->fSettings.fDeadCodeElimination) {
                 // When dead-code elimination is enabled, all code should be reachable and an
                 // associated block should already exist.
                 SkASSERT(fCurrentBlock);

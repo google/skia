@@ -66,6 +66,8 @@
 #endif
 
 namespace SkSL {
+extern bool gSkSLOptimizer;
+extern bool gSkSLInliner;
 extern bool gSkSLControlFlowAnalysis;
 }
 
@@ -2342,6 +2344,13 @@ void Viewer::drawImGui() {
             if (ImGui::CollapsingHeader("Shaders")) {
                 bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
                             GrContextOptions::ShaderCacheStrategy::kSkSL;
+
+                int optLevel =                           sksl ? kShaderOptLevel_Source :
+                               SkSL::gSkSLControlFlowAnalysis ? kShaderOptLevel_ControlFlow :
+                                           SkSL::gSkSLInliner ? kShaderOptLevel_Inline :
+                                         SkSL::gSkSLOptimizer ? kShaderOptLevel_Optimize :
+                                                                kShaderOptLevel_Compile;
+
 #if defined(SK_VULKAN)
                 const bool isVulkan = fBackendType == sk_app::Window::kVulkan_BackendType;
 #else
@@ -2394,19 +2403,27 @@ void Viewer::drawImGui() {
                 // start or finish hovering on a tree node in the list below:
                 bool doView      = ImGui::Button("View"); ImGui::SameLine();
                 bool doApply     = ImGui::Button("Apply Changes"); ImGui::SameLine();
-                bool doDump      = ImGui::Button("Dump SkSL to resources/sksl/"); ImGui::SameLine();
-                bool skslChecked = ImGui::Checkbox("SkSL", &sksl); ImGui::SameLine();
-                bool doControlFlow = ImGui::Checkbox("Control-Flow Analysis",
-                                                     &SkSL::gSkSLControlFlowAnalysis);
+                bool doDump      = ImGui::Button("Dump SkSL to resources/sksl/");
 
-                // We always want to dump shaders in SkSL format, not the backend format.
-                if (doDump) {
-                    sksl = true;
-                }
+                int newOptLevel = optLevel;
+                ImGui::RadioButton("SkSL", &newOptLevel, kShaderOptLevel_Source);
+                ImGui::SameLine();
+                ImGui::RadioButton("Compile", &newOptLevel, kShaderOptLevel_Compile);
+                ImGui::SameLine();
+                ImGui::RadioButton("Optimize", &newOptLevel, kShaderOptLevel_Optimize);
+                ImGui::SameLine();
+                ImGui::RadioButton("Inline", &newOptLevel, kShaderOptLevel_Inline);
+                ImGui::SameLine();
+                ImGui::RadioButton("Control-Flow", &newOptLevel, kShaderOptLevel_ControlFlow);
 
-                // If SkSL was checked, or if we are dumping shaders, we want to reset the cache and
-                // redo everything.
-                if (doDump || doControlFlow || skslChecked) {
+                // If we are changing the compile mode, we want to reset the cache and redo
+                // everything.
+                if (doDump || newOptLevel != optLevel) {
+                    sksl = doDump || (newOptLevel == kShaderOptLevel_Source);
+                    SkSL::gSkSLOptimizer           = (newOptLevel >= kShaderOptLevel_Optimize);
+                    SkSL::gSkSLInliner             = (newOptLevel >= kShaderOptLevel_Inline);
+                    SkSL::gSkSLControlFlowAnalysis = (newOptLevel >= kShaderOptLevel_ControlFlow);
+
                     params.fGrContextOptions.fShaderCacheStrategy =
                             sksl ? GrContextOptions::ShaderCacheStrategy::kSkSL
                                  : GrContextOptions::ShaderCacheStrategy::kBackendSource;
