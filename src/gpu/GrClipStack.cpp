@@ -1415,14 +1415,17 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                     if (fullyApplied) {
                         remainingAnalyticFPs--;
                     } else if (ccpr && e.aa() == GrAA::kYes) {
-                        // While technically the element is turned into a mask, each atlas entry
-                        // counts towards the FP complexity of the clip.
-                        // TODO - CCPR needs a stable ops task ID so we can't create FPs until we
-                        // know any other mask generation is finished. It also only works with AA
-                        // shapes, future atlas systems can improve on this.
-                        elementsForAtlas.push_back(&e);
-                        remainingAnalyticFPs--;
-                        fullyApplied = true;
+                        int64_t area = e.outerBounds().height64() * e.outerBounds().width64();
+                        if (area <= GrCoverageCountingPathRenderer::kMaxClipPathArea) {
+                            // While technically the element is turned into a mask, each atlas entry
+                            // counts towards the FP complexity of the clip.
+                            // TODO - CCPR needs a stable ops task ID so we can't create FPs until
+                            // we know any other mask generation is finished. It also only works
+                            // with AA shapes, future atlas systems can improve on this.
+                            elementsForAtlas.push_back(&e);
+                            remainingAnalyticFPs--;
+                            fullyApplied = true;
+                        }
                     }
                 }
 
@@ -1485,10 +1488,13 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     // Finish CCPR paths now that the render target's ops task is stable.
     if (!elementsForAtlas.empty()) {
         uint32_t opsTaskID = rtc->getOpsTask()->uniqueID();
-        for (int i = 0; i < elementsForAtlas.count(); ++i) {
-            SkASSERT(elementsForAtlas[i]->aa() == GrAA::kYes);
-            clipFP = clip_atlas_fp(ccpr, opsTaskID, scissorBounds, elementsForAtlas[i]->asElement(),
-                                   elementsForAtlas[i]->devicePath(), *caps, std::move(clipFP));
+        for (const RawElement* e : elementsForAtlas) {
+            SkASSERT(e->aa() == GrAA::kYes);
+            SkIRect elementClippedBounds;
+            if (elementClippedBounds.intersect(scissorBounds, e->outerBounds())) {
+                clipFP = clip_atlas_fp(ccpr, opsTaskID, elementClippedBounds, e->asElement(),
+                                       e->devicePath(), *caps, std::move(clipFP));
+            }
         }
     }
 
