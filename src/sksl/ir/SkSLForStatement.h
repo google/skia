@@ -8,8 +8,8 @@
 #ifndef SKSL_FORSTATEMENT
 #define SKSL_FORSTATEMENT
 
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {

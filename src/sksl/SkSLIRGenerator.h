@@ -12,6 +12,7 @@
 #include <unordered_set>
 
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -24,7 +25,6 @@
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSection.h"
-#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"

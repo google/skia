@@ -8,7 +8,7 @@
 #ifndef SKSL_SWITCHSTATEMENT
 #define SKSL_SWITCHSTATEMENT
 
-#include "src/sksl/ir/SkSLStatement.h"
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 
 #include <memory>

@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
@@ -22,9 +24,7 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
-#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"

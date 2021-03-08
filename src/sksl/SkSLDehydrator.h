@@ -11,10 +11,10 @@
 #ifdef SKSL_STANDALONE
 
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLSymbol.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
-#include "src/sksl/ir/SkSLSymbol.h"
 
 #include <set>
 #include <unordered_map>

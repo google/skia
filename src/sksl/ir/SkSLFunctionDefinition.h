@@ -8,9 +8,9 @@
 #ifndef SKSL_FUNCTIONDEFINITION
 #define SKSL_FUNCTIONDEFINITION
 
+#include "include/private/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 

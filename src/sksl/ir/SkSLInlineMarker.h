@@ -8,8 +8,8 @@
 #ifndef SKSL_INLINEMARKER
 #define SKSL_INLINEMARKER
 
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {

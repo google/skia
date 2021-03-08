@@ -9,7 +9,7 @@
 #define SKSL_MODIFIERDECLARATION
 
 #include "include/private/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
+#include "include/private/SkSLProgramElement.h"
 
 namespace SkSL {
 

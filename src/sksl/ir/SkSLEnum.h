@@ -8,8 +8,8 @@
 #ifndef SKSL_ENUM
 #define SKSL_ENUM
 
+#include "include/private/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 

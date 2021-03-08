@@ -9,13 +9,13 @@
 #define SKSL_DSLWRITER
 
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLStatement.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLStatement.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
