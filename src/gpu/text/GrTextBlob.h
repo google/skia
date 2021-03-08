@@ -364,9 +364,15 @@ struct GrSubRunList {
 //
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
 public:
-    SK_BEGIN_REQUIRE_DENSE
+
+    // Key is not used as part of a hash map, so the hash is never taken. It's only used in a
+    // list search using operator =().
     struct Key {
-        Key();
+        static std::tuple<bool, Key> Make(const SkGlyphRunList& glyphRunList,
+                                          const SkSurfaceProps& surfaceProps,
+                                          const GrColorInfo& colorInfo,
+                                          const SkMatrix& drawMatrix,
+                                          const GrSDFTControl& control);
         uint32_t fUniqueID;
         // Color may affect the gamma of the mask we generate, but in a fairly limited way.
         // Each color is assigned to on of a fixed number of buckets based on its
@@ -387,7 +393,6 @@ public:
 
         bool operator==(const Key& other) const;
     };
-    SK_END_REQUIRE_DENSE
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 
