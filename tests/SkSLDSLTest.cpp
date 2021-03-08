@@ -1109,22 +1109,27 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
-    Var a(kFloat, "a"), b(kInt, "b");
+    Var a(kFloat, "a"), b(kInt, "b"), c(kConst_Modifier, kInt, "c", 2);
 
-    Statement x = Switch(5,
-        Case(0, a = 0, Break()),
-        Case(1, a = 1, Continue()),
-        Case(2, a = 2  /*Fallthrough*/),
-        Default(Discard())
+    Statement x = Block(
+        Declare(c),
+        Switch(5,
+            Case(0, a = 0, Break()),
+            Case(1, a = 1, Continue()),
+            Case(c, b = 1  /*Fallthrough*/),
+            Default(Discard())
+        )
     );
-    EXPECT_EQUAL(x, R"(
-        switch (5) {
-            case 0: (a = 0.0); break;
-            case 1: (a = 1.0); continue;
-            case 2: (a = 2.0);
-            default: discard;
-        }
-    )");
+    EXPECT_EQUAL(x,
+    R"({
+            const int c = 2;
+            switch (5) {
+                case 0: (a = 0.0); break;
+                case 1: (a = 1.0); continue;
+                case c: (b = 1);
+                default: discard;
+            }
+       })");
 
     EXPECT_EQUAL(Switch(b),
                 "switch (b) {}");
