@@ -18,7 +18,23 @@ bool check(float2 v1, float2 v2, float2 v3, float3 v4, int2 v5, int2 v6, float2 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 v9 = float4(1.0, sqrt(2.0), float2(int2(3, 4)));
-    _out.sk_FragColor = check(float2(1.0), float2(1.0, 2.0), float2(1.0), float3(float2(1.0), 1.0), int2(1), int2(float2(1.0, 2.0)), float2(int2(1, 2)), float2(int2(1)), v9, int2(3, 1), bool4(true, false, true, false), float2(1.0, 0.0), float2(0.0), float2(bool2(false)), bool2(true), bool2(float2(1.0)), bool3(true, bool2(int2(77)))) ? _uniforms.colorGreen : _uniforms.colorRed;
+    float2 v1 = float2(1.0);
+    float2 v2 = float2(1.0, 2.0);
+    float2 v3 = float2(1.0);
+    float3 v4 = float3(float2(1.0), 1.0);
+    int2 v5 = int2(1);
+    int2 v6 = int2(float2(1.0, 2.0));
+    float2 v7 = float2(int2(1, 2));
+    float2 v8 = float2(v5);
+    float4 v9 = float4(float(v6.x), sqrt(2.0), float2(int2(3, 4)));
+    int2 v10 = int2(3, int(v1.x));
+    bool4 v11 = bool4(true, false, true, false);
+    float2 v12 = float2(1.0, 0.0);
+    float2 v13 = float2(0.0);
+    float2 v14 = float2(bool2(false));
+    bool2 v15 = bool2(true);
+    bool2 v16 = bool2(float2(1.0));
+    bool3 v17 = bool3(true, bool2(int2(77)));
+    _out.sk_FragColor = check(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

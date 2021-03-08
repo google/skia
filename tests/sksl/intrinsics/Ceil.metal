@@ -17,6 +17,7 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = ((ceil(_uniforms.testInputs.x) == -1.0 && all(ceil(_uniforms.testInputs.xy) == float2(-1.0, 0.0))) && all(ceil(_uniforms.testInputs.xyz) == float3(-1.0, 0.0, 1.0))) && all(ceil(_uniforms.testInputs) == float4(-1.0, 0.0, 1.0, 3.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
+    float4 expected = float4(-1.0, 0.0, 1.0, 3.0);
+    _out.sk_FragColor = ((ceil(_uniforms.testInputs.x) == expected.x && all(ceil(_uniforms.testInputs.xy) == expected.xy)) && all(ceil(_uniforms.testInputs.xyz) == expected.xyz)) && all(ceil(_uniforms.testInputs) == expected) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

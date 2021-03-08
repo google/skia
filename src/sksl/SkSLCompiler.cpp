@@ -76,7 +76,7 @@ namespace SkSL {
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
 bool gSkSLOptimizer = true;
 bool gSkSLInliner = true;
-bool gSkSLControlFlowAnalysis = true;
+bool gSkSLControlFlowAnalysis = false;
 
 using RefKind = VariableReference::RefKind;
 

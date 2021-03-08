@@ -20,10 +20,11 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %void = OpTypeVoid
 %11 = OpTypeFunction %void
+%false = OpConstantFalse %bool
 %float_0 = OpConstant %float 0
-%14 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%15 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %main = OpFunction %void None %11
 %12 = OpLabel
-OpStore %sk_FragColor %14
+OpStore %sk_FragColor %15
 OpReturn
 OpFunctionEnd

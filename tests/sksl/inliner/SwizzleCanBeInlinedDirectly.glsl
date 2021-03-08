@@ -7,6 +7,7 @@ void main() {
     sk_FragColor = color.yzyx;
 
     color = color.wzyx;
+    false;
 
     sk_FragColor = color;
 }
