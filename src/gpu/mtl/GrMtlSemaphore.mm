@@ -17,7 +17,7 @@ std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];
         uint64_t value = 1; // seems like a reasonable starting point
-        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(event, value));
+        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(std::move(event), value));
     } else {
         return nullptr;
     }
@@ -29,14 +29,14 @@ std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMTLHandle event,
     // The GrMTLHandle will subsequently only have weak ownership.
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> mtlEvent = (__bridge_transfer id<MTLEvent>)event;
-        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(mtlEvent, value));
+        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(std::move(mtlEvent), value));
     } else {
         return nullptr;
     }
 }
 
 GrMtlSemaphore::GrMtlSemaphore(id<MTLEvent> event, uint64_t value)
-        : fEvent(event), fValue(value) {
+        : fEvent(std::move(event)), fValue(value) {
 }
 
 GrBackendSemaphore GrMtlSemaphore::backendSemaphore() const {

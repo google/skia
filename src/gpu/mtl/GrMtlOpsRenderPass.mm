@@ -20,6 +20,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_EXTERNALLY_RETAINED_BEGIN
+
 GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
                                        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
@@ -179,7 +181,7 @@ void GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
 }
 
 void GrMtlOpsRenderPass::initRenderState(id<MTLRenderCommandEncoder> encoder) {
-    [encoder pushDebugGroup:@"initRenderState"];
+    SkDEBUGCODE([encoder pushDebugGroup:@"initRenderState"];)
     [encoder setFrontFacingWinding:MTLWindingCounterClockwise];
     // Strictly speaking we shouldn't have to set this, as the default viewport is the size of
     // the drawable used to generate the renderCommandEncoder -- but just in case.
@@ -188,7 +190,7 @@ void GrMtlOpsRenderPass::initRenderState(id<MTLRenderCommandEncoder> encoder) {
                              0.0, 1.0 };
     [encoder setViewport:viewport];
     this->resetBufferBindings();
-    [encoder popDebugGroup];
+    SkDEBUGCODE([encoder popDebugGroup];)
 }
 
 void GrMtlOpsRenderPass::setupRenderPass(
@@ -451,3 +453,5 @@ void GrMtlOpsRenderPass::resetBufferBindings() {
         fBufferBindings[i].fBuffer = nil;
     }
 }
+
+GR_EXTERNALLY_RETAINED_END

@@ -15,6 +15,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_EXTERNALLY_RETAINED_BEGIN
+
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
                            SkISize dimensions,
@@ -22,14 +24,14 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
         , INHERITED(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipmapStatus)
-        , fTexture(texture) {
-    SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == texture.mipmapLevelCount));
+        , fTexture(std::move(texture)) {
+    SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == fTexture.mipmapLevelCount));
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
+        SkASSERT(SkToBool(fTexture.usage & MTLTextureUsageShaderRead));
     }
-    SkASSERT(!texture.framebufferOnly);
+    SkASSERT(!fTexture.framebufferOnly);
     this->registerWithCache(budgeted);
-    if (GrMtlFormatIsCompressed(texture.pixelFormat)) {
+    if (GrMtlFormatIsCompressed(fTexture.pixelFormat)) {
         this->setReadOnly();
     }
 }
@@ -43,12 +45,12 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            GrIOType ioType)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
         , INHERITED(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipmapStatus)
-        , fTexture(texture) {
-    SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == texture.mipmapLevelCount));
+        , fTexture(std::move(texture)) {
+    SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == fTexture.mipmapLevelCount));
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
+        SkASSERT(SkToBool(fTexture.usage & MTLTextureUsageShaderRead));
     }
-    SkASSERT(!texture.framebufferOnly);
+    SkASSERT(!fTexture.framebufferOnly);
     if (ioType == kRead_GrIOType) {
         this->setReadOnly();
     }
@@ -61,12 +63,12 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
         , INHERITED(gpu, dimensions, GrProtected::kNo, GrTextureType::k2D, mipmapStatus)
-        , fTexture(texture) {
-    SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == texture.mipmapLevelCount));
+        , fTexture(std::move(texture)) {
+    SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == fTexture.mipmapLevelCount));
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
+        SkASSERT(SkToBool(fTexture.usage & MTLTextureUsageShaderRead));
     }
-    SkASSERT(!texture.framebufferOnly);
+    SkASSERT(!fTexture.framebufferOnly);
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu,
@@ -81,7 +83,8 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu,
     if (@available(macOS 10.11, iOS 9.0, *)) {
         SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
     }
-    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, dimensions, texture, mipmapStatus));
+    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, dimensions, std::move(texture),
+                                                mipmapStatus));
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
@@ -96,7 +99,8 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
     GrMipmapStatus mipmapStatus = texture.mipmapLevelCount > 1 ? GrMipmapStatus::kValid
                                                                : GrMipmapStatus::kNotAllocated;
     return sk_sp<GrMtlTexture>(
-            new GrMtlTexture(gpu, kWrapped, dimensions, texture, mipmapStatus, cacheable, ioType));
+            new GrMtlTexture(gpu, kWrapped, dimensions, std::move(texture), mipmapStatus,
+                             cacheable, ioType));
 }
 
 GrMtlTexture::~GrMtlTexture() {
@@ -120,3 +124,4 @@ GrBackendFormat GrMtlTexture::backendFormat() const {
     return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
 }
 
+GR_EXTERNALLY_RETAINED_END
