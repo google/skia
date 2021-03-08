@@ -117,6 +117,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLIRNode.h",
   "$_src/sksl/ir/SkSLIfStatement.cpp",
   "$_src/sksl/ir/SkSLIfStatement.h",
+  "$_src/sksl/ir/SkSLIndexExpression.cpp",
   "$_src/sksl/ir/SkSLIndexExpression.h",
   "$_src/sksl/ir/SkSLInlineMarker.h",
   "$_src/sksl/ir/SkSLIntLiteral.h",

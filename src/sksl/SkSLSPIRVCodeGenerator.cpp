@@ -543,9 +543,12 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                        type.columns(), fConstantBuffer);
                 break;
             case Type::TypeKind::kMatrix:
-                this->writeInstruction(SpvOpTypeMatrix, result,
-                                       this->getType(index_type(fContext, type), layout),
-                                       type.columns(), fConstantBuffer);
+                this->writeInstruction(
+                        SpvOpTypeMatrix,
+                        result,
+                        this->getType(IndexExpression::IndexType(fContext, type), layout),
+                        type.columns(),
+                        fConstantBuffer);
                 break;
             case Type::TypeKind::kStruct:
                 this->writeStruct(type, layout, result);

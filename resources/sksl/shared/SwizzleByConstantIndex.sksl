@@ -9,6 +9,15 @@ half4 constant_swizzle() {
     return half4(x, y, z, w); // -1.25, 0, 0.75, 2.25
 }
 
+half4 foldable_index() {
+    const int ZERO = 0, ONE = 1, TWO = 2, THREE = 3;
+    half x = testInputs[ZERO];
+    half y = testInputs[ONE];
+    half z = testInputs[TWO];
+    half w = testInputs[THREE];
+    return half4(x, y, z, w); // -1.25, 0, 0.75, 2.25
+}
+
 half4 foldable() {
     half4 v = half4(0, 1, 2, 3);
     half x = v[0];
@@ -20,8 +29,10 @@ half4 foldable() {
 
 half4 main() {
     half4 a = constant_swizzle();
-    half4 b = foldable();
+    half4 b = foldable_index();
+    half4 c = foldable();
 
     return a == half4(-1.25, 0, 0.75, 2.25)   &&
-           b == half4(0, 1, 2, 3)             ? colorGreen : colorRed;
+           b == half4(-1.25, 0, 0.75, 2.25)   &&
+           c == half4(0, 1, 2, 3)             ? colorGreen : colorRed;
 }

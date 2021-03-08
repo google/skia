@@ -11,5 +11,11 @@ vec4 main() {
     float _4_w = _0_v.w;
     vec4 a = vec4(_1_x, _2_y, _3_z, _4_w);
 
-    return a == vec4(-1.25, 0.0, 0.75, 2.25) ? colorGreen : colorRed;
+    float _5_x = testInputs.x;
+    float _6_y = testInputs.y;
+    float _7_z = testInputs.z;
+    float _8_w = testInputs.w;
+    vec4 b = vec4(_5_x, _6_y, _7_z, _8_w);
+
+    return a == vec4(-1.25, 0.0, 0.75, 2.25) && b == vec4(-1.25, 0.0, 0.75, 2.25) ? colorGreen : colorRed;
 }
