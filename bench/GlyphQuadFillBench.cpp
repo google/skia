@@ -42,22 +42,17 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         builder.drawTextUTF8(paint, font, gText, len, {100, 100});
         auto glyphRunList = builder.useGlyphRunList();
         SkASSERT(!glyphRunList.empty());
-        fBlob = GrTextBlob::Make(glyphRunList, view);
         SkSurfaceProps props;
         if (canvas) { canvas->getProps(&props); }
+
         auto colorSpace = SkColorSpace::MakeSRGB();
         SkGlyphRunListPainter painter{props, kUnknown_SkColorType,
                                       colorSpace.get(), SkStrikeCache::GlobalStrikeCache()};
-
-        GrSDFTControl control{false, props.isUseDeviceIndependentFonts(), 256, 256};
-        const SkPoint drawOrigin = glyphRunList.origin();
-        const SkPaint& drawPaint = glyphRunList.paint();
-
         SkMatrix drawMatrix = view;
+        const SkPoint drawOrigin = glyphRunList.origin();
         drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-        for (auto& glyphRun : glyphRunList) {
-            painter.processGlyphRun(glyphRun, drawMatrix, drawPaint, control, fBlob.get());
-        }
+        GrSDFTControl control{false, props.isUseDeviceIndependentFonts(), 256, 256};
+        fBlob = GrTextBlob::Make(glyphRunList, drawMatrix, control, &painter);
 
         SkASSERT(!fBlob->subRunList().isEmpty());
         GrAtlasSubRun* subRun = fBlob->subRunList().front().testingOnly_atlasSubRun();
