@@ -1,8 +1,0 @@
-declare_args() {
-}
-
-import("../third_party.gni")
-
-third_party("spirv-headers") {
-  public_include_dirs = [ "../externals/spirv-headers/include" ]
-}
