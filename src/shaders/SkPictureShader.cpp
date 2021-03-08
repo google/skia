@@ -435,8 +435,12 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     builder[1] = dstCS->transferFnHash();
     builder[2] = static_cast<uint32_t>(dstColorType);
     builder[3] = fPicture->uniqueID();
-    memcpy(&builder[4], &fTile, sizeof(fTile));                     // 4,5,6,7
-    memcpy(&builder[8], &info.tileScale, sizeof(info.tileScale));   // 8,9
+    builder[4] = SkFloat2Bits(fTile.fLeft);
+    builder[5] = SkFloat2Bits(fTile.fTop);
+    builder[6] = SkFloat2Bits(fTile.fRight);
+    builder[7] = SkFloat2Bits(fTile.fBottom);
+    builder[8] = SkFloat2Bits(info.tileScale.width());
+    builder[9] = SkFloat2Bits(info.tileScale.height());
     builder.finish();
 
     GrProxyProvider* provider = ctx->priv().proxyProvider();
@@ -460,7 +464,14 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         }
         auto [v, ct] = as_IB(image)->asView(ctx, GrMipmapped::kNo);
         view = std::move(v);
-        provider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+
+        GrTextureProxy* viewProxy = view.asTextureProxy();
+        if (!provider->findProxyByUniqueKey(key)) {
+            SkDebugf("viewProxy is null for provider %p\n", provider);
+            provider->assignUniqueKeyToProxy(key, viewProxy);
+        } else {
+            SkDebugf("viewProxy became non-null after asTextureProxy for provider %p\n", provider);
+        }
     }
 
     const GrSamplerState sampler(static_cast<GrSamplerState::WrapMode>(fTmx),
