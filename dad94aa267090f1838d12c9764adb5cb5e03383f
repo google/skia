@@ -16,6 +16,52 @@
       "message": "This is the CL that will let us remove SampleMask/SampleLocations 🪓🪓🪓🪓🪓",
       "revId": "dad94aa267090f1838d12c9764adb5cb5e03383f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5fcb4063_e7f1edea",
+        "filename": "src/gpu/GrTriangulator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-08T21:34:48Z",
+      "side": 1,
+      "message": "Is this unused now, too?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 6
+      },
+      "revId": "dad94aa267090f1838d12c9764adb5cb5e03383f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72906362_c52495b8",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-08T21:34:48Z",
+      "side": 1,
+      "message": "This comment refers to the line that got deleted?",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 348,
+        "endChar": 95
+      },
+      "revId": "dad94aa267090f1838d12c9764adb5cb5e03383f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
