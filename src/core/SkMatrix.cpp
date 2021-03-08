@@ -1614,6 +1614,8 @@ size_t SkMatrix::readFromMemory(const void* buffer, size_t length) {
     }
     memcpy(fMat, buffer, sizeInMemory);
     this->setTypeMask(kUnknown_Mask);
+    // Figure out the type now so that we're thread-safe
+    (void)this->getType();
     return sizeInMemory;
 }
 
