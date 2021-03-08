@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "599d78d4_0a2e30aa",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-08T22:07:51Z",
+      "side": 1,
+      "message": "I like this change. It was already true, but with the more generic name (and wider use), can we explicitly document that this implicitly rejects things that have side effects?",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 0
+      },
+      "revId": "886c253f87817d7697632dde95839985d81cf35e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
