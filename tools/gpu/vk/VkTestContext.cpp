@@ -73,9 +73,9 @@ public:
 
     void finish() override {}
 
-    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
-        return GrDirectContext::MakeVulkan(fVk, options);
-    }
+//    sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
+//        return GrDirectContext::MakeVulkan(fVk, options);
+//    }
 
 protected:
 #define ACQUIRE_VK_PROC_LOCAL(name, inst)                                            \
