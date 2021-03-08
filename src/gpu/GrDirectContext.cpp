@@ -55,6 +55,10 @@ GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& o
         : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options)) {
 }
 
+GrDirectContext::GrDirectContext(sk_sp<GrContextThreadSafeProxy> threadSafeProxy)
+        : INHERITED(std::move(threadSafeProxy)) {
+}
+
 GrDirectContext::~GrDirectContext() {
     ASSERT_SINGLE_OWNER
     // this if-test protects against the case where the context is being destroyed
@@ -958,10 +962,10 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 #endif
 
 sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
-                                               const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kOpenGL, options));
+                                               sk_sp<GrContextThreadSafeProxy> threadSafeProxy) {
+    sk_sp<GrDirectContext> direct(new GrDirectContext(threadSafeProxy));
 #if GR_TEST_UTILS
-    if (options.fRandomGLOOM) {
+    if (direct->options().fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
         copy->fFunctions.fGetError =
                 make_get_error_with_random_oom(glInterface->fFunctions.fGetError);
@@ -972,12 +976,21 @@ sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInte
         glInterface = std::move(copy);
     }
 #endif
-    direct->fGpu = GrGLGpu::Make(std::move(glInterface), options, direct.get());
+
+    direct->fGpu = GrGLGpu::Make(std::move(glInterface), direct->options(), direct.get());
     if (!direct->init()) {
         return nullptr;
     }
+
     return direct;
 }
+
+sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
+                                               const GrContextOptions& options) {
+    return MakeGL(std::move(glInterface),
+                  GrContextThreadSafeProxyPriv::Make(GrBackendApi::kOpenGL, options));
+}
+
 #endif
 
 /*************************************************************************************************/
@@ -1006,16 +1019,23 @@ sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& bac
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
-                                                   const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kVulkan, options));
+                                                   sk_sp<GrContextThreadSafeProxy> threadSafeProxy) {
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(threadSafeProxy)));
 
-    direct->fGpu = GrVkGpu::Make(backendContext, options, direct.get());
-    if (!direct->init()) {
+    dContext->fGpu = GrVkGpu::Make(backendContext, dContext->options(), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
 
-    return direct;
+    return dContext;
 }
+
+sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
+                                                   const GrContextOptions& options) {
+    return MakeVulkan(backendContext,
+                      GrContextThreadSafeProxyPriv::Make(GrBackendApi::kVulkan, options));
+}
+
 #endif
 
 #ifdef SK_METAL
@@ -1026,7 +1046,7 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& bac
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext,
-                                                     const GrContextOptions& options) {
+                                                  const GrContextOptions& options) {
     sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMetal, options));
 
     direct->fGpu = GrMtlTrampoline::MakeGpu(backendContext, options, direct.get());

@@ -175,10 +175,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             GLTestContext* glCtx;
             switch (type) {
                 case kGL_ContextType:
-                    glCtx = CreatePlatformGLTestContext(kGL_GrGLStandard, glShareContext);
+                    glCtx = CreatePlatformGLTestContext(kGL_GrGLStandard, glShareContext, shareContext);
                     break;
                 case kGLES_ContextType:
-                    glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard, glShareContext);
+                    glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard, glShareContext, shareContext);
                     break;
 #if SK_ANGLE
                 case kANGLE_D3D9_ES2_ContextType:
@@ -291,9 +291,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         }
 #endif
         case GrBackendApi::kMock: {
-            TestContext* sharedContext = primaryContext ? primaryContext->fTestContext : nullptr;
+            TestContext* mockSharedContext = primaryContext ? primaryContext->fTestContext
+                                                            : nullptr;
             SkASSERT(kMock_ContextType == type);
-            testCtx.reset(CreateMockTestContext(sharedContext));
+            testCtx.reset(CreateMockTestContext(mockSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }
@@ -311,7 +312,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     sk_sp<GrDirectContext> grCtx;
     {
         auto restore = testCtx->makeCurrentAndAutoRestore();
-        grCtx = testCtx->makeContext(grOptions);
+        grCtx = testCtx->makeContext(grOptions, shareContext);
     }
     if (!grCtx) {
         return ContextInfo();
