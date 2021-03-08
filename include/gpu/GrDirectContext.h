@@ -51,8 +51,10 @@ public:
      * Creates a GrDirectContext for a backend context. If no GrGLInterface is provided then the
      * result of GrGLMakeNativeInterface() is used if it succeeds.
      */
-    static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>);
+    static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
+    static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>,
+                                         sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeGL(const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeGL();
 #endif
@@ -65,6 +67,8 @@ public:
      * refs on the GrDirectContext. Once all these objects and the GrDirectContext are released,
      * then it is safe to delete the vulkan objects.
      */
+    static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&,
+                                             sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&);
 #endif
@@ -77,6 +81,8 @@ public:
      * Ganesh will take its own ref on the objects which will be released when the GrDirectContext
      * is destroyed.
      */
+    static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&,
+                                            sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&);
     /**
@@ -96,16 +102,19 @@ public:
      * Makes a GrDirectContext which uses Direct3D as the backend. The Direct3D context
      * must be kept alive until the returned GrDirectContext is first destroyed or abandoned.
      */
+    static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&,
+                                               sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&);
 #endif
 
 #ifdef SK_DAWN
-    static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&,
-                                           const GrContextOptions&);
+    static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&, sk_sp<GrContextThreadSafeProxy>);
+    static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&);
 #endif
 
+    static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*, sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*);
 
@@ -797,6 +806,7 @@ public:
 
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
+    GrDirectContext(sk_sp<GrContextThreadSafeProxy>);
 
     bool init() override;
 

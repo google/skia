@@ -246,12 +246,12 @@ void GLTestContext::overrideVersion(const char* version, const char* shadingLang
 #endif
 };
 
-sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& options) {
-#ifdef SK_GL
-    return GrDirectContext::MakeGL(fGLInterface, options);
-#else
-    return nullptr;
-#endif
-}
+//sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& options) {
+//#ifdef SK_GL
+//    return GrDirectContext::MakeGL(fGLInterface, options);
+//#else
+//    return nullptr;
+//#endif
+//}
 
 }  // namespace sk_gpu_test
