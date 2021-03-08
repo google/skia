@@ -261,7 +261,8 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
     SkASSERT(find_duplicate_case_values(cases).empty());
 
     // Flatten @switch statements.
-    if (isStatic) {
+    if (isStatic || (context.fConfig->fSettings.fOptimize &&
+                     !context.fConfig->fSettings.fControlFlowAnalysis)) {
         SKSL_INT switchValue;
         if (ConstantFolder::GetConstantInt(*value, &switchValue)) {
             SwitchCase* defaultCase = nullptr;
@@ -298,7 +299,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
             }
 
             // Report an error if this was a static switch and BlockForCase failed us.
-            if (!context.fConfig->fSettings.fPermitInvalidStaticTests) {
+            if (isStatic && !context.fConfig->fSettings.fPermitInvalidStaticTests) {
                 context.fErrors.error(value->fOffset,
                                       "static switch contains non-static conditional exit");
                 return nullptr;
