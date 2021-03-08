@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -291,9 +292,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         }
 #endif
         case GrBackendApi::kMock: {
-            TestContext* sharedContext = primaryContext ? primaryContext->fTestContext : nullptr;
+            TestContext* mockSharedContext = primaryContext ? primaryContext->fTestContext
+                                                            : nullptr;
             SkASSERT(kMock_ContextType == type);
-            testCtx.reset(CreateMockTestContext(sharedContext));
+            testCtx.reset(CreateMockTestContext(mockSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }
@@ -304,14 +306,20 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     }
 
     SkASSERT(testCtx && testCtx->backend() == backend);
-    GrContextOptions grOptions = fGlobalOptions;
-    if (ContextOverrides::kAvoidStencilBuffers & overrides) {
-        grOptions.fAvoidStencilBuffers = true;
-    }
     sk_sp<GrDirectContext> grCtx;
+
     {
         auto restore = testCtx->makeCurrentAndAutoRestore();
-        grCtx = testCtx->makeContext(grOptions);
+        if (shareContext) {
+            grCtx = testCtx->makeContext(shareContext->threadSafeProxy());
+        } else {
+            GrContextOptions grOptions = fGlobalOptions;
+            if (ContextOverrides::kAvoidStencilBuffers & overrides) {
+                grOptions.fAvoidStencilBuffers = true;
+            }
+
+            grCtx = testCtx->makeContext(grOptions);
+        }
     }
     if (!grCtx) {
         return ContextInfo();
@@ -328,7 +336,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     context.fAbandoned = false;
     context.fShareContext = shareContext;
     context.fShareIndex = shareIndex;
-    context.fOptions = grOptions;
+    context.fOptions = grCtx->priv().options();
     context.fTestContext->makeCurrent();
     return ContextInfo(context.fType, context.fTestContext, context.fGrContext, context.fOptions);
 }
