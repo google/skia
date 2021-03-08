@@ -588,6 +588,11 @@ public:
                      const SkMatrix& viewMatrix,
                      sk_sp<const GrPath>);
 
+    bool stencilPath(const GrHardClip*,
+                     GrAA doStencilMSAA,
+                     const SkMatrix& viewMatrix,
+                     const SkPath&);
+
     /**
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.
