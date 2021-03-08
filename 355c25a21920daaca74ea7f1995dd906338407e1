@@ -16,6 +16,23 @@
       "message": "(The broken bot has been red on the tree for a long time; it\u0027s unrelated to this CL. I added a bunch of random ASAN bots just in case.)",
       "revId": "355c25a21920daaca74ea7f1995dd906338407e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4fd6a5c_aef79bf7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-08T14:58:33Z",
+      "side": 1,
+      "message": "Can we add a comment explaining that none of these types have nontrivial/important destructors, so we don\u0027t need to worry about manually invoking them?",
+      "revId": "355c25a21920daaca74ea7f1995dd906338407e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
