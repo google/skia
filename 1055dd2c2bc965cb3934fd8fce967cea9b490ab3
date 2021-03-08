@@ -16,6 +16,29 @@
       "message": "I believe this is ready to go now.",
       "revId": "1055dd2c2bc965cb3934fd8fce967cea9b490ab3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "507e3258_71a4100f",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-08T21:52:13Z",
+      "side": 1,
+      "message": "Is it worth hoisting this above the two previous add32 calls, so that you don\u0027t need to skip over them below? In any event, I\u0027d add a comment here, pointing out that the code in getStencilPixelFormat depends on the order of things here.",
+      "range": {
+        "startLine": 1095,
+        "startChar": 0,
+        "endLine": 1103,
+        "endChar": 68
+      },
+      "revId": "1055dd2c2bc965cb3934fd8fce967cea9b490ab3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
