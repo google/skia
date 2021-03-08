@@ -439,8 +439,12 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     builder[1] = dstCS->transferFnHash();
     builder[2] = static_cast<uint32_t>(dstColorType);
     builder[3] = fPicture->uniqueID();
-    memcpy(&builder[4], &fTile, sizeof(fTile));                     // 4,5,6,7
-    memcpy(&builder[8], &info.tileScale, sizeof(info.tileScale));   // 8,9
+    builder[4] = SkFloat2Bits(fTile.fLeft);
+    builder[5] = SkFloat2Bits(fTile.fTop);
+    builder[6] = SkFloat2Bits(fTile.fRight);
+    builder[7] = SkFloat2Bits(fTile.fBottom);
+    builder[8] = SkFloat2Bits(info.tileScale.width());
+    builder[9] = SkFloat2Bits(info.tileScale.height());
     builder.finish();
 
     GrProxyProvider* provider = ctx->priv().proxyProvider();
@@ -448,6 +452,9 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     if (auto proxy = provider->findProxyByUniqueKey(key)) {
         view = GrSurfaceProxyView(proxy, kTopLeft_GrSurfaceOrigin, GrSwizzle());
     } else {
+        auto p = provider->findProxyByUniqueKey(key);
+        SkDebugf("before %p %p\n", provider, p.get());
+
         const int msaaSampleCount = 0;
         const SkSurfaceProps* props = nullptr;
         const bool createWithMips = false;
@@ -464,7 +471,12 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         }
         auto [v, ct] = as_IB(image)->asView(ctx, GrMipmapped::kNo);
         view = std::move(v);
+
+        p = provider->findProxyByUniqueKey(key);
+        SkDebugf("just before %p %p\n", provider, p.get());
         provider->assignUniqueKeyToProxy(key, view.asTextureProxy());
+        p = provider->findProxyByUniqueKey(key);
+        SkDebugf("just after %p %p\n", provider, p.get());
     }
 
     const GrSamplerState sampler(static_cast<GrSamplerState::WrapMode>(fTmx),
