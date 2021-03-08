@@ -1057,7 +1057,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
         SkASSERT(param.fKind == ASTNode::Kind::kParameter);
-        ASTNode::ParameterData pd = param.getParameterData();
+        const ASTNode::ParameterData& pd = param.getParameterData();
         this->checkModifiers(param.fOffset, pd.fModifiers,
                              Modifiers::kConst_Flag | Modifiers::kIn_Flag | Modifiers::kOut_Flag,
                              /*permittedLayoutFlags=*/0);
@@ -1281,7 +1281,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     }
 
     SkASSERT(intf.fKind == ASTNode::Kind::kInterfaceBlock);
-    ASTNode::InterfaceBlockData id = intf.getInterfaceBlockData();
+    const ASTNode::InterfaceBlockData& id = intf.getInterfaceBlockData();
     std::shared_ptr<SymbolTable> old = fSymbolTable;
     std::shared_ptr<SymbolTable> symbols;
     std::vector<Type::Field> fields;
@@ -1554,7 +1554,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
                 bool valid = false;
                 for (const auto& decl : fFile->root()) {
                     if (decl.fKind == ASTNode::Kind::kSection) {
-                        ASTNode::SectionData section = decl.getSectionData();
+                        const ASTNode::SectionData& section = decl.getSectionData();
                         if (section.fName == "setData") {
                             valid = true;
                             break;
@@ -1604,7 +1604,7 @@ std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
         return nullptr;
     }
 
-    ASTNode::SectionData section = s.getSectionData();
+    const ASTNode::SectionData& section = s.getSectionData();
     return std::make_unique<Section>(s.fOffset, section.fName, section.fArgument,
                                                 section.fText);
 }
@@ -2040,7 +2040,7 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     if (!base) {
         return nullptr;
     }
-    StringFragment field = fieldNode.getString();
+    const StringFragment& field = fieldNode.getString();
     const Type& baseType = base->type();
     if (baseType == *fContext.fTypes.fSkCaps) {
         return Setting::Convert(fContext, fieldNode.fOffset, field);
@@ -2062,7 +2062,7 @@ std::unique_ptr<Expression> IRGenerator::convertScopeExpression(const ASTNode& s
         this->errorReporter().error(scopeNode.fOffset, "'::' must follow a type name");
         return nullptr;
     }
-    StringFragment member = scopeNode.getString();
+    const StringFragment& member = scopeNode.getString();
     return this->convertTypeField(base->fOffset, base->as<TypeReference>().value(), member);
 }
 

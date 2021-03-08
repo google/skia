@@ -87,7 +87,7 @@ String ASTNode::description() const {
                    (this->begin() + 1)->description() + "; " + (this->begin() + 2)->description() +
                    ") " + (this->begin() + 3)->description();
         case Kind::kFunction: {
-            FunctionData fd = getFunctionData();
+            const FunctionData& fd = getFunctionData();
             String result = fd.fModifiers.description();
             if (result.size()) {
                 result += " ";
@@ -131,7 +131,7 @@ String ASTNode::description() const {
         case Kind::kInt:
             return to_string(getInt());
         case Kind::kInterfaceBlock: {
-            InterfaceBlockData id = getInterfaceBlockData();
+            const InterfaceBlockData& id = getInterfaceBlockData();
             String result = id.fModifiers.description() + " " + id.fTypeName + " {\n";
             auto iter = this->begin();
             for (size_t i = 0; i < id.fDeclarationCount; ++i) {
@@ -149,7 +149,7 @@ String ASTNode::description() const {
         case Kind::kModifiers:
             return getModifiers().description();
         case Kind::kParameter: {
-            ParameterData pd = getParameterData();
+            const ParameterData& pd = getParameterData();
             auto iter = this->begin();
             String result = (iter++)->description() + " " + pd.fName;
             if (pd.fIsArray) {
@@ -206,7 +206,7 @@ String ASTNode::description() const {
         case Kind::kType:
             return getString();
         case Kind::kVarDeclaration: {
-            VarData vd = getVarData();
+            const VarData& vd = getVarData();
             String result = vd.fName;
             auto iter = this->begin();
             if (vd.fIsArray) {
@@ -238,7 +238,7 @@ String ASTNode::description() const {
 
         }
         default:
-            SkASSERT(false);
+            SkDEBUGFAIL("unrecognized AST node kind");
             return "<error>";
     }
 }
