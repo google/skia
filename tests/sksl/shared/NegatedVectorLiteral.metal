@@ -13,22 +13,26 @@ struct Outputs {
 
 
 bool test_int() {
+    int one = 1;
+    const int two = 2;
     int4 result;
     result.x = 1;
     result.y = 1;
-    result.z = 1;
-    result.w = 1;
+    result.z = int(all(-int4(two) == int4(-2, int3(-2))) ? 1 : 0);
+    result.w = int(all(-int2(-one, one + one) == -int2(one - two, two)) ? 1 : 0);
     return bool(((result.x * result.y) * result.z) * result.w);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 _0_result;
-    _0_result.x = 1.0;
-    _0_result.y = 1.0;
-    _0_result.z = 1.0;
-    _0_result.w = 1.0;
-    _out.sk_FragColor = bool(((_0_result.x * _0_result.y) * _0_result.z) * _0_result.w) && test_int() ? _uniforms.colorGreen : _uniforms.colorRed;
+    const float _0_one = 1.0;
+    float _1_two = 2.0;
+    float4 _2_result;
+    _2_result.x = 1.0;
+    _2_result.y = 1.0;
+    _2_result.z = float(all(-float4(_1_two) == float4(-_1_two, float3(-_1_two))) ? 1 : 0);
+    _2_result.w = float(all(float2(1.0, -2.0) == -float2(_0_one - _1_two, _1_two)) ? 1 : 0);
+    _out.sk_FragColor = bool(((_2_result.x * _2_result.y) * _2_result.z) * _2_result.w) && test_int() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 
 }
