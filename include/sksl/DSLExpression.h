@@ -123,8 +123,10 @@ private:
 };
 
 DSLPossibleExpression operator+(DSLExpression left, DSLExpression right);
+DSLPossibleExpression operator+(DSLExpression expr);
 DSLPossibleExpression operator+=(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator-(DSLExpression left, DSLExpression right);
+DSLPossibleExpression operator-(DSLExpression expr);
 DSLPossibleExpression operator-=(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator*(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator*=(DSLExpression left, DSLExpression right);
