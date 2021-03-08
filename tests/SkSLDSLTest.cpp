@@ -344,6 +344,10 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
               "((0.5 + a) + -99.0)");
     EXPECT_EQUAL(a += b + 1,
                "(a += (b + 1.0))");
+    EXPECT_EQUAL(+a,
+                 "a");
+    EXPECT_EQUAL(+(a + b),
+                 "(a + b)");
 
     {
         ExpectError error(r, "error: type mismatch: '+' cannot operate on 'bool2', 'float'\n");
@@ -359,6 +363,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
         ExpectError error(r, "error: cannot assign to this expression\n");
         DSLExpression((1.0 += a)).release();
     }
+
+    {
+        ExpectError error(r, "error: '+' cannot operate on 'bool'\n");
+        Var c(kBool);
+        DSLExpression(+c);
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
@@ -373,6 +383,10 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
               "((2 - a) - b)");
     EXPECT_EQUAL(a -= b + 1,
                "(a -= (b + 1))");
+    EXPECT_EQUAL(-a,
+                "-a");
+    EXPECT_EQUAL(-(a - b),
+                "-(a - b)");
 
     {
         ExpectError error(r, "error: type mismatch: '-' cannot operate on 'bool2', 'int'\n");
@@ -387,6 +401,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
     {
         ExpectError error(r, "error: cannot assign to this expression\n");
         DSLExpression(1.0 -= a).release();
+    }
+
+    {
+        ExpectError error(r, "error: '-' cannot operate on 'bool'\n");
+        Var c(kBool);
+        DSLExpression(-c);
     }
 }
 
