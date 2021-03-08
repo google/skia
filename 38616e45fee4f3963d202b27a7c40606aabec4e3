@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "078a90b9_4d07f0a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-08T23:20:56Z",
+      "side": 1,
+      "message": "This is a big move, but SkPictures and all the stuff inside them – pretty much anything we ever archive \u0026 unarchive – ought to be thread-safe. WDYT?\n\nExample TSAN failure from this is here: https://logs.chromium.org/logs/skia/522c64506b532e11/+/steps/symbolized_dm/0/stdout",
+      "revId": "38616e45fee4f3963d202b27a7c40606aabec4e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
