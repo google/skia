@@ -1405,9 +1405,6 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkM
     return blob;
 }
 
-const GrTextBlob::Key& GrTextBlob::GetKey(const GrTextBlob& blob) { return blob.fKey; }
-uint32_t GrTextBlob::Hash(const GrTextBlob::Key& key) { return SkOpts::hash(&key, sizeof(Key)); }
-
 void GrTextBlob::addKey(const Key& key) {
     fKey = key;
 }

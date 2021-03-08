@@ -50,7 +50,7 @@ void GrTextBlobCache::remove(GrTextBlob* blob) {
 }
 
 void GrTextBlobCache::internalRemove(GrTextBlob* blob) {
-    auto  id      = GrTextBlob::GetKey(*blob).fUniqueID;
+    auto  id      = blob->key().fUniqueID;
     auto* idEntry = fBlobIDCache.find(id);
 
     if (idEntry != nullptr) {
@@ -140,13 +140,13 @@ void GrTextBlobCache::internalCheckPurge(GrTextBlob* blob) {
 }
 
 sk_sp<GrTextBlob> GrTextBlobCache::internalAdd(sk_sp<GrTextBlob> blob) {
-    auto  id      = GrTextBlob::GetKey(*blob).fUniqueID;
+    auto  id      = blob->key().fUniqueID;
     auto* idEntry = fBlobIDCache.find(id);
     if (!idEntry) {
         idEntry = fBlobIDCache.set(id, BlobIDCacheEntry(id));
     }
 
-    if (sk_sp<GrTextBlob> alreadyIn = idEntry->find(GrTextBlob::GetKey(*blob)); alreadyIn) {
+    if (sk_sp<GrTextBlob> alreadyIn = idEntry->find(blob->key()); alreadyIn) {
         blob = std::move(alreadyIn);
     } else {
         fBlobList.addToHead(blob.get());
@@ -168,17 +168,17 @@ uint32_t GrTextBlobCache::BlobIDCacheEntry::GetKey(const GrTextBlobCache::BlobID
 
 void GrTextBlobCache::BlobIDCacheEntry::addBlob(sk_sp<GrTextBlob> blob) {
     SkASSERT(blob);
-    SkASSERT(GrTextBlob::GetKey(*blob).fUniqueID == fID);
-    SkASSERT(!this->find(GrTextBlob::GetKey(*blob)));
+    SkASSERT(blob->key().fUniqueID == fID);
+    SkASSERT(!this->find(blob->key()));
 
     fBlobs.emplace_back(std::move(blob));
 }
 
 void GrTextBlobCache::BlobIDCacheEntry::removeBlob(GrTextBlob* blob) {
     SkASSERT(blob);
-    SkASSERT(GrTextBlob::GetKey(*blob).fUniqueID == fID);
+    SkASSERT(blob->key().fUniqueID == fID);
 
-    auto index = this->findBlobIndex(GrTextBlob::GetKey(*blob));
+    auto index = this->findBlobIndex(blob->key());
     SkASSERT(index >= 0);
 
     fBlobs.removeShuffle(index);
@@ -191,7 +191,7 @@ sk_sp<GrTextBlob> GrTextBlobCache::BlobIDCacheEntry::find(const GrTextBlob::Key&
 
 int GrTextBlobCache::BlobIDCacheEntry::findBlobIndex(const GrTextBlob::Key& key) const {
     for (int i = 0; i < fBlobs.count(); ++i) {
-        if (GrTextBlob::GetKey(*fBlobs[i]) == key) {
+        if (fBlobs[i]->key() == key) {
             return i;
         }
     }

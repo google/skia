@@ -411,8 +411,7 @@ public:
             const SkPaint& runPaint,
             const GrSDFTControl& control);
 
-    static const Key& GetKey(const GrTextBlob& blob);
-    static uint32_t Hash(const Key& key);
+    const Key& key() { return fKey; }
 
     void addKey(const Key& key);
     bool hasPerspective() const;
