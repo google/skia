@@ -22,6 +22,8 @@ SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
     : INHERITED(&input, 1, nullptr)
     , fTransform(transform)
     , fSampling(sampling) {
+    // Pre-cache so future calls to fTransform.getType() are threadsafe.
+    (void)fTransform.getType();
 }
 
 sk_sp<SkImageFilter> SkMatrixImageFilter::Make(const SkMatrix& transform,
