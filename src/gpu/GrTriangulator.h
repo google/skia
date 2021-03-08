@@ -36,21 +36,6 @@ public:
         return count;
     }
 
-    struct WindingVertex {
-        SkPoint fPos;
-        int fWinding;
-    };
-
-    // *DEPRECATED*: Once CCPR is removed this method will go away.
-    //
-    // Triangulates a path to an array of vertices. Each triangle is represented as a set of three
-    // WindingVertex entries, each of which contains the position and winding count (which is the
-    // same for all three vertices of a triangle). The 'verts' out parameter is set to point to the
-    // resultant vertex array. CALLER IS RESPONSIBLE for deleting this buffer to avoid a memory
-    // leak!
-    static int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                              WindingVertex** verts);
-
     // Enums used by GrTriangulator internals.
     typedef enum { kLeft_Side, kRight_Side } Side;
     enum class EdgeType { kInner, kOuter, kConnector };

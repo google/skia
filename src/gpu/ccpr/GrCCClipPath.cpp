@@ -66,7 +66,7 @@ void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
     SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
     fAtlas = resources->renderDeviceSpacePathInAtlas(
-            fAccessRect, fDeviceSpacePath, fPathDevIBounds, GrFillRuleForSkPath(fDeviceSpacePath),
-            &fDevToAtlasOffset);
+            onFlushRP, fAccessRect, fDeviceSpacePath, fPathDevIBounds,
+            GrFillRuleForSkPath(fDeviceSpacePath), &fDevToAtlasOffset);
     SkDEBUGCODE(fHasAtlas = true);
 }
