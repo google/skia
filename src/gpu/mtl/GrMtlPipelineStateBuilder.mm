@@ -517,10 +517,8 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrProgramDesc& des
     pipelineDescriptor.colorAttachments[0] = create_color_attachment(pixelFormat,
                                                                      programInfo.pipeline());
     pipelineDescriptor.sampleCount = programInfo.numRasterSamples();
-    bool hasStencilAttachment = programInfo.isStencilEnabled();
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
-    pipelineDescriptor.stencilAttachmentPixelFormat =
-        hasStencilAttachment ? mtlCaps->preferredStencilFormat() : MTLPixelFormatInvalid;
+    pipelineDescriptor.stencilAttachmentPixelFormat = mtlCaps->getStencilPixelFormat(desc);
 
     SkASSERT(pipelineDescriptor.vertexFunction);
     SkASSERT(pipelineDescriptor.fragmentFunction);

@@ -10,6 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -1085,6 +1086,7 @@ GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget* rt,
 
     GrProcessorKeyBuilder b(desc.key());
 
+    // If ordering here is changed, update getStencilPixelFormat() below
     b.add32(programInfo.backendFormat().asMtlFormat());
 
     b.add32(programInfo.numRasterSamples());
@@ -1106,6 +1108,18 @@ GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget* rt,
 
     b.flush();
     return desc;
+}
+
+MTLPixelFormat GrMtlCaps::getStencilPixelFormat(const GrProgramDesc& desc) {
+    // Set up read buffer to point to platform-dependent part of the key
+    SkReadBuffer readBuffer(desc.asKey() + desc.initialKeyLength()/sizeof(uint32_t),
+                            desc.keyLength() - desc.initialKeyLength());
+    // skip backend format
+    readBuffer.readUInt();
+    // skip raster samples
+    readBuffer.readUInt();
+
+    return (MTLPixelFormat) readBuffer.readUInt();
 }
 
 #if GR_TEST_UTILS

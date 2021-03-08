@@ -95,6 +95,8 @@ public:
                            const GrProgramInfo&,
                            ProgramDescOverrideFlags) const override;
 
+    MTLPixelFormat getStencilPixelFormat(const GrProgramDesc& desc);
+
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
