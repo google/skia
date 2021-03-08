@@ -64,22 +64,12 @@ the results will only be useful when testing a debug build. Open
 
 ## Measuring Performance
 
-To measure the runtime of all benchmarks in `perf/`
-
-```
-make release
-make perf
-```
-
-Performacnce benchmarks also use karma, with a different config `karma.bench.conf.js`.
-It will run once and print results.
-
-Typically, you'd want to run these at head, and with your CL to observe the effect of some
-optimization.
+We use puppeteer to run a Chrome browser to gather performance data in a consistent way.
+See //tools/perf-canvaskit-puppeteer for more.
 
 ## Adding tests
 
-The tests in `tests/` and `perf/` are grouped into files by topic.
+The tests in `tests/` are grouped into files by topic.
 Within each file there are `describe` blocks further organizing the tests, and within those
 `it()` functions which test particular behaviors. `describe` and `it` are jasmine methods
 which can both be temporarily renamed `fdescribe` and `fit`. Which causes jasmine to only those.
@@ -143,7 +133,7 @@ sdk and verified/fixed any build issues that have arisen.
   9. In `$SKIA_ROOT/infra/bots/`, run `make train` to re-train the recipes.
   10. Optional: Run something like `git grep 1\\.38\\.` in `$SKIA_ROOT` to see if
      there are any other references that need updating.
-  11. Upload a CL with all the changes. Run all Test.+CanvasKit, Perf.+CanvasKit,
+  11. Upload a CL with all the changes. Run all Test.+CanvasKit, Perf.+Puppeteer,
       Test.+PathKit, Perf.+PathKit jobs to make sure the new builds pass all
       tests and don't crash the perf harnesses.
   12. Send out CL for review. Feel free to point the reviewer at these steps.

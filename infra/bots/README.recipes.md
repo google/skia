@@ -34,7 +34,6 @@
   * [infra](#recipes-infra)
   * [infra:examples/full](#recipes-infra_examples_full)
   * [perf](#recipes-perf)
-  * [perf_canvaskit](#recipes-perf_canvaskit)
   * [perf_pathkit](#recipes-perf_pathkit)
   * [perf_skottietrace](#recipes-perf_skottietrace)
   * [perf_skottiewasm_lottieweb](#recipes-perf_skottiewasm_lottieweb)
@@ -377,11 +376,6 @@ Prepare the variables.
 &mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#30)(api):**
 
 Run Skia benchmarks.
-### *recipes* / [perf\_canvaskit](/infra/bots/recipes/perf_canvaskit.py)
-
-[DEPS](/infra/bots/recipes/perf_canvaskit.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [docker](#recipe_modules-docker), [env](#recipe_modules-env), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-&mdash; **def [RunSteps](/infra/bots/recipes/perf_canvaskit.py#26)(api):**
 ### *recipes* / [perf\_pathkit](/infra/bots/recipes/perf_pathkit.py)
 
 [DEPS](/infra/bots/recipes/perf_pathkit.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [docker](#recipe_modules-docker), [env](#recipe_modules-env), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
