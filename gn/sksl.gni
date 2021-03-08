@@ -105,6 +105,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLExternalFunctionCall.h",
   "$_src/sksl/ir/SkSLExternalFunctionReference.h",
   "$_src/sksl/ir/SkSLField.h",
+  "$_src/sksl/ir/SkSLFieldAccess.cpp",
   "$_src/sksl/ir/SkSLFieldAccess.h",
   "$_src/sksl/ir/SkSLFloatLiteral.h",
   "$_src/sksl/ir/SkSLForStatement.cpp",
