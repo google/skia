@@ -786,6 +786,11 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
+    if (functionDef->declaration().modifiers().fFlags & Modifiers::kNoInline_Flag) {
+        // Refuse to inline functions decorated with `noinline`.
+        return false;
+    }
+
     // We don't have any mechanism to simulate early returns within a construct that supports
     // continues (for/do/while), so we can't inline if there's a return inside one.
     bool hasReturnInContinuableConstruct =

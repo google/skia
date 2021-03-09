@@ -29,6 +29,7 @@ struct Modifiers {
         kHasSideEffects_Flag = 1 <<  6,
         kVarying_Flag        = 1 <<  7,
         kInline_Flag         = 1 <<  8,
+        kNoInline_Flag       = 1 <<  9,
     };
 
     Modifiers()
@@ -58,6 +59,9 @@ struct Modifiers {
         }
         if (fFlags & kVarying_Flag) {
             result += "varying ";
+        }
+        if (fFlags & kNoInline_Flag) {
+            result += "noinline ";
         }
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {
             result += "inout ";
