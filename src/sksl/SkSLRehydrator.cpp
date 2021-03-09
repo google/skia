@@ -409,14 +409,9 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             cases.reserve(caseCount);
             for (int i = 0; i < caseCount; ++i) {
                 std::unique_ptr<Expression> value = this->expression();
-                int statementCount = this->readU8();
-                StatementArray statements;
-                statements.reserve_back(statementCount);
-                for (int j = 0; j < statementCount; ++j) {
-                    statements.push_back(this->statement());
-                }
+                std::unique_ptr<Statement> statement = this->statement();
                 cases.push_back(std::make_unique<SwitchCase>(/*offset=*/-1, std::move(value),
-                                                             std::move(statements)));
+                                                             std::move(statement)));
             }
             return SwitchStatement::Make(fContext, /*offset=*/-1, isStatic, std::move(expr),
                                          std::move(cases), fSymbolTable);
