@@ -27,6 +27,8 @@
 class GrMtlGpu;
 class GrSurface;
 
+GR_EXTERNALLY_RETAINED_BEGIN
+
 /**
  * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*.
  */
@@ -129,5 +131,7 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat);
 size_t GrMtlFormatBytesPerBlock(MTLPixelFormat);
 
 int GrMtlFormatStencilBits(MTLPixelFormat);
+
+GR_EXTERNALLY_RETAINED_END
 
 #endif

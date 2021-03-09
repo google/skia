@@ -51,6 +51,17 @@ typedef const void*  GrMTLHandle;
 #endif
 #endif
 
+#if __has_attribute(objc_externally_retained)
+#define GR_EXTERNALLY_RETAINED __attribute__((objc_externally_retained))
+#define GR_EXTERNALLY_RETAINED_BEGIN \
+    _Pragma("clang attribute push (__attribute__((objc_externally_retained)), apply_to=any(function,objc_method))")
+#define GR_EXTERNALLY_RETAINED_END _Pragma("clang attribute pop")
+#else
+#define GR_EXTERNALLY_RETAINED
+#define GR_EXTERNALLY_RETAINED_BEGIN
+#define GR_EXTERNALLY_RETAINED_END
+#endif
+
 /**
  * Types for interacting with Metal resources created externally to Skia.
  * This is used by GrBackendObjects.

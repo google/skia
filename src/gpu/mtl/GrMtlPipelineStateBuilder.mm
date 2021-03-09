@@ -26,6 +26,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_EXTERNALLY_RETAINED_BEGIN
+
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
                                                                 GrMtlGpu* gpu,
                                                                 const GrProgramDesc& desc,
@@ -639,3 +641,5 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
 
     return true;
 }
+
+GR_EXTERNALLY_RETAINED_END
