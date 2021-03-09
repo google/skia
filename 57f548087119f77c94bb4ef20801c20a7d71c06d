@@ -16,6 +16,23 @@
       "message": "Fixes my assert!",
       "revId": "57f548087119f77c94bb4ef20801c20a7d71c06d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3633febe_bcf8f285",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-09T01:02:01Z",
+      "side": 1,
+      "message": "Oh wait, I was just on CC. Removing my +1 so Rob can take a look.",
+      "revId": "57f548087119f77c94bb4ef20801c20a7d71c06d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
