@@ -27,6 +27,7 @@ public:
 
     GrMtlPipelineState* findOrCreateCompatiblePipelineState(const GrProgramDesc&,
                                                             const GrProgramInfo&);
+    bool precompileShader(const SkData& key, const SkData& data);
 
     // Finds or creates a compatible MTLDepthStencilState based on the GrStencilSettings.
     GrMtlDepthStencil* findOrCreateCompatibleDepthStencilState(const GrStencilSettings&,
@@ -54,6 +55,7 @@ private:
 
         void release();
         GrMtlPipelineState* refPipelineState(const GrProgramDesc&, const GrProgramInfo&);
+        bool precompileShader(const SkData& key, const SkData& data);
 
     private:
         struct Entry;

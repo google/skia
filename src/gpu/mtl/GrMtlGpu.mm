@@ -1093,7 +1093,7 @@ bool GrMtlGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programIn
 }
 
 bool GrMtlGpu::precompileShader(const SkData& key, const SkData& data) {
-    return GrMtlPipelineStateBuilder::PrecompileShaders(this, data);
+    return this->resourceProvider().precompileShader(key, data);
 }
 
 #if GR_TEST_UTILS

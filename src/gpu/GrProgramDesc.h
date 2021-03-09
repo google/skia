@@ -143,6 +143,7 @@ protected:
     friend class GrVkCaps;
 
     friend class GrGLGpu; // for ProgramCache to access BuildFromData
+    friend class GrMtlResourceProvider; // for PipelineStateCache to access BuildFromData
 
     // Creates an uninitialized key that must be populated by Build
     GrProgramDesc() {}
