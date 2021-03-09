@@ -62,7 +62,7 @@ private:
 
     void writeFunction(const FunctionDefinition& f);
 
-    void writeModifiers(const Modifiers& modifiers);
+    String modifierString(const Modifiers& modifiers);
 
     // Handles arrays correctly, eg: `float x[2]`
     String typedVariable(const Type& type, StringFragment name);
@@ -307,18 +307,10 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     const char* separator = "";
     for (auto p : decl.parameters()) {
         // TODO: Handle arrays
-        const char* typeModifier = "";
-        switch (p->modifiers().fFlags & (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag)) {
-            case SkSL::Modifiers::kOut_Flag:
-                typeModifier = "out ";
-                break;
-            case SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag:
-                typeModifier = "inout ";
-                break;
-            default:
-                break;
-        }
-        declString.appendf("%s%s%s %s", separator, typeModifier, this->typeName(p->type()).c_str(),
+        declString.appendf("%s%s%s %s",
+                           separator,
+                           this->modifierString(p->modifiers()).c_str(),
+                           this->typeName(p->type()).c_str(),
                            String(p->name()).c_str());
         separator = ", ";
     }
@@ -339,7 +331,8 @@ void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclar
         fVariableNames.insert({&var, std::move(uniformName)});
     } else {
         String mangledName = fCallbacks->getMangledName(String(var.name()).c_str());
-        String declaration = this->typedVariable(var.type(), StringFragment(mangledName.c_str()));
+        String declaration = this->modifierString(var.modifiers()) +
+                             this->typedVariable(var.type(), StringFragment(mangledName.c_str()));
         if (decl.value()) {
             AutoOutputBuffer outputToBuffer(this);
             this->writeExpression(*decl.value(), Precedence::kTopLevel);
@@ -544,18 +537,21 @@ void PipelineStageCodeGenerator::writePostfixExpression(const PostfixExpression&
     }
 }
 
-void PipelineStageCodeGenerator::writeModifiers(const Modifiers& modifiers) {
-    if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
-        (modifiers.fFlags & Modifiers::kOut_Flag)) {
-        this->write("inout ");
-    } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
-        this->write("in ");
-    } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
-        this->write("out ");
-    }
+String PipelineStageCodeGenerator::modifierString(const Modifiers& modifiers) {
+    String result;
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
-        this->write("const ");
+        result.append("const ");
     }
+
+    if ((modifiers.fFlags & Modifiers::kIn_Flag) && (modifiers.fFlags & Modifiers::kOut_Flag)) {
+        result.append("inout ");
+    } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
+        result.append("in ");
+    } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+        result.append("out ");
+    }
+
+    return result;
 }
 
 String PipelineStageCodeGenerator::typedVariable(const Type& type, StringFragment name) {
@@ -569,7 +565,7 @@ String PipelineStageCodeGenerator::typedVariable(const Type& type, StringFragmen
 }
 
 void PipelineStageCodeGenerator::writeVarDeclaration(const VarDeclaration& var) {
-    this->writeModifiers(var.var().modifiers());
+    this->write(this->modifierString(var.var().modifiers()));
     this->write(this->typedVariable(var.var().type(), var.var().name()));
     if (var.value()) {
         this->write(" = ");
