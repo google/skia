@@ -425,7 +425,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
             fragBuilder->codeAppendf("%s = %s;", output, inCoverage);
             break;
         case BlendFormula::kModulate_OutputType:
-            fragBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
+            fragBuilder->codeAppendf("%s = %s;", output, inColor);
             break;
         case BlendFormula::kSAModulate_OutputType:
             fragBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);

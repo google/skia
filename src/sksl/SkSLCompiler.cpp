@@ -1566,6 +1566,121 @@ bool Compiler::optimize(LoadedModule& module) {
     return fErrorCount == 0;
 }
 
+bool Compiler::eliminateUnreadVariables(std::unique_ptr<Expression>& expr, ProgramUsage* usage) {
+    if (!expr) {
+        return false;
+    }
+    switch (expr->kind()) {
+        case Expression::Kind::kBinary: {
+            // This could be assignment to a variable we never read. (It can't be
+            // compound-assignment, because those count as both a read and a write.)
+            BinaryExpression& binary = expr->as<BinaryExpression>();
+
+            // Recurse into inner expressions, e.g. `x = y = 123` or even weird stuff like
+            // `(x = 123) + (y = 456)`.
+            bool changed = this->eliminateUnreadVariables(binary.left(), usage);
+            changed = this->eliminateUnreadVariables(binary.right(), usage) || changed;
+
+            // Now handle dead-assignment elimination.
+            if (binary.getOperator().kind() == Token::Kind::TK_EQ) {
+                Analysis::AssignmentInfo info;
+                if (Analysis::IsAssignable(*binary.left(), &info)) {
+                    const Variable* var = info.fAssignedVar->variable();
+                    if (var->storage() == Variable::Storage::kLocal) {
+                        ProgramUsage::VariableCounts* counts = usage->fVariableCounts.find(var);
+                        if (counts && counts->fRead == 0) {
+                            std::unique_ptr<Expression> rightSide = std::move(binary.right());
+                            expr = std::move(rightSide);
+                            counts->fWrite--;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            return changed;
+        }
+        default:
+            // TODO: every other expression type
+            break;
+    }
+    return false;
+}
+
+void Compiler::eliminateUnreadVariables(std::unique_ptr<Statement>& stmt, ProgramUsage* usage) {
+    if (!stmt) {
+        return;
+    }
+    switch (stmt->kind()) {
+        case Statement::Kind::kVarDeclaration: {
+            VarDeclaration& varDecl = stmt->as<VarDeclaration>();
+            const Variable* var = &varDecl.var();
+            ProgramUsage::VariableCounts* counts = usage->fVariableCounts.find(var);
+            if (counts && counts->fRead == 0) {
+                // This variable is never read. Eliminate it. (We must preserve its
+                // initial-value expression, if that has a side effect.)
+                if (varDecl.value()) {
+                    stmt = ExpressionStatement::Make(*fContext, std::move(varDecl.value()));
+                    counts->fWrite--;
+                } else {
+                    stmt = std::make_unique<Nop>();
+                }
+            }
+            break;
+        }
+        case Statement::Kind::kBlock:
+            for (std::unique_ptr<Statement>& child : stmt->as<Block>().children()) {
+                this->eliminateUnreadVariables(child, usage);
+            }
+            break;
+
+        case Statement::Kind::kBreak:
+        case Statement::Kind::kContinue:
+        case Statement::Kind::kDiscard:
+        case Statement::Kind::kInlineMarker:
+        case Statement::Kind::kNop:
+            // No variables here.
+            break;
+
+        case Statement::Kind::kDo: {
+            DoStatement& doStmt = stmt->as<DoStatement>();
+            this->eliminateUnreadVariables(doStmt.test(), usage);
+            this->eliminateUnreadVariables(doStmt.statement(), usage);
+            break;
+        }
+
+        case Statement::Kind::kExpression: {
+            ExpressionStatement& exprStmt = stmt->as<ExpressionStatement>();
+            if (this->eliminateUnreadVariables(exprStmt.expression(), usage)) {
+                stmt = ExpressionStatement::Make(*fContext, std::move(exprStmt.expression()));
+            }
+            break;
+        }
+        case Statement::Kind::kFor: {
+            ForStatement& forStmt = stmt->as<ForStatement>();
+            this->eliminateUnreadVariables(forStmt.initializer(), usage);
+            this->eliminateUnreadVariables(forStmt.test(), usage);
+            this->eliminateUnreadVariables(forStmt.next(), usage);
+            this->eliminateUnreadVariables(forStmt.statement(), usage);
+            break;
+        }
+        case Statement::Kind::kIf: {
+            IfStatement& ifStmt = stmt->as<IfStatement>();
+            this->eliminateUnreadVariables(ifStmt.test(), usage);
+            this->eliminateUnreadVariables(ifStmt.ifTrue(), usage);
+            this->eliminateUnreadVariables(ifStmt.ifFalse(), usage);
+            break;
+        }
+        case Statement::Kind::kReturn:
+            this->eliminateUnreadVariables(stmt->as<ReturnStatement>().expression(), usage);
+            break;
+
+        case Statement::Kind::kSwitch:
+        case Statement::Kind::kSwitchCase:
+            // TODO: if this works
+            break;
+    }
+}
+
 bool Compiler::optimize(Program& program) {
     // The optimizer only needs to run when it is enabled.
     if (!program.fConfig->fSettings.fOptimize) {
@@ -1577,7 +1692,23 @@ bool Compiler::optimize(Program& program) {
 
     while (fErrorCount == 0) {
         bool madeChanges = false;
-
+/*
+        // Eliminate variables which are never read from.
+        for (auto& [var, counts] : usage->fVariableCounts) {
+            if (counts.fWrite && !counts.fRead) {
+                // We found at least one variable which is never read from. We need to scan
+                // every statement in every function to fix this, since we don't know where
+                // variables are.
+                for (std::unique_ptr<ProgramElement>& elem : program.fElements) {
+                    if (elem->is<FunctionDefinition>()) {
+                        this->eliminateUnreadVariables(elem->as<FunctionDefinition>().body(),
+                                                       usage);
+                    }
+                }
+                break;
+            }
+        }
+*/
         // Scan and optimize based on the control-flow graph for each function.
         if (program.fConfig->fSettings.fControlFlowAnalysis) {
             for (const auto& element : program.ownedElements()) {
