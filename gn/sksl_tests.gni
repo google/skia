@@ -557,6 +557,7 @@ sksl_settings_tests = [
 
 sksl_rte_tests = [
   "/sksl/runtime/ArrayIndexing.rte",
+  "/sksl/runtime/ConstPreservation.rte",
   "/sksl/runtime/ConversionConstructors.rte",
   "/sksl/runtime/GlobalVariables.rte",
   "/sksl/runtime/LoopInt.rte",
