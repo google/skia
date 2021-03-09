@@ -25,8 +25,6 @@
 
 namespace SkSL {
 
-extern bool gSkSLControlFlowAnalysis;
-
 static const int32_t SKSL_MAGIC  = 0x0; // FIXME: we should probably register a magic number
 
 void SPIRVCodeGenerator::setupIntrinsics() {
@@ -238,17 +236,11 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpMemberDecorate:
             break;
         default:
-            if (fProgram.fConfig->fSettings.fDeadCodeElimination) {
-                // When dead-code elimination is enabled, all code should be reachable and an
-                // associated block should already exist.
-                SkASSERT(fCurrentBlock);
-            } else {
-                // When dead-code elimination is disabled, we may find ourselves with instructions
-                // that don't have an associated block. This should be a rare event, but if it
-                // happens, synthesize a label; this is necessary to satisfy the validator.
-                if (fCurrentBlock == 0) {
-                    this->writeLabel(this->nextId(), out);
-                }
+            // We may find ourselves with dead code--instructions that don't have an associated
+            // block. This should be a rare event, but if it happens, synthesize a label; this is
+            // necessary to satisfy the validator.
+            if (fCurrentBlock == 0) {
+                this->writeLabel(this->nextId(), out);
             }
             break;
     }

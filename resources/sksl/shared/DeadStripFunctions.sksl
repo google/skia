@@ -1,4 +1,4 @@
-/*#pragma settings NoInline NoControlFlowAnalysis*/
+/*#pragma settings NoInline*/
 
 uniform half4 colorGreen, colorRed;
 
