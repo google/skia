@@ -1370,12 +1370,11 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         } else {
             this->writeLine("default:");
         }
-        fIndentation++;
-        for (const auto& stmt : c->statements()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
+        if (!c->statement()->isEmpty()) {
+            fIndentation++;
+            this->writeStatement(*c->statement());
+            fIndentation--;
         }
-        fIndentation--;
     }
     fIndentation--;
     this->write("}");

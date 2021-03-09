@@ -464,10 +464,7 @@ void Dehydrator::write(const Statement* s) {
                 this->writeU8(ss.cases().size());
                 for (const std::unique_ptr<SwitchCase>& sc : ss.cases()) {
                     this->write(sc->value().get());
-                    this->writeU8(sc->statements().size());
-                    for (const std::unique_ptr<Statement>& stmt : sc->statements()) {
-                        this->write(stmt.get());
-                    }
+                    this->write(sc->statement().get());
                 }
                 break;
             }

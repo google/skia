@@ -417,14 +417,6 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         return result;
     };
-    auto stmts = [&](const StatementArray& ss) {
-        StatementArray result;
-        result.reserve_back(ss.size());
-        for (const auto& s : ss) {
-            result.push_back(stmt(s));
-        }
-        return result;
-    };
     auto expr = [&](const std::unique_ptr<Expression>& e) -> std::unique_ptr<Expression> {
         if (e) {
             return this->inlineExpression(offset, varMap, symbolTableForStatement, *e);
@@ -527,7 +519,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             cases.reserve(ss.cases().size());
             for (const std::unique_ptr<SwitchCase>& sc : ss.cases()) {
                 cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc->value()),
-                                                             stmts(sc->statements())));
+                                                             stmt(sc->statement())));
             }
             return SwitchStatement::Make(*fContext, offset, ss.isStatic(), expr(ss.value()),
                                         std::move(cases), SymbolTable::WrapIfBuiltin(ss.symbols()));
@@ -957,9 +949,7 @@ public:
                 this->visitExpression(&switchStmt.value());
                 for (const std::unique_ptr<SwitchCase>& switchCase : switchStmt.cases()) {
                     // The switch-case's fValue cannot be a FunctionCall; skip it.
-                    for (std::unique_ptr<Statement>& caseBlock : switchCase->statements()) {
-                        this->visitStatement(&caseBlock);
-                    }
+                    this->visitStatement(&switchCase->statement());
                 }
                 break;
             }

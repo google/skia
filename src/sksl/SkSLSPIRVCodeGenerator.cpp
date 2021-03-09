@@ -3143,9 +3143,7 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     }
     for (size_t i = 0; i < cases.size(); ++i) {
         this->writeLabel(labels[i], out);
-        for (const auto& stmt : cases[i]->statements()) {
-            this->writeStatement(*stmt, out);
-        }
+        this->writeStatement(*cases[i]->statement(), out);
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, labels[i + 1], out);
         }

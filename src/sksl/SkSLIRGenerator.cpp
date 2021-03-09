@@ -672,7 +672,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
     }
     AutoSymbolTable table(this);
     ExpressionArray caseValues;
-    SkTArray<StatementArray> caseStatements;
+    StatementArray caseStatements;
     for (; iter != s.end(); ++iter) {
         const ASTNode& c = *iter;
         SkASSERT(c.fKind == ASTNode::Kind::kSwitchCase);
@@ -685,7 +685,12 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
             }
         }
         ++childIter;
-        StatementArray statements;
+
+        auto caseBlock = std::make_unique<Block>(c.fOffset,
+                                                 StatementArray{},
+                                                 /*symbols=*/nullptr,
+                                                 /*isScope=*/false);
+        StatementArray& statements = caseBlock->children();
         for (; childIter != c.end(); ++childIter) {
             std::unique_ptr<Statement> converted = this->convertStatement(*childIter);
             if (!converted) {
@@ -693,7 +698,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
             }
             statements.push_back(std::move(converted));
         }
-        caseStatements.push_back(std::move(statements));
+        caseStatements.push_back(std::move(caseBlock));
     }
     return SwitchStatement::Convert(fContext, s.fOffset, s.getBool(), std::move(value),
                                     std::move(caseValues), std::move(caseStatements), fSymbolTable);

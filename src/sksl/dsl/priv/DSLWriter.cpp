@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -156,8 +157,17 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,
 DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               SkTArray<SkSL::StatementArray> caseStatements) {
+    StatementArray caseBlocks;
+    caseBlocks.resize(caseStatements.count());
+    for (int index = 0; index < caseStatements.count(); ++index) {
+        caseBlocks[index] = std::make_unique<SkSL::Block>(/*offset=*/-1,
+                                                          std::move(caseStatements[index]),
+                                                          /*symbols=*/nullptr,
+                                                          /*isScope=*/false);
+    }
+
     return SwitchStatement::Convert(Context(), /*offset=*/-1, /*isStatic=*/false, std::move(value),
-                                    std::move(caseValues), std::move(caseStatements),
+                                    std::move(caseValues), std::move(caseBlocks),
                                     IRGenerator().fSymbolTable);
 }
 

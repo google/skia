@@ -20,6 +20,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
         {
             result = abs(2.0);
             continue;
+
         }
     }
     _out.sk_FragColor = result == 2.0 ? _uniforms.colorGreen : _uniforms.colorRed;
