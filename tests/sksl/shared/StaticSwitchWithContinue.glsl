@@ -8,6 +8,7 @@ vec4 main() {
         {
             result = abs(2.0);
             continue;
+
         }
     }
     return result == 2.0 ? colorGreen : colorRed;

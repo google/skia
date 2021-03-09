@@ -43,7 +43,7 @@ public:
                                               bool isStatic,
                                               std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
-                                              SkTArray<StatementArray> caseStatements,
+                                              StatementArray caseStatements,
                                               std::shared_ptr<SymbolTable> symbolTable);
 
     // Create a `switch` statement with an array of SwitchCases. The array of SwitchCases must
