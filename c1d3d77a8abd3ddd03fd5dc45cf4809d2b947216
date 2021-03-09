@@ -16,6 +16,46 @@
       "message": "PTAL. This is working with the mtltestprecompile config except that I\u0027m getting a spurious diff on some of the glyph_pos GMs. Looks like a one-pixel, low-bit difference so I\u0027m inclined to treat it as a flake.",
       "revId": "c1d3d77a8abd3ddd03fd5dc45cf4809d2b947216",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b8ca9e6_d2bad982",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-09T19:42:31Z",
+      "side": 1,
+      "message": "Not sure how you want to resolve it, but this code only added the metadata if we were caching SkSL. The precompile code, if MSL is being cached, will still try to use the cached settings, though...",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 34
+      },
+      "revId": "c1d3d77a8abd3ddd03fd5dc45cf4809d2b947216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d199bf0f_01b21645",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-09T19:42:31Z",
+      "side": 1,
+      "message": "... so maybe just fail if the cached shaders are in MSL form here? (Or update storeShadersInCache to always include the metadata?)",
+      "revId": "c1d3d77a8abd3ddd03fd5dc45cf4809d2b947216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
