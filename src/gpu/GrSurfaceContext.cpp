@@ -372,6 +372,10 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
         return false;
     }
 
+    if (src.rowBytes() % src.info().bpp()) {
+        return false;
+    }
+
     src = src.clip(this->dimensions(), &pt);
     if (!src.hasPixels()) {
         return false;

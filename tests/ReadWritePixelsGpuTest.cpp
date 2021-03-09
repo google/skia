@@ -517,6 +517,25 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ReadPixels_InvalidRowBytes_Gpu, reporter, ctxInfo) 
     }
 }
 
+DEF_GPUTEST_FOR_ALL_CONTEXTS(WritePixels_InvalidRowBytes_Gpu, reporter, ctxInfo) {
+    auto dstII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    auto surf = SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kYes, dstII);
+    for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
+        auto colorType = static_cast<SkColorType>(ct);
+        size_t bpp = SkColorTypeBytesPerPixel(colorType);
+        if (bpp <= 1) {
+            continue;
+        }
+        auto srcII = dstII.makeColorType(colorType);
+        size_t badRowBytes = (surf->width() + 1)*bpp - 1;
+        auto storage = std::make_unique<char[]>(badRowBytes*surf->height());
+        memset(storage.get(), 0, badRowBytes * surf->height());
+        // SkSurface::writePixels doesn't report bool, SkCanvas's does.
+        REPORTER_ASSERT(reporter,
+                        !surf->getCanvas()->writePixels(srcII, storage.get(), badRowBytes, 0, 0));
+    }
+}
+
 namespace {
 struct AsyncContext {
     bool fCalled = false;
