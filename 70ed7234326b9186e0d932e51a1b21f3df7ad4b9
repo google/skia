@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "830d4b50_7c34880c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-09T15:36:33Z",
+      "side": 1,
+      "message": "Another thing I did here is avoid repeated `.colorAttachments[0].` calls. These are especially bad under ARC, because the array itself will be retained \u0026 released each time, and the attachment itself also. So 2 msgSends, 2 retains, 2 releases for each.",
+      "revId": "70ed7234326b9186e0d932e51a1b21f3df7ad4b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
