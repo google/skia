@@ -1857,12 +1857,11 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         } else {
             this->writeLine("default:");
         }
-        fIndentation++;
-        for (const auto& stmt : c->statements()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
+        if (!c->statement()->isEmpty()) {
+            fIndentation++;
+            this->writeStatement(*c->statement());
+            fIndentation--;
         }
-        fIndentation--;
     }
     fIndentation--;
     this->write("}");
@@ -2322,9 +2321,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
             const SwitchStatement& sw = s->as<SwitchStatement>();
             Requirements result = this->requirements(sw.value().get());
             for (const std::unique_ptr<SwitchCase>& sc : sw.cases()) {
-                for (const auto& st : sc->statements()) {
-                    result |= this->requirements(st.get());
-                }
+                result |= this->requirements(sc->statement().get());
             }
             return result;
         }

@@ -637,9 +637,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
                     // because it must be constant. Not worth running two loops for.
                     this->addExpression(cfg, &c->value(), /*constantPropagate=*/true);
                 }
-                for (auto& caseStatement : c->statements()) {
-                    this->addStatement(cfg, &caseStatement);
-                }
+                this->addStatement(cfg, &c->statement());
             }
             cfg.addExit(cfg.fCurrent, switchExit);
             // note that unlike GLSL, our grammar requires the default case to be last
