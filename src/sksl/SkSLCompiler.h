@@ -215,6 +215,12 @@ private:
 
     bool optimize(LoadedModule& module);
 
+    /**
+     * Based on the ProgramUsage, eliminates variables which are never read from anywhere.
+     */
+    bool eliminateUnreadVariables(std::unique_ptr<Expression>& expr, ProgramUsage* usage);
+    void eliminateUnreadVariables(std::unique_ptr<Statement>& stmt, ProgramUsage* usage);
+
     Position position(int offset);
 
     std::shared_ptr<Context> fContext;

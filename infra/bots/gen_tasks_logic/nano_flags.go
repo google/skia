@@ -71,7 +71,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		// glnarrow/glesnarrow tests the case of color converting *all* content
 		// It hangs on the AndroidOne (Mali400)  skia:10669
-		if (!b.gpu("Mali400MP2")) {
+		if !b.gpu("Mali400MP2") {
 			configs = append(configs, glPrefix+"narrow")
 		}
 
@@ -79,7 +79,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// when we're limited to ES2. We could consider adding a MSAA fake config as well.
 		if b.os("Android") && glPrefix == "gles" {
 			// These only support ES2. No point in running twice.
-			if (!b.gpu("Mali400MP2", "Tegra3")) {
+			if !b.gpu("Mali400MP2", "Tegra3") {
 				configs = append(configs, "glesfakev2")
 			}
 		}
@@ -240,7 +240,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
-	if (b.model("Pixel5")) {
+	if b.model("Pixel5") {
 		// skia:11152
 		match = append(match, "~path")
 	}
@@ -270,6 +270,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	match = append(match, "~inc14.png")
 	match = append(match, "~inc0.webp")
 	match = append(match, "~inc1.webp")
+
+	match = []string{}
+	match = append(match, "hardstop")
 
 	if len(match) > 0 {
 		args = append(args, "--match")
