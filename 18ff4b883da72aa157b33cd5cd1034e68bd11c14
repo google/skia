@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9c40584_7da9049d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-09T17:04:15Z",
+      "side": 1,
+      "message": "Mac is doing its usual \"[Errno 28] No space left on device\". This CL is ready to go.",
+      "revId": "18ff4b883da72aa157b33cd5cd1034e68bd11c14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
