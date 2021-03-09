@@ -81,6 +81,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10636462_fb73274b",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-09T22:51:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c5b0f08_c5be4577",
+      "range": {
+        "startLine": 67,
+        "startChar": 52,
+        "endLine": 67,
+        "endChar": 57
+      },
+      "revId": "9d22857aa4fec04a0966ba5d2b0b1fa2f93222a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "43c400ec_42783b0c",
@@ -94,6 +118,30 @@
       "writtenOn": "2021-03-09T20:49:55Z",
       "side": 1,
       "message": "Was flutter\u0027s build environment disabling thread_local?",
+      "range": {
+        "startLine": 16,
+        "startChar": 13,
+        "endLine": 16,
+        "endChar": 33
+      },
+      "revId": "9d22857aa4fec04a0966ba5d2b0b1fa2f93222a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b01aeae_29e99e64",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-09T22:51:56Z",
+      "side": 1,
+      "message": "The stdlib we use to link flutter did not have the symbol to support using dtors with thread_local. :-/",
+      "parentUuid": "43c400ec_42783b0c",
       "range": {
         "startLine": 16,
         "startChar": 13,
