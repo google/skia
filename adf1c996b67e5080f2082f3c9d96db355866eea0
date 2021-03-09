@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc97efb4_d1507705",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-09T14:33:09Z",
+      "side": 1,
+      "message": "Peng, nice debugging skills!",
+      "revId": "adf1c996b67e5080f2082f3c9d96db355866eea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84c857c3_7e7a40e2",
+        "filename": "src/core/SkMessageBus.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-09T14:33:09Z",
+      "side": 1,
+      "message": "Should we do something to std::remove_cv here?",
+      "range": {
+        "startLine": 32,
+        "startChar": 48,
+        "endLine": 32,
+        "endChar": 49
+      },
+      "revId": "adf1c996b67e5080f2082f3c9d96db355866eea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86e93652_18eba792",
+        "filename": "src/core/SkMessageBus.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-09T14:33:09Z",
+      "side": 1,
+      "message": "In Skia we always use {} with ifs.",
+      "range": {
+        "startLine": 135,
+        "startChar": 55,
+        "endLine": 135,
+        "endChar": 78
+      },
+      "revId": "adf1c996b67e5080f2082f3c9d96db355866eea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
