@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c03570c1_80709964",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-09T19:04:42Z",
+      "side": 1,
+      "message": "PTAL. This is working with the mtltestprecompile config except that I\u0027m getting a spurious diff on some of the glyph_pos GMs. Looks like a one-pixel, low-bit difference so I\u0027m inclined to treat it as a flake.",
+      "revId": "c1d3d77a8abd3ddd03fd5dc45cf4809d2b947216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
