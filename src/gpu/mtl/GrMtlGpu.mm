@@ -896,15 +896,18 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
         return false;
     }
 
-    MTLTextureDescriptor* desc =
-        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: mtlFormat
-                                                           width: dimensions.width()
-                                                          height: dimensions.height()
-                                                       mipmapped: mipMapped == GrMipmapped::kYes];
+    auto desc = [[MTLTextureDescriptor alloc] init];
+    desc.pixelFormat = mtlFormat;
+    desc.width = dimensions.width();
+    desc.height = dimensions.height();
+    if (mipMapped == GrMipMapped::kYes) {
+        desc.mipmapLevelCount = 1 + SkPrevLog2(std::max(dimensions.width(), dimensions.height()));
+    }
     if (@available(macOS 10.11, iOS 9.0, *)) {
         desc.storageMode = MTLStorageModePrivate;
-        desc.usage = texturable == GrTexturable::kYes ? MTLTextureUsageShaderRead : 0;
-        desc.usage |= renderable == GrRenderable::kYes ? MTLTextureUsageRenderTarget : 0;
+        MTLTextureUsage usage = texturable == GrTexturable::kYes ? MTLTextureUsageShaderRead : 0;
+        usage |= renderable == GrRenderable::kYes ? MTLTextureUsageRenderTarget : 0;
+        desc.usage = usage;
     }
     if (sampleCnt != 1) {
         desc.sampleCount = sampleCnt;
@@ -1446,15 +1449,12 @@ void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&) {
 }
 
 void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colorTexture) {
-    auto renderPassDesc = [MTLRenderPassDescriptor renderPassDescriptor];
-    renderPassDesc.colorAttachments[0].texture = colorTexture;
-    renderPassDesc.colorAttachments[0].slice = 0;
-    renderPassDesc.colorAttachments[0].level = 0;
-    renderPassDesc.colorAttachments[0].resolveTexture = resolveTexture;
-    renderPassDesc.colorAttachments[0].slice = 0;
-    renderPassDesc.colorAttachments[0].level = 0;
-    renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
-    renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionMultisampleResolve;
+    auto renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
+    auto colorAttachment = renderPassDesc.colorAttachments[0];
+    colorAttachment.texture = colorTexture;
+    colorAttachment.resolveTexture = resolveTexture;
+    colorAttachment.loadAction = MTLLoadActionLoad;
+    colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
 
     id<MTLRenderCommandEncoder> cmdEncoder =
             this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr, nullptr);
