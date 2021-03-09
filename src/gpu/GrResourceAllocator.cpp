@@ -311,7 +311,7 @@ bool GrResourceAllocator::assign() {
     this->determineRecyclability();
 
     Interval* cur = nullptr;
-    while ((cur = fIntvlList.popHead()) && !fFailedInstantiation) {
+    while ((cur = fIntvlList.popHead())) {
         this->expire(cur->start());
 
         if (cur->proxy()->isInstantiated()) {
