@@ -8,27 +8,17 @@
 #ifndef GrGLSLShaderBuilder_DEFINED
 #define GrGLSLShaderBuilder_DEFINED
 
+#include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkSpan.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/ir/SkSLStatement.h"
 
 #include <stdarg.h>
 
 class GrGLSLColorSpaceXformHelper;
-
-namespace SkSL {
-
-class Statement;
-
-namespace dsl {
-class DSLStatement;
-} // namespace dsl
-
-} // namespace SkSL
 
 /**
   base class for all shaders builders

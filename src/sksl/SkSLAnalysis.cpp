@@ -8,13 +8,13 @@
 #include "src/sksl/SkSLAnalysis.h"
 
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
-#include "src/sksl/ir/SkSLStatement.h"
 
 // ProgramElements
 #include "src/sksl/ir/SkSLEnum.h"

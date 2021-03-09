@@ -8,9 +8,9 @@
 #ifndef SKSL_EXPRESSION
 #define SKSL_EXPRESSION
 
+#include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLDefinitionMap.h"
-#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <unordered_map>

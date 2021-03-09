@@ -8,7 +8,7 @@
 #ifndef SKSL_SYMBOLALIAS
 #define SKSL_SYMBOLALIAS
 
-#include "src/sksl/ir/SkSLSymbol.h"
+#include "include/private/SkSLSymbol.h"
 
 namespace SkSL {
 

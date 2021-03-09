@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/DSL.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
-#include "src/sksl/ir/SkSLIRNode.h"
 
 #include "tests/Test.h"
 
@@ -72,6 +72,11 @@ static bool whitespace_insensitive_compare(const char* a, const char* b) {
         ++a;
         ++b;
     }
+}
+
+// for use from SkSLDSLOnlyTest.cpp
+void StartDSL(const sk_gpu_test::ContextInfo ctxInfo) {
+    Start(ctxInfo.directContext()->priv().getGpu()->shaderCompiler());
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {

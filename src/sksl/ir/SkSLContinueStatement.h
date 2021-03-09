@@ -8,8 +8,8 @@
 #ifndef SKSL_CONTINUESTATEMENT
 #define SKSL_CONTINUESTATEMENT
 
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLStatement.h"
 
 namespace SkSL {
 

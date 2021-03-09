@@ -8,7 +8,7 @@
 #ifndef SKSL_SECTION
 #define SKSL_SECTION
 
-#include "src/sksl/ir/SkSLProgramElement.h"
+#include "include/private/SkSLProgramElement.h"
 
 namespace SkSL {
 
