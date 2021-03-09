@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78bbc3f0_58fcd5f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-03-09T17:28:01Z",
+      "side": 1,
+      "message": "PTAL!\n\nThe failure seems to be a false positive and I cannot reproduce by compiling with the GCC on my Linux workstation, so what do you think of adding -Wno-format-truncation in gn/BUILD.gn specifically for GCC (non-MSVC non-clang)?",
+      "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
