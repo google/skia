@@ -213,4 +213,67 @@ describe('Skottie behavior', () => {
 
         done();
     });
+
+    it('can access text props', (done) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+
+        const json = `{
+            "v": "5.2.1",
+            "w": 100,
+            "h": 100,
+            "fr": 10,
+            "ip": 0,
+            "op": 100,
+            "fonts": {
+              "list": [{
+                "fName": "test_font",
+                "fFamily": "test-family",
+                "fStyle": "TestFontStyle"
+              }]
+            },
+            "layers": [{
+              "ty": 5,
+              "nm": "__text_layer",
+              "ip": 0,
+              "t": {
+                "d": {
+                  "k": [{
+                    "t": 0,
+                    "s": {
+                      "f": "test_font",
+                      "s": 100,
+                      "t": "Foo Bar Baz",
+                      "lh": 120,
+                      "ls": 12
+                    }
+                  }]
+                }
+              }
+            }]
+        }`;
+
+        const animation = CanvasKit.MakeManagedAnimation(json, null, '__');
+        expect(animation).toBeTruthy();
+
+        {
+            const texts = animation.getTextProps();
+            expect(texts.length).toEqual(1);
+            expect(texts[0].value.text).toEqual('Foo Bar Baz');
+            expect(texts[0].value.size).toEqual(100);
+        }
+
+        animation.setText('__text_layer', 'baz bar foo', 10);
+
+        {
+            const texts = animation.getTextProps();
+            expect(texts.length).toEqual(1);
+            expect(texts[0].value.text).toEqual('baz bar foo');
+            expect(texts[0].value.size).toEqual(10);
+        }
+
+        done();
+    });
 });
