@@ -23,8 +23,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     i = 0;
     int4 i4;
     i4 = int4(1, 2, 3, 4);
-    float3x3 f3x3;
-    f3x3 = float3x3(float3(1.0, 2.0, 3.0), float3(4.0, 5.0, 6.0), float3(7.0, 8.0, 9.0));
     float4 x;
     x.w = 0.0;
     x.yx = float2(0.0);
