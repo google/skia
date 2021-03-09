@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "15742eba_c47f1144",
+        "filename": "src/core/SkMessageBus.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7953
+      },
+      "writtenOn": "2021-03-09T15:03:10Z",
+      "side": 1,
+      "message": "I just tested it. std::remove_cv() is not necessary. If Message is sk_sp\u003cconst T\u003e, c++ compiler will still use this template specialization.",
+      "parentUuid": "84c857c3_7e7a40e2",
+      "range": {
+        "startLine": 32,
+        "startChar": 48,
+        "endLine": 32,
+        "endChar": 49
+      },
+      "revId": "adf1c996b67e5080f2082f3c9d96db355866eea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "86e93652_18eba792",
         "filename": "src/core/SkMessageBus.h",
         "patchSetId": 19
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-09T14:33:09Z",
       "side": 1,
       "message": "In Skia we always use {} with ifs.",
+      "range": {
+        "startLine": 135,
+        "startChar": 55,
+        "endLine": 135,
+        "endChar": 78
+      },
+      "revId": "adf1c996b67e5080f2082f3c9d96db355866eea0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "214aa230_735afb08",
+        "filename": "src/core/SkMessageBus.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 7953
+      },
+      "writtenOn": "2021-03-09T15:03:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86e93652_18eba792",
       "range": {
         "startLine": 135,
         "startChar": 55,
