@@ -8,8 +8,8 @@
 #ifndef SKSL_DISCARDSTATEMENT
 #define SKSL_DISCARDSTATEMENT
 
+#include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLStatement.h"
 
 namespace SkSL {
 

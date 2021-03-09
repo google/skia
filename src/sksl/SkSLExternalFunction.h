@@ -8,8 +8,8 @@
 #ifndef SKSL_EXTERNALFUNCTION
 #define SKSL_EXTERNALFUNCTION
 
+#include "include/private/SkSLSymbol.h"
 #include "src/core/SkVM.h"
-#include "src/sksl/ir/SkSLSymbol.h"
 
 namespace SkSL {
 

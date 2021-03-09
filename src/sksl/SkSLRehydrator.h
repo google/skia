@@ -10,7 +10,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLSymbol.h"
+#include "include/private/SkSLSymbol.h"
 
 #include <vector>
 

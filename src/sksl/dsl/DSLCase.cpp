@@ -7,7 +7,7 @@
 
 #include "include/sksl/DSLCase.h"
 
-#include "src/sksl/ir/SkSLStatement.h"
+#include "include/private/SkSLStatement.h"
 
 namespace SkSL {
 

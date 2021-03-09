@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "src/sksl/ir/SkSLProgramElement.h"
+#include "include/private/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
