@@ -1158,12 +1158,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
             if (sc.value() && this->visitExpression(*sc.value())) {
                 return true;
             }
-            for (auto& stmt : sc.statements()) {
-                if (stmt && this->visitStatement(*stmt)) {
-                    return true;
-                }
-            }
-            return false;
+            return this->visitStatement(*sc.statement());
         }
         case Statement::Kind::kDo: {
             auto& d = s.template as<DoStatement>();
