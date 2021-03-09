@@ -1,0 +1,13 @@
+/*#pragma settings NoInline*/
+
+// Ensure that 'const' is preserved on variable and function declarations in the .stage output
+const half r = 0;
+
+half2 compute_ba(const half2 rg) {
+    return rg;
+}
+
+half4 main() {
+    const half g = r + 1;
+    return half4(r, g, compute_ba(half2(r, g)));
+}
