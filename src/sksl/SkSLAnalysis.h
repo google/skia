@@ -155,7 +155,9 @@ struct Analysis {
  * stack.
  */
 
-template <typename PROG, typename EXPR, typename STMT, typename ELEM>
+template <typename PROG,
+          typename EXPR,     typename STMT,     typename ELEM,
+          typename EXPRUNIQ, typename STMTUNIQ, typename ELEMUNIQ>
 class TProgramVisitor {
 public:
     virtual ~TProgramVisitor() = default;
@@ -164,6 +166,10 @@ protected:
     virtual bool visitExpression(EXPR expression);
     virtual bool visitStatement(STMT statement);
     virtual bool visitProgramElement(ELEM programElement);
+
+    virtual bool visitExpressionPtr(EXPRUNIQ expr) = 0;
+    virtual bool visitStatementPtr(STMTUNIQ stmt) = 0;
+    virtual bool visitProgramElementPtr(ELEMUNIQ pe) = 0;
 };
 
 // Squelch bogus Clang warning about template vtables: https://bugs.llvm.org/show_bug.cgi?id=18733
@@ -172,8 +178,13 @@ protected:
 #pragma clang diagnostic ignored "-Wweak-template-vtables"
 #endif
 extern template class TProgramVisitor<const Program&, const Expression&,
-                                      const Statement&, const ProgramElement&>;
-extern template class TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&>;
+                                      const Statement&, const ProgramElement&,
+                                      const std::unique_ptr<Expression>&,
+                                      const std::unique_ptr<Statement>&,
+                                      const std::unique_ptr<ProgramElement>&>;
+extern template class TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&,
+                                      std::unique_ptr<Expression>&, std::unique_ptr<Statement>&,
+                                      std::unique_ptr<ProgramElement>&>;
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
@@ -181,12 +192,44 @@ extern template class TProgramVisitor<Program&, Expression&, Statement&, Program
 class ProgramVisitor : public TProgramVisitor<const Program&,
                                               const Expression&,
                                               const Statement&,
-                                              const ProgramElement&> {
+                                              const ProgramElement&,
+                                              const std::unique_ptr<Expression>&,
+                                              const std::unique_ptr<Statement>&,
+                                              const std::unique_ptr<ProgramElement>&> {
 public:
     bool visit(const Program& program);
+
+private:
+    // ProgramVisitors shouldn't need access to unique_ptrs, and marking these as final should help
+    // these accessors inline away. Use ProgramWriter if you need the unique_ptrs.
+    bool visitExpressionPtr(const std::unique_ptr<Expression>& e) final {
+        return this->visitExpression(*e);
+    }
+    bool visitStatementPtr(const std::unique_ptr<Statement>& s) final {
+        return this->visitStatement(*s);
+    }
+    bool visitProgramElementPtr(const std::unique_ptr<ProgramElement>& p) final {
+        return this->visitProgramElement(*p);
+    }
 };
 
-using ProgramWriter = TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&>;
+class ProgramWriter : public TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&,
+                                             std::unique_ptr<Expression>&,
+                                             std::unique_ptr<Statement>&,
+                                             std::unique_ptr<ProgramElement>&> {
+private:
+    // Subclass these methods if you want access to the unique_ptrs of IRNodes in a program.
+    // This will allow statements or expressions to be replaced during a visit.
+    bool visitExpressionPtr(std::unique_ptr<Expression>& e) override {
+        return this->visitExpression(*e);
+    }
+    bool visitStatementPtr(std::unique_ptr<Statement>& s) override {
+        return this->visitStatement(*s);
+    }
+    bool visitProgramElementPtr(std::unique_ptr<ProgramElement>& p) override {
+        return this->visitProgramElement(*p);
+    }
+};
 
 }  // namespace SkSL
 
