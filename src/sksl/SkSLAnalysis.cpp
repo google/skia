@@ -1209,8 +1209,9 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
             if (this->visitExpression(*sw.value())) {
                 return true;
             }
-            for (const auto& c : sw.cases()) {
-                if (this->visitStatement(*c)) {
+            for (auto& c : sw.cases()) {
+                if ((c->value() && this->visitExpression(*c->value())) ||
+                    (c->statement() && this->visitStatement(*c->statement()))) {
                     return true;
                 }
             }
