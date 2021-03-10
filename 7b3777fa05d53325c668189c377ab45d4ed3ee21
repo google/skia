@@ -16,6 +16,23 @@
       "message": "PTAL. I\u0027m not sure this is the full fix for the bug, but will cover a lot of cases.",
       "revId": "7b3777fa05d53325c668189c377ab45d4ed3ee21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d87f23d_b1ab1b8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-03-10T16:47:14Z",
+      "side": 1,
+      "message": "I tested this out and confirmed that it fixes the issue for the shadow I\u0027ve seen Android use so far. Thanks!",
+      "revId": "7b3777fa05d53325c668189c377ab45d4ed3ee21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
