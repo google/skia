@@ -1087,9 +1087,16 @@ void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {
 }
 
 bool GrMtlGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
+
+    GrThreadSafePipelineBuilder::Stats::ProgramCacheResult stat;
+
     auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState(
-                                 desc, programInfo);
-    return SkToBool(pipelineState);
+                                 desc, programInfo, &stat);
+    if (!pipelineState) {
+        return false;
+    }
+
+    return stat != GrThreadSafePipelineBuilder::Stats::ProgramCacheResult::kHit;
 }
 
 bool GrMtlGpu::precompileShader(const SkData& key, const SkData& data) {
