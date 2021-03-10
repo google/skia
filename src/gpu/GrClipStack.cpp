@@ -1415,14 +1415,20 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                     if (fullyApplied) {
                         remainingAnalyticFPs--;
                     } else if (ccpr && e.aa() == GrAA::kYes) {
-                        // While technically the element is turned into a mask, each atlas entry
-                        // counts towards the FP complexity of the clip.
-                        // TODO - CCPR needs a stable ops task ID so we can't create FPs until we
-                        // know any other mask generation is finished. It also only works with AA
-                        // shapes, future atlas systems can improve on this.
-                        elementsForAtlas.push_back(&e);
-                        remainingAnalyticFPs--;
-                        fullyApplied = true;
+                        constexpr static int64_t kMaxClipPathArea =
+                                GrCoverageCountingPathRenderer::kMaxClipPathArea;
+                        SkIRect maskBounds;
+                        if (maskBounds.intersect(e.outerBounds(), draw.outerBounds()) &&
+                            maskBounds.height64() * maskBounds.width64() < kMaxClipPathArea) {
+                            // While technically the element is turned into a mask, each atlas entry
+                            // counts towards the FP complexity of the clip.
+                            // TODO - CCPR needs a stable ops task ID so we can't create FPs until
+                            // we know any other mask generation is finished. It also only works
+                            // with AA shapes, future atlas systems can improve on this.
+                            elementsForAtlas.push_back(&e);
+                            remainingAnalyticFPs--;
+                            fullyApplied = true;
+                        }
                     }
                 }
 

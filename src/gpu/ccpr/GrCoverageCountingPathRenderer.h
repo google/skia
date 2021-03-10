@@ -62,6 +62,10 @@ public:
         fPendingPaths.insert(paths.begin(), paths.end());
     }
 
+    // The atlas can take up a lot of memory. We should only use clip processors for small paths.
+    // Large clip paths should consider a different method, like MSAA stencil.
+    constexpr static int64_t kMaxClipPathArea = 256 * 256;
+
     std::unique_ptr<GrFragmentProcessor> makeClipProcessor(
             std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
             const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps);

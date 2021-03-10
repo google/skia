@@ -38,7 +38,6 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         return true;
     }
 
-#if 0
     if (!caps.driverDisableMSAACCPR() &&
         caps.internalMultisampleCount(defaultA8Format) > 1 &&
         caps.sampleLocationsSupport() &&
@@ -48,7 +47,6 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         }
         return true;
     }
-#endif
 
     return false;
 }
@@ -82,6 +80,10 @@ GrCCPerOpsTaskPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t
 
 GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
+#if 1
+    // The atlas takes up too much memory. We should focus on other path renderers instead.
+    return CanDrawPath::kNo;
+#else
     const GrStyledShape& shape = *args.fShape;
     // We use "kCoverage", or analytic AA, no mater what the coverage type of our atlas: Even if the
     // atlas is multisampled, that resolves into analytic coverage before we draw the path to the
@@ -164,6 +166,7 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
     }
 
     SK_ABORT("Invalid stroke style.");
+#endif
 }
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -190,7 +193,15 @@ void GrCoverageCountingPathRenderer::recordOp(GrOp::Owner op,
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
         std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
         const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps) {
+#ifdef SK_DEBUG
     SkASSERT(!fFlushing);
+    SkIRect pathIBounds;
+    deviceSpacePath.getBounds().roundOut(&pathIBounds);
+    SkIRect maskBounds;
+    if (maskBounds.intersect(accessRect, pathIBounds)) {
+        SkASSERT(maskBounds.height64() * maskBounds.width64() <= kMaxClipPathArea);
+    }
+#endif
 
     uint32_t key = deviceSpacePath.getGenerationID();
     if (CoverageType::kA8_Multisample == fCoverageType) {

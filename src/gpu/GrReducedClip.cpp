@@ -697,13 +697,16 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticPath(const SkPath& deviceSpa
     }
 
     if (fCCPRClipPaths.count() < fMaxCCPRClipPaths && GrAA::kYes == aa) {
-        // Set aside CCPR paths for later. We will create their clip FPs once we know the ID of the
-        // opsTask they will operate in.
-        SkPath& ccprClipPath = fCCPRClipPaths.push_back(deviceSpacePath);
-        if (Invert::kYes == invert) {
-            ccprClipPath.toggleInverseFillType();
+        const SkRect& bounds = deviceSpacePath.getBounds();
+        if (bounds.height() * bounds.width() <= GrCoverageCountingPathRenderer::kMaxClipPathArea) {
+            // Set aside CCPR paths for later. We will create their clip FPs once we know the ID of
+            // the opsTask they will operate in.
+            SkPath& ccprClipPath = fCCPRClipPaths.push_back(deviceSpacePath);
+            if (Invert::kYes == invert) {
+                ccprClipPath.toggleInverseFillType();
+            }
+            return ClipResult::kClipped;
         }
-        return ClipResult::kClipped;
     }
 
     return ClipResult::kNotClipped;
