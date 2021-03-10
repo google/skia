@@ -3990,7 +3990,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Temporarily disable the MSAA implementation of CCPR on various platforms while we work out
     // specific issues.
     if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon drops stencil draws that use sample mask.
-        kImagination_GrGLVendor == ctxInfo.vendor() /* PowerVR produces flaky results on Gold. */) {
+        kImagination_GrGLVendor == ctxInfo.vendor() || /* PowerVR produces flaky results on Gold. */
+        kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() /* Wrong rendering on Adreno405/418*/) {
         fDriverDisableMSAACCPR = true;
     }
 
