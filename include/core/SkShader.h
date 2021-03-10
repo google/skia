@@ -129,6 +129,7 @@ public:
 private:
     SkShader() = default;
     friend class SkShaderBase;
+    friend class SkAndroidFrameworkUtils;
 
     using INHERITED = SkFlattenable;
 };

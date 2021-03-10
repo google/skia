@@ -57,4 +57,26 @@ SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
     }
     return result;
 }
+
+bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(const SkShader* shader,
+                                                      LinearGradientInfo* info) {
+    SkShader::GradientInfo privInfo;
+
+    privInfo.fColorCount   = info->fColorCount;
+    privInfo.fColors       = info->fColors;
+    privInfo.fColorOffsets = info->fColorOffsets;
+    auto t = shader->asAGradient(&privInfo);
+    // TODO: move this to ShaderBase once android is calling these Utils
+    if (shader->asAGradient(&privInfo) == SkShader::kLinear_GradientType) {
+        info->fColorCount = privInfo.fColorCount;   // may have changed
+        return true;
+    }
+}
+
+bool SkAndroidFrameworkUtils::ColorFilterAsAColorMode(const SkColorFilter* filter,
+                                                      SkColor* src, SkBlendMode* mode) {
+    // TODO: move this to ColorFilterBase once android is calling these Utils
+    return filter->asAColorMode(src, mode);
+}
+
 #endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
