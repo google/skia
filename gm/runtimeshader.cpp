@@ -335,6 +335,45 @@ public:
 };
 DEF_GM(return new DefaultColorRT;)
 
+// Emits coverage for a general superellipse defined by the boundary:
+//
+//   x^m + y^n == 1
+//
+// Where x and y are normalized coordinates ranging from -1..+1 inside the squircle's bounding box.
+//
+// See: https://en.wikipedia.org/wiki/Superellipse#Generalizations
+class SquircleRT : public RuntimeShaderGM {
+public:
+    SquircleRT() : RuntimeShaderGM("squircle_rt", {512, 256}, R"(
+        uniform float2 exponents;
+        uniform float2 dxdy;
+        half4 main(float2 xy) {
+            float2 p = pow(xy, exponents);
+            float f = p.x + p.y - 1;
+            float2 grad = exponents * pow(xy, exponents - 1) * dxdy;
+            float fwidth = abs(grad.x) + abs(grad.y);
+            return half4(clamp(.5 - f/fwidth, 0, 1));
+        }
+    )") {}
+
+    void onDraw(SkCanvas* canvas) override {
+        SkRect squircle = SkRect::MakeXYWH(6, 5, 300, 185.41);
+        float m = 11.7f;
+        float n = 6.2f;
+
+        SkRuntimeShaderBuilder builder(fEffect);
+        builder.uniform("dxdy") = SkV2{1/squircle.width(), 1/squircle.height()};
+        builder.uniform("exponents") = SkV2{m, n};
+
+        SkMatrix matrix;
+        matrix.setScaleTranslate(squircle.width()*.5f, squircle.height()*.5f, squircle.centerX(),
+                                 squircle.centerY());
+
+        canvas->clipShader(builder.makeShader(&matrix, false));
+        canvas->clear(SkColorSetARGB(255, 144, 123, 189));
+    }
+};
+DEF_GM(return new SquircleRT;)
 
 DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     static constexpr char scale[] =
