@@ -132,6 +132,8 @@ public:
         return fProxyShader->asAGradient(info);
     }
 
+    bool requiresSkVM() const override { return as_SB(fProxyShader)->requiresSkVM(); }
+
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif

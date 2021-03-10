@@ -25,6 +25,7 @@ public:
 
 protected:
     SkShader_Blend(SkReadBuffer&);
+    bool requiresSkVM() const override;
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
@@ -58,6 +59,7 @@ public:
 
 protected:
     SkShader_Lerp(SkReadBuffer&);
+    bool requiresSkVM() const override;
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
