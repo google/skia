@@ -1244,16 +1244,17 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
-                for (const std::unique_ptr<SwitchCase>& c : s.cases()) {
-                    if (!c->value()) {
-                        defaultCase = c.get();
+                for (const std::unique_ptr<Statement>& stmt : s.cases()) {
+                    SwitchCase& c = stmt->as<SwitchCase>();
+                    if (!c.value()) {
+                        defaultCase = &c;
                         continue;
                     }
                     int64_t caseValue;
-                    SkAssertResult(ConstantFolder::GetConstantInt(*c->value(), &caseValue));
+                    SkAssertResult(ConstantFolder::GetConstantInt(*c.value(), &caseValue));
                     if (caseValue == switchValue) {
                         std::unique_ptr<Statement> newBlock =
-                                SwitchStatement::BlockForCase(&s.cases(), c.get(), s.symbols());
+                                SwitchStatement::BlockForCase(&s.cases(), &c, s.symbols());
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock), usage);
                             found = true;
