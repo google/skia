@@ -109,7 +109,7 @@ public:
     };
 
     // DEPRECATED. skbug.com/8941
-    virtual GradientType asAGradient(GradientInfo* info) const;
+    GradientType asAGradient(GradientInfo* info) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Methods to create combinations or variants of shaders

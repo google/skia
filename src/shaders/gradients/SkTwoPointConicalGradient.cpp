@@ -114,18 +114,6 @@ bool SkTwoPointConicalGradient::isOpaque() const {
     return false;
 }
 
-// Returns the original non-sorted version of the gradient
-SkShader::GradientType SkTwoPointConicalGradient::asAGradient(GradientInfo* info) const {
-    if (info) {
-        commonAsAGradient(info);
-        info->fPoint[0] = fCenter1;
-        info->fPoint[1] = fCenter2;
-        info->fRadius[0] = fRadius1;
-        info->fRadius[1] = fRadius2;
-    }
-    return kConical_GradientType;
-}
-
 sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {

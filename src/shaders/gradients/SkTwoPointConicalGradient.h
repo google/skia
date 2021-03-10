@@ -47,7 +47,6 @@ public:
                                   const SkPoint& end, SkScalar endRadius,
                                   const Descriptor&);
 
-    SkShader::GradientType asAGradient(GradientInfo* info) const  override;
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif

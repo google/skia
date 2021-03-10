@@ -62,6 +62,8 @@ public:
      */
     virtual bool isConstant() const { return false; }
 
+    virtual GradientType onAsAGradient(GradientInfo* info) const { return kNone_GradientType; }
+
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
     enum Flags {

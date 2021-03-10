@@ -14,8 +14,6 @@ class SkSweepGradient final : public SkGradientShaderBase {
 public:
     SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1, const Descriptor&);
 
-    GradientType asAGradient(GradientInfo* info) const override;
-
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif

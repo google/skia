@@ -22,7 +22,7 @@ public:
     , fProxyShader(std::move(proxy))
     {}
 
-    GradientType asAGradient(GradientInfo* info) const override {
+    GradientType onAsAGradient(GradientInfo* info) const override {
         return fProxyShader->asAGradient(info);
     }
 
