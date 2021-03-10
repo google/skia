@@ -482,6 +482,8 @@ void GrVkRenderTarget::onAbandon() {
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
+    // This should only get called with a non-released GrVkRenderTargets.
+    SkASSERT(!this->wasDestroyed());
     // If we have a resolve attachment that is what we return for the backend render target
     const GrVkAttachment* beAttachment = this->externalAttachment();
     return GrBackendRenderTarget(beAttachment->width(), beAttachment->height(),

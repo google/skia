@@ -1151,6 +1151,23 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageBackendAccessAbandoned_Gpu, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
+    if (!image) {
+        return;
+    }
+
+    GrBackendTexture beTex = image->getBackendTexture(true);
+    REPORTER_ASSERT(reporter, beTex.isValid());
+
+    dContext->abandonContext();
+
+    // After abandoning the context the backend texture should not be valid.
+    beTex = image->getBackendTexture(true);
+    REPORTER_ASSERT(reporter, !beTex.isValid());
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImage> create_picture_image(sk_sp<SkColorSpace> space) {

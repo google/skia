@@ -47,6 +47,9 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     if (!dContext) {
         return nullptr;
     }
+    if (dContext->abandoned()) {
+        return nullptr;
+    }
 
     switch (access) {
         case SkSurface::kFlushRead_BackendHandleAccess:
