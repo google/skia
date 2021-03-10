@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e19e0bc_8bae96d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-10T20:24:05Z",
+      "side": 1,
+      "message": "Happy if there is a more compact way to do this. Just proposing this one since it unblocks using SkSL shaders in clipShader (for raster).",
+      "revId": "fad4584ff47880af01ffc21e35f2dd365ed64216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
