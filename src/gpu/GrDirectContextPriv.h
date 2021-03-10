@@ -29,6 +29,9 @@ class SkTaskGroup;
     data members or virtual methods. */
 class GrDirectContextPriv {
 public:
+    using DirectContextID = GrDirectContext::DirectContextID;
+
+    DirectContextID directContextID() const { return fContext->fDirectContextID; }
 
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }

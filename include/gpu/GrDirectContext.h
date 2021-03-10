@@ -806,6 +806,23 @@ protected:
     GrDirectContext* asDirectContext() override { return this; }
 
 private:
+    class DirectContextID {
+    public:
+        DirectContextID();
+
+        bool operator==(const DirectContextID& that) const { return fID == that.fID; }
+        bool operator!=(const DirectContextID& that) const { return !(*this == that); }
+
+        static DirectContextID Invalid();
+        void makeInvalid() { fID = SK_InvalidUniqueID; }
+        bool isValid() const { return fID != SK_InvalidUniqueID; }
+
+    private:
+        constexpr DirectContextID(uint32_t id) : fID(id) {}
+        static uint32_t NextID();
+        uint32_t fID;
+    };
+
     // This call will make sure out work on the GPU is finished and will execute any outstanding
     // asynchronous work (e.g. calling finished procs, freeing resources, etc.) related to the
     // outstanding work on the gpu. The main use currently for this function is when tearing down or
@@ -819,6 +836,7 @@ private:
     // bool is used for this signal.
     void syncAllOutstandingGpuWork(bool shouldExecuteWhileAbandoned);
 
+    const DirectContextID                   fDirectContextID;
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
