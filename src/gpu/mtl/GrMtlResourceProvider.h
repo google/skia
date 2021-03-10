@@ -53,7 +53,7 @@ private:
     class PipelineStateCache : public GrThreadSafePipelineBuilder {
     public:
         PipelineStateCache(GrMtlGpu* gpu);
-        ~PipelineStateCache();
+        ~PipelineStateCache() override;
 
         void release();
         GrMtlPipelineState* refPipelineState(const GrProgramDesc&, const GrProgramInfo&,
