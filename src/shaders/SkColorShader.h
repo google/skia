@@ -26,8 +26,6 @@ public:
     bool isOpaque() const override;
     bool isConstant() const override { return true; }
 
-    GradientType asAGradient(GradientInfo* info) const override;
-
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif

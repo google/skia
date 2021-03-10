@@ -32,6 +32,7 @@ public:
     /** Returns the flags for this filter. Override in subclasses to return custom flags.
     */
     virtual uint32_t onGetFlags() const { return 0; }
+    virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
 
 #if SK_SUPPORT_GPU
     /**
@@ -73,7 +74,6 @@ protected:
     SkColorFilterBase() {}
 
     virtual bool onAsAColorMatrix(float[20]) const;
-    virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
 
 private:
     virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;

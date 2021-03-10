@@ -58,6 +58,21 @@ public:
      *  @return SkCanvas that was found in the innermost SkPaintFilterCanvas.
      */
     static SkCanvas* getBaseWrappedCanvas(SkCanvas* canvas);
+
+    struct GradientInfo {
+        int         fColorCount;    //!< In-out parameter, specifies passed size
+                                    //   of fColors/fColorOffsets on input, and
+                                    //   actual number of colors/offsets on
+                                    //   output.
+        SkColor*    fColors;        //!< The colors in the gradient.
+        SkScalar*   fColorOffsets;  //!< The unit offset for color transitions.
+        SkPoint     fPoint[2];      //!< Line end-points.
+        SkTileMode  fTileMode;
+        uint32_t    fGradientFlags; //!< see SkGradientShader::Flags
+    }
+    static bool ShaderAsALinearGradient(const SkShader*, GradientInfo*);
+
+    static bool ColorFilterAsAColorMode(const SkColorFilter*, SkColor* src, SkBlendMode*);
 };
 
 #endif // SK_BUILD_FOR_ANDROID_ANDROID

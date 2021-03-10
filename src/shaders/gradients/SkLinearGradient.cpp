@@ -81,7 +81,7 @@ skvm::F32 SkLinearGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
     return coord.x;
 }
 
-SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
+SkShader::GradientType SkLinearGradient::onAsAGradient(GradientInfo* info) const {
     if (info) {
         commonAsAGradient(info);
         info->fPoint[0] = fStart;
