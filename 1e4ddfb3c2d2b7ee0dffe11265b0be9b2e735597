@@ -16,6 +16,23 @@
       "message": "Code LGTM, let\u0027s see about those reds",
       "revId": "1e4ddfb3c2d2b7ee0dffe11265b0be9b2e735597",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17ac3858_954104be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-10T14:22:26Z",
+      "side": 1,
+      "message": "This change seems pretty straightforward but I don\u0027t think I have proper context for overall what\u0027s being pursued here. Is there a bug or doc or something that explains the overall direction here?",
+      "revId": "1e4ddfb3c2d2b7ee0dffe11265b0be9b2e735597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
