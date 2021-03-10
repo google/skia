@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ed9df6c_1981dfe6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-10T19:55:59Z",
+      "side": 1,
+      "message": "It seems like the invalidation message received by GrResourceCache should also be a direct context id, right? I\u0027m wondering if we should break this down into smaller steps... introduce dcontext-id, make messages that target GrRC use dcontext-id, then have this with change with two dcontext-ids: originating, borrowing.",
+      "revId": "1e800e8cdb81156f23be5c7df187821b1b04b156",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
