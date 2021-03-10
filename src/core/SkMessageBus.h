@@ -12,6 +12,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkOnce.h"
@@ -43,18 +44,18 @@ public:
 
     class Inbox {
     public:
-        Inbox(uint32_t uniqueID = SK_InvalidUniqueID);
+        Inbox(GrContextThreadSafeProxy::FamilyID);
         ~Inbox();
 
-        uint32_t uniqueID() const { return fUniqueID; }
+        GrContextThreadSafeProxy::FamilyID uniqueID() const { return fUniqueID; }
 
         // Overwrite out with all the messages we've received since the last call.  Threadsafe.
         void poll(SkTArray<Message>* out);
 
     private:
-        SkTArray<Message>  fMessages;
-        SkMutex            fMessagesMutex;
-        const uint32_t fUniqueID;
+        SkTArray<Message>                        fMessages;
+        SkMutex                                  fMessagesMutex;
+        const GrContextThreadSafeProxy::FamilyID fUniqueID;
 
         friend class SkMessageBus;
         void receive(Message m);  // SkMessageBus is a friend only to call this.
@@ -83,7 +84,8 @@ private:
 //   ----------------------- Implementation of SkMessageBus::Inbox -----------------------
 
 template <typename Message, bool AllowCopyableMessage>
-SkMessageBus<Message, AllowCopyableMessage>::Inbox::Inbox(uint32_t uniqueID) : fUniqueID(uniqueID) {
+SkMessageBus<Message, AllowCopyableMessage>::Inbox::Inbox(GrContextThreadSafeProxy::FamilyID uniqueID)
+        : fUniqueID(uniqueID) {
     // Register ourselves with the corresponding message bus.
     auto* bus = SkMessageBus<Message, AllowCopyableMessage>::Get();
     SkAutoMutexExclusive lock(bus->fInboxesMutex);

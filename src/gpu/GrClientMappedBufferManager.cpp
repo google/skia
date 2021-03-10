@@ -9,8 +9,8 @@
 
 #include <algorithm>
 
-GrClientMappedBufferManager::GrClientMappedBufferManager(uint32_t contextID)
-        : fFinishedBufferInbox(contextID) {}
+GrClientMappedBufferManager::GrClientMappedBufferManager(GrContextThreadSafeProxy::FamilyID familyID)
+        : fFinishedBufferInbox(familyID) {}
 
 GrClientMappedBufferManager::~GrClientMappedBufferManager() {
     this->process();

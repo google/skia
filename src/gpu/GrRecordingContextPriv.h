@@ -19,9 +19,9 @@ class SkDeferredDisplayList;
 class GrRecordingContextPriv {
 public:
     // from GrContext_Base
-    uint32_t contextID() const { return fContext->contextID(); }
+    GrContextThreadSafeProxy::FamilyID familyID() const { return fContext->familyID(); }
 
-    bool matches(GrContext_Base* candidate) const { return fContext->matches(candidate); }
+    bool inSameFamily(GrContext_Base* candidate) const { return fContext->inSameFamily(candidate); }
 
     const GrContextOptions& options() const { return fContext->options(); }
 

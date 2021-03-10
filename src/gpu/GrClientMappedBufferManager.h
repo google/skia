@@ -8,6 +8,7 @@
 #ifndef GrClientMappedBufferManager_DEFINED
 #define GrClientMappedBufferManager_DEFINED
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/GrGpuBuffer.h"
@@ -41,7 +42,7 @@ public:
     };
     using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage, false>;
 
-    GrClientMappedBufferManager(uint32_t contextID);
+    GrClientMappedBufferManager((GrContextThreadSafeProxy::FamilyID);
     GrClientMappedBufferManager(const GrClientMappedBufferManager&) = delete;
     GrClientMappedBufferManager(GrClientMappedBufferManager&&) = delete;
 
@@ -51,7 +52,7 @@ public:
     GrClientMappedBufferManager& operator=(GrClientMappedBufferManager&&) = delete;
 
     /** Initialize BufferFinishedMessage::fInboxID to this value. */
-    uint32_t inboxID() const { return fFinishedBufferInbox.uniqueID(); }
+    GrContextThreadSafeProxy::FamilyID inboxID() const { return fFinishedBufferInbox.uniqueID(); }
 
     /**
      * Let the manager know to expect a message with buffer 'b'. It's illegal for a buffer to be

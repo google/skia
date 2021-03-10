@@ -15,7 +15,7 @@ static inline bool SkShouldPostMessageToBus(
     return msg.fContextID == msgBusUniqueID;
 }
 
-GrTextBlobCache::GrTextBlobCache(uint32_t messageBusID)
+GrTextBlobCache::GrTextBlobCache(GrContextThreadSafeProxy::FamilyID messageBusID)
         : fSizeBudget(kDefaultBudget)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
