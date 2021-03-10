@@ -977,9 +977,9 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
 
     SkRRect rrect;
     SkRect rect;
-    // we can only handle rects, circles, and rrects with circular corners
-    bool isRRect = path.isRRect(&rrect) && SkRRectPriv::IsSimpleCircular(rrect) &&
-        rrect.radii(SkRRect::kUpperLeft_Corner).fX > SK_ScalarNearlyZero;
+    // we can only handle rects, circles, and simple rrects with circular corners
+    bool isRRect = path.isRRect(&rrect) && SkRRectPriv::IsNearlySimpleCircular(rrect) &&
+                   rrect.getSimpleRadii().fX > SK_ScalarNearlyZero;
     if (!isRRect &&
         path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height()) &&
         rect.width() > SK_ScalarNearlyZero) {
@@ -1089,7 +1089,7 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
         SkMatrix shadowTransform;
         shadowTransform.setScaleTranslate(spotScale, spotScale, spotOffset.fX, spotOffset.fY);
         rrect.transform(shadowTransform, &spotShadowRRect);
-        SkScalar spotRadius = SkRRectPriv::GetSimpleRadii(spotShadowRRect).fX;
+        SkScalar spotRadius = spotShadowRRect.getSimpleRadii().fX;
 
         // Compute the insetWidth
         SkScalar blurOutset = srcSpaceSpotBlur;
@@ -1132,7 +1132,7 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
                                                          spotShadowRRect.rect().fBottom -
                                                          rrect.rect().fBottom - dr);
                 maxOffset = SkScalarSqrt(std::max(SkPointPriv::LengthSqd(upperLeftOffset),
-                                                SkPointPriv::LengthSqd(lowerRightOffset))) + dr;
+                                                  SkPointPriv::LengthSqd(lowerRightOffset))) + dr;
             }
             insetWidth += std::max(blurOutset, maxOffset);
         }

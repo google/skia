@@ -28,6 +28,10 @@ public:
         return rr.isSimple() && SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY);
     }
 
+    // Looser version of IsSimpleCircular, where the x & y values of the radii
+    // only have to be nearly equal instead of strictly equal.
+    static bool IsNearlySimpleCircular(const SkRRect& rr, SkScalar tolerance = SK_ScalarNearlyZero);
+
     static bool EqualRadii(const SkRRect& rr) {
         return rr.isRect() || SkRRectPriv::IsCircle(rr)  || SkRRectPriv::IsSimpleCircular(rr);
     }
