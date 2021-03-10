@@ -253,6 +253,30 @@
       },
       "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ff9ea81_3fa540b3",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T19:49:30Z",
+      "side": 1,
+      "message": "What does \"scalar architecture\" mean? Are there other architectures where it would be better to do it on the grad?",
+      "parentUuid": "ebcff8c6_801f89c8",
+      "range": {
+        "startLine": 353,
+        "startChar": 26,
+        "endLine": 353,
+        "endChar": 67
+      },
+      "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
