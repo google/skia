@@ -386,6 +386,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAbandonPostFlush_Gpu, reporter, ctxInf
     // the object at the right time.
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendAccessAbandoned_Gpu, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+    sk_sp<SkSurface> surface = create_gpu_surface(dContext, kPremul_SkAlphaType, nullptr);
+    if (!surface) {
+        return;
+    }
+
+    GrBackendRenderTarget beRT =
+            surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+    REPORTER_ASSERT(reporter, beRT.isValid());
+    GrBackendTexture beTex =
+            surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+    REPORTER_ASSERT(reporter, beTex.isValid());
+
+    surface->flush();
+    dContext->abandonContext();
+
+    // After abandoning the context none of the backend surfaces should be valid.
+    beRT = surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+    REPORTER_ASSERT(reporter, !beRT.isValid());
+    beTex = surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+    REPORTER_ASSERT(reporter, !beTex.isValid());
+}
+
 // Verify that the right canvas commands trigger a copy on write.
 static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface) {
     SkCanvas* canvas = surface->getCanvas();

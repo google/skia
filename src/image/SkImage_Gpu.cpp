@@ -263,6 +263,9 @@ GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
         // This image was created with a DDL context and cannot be instantiated.
         return GrBackendTexture();  // invalid
     }
+    if (direct->abandoned()) {
+        return GrBackendTexture();  // invalid;
+    }
 
     // We don't know how client's use of the texture will be ordered WRT Skia's. Ensure the
     // texture seen by the client won't be mutated by a SkSurface.
