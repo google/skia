@@ -349,6 +349,30 @@
       },
       "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47cb30eb_def31699",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-10T19:56:16Z",
+      "side": 1,
+      "message": "... replying to chris: Yes. The raster backend works like modern GPUs - scalarize all the math for a given pixel, then use SIMD/SIMT to do that work efficiently across many pixels at once.",
+      "parentUuid": "e1b66c83_894a2a0a",
+      "range": {
+        "startLine": 353,
+        "startChar": 26,
+        "endLine": 353,
+        "endChar": 67
+      },
+      "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
