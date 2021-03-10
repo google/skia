@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e653065b_e5209be4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-10T21:42:12Z",
+      "side": 1,
+      "message": "Seems a little quirky to switch in and out of yoda-style ordering, but I don\u0027t really mind either way",
+      "revId": "831c20091c90b7eec5eacbce6b6d619bbaad52ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
