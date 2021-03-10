@@ -427,6 +427,17 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, "glestestprecompile")
 		}
 
+                // Test SkSL precompile on iPhone 8 as representative iOS device
+		if b.model("iPhone8") && b.extraConfig("Metal") {
+		        configs = append(configs, "mtltestprecompile")
+			// avoid tests that can generate slightly different pixels per run
+			skip("mtltestprecompile gm _ atlastext")
+                        skip("mtltestprecompile gm _ dftext")
+			skip("mtltestprecompile gm _ glyph_pos_h_b")
+			skip("mtltestprecompile gm _ glyph_pos_h_f")
+			skip("mtltestprecompile gm _ glyph_pos_n_f")
+		}
+
 		if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 			args = append(args, "--reduceOpsTaskSplitting", "true")
 		}
