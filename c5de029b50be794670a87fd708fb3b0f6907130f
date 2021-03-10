@@ -186,6 +186,54 @@
       },
       "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7390ca1_4717d0ae",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-10T15:28:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e52bd5d4_d1be5718",
+      "range": {
+        "startLine": 217,
+        "startChar": 33,
+        "endLine": 217,
+        "endChar": 37
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f28e90e4_32b5f1ab",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-10T15:28:10Z",
+      "side": 1,
+      "message": "Crossed my mind, but I think we have Skia GMs exercising dynamic props.  JS unit test seems sufficient since we\u0027re only testing the bindings.",
+      "parentUuid": "4d027195_ed87711a",
+      "range": {
+        "startLine": 217,
+        "startChar": 4,
+        "endLine": 217,
+        "endChar": 6
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
