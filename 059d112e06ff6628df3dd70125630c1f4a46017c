@@ -16,6 +16,29 @@
       "message": "Code LGTM; Brian, is this a good place for a squircle test?",
       "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cd6f343_f740ccf0",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T19:10:47Z",
+      "side": 1,
+      "message": "Just realized this needs to be a float2x2 if there is rotation. I\u0027ll rework the code.",
+      "range": {
+        "startLine": 349,
+        "startChar": 16,
+        "endLine": 349,
+        "endChar": 22
+      },
+      "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
