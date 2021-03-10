@@ -16,6 +16,24 @@
       "message": "Seems a little quirky to switch in and out of yoda-style ordering, but I don\u0027t really mind either way",
       "revId": "831c20091c90b7eec5eacbce6b6d619bbaad52ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3437aaa_a6dca1a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T22:57:12Z",
+      "side": 1,
+      "message": "Yoda style 😂😂😂\n\nThis is all about to get nuked anyway once ccpr rendering gets deleted, so I\u0027ll go ahead and land as-is (don\u0027t want to wait for the bots again), and then make it consistent if we actually end up having to keep any of this.",
+      "parentUuid": "e653065b_e5209be4",
+      "revId": "831c20091c90b7eec5eacbce6b6d619bbaad52ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
