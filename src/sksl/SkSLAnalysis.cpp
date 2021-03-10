@@ -184,6 +184,16 @@ class ProgramUsageVisitor : public ProgramVisitor {
 public:
     ProgramUsageVisitor(ProgramUsage* usage, int delta) : fUsage(usage), fDelta(delta) {}
 
+    bool visitStatement(const Statement& s) override {
+        if (s.is<VarDeclaration>()) {
+            // Add all declared variables to the usage map (even if never otherwise accessed).
+            // This doesn't count as a read or a write, even if an initial-value is present.
+            const VarDeclaration& vd = s.as<VarDeclaration>();
+            fUsage->fVariableCounts[&vd.var()];
+        }
+        return INHERITED::visitStatement(s);
+    }
+
     bool visitExpression(const Expression& e) override {
         if (e.is<FunctionCall>()) {
             const FunctionDeclaration* f = &e.as<FunctionCall>().function();
