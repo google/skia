@@ -301,6 +301,30 @@
       },
       "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5052fa85_31f18cb4",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T19:54:53Z",
+      "side": 1,
+      "message": "Got it. I assumed the Raster implementation would use SIMD across pixels instead of on SkSL vectors. Is that correct?",
+      "parentUuid": "7fb06116_e4ac88bd",
+      "range": {
+        "startLine": 353,
+        "startChar": 26,
+        "endLine": 353,
+        "endChar": 67
+      },
+      "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
