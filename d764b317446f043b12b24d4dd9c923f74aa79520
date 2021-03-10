@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58316b71_9f4f2401",
+        "filename": "include/gpu/GrDirectContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 811,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-10T22:50:26Z",
+      "side": 1,
+      "message": "It seems a little bit undesirable to have the default constructor bump the next ID. You could invoke that just making a local variable:\n\n DirectContextID id;\n auto foo \u003d get_foo_and_id(\u0026id);\n\nMaybe default should be invalid and there\u0027s factory function for a new ID?",
+      "range": {
+        "startLine": 811,
+        "startChar": 8,
+        "endLine": 811,
+        "endChar": 23
+      },
+      "revId": "d764b317446f043b12b24d4dd9c923f74aa79520",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
