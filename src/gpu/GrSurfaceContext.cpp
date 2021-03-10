@@ -165,12 +165,14 @@ static bool alpha_types_compatible(SkAlphaType srcAlphaType, SkAlphaType dstAlph
     return (srcAlphaType == kUnknown_SkAlphaType) == (dstAlphaType == kUnknown_SkAlphaType);
 }
 
-bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoint pt) {
+bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoint pt, bool foo) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
-    if (!fContext->priv().matches(dContext)) {
+
+    // TODO: ???
+    if (!fContext->priv().inSameFamily(dContext)) {
         return false;
     }
 
@@ -306,7 +308,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
             tempCtx = GrSurfaceContext::Make(dContext, std::move(view), this->colorInfo());
             SkASSERT(tempCtx);
         }
-        return tempCtx->readPixels(dContext, dst, pt);
+        return tempCtx->readPixels(dContext, dst, pt, true);
     }
 
     bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
@@ -640,7 +642,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
 
 class GrSurfaceContext::AsyncReadResult : public SkImage::AsyncReadResult {
 public:
-    AsyncReadResult(uint32_t inboxID) : fInboxID(inboxID) {}
+    AsyncReadResult(GrRecordingContext::ExplicitContextID inboxID) : fInboxID(inboxID) {}
     ~AsyncReadResult() override {
         for (int i = 0; i < fPlanes.count(); ++i) {
             fPlanes[i].releaseMappedBuffer(fInboxID);
@@ -702,7 +704,7 @@ private:
         Plane& operator=(const Plane&) = delete;
         Plane& operator=(Plane&&) = default;
 
-        void releaseMappedBuffer(uint32_t inboxID) {
+        void releaseMappedBuffer(GrRecordingContext::ExplicitContextID inboxID) {
             if (fMappedBuffer) {
                 GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
                         {std::move(fMappedBuffer), inboxID});
@@ -727,7 +729,7 @@ private:
         size_t fRowBytes;
     };
     SkSTArray<3, Plane> fPlanes;
-    uint32_t fInboxID;
+    GrRecordingContext::ExplicitContextID fInboxID;
 };
 
 void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
@@ -750,12 +752,12 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
     if (!transferResult.fTransferBuffer) {
         auto ii = SkImageInfo::Make(rect.size(), colorType, this->colorInfo().alphaType(),
                                     this->colorInfo().refColorSpace());
-        auto result = std::make_unique<AsyncReadResult>(0);
+        auto result = std::make_unique<AsyncReadResult>(GrRecordingContext::ExplicitContextID::Invalid());
         GrPixmap pm = GrPixmap::Allocate(ii);
         result->addCpuPlane(pm.pixelStorage(), pm.rowBytes());
 
         SkIPoint pt{rect.fLeft, rect.fTop};
-        if (!this->readPixels(dContext, pm, pt)) {
+        if (!this->readPixels(dContext, pm, pt, true)) {
             callback(callbackContext, nullptr);
             return;
         }
@@ -994,13 +996,13 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
         GrPixmap yPmp = GrPixmap::Allocate(yInfo);
         GrPixmap uPmp = GrPixmap::Allocate(uvInfo);
         GrPixmap vPmp = GrPixmap::Allocate(uvInfo);
-        if (!yFC->readPixels(dContext, yPmp, {0, 0}) ||
-            !uFC->readPixels(dContext, uPmp, {0, 0}) ||
-            !vFC->readPixels(dContext, vPmp, {0, 0})) {
+        if (!yFC->readPixels(dContext, yPmp, {0, 0}, true) ||
+            !uFC->readPixels(dContext, uPmp, {0, 0}, true) ||
+            !vFC->readPixels(dContext, vPmp, {0, 0}, true)) {
             callback(callbackContext, nullptr);
             return;
         }
-        auto result = std::make_unique<AsyncReadResult>(dContext->priv().contextID());
+        auto result = std::make_unique<AsyncReadResult>(dContext->priv().explicitContextID());
         result->addCpuPlane(yPmp.pixelStorage(), yPmp.rowBytes());
         result->addCpuPlane(uPmp.pixelStorage(), uPmp.rowBytes());
         result->addCpuPlane(vPmp.pixelStorage(), vPmp.rowBytes());

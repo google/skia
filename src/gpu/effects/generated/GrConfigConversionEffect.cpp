@@ -143,7 +143,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
             GrTextureEffect::Make(std::move(dataView), bitmap.alphaType()),
             PMConversion::kToUnpremul);
     readSFC->fillRectWithFP(SkIRect::MakeWH(kSize, kSize), std::move(fp1));
-    if (!readSFC->readPixels(dContext, firstReadPM, {0, 0})) {
+    if (!readSFC->readPixels(dContext, firstReadPM, {0, 0}, true)) {
         return false;
     }
 
@@ -157,7 +157,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
             PMConversion::kToUnpremul);
     readSFC->fillRectWithFP(SkIRect::MakeWH(kSize, kSize), std::move(fp3));
 
-    if (!readSFC->readPixels(dContext, secondReadPM, {0, 0})) {
+    if (!readSFC->readPixels(dContext, secondReadPM, {0, 0}, true)) {
         return false;
     }
 

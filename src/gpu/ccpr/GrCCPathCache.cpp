@@ -13,7 +13,7 @@
 
 static constexpr int kMaxKeyDataCountU32 = 256;  // 1kB of uint32_t's.
 
-DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key>, true);
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key>, GrRecordingContext::ExplicitContextID, true);
 
 static inline uint32_t next_path_cache_id() {
     static std::atomic<uint32_t> gNextID(1);
@@ -26,7 +26,7 @@ static inline uint32_t next_path_cache_id() {
 }
 
 static inline bool SkShouldPostMessageToBus(
-        const sk_sp<GrCCPathCache::Key>& key, uint32_t msgBusUniqueID) {
+        const sk_sp<GrCCPathCache::Key>& key, GrRecordingContext::ExplicitContextID msgBusUniqueID) {
     return key->pathCacheUniqueID() == msgBusUniqueID;
 }
 
@@ -65,10 +65,10 @@ inline static bool fuzzy_equals(const GrCCPathCache::MaskTransform& a,
     return true;
 }
 
-sk_sp<GrCCPathCache::Key> GrCCPathCache::Key::Make(uint32_t pathCacheUniqueID,
+sk_sp<GrCCPathCache::Key> GrCCPathCache::Key::Make(GrRecordingContext::ExplicitContextID explicitContextID,
                                                    int dataCountU32, const void* data) {
     void* memory = ::operator new (sizeof(Key) + dataCountU32 * sizeof(uint32_t));
-    sk_sp<GrCCPathCache::Key> key(new (memory) Key(pathCacheUniqueID, dataCountU32));
+    sk_sp<GrCCPathCache::Key> key(new (memory) Key(explicitContextID, dataCountU32));
     if (data) {
         memcpy(key->data(), data, key->dataSizeInBytes());
     }
@@ -89,11 +89,11 @@ uint32_t* GrCCPathCache::Key::data() {
 
 void GrCCPathCache::Key::changed() {
     // Our key's corresponding path was invalidated. Post a thread-safe eviction message.
-    SkMessageBus<sk_sp<Key>>::Post(sk_ref_sp(this));
+    SkMessageBus<sk_sp<Key>, GrRecordingContext::ExplicitContextID>::Post(sk_ref_sp(this));
 }
 
-GrCCPathCache::GrCCPathCache(uint32_t contextUniqueID)
-        : fContextUniqueID(contextUniqueID)
+GrCCPathCache::GrCCPathCache(GrRecordingContext::ExplicitContextID explicitContextID)
+        : fExplicitContextID(explicitContextID)
         , fInvalidatedKeysInbox(next_path_cache_id())
         , fScratchKey(Key::Make(fInvalidatedKeysInbox.uniqueID(), kMaxKeyDataCountU32)) {
 }

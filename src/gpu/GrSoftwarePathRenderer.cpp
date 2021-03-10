@@ -374,7 +374,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             // We will add an invalidator to the path so that if the path goes away we will
             // delete or recycle the mask texture.
             auto listener = GrMakeUniqueKeyInvalidationListener(&maskKey,
-                                                                args.fContext->priv().contextID());
+                                                                args.fContext->priv().explicitContextID());
             fProxyProvider->assignUniqueKeyToProxy(maskKey, view.asTextureProxy());
             args.fShape->addGenIDChangeListener(std::move(listener));
         }

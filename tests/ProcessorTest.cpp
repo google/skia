@@ -248,7 +248,7 @@ void render_fp(GrDirectContext* dContext,
     std::fill_n(outBuffer, rtc->width() * rtc->height(), 0);
     auto ii = SkImageInfo::Make(rtc->dimensions(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     GrPixmap resultPM(ii, outBuffer, rtc->width()*sizeof(uint32_t));
-    rtc->readPixels(dContext, resultPM, {0, 0});
+    rtc->readPixels(dContext, resultPM, {0, 0}, true);
 }
 
 // This class is responsible for reproducibly generating a random fragment processor.
@@ -413,7 +413,7 @@ bool log_texture_view(GrDirectContext* dContext, GrSurfaceProxyView src, SkStrin
     auto sContext = GrSurfaceContext::Make(dContext, std::move(src), ii.colorInfo());
     SkBitmap bm;
     SkAssertResult(bm.tryAllocPixels(ii));
-    SkAssertResult(sContext->readPixels(dContext, bm.pixmap(), {0, 0}));
+    SkAssertResult(sContext->readPixels(dContext, bm.pixmap(), {0, 0}, true));
     return BipmapToBase64DataURI(bm, dst);
 }
 

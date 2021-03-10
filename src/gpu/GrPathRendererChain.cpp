@@ -39,7 +39,8 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         using AllowCaching = GrCoverageCountingPathRenderer::AllowCaching;
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(
                                 caps, AllowCaching(options.fAllowPathMaskCaching),
-                                context->priv().contextID())) {
+                                // TODO: this doesn't seem quite right as a message bus ID
+                                context->priv().explicitContextID())) {
             fCoverageCountingPathRenderer = ccpr.get();
             context->priv().addOnFlushCallbackObject(fCoverageCountingPathRenderer);
             fChain.push_back(std::move(ccpr));

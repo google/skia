@@ -112,7 +112,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
 
     SkAutoPixmapStorage pixels;
     pixels.alloc(SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    dst->readPixels(dContext, pixels, {0, 0});
+    dst->readPixels(dContext, pixels, {0, 0}, true);
     float kTol[4] = {};
     std::function<ComparePixmapsErrorReporter> errorReporter(
             [&](int x, int y, const float diffs[4]) {
@@ -151,7 +151,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo) {
 
     SkAutoPixmapStorage pixels;
     pixels.alloc(SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    dst->readPixels(dContext, pixels, {0, 0});
+    dst->readPixels(dContext, pixels, {0, 0}, true);
     float kTol[4] = {};
     std::function<ComparePixmapsErrorReporter> errorReporter(
             [&](int x, int y, const float diffs[4]) {

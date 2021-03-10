@@ -14,6 +14,8 @@
 #include "include/core/SkString.h"
 #include "include/private/SkTemplates.h"
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
+
 #include <atomic>
 
 struct SkRSXform;
@@ -232,8 +234,8 @@ private:
 
     // Call when this blob is part of the key to a cache entry. This allows the cache
     // to know automatically those entries can be purged when this SkTextBlob is deleted.
-    void notifyAddedToCache(uint32_t cacheID) const {
-        fCacheID.store(cacheID);
+    void notifyAddedToCache(GrContextThreadSafeProxy::FamilyID cacheID) const {
+        fCacheID.store(cacheID.asInt());
     }
 
     friend class SkGlyphRunList;

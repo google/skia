@@ -26,15 +26,16 @@ class GrStyledShape;
  */
 class GrCCPathCache {
 public:
-    GrCCPathCache(uint32_t contextUniqueID);
+    GrCCPathCache(GrRecordingContext::ExplicitContextID);
     ~GrCCPathCache();
 
     class Key : public SkIDChangeListener {
     public:
-        static sk_sp<Key> Make(uint32_t pathCacheUniqueID, int dataCountU32,
+        static sk_sp<Key> Make(GrRecordingContext::ExplicitContextID,
+                               int dataCountU32,
                                const void* data = nullptr);
 
-        uint32_t pathCacheUniqueID() const { return fPathCacheUniqueID; }
+        GrRecordingContext::ExplicitContextID pathCacheUniqueID() const { return fPathCacheUniqueID; }
 
         int dataSizeInBytes() const { return fDataSizeInBytes; }
         const uint32_t* data() const;
@@ -57,14 +58,14 @@ public:
         static void operator delete(void* p);
 
     private:
-        Key(uint32_t pathCacheUniqueID, int dataCountU32)
+        Key(GrRecordingContext::ExplicitContextID pathCacheUniqueID, int dataCountU32)
                 : fPathCacheUniqueID(pathCacheUniqueID)
                 , fDataSizeInBytes(dataCountU32 * sizeof(uint32_t))
                 SkDEBUGCODE(, fDataReserveCountU32(dataCountU32)) {
-            SkASSERT(SK_InvalidUniqueID != fPathCacheUniqueID);
+            SkASSERT(fPathCacheUniqueID.isValid());
         }
 
-        const uint32_t fPathCacheUniqueID;
+        const GrRecordingContext::ExplicitContextID fPathCacheUniqueID;
         int fDataSizeInBytes;
         SkDEBUGCODE(const int fDataReserveCountU32);
         // The GrStyledShape's unstyled key is stored as a variable-length footer to this class.
@@ -172,7 +173,7 @@ private:
 
     SkTHashTable<HashNode, const Key&> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
-    SkMessageBus<sk_sp<Key>>::Inbox fInvalidatedKeysInbox;
+    SkMessageBus<sk_sp<Key>, GrRecordingContext::ExplicitContextID>::Inbox fInvalidatedKeysInbox;
     sk_sp<Key> fScratchKey;  // Reused for creating a temporary key in the find() method.
 
     // We only read the clock once per flush, and cache it in this variable. This prevents us from

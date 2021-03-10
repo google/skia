@@ -84,7 +84,7 @@ public:
     sk_sp<const GrGpuBuffer> findOrMakeStaticBuffer(GrGpuBufferType, size_t, const void* data,
                                                     const GrUniqueKey&);
 
-    uint32_t contextID() const;
+    GrContextThreadSafeProxy::FamilyID familyID() const;
     const GrCaps* caps() const;
     GrRecordingContext* recordingContext() const;
 

@@ -23,21 +23,21 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLTexture.h"
 
-GrBackendTextureImageGenerator::RefHelper::RefHelper(GrTexture* texture, uint32_t owningContextID,
+GrBackendTextureImageGenerator::RefHelper::RefHelper(GrTexture* texture,
+                                                     GrRecordingContext::ExplicitContextID owningContextID,
                                                      std::unique_ptr<GrSemaphore> semaphore)
         : fOriginalTexture(texture)
-        , fOwningContextID(owningContextID)
+        , fOwningExplicitContextID(owningContextID)
         , fBorrowingContextReleaseProc(nullptr)
-        , fBorrowingContextID(SK_InvalidGenID)
         , fSemaphore(std::move(semaphore)) {}
 
 GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
-    SkASSERT(fBorrowingContextID == SK_InvalidUniqueID);
+    SkASSERT(fBorrowingExplicitContextID.isValid());
 
     // Generator has been freed, and no one is borrowing the texture. Notify the original cache
     // that it can free the last ref, so it happens on the correct thread.
-    GrTextureFreedMessage msg { fOriginalTexture, fOwningContextID };
-    SkMessageBus<GrTextureFreedMessage>::Post(msg);
+    GrTextureFreedMessage msg { fOriginalTexture, fOwningExplicitContextID };
+    SkMessageBus<GrTextureFreedMessage, GrRecordingContext::ExplicitContextID>::Post(msg);
 }
 
 std::unique_ptr<SkImageGenerator>
@@ -61,7 +61,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));
     return std::unique_ptr<SkImageGenerator>(new GrBackendTextureImageGenerator(
-          info, texture.get(), origin, context->priv().contextID(),
+          info, texture.get(), origin, context->priv().explicitContextID(),
           std::move(semaphore), backendTexture));
 }
 
@@ -69,7 +69,7 @@ GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(
         const SkImageInfo& info,
         GrTexture* texture,
         GrSurfaceOrigin origin,
-        uint32_t owningContextID,
+        GrRecordingContext::ExplicitContextID owningContextID,
         std::unique_ptr<GrSemaphore> semaphore,
         const GrBackendTexture& backendTex)
         : INHERITED(info)
@@ -88,7 +88,7 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     SkASSERT(refHelper);
 
     refHelper->fBorrowingContextReleaseProc = nullptr;
-    refHelper->fBorrowingContextID = SK_InvalidGenID;
+    refHelper->fBorrowingExplicitContextID.makeInvalid();
     refHelper->unref();
 }
 
@@ -111,8 +111,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     fBorrowingMutex.acquire();
     sk_sp<GrRefCntedCallback> releaseProcHelper;
-    if (SK_InvalidGenID != fRefHelper->fBorrowingContextID) {
-        if (fRefHelper->fBorrowingContextID != context->priv().contextID()) {
+    if (fRefHelper->fBorrowingExplicitContextID.isValid()) {
+        if (fRefHelper->fBorrowingExplicitContextID != context->priv().explicitContextID()) {
             fBorrowingMutex.release();
             context->priv().printWarningMessage(
                     "GrBackendTextureImageGenerator: Trying to use texture on two GrContexts!\n");
@@ -131,7 +131,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                 GrRefCntedCallback::Make(ReleaseRefHelper_TextureReleaseProc, fRefHelper);
         fRefHelper->fBorrowingContextReleaseProc = releaseProcHelper.get();
     }
-    fRefHelper->fBorrowingContextID = context->priv().contextID();
+    fRefHelper->fBorrowingExplicitContextID = context->priv().explicitContextID();
     if (!fRefHelper->fBorrowedTextureKey.isValid()) {
         static const auto kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey::Builder builder(&fRefHelper->fBorrowedTextureKey, kDomain, 1);
@@ -139,7 +139,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     }
     fBorrowingMutex.release();
 
-    SkASSERT(fRefHelper->fBorrowingContextID == context->priv().contextID());
+    SkASSERT(fRefHelper->fBorrowingExplicitContextID == context->priv().explicitContextID());
 
     GrBackendFormat backendFormat = fBackendTexture.getBackendFormat();
     SkASSERT(backendFormat.isValid());

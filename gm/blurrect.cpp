@@ -260,16 +260,19 @@ protected:
             *errorMsg = "Not supported when recording, relies on canvas->makeSurface()";
             return DrawResult::kSkip;
         }
-        int32_t ctxID = canvas->recordingContext() ? canvas->recordingContext()->priv().contextID()
-                                                   : 0;
-        if (fRecalcMasksForAnimation || !fActualMasks[0][0][0] || ctxID != fLastContextUniqueID) {
+
+        // A given set of cached 'actual' and 'difference' images is only valid w/in a single
+        // context family
+        int32_t familyID = canvas->recordingContext() ? canvas->recordingContext()->priv().familyID()
+                                                      : SK_InvalidGenID;
+        if (fRecalcMasksForAnimation || !fActualMasks[0][0][0] || familyID != fLastFamilyID) {
             if (fRecalcMasksForAnimation) {
                 // Sigma is changing so references must also be recalculated.
                 this->prepareReferenceMasks();
             }
             this->prepareActualMasks(canvas);
             this->prepareMaskDifferences(canvas);
-            fLastContextUniqueID = ctxID;
+            fLastFamilyID = familyID;
             fRecalcMasksForAnimation = false;
         }
         canvas->clear(SK_ColorBLACK);
@@ -491,7 +494,7 @@ private:
     sk_sp<SkImage> fReferenceMasks[kNumSigmas][kNumSizes][kNumSizes];
     sk_sp<SkImage> fActualMasks[kNumSigmas][kNumSizes][kNumSizes];
     sk_sp<SkImage> fMaskDifferences[kNumSigmas][kNumSizes][kNumSizes];
-    int32_t fLastContextUniqueID;
+    int32_t fLastFamilyID;
     // These are used only when animating.
     float fSigmaAnimationBoost = 0;
     bool fRecalcMasksForAnimation = false;

@@ -604,7 +604,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     SkBitmap readBack;
     readBack.allocN32Pixels(kFinalWidth, kFinalHeight);
 
-    SkAssertResult(rtc->readPixels(dContext, readBack.pixmap(), {0, 0}));
+    SkAssertResult(rtc->readPixels(dContext, readBack.pixmap(), {0, 0}, true));
 
     dContext->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&object);
 

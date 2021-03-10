@@ -42,7 +42,8 @@ public:
 
     GrBackendTexture backendTexture() const { return fBackendTexture; }
 
-    void addKeyToInvalidate(uint32_t contextID, const GrUniqueKey& key);
+    void addKeyToInvalidate(GrRecordingContext::ExplicitContextID explicitContextID,
+                            const GrUniqueKey& key);
     uint32_t uniqueID() const { return fUniqueID; }
 
 #if GR_TEST_UTILS

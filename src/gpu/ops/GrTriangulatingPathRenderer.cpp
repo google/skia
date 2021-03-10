@@ -83,13 +83,13 @@ bool is_newer_better(SkData* incumbent, SkData* challenger) {
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
 class UniqueKeyInvalidator : public SkIDChangeListener {
 public:
-    UniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
-            : fMsg(key, contextUniqueID, /* inThreadSafeCache */ true) {}
+    UniqueKeyInvalidator(const GrUniqueKey& key, GrRecordingContext::ExplicitContextID explicitContextID)
+            : fMsg(key, explicitContextID, /* inThreadSafeCache */ true) {}
 
 private:
     GrUniqueKeyInvalidatedMessage fMsg;
 
-    void changed() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
+    void changed() override { SkMessageBus<GrUniqueKeyInvalidatedMessage, GrRecordingContext::ExplicitContextID>::Post(fMsg); }
 };
 
 class StaticVertexAllocator : public GrEagerVertexAllocator {
@@ -565,7 +565,7 @@ private:
             // replaced a pre-existing one. A duplicated listener is unlikely and not that
             // expensive so we just roll with it.
             fShape.addGenIDChangeListener(
-                    sk_make_sp<UniqueKeyInvalidator>(key, rContext->priv().contextID()));
+                    sk_make_sp<UniqueKeyInvalidator>(key, rContext->priv().explicitContextID()));
         }
     }
 
