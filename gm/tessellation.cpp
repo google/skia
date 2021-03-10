@@ -287,8 +287,8 @@ void TessellationTestRectShader::Impl::writeFragmentShader(
                     coverage = half(max(coverage, 1 - barycentric_coord[i]/fwidths[i]));
                 }
             }
-            %s = half4(coverage, 0, coverage, 1);
-            %s = half4(1);)", color, coverage);
+            half4 %s = half4(coverage, 0, coverage, 1);
+            const half4 %s = half4(1);)", color, coverage);
 }
 
 
