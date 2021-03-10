@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "317fc448_201c7903",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T19:40:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cd6f343_f740ccf0",
+      "range": {
+        "startLine": 349,
+        "startChar": 16,
+        "endLine": 349,
+        "endChar": 22
+      },
+      "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1731be9_f5edd8a0",
@@ -154,6 +178,54 @@
         "startChar": 38,
         "endLine": 353,
         "endChar": 60
+      },
+      "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9b07d78_00ff1299",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T19:40:24Z",
+      "side": 1,
+      "message": "LOVE IT!!",
+      "parentUuid": "ff5aa4b6_978441e5",
+      "range": {
+        "startLine": 353,
+        "startChar": 38,
+        "endLine": 353,
+        "endChar": 60
+      },
+      "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2d5acff_fa5289e3",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T19:40:24Z",
+      "side": 1,
+      "message": "I think it\u0027s a bit more readable where \"grad\" is the true gradient. Either way it\u0027s the same amount of work for the GPU, right?",
+      "parentUuid": "b1731be9_f5edd8a0",
+      "range": {
+        "startLine": 353,
+        "startChar": 26,
+        "endLine": 353,
+        "endChar": 67
       },
       "revId": "059d112e06ff6628df3dd70125630c1f4a46017c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
