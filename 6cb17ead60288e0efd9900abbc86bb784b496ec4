@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "867ce31c_5ba83617",
+        "filename": "src/gpu/mtl/GrMtlAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-10T15:45:58Z",
+      "side": 0,
+      "message": "What\u0027s the issue with this being const?",
+      "range": {
+        "startLine": 43,
+        "startChar": 20,
+        "endLine": 43,
+        "endChar": 25
+      },
+      "revId": "6cb17ead60288e0efd9900abbc86bb784b496ec4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
