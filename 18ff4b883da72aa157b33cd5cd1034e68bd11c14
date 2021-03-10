@@ -33,6 +33,24 @@
       "message": "vkddl gm diffs seem pretty suspect to me. It\u0027s maybe interacting unexpectedly with the change to the mask bounds intersection in GrClipStack?",
       "revId": "18ff4b883da72aa157b33cd5cd1034e68bd11c14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f357ba84_b86fb05d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-10T04:31:32Z",
+      "side": 1,
+      "message": "Apparently I forgot how ccpr works. This was right all along. What was wrong was the assert in ccpr.",
+      "parentUuid": "99abb9b7_1f21a95e",
+      "revId": "18ff4b883da72aa157b33cd5cd1034e68bd11c14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
