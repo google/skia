@@ -120,7 +120,7 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soun
 
     CanvasKit.ManagedAnimation.prototype.setColor = function(key, color) {
       var cPtr = copyColorToWasm(color);
-      this._setColor(key, cPtr);
+      return this._setColor(key, cPtr);
     };
 
     CanvasKit.ManagedAnimation.prototype.size = function(optSize) {
