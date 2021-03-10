@@ -20,8 +20,9 @@ component("audioplayer") {
       "sfml-audio",
     ]
   } else if (is_android) {
-    sources += [ "SkAudioPlayer_oboe.cpp" ]
-    deps += [ "../../third_party/oboe" ]
+    #sources += [ "SkAudioPlayer_oboe.cpp" ]
+    #deps += [ "../../third_party/oboe" ]
+    sources += [ "SkAudioPlayer_none.cpp" ]
     libs = [ "OpenSLES" ]
   } else {
     sources += [ "SkAudioPlayer_none.cpp" ]
