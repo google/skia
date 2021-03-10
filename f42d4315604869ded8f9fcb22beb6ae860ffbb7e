@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7876393a_2ba9c5f2",
+        "filename": "include/gpu/GrDirectContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-10T21:03:42Z",
+      "side": 1,
+      "message": "Another way to go here is make the class public but don\u0027t give clients any way to get at the context\u0027s member.",
+      "revId": "f42d4315604869ded8f9fcb22beb6ae860ffbb7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
