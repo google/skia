@@ -16,6 +16,92 @@
       "message": "I think I did this right. Let me know if there\u0027s a bug number I should use.",
       "revId": "d1ca161a238b1fc3d8821e0995e0a4b56730cbb4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19fd8c67_827b0647",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-10T13:31:31Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 60,
+        "startChar": 72,
+        "endLine": 60,
+        "endChar": 76
+      },
+      "revId": "d1ca161a238b1fc3d8821e0995e0a4b56730cbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afbc9481_1302c260",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-10T13:31:31Z",
+      "side": 1,
+      "message": "here too ?",
+      "range": {
+        "startLine": 65,
+        "startChar": 74,
+        "endLine": 65,
+        "endChar": 78
+      },
+      "revId": "d1ca161a238b1fc3d8821e0995e0a4b56730cbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38fad13a_31113d0a",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-10T13:31:31Z",
+      "side": 1,
+      "message": "In this case, I think we should do:\n\nGrThreadSafePipelineBuilder::Stats::ProgramCacheResult tmpStat;\nif (!stat) {\n   stat \u003d \u0026tmpStat;\n}\n\nand just plow on through. Otherwise \u0027fStats\u0027 will be kind of useless.",
+      "revId": "d1ca161a238b1fc3d8821e0995e0a4b56730cbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e232d379_2897c442",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-10T13:31:31Z",
+      "side": 1,
+      "message": "incNumCompilationSuccesses ?",
+      "range": {
+        "startLine": 155,
+        "startChar": 15,
+        "endLine": 155,
+        "endChar": 48
+      },
+      "revId": "d1ca161a238b1fc3d8821e0995e0a4b56730cbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
