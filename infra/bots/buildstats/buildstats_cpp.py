@@ -20,6 +20,7 @@ def main():
   keystr = sys.argv[3]
   propstr = sys.argv[4]
   bloaty_path = sys.argv[5]
+  total_size_bytes_key = sys.argv[6]
 
   results = {
     'key': { },
@@ -34,7 +35,10 @@ def main():
   for i in range(0, len(keys), 2):
     results['key'][keys[i]] = keys[i+1]
 
+  magic_seperator = '#$%^&*'
+
   # Human "readable" overview as an FYI.
+  print magic_seperator
   print ('Note that template instantiations are grouped together, '
          'thus the elided types.')
   print subprocess.check_output([bloaty_path, input_file,
@@ -49,7 +53,7 @@ def main():
   r = {
     # Use the default config as stats about the whole binary
     'default' : {
-      'total_size_bytes': os.path.getsize(input_file)
+      total_size_bytes_key: os.path.getsize(input_file)
     },
   }
 
@@ -73,7 +77,7 @@ def main():
       'vm_size_bytes': int(vmsize),
     }
 
-
+  print magic_seperator
   results['results'][name] = r
 
   # Make debugging easier
