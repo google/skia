@@ -643,12 +643,13 @@ public:
                 if (gp.fColor.isInitialized()) {
                     SkASSERT(gp.fCoverageMode != CoverageMode::kWithColor || !gp.fNeedsPerspective);
                     // The color cannot be flat if the varying coverage has been modulated into it
+                    args.fFragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
                     args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor,
                             gp.fCoverageMode == CoverageMode::kWithColor ?
                             Interpolation::kInterpolated : Interpolation::kCanBeFlat);
                 } else {
                     // Output color must be initialized to something
-                    args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
+                    args.fFragBuilder->codeAppendf("half4 %s = half4(1);", args.fOutputColor);
                 }
 
                 // If there is a texture, must also handle texture coordinates and reading from
@@ -740,13 +741,14 @@ public:
 #endif
                     }
 
-                    args.fFragBuilder->codeAppendf("%s = half4(half(coverage));",
+                    args.fFragBuilder->codeAppendf("half4 %s = half4(half(coverage));",
                                                    args.fOutputCoverage);
                 } else {
                     // Set coverage to 1, since it's either non-AA or the coverage was already
                     // folded into the output color
                     SkASSERT(!gp.fGeomSubset.isInitialized());
-                    args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                    args.fFragBuilder->codeAppendf("const half4 %s = half4(1);",
+                                                   args.fOutputCoverage);
                 }
             }
             GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;

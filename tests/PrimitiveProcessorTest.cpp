@@ -83,8 +83,9 @@ private:
                         this->writeOutputPosition(args.fVertBuilder, gpArgs,
                                                   gp.fAttributes[0].name());
                         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
-                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                        fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
+                        fragBuilder->codeAppendf("const half4 %s = half4(1);",
+                                                 args.fOutputCoverage);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
                                  const GrPrimitiveProcessor& primProc) override {}

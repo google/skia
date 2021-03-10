@@ -53,6 +53,7 @@ public:
 #endif
 
         // Setup pass through color
+        fragBuilder->codeAppendf("half4 %s;\n", args.fOutputColor);
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
@@ -152,7 +153,7 @@ public:
             fragBuilder->codeAppend("half val = smoothstep(-afwidth, afwidth, distance);");
         }
 
-        fragBuilder->codeAppendf("%s = half4(val);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("half4 %s = half4(val);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
@@ -342,6 +343,7 @@ public:
                                  &texIdx, &st);
 
         // setup pass through color
+        fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
         varyingHandler->addPassThroughAttribute(dfPathEffect.inColor(), args.fOutputColor);
 
         if (dfPathEffect.matrix().hasPerspective()) {
@@ -436,7 +438,7 @@ public:
             fragBuilder->codeAppend("half val = smoothstep(-afwidth, afwidth, distance);");
         }
 
-        fragBuilder->codeAppendf("%s = half4(val);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("half4 %s = half4(val);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
@@ -604,6 +606,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // setup pass through color
+        fragBuilder->codeAppendf("half4 %s;\n", args.fOutputColor);
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
@@ -735,13 +738,13 @@ public:
         // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want distance
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
-            fragBuilder->codeAppendf("%s = "
-                "half4(saturate((distance + half3(afwidth)) / half3(2.0 * afwidth)), 1.0);",
-                args.fOutputCoverage);
+            fragBuilder->codeAppendf("half4 %s = "
+                    "half4(saturate((distance + half3(afwidth)) / half3(2.0 * afwidth)), 1.0);",
+                    args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf(
-                "%s = half4(smoothstep(half3(-afwidth), half3(afwidth), distance), 1.0);",
-                args.fOutputCoverage);
+                    "half4 %s = half4(smoothstep(half3(-afwidth), half3(afwidth), distance), 1.0);",
+                    args.fOutputCoverage);
         }
     }
 
