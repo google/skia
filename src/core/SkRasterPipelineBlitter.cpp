@@ -172,6 +172,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             clipP->append(SkRasterPipeline::store_src_a, storage->fA);
             blitter->fClipShaderBuffer = storage->fA;
             is_constant = false;
+        } else {
+            return nullptr;
         }
     }
 
