@@ -63,6 +63,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
         args.fVaryingHandler->addVarying("atlascoord", &atlasCoord);
 
         GrGLSLVarying color(kHalf4_GrSLType);
+        args.fFragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
         args.fVaryingHandler->addPassThroughAttribute(
                 kInstanceAttribs[2], args.fOutputColor,
                 GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
@@ -92,7 +93,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
             gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
         }
 
-        args.fFragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
+        args.fFragBuilder->codeAppendf("half4 %s = ", args.fOutputCoverage);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[0], atlasCoord.fsIn());
         args.fFragBuilder->codeAppendf(".aaaa;");
     }

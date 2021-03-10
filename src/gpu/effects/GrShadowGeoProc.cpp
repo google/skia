@@ -30,6 +30,7 @@ public:
         varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
 
         // setup pass through color
+        fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
         varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
 
         // Setup position
@@ -41,7 +42,7 @@ public:
         fragBuilder->codeAppend("half factor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv");
         fragBuilder->codeAppend(".a;");
-        fragBuilder->codeAppendf("%s = half4(factor);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("half4 %s = half4(factor);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {

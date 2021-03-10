@@ -77,6 +77,7 @@ public:
             SkASSERT(!tweakAlpha || gp.hasVertexCoverage());
 
             // Setup pass through color
+            fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
             if (gp.hasVertexColor() || tweakAlpha) {
                 GrGLSLVarying varying(kHalf4_GrSLType);
                 varyingHandler->addVarying("color", &varying);
@@ -127,9 +128,9 @@ public:
             if (gp.hasVertexCoverage() && !tweakAlpha) {
                 fragBuilder->codeAppendf("half alpha = 1.0;");
                 varyingHandler->addPassThroughAttribute(gp.fInCoverage, "alpha");
-                fragBuilder->codeAppendf("%s = half4(alpha);", args.fOutputCoverage);
+                fragBuilder->codeAppendf("half4 %s = half4(alpha);", args.fOutputCoverage);
             } else if (gp.coverage() == 0xff) {
-                fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             } else {
                 const char* fragCoverage;
                 fCoverageUniform = uniformHandler->addUniform(nullptr,
@@ -137,7 +138,8 @@ public:
                                                               kHalf_GrSLType,
                                                               "Coverage",
                                                               &fragCoverage);
-                fragBuilder->codeAppendf("%s = half4(%s);", args.fOutputCoverage, fragCoverage);
+                fragBuilder->codeAppendf("half4 %s = half4(%s);",
+                                         args.fOutputCoverage, fragCoverage);
             }
         }
 

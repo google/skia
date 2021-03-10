@@ -113,12 +113,13 @@ class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
         args.fVaryingHandler->emitAttributes(proc);
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
         args.fFragBuilder->codeAppendf(
-                "%s = sk_Clockwise ? half4(0,1,0,1) : half4(1,0,0,1);", args.fOutputColor);
+                "half4 %s = sk_Clockwise ? half4(0,1,0,1) : half4(1,0,0,1);",
+                args.fOutputColor);
         if (!proc.readSkFragCoord()) {
-            args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+            args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
         } else {
             // Verify layout(origin_upper_left) on gl_FragCoord does not affect gl_FrontFacing.
-            args.fFragBuilder->codeAppendf("%s = half4(min(half(sk_FragCoord.y), 1));",
+            args.fFragBuilder->codeAppendf("half4 %s = half4(min(half(sk_FragCoord.y), 1));",
                                            args.fOutputCoverage);
         }
     }

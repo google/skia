@@ -45,6 +45,7 @@ public:
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
+        fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
         if (btgp.hasVertexColor()) {
             varyingHandler->addPassThroughAttribute(btgp.inColor(), args.fOutputColor);
         } else {
@@ -64,9 +65,9 @@ public:
         if (btgp.maskFormat() == kARGB_GrMaskFormat) {
             // modulate by color
             fragBuilder->codeAppendf("%s = %s * texColor;", args.fOutputColor, args.fOutputColor);
-            fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
         } else {
-            fragBuilder->codeAppendf("%s = texColor;", args.fOutputCoverage);
+            fragBuilder->codeAppendf("half4 %s = texColor;", args.fOutputCoverage);
         }
     }
 

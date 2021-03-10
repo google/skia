@@ -72,13 +72,13 @@ public:
                 }
 
                 vertBuilder->codeAppendf("%s = color;", varying.vsOut());
-                fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
+                fragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, varying.fsIn());
 
                 // Position
                 this->writeOutputPosition(args.fVertBuilder, gpArgs, gp.fInPosition.name());
 
                 // Coverage
-                fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             }
             void setData(const GrGLSLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc) override {

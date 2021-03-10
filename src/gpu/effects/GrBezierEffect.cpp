@@ -76,6 +76,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
+    fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
@@ -146,10 +147,10 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                            kFloat_GrSLType,
                                                            "Coverage",
                                                            &coverageScale);
-        fragBuilder->codeAppendf("%s = half4(half(%s) * %s);",
+        fragBuilder->codeAppendf("half4 %s = half4(half(%s) * %s);",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
-        fragBuilder->codeAppendf("%s = half4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
+        fragBuilder->codeAppendf("half4 %s = half4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
     }
 }
 
@@ -271,6 +272,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
+    fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
@@ -306,10 +308,10 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                            kHalf_GrSLType,
                                                            "Coverage",
                                                            &coverageScale);
-        fragBuilder->codeAppendf("%s = half4(%s * edgeAlpha);", args.fOutputCoverage,
+        fragBuilder->codeAppendf("half4 %s = half4(%s * edgeAlpha);", args.fOutputCoverage,
                                  coverageScale);
     } else {
-        fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
     }
 }
 
