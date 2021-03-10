@@ -571,6 +571,7 @@ public:
             , fChildren(children, children + childCount) {}
 
     bool isOpaque() const override { return fIsOpaque; }
+    bool requiresSkVM() const override { return true; }
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override {
