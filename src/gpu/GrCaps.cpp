@@ -379,6 +379,11 @@ GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrColorType srcColorT
 
 GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType colorType,
                                                 GrRenderable renderable) const {
+    // Unknown color types are always an invalid format, so early out before calling virtual.
+    if (colorType == GrColorType::kUnknown) {
+        return {};
+    }
+
     auto format = this->onGetDefaultBackendFormat(colorType);
     if (!this->isFormatTexturable(format)) {
         return {};
