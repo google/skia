@@ -568,6 +568,7 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
@@ -581,9 +582,8 @@ public:
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge.name());
 
             // Setup pass through color
+            fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
             varyingHandler->addPassThroughAttribute(qe.fInColor, args.fOutputColor);
-
-            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // Setup position
             this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition.name());
@@ -611,7 +611,7 @@ public:
             fragBuilder->codeAppendf("edgeAlpha = "
                                      "saturate(0.5 - edgeAlpha / length(gF));}");
 
-            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,

@@ -95,17 +95,17 @@ class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrPipelineDynamicStateTestProcessor& mp =
             args.fGP.cast<GrPipelineDynamicStateTestProcessor>();
+        GrGLSLVertexBuilder* v = args.fVertBuilder;
+        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         varyingHandler->emitAttributes(mp);
+        f->codeAppendf("half4 %s;", args.fOutputColor);
         varyingHandler->addPassThroughAttribute(mp.inColor(), args.fOutputColor);
 
-        GrGLSLVertexBuilder* v = args.fVertBuilder;
         v->codeAppendf("float2 vertex = %s;", mp.inVertex().name());
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
-
-        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-        f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        f->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 };
 

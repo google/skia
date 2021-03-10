@@ -154,6 +154,7 @@ public:
                                        kVertex_GrShaderFlag);
 
             // Setup pass through color
+            fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
             if (gp.colorAttr().isInitialized()) {
                 GrGLSLVarying varying(kHalf4_GrSLType);
                 varyingHandler->addVarying("color", &varying);
@@ -295,7 +296,7 @@ public:
                 fragBuilder->codeAppendf("%s = %s;", var.c_str(), varying.fsIn());
             }
 
-            fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
