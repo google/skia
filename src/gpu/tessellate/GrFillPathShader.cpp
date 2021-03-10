@@ -33,8 +33,8 @@ public:
         fColorUniform = args.fUniformHandler->addUniform(
                 nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &color);
 
-        args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, color);
-        args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, color);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,

@@ -71,6 +71,7 @@ public:
                 args.fFragBuilder->codeAppend("float4 textureDomain;");
                 args.fVaryingHandler->addPassThroughAttribute(
                         latticeGP.fInTextureDomain, "textureDomain", Interpolation::kCanBeFlat);
+                args.fFragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
                 args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInColor,
                                                               args.fOutputColor,
                                                               Interpolation::kCanBeFlat);
@@ -82,7 +83,7 @@ public:
                         "clamp(textureCoords, textureDomain.xy, textureDomain.zw)",
                         &fColorSpaceXformHelper);
                 args.fFragBuilder->codeAppend(";");
-                args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             }
             GrGLSLColorSpaceXformHelper fColorSpaceXformHelper;
         };

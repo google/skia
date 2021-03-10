@@ -162,6 +162,8 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const GrCCPathProcessor& proc = args.fGP.cast<GrCCPathProcessor>();
     GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
+    GrGLSLVertexBuilder* v = args.fVertBuilder;
+    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
     bool isCoverageCount = (CoverageMode::kCoverageCount == proc.fCoverageMode);
 
     const char* atlasAdjust;
@@ -174,13 +176,12 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("texcoord", &texcoord);
 
     GrGLSLVarying color(kHalf4_GrSLType);
+    f->codeAppendf("half4 %s;", args.fOutputColor);
     varyingHandler->addPassThroughAttribute(
             kInstanceAttribs[kColorAttribIdx], args.fOutputColor, Interpolation::kCanBeFlat);
 
     // The vertex shader bloats and intersects the devBounds and devBounds45 rectangles, in order to
     // find an octagon that circumscribes the (bloated) path.
-    GrGLSLVertexBuilder* v = args.fVertBuilder;
-
     // Are we clockwise? (Positive wind => nonzero fill rule.)
     // Or counter-clockwise? (negative wind => even/odd fill rule.)
     v->codeAppendf("float wind = sign(devbounds.z - devbounds.x);");
@@ -229,10 +230,7 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->writeLocalCoord(v, args.fUniformHandler, gpArgs, gpArgs->fPositionVar, proc.fLocalMatrix,
                           &fLocalMatrixUni);
 
-    // Fragment shader.
-    GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-
-    // Look up coverage in the atlas.
+    // Fragment shader. Look up coverage in the atlas.
     f->codeAppendf("half coverage = ");
     f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str());
     f->codeAppendf(".a;");
@@ -250,5 +248,5 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         f->codeAppend ("coverage = 1 - abs(fract(coverage) * 2 - 1);");
     }
 
-    f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
+    f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
 }

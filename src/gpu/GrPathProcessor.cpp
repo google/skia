@@ -48,10 +48,10 @@ public:
                                                          kHalf4_GrSLType,
                                                          "Color",
                                                          &stagedLocalVarName);
-        fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
+        fragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, stagedLocalVarName);
 
         // setup constant solid coverage
-        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
     void emitTransforms(GrGLSLVaryingHandler* varyingHandler,

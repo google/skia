@@ -475,6 +475,9 @@ void FillRRectOp::onPrepareDraws(Target* target) {
 
 class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+        GrGLSLVertexBuilder* v = args.fVertBuilder;
+        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
+
         const auto& proc = args.fGP.cast<Processor>();
         bool useHWDerivatives = (proc.fFlags & ProcessorFlags::kUseHWDerivatives);
 
@@ -482,12 +485,11 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
 
         GrGLSLVaryingHandler* varyings = args.fVaryingHandler;
         varyings->emitAttributes(proc);
+        f->codeAppendf("half4 %s;", args.fOutputColor);
         varyings->addPassThroughAttribute(*proc.fColorAttrib, args.fOutputColor,
                                           GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
 
         // Emit the vertex shader.
-        GrGLSLVertexBuilder* v = args.fVertBuilder;
-
         // When MSAA is enabled, we need to make sure every sample gets lit up on pixels that have
         // fractional coverage. We do this by making the ramp wider.
         v->codeAppendf("float aa_bloat_multiplier = %i;",
@@ -627,8 +629,6 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
         v->codeAppend("}");
 
         // Emit the fragment shader.
-        GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-
         f->codeAppendf("float x_plus_1=%s.x, y=%s.y;", arcCoord.fsIn(), arcCoord.fsIn());
         f->codeAppendf("half coverage;");
         f->codeAppendf("if (0 == x_plus_1) {");
@@ -656,7 +656,7 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
         if (proc.fFlags & ProcessorFlags::kFakeNonAA) {
             f->codeAppendf("coverage = (coverage >= .5) ? 1 : 0;");
         }
-        f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
+        f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}

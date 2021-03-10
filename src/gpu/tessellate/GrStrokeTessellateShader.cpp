@@ -401,16 +401,16 @@ private:
             const char* colorUniformName;
             fColorUniform = uniHandler->addUniform(nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                    "color", &colorUniformName);
-            args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUniformName);
+            args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, colorUniformName);
         } else {
             // Color gets passed in from the tess evaluation shader.
             SkString flatness(args.fShaderCaps->preferFlatInterpolation() ? "flat" : "");
             args.fFragBuilder->declareGlobal(GrShaderVar(SkString("tesColor"), kHalf4_GrSLType,
                                                          TypeModifier::In, 0, SkString(),
                                                          flatness));
-            args.fFragBuilder->codeAppendf("%s = tesColor;", args.fOutputColor);
+            args.fFragBuilder->codeAppendf("half4 %s = tesColor;", args.fOutputColor);
         }
-        args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
@@ -1244,14 +1244,15 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             const char* colorUniformName;
             fColorUniform = args.fUniformHandler->addUniform(
                     nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType, "color", &colorUniformName);
-            args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUniformName);
+            args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, colorUniformName);
         } else {
             // Color gets passed in through an instance attrib.
+            args.fFragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
             args.fVaryingHandler->addPassThroughAttribute(
                     shader.fAttribs.back(), args.fOutputColor,
                     GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
         }
-        args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
