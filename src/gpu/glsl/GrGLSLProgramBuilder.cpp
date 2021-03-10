@@ -309,16 +309,11 @@ SkString GrGLSLProgramBuilder::nameVariable(char prefix, const char* name, bool 
 }
 
 void GrGLSLProgramBuilder::nameExpression(SkString* output, const char* baseName) {
-    // create var to hold stage result.  If we already have a valid output name, just use that
-    // otherwise create a new mangled one.  This name is only valid if we are reordering stages
-    // and have to tell stage exactly where to put its output.
-    SkString outName;
-    if (output->size()) {
-        outName = output->c_str();
-    } else {
-        outName = this->nameVariable(/*prefix=*/'\0', baseName);
+    // Name a variable to hold stage result. If we already have a valid output name, use that as-is;
+    // otherwise, create a new mangled one.
+    if (output->isEmpty()) {
+        *output = this->nameVariable(/*prefix=*/'\0', baseName);
     }
-    *output = outName;
 }
 
 void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
