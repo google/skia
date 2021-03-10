@@ -213,4 +213,115 @@ describe('Skottie behavior', () => {
 
         done();
     });
+
+    it('can access dynamic props', () => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+
+        const json = `{
+            "v": "5.2.1",
+            "w": 100,
+            "h": 100,
+            "fr": 10,
+            "ip": 0,
+            "op": 100,
+            "fonts": {
+              "list": [{
+                "fName": "test_font",
+                "fFamily": "test-family",
+                "fStyle": "TestFontStyle"
+              }]
+            },
+            "layers": [
+              {
+                "ty": 4,
+                "nm": "__shape_layer",
+                "ind": 0,
+                "ip": 0,
+                "shapes": [
+                  {
+                    "ty": "el",
+                    "p": { "a": 0, "k": [ 50, 50 ] },
+                    "s": { "a": 0, "k": [ 50, 50 ] }
+                  },{
+                    "ty": "fl",
+                    "nm": "__shape_fill",
+                    "c": { "a": 0, "k": [ 1, 0, 0] }
+                  },{
+                    "ty": "tr",
+                    "nm": "__shape_opacity",
+                    "o": { "a": 0, "k": 50 }
+                  }
+                ]
+              },{
+                "ty": 5,
+                "nm": "__text_layer",
+                "ip": 0,
+                "t": {
+                  "d": {
+                    "k": [{
+                      "t": 0,
+                      "s": {
+                        "f": "test_font",
+                        "s": 100,
+                        "t": "Foo Bar Baz",
+                        "lh": 120,
+                        "ls": 12
+                      }
+                    }]
+                  }
+                }
+              }
+            ]
+        }`;
+
+        const animation = CanvasKit.MakeManagedAnimation(json, null, '__');
+        expect(animation).toBeTruthy();
+
+        {
+            const colors = animation.getColorProps();
+            expect(colors.length).toEqual(1);
+            expect(colors[0].key).toEqual('__shape_fill');
+            expect(colors[0].value).toEqual(CanvasKit.ColorAsInt(255,0,0,255));
+
+            const opacities = animation.getOpacityProps();
+            expect(opacities.length).toEqual(1);
+            expect(opacities[0].key).toEqual('__shape_opacity');
+            expect(opacities[0].value).toEqual(50);
+
+            const texts = animation.getTextProps();
+            expect(texts.length).toEqual(1);
+            expect(texts[0].key).toEqual('__text_layer');
+            expect(texts[0].value.text).toEqual('Foo Bar Baz');
+            expect(texts[0].value.size).toEqual(100);
+        }
+
+        expect(animation.setColor('__shape_fill', [0,1,0,1])).toEqual(true);
+        expect(animation.setOpacity('__shape_opacity', 100)).toEqual(true);
+        expect(animation.setText('__text_layer', 'baz bar foo', 10)).toEqual(true);
+
+        {
+            const colors = animation.getColorProps();
+            expect(colors.length).toEqual(1);
+            expect(colors[0].key).toEqual('__shape_fill');
+            expect(colors[0].value).toEqual(CanvasKit.ColorAsInt(0,255,0,255));
+
+            const opacities = animation.getOpacityProps();
+            expect(opacities.length).toEqual(1);
+            expect(opacities[0].key).toEqual('__shape_opacity');
+            expect(opacities[0].value).toEqual(100);
+
+            const texts = animation.getTextProps();
+            expect(texts.length).toEqual(1);
+            expect(texts[0].key).toEqual('__text_layer');
+            expect(texts[0].value.text).toEqual('baz bar foo');
+            expect(texts[0].value.size).toEqual(10);
+        }
+
+        expect(animation.setColor('INVALID_KEY', [0,1,0,1])).toEqual(false);
+        expect(animation.setOpacity('INVALID_KEY', 100)).toEqual(false);
+        expect(animation.setText('INVALID KEY', '', 10)).toEqual(false);
+    });
 });
