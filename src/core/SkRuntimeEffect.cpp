@@ -499,7 +499,7 @@ public:
                                    /*device=*/zeroCoord, /*local=*/zeroCoord, sampleChild);
     }
 
-    uint32_t onGetFlags() const override {
+    bool onIsAlphaUnchanged() const override {
         skvm::Builder  p;
         SkColorSpace*  dstCS = sk_srgb_singleton();  // This _shouldn't_ matter for alpha.
         skvm::Uniforms uniforms{p.uniform(), 0};
@@ -508,10 +508,7 @@ public:
         skvm::Color in = p.load({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96}, p.arg(16)),
                    out = this->onProgram(&p,in,dstCS,&uniforms,&alloc);
 
-        if (out.a.id == in.a.id) {
-            return SkColorFilter::kAlphaUnchanged_Flag;
-        }
-        return 0;
+        return out.a.id == in.a.id;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

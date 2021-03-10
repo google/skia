@@ -16,7 +16,7 @@ public:
 
     explicit SkColorFilter_Matrix(const float array[20], Domain);
 
-    uint32_t onGetFlags() const override;
+    bool onIsAlphaUnchanged() const override { return fAlphaIsUnchanged; }
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -36,9 +36,9 @@ private:
                           SkColorSpace* dstCS,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
 
-    float       fMatrix[20];
-    uint16_t    fFlags;
-    Domain      fDomain;
+    float   fMatrix[20];
+    bool    fAlphaIsUnchanged;
+    Domain  fDomain;
 
     using INHERITED = SkColorFilterBase;
 };
