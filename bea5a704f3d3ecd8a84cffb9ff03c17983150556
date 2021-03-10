@@ -33,6 +33,24 @@
       "message": "LGTM but would feel more comfortable if someone more familiar with the build system took a look.  From what I can tell, the NoGPU bot is failing because it\u0027s trying to build spirv-tools, which is incorrect.",
       "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed2842f7_7b875cc3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-10T16:11:56Z",
+      "side": 1,
+      "message": "I don\u0027t think there\u0027s anything wrong with the NoGPU bots building spirv-tools; there\u0027s nothing GPU specific about them. Since the NoGPU failure is A) not in our code, B) not in a part of spirv-tools we\u0027re actually using, and C) spirv-tools is only used for debug assertions anyway, I\u0027m not stressed about just adding -Wno-format-truncation (assuming we can do so for just spirv-tools; I don\u0027t know how we handle this).",
+      "parentUuid": "ea03401d_35dd9f23",
+      "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
