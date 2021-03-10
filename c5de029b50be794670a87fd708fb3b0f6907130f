@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dff860b1_a7aa752e",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-10T12:56:06Z",
+      "side": 1,
+      "message": "Can you add documentation for getTextProps and setText to https://github.com/google/skia/blob/da076e9aca262bbb6f4373258adafdb52e6255bc/modules/canvaskit/npm_build/types/index.d.ts#L702 ?\n\nYou\u0027ll also want to add a compilable example to https://github.com/google/skia/blob/da076e9aca262bbb6f4373258adafdb52e6255bc/modules/canvaskit/npm_build/types/canvaskit-wasm-tests.ts#L665 and run `make typecheck` to make sure everything works.",
+      "range": {
+        "startLine": 222,
+        "startChar": 12,
+        "endLine": 222,
+        "endChar": 24
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d962e0f7_c0956312",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-10T12:56:06Z",
+      "side": 1,
+      "message": "In the index.d.ts, you\u0027ll need to also add this as a type.",
+      "range": {
+        "startLine": 235,
+        "startChar": 37,
+        "endLine": 235,
+        "endChar": 41
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08455bab_80b68df1",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-10T12:56:06Z",
+      "side": 1,
+      "message": "Do you need to add a check for an invalid key?  Might also be worth a test.",
+      "range": {
+        "startLine": 251,
+        "startChar": 13,
+        "endLine": 251,
+        "endChar": 14
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d027195_ed87711a",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-10T12:56:06Z",
+      "side": 1,
+      "message": "Do you want this to be a gm, so we can see it was drawn correctly?",
+      "range": {
+        "startLine": 217,
+        "startChar": 4,
+        "endLine": 217,
+        "endChar": 6
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e52bd5d4_d1be5718",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-10T12:56:06Z",
+      "side": 1,
+      "message": "This does not appear to be an async test, so you can probably remove done and done()",
+      "range": {
+        "startLine": 217,
+        "startChar": 33,
+        "endLine": 217,
+        "endChar": 37
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
