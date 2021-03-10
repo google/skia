@@ -40,10 +40,12 @@ bool SkColorFilter::asAColorMatrix(float matrix[20]) const {
     return as_CFB(this)->onAsAColorMatrix(matrix);
 }
 
-uint32_t SkColorFilter::getFlags() const { return as_CFB(this)->onGetFlags(); }
+uint32_t SkColorFilter::getFlags() const {
+    return this->isAlphaUnchanged() ? kAlphaUnchanged_Flag : 0;
+}
 
 bool SkColorFilter::isAlphaUnchanged() const {
-    return SkToBool(this->getFlags() & kAlphaUnchanged_Flag);
+    return as_CFB(this)->onIsAlphaUnchanged();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,9 +137,9 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
 
 class SkComposeColorFilter : public SkColorFilterBase {
 public:
-    uint32_t onGetFlags() const override {
+    bool onIsAlphaUnchanged() const override {
         // Can only claim alphaunchanged support if both our proxys do.
-        return fOuter->onGetFlags() & fInner->onGetFlags();
+        return fOuter->isAlphaUnchanged() & fInner->isAlphaUnchanged();
     }
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
@@ -381,7 +383,7 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
                  : c;
     }
 
-    uint32_t onGetFlags() const override { return fChild->getFlags(); }
+    bool onIsAlphaUnchanged() const override { return fChild->isAlphaUnchanged(); }
 
     SK_FLATTENABLE_HOOKS(SkWorkingFormatColorFilter)
     void flatten(SkWriteBuffer& buffer) const override {

@@ -38,17 +38,15 @@ bool SkModeColorFilter::onAsAColorMode(SkColor* color, SkBlendMode* mode) const 
     return true;
 }
 
-uint32_t SkModeColorFilter::onGetFlags() const {
-    uint32_t flags = 0;
+bool SkModeColorFilter::onIsAlphaUnchanged() const {
     switch (fMode) {
         case SkBlendMode::kDst:      //!< [Da, Dc]
         case SkBlendMode::kSrcATop:  //!< [Da, Sc * Da + (1 - Sa) * Dc]
-            flags |= kAlphaUnchanged_Flag;
-            break;
+            return true;
         default:
             break;
     }
-    return flags;
+    return false;
 }
 
 void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
