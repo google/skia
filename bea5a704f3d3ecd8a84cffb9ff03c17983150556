@@ -16,6 +16,23 @@
       "message": "PTAL!\n\nThe failure seems to be a false positive and I cannot reproduce by compiling with the GCC on my Linux workstation, so what do you think of adding -Wno-format-truncation in gn/BUILD.gn specifically for GCC (non-MSVC non-clang)?",
       "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea03401d_35dd9f23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-10T13:09:24Z",
+      "side": 1,
+      "message": "LGTM but would feel more comfortable if someone more familiar with the build system took a look.  From what I can tell, the NoGPU bot is failing because it\u0027s trying to build spirv-tools, which is incorrect.",
+      "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
