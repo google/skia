@@ -1,0 +1,25 @@
+uniform half4 color;
+
+noinline half singleuse() {
+    return 1.25;
+}
+
+noinline half add(half a, half b) {
+    half c = a + b;
+    return c;
+}
+
+noinline half mul(half a, half b) {
+    return a * b;
+}
+
+noinline half fma(half a, half b, half c) {
+    return add(mul(a, b), c);
+}
+
+void main() {
+    // Functions used multiple times:
+    sk_FragColor = fma(color.x, color.y, color.z).xxxx;
+    // Functions used only once:
+    sk_FragColor *= singleuse();
+}
