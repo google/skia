@@ -63,6 +63,14 @@ bool SkShaderBase::computeTotalInverse(const SkMatrix& ctm,
     return SkMatrix::Concat(ctm, *this->totalLocalMatrix(outerLocalMatrix)).invert(totalInverse);
 }
 
+bool SkShaderBase::hasFiniteBounds(SkRect* localBounds) const {
+    if (this->onFiniteBounds(localBounds)) {
+        fLocalMatrix.mapRect(localBounds);
+        return true;
+    }
+    return false;
+}
+
 bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
     SkColor storage;
     if (nullptr == colorPtr) {

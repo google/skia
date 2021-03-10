@@ -64,6 +64,14 @@ public:
 
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
+    /**
+     *  If the shader knows that outside of a given rect (in local coords) it will always
+     *  return 0 (transparent black), then return true and the bounds, else ignore the parameter
+     *  and return false.
+     */
+    bool SK_WARN_UNUSED_RESULT
+    hasFiniteBounds(SkRect* localBounds) const;
+
     enum Flags {
         //!< set if all of the colors will be opaque
         kOpaqueAlpha_Flag = 1 << 0,
@@ -260,6 +268,8 @@ private:
                                   const SkMatrixProvider&, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const = 0;
+
+    virtual bool onFiniteBounds(SkRect*) const { return false; }
 
     using INHERITED = SkShader;
 };

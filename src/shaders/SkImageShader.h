@@ -47,6 +47,7 @@ private:
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
 #endif
     SkImage* onIsAImage(SkMatrix*, SkTileMode*) const override;
+    bool onFiniteBounds(SkRect* localBounds) const override;
 
     bool onAppendStages(const SkStageRec&) const override;
     SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const override;

@@ -194,6 +194,14 @@ bool SkImageShader::isOpaque() const {
            fTileModeX != SkTileMode::kDecal && fTileModeY != SkTileMode::kDecal;
 }
 
+bool SkImageShader::onFiniteBounds(SkRect* localBounds) const {
+    if (fTileModeX == SkTileMode::kDecal && fTileModeY == SkTileMode::kDecal) {
+        *localBounds = SkRect::Make(fImage->bounds());
+        return true;
+    }
+    return false;
+}
+
 constexpr SkCubicResampler kDefaultCubicResampler{1.0f/3, 1.0f/3};
 
 static bool is_default_cubic_resampler(SkCubicResampler cubic) {
