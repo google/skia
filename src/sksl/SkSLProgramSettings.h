@@ -53,9 +53,11 @@ struct ProgramSettings {
     int fDefaultUniformBinding = 0;
     // Enables the SkSL optimizer.
     bool fOptimize = true;
-    // (Requires fOptimize = true) Remove any uncalled functions other than main(). Note that a
+    // (Requires fOptimize = true) Removes any uncalled functions other than main(). Note that a
     // function which starts out being used may end up being uncalled after optimization.
     bool fRemoveDeadFunctions = true;
+    // (Requires fOptimize = true) Removes global variables which are never used.
+    bool fRemoveDeadVariables = true;
     // (Requires fOptimize = true) When greater than zero, enables the inliner. The threshold value
     // sets an upper limit on the acceptable amount of code growth from inlining.
     int fInlineThreshold = SkSL::kDefaultInlineThreshold;

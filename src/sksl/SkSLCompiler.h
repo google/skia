@@ -181,12 +181,17 @@ private:
     /** Verifies that @if and @switch statements were actually optimized away. */
     void verifyStaticTests(const Program& program);
 
-    /**
-     * Optimize every function in the program.
-     */
+    /** Optimize every function in the program. */
     bool optimize(Program& program);
 
+    /** Optimize the module. */
     bool optimize(LoadedModule& module);
+
+    /** Eliminates unused functions from a Program, according to the stats in ProgramUsage. */
+    bool removeDeadFunctions(Program& program, ProgramUsage* usage);
+
+    /** Eliminates unreferenced globals from a Program, according to the stats in ProgramUsage. */
+    bool removeDeadGlobalVariables(Program& program, ProgramUsage* usage);
 
     Position position(int offset);
 
