@@ -12,6 +12,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlSampler.h"
@@ -25,8 +26,9 @@ class GrMtlResourceProvider {
 public:
     GrMtlResourceProvider(GrMtlGpu* gpu);
 
-    GrMtlPipelineState* findOrCreateCompatiblePipelineState(const GrProgramDesc&,
-                                                            const GrProgramInfo&);
+    GrMtlPipelineState* findOrCreateCompatiblePipelineState(
+            const GrProgramDesc&,const GrProgramInfo&,
+            GrThreadSafePipelineBuilder::Stats::ProgramCacheResult* stat = nullptr);
     bool precompileShader(const SkData& key, const SkData& data);
 
     // Finds or creates a compatible MTLDepthStencilState based on the GrStencilSettings.
@@ -48,16 +50,20 @@ private:
 #define GR_PIPELINE_STATE_CACHE_STATS
 #endif
 
-    class PipelineStateCache : public ::SkNoncopyable {
+    class PipelineStateCache : public GrThreadSafePipelineBuilder {
     public:
         PipelineStateCache(GrMtlGpu* gpu);
         ~PipelineStateCache();
 
         void release();
-        GrMtlPipelineState* refPipelineState(const GrProgramDesc&, const GrProgramInfo&);
+        GrMtlPipelineState* refPipelineState(const GrProgramDesc&, const GrProgramInfo&,
+                                             Stats::ProgramCacheResult*);
         bool precompileShader(const SkData& key, const SkData& data);
 
     private:
+        GrMtlPipelineState* onRefPipelineState(const GrProgramDesc&, const GrProgramInfo&,
+                                               Stats::ProgramCacheResult*);
+
         struct Entry;
 
         struct DescHash {
@@ -69,11 +75,6 @@ private:
         SkLRUCache<const GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
         GrMtlGpu*                   fGpu;
-
-#ifdef GR_PIPELINE_STATE_CACHE_STATS
-        int                         fTotalRequests;
-        int                         fCacheMisses;
-#endif
     };
 
     GrMtlGpu* fGpu;
