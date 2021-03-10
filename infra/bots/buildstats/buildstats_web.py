@@ -17,6 +17,7 @@ def main():
   out_dir = sys.argv[2]
   keystr = sys.argv[3]
   propstr = sys.argv[4]
+  total_size_bytes_key = sys.argv[5]
 
   results = {
     'key': { },
@@ -31,8 +32,10 @@ def main():
   for i in range(0, len(keys), 2):
     results['key'][keys[i]] = keys[i+1]
 
+  magic_seperator = '#$%^&*'
+
   r = {
-    'total_size_bytes': os.path.getsize(input_file)
+    total_size_bytes_key: os.path.getsize(input_file)
   }
 
   # Make a copy to avoid destroying the hardlinked file.
@@ -45,6 +48,7 @@ def main():
 
   name = os.path.basename(input_file)
 
+  print magic_seperator
   results['results'][name] = {
     # We need this top level layer 'config'/slice
     # Other analysis methods (e.g. libskia) might have
