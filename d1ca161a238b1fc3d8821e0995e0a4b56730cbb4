@@ -149,6 +149,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e8f1bb3b_6ad7422b",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-10T15:00:09Z",
+      "side": 1,
+      "message": "As discussed off-line, this has morphed into a comment request.",
+      "parentUuid": "69e93ff4_dd3a4f0f",
+      "revId": "d1ca161a238b1fc3d8821e0995e0a4b56730cbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e232d379_2897c442",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
         "patchSetId": 1
