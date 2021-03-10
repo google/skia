@@ -528,6 +528,66 @@ bool Compiler::optimize(LoadedModule& module) {
     return fErrorCount == 0;
 }
 
+bool Compiler::removeDeadFunctions(Program& program, ProgramUsage* usage) {
+    bool madeChanges = false;
+
+    auto isDeadFunction = [&](const ProgramElement* element) {
+        if (!element->is<FunctionDefinition>()) {
+            return false;
+        }
+        const FunctionDefinition& fn = element->as<FunctionDefinition>();
+        if (fn.declaration().name() != "main" && usage->get(fn.declaration()) == 0) {
+            usage->remove(*element);
+            madeChanges = true;
+            return true;
+        }
+        return false;
+    };
+
+    program.fElements.erase(std::remove_if(program.fElements.begin(),
+                                           program.fElements.end(),
+                                           [&](const std::unique_ptr<ProgramElement>& element) {
+                                               return isDeadFunction(element.get());
+                                           }),
+                            program.fElements.end());
+    program.fSharedElements.erase(std::remove_if(program.fSharedElements.begin(),
+                                                 program.fSharedElements.end(),
+                                                 isDeadFunction),
+                                  program.fSharedElements.end());
+
+    return madeChanges;
+}
+
+bool Compiler::removeDeadGlobalVariables(Program& program, ProgramUsage* usage) {
+    bool madeChanges = false;
+
+    auto isDeadVariable = [&](const ProgramElement* element) {
+        if (!element->is<GlobalVarDeclaration>()) {
+            return false;
+        }
+        const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
+        const VarDeclaration& varDecl = global.declaration()->as<VarDeclaration>();
+        if (usage->isDead(varDecl.var())) {
+            madeChanges = true;
+            return true;
+        }
+        return false;
+    };
+
+    program.fElements.erase(std::remove_if(program.fElements.begin(),
+                                           program.fElements.end(),
+                                           [&](const std::unique_ptr<ProgramElement>& element) {
+                                               return isDeadVariable(element.get());
+                                           }),
+                            program.fElements.end());
+    program.fSharedElements.erase(std::remove_if(program.fSharedElements.begin(),
+                                                 program.fSharedElements.end(),
+                                                 isDeadVariable),
+                                  program.fSharedElements.end());
+
+    return madeChanges;
+}
+
 bool Compiler::optimize(Program& program) {
     // The optimizer only needs to run when it is enabled.
     if (!program.fConfig->fSettings.fOptimize) {
@@ -538,59 +598,16 @@ bool Compiler::optimize(Program& program) {
     ProgramUsage* usage = program.fUsage.get();
 
     while (fErrorCount == 0) {
-        // Perform inline-candidate analysis and inline any functions deemed suitable.
         bool madeChanges = fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
 
-        // Remove dead functions.
         if (program.fConfig->fSettings.fRemoveDeadFunctions) {
-            auto isDeadFunction = [&](const ProgramElement* element) {
-                if (!element->is<FunctionDefinition>()) {
-                    return false;
-                }
-                const FunctionDefinition& fn = element->as<FunctionDefinition>();
-                if (fn.declaration().name() != "main" && usage->get(fn.declaration()) == 0) {
-                    usage->remove(*element);
-                    madeChanges = true;
-                    return true;
-                }
-                return false;
-            };
-            program.fElements.erase(
-                    std::remove_if(program.fElements.begin(), program.fElements.end(),
-                                   [&](const std::unique_ptr<ProgramElement>& element) {
-                                       return isDeadFunction(element.get());
-                                   }),
-                    program.fElements.end());
-            program.fSharedElements.erase(
-                    std::remove_if(program.fSharedElements.begin(), program.fSharedElements.end(),
-                                   isDeadFunction),
-                    program.fSharedElements.end());
+            madeChanges |= this->removeDeadFunctions(program, usage);
         }
 
-        if (program.fConfig->fKind != ProgramKind::kFragmentProcessor) {
-            // Remove declarations of dead global variables
-            auto isDeadVariable = [&](const ProgramElement* element) {
-                if (!element->is<GlobalVarDeclaration>()) {
-                    return false;
-                }
-                const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
-                const VarDeclaration& varDecl = global.declaration()->as<VarDeclaration>();
-                if (usage->isDead(varDecl.var())) {
-                    madeChanges = true;
-                    return true;
-                }
-                return false;
-            };
-            program.fElements.erase(
-                    std::remove_if(program.fElements.begin(), program.fElements.end(),
-                                   [&](const std::unique_ptr<ProgramElement>& element) {
-                                       return isDeadVariable(element.get());
-                                   }),
-                    program.fElements.end());
-            program.fSharedElements.erase(
-                    std::remove_if(program.fSharedElements.begin(), program.fSharedElements.end(),
-                                   isDeadVariable),
-                    program.fSharedElements.end());
+        if (program.fConfig->fSettings.fRemoveDeadVariables) {
+            if (program.fConfig->fKind != ProgramKind::kFragmentProcessor) {
+                madeChanges |= this->removeDeadGlobalVariables(program, usage);
+            }
         }
 
         if (!madeChanges) {
