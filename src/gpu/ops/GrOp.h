@@ -82,14 +82,7 @@ public:
 
     template<typename Op, typename... Args>
     static Owner Make(GrRecordingContext* context, Args&&... args) {
-        #if defined(GR_OP_ALLOCATE_USE_POOL)
-            GrMemoryPool* pool = context->priv().opMemoryPool();
-            void* mem = pool->allocate(sizeof(Op));
-            GrOp* op = new (mem) Op(std::forward<Args>(args)...);
-            return Owner{op, pool};
-        #else
-            return Owner{new Op(std::forward<Args>(args)...)};
-        #endif
+        return MakeWithExtraMemory<Op>(context, 0, std::forward<Args>(args)...);
     }
 
     template<typename Op, typename... Args>
@@ -169,17 +162,25 @@ public:
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
 
-    #if defined(GR_OP_ALLOCATE_USE_POOL) && defined(SK_DEBUG)
-        // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
-        void* operator new(size_t size);
-        void operator delete(void* target);
+    #if defined(GR_OP_ALLOCATE_USE_POOL)
+        #if defined(SK_DEBUG)
+            // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
+            void* operator new(size_t size);
+            void operator delete(void* target);
 
-        void* operator new(size_t size, void* placement) {
-            return ::operator new(size, placement);
-        }
-        void operator delete(void* target, void* placement) {
-            ::operator delete(target, placement);
-        }
+            void* operator new(size_t size, void* placement) {
+                return ::operator new(size, placement);
+            }
+            void operator delete(void* target, void* placement) {
+                ::operator delete(target, placement);
+            }
+        #endif
+    #else
+        // GrOps are allocated using ::operator new in the GrMemoryPool. Doing this style of memory
+        // allocation defeats the delete with size optimization.
+        void* operator new(size_t) { SK_ABORT("All GrOps are created by placement new."); }
+        void* operator new(size_t, void* p) { return p; }
+        void operator delete(void* p) { ::operator delete(p); }
     #endif
 
     /**
