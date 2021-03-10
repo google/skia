@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4ae54e2_8ab8c5a3",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-10T15:25:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dff860b1_a7aa752e",
+      "range": {
+        "startLine": 222,
+        "startChar": 12,
+        "endLine": 222,
+        "endChar": 24
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d962e0f7_c0956312",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffb3ab32_30b2eeb8",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-10T15:25:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d962e0f7_c0956312",
+      "range": {
+        "startLine": 235,
+        "startChar": 37,
+        "endLine": 235,
+        "endChar": 41
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "08455bab_80b68df1",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-03-10T12:56:06Z",
       "side": 1,
       "message": "Do you need to add a check for an invalid key?  Might also be worth a test.",
+      "range": {
+        "startLine": 251,
+        "startChar": 13,
+        "endLine": 251,
+        "endChar": 14
+      },
+      "revId": "c5de029b50be794670a87fd708fb3b0f6907130f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd260b27_40e5c2a4",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-10T15:25:28Z",
+      "side": 1,
+      "message": "The prop manager is defensive and always returns something valid (default-initialized value if key not found).  The setText call below should catch the missing key case and report to callers.\n\nAdded tests for text and also color/opacity.",
+      "parentUuid": "08455bab_80b68df1",
       "range": {
         "startLine": 251,
         "startChar": 13,
