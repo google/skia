@@ -69,6 +69,24 @@
       "parentUuid": "ed2842f7_7b875cc3",
       "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4c7fc5a_ce262cf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-10T16:52:05Z",
+      "side": 1,
+      "message": "That sounds fine.",
+      "parentUuid": "d59fa121_f60d8a13",
+      "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
