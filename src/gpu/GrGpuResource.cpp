@@ -160,8 +160,10 @@ void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
 
 void GrGpuResource::notifyARefCntIsZero(LastRemovedRef removedRef) const {
     if (this->wasDestroyed()) {
-        // We've already been removed from the cache. Goodbye cruel world!
-        delete this;
+        if (this->hasNoCommandBufferUsages() && !this->hasRef()) {
+            // We've already been removed from the cache. Goodbye cruel world!
+            delete this;
+        }
         return;
     }
 

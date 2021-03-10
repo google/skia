@@ -370,6 +370,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu, reporter, 
     }
 }
 
+// No CPU test.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAbandonPostFlush_Gpu, reporter, ctxInfo) {
+    auto direct = ctxInfo.directContext();
+    sk_sp<SkSurface> surface = create_gpu_surface(direct, kPremul_SkAlphaType, nullptr);
+    if (!surface) {
+        return;
+    }
+    // This flush can put command buffer refs on the GrGpuResource for the surface.
+    surface->flush();
+    direct->abandonContext();
+    // We pass the test if we don't hit any asserts or crashes when the ref on the surface goes away
+    // after we abanonded the context. One thing specifically this checks is to make sure we're
+    // correctly handling the mix of normal refs and command buffer refs, and correctly deleting
+    // the object at the right time.
+}
+
 // Verify that the right canvas commands trigger a copy on write.
 static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface) {
     SkCanvas* canvas = surface->getCanvas();
