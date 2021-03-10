@@ -51,6 +51,24 @@
       "parentUuid": "ea03401d_35dd9f23",
       "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d59fa121_f60d8a13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-03-10T16:39:35Z",
+      "side": 1,
+      "message": "I can add it to spirv-tools\u0027 BUILD.gn and fixup the roll to include that CL as well. Would that work for you?",
+      "parentUuid": "ed2842f7_7b875cc3",
+      "revId": "bea5a704f3d3ecd8a84cffb9ff03c17983150556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
