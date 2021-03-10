@@ -10,7 +10,6 @@
 
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
-#include "src/sksl/SkSLDefinitionMap.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <unordered_map>
@@ -158,18 +157,6 @@ public:
 
     bool containsRTAdjust() const {
         return this->hasProperty(Property::kContainsRTAdjust);
-    }
-
-    /**
-     * Given a map of known constant variable values, substitute them in for references to those
-     * variables occurring in this expression and its subexpressions.  Similar simplifications, such
-     * as folding a constant binary expression down to a single value, may also be performed.
-     * Returns a new expression which replaces this expression, or null if no replacements were
-     * made. If a new expression is returned, this expression is no longer valid.
-     */
-    virtual std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                          const DefinitionMap& definitions) {
-        return nullptr;
     }
 
     virtual CoercionCost coercionCost(const Type& target) const {
