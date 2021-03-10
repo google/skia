@@ -1,5 +1,3 @@
-/*#pragma settings NoDeadCodeElimination*/
-
 uniform half4 colorGreen, colorRed;
 
 float get() {
