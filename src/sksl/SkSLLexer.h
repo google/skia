@@ -42,6 +42,7 @@ struct Token {
         TK_FLAT,
         TK_NOPERSPECTIVE,
         TK_INLINE,
+        TK_NOINLINE,
         TK_HASSIDEEFFECTS,
         TK_VARYING,
         TK_STRUCT,

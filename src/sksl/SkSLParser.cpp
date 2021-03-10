@@ -52,6 +52,7 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_HASSIDEEFFECTS: return Modifiers::kHasSideEffects_Flag;
         case Token::Kind::TK_VARYING:        return Modifiers::kVarying_Flag;
         case Token::Kind::TK_INLINE:         return Modifiers::kInline_Flag;
+        case Token::Kind::TK_NOINLINE:       return Modifiers::kNoInline_Flag;
         default:                             return 0;
     }
 }

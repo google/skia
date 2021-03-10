@@ -890,6 +890,7 @@ void IRGenerator::checkModifiers(int offset,
     checkModifier(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects");
     checkModifier(Modifiers::kVarying_Flag,        "varying");
     checkModifier(Modifiers::kInline_Flag,         "inline");
+    checkModifier(Modifiers::kNoInline_Flag,       "noinline");
     SkASSERT(flags == 0);
 
     int layoutFlags = modifiers.fLayout.fFlags;
@@ -1055,9 +1056,16 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         return;
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
-    this->checkModifiers(f.fOffset, funcData.fModifiers,
-                         Modifiers::kHasSideEffects_Flag | Modifiers::kInline_Flag,
-                         /*permittedLayoutFlags=*/0);
+    this->checkModifiers(
+            f.fOffset,
+            funcData.fModifiers,
+            Modifiers::kHasSideEffects_Flag | Modifiers::kInline_Flag | Modifiers::kNoInline_Flag,
+            /*permittedLayoutFlags=*/0);
+    if ((funcData.fModifiers.fFlags & Modifiers::kInline_Flag) &&
+        (funcData.fModifiers.fFlags & Modifiers::kNoInline_Flag)) {
+        this->errorReporter().error(f.fOffset, "functions cannot be both 'inline' and 'noinline'");
+    }
+
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
