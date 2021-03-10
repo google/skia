@@ -29,8 +29,9 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         const GrProgramDesc& programDesc,
-        const GrProgramInfo& programInfo) {
-    return fPipelineStateCache->refPipelineState(programDesc, programInfo);
+        const GrProgramInfo& programInfo,
+        GrThreadSafePipelineBuilder::Stats::ProgramCacheResult* stat) {
+    return fPipelineStateCache->refPipelineState(programDesc, programInfo, stat);
 }
 
 bool GrMtlResourceProvider::precompileShader(const SkData& key, const SkData& data) {
@@ -75,11 +76,6 @@ void GrMtlResourceProvider::destroyResources() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_PIPELINE_STATE_CACHE_STATS
-// Display pipeline state cache usage
-static const bool c_DisplayMtlPipelineCache{false};
-#endif
-
 struct GrMtlResourceProvider::PipelineStateCache::Entry {
     Entry(GrMtlPipelineState* pipelineState)
             : fPipelineState(pipelineState) {}
@@ -95,27 +91,10 @@ struct GrMtlResourceProvider::PipelineStateCache::Entry {
 
 GrMtlResourceProvider::PipelineStateCache::PipelineStateCache(GrMtlGpu* gpu)
     : fMap(gpu->getContext()->priv().options().fRuntimeProgramCacheSize)
-    , fGpu(gpu)
-#ifdef GR_PIPELINE_STATE_CACHE_STATS
-    , fTotalRequests(0)
-    , fCacheMisses(0)
-#endif
-{}
+    , fGpu(gpu) {}
 
 GrMtlResourceProvider::PipelineStateCache::~PipelineStateCache() {
     SkASSERT(0 == fMap.count());
-    // dump stats
-#ifdef GR_PIPELINE_STATE_CACHE_STATS
-    if (c_DisplayMtlPipelineCache) {
-        SkDebugf("--- Pipeline State Cache ---\n");
-        SkDebugf("Total requests: %d\n", fTotalRequests);
-        SkDebugf("Cache misses: %d\n", fCacheMisses);
-        SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ?
-                 100.f * fCacheMisses / fTotalRequests :
-                 0.f);
-        SkDebugf("---------------------\n");
-    }
-#endif
 }
 
 void GrMtlResourceProvider::PipelineStateCache::release() {
@@ -124,11 +103,30 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         const GrProgramDesc& desc,
-        const GrProgramInfo& programInfo) {
-#ifdef GR_PIPELINE_STATE_CACHE_STATS
-    ++fTotalRequests;
-#endif
+        const GrProgramInfo& programInfo,
+        Stats::ProgramCacheResult* stat) {
 
+    if (!stat) {
+        // If stat is NULL we are using inline compilation rather than through DDL,
+        // so we need to track those stats as well.
+        GrThreadSafePipelineBuilder::Stats::ProgramCacheResult stat;
+        auto tmp = this->onRefPipelineState(desc, programInfo, &stat);
+        if (!tmp) {
+            fStats.incNumInlineCompilationFailures();
+        } else {
+            fStats.incNumInlineProgramCacheResult(stat);
+        }
+        return tmp;
+    } else {
+        return this->onRefPipelineState(desc, programInfo, stat);
+    }
+}
+
+GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::onRefPipelineState(
+        const GrProgramDesc& desc,
+        const GrProgramInfo& programInfo,
+        Stats::ProgramCacheResult* stat) {
+    *stat = Stats::ProgramCacheResult::kHit;
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fPipelineState) {
         // We've pre-compiled the MSL shaders but don't have the pipelineState
@@ -141,25 +139,25 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         if (!(*entry)->fPipelineState) {
             // Should we purge the precompiled shaders from the cache at this point?
             SkDEBUGFAIL("Couldn't create pipelineState from precompiled shaders");
-            // TODO: add new stat tracking
+            fStats.incNumCompilationFailures();
             return nullptr;
         }
         // release the libraries
         (*entry)->fPrecompiledLibraries.fVertexLibrary = nil;
         (*entry)->fPrecompiledLibraries.fFragmentLibrary = nil;
 
-        // TODO: add new stat tracking
+        fStats.incNumPartialCompilationSuccesses();
+        *stat = Stats::ProgramCacheResult::kPartial;
     } else if (!entry) {
-#ifdef GR_PIPELINE_STATE_CACHE_STATS
-        // TODO: add new stat tracking
-        ++fCacheMisses;
-#endif
         GrMtlPipelineState* pipelineState(
                 GrMtlPipelineStateBuilder::CreatePipelineState(fGpu, desc, programInfo));
         if (!pipelineState) {
-            return nullptr;
+            fStats.incNumCompilationFailures();
+           return nullptr;
         }
+        fStats.incNumCompilationSuccesses();
         entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(pipelineState)));
+        *stat = Stats::ProgramCacheResult::kMiss;
         return (*entry)->fPipelineState.get();
     }
     return (*entry)->fPipelineState.get();
