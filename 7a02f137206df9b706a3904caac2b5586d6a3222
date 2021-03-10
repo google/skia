@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce0465b0_0cf609a3",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-10T21:40:01Z",
+      "side": 1,
+      "message": "Does this rule make live things dead?\nIt\u0027s how we currently operate, and it seems to have not caused any issues...",
+      "range": {
+        "startLine": 190,
+        "startChar": 56,
+        "endLine": 190,
+        "endChar": 91
+      },
+      "revId": "7a02f137206df9b706a3904caac2b5586d6a3222",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
