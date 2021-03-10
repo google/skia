@@ -31,15 +31,6 @@ SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius, const
     , fRadius(radius) {
 }
 
-SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
-    if (info) {
-        commonAsAGradient(info);
-        info->fPoint[0] = fCenter;
-        info->fRadius[0] = fRadius;
-    }
-    return kRadial_GradientType;
-}
-
 sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {

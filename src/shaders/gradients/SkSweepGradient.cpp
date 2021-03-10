@@ -21,14 +21,6 @@ SkSweepGradient::SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1
     SkASSERT(t0 < t1);
 }
 
-SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
-    if (info) {
-        commonAsAGradient(info);
-        info->fPoint[0] = fCenter;
-    }
-    return kSweep_GradientType;
-}
-
 static std::tuple<SkScalar, SkScalar> angles_from_t_coeff(SkScalar tBias, SkScalar tScale) {
     return std::make_tuple(-tBias * 360, (sk_ieee_float_divide(1, tScale) - tBias) * 360);
 }
