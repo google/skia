@@ -219,12 +219,41 @@ public:
         return props;
     }
 
+    JSArray getTextProps() const {
+        JSArray props = emscripten::val::array();
+
+        for (const auto& key : fPropMgr->getTextProps()) {
+            const auto txt = fPropMgr->getText(key);
+            JSObject txt_val = emscripten::val::object();
+            txt_val.set("text", txt.fText.c_str());
+            txt_val.set("size", txt.fTextSize);
+
+            JSObject prop = emscripten::val::object();
+            prop.set("key", key);
+            prop.set("value", std::move(txt_val));
+
+            props.call<void>("push", prop);
+        }
+
+        return props;
+    }
+
     bool setColor(const std::string& key, SkColor c) {
         return fPropMgr->setColor(key, c);
     }
 
     bool setOpacity(const std::string& key, float o) {
         return fPropMgr->setOpacity(key, o);
+    }
+
+    bool setText(const std::string& key, std::string text, float size) {
+        // preserve all other text fields
+        auto t = fPropMgr->getText(key);
+
+        t.fText     = SkString(text);
+        t.fTextSize = size;
+
+        return fPropMgr->setText(key, t);
     }
 
     JSArray getMarkers() const {
@@ -314,12 +343,14 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("_setColor"  , optional_override([](ManagedAnimation& self, const std::string& key, uintptr_t /* float* */ cPtr) {
             float* fourFloats = reinterpret_cast<float*>(cPtr);
             SkColor4f color = { fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3] };
-            self.setColor(key, color.toSkColor());
+            return self.setColor(key, color.toSkColor());
         }))
         .function("setOpacity", &ManagedAnimation::setOpacity)
         .function("getMarkers", &ManagedAnimation::getMarkers)
         .function("getColorProps"  , &ManagedAnimation::getColorProps)
-        .function("getOpacityProps", &ManagedAnimation::getOpacityProps);
+        .function("getOpacityProps", &ManagedAnimation::getOpacityProps)
+        .function("getTextProps"   , &ManagedAnimation::getTextProps)
+        .function("setText"        , &ManagedAnimation::setText);
 
     function("_MakeManagedAnimation", optional_override([](std::string json,
                                                            size_t assetCount,

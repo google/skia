@@ -685,8 +685,13 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     mAnim.setColor('slider', CK.WHITE);
     mAnim.setOpacity('slider', 0.8);
     const e = mAnim.getMarkers();  // $ExpectType object[]
-    const f = mAnim.getColorProps();  // $ExpectType object[]
-    const g = mAnim.getOpacityProps();  // $ExpectType object[]
+    const f = mAnim.getColorProps();  // $ExpectType ColorProperty[]
+    const g = mAnim.getOpacityProps();  // $ExpectType OpacityProperty[]
+    const h = mAnim.getTextProps();  // $ExpectType TextProperty[]
+
+    const i = mAnim.setColor('foo', CK.RED);  // $ExpectType boolean
+    const j = mAnim.setOpacity('foo', 0.5);  // $ExpectType boolean
+    const k = mAnim.setText('foo', 'bar', 12);  // $ExpectType boolean
 }
 
 function shaderTests(CK: CanvasKit) {

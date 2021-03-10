@@ -699,12 +699,71 @@ export interface SoundMap {
      */
     getPlayer(key: string): AudioPlayer;
 }
+
+/**
+ * Named color property.
+ */
+export interface ColorProperty {
+    /**
+     * Property identifier, usually the node name.
+     */
+    key: string;
+    /**
+     * Property value (RGBA, 255-based).
+     */
+    value: ColorInt;
+}
+
+/**
+ * Named opacity property.
+ */
+export interface OpacityProperty {
+    /**
+     * Property identifier, usually the node name.
+     */
+    key: string;
+    /**
+     * Property value (0..100).
+     */
+    value: number;
+}
+
+/**
+ * Text property value.
+ */
+export interface TextValue {
+    /**
+     * The text string payload.
+     */
+    text: string;
+    /**
+     * Font size.
+     */
+    size: number;
+}
+
+/**
+ * Named text property.
+ */
+export interface TextProperty {
+    /**
+     * Property identifier, usually the node name.
+     */
+    key: string;
+    /**
+     * Property value.
+     */
+    value: TextValue;
+}
+
 export interface ManagedSkottieAnimation extends SkottieAnimation {
-    setColor(key: string, color: InputColor): void;
-    setOpacity(key: string, opacity: number): void;
+    setColor(key: string, color: InputColor): boolean;
+    setOpacity(key: string, opacity: number): boolean;
+    setText(key: string, text: string, size: number): boolean;
     getMarkers(): object[];
-    getColorProps(): object[];
-    getOpacityProps(): object[];
+    getColorProps(): ColorProperty[];
+    getOpacityProps(): OpacityProperty[];
+    getTextProps(): TextProperty[];
 }
 
 /**
