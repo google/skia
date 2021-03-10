@@ -55,7 +55,8 @@ class StencilResolveProcessor::Impl : public GrGLSLGeometryProcessor {
 
         // Just output "1" for coverage. This will be modulated by the MSAA stencil test.
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-        f->codeAppendf("%s = %s = half4(1);", args.fOutputColor, args.fOutputCoverage);
+        f->codeAppendf("const half4 %s = half4(1), %s = half4(1);",
+                       args.fOutputColor, args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
