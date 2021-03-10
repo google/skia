@@ -123,8 +123,8 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("fnwidth += 1e-10;");  // Guard against divide-by-zero.
         f->codeAppendf("half coverage = clamp(half(.5 - fn/fnwidth), 0, 1);");
 
-        f->codeAppendf("%s = half4(.51, .42, .71, 1) * .89;", args.fOutputColor);
-        f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
+        f->codeAppendf("half4 %s = half4(.51, .42, .71, 1) * .89;", args.fOutputColor);
+        f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,

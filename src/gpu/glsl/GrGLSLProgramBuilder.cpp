@@ -157,6 +157,7 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
     this->nameExpression(&output, "output");
+    fFS.codeAppendf("half4 %s;", output.c_str());
 
     int samplerIdx = 0;
     for (auto [subFP, subGLSLFP] : GrGLSLFragmentProcessor::ParallelRange(fp, glslFP)) {
@@ -317,7 +318,6 @@ void GrGLSLProgramBuilder::nameExpression(SkString* output, const char* baseName
     } else {
         outName = this->nameVariable(/*prefix=*/'\0', baseName);
     }
-    fFS.codeAppendf("half4 %s;", outName.c_str());
     *output = outName;
 }
 

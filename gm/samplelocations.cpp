@@ -170,8 +170,8 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         }
 
         // Fragment shader: Output RED.
-        f->codeAppendf("%s = half4(1,0,0,1);", args.fOutputColor);
-        f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        f->codeAppendf("const half4 %s = half4(1,0,0,1);", args.fOutputColor);
+        f->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
 
         // Now turn off all the samples inside our sub-rectangle. As long as the shaderBuilder's
         // sample offsets and sample mask are correlated with actual HW sample locations, no red
