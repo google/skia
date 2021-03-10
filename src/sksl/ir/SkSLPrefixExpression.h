@@ -59,9 +59,6 @@ public:
         return this->operand()->hasProperty(property);
     }
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override;
-
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<PrefixExpression>(this->getOperator(), this->operand()->clone());
     }

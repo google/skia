@@ -25,8 +25,6 @@
 
 namespace SkSL {
 
-extern bool gSkSLControlFlowAnalysis;
-
 static const int32_t SKSL_MAGIC  = 0x0; // FIXME: we should probably register a magic number
 
 void SPIRVCodeGenerator::setupIntrinsics() {
@@ -238,17 +236,11 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpMemberDecorate:
             break;
         default:
-            if (fProgram.fConfig->fSettings.fDeadCodeElimination) {
-                // When dead-code elimination is enabled, all code should be reachable and an
-                // associated block should already exist.
-                SkASSERT(fCurrentBlock);
-            } else {
-                // When dead-code elimination is disabled, we may find ourselves with instructions
-                // that don't have an associated block. This should be a rare event, but if it
-                // happens, synthesize a label; this is necessary to satisfy the validator.
-                if (fCurrentBlock == 0) {
-                    this->writeLabel(this->nextId(), out);
-                }
+            // We may find ourselves with dead code--instructions that don't have an associated
+            // block. This should be a rare event, but if it happens, synthesize a label; this is
+            // necessary to satisfy the validator.
+            if (fCurrentBlock == 0) {
+                this->writeLabel(this->nextId(), out);
             }
             break;
     }
@@ -3120,10 +3112,11 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     fBreakTarget.push(end);
     int size = 3;
     auto& cases = s.cases();
-    for (const std::unique_ptr<SwitchCase>& c : cases) {
+    for (const std::unique_ptr<Statement>& stmt : cases) {
+        const SwitchCase& c = stmt->as<SwitchCase>();
         SpvId label = this->nextId();
         labels.push_back(label);
-        if (c->value()) {
+        if (c.value()) {
             size += 2;
         } else {
             defaultLabel = label;
@@ -3135,15 +3128,17 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     this->writeWord(value, out);
     this->writeWord(defaultLabel, out);
     for (size_t i = 0; i < cases.size(); ++i) {
-        if (!cases[i]->value()) {
+        const SwitchCase& c = cases[i]->as<SwitchCase>();
+        if (!c.value()) {
             continue;
         }
-        this->writeWord(cases[i]->value()->as<IntLiteral>().value(), out);
+        this->writeWord(c.value()->as<IntLiteral>().value(), out);
         this->writeWord(labels[i], out);
     }
     for (size_t i = 0; i < cases.size(); ++i) {
+        const SwitchCase& c = cases[i]->as<SwitchCase>();
         this->writeLabel(labels[i], out);
-        this->writeStatement(*cases[i]->statement(), out);
+        this->writeStatement(*c.statement(), out);
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, labels[i + 1], out);
         }
