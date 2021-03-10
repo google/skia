@@ -4,6 +4,8 @@
 
 # Recipe which analyzes a compiled binary for information (e.g. file size)
 
+import ast
+
 DEPS = [
   'checkout',
   'env',
@@ -149,6 +151,13 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
           args=[f, out_dir, keystr, propstr, bloaty_exe])
 
 
+TOTAL_SIZE_BYTES_KEY = "total_size_bytes"
+
+
+def add_binary_size_output_property(result, binary_size):
+  result.presentation.properties['binary_size_plugin'] = binary_size
+
+
 # Get the size of skia in flutter and a few metrics from bloaty
 def analyze_flutter_lib(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
@@ -161,9 +170,11 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
       stripped = api.vars.build_dir.join('libflutter_stripped.so')
       script = skia_dir.join('infra', 'bots', 'buildstats',
                              'buildstats_flutter.py')
+      config = "skia_in_flutter"
+      lib_name = "libflutter.so"
       step_data = api.run(api.python, 'Analyze flutter', script=script,
                          args=[stripped, out_dir, keystr, propstr, bloaty_exe,
-                               f],
+                               f, config, TOTAL_SIZE_BYTES_KEY, lib_name],
                          stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         magic_seperator = '#$%^&*'
@@ -177,6 +188,13 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
         logs['bloaty_symbol_file_short'] = sections[3].split('\n')
         logs['bloaty_symbol_file_full']  = sections[4].split('\n')
         logs['perf_json'] = sections[5].split('\n')
+
+        add_binary_size_output_property(result, (
+            ast.literal_eval(sections[5])
+              .get('results', {})
+              .get(lib_name, {})
+              .get(config, {})
+              .get(TOTAL_SIZE_BYTES_KEY, {})))
 
 
 # Get the size of skia in flutter and a few metrics from bloaty
@@ -203,6 +221,12 @@ def analyze_wasm_file(api, checkout_root, out_dir, files):
         logs['bloaty_symbol_short'] = sections[1].split('\n')
         logs['bloaty_symbol_full']  = sections[2].split('\n')
         logs['perf_json']           = sections[3].split('\n')
+        add_binary_size_output_property(result, (
+            ast.literal_eval(sections[3])
+                .get('results', {})
+                .get(api.path.basename(f), {})
+                .get('default', {})
+                .get(TOTAL_SIZE_BYTES_KEY, {})))
 
 
 # make a zip file containing an HTML treemap of the files
@@ -272,7 +296,15 @@ Report B
     Total size: 60 bytes
 #$%^&*
 {
-  "some": "json"
+  "some": "json",
+  "results": {
+    "pathkit.wasm": {
+      "default": {
+        "total_size_bytes": 7391117,
+        "gzip_size_bytes": 2884841
+      }
+    }
+  }
 }
 """
 
@@ -291,6 +323,13 @@ Report D
     Total size: 80 bytes
 #$%^&*
 {
-  "some": "json"
+  "some": "json",
+  "results": {
+    "libflutter.so": {
+      "skia_in_flutter": {
+        "total_size_bytes": 1256676
+      }
+    }
+  }
 }
 """
