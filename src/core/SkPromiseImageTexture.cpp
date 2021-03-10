@@ -20,19 +20,20 @@ SkPromiseImageTexture::SkPromiseImageTexture(const GrBackendTexture& backendText
 
 SkPromiseImageTexture::~SkPromiseImageTexture() {
     for (const auto& msg : fMessages) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage, GrRecordingContext::ExplicitContextID>::Post(msg);
     }
 }
 
-void SkPromiseImageTexture::addKeyToInvalidate(uint32_t contextID, const GrUniqueKey& key) {
-    SkASSERT(contextID != SK_InvalidUniqueID);
+void SkPromiseImageTexture::addKeyToInvalidate(GrRecordingContext::ExplicitContextID explicitContextID,
+                                               const GrUniqueKey& key) {
+    SkASSERT(explicitContextID.isValid());
     SkASSERT(key.isValid());
     for (const auto& msg : fMessages) {
-        if (msg.contextID() == contextID && msg.key() == key) {
+        if (msg.explicitContextID() == explicitContextID && msg.key() == key) {
             return;
         }
     }
-    fMessages.emplace_back(key, contextID, /* inThreadSafeCache */ false);
+    fMessages.emplace_back(key, explicitContextID, /* inThreadSafeCache */ false);
 }
 
 #if GR_TEST_UTILS

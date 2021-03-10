@@ -42,7 +42,7 @@ static bool check_rect(GrDirectContext* dContext, GrSurfaceDrawContext* rtc, con
     readback.alloc(dstInfo);
 
     readback.erase(~expectedValue);
-    if (!rtc->readPixels(dContext, readback, {rect.fLeft, rect.fTop})) {
+    if (!rtc->readPixels(dContext, readback, {rect.fLeft, rect.fTop}, true)) {
         return false;
     }
 

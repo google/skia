@@ -464,7 +464,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
     GrDirectContext* direct = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [direct](const Surface& surface, const SkIVector& offset, const SkPixmap& pixels) {
-                if (surface->readPixels(direct, pixels, {offset.fX, offset.fY})) {
+                if (surface->readPixels(direct, pixels, {offset.fX, offset.fY}, true)) {
                     return GpuReadResult::kSuccess;
                 } else {
                     // Reading from a non-renderable format is not guaranteed to work on GL.

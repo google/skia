@@ -285,7 +285,7 @@ static void check_base_readbacks(GrDirectContext* dContext,
             ERRORF(reporter, "Could not create surface context for colorType: %d\n", colorType);
         }
 
-        if (!surfaceContext->readPixels(dContext, actual, {0, 0})) {
+        if (!surfaceContext->readPixels(dContext, actual, {0, 0}, true)) {
             // TODO: we need a better way to tell a priori if readPixels will work for an
             // arbitrary colorType
 #if 0
@@ -425,7 +425,7 @@ static void check_mipmaps(GrDirectContext* dContext,
         SkAssertResult(actual.tryAlloc(readbackII));
         actual.erase(SkColors::kTransparent);
 
-        bool result = dstFillContext->readPixels(dContext, actual, {0, 0});
+        bool result = dstFillContext->readPixels(dContext, actual, {0, 0}, true);
         REPORTER_ASSERT(reporter, result);
 
         SkString str;

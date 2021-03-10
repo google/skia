@@ -272,7 +272,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                             auto texCtx = GrSurfaceContext::Make(dContext, std::move(view), info);
 
                             readback.erase(kClearColor);
-                            if (texCtx->readPixels(dContext, readback, {0, 0})) {
+                            if (texCtx->readPixels(dContext, readback, {0, 0}, true)) {
                                 for (int i = 0; i < kSize * kSize; ++i) {
                                     if (!checkColor(combo, readback.addr32()[i])) {
                                         break;
@@ -304,7 +304,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         }
 
                         readback.erase(kClearColor);
-                        if (surfCtx->readPixels(dContext, readback, {0, 0})) {
+                        if (surfCtx->readPixels(dContext, readback, {0, 0}, true)) {
                             for (int i = 0; i < kSize * kSize; ++i) {
                                 if (!checkColor(combo, readback.addr32()[i])) {
                                     break;
@@ -373,7 +373,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         {
             SkAutoPixmapStorage read;
             read.alloc(srcPixmap.info());
-            auto readResult = surfContext->readPixels(dContext, read, {0, 0});
+            auto readResult = surfContext->readPixels(dContext, read, {0, 0}, true);
             REPORTER_ASSERT(reporter, readResult);
             if (readResult) {
                 comparePixels(srcPixmap, read, reporter);

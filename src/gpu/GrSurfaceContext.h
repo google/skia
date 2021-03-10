@@ -100,7 +100,7 @@ public:
      * @param srcPt         offset w/in the surface context from which to read
      *                      is a GrDirectContext and fail otherwise.
      */
-    bool readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoint srcPt);
+    bool readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoint srcPt, bool foo);
 
     using ReadPixelsCallback = SkImage::ReadPixelsCallback;
     using ReadPixelsContext  = SkImage::ReadPixelsContext;

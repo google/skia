@@ -232,7 +232,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
         auto ii = SkImageInfo::Make(kScreenSize, kScreenSize,
                                     kRGBA_8888_SkColorType, kPremul_SkAlphaType);
         GrPixmap resultPM(ii, resultPx, kScreenSize*sizeof(uint32_t));
-        rtc->readPixels(dContext, resultPM, {0, 0});
+        rtc->readPixels(dContext, resultPM, {0, 0}, true);
         for (int y = 0; y < kScreenSize; ++y) {
             for (int x = 0; x < kScreenSize; ++x) {
                 int expectedColorIdx;
