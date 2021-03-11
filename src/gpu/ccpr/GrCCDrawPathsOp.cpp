@@ -345,8 +345,6 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
 
                 // A path mask didn't exist for this path at the beginning of flush, but we have one
                 // now. What this means is that we've drawn the same path multiple times this flush.
-                // Let the resources know that we reused one for their internal debug counters.
-                SkDEBUGCODE(resources->debugOnly_didReuseRenderedPath());
             }
         }
 
@@ -392,8 +390,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     SkIRect devIBounds;
     SkIVector devToAtlasOffset;
     if (auto atlas = resources->renderShapeInAtlas(
-                fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
-                &devToAtlasOffset)) {
+                onFlushRP, fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds,
+                &devIBounds, &devToAtlasOffset)) {
         op->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
         resources->appendDrawPathInstance().set(octoBounds, devToAtlasOffset, fColor, fillRule);
 
