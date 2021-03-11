@@ -22,6 +22,30 @@
       },
       "revId": "ebfae4d228ad607e18195f7321e2fc48bb123b5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50014541_45eedd88",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-11T14:15:17Z",
+      "side": 1,
+      "message": "Well, it\u0027s public in ProgramWriter, but you\u0027re right, it doesn\u0027t need to exist in the TProgramVisitor at all. I will remove it.",
+      "parentUuid": "04015006_6294dd2a",
+      "range": {
+        "startLine": 169,
+        "startChar": 17,
+        "endLine": 169,
+        "endChar": 39
+      },
+      "revId": "ebfae4d228ad607e18195f7321e2fc48bb123b5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
