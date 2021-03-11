@@ -1,7 +1,11 @@
 Milestone Schedule
 ==================
 
-On a six week cadence aligned with Chromium, Skia cuts milestone branches.
+On a cadence aligned with Chromium, Skia cuts milestone branches.
+Chromium has
+[announced](https://blog.chromium.org/2021/03/speeding-up-release-cycle.html) a
+plan to move to 4 week milestones, starting with Chrome 94, and Skia will align.
+
 Clients wishing to stay on a relatively stable level of Skia often utilize these
 branches.
 
@@ -25,6 +29,22 @@ Skia 2020 schedule:
 
 Note that 82 was abandoned by Chromium and 83 schedule moved in due to COVID-19 impact.
 Skia is maintaining 82 for our customers. Future dates are subject to change.
+
+Skia 2021 schedule:
+
+  Milestone | Branch Date (beginning of day)
+  ----------|-------------------------------
+  89        | 01/14/21
+  90        | 02/25/21
+  91        | 04/08/21
+  92        | 05/20/21
+  93        | 07/15/21
+  94        | 08/12/21
+  95        | 09/09/21
+  96        | 10/07/21
+  97        | 11/04/21
+  98        | 12/09/21
+
 
 The current milestone is included in the headers in
 [SkMilestone.h](https://skia.googlesource.com/skia/+/master/include/core/SkMilestone.h).
