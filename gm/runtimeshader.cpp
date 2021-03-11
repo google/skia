@@ -335,6 +335,51 @@ public:
 };
 DEF_GM(return new DefaultColorRT;)
 
+// Emits coverage for a general superellipse defined by the boundary:
+//
+//   x^m + y^n == 1
+//
+// Where x and y are normalized coordinates ranging from -1..+1 inside the squircle's bounding box.
+//
+// See: https://en.wikipedia.org/wiki/Superellipse#Generalizations
+class ClipSquircle : public RuntimeShaderGM {
+public:
+    ClipSquircle() : RuntimeShaderGM("clip_squircle", {512, 256}, R"(
+        uniform float2 exponents;
+        uniform float4 dxdy;
+        half4 main(float2 xy) {
+            xy = abs(xy);
+            float2 expMinus1 = pow(xy, exponents - 1);
+            float2 exp = expMinus1 * xy;
+            float f = exp.x + exp.y - 1;
+            float2 grad = (exponents * expMinus1) * float2x2(dxdy);
+            float fwidth = abs(grad.x) + abs(grad.y);
+            return half4(clamp(.5 - f/fwidth, 0, 1));
+        }
+    )") {}
+
+    void onDraw(SkCanvas* canvas) override {
+        SkMatrix matrix = SkMatrix::RotateDeg(9.2f, SkPoint{5, 185});
+        SkRect squircle = SkRect::MakeXYWH(7, 3, 300, 185.41);
+        float m = 5.32f;
+        float n = 3.14f;
+
+        SkMatrix localMatrix = matrix;
+        localMatrix.preTranslate(squircle.centerX(), squircle.centerY());
+        localMatrix.preScale(squircle.width()*.5f, squircle.height()*.5f);
+
+        SkMatrix inverse;
+        if (localMatrix.invert(&inverse)) {
+            SkRuntimeShaderBuilder builder(fEffect);
+            builder.uniform("dxdy") = SkV4{inverse.getScaleX()*.5f, inverse.getSkewY()*.5f,
+                                           inverse.getSkewX()*.5f, inverse.getScaleY()*.5f};
+            builder.uniform("exponents") = SkV2{m, n};
+            canvas->clipShader(builder.makeShader(&localMatrix, false));
+            canvas->clear(SkColorSetARGB(255, 144, 123, 189));
+        }
+    }
+};
+DEF_GM(return new ClipSquircle;)
 
 DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     static constexpr char scale[] =
