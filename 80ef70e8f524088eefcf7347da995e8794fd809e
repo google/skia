@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f577f90_61e7dfdb",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 1185,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-11T13:22:49Z",
+      "side": 0,
+      "message": "Was wondering why this test got removed. I see that we have a similar test earlier in the file.",
+      "range": {
+        "startLine": 1175,
+        "startChar": 0,
+        "endLine": 1185,
+        "endChar": 5
+      },
+      "revId": "80ef70e8f524088eefcf7347da995e8794fd809e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
