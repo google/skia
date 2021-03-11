@@ -28,7 +28,6 @@ class SkPath;
 class GrCCFiller {
 public:
     enum class Algorithm : bool {
-        kCoverageCount,
         kStencilWindingCount
     };
 

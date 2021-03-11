@@ -49,18 +49,7 @@ public:
     static sk_sp<const GrGpuBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrGpuBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
-    enum class CoverageMode : bool {
-        kCoverageCount,
-        kLiteral
-    };
-
-    static GrColorType GetColorTypeFromCoverageMode(CoverageMode mode) {
-        return mode == CoverageMode::kCoverageCount ? GrColorType::kAlpha_F16
-            : GrColorType::kAlpha_8;
-    }
-
-    GrCCPathProcessor(CoverageMode, const GrTexture* atlasTexture, const GrSwizzle&,
-                      GrSurfaceOrigin atlasOrigin,
+    GrCCPathProcessor(const GrTexture* atlasTexture, const GrSwizzle&, GrSurfaceOrigin atlasOrigin,
                       const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }
@@ -75,7 +64,6 @@ public:
 private:
     const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
 
-    const CoverageMode fCoverageMode;
     const TextureSampler fAtlasAccess;
     SkISize fAtlasDimensions;
     GrSurfaceOrigin fAtlasOrigin;

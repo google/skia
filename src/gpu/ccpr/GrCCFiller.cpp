@@ -131,17 +131,10 @@ void GrCCFiller::PathInfo::tessellateFan(
 
     // Build an SkPath of the Redbook fan.
     SkPath fan;
-    if (Algorithm::kCoverageCount == algorithm) {
-        // We use "winding" fill type right now because we are producing a coverage count, and must
-        // fill in every region that has non-zero wind. The path processor will convert coverage
-        // count to the appropriate fill type later.
-        fan.setFillType(SkPathFillType::kWinding);
-    } else {
-        // When counting winding numbers in the stencil buffer, it works to use even/odd for the fan
-        // tessellation (where applicable). But we need to strip out inverse fill info because
-        // inverse-ness gets accounted for later on.
-        fan.setFillType(SkPathFillType_ConvertToNonInverse(originalPath.getFillType()));
-    }
+    // When counting winding numbers in the stencil buffer, it works to use even/odd for the fan
+    // tessellation (where applicable). But we need to strip out inverse fill info because
+    // inverse-ness gets accounted for later on.
+    fan.setFillType(SkPathFillType_ConvertToNonInverse(originalPath.getFillType()));
     SkASSERT(Verb::kBeginPath == verbs[verbsIdx]);
     for (int i = verbsIdx + 1; i < verbs.count(); ++i) {
         switch (verbs[i]) {
@@ -194,11 +187,7 @@ void GrCCFiller::PathInfo::tessellateFan(
             SkASSERT(weight & 1);
             weight = 1;
         }
-        if (weight > 1 && Algorithm::kCoverageCount == algorithm) {
-            ++newTriangleCounts->fWeightedTriangles;
-        } else {
-            newTriangleCounts->fTriangles += weight;
-        }
+        newTriangleCounts->fTriangles += weight;
         vertices[i].fWinding = weight;
     }
 
@@ -279,11 +268,7 @@ void GrCCFiller::emitTessellatedFan(
     for (int i = 0; i < numVertices; i += 3) {
         int weight = vertices[i].fWinding;
         SkASSERT(weight >= 1);
-        if (weight > 1 && Algorithm::kStencilWindingCount != fAlgorithm) {
-            quadPointInstanceData[indices->fWeightedTriangles++].setW(
-                    vertices[i].fPos, vertices[i+1].fPos, vertices[i + 2].fPos, devToAtlasOffset,
-                    static_cast<float>(abs(vertices[i].fWinding)));
-        } else for (int j = 0; j < weight; ++j) {
+        for (int j = 0; j < weight; ++j) {
             // Unfortunately, there is not a way to increment stencil values by an amount larger
             // than 1. Instead we draw the triangle 'weight' times.
             triPointInstanceData[indices->fTriangles++].set(
@@ -300,9 +285,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
              fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled]);
     SkASSERT(fBatches.back().fEndScissorSubBatchIdx == fScissorSubBatches.count());
 
-    auto triangleOrdering = (Algorithm::kCoverageCount == fAlgorithm)
-            ? TriPointInstance::Ordering::kXYTransposed
-            : TriPointInstance::Ordering::kXYInterleaved;
+    auto triangleOrdering = TriPointInstance::Ordering::kXYInterleaved;
 
     // Here we build a single instance buffer to share with every internal batch.
     //

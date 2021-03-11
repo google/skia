@@ -144,10 +144,6 @@ public:
                     varyingHandler, scope, code, position, coverage, cornerCoverage, wind);
         }
 
-        // Writes the signed coverage value at the current pixel to "outputCoverage".
-        virtual void emitFragmentCoverageCode(
-                GrGLSLFPFragmentBuilder*, const char* outputCoverage) const = 0;
-
         // Assigns the built-in sample mask at the current pixel.
         virtual void emitSampleMaskCode(GrGLSLFPFragmentBuilder*) const = 0;
 

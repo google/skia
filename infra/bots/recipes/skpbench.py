@@ -42,7 +42,6 @@ def skpbench_steps(api):
   """benchmark Skia using skpbench."""
   is_vulkan = 'Vulkan' in api.vars.builder_name
   is_android = 'Android' in api.vars.builder_name
-  is_ccpr = 'CCPR' in api.vars.builder_name
   is_all_paths_volatile = 'AllPathsVolatile' in api.vars.builder_name
   is_mskp = 'Mskp' in api.vars.builder_name
   is_ddl = 'DDL' in api.vars.builder_name
@@ -89,12 +88,7 @@ def skpbench_steps(api):
     skpbench_args += [
         '--adb',
         '--adb_binary', ADB_BINARY]
-  if is_ccpr:
-    skpbench_args += [
-        '--pr', 'ccpr', '--cc', '--nocache',
-        api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),
-        api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
-  elif is_mskp:
+  if is_mskp:
     skpbench_args += [api.flavor.device_dirs.mskp_dir]
   elif is_all_paths_volatile:
     skpbench_args += [
@@ -171,8 +165,6 @@ def RunSteps(api):
 TEST_BUILDERS = [
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_Skpbench_Mskp'),
-  ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
-   'Android_CCPR_Skpbench'),
   ('Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-'
    'Android_AllPathsVolatile_Skpbench'),
   ('Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-'

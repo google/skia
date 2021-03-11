@@ -28,16 +28,6 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         return false;
     }
 
-    GrBackendFormat defaultAHalfFormat = caps.getDefaultBackendFormat(GrColorType::kAlpha_F16,
-                                                                      GrRenderable::kYes);
-    if (caps.allowCoverageCounting() &&
-        defaultAHalfFormat.isValid()) { // This checks both texturable and renderable
-        if (coverageType) {
-            *coverageType = CoverageType::kFP16_CoverageCount;
-        }
-        return true;
-    }
-
     if (!caps.driverDisableMSAACCPR() &&
         caps.internalMultisampleCount(defaultA8Format) > 1 &&
         caps.sampleLocationsSupport() &&
@@ -134,33 +124,7 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         }
 
         case SkStrokeRec::kStroke_Style:
-            if (!args.fViewMatrix->isSimilarity()) {
-                // The stroker currently only supports rigid-body transfoms for the stroke lines
-                // themselves. This limitation doesn't affect hairlines since their stroke lines are
-                // defined relative to device space.
-                return CanDrawPath::kNo;
-            }
-            [[fallthrough]];
-        case SkStrokeRec::kHairline_Style: {
-            if (CoverageType::kFP16_CoverageCount != fCoverageType) {
-                // Stroking is not yet supported in MSAA atlas mode.
-                return CanDrawPath::kNo;
-            }
-            float inflationRadius;
-            GetStrokeDevWidth(*args.fViewMatrix, stroke, &inflationRadius);
-            if (!(inflationRadius <= kMaxBoundsInflationFromStroke)) {
-                // Let extremely wide strokes be converted to fill paths and drawn by the CCPR
-                // filler instead. (Cast the logic negatively in order to also catch r=NaN.)
-                return CanDrawPath::kNo;
-            }
-            SkASSERT(!SkScalarIsNaN(inflationRadius));
-            if (SkPathPriv::ConicWeightCnt(path)) {
-                // The stroker does not support conics yet.
-                return CanDrawPath::kNo;
-            }
-            return CanDrawPath::kYes;
-        }
-
+        case SkStrokeRec::kHairline_Style:
         case SkStrokeRec::kStrokeAndFill_Style:
             return CanDrawPath::kNo;
     }
@@ -227,12 +191,10 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         clipPath.addAccess(accessRect);
     }
 
-    auto isCoverageCount = GrCCClipProcessor::IsCoverageCount(
-            CoverageType::kFP16_CoverageCount == fCoverageType);
     auto mustCheckBounds = GrCCClipProcessor::MustCheckBounds(
             !clipPath.pathDevIBounds().contains(accessRect));
-    return std::make_unique<GrCCClipProcessor>(
-                std::move(inputFP), caps, &clipPath, isCoverageCount, mustCheckBounds);
+    return std::make_unique<GrCCClipProcessor>(std::move(inputFP), caps, &clipPath,
+                                               mustCheckBounds);
 }
 
 void GrCoverageCountingPathRenderer::preFlush(
@@ -283,8 +245,7 @@ void GrCoverageCountingPathRenderer::preFlush(
 
     // Determine if there are enough reusable paths from last flush for it to be worth our time to
     // copy them to cached atlas(es).
-    int numCopies = specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kFillIdx] +
-                    specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kStrokeIdx];
+    int numCopies = specs.fNumCopiedPaths;
     auto doCopies = DoCopiesToA8Coverage(numCopies > kDoCopiesThreshold ||
                                          specs.fCopyAtlasSpecs.fApproxNumPixels > 256 * 256);
     if (numCopies && DoCopiesToA8Coverage::kNo == doCopies) {

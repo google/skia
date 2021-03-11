@@ -22,25 +22,9 @@ class GrCCCoverageProcessor::TriangleShader : public GrCCCoverageProcessor::Shad
             GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope, SkString* code,
             const char* position, const char* coverage, const char* cornerCoverage,
             const char* /*wind*/) override {
-        if (!cornerCoverage) {
-            fCoverages.reset(kHalf_GrSLType, scope);
-            varyingHandler->addVarying("coverage", &fCoverages);
-            code->appendf("%s = %s;", OutName(fCoverages), coverage);
-        } else {
-            fCoverages.reset(kHalf3_GrSLType, scope);
-            varyingHandler->addVarying("coverages", &fCoverages);
-            code->appendf("%s = half3(%s, %s);", OutName(fCoverages), coverage, cornerCoverage);
-        }
-    }
-
-    void emitFragmentCoverageCode(
-            GrGLSLFPFragmentBuilder* f, const char* outputCoverage) const override {
-        if (kHalf_GrSLType == fCoverages.type()) {
-            f->codeAppendf("%s = %s;", outputCoverage, fCoverages.fsIn());
-        } else {
-            f->codeAppendf("%s = %s.z * %s.y + %s.x;",
-                           outputCoverage, fCoverages.fsIn(), fCoverages.fsIn(), fCoverages.fsIn());
-        }
+        fCoverages.reset(kHalf_GrSLType, scope);
+        varyingHandler->addVarying("coverage", &fCoverages);
+        code->appendf("%s = %s;", OutName(fCoverages), coverage);
     }
 
     void emitSampleMaskCode(GrGLSLFPFragmentBuilder*) const override { return; }

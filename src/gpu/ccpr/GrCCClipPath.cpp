@@ -53,7 +53,7 @@ void GrCCClipPath::accountForOwnPath(GrCCPerFlushResourceSpecs* specs) const {
     SkASSERT(this->isInitialized());
 
     ++specs->fNumClipPaths;
-    specs->fRenderedPathStats[GrCCPerFlushResourceSpecs::kFillIdx].statPath(fDeviceSpacePath);
+    specs->fRenderedPathStats.statPath(fDeviceSpacePath);
 
     SkIRect ibounds;
     if (ibounds.intersect(fAccessRect, fPathDevIBounds)) {

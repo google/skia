@@ -47,12 +47,6 @@ void GrCCAtlas::setFillBatchID(int id) {
     fFillBatchID = id;
 }
 
-void GrCCAtlas::setStrokeBatchID(int id) {
-    // This can't be called anymore once makeRenderTargetContext() has been called.
-    SkASSERT(!this->isInstantiated());
-    fStrokeBatchID = id;
-}
-
 void GrCCAtlas::setEndStencilResolveInstance(int idx) {
     // This can't be called anymore once makeRenderTargetContext() has been called.
     SkASSERT(!this->isInstantiated());

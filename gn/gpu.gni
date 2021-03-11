@@ -655,22 +655,14 @@ skia_ccpr_sources = [
   "$_src/gpu/ccpr/GrCCPerOpsTaskPaths.h",
   "$_src/gpu/ccpr/GrCCQuadraticShader.cpp",
   "$_src/gpu/ccpr/GrCCQuadraticShader.h",
-  "$_src/gpu/ccpr/GrCCStrokeGeometry.cpp",
-  "$_src/gpu/ccpr/GrCCStrokeGeometry.h",
-  "$_src/gpu/ccpr/GrCCStroker.cpp",
-  "$_src/gpu/ccpr/GrCCStroker.h",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
-  "$_src/gpu/ccpr/GrGSCoverageProcessor.cpp",
-  "$_src/gpu/ccpr/GrGSCoverageProcessor.h",
   "$_src/gpu/ccpr/GrOctoBounds.cpp",
   "$_src/gpu/ccpr/GrOctoBounds.h",
   "$_src/gpu/ccpr/GrSampleMaskProcessor.cpp",
   "$_src/gpu/ccpr/GrSampleMaskProcessor.h",
   "$_src/gpu/ccpr/GrStencilAtlasOp.cpp",
   "$_src/gpu/ccpr/GrStencilAtlasOp.h",
-  "$_src/gpu/ccpr/GrVSCoverageProcessor.cpp",
-  "$_src/gpu/ccpr/GrVSCoverageProcessor.h",
 ]
 
 skia_nvpr_sources = [
