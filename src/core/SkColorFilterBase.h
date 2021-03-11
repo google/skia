@@ -31,7 +31,7 @@ public:
 
     /** Returns the flags for this filter. Override in subclasses to return custom flags.
     */
-    virtual uint32_t onGetFlags() const { return 0; }
+    virtual bool onIsAlphaUnchanged() const { return false; }
 
 #if SK_SUPPORT_GPU
     /**
