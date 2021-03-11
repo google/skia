@@ -8,6 +8,7 @@
 #ifndef GrClientMappedBufferManager_DEFINED
 #define GrClientMappedBufferManager_DEFINED
 
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/GrGpuBuffer.h"
@@ -16,11 +17,11 @@
 /**
  * We sometimes hand clients objects that contain mapped GrGpuBuffers. The client may consume
  * the mapped buffer on another thread. This object manages receiving messages that buffers are
- * ready to be unmapped (on the direct GrContext's thread). It also handles cleaning up mapped
- * buffers if the GrContext is destroyed before the client has finished with the buffer.
+ * ready to be unmapped (on the GrDirectContext's thread). It also handles cleaning up mapped
+ * buffers if the GrDirectContext is destroyed before the client has finished with the buffer.
  *
  * Buffers are first registered using insert() before being passed the client. process() should be
- * called periodically on the direct GrContext thread to poll for messages and process them.
+ * called periodically on the GrDirectContext thread to poll for messages and process them.
  */
 class GrClientMappedBufferManager final {
 public:
@@ -29,19 +30,22 @@ public:
      * Set fInboxID to inboxID(). fBuffer must have been previously passed to insert().
      */
     struct BufferFinishedMessage {
-        BufferFinishedMessage(sk_sp<GrGpuBuffer> buffer, uint32_t indexId)
-                : fBuffer(std::move(buffer)), fInboxID(indexId) {}
+        BufferFinishedMessage(sk_sp<GrGpuBuffer> buffer,
+                              GrDirectContext::DirectContextID owningContextID)
+                : fBuffer(std::move(buffer)), fInboxID(owningContextID) {}
         BufferFinishedMessage(BufferFinishedMessage&& other) {
             fBuffer = std::move(other.fBuffer);
             fInboxID = other.fInboxID;
-            other.fInboxID = 0;
+            other.fInboxID.makeInvalid();
         }
-        sk_sp<GrGpuBuffer> fBuffer;
-        uint32_t fInboxID;
+        sk_sp<GrGpuBuffer>               fBuffer;
+        GrDirectContext::DirectContextID fInboxID;
     };
-    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage, uint32_t, false>;
+    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage,
+                                                  GrDirectContext::DirectContextID,
+                                                  false>;
 
-    GrClientMappedBufferManager(uint32_t contextID);
+    GrClientMappedBufferManager(GrDirectContext::DirectContextID directContextID);
     GrClientMappedBufferManager(const GrClientMappedBufferManager&) = delete;
     GrClientMappedBufferManager(GrClientMappedBufferManager&&) = delete;
 
@@ -51,7 +55,7 @@ public:
     GrClientMappedBufferManager& operator=(GrClientMappedBufferManager&&) = delete;
 
     /** Initialize BufferFinishedMessage::fInboxID to this value. */
-    uint32_t inboxID() const { return fFinishedBufferInbox.uniqueID(); }
+    GrDirectContext::DirectContextID inboxID() const { return fFinishedBufferInbox.uniqueID(); }
 
     /**
      * Let the manager know to expect a message with buffer 'b'. It's illegal for a buffer to be
@@ -74,6 +78,6 @@ private:
 };
 
 bool SkShouldPostMessageToBus(const GrClientMappedBufferManager::BufferFinishedMessage&,
-                              uint32_t msgBusUniqueID);
+                              GrDirectContext::DirectContextID intendedRecipient);
 
 #endif
