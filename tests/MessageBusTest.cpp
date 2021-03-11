@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkMessageBus.h"
 #include "tests/Test.h"
 
@@ -23,12 +24,12 @@ static inline bool SkShouldPostMessageToBus(const TestMessage&, uint32_t) {
 
 }  // namespace
 
-DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage, true)
+DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage, uint32_t, true)
 
 DEF_TEST(MessageBus, r) {
-    using TestMessageBus = SkMessageBus<TestMessage>;
+    using TestMessageBus = SkMessageBus<TestMessage, uint32_t>;
     // Register two inboxes to receive all TestMessages.
-    TestMessageBus::Inbox inbox1, inbox2;
+    TestMessageBus::Inbox inbox1(0), inbox2(0);
 
     // Send two messages.
     const TestMessage m1 = { 5, 4.2f };
@@ -77,12 +78,12 @@ static inline bool SkShouldPostMessageToBus(const sk_sp<TestMessageRefCnt>&, uin
 
 }  // namespace
 
-DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<TestMessageRefCnt>, false)
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<TestMessageRefCnt>, uint32_t, false)
 
 DEF_TEST(MessageBusSp, r) {
     // Register two inboxes to receive all TestMessages.
-    using TestMessageBus = SkMessageBus<sk_sp<TestMessageRefCnt>, false>;
-    TestMessageBus::Inbox inbox1;
+    using TestMessageBus = SkMessageBus<sk_sp<TestMessageRefCnt>, uint32_t, false>;
+    TestMessageBus::Inbox inbox1(0);
 
     // Send two messages.
     auto m1 = sk_make_sp<TestMessageRefCnt>(5, 4.2f);
@@ -119,12 +120,13 @@ DEF_TEST(MessageBusSp, r) {
 namespace {
 
 struct AddressedMessage {
-    uint32_t fInboxID;
+    GrDirectContext::DirectContextID fInboxID;
 };
 
-static inline bool SkShouldPostMessageToBus(const AddressedMessage& msg, uint32_t msgBusUniqueID) {
-    SkASSERT(msgBusUniqueID);
-    if (!msg.fInboxID) {
+static inline bool SkShouldPostMessageToBus(const AddressedMessage& msg,
+                                            GrDirectContext::DirectContextID msgBusUniqueID) {
+    SkASSERT(msgBusUniqueID.isValid());
+    if (!msg.fInboxID.isValid()) {
         return true;
     }
     return msgBusUniqueID == msg.fInboxID;
@@ -132,29 +134,36 @@ static inline bool SkShouldPostMessageToBus(const AddressedMessage& msg, uint32_
 
 }  // namespace
 
-DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage, true)
+DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage, GrDirectContext::DirectContextID, true)
 
 DEF_TEST(MessageBus_SkShouldPostMessageToBus, r) {
-    using AddressedMessageBus = SkMessageBus<AddressedMessage>;
-    AddressedMessageBus::Inbox inbox1(1), inbox2(2);
+    using ID = GrDirectContext::DirectContextID;
+    using AddressedMessageBus = SkMessageBus<AddressedMessage, ID>;
 
-    AddressedMessageBus::Post({0});  // Should go to both
-    AddressedMessageBus::Post({1});  // Should go to inbox1
-    AddressedMessageBus::Post({2});  // Should go to inbox2
-    AddressedMessageBus::Post({3});  // Should go nowhere
+    ID idInvalid;
+    ID id1 = ID::Next(),
+       id2 = ID::Next(),
+       id3 = ID::Next();
+
+    AddressedMessageBus::Inbox inbox1(id1), inbox2(id2);
+
+    AddressedMessageBus::Post({idInvalid});  // Should go to both
+    AddressedMessageBus::Post({id1});        // Should go to inbox1
+    AddressedMessageBus::Post({id2});        // Should go to inbox2
+    AddressedMessageBus::Post({id3});        // Should go nowhere
 
     SkTArray<AddressedMessage> messages;
     inbox1.poll(&messages);
     REPORTER_ASSERT(r, messages.count() == 2);
     if (messages.count() == 2) {
-        REPORTER_ASSERT(r, messages[0].fInboxID == 0);
-        REPORTER_ASSERT(r, messages[1].fInboxID == 1);
+        REPORTER_ASSERT(r, !messages[0].fInboxID.isValid());
+        REPORTER_ASSERT(r, messages[1].fInboxID == id1);
     }
     inbox2.poll(&messages);
     REPORTER_ASSERT(r, messages.count() == 2);
     if (messages.count() == 2) {
-        REPORTER_ASSERT(r, messages[0].fInboxID == 0);
-        REPORTER_ASSERT(r, messages[1].fInboxID == 2);
+        REPORTER_ASSERT(r, !messages[0].fInboxID.isValid());
+        REPORTER_ASSERT(r, messages[1].fInboxID == id2);
     }
 }
 
