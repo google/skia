@@ -23,6 +23,10 @@ def main():
   # This is the unstripped out/android_release/libflutter.so
   # The symbols in it are needed to get the compileunits data.
   symbols_file = sys.argv[6]
+  config = sys.argv[7]
+  total_size_bytes_key = sys.argv[8]
+  lib_name = sys.argv[9]
+  magic_seperator = sys.argv[10]
 
   results = {
     'key': { },
@@ -36,8 +40,6 @@ def main():
   keys = keystr.split(' ')
   for i in range(0, len(keys), 2):
     results['key'][keys[i]] = keys[i+1]
-
-  magic_seperator = '#$%^&*'
 
   # Human "readable" reports as an FYI.
   print magic_seperator
@@ -74,18 +76,17 @@ def main():
 
   r = {
     # Use the default config as stats about the whole binary
-    'skia_in_flutter' : {
-      'total_size_bytes': grand_total
+    config : {
+      total_size_bytes_key: grand_total
     },
   }
 
-  name = 'libflutter.so'
-  results['results'][name] = r
+  results['results'][lib_name] = r
 
   # Make debugging easier
   print json.dumps(results, indent=2)
 
-  with open(os.path.join(out_dir, name+'.json'), 'w') as output:
+  with open(os.path.join(out_dir, lib_name+'.json'), 'w') as output:
     output.write(json.dumps(results, indent=2))
 
 
