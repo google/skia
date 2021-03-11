@@ -85,11 +85,16 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpace* srcCS,
                                        SkColorSpace* dstCS) const {
-    SkColor4f color = origSrcColor;
+    SkPMColor4f color = { origSrcColor.fR, origSrcColor.fG, origSrcColor.fB, origSrcColor.fA };
     SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
                            dstCS, kPremul_SkAlphaType).apply(color.vec());
 
-    constexpr size_t kEnoughForCommonFilters = 512; // big enough for compose+colormatrix
+    return as_CFB(this)->onFilterColor4f(color, dstCS).unpremul();
+}
+
+SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
+                                               SkColorSpace* dstCS) const {
+    constexpr size_t kEnoughForCommonFilters = 512;  // big enough for compose+colormatrix
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
     pipeline.append_constant_color(&alloc, color.vec());
@@ -104,17 +109,18 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
         SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
         pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
         pipeline.run(0,0, 1,1);
-        return dst.unpremul();
+        return dst;
     }
 
     // This filter doesn't support SkRasterPipeline... try skvm.
     skvm::Builder b;
     skvm::Uniforms uni(b.uniform(), 4);
+    SkColor4f uniColor = {color.fR, color.fG, color.fB, color.fA};
     if (skvm::Color filtered =
-            as_CFB(this)->program(&b, b.uniformColor(color, &uni), dstCS, &uni, &alloc)) {
+            as_CFB(this)->program(&b, b.uniformColor(uniColor, &uni), dstCS, &uni, &alloc)) {
 
         b.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96},
-                b.varying<SkColor4f>(), unpremul(filtered));
+                b.varying<SkColor4f>(), filtered);
 
         const bool allow_jit = false;  // We're only filtering one color, no point JITing.
         b.done("filterColor4f", allow_jit).eval(1, uni.buf.data(), &color);
@@ -122,7 +128,7 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     }
 
     SkASSERT(false);
-    return SkColor4f{0,0,0,0};
+    return SkPMColor4f{0,0,0,0};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -373,6 +379,24 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
         c = as_CFB(fChild)->program(p, c, working.colorSpace(), uniforms, alloc);
         return c ? SkColorSpaceXformSteps{working,dst}.program(p, uniforms, c)
                  : c;
+    }
+
+    SkPMColor4f onFilterColor4f(const SkPMColor4f& origColor,
+                                SkColorSpace* rawDstCS) const override {
+        sk_sp<SkColorSpace> dstCS = sk_ref_sp(rawDstCS);
+        if (!dstCS) { dstCS = SkColorSpace::MakeSRGB(); }
+
+        SkAlphaType workingAT;
+        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
+
+        SkColorInfo dst = {kUnknown_SkColorType, kPremul_SkAlphaType, dstCS},
+                working = {kUnknown_SkColorType, workingAT, workingCS};
+
+        SkPMColor4f color = origColor;
+        SkColorSpaceXformSteps{dst,working}.apply(color.vec());
+        color = as_CFB(fChild)->onFilterColor4f(color, working.colorSpace());
+        SkColorSpaceXformSteps{working,dst}.apply(color.vec());
+        return color;
     }
 
     bool onIsAlphaUnchanged() const override { return fChild->isAlphaUnchanged(); }
