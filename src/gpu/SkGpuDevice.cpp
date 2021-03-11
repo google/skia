@@ -514,14 +514,11 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
     SkStrokeRec stroke(paint);
 
     if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
-        GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                              this->asMatrixProvider(), &grPaint)) {
-            return;
-        }
-
-        fSurfaceDrawContext->drawDRRect(this->clip(), std::move(grPaint), GrAA(paint.isAntiAlias()),
-                                        this->localToDevice(), outer, inner);
+        fClip.save();
+        fClip.clipRRect(this->localToDevice(), inner, GrAA(paint.isAntiAlias()),
+                        SkClipOp::kDifference);
+        this->drawRRect(outer, paint);
+        fClip.restore();
         return;
     }
 

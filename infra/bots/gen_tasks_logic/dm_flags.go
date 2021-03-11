@@ -275,6 +275,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// These GMs only differ in the low bits
 			skip("gltestthreading gm _ stroketext")
 			skip("gltestthreading gm _ draw_image_set")
+			skip("gltestthreading gm _ drrect")
 		}
 
 		// CommandBuffer bot *only* runs the command_buffer config.
