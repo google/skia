@@ -22,6 +22,30 @@
       },
       "revId": "15835c46f4e855ad64d60d37146e8d0c74cdef6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1dc19392_5f3b0327",
+        "filename": "tests/MessageBusTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-11T19:28:52Z",
+      "side": 1,
+      "message": "(as a disciple of the Klein...)\n\nID id1 \u003d ID::Next(),\n   id2 \u003d ID::Next(),\n   id3 \u003d ID::Next();",
+      "parentUuid": "057bd985_dad1e5e2",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 25
+      },
+      "revId": "15835c46f4e855ad64d60d37146e8d0c74cdef6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
