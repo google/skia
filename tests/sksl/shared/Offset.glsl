@@ -5,6 +5,7 @@ struct Test {
     layout (offset = 4) int y;
     int z;
 };
+Test test;
 void main() {
     Test t;
     t.x = 0;
