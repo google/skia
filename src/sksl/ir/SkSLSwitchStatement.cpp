@@ -245,8 +245,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
     SkASSERT(find_duplicate_case_values(cases).empty());
 
     // Flatten @switch statements.
-    if (isStatic || (context.fConfig->fSettings.fOptimize &&
-                     !context.fConfig->fSettings.fControlFlowAnalysis)) {
+    if (isStatic || context.fConfig->fSettings.fOptimize) {
         SKSL_INT switchValue;
         if (ConstantFolder::GetConstantInt(*value, &switchValue)) {
             SwitchCase* defaultCase = nullptr;
