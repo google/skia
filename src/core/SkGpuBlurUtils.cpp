@@ -19,7 +19,6 @@
 
 #include "src/gpu/SkGr.h"
 
-#define MAX_BLUR_SIGMA 4.0f
 
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
@@ -290,7 +289,7 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
 // expanding an intermediate image, so there's no need to account for a proxy offset from the
 // original input.
 static std::unique_ptr<GrSurfaceDrawContext> reexpand(GrRecordingContext* context,
-                                                      std::unique_ptr<GrSurfaceDrawContext> src,
+                                                      std::unique_ptr<GrSurfaceContext> src,
                                                       const SkRect& srcBounds,
                                                       SkISize dstSize,
                                                       sk_sp<SkColorSpace> colorSpace,
@@ -506,17 +505,18 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                                                   dstBounds.size(), 1, GrMipmapped::kNo,
                                                   srcView.proxy()->isProtected(), srcView.origin());
         GrSamplerState sampler(SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest);
-        auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
-                                              sampler, SkRect::Make(srcBounds),
-                                              SkRect::Make(dstBounds), *context->priv().caps());
-        GrPaint paint;
-        paint.setColorFragmentProcessor(std::move(fp));
-        result->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                         SkRect::Make(dstBounds.size()));
+        auto fp = GrTextureEffect::MakeSubset(std::move(srcView),
+                                              srcAlphaType,
+                                              SkMatrix::I(),
+                                              sampler,
+                                              SkRect::Make(srcBounds),
+                                              SkRect::Make(dstBounds),
+                                              *context->priv().caps());
+        result->fillRectToRectWithFP(dstBounds, SkIRect::MakeSize(dstBounds.size()), std::move(fp));
         return result;
     }
 
-    if (sigmaX <= MAX_BLUR_SIGMA && sigmaY <= MAX_BLUR_SIGMA) {
+    if (sigmaX <= kMaxSigma && sigmaY <= kMaxSigma) {
         SkASSERT(radiusX <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
         SkASSERT(radiusY <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
         // For really small blurs (certainly no wider than 5x5 on desktop GPUs) it is faster to just
@@ -536,8 +536,9 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                                  radiusX, radiusY, mode, fit);
     }
 
-    float scaleX = sigmaX > MAX_BLUR_SIGMA ? MAX_BLUR_SIGMA/sigmaX : 1.f;
-    float scaleY = sigmaY > MAX_BLUR_SIGMA ? MAX_BLUR_SIGMA/sigmaY : 1.f;
+    float scaleX = sigmaX > kMaxSigma ? kMaxSigma/sigmaX : 1.f;
+    float scaleY = sigmaY > kMaxSigma ? kMaxSigma/sigmaY : 1.f;
+
     // We round down here so that when we recalculate sigmas we know they will be below
     // MAX_BLUR_SIGMA.
     SkISize rescaledSize = {sk_float_floor2int(srcBounds.width() *scaleX),
