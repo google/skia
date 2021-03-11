@@ -5,7 +5,14 @@
 
 import("../third_party.gni")
 
+config("oboe_lib") {
+  # Oboe does not include this explicitly
+  cflags = [ "--includeassert.h" ]
+}
+
 third_party("oboe") {
+  configs += [ ":oboe_lib" ]
+
   public_include_dirs = [
     "../externals/oboe/include",
     "../externals/oboe/samples/parselib/src/main/cpp",
