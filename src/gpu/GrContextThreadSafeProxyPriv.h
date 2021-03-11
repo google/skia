@@ -23,7 +23,7 @@ class GrContextThreadSafeProxyPriv {
 public:
     void init(sk_sp<const GrCaps>, sk_sp<GrThreadSafePipelineBuilder>) const;
 
-    bool matches(GrContext_Base* candidate) const {
+    bool inSameFamily(GrContext_Base* candidate) const {
         return fProxy == candidate->threadSafeProxy().get();
     }
 

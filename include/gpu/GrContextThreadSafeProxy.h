@@ -115,6 +115,10 @@ public:
 
     bool operator!=(const GrContextThreadSafeProxy& that) const { return !(*this == that); }
 
+    using FamilyID = uint32_t;
+
+    FamilyID familyID() const { return fContextID; }
+
     // Provides access to functions that aren't part of the public API.
     GrContextThreadSafeProxyPriv priv();
     const GrContextThreadSafeProxyPriv priv() const;  // NOLINT(readability-const-return-type)

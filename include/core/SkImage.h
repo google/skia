@@ -1070,8 +1070,9 @@ public:
         The mipMapped parameter is effectively treated as kNo if MIP maps are not supported by the
         GPU.
 
-        Returns original SkImage if the image is already texture-backed, the context matches, and
-        mipMapped is compatible with the backing GPU texture. SkBudgeted is ignored in this case.
+        Returns original SkImage if the image is already texture-backed, the context is in the
+        same family as the image, and mipMapped is compatible with the backing GPU texture. 
+        SkBudgeted is ignored in this case.
 
         Returns nullptr if context is nullptr, or if SkImage was created with another
         GrDirectContext.
