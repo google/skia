@@ -11,6 +11,7 @@
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
 #include <vector>
+#include <map>
 
 #if !defined(SKUNICODE_IMPLEMENTATION)
     #define SKUNICODE_IMPLEMENTATION 0
@@ -134,8 +135,8 @@ class SKUNICODE_API SkUnicode {
                (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
         virtual bool getGraphemes
                (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
-        virtual bool getWhitespaces
-               (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
+        virtual bool getSpaces
+               (const char utf8[], int utf8Units, std::map<Position, bool>* results) = 0;
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
 
