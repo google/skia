@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25af9398_199a4733",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-11T07:47:54Z",
+      "side": 1,
+      "message": "I was scratching my head trying to figure out why I had to multiply by .5 on my mac, until I realized viewer must have a secret doubling of the scale post device space that Skia doesn\u0027t know about.",
+      "range": {
+        "startLine": 374,
+        "startChar": 40,
+        "endLine": 375,
+        "endChar": 92
+      },
+      "revId": "a31a17082b3da531588aef868711e3de99aa76e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
