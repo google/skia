@@ -89,6 +89,10 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
                            dstCS, kPremul_SkAlphaType).apply(color.vec());
 
+    return as_CFB(this)->onFilterColor4f(color, dstCS);
+}
+
+SkColor4f SkColorFilterBase::onFilterColor4f(const SkColor4f& color, SkColorSpace* dstCS) const {
     constexpr size_t kEnoughForCommonFilters = 512; // big enough for compose+colormatrix
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
@@ -373,6 +377,23 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
         c = as_CFB(fChild)->program(p, c, working.colorSpace(), uniforms, alloc);
         return c ? SkColorSpaceXformSteps{working,dst}.program(p, uniforms, c)
                  : c;
+    }
+
+    SkColor4f onFilterColor4f(const SkColor4f& origColor, SkColorSpace* rawDstCS) const override {
+        sk_sp<SkColorSpace> dstCS = sk_ref_sp(rawDstCS);
+        if (!dstCS) { dstCS = SkColorSpace::MakeSRGB(); }
+
+        SkAlphaType workingAT;
+        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
+
+        SkColorInfo dst = {kUnknown_SkColorType, kPremul_SkAlphaType, dstCS},
+                working = {kUnknown_SkColorType, workingAT, workingCS};
+
+        SkColor4f color = origColor;
+        SkColorSpaceXformSteps{dst,working}.apply(color.vec());
+        color = as_CFB(fChild)->onFilterColor4f(color, working.colorSpace());
+        SkColorSpaceXformSteps{working,dst}.apply(color.vec());
+        return color;
     }
 
     bool onIsAlphaUnchanged() const override { return fChild->isAlphaUnchanged(); }

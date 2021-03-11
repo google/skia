@@ -69,6 +69,8 @@ public:
                                   kSkColorFilter_Type, data, size, procs).release()));
     }
 
+    virtual SkColor4f onFilterColor4f(const SkColor4f& color, SkColorSpace* dstCS) const;
+
 protected:
     SkColorFilterBase() {}
 
