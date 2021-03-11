@@ -63,7 +63,7 @@ void GrClientMappedBufferManager::remove(const sk_sp<GrGpuBuffer>& b) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrClientMappedBufferManager::BufferFinishedMessage, false)
+DECLARE_SKMESSAGEBUS_MESSAGE(GrClientMappedBufferManager::BufferFinishedMessage, uint32_t, false)
 
 bool SkShouldPostMessageToBus(const GrClientMappedBufferManager::BufferFinishedMessage& m,
                               uint32_t msgBusUniqueID) {

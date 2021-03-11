@@ -793,7 +793,7 @@ public:
 
     class DirectContextID {
     public:
-        static GrDirectContext::DirectContextID NextID();
+        static GrDirectContext::DirectContextID Next();
 
         DirectContextID() : fID(SK_InvalidUniqueID) {}
 

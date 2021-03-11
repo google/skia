@@ -37,7 +37,7 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
     // Generator has been freed, and no one is borrowing the texture. Notify the original cache
     // that it can free the last ref, so it happens on the correct thread.
     GrTextureFreedMessage msg { fOriginalTexture, fOwningContextID };
-    SkMessageBus<GrTextureFreedMessage>::Post(msg);
+    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg);
 }
 
 std::unique_ptr<SkImageGenerator>

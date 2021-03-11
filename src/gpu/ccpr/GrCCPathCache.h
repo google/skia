@@ -172,7 +172,7 @@ private:
 
     SkTHashTable<HashNode, const Key&> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
-    SkMessageBus<sk_sp<Key>>::Inbox fInvalidatedKeysInbox;
+    SkMessageBus<sk_sp<Key>, uint32_t>::Inbox fInvalidatedKeysInbox;
     sk_sp<Key> fScratchKey;  // Reused for creating a temporary key in the find() method.
 
     // We only read the clock once per flush, and cache it in this variable. This prevents us from
