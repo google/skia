@@ -12,6 +12,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkString.h"
+#include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
 
 #include <vector>
@@ -25,6 +26,10 @@ namespace SkSL {
 class FunctionDefinition;
 struct Program;
 }  // namespace SkSL
+
+namespace skvm {
+class Program;
+}  // namespace skvm
 
 /*
  * SkRuntimeEffect supports creating custom SkShader and SkColorFilter objects using Skia's SkSL
@@ -171,6 +176,9 @@ private:
     std::vector<SkString> fChildren;
     std::vector<SkSL::SampleUsage> fSampleUsages;
     std::vector<Varying>  fVaryings;
+
+    SkOnce fColorFilterProgramOnce;
+    std::unique_ptr<skvm::Program> fColorFilterProgram;
 
     bool   fUsesSampleCoords;
     bool   fAllowColorFilter;

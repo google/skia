@@ -9,6 +9,7 @@
 #define SkColorFilterBase_DEFINED
 
 #include "include/core/SkColorFilter.h"
+#include "include/private/SkColorData.h"
 #include "src/core/SkVM_fwd.h"
 
 class GrColorInfo;
@@ -68,6 +69,8 @@ public:
                                   SkFlattenable::Deserialize(
                                   kSkColorFilter_Type, data, size, procs).release()));
     }
+
+    virtual SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const;
 
 protected:
     SkColorFilterBase() {}
