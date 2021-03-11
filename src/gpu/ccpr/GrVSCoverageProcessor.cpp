@@ -445,8 +445,8 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
     f->codeAppendf("half coverage;");
     fShader->emitFragmentCoverageCode(f, "coverage");
-    f->codeAppendf("%s = half4(coverage);", args.fOutputColor);
-    f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+    f->codeAppendf("half4 %s = half4(coverage);", args.fOutputColor);
+    f->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
 }
 
 void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, int subpassIdx,
