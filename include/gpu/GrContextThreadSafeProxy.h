@@ -109,7 +109,7 @@ public:
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (this->fContextID == that.fContextID));
+        SkASSERT((this == &that) == (this->fFamilyID == that.fFamilyID));
         return this == &that;
     }
 
@@ -118,6 +118,23 @@ public:
     // Provides access to functions that aren't part of the public API.
     GrContextThreadSafeProxyPriv priv();
     const GrContextThreadSafeProxyPriv priv() const;  // NOLINT(readability-const-return-type)
+
+    class FamilyID {
+    public:
+        FamilyID();
+
+        bool operator==(const FamilyID& that) const { return fID == that.fID; }
+        bool operator!=(const FamilyID& that) const { return !(*this == that); }
+
+        static FamilyID Invalid();
+        void makeInvalid() { fID = SK_InvalidUniqueID; }
+        bool isValid() const { return fID != SK_InvalidUniqueID; }
+
+    private:
+        constexpr FamilyID(uint32_t id) : fID(id) {}
+        static uint32_t NextID();
+        uint32_t fID;
+    };
 
 private:
     friend class GrContextThreadSafeProxyPriv; // for ctor and hidden methods
@@ -135,7 +152,7 @@ private:
 
     const GrBackendApi                      fBackend;
     const GrContextOptions                  fOptions;
-    const uint32_t                          fContextID;
+    const FamilyID                          fFamilyID;
     sk_sp<const GrCaps>                     fCaps;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
     std::unique_ptr<GrThreadSafeCache>      fThreadSafeCache;
