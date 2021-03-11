@@ -31,9 +31,10 @@ class GrDirectContextPriv {
 public:
 
     // from GrContext_Base
+    GrContextThreadSafeProxy::FamilyID familyID() const { return fContext->familyID(); }
     uint32_t contextID() const { return fContext->contextID(); }
 
-    bool matches(GrContext_Base* candidate) const { return fContext->matches(candidate); }
+    bool inSameFamily(GrContext_Base* candidate) const { return fContext->inSameFamily(candidate); }
 
     const GrContextOptions& options() const { return fContext->options(); }
 
