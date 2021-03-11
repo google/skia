@@ -10,7 +10,6 @@
 
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/ccpr/GrCCFiller.h"
-#include "src/gpu/ccpr/GrCCStroker.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
 class GrCCPerFlushResources;
@@ -21,7 +20,6 @@ public:
     DEFINE_OP_CLASS_ID
 
     using FillBatchID = GrCCFiller::BatchID;
-    using StrokeBatchID = GrCCStroker::BatchID;
 
     // Once all the paths in an atlas have been drawn to the stencil buffer, we make a final pass
     // where we draw "resolve" rects over each path whose purpose is to convert winding counts to A8
@@ -47,7 +45,7 @@ public:
     }
 
     static GrOp::Owner Make(
-            GrRecordingContext*, sk_sp<const GrCCPerFlushResources>, FillBatchID, StrokeBatchID,
+            GrRecordingContext*, sk_sp<const GrCCPerFlushResources>, FillBatchID,
             int baseStencilResolveInstance, int endStencilResolveInstance,
             const SkISize& drawBounds);
 
@@ -66,12 +64,11 @@ private:
     friend class ::GrOp; // for ctor
 
     GrStencilAtlasOp(sk_sp<const GrCCPerFlushResources> resources, FillBatchID fillBatchID,
-                     StrokeBatchID strokeBatchID, int baseStencilResolveInstance,
+                     int baseStencilResolveInstance,
                      int endStencilResolveInstance, const SkISize& drawBounds)
             : GrDrawOp(ClassID())
             , fResources(std::move(resources))
             , fFillBatchID(fillBatchID)
-            , fStrokeBatchID(strokeBatchID)
             , fBaseStencilResolveInstance(baseStencilResolveInstance)
             , fEndStencilResolveInstance(endStencilResolveInstance)
             , fDrawBounds(drawBounds) {
@@ -81,7 +78,6 @@ private:
 
     const sk_sp<const GrCCPerFlushResources> fResources;
     const FillBatchID fFillBatchID;
-    const StrokeBatchID fStrokeBatchID;
     const int fBaseStencilResolveInstance;
     const int fEndStencilResolveInstance;
     const SkISize fDrawBounds;
