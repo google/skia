@@ -235,6 +235,7 @@ private:
         kShaderOptLevel_Source,
         kShaderOptLevel_Compile,
         kShaderOptLevel_Optimize,
+        kShaderOptLevel_DeadCodeElimination,
         kShaderOptLevel_Inline,
     };
 };
