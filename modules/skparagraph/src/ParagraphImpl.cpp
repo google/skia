@@ -28,11 +28,6 @@ namespace textlayout {
 
 namespace {
 
-static inline SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF::NextUTF8(ptr, end);
-    return val < 0 ? 0xFFFD : val;
-}
-
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
     auto val = std::fabs(a);
@@ -270,13 +265,15 @@ bool ParagraphImpl::computeCodeUnitProperties() {
         return false;
     }
 
-    // Get white spaces
-    std::vector<SkUnicode::Position> whitespaces;
-    if (!fUnicode->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
+    // Get spaces
+    std::map<SkUnicode::Position, bool> spaces;
+    if (!fUnicode->getSpaces(fText.c_str(), fText.size(), &spaces)) {
         return false;
     }
-    for (auto whitespace : whitespaces) {
-        fCodeUnitProperties[whitespace] |= CodeUnitFlags::kPartOfWhiteSpace;
+    for (auto space : spaces) {
+        fCodeUnitProperties[space.first] |= space.second
+                          ? CodeUnitFlags::kPartOfWhiteSpace
+                          : CodeUnitFlags::kPartOfNonBreakingSpace;
     }
 
     // Get line breaks
@@ -730,27 +727,18 @@ void ParagraphImpl::forEachCodeUnitPropertyRange(CodeUnitFlags property, CodeUni
     visitor({first, fText.size()});
 }
 
-size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
-    size_t len = 0;
+std::pair<bool, bool> ParagraphImpl::isSpaces(TextRange textRange) {
+    size_t whiteSpacesLen = 0;
+    size_t nonBreakingSpacesLen = 0;
     for (auto i = textRange.start; i < textRange.end; ++i) {
         auto properties = fCodeUnitProperties[i];
         if (properties & CodeUnitFlags::kPartOfWhiteSpace) {
-            ++len;
+            ++whiteSpacesLen;
+        } else if (properties & CodeUnitFlags::kPartOfWhiteSpace) {
+            ++nonBreakingSpacesLen;
         }
     }
-    return len;
-}
-
-bool ParagraphImpl::isSpace(TextRange textRange) {
-    auto text = ParagraphImpl::text(textRange);
-    const char* ch = text.begin();
-    while (ch != text.end()) {
-        SkUnichar unicode = nextUtf8Unit(&ch, text.end());
-        if (!fUnicode->isSpace(unicode)) {
-            return false;
-        }
-    }
-    return true;
+    return { whiteSpacesLen == textRange.width(), nonBreakingSpacesLen == textRange.width() };
 }
 
 void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {

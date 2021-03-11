@@ -72,7 +72,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                   break;
                 }
 
-                if (further->isSpaces() && nextWordLength <= maxWidth) {
+                if (nextWordLength > 0 && nextWordLength <= maxWidth && further->isNonBreakingSpaces()) {
                     // The cluster is spaces but not the end of the word in a normal sense
                     nextNonBreakingSpace = further;
                     nextShortWordLength = nextWordLength;
