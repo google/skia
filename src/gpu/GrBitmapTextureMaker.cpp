@@ -60,7 +60,7 @@ GrSurfaceProxyView GrBitmapTextureMaker::refOriginalTextureProxyView(GrMipmapped
     GrSwizzle swizzle;
 
     auto installKey = [&](GrTextureProxy* proxy) {
-        auto listener = GrMakeUniqueKeyInvalidationListener(&fKey, proxyProvider->contextID());
+        auto listener = GrMakeUniqueKeyInvalidationListener(&fKey, proxyProvider->explicitContextID());
         fBitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
         proxyProvider->assignUniqueKeyToProxy(fKey, proxy);
     };

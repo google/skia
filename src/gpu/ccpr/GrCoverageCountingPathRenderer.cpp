@@ -42,20 +42,24 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
 }
 
 sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps& caps, AllowCaching allowCaching, uint32_t contextUniqueID) {
+        const GrCaps& caps,
+        AllowCaching allowCaching,
+        GrRecordingContext::ExplicitContextID explicitContextID) {
     CoverageType coverageType;
     if (IsSupported(caps, &coverageType)) {
         return sk_sp<GrCoverageCountingPathRenderer>(new GrCoverageCountingPathRenderer(
-                coverageType, allowCaching, contextUniqueID));
+                coverageType, allowCaching, explicitContextID));
     }
     return nullptr;
 }
 
 GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(
-        CoverageType coverageType, AllowCaching allowCaching, uint32_t contextUniqueID)
+        CoverageType coverageType,
+        AllowCaching allowCaching,
+        GrRecordingContext::ExplicitContextID explicitContextID)
         : fCoverageType(coverageType) {
     if (AllowCaching::kYes == allowCaching) {
-        fPathCache = std::make_unique<GrCCPathCache>(contextUniqueID);
+        fPathCache = std::make_unique<GrCCPathCache>(explicitContextID);
     }
 }
 

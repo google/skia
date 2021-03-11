@@ -12,6 +12,8 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkMessageBus.h"
 
+#include "include/gpu/GrRecordingContext.h"
+
 class SkCachedData;
 class SkDiscardableMemory;
 class SkTraceMemoryDump;
@@ -271,7 +273,7 @@ private:
     size_t  fSingleAllocationByteLimit;
     int     fCount;
 
-    SkMessageBus<PurgeSharedIDMessage>::Inbox fPurgeSharedIDInbox;
+    SkMessageBus<PurgeSharedIDMessage, uint32_t>::Inbox fPurgeSharedIDInbox;
 
     void checkMessages();
     void purgeAsNeeded(bool forcePurge = false);

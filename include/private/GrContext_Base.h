@@ -13,6 +13,8 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrTypes.h"
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
+
 class GrBaseContextPriv;
 class GrCaps;
 class GrContextThreadSafeProxy;
@@ -60,16 +62,17 @@ protected:
     virtual bool init();
 
     /**
-     * An identifier for this context. The id is used by all compatible contexts. For example,
-     * if SkImages are created on one thread using an image creation context, then fed into a
-     * DDL Recorder on second thread (which has a recording context) and finally replayed on
-     * a third thread with a direct context, then all three contexts will report the same id.
-     * It is an error for an image to be used with contexts that report different ids.
+     * An identifier for this context family. The id is used by all compatible contexts.
+     * For example, if SkImages are created on one thread using an image creation context,
+     * then fed into a DDL Recorder on second thread (which has a recording context) and
+     * finally replayed on a third thread with a direct context, then all three contexts
+     * will report the same family id.
+     * It is an error for an image to be used with contexts that report different family ids.
      */
-    uint32_t contextID() const;
+    GrContextThreadSafeProxy::FamilyID familyID() const;
 
-    bool matches(GrContext_Base* candidate) const {
-        return candidate && candidate->contextID() == this->contextID();
+    bool inSameFamily(GrContext_Base* candidate) const {
+        return candidate && candidate->familyID() == this->familyID();
     }
 
     /*

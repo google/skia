@@ -286,7 +286,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
         if (!canvasContext) {
             return false;
         }
-        if (canvasContext->priv().contextID() != surfaceContext->priv().contextID()) {
+        if (canvasContext->priv().explicitContextID() != surfaceContext->priv().explicitContextID()) {
             return false;
         }
         GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();

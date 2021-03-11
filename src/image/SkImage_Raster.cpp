@@ -145,7 +145,7 @@ private:
     mutable GrSurfaceProxyView fPinnedView;
     mutable int32_t fPinnedCount = 0;
     mutable uint32_t fPinnedUniqueID = SK_InvalidUniqueID;
-    mutable uint32_t fPinnedContextID = SK_InvalidUniqueID;
+    mutable GrContextThreadSafeProxy::FamilyID fPinnedContextID;
     mutable GrColorType fPinnedColorType = GrColorType::kUnknown;
 #endif
 
@@ -199,7 +199,7 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
-        if (rContext->priv().contextID() != fPinnedContextID) {
+        if (rContext->priv().familyID() != fPinnedContextID) {
             return false;
         }
     } else {
@@ -212,7 +212,7 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
         }
         SkASSERT(fPinnedView.asTextureProxy());
         fPinnedUniqueID = fBitmap.getGenerationID();
-        fPinnedContextID = rContext->priv().contextID();
+        fPinnedContextID = rContext->priv().familyID();
         fPinnedColorType = maker.colorType();
     }
     // Note: we only increment if the texture was successfully pinned
@@ -233,13 +233,13 @@ void SkImage_Raster::onUnpinAsTexture(GrRecordingContext* rContext) const {
     if (0 == --fPinnedCount) {
         fPinnedView = GrSurfaceProxyView();
         fPinnedUniqueID = SK_InvalidUniqueID;
-        fPinnedContextID = SK_InvalidUniqueID;
+        fPinnedContextID.makeInvalid();
         fPinnedColorType = GrColorType::kUnknown;
     }
 }
 
 bool SkImage_Raster::isPinnedOnContext(GrRecordingContext* rContext) const {
-    return fPinnedContextID == rContext->priv().contextID();
+    return fPinnedContextID == rContext->priv().familyID();
 }
 #endif
 

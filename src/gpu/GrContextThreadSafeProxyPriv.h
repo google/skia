@@ -29,7 +29,7 @@ public:
 
     GrBackend backend() const { return fProxy->fBackend; }
     const GrContextOptions& options() const { return fProxy->fOptions; }
-    uint32_t contextID() const { return fProxy->fContextID; }
+    GrContextThreadSafeProxy::FamilyID familyID() const { return fProxy->fContextFamilyID; }
 
     const GrCaps* caps() const { return fProxy->fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }

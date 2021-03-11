@@ -85,7 +85,7 @@ bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
 bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
                                   SkBitmap* dst,
                                   CachingHint chint) const {
-    if (!fContext->priv().matches(dContext)) {
+    if (!fContext->priv().inSameFamily(dContext)) {
         return false;
     }
 
@@ -120,7 +120,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
         return false;
     }
 
-    if (!sContext->readPixels(dContext, pmap, {0, 0})) {
+    if (!sContext->readPixels(dContext, pmap, {0, 0}, true)) {
         return false;
     }
 
@@ -133,7 +133,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
 
 sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
                                              GrDirectContext* direct) const {
-    if (!fContext->priv().matches(direct)) {
+    if (!fContext->priv().inSameFamily(direct)) {
         return nullptr;
     }
 
@@ -166,7 +166,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
                                    int srcX,
                                    int srcY,
                                    CachingHint) const {
-    if (!fContext->priv().matches(dContext) ||
+    if (!fContext->priv().inSameFamily(dContext) ||
         !SkImageInfoValidConversion(dstInfo, this->imageInfo())) {
         return false;
     }
@@ -180,7 +180,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
         return false;
     }
 
-    return sContext->readPixels(dContext, {dstInfo, dstPixels, dstRB}, {srcX, srcY});
+    return sContext->readPixels(dContext, {dstInfo, dstPixels, dstRB}, {srcX, srcY}, true);
 }
 
 bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
@@ -189,7 +189,7 @@ bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
         return false;
     }
 
-    if (context && !fContext->priv().matches(context)) {
+    if (context && !fContext->priv().inSameFamily(context)) {
         return false;
     }
 
@@ -259,7 +259,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // In the future the GrSurface class hierarchy refactoring should eliminate this
             // difficulty by removing the virtual inheritance.
             if (fTexture) {
-                SkMessageBus<GrTextureFreedMessage>::Post({fTexture, fTextureContextID});
+                SkMessageBus<GrTextureFreedMessage, GrRecordingContext::ExplicitContextID>::Post({fTexture, fTextureContextID});
             }
         }
 
@@ -313,7 +313,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // our destructor.
             auto dContext = fTexture->getContext();
             dContext->priv().getResourceCache()->insertDelayedTextureUnref(fTexture);
-            fTextureContextID = dContext->priv().contextID();
+            fTextureContextID = dContext->priv().explicitContextID();
             return {std::move(tex), kReleaseCallbackOnInstantiation, kKeySyncMode};
         }
 
@@ -321,7 +321,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         PromiseImageTextureFulfillProc fFulfillProc;
         sk_sp<GrRefCntedCallback> fReleaseHelper;
         GrTexture* fTexture = nullptr;
-        uint32_t fTextureContextID = SK_InvalidUniqueID;
+        GrRecordingContext::ExplicitContextID fTextureContextID;
         bool fFulfillProcFailed = false;
     } callback(fulfillProc, std::move(releaseHelper));
 

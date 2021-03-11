@@ -13,6 +13,8 @@
 #include "src/gpu/GrGpuBuffer.h"
 #include <forward_list>
 
+#include "include/gpu/GrRecordingContext.h"
+
 /**
  * We sometimes hand clients objects that contain mapped GrGpuBuffers. The client may consume
  * the mapped buffer on another thread. This object manages receiving messages that buffers are
@@ -29,19 +31,19 @@ public:
      * Set fInboxID to inboxID(). fBuffer must have been previously passed to insert().
      */
     struct BufferFinishedMessage {
-        BufferFinishedMessage(sk_sp<GrGpuBuffer> buffer, uint32_t indexId)
-                : fBuffer(std::move(buffer)), fInboxID(indexId) {}
+        BufferFinishedMessage(sk_sp<GrGpuBuffer> buffer, GrRecordingContext::ExplicitContextID id)
+                : fBuffer(std::move(buffer)), fInboxID(id) {}
         BufferFinishedMessage(BufferFinishedMessage&& other) {
             fBuffer = std::move(other.fBuffer);
             fInboxID = other.fInboxID;
-            other.fInboxID = 0;
+            other.fInboxID.makeInvalid();
         }
         sk_sp<GrGpuBuffer> fBuffer;
-        uint32_t fInboxID;
+        GrRecordingContext::ExplicitContextID fInboxID;
     };
-    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage, false>;
+    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage, GrRecordingContext::ExplicitContextID, false>;
 
-    GrClientMappedBufferManager(uint32_t contextID);
+    GrClientMappedBufferManager(GrRecordingContext::ExplicitContextID);
     GrClientMappedBufferManager(const GrClientMappedBufferManager&) = delete;
     GrClientMappedBufferManager(GrClientMappedBufferManager&&) = delete;
 
@@ -51,7 +53,7 @@ public:
     GrClientMappedBufferManager& operator=(GrClientMappedBufferManager&&) = delete;
 
     /** Initialize BufferFinishedMessage::fInboxID to this value. */
-    uint32_t inboxID() const { return fFinishedBufferInbox.uniqueID(); }
+    GrRecordingContext::ExplicitContextID inboxID() const { return fExplicitContextID; }
 
     /**
      * Let the manager know to expect a message with buffer 'b'. It's illegal for a buffer to be
@@ -66,7 +68,9 @@ public:
     void abandon();
 
 private:
+    GrRecordingContext::ExplicitContextID fExplicitContextID;
     BufferFinishedMessageBus::Inbox fFinishedBufferInbox;
+
     std::forward_list<sk_sp<GrGpuBuffer>> fClientHeldBuffers;
     bool fAbandoned = false;
 
@@ -74,6 +78,6 @@ private:
 };
 
 bool SkShouldPostMessageToBus(const GrClientMappedBufferManager::BufferFinishedMessage&,
-                              uint32_t msgBusUniqueID);
+                              GrRecordingContext::ExplicitContextID msgBusUniqueID);
 
 #endif

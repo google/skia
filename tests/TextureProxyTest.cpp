@@ -214,8 +214,8 @@ static void basic_test(GrDirectContext* dContext,
 
     if (expectResourceToOutliveProxy) {
         proxy.reset();
-        GrUniqueKeyInvalidatedMessage msg(texKey, dContext->priv().contextID());
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+        GrUniqueKeyInvalidatedMessage msg(texKey, dContext->priv().explicitContextID());
+        SkMessageBus<GrUniqueKeyInvalidatedMessage, GrRecordingContext::ExplicitContextID>::Post(msg);
         cache->purgeAsNeeded();
         expectedCacheCount -= cacheEntriesPerProxy;
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);

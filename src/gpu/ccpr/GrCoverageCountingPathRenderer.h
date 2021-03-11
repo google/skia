@@ -39,7 +39,7 @@ public:
     };
 
     static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(
-            const GrCaps&, AllowCaching, uint32_t contextUniqueID);
+            const GrCaps&, AllowCaching, GrRecordingContext::ExplicitContextID);
 
     CoverageType coverageType() const { return fCoverageType; }
 
@@ -92,7 +92,7 @@ public:
                                    float* inflationRadius = nullptr);
 
 private:
-    GrCoverageCountingPathRenderer(CoverageType, AllowCaching, uint32_t contextUniqueID);
+    GrCoverageCountingPathRenderer(CoverageType, AllowCaching, GrRecordingContext::ExplicitContextID);
 
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrStyledShape&) const override {

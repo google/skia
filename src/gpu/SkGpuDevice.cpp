@@ -173,7 +173,7 @@ bool SkGpuDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
         return false;
     }
 
-    return fSurfaceDrawContext->readPixels(dContext, pm, {x, y});
+    return fSurfaceDrawContext->readPixels(dContext, pm, {x, y}, true);
 }
 
 bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
