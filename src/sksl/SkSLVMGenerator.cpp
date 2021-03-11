@@ -277,7 +277,6 @@ private:
 
     const skvm::Coord fLocalCoord;
     const SampleChildFn fSampleChild;
-    const std::unordered_map<String, Intrinsic> fIntrinsics;
 
     // [Variable, first slot in fSlots]
     std::unordered_map<const Variable*, size_t> fVariableMap;
@@ -357,65 +356,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
         : fProgram(program)
         , fBuilder(builder)
         , fLocalCoord(local)
-        , fSampleChild(std::move(sampleChild))
-        , fIntrinsics {
-            { "radians", Intrinsic::kRadians },
-            { "degrees", Intrinsic::kDegrees },
-            { "sin",     Intrinsic::kSin },
-            { "cos",     Intrinsic::kCos },
-            { "tan",     Intrinsic::kTan },
-            { "asin",    Intrinsic::kASin },
-            { "acos",    Intrinsic::kACos },
-            { "atan",    Intrinsic::kATan },
-
-            { "pow",  Intrinsic::kPow },
-            { "exp",  Intrinsic::kExp },
-            { "log",  Intrinsic::kLog },
-            { "exp2", Intrinsic::kExp2 },
-            { "log2", Intrinsic::kLog2 },
-            { "sqrt", Intrinsic::kSqrt },
-            { "inversesqrt", Intrinsic::kInverseSqrt },
-
-            { "abs",   Intrinsic::kAbs },
-            { "sign",  Intrinsic::kSign },
-            { "floor", Intrinsic::kFloor },
-            { "ceil",  Intrinsic::kCeil },
-            { "fract", Intrinsic::kFract },
-            { "mod",   Intrinsic::kMod },
-
-            { "min",        Intrinsic::kMin },
-            { "max",        Intrinsic::kMax },
-            { "clamp",      Intrinsic::kClamp },
-            { "saturate",   Intrinsic::kSaturate },
-            { "mix",        Intrinsic::kMix },
-            { "step",       Intrinsic::kStep },
-            { "smoothstep", Intrinsic::kSmoothstep },
-
-            { "length",      Intrinsic::kLength },
-            { "distance",    Intrinsic::kDistance },
-            { "dot",         Intrinsic::kDot },
-            { "cross",       Intrinsic::kCross },
-            { "normalize",   Intrinsic::kNormalize },
-            { "faceforward", Intrinsic::kFaceforward },
-            { "reflect",     Intrinsic::kReflect },
-            { "refract",     Intrinsic::kRefract },
-
-            { "matrixCompMult", Intrinsic::kMatrixCompMult },
-            { "inverse",        Intrinsic::kInverse },
-
-            { "lessThan",         Intrinsic::kLessThan },
-            { "lessThanEqual",    Intrinsic::kLessThanEqual },
-            { "greaterThan",      Intrinsic::kGreaterThan },
-            { "greaterThanEqual", Intrinsic::kGreaterThanEqual },
-            { "equal",            Intrinsic::kEqual },
-            { "notEqual",         Intrinsic::kNotEqual },
-
-            { "any", Intrinsic::kAny },
-            { "all", Intrinsic::kAll },
-            { "not", Intrinsic::kNot },
-
-            { "sample", Intrinsic::kSample },
-        } {
+        , fSampleChild(std::move(sampleChild)) {
     fConditionMask = fLoopMask = fBuilder->splat(0xffff'ffff);
 
     // Now, add storage for each global variable (including uniforms) to fSlots, and entries in
@@ -972,8 +913,66 @@ Value SkVMGenerator::writeMatrixInverse4x4(const Value& m) {
 }
 
 Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
-    auto found = fIntrinsics.find(c.function().name());
-    if (found == fIntrinsics.end()) {
+    static std::unordered_map<String, Intrinsic> intrinsics {
+        { "radians", Intrinsic::kRadians },
+        { "degrees", Intrinsic::kDegrees },
+        { "sin",     Intrinsic::kSin },
+        { "cos",     Intrinsic::kCos },
+        { "tan",     Intrinsic::kTan },
+        { "asin",    Intrinsic::kASin },
+        { "acos",    Intrinsic::kACos },
+        { "atan",    Intrinsic::kATan },
+
+        { "pow",  Intrinsic::kPow },
+        { "exp",  Intrinsic::kExp },
+        { "log",  Intrinsic::kLog },
+        { "exp2", Intrinsic::kExp2 },
+        { "log2", Intrinsic::kLog2 },
+        { "sqrt", Intrinsic::kSqrt },
+        { "inversesqrt", Intrinsic::kInverseSqrt },
+
+        { "abs",   Intrinsic::kAbs },
+        { "sign",  Intrinsic::kSign },
+        { "floor", Intrinsic::kFloor },
+        { "ceil",  Intrinsic::kCeil },
+        { "fract", Intrinsic::kFract },
+        { "mod",   Intrinsic::kMod },
+
+        { "min",        Intrinsic::kMin },
+        { "max",        Intrinsic::kMax },
+        { "clamp",      Intrinsic::kClamp },
+        { "saturate",   Intrinsic::kSaturate },
+        { "mix",        Intrinsic::kMix },
+        { "step",       Intrinsic::kStep },
+        { "smoothstep", Intrinsic::kSmoothstep },
+
+        { "length",      Intrinsic::kLength },
+        { "distance",    Intrinsic::kDistance },
+        { "dot",         Intrinsic::kDot },
+        { "cross",       Intrinsic::kCross },
+        { "normalize",   Intrinsic::kNormalize },
+        { "faceforward", Intrinsic::kFaceforward },
+        { "reflect",     Intrinsic::kReflect },
+        { "refract",     Intrinsic::kRefract },
+
+        { "matrixCompMult", Intrinsic::kMatrixCompMult },
+        { "inverse",        Intrinsic::kInverse },
+
+        { "lessThan",         Intrinsic::kLessThan },
+        { "lessThanEqual",    Intrinsic::kLessThanEqual },
+        { "greaterThan",      Intrinsic::kGreaterThan },
+        { "greaterThanEqual", Intrinsic::kGreaterThanEqual },
+        { "equal",            Intrinsic::kEqual },
+        { "notEqual",         Intrinsic::kNotEqual },
+
+        { "any", Intrinsic::kAny },
+        { "all", Intrinsic::kAll },
+        { "not", Intrinsic::kNot },
+
+        { "sample", Intrinsic::kSample } };
+
+    auto found = intrinsics.find(c.function().name());
+    if (found == intrinsics.end()) {
         SkDEBUGFAILF("Missing intrinsic: '%s'", String(c.function().name()).c_str());
         return {};
     }
