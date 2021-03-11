@@ -75,6 +75,15 @@ class SKUNICODE_API SkScriptIterator {
     virtual bool getScript(SkUnichar u, ScriptID* script) = 0;
 };
 
+class SKUNICODE_API SkCodepointIterator {
+    public:
+    typedef int32_t Position;
+    virtual ~SkCodepointIterator() = default;
+    virtual std::tuple<SkUnichar, Position, Position> first() = 0;
+    virtual std::tuple<SkUnichar, Position, Position> next() = 0;
+    virtual bool isDone() = 0;
+};
+
 class SKUNICODE_API SkUnicode {
     public:
         typedef uint32_t CombiningClass;
@@ -124,6 +133,7 @@ class SKUNICODE_API SkUnicode {
         virtual std::unique_ptr<SkBreakIterator> makeBreakIterator
             (const char locale[], BreakType breakType) = 0;
         virtual std::unique_ptr<SkScriptIterator> makeScriptIterator() = 0;
+        virtual std::unique_ptr<SkCodepointIterator> makeCodepointIterator(const char* utf8, int32_t utf8Units) = 0;
 
         // High level methods (that we actually use somewhere=SkParagraph)
         virtual bool getBidiRegions
@@ -134,8 +144,13 @@ class SKUNICODE_API SkUnicode {
                (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
         virtual bool getGraphemes
                (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
-        virtual bool getWhitespaces
-               (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
+
+        using SpaceVisitor = std::function<void(size_t start, size_t end, SkUnichar unichar)>;
+        virtual void iterateThroughSpaces(const char utf8[], int utf8Units, SpaceVisitor visitor) = 0;
+
+
+        template <typename Callback>
+        void forEachCodepoint(Callback&& callback);
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
 

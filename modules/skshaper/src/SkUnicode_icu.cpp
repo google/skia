@@ -240,6 +240,43 @@ class SkScriptIterator_icu : public SkScriptIterator {
    }
 };
 
+class SkCodepointIterator_icu : public SkCodepointIterator {
+
+    const char* fStart;
+    const char* fEnd;
+    const char* fCurrentCodepoint;
+
+    public:
+    SkCodepointIterator_icu(const char* utf8, int32_t utf8Units)
+        : fStart(utf8)
+        , fEnd(utf8 + utf8Units)
+        , fCurrentCodepoint(utf8) {
+    }
+
+    std::tuple<SkUnichar, Position, Position> first() override {
+        fCurrentCodepoint = fStart;
+        return next();
+    }
+
+    std::tuple<SkUnichar, Position, Position> next() override {
+        if (fCurrentCodepoint < fEnd) {
+            auto prev = fCurrentCodepoint;
+            SkUnichar unichar = utf8_next(&fCurrentCodepoint, fEnd);
+            return { unichar, prev - fStart, fCurrentCodepoint - fStart };
+        } else {
+            return { -1, fEnd - fStart, fEnd  - fStart };
+        }
+    }
+
+    bool isDone() override {
+        return fCurrentCodepoint >= fEnd;
+    }
+
+    static std::unique_ptr<SkCodepointIterator> makeCodepointIterator(const char* utf8, int32_t utf8Units) {
+        return std::unique_ptr<SkCodepointIterator>(new SkCodepointIterator_icu(utf8, utf8Units));
+    }
+};
+
 class SkUnicode_icu : public SkUnicode {
     static bool extractBidi(const char utf8[],
                             int utf8Units,
@@ -381,26 +418,6 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractWhitespaces(const char utf8[],
-                                   int utf8Units,
-                                   std::vector<Position>* whitespaces) {
-
-        const char* start = utf8;
-        const char* end = utf8 + utf8Units;
-        const char* ch = start;
-        while (ch < end) {
-            auto index = ch - start;
-            auto unichar = utf8_next(&ch, end);
-            if (u_isWhitespace(unichar)) {
-                auto ending = ch - start;
-                for (auto k = index; k < ending; ++k) {
-                  whitespaces->emplace_back(k);
-                }
-            }
-        }
-        return true;
-    }
-
     static int utf8ToUtf16(const char* utf8, size_t utf8Units, std::unique_ptr<uint16_t[]>* utf16) {
         int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Units);
         if (utf16Units < 0) {
@@ -448,6 +465,10 @@ public:
     }
     std::unique_ptr<SkScriptIterator> makeScriptIterator() override {
         return SkScriptIterator_icu::makeScriptIterator();
+    }
+
+    std::unique_ptr<SkCodepointIterator> makeCodepointIterator(const char* utf8, int32_t utf8Units) override {
+        return SkCodepointIterator_icu::makeCodepointIterator(utf8, utf8Units);
     }
 
     // TODO: Use ICU data file to detect controls and whitespaces
@@ -516,9 +537,16 @@ public:
         });
     }
 
-    bool getWhitespaces(const char utf8[], int utf8Units, std::vector<Position>* results) override {
-
-        return extractWhitespaces(utf8, utf8Units, results);
+    void iterateThroughSpaces(const char utf8[], int utf8Units, SpaceVisitor visitor) override {
+        const char* start = utf8;
+        const char* end = utf8 + utf8Units;
+        const char* ch = start;
+        while (ch < end) {
+            auto index = ch - start;
+            auto unichar = utf8_next(&ch, end);
+            auto ending = ch - start;
+            visitor(index, ending, unichar);
+        }
     }
 
     void reorderVisual(const BidiLevel runLevels[],
