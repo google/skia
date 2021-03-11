@@ -30,7 +30,7 @@ public:
         }
     }
 
-#if !defined(GR_OP_ALLOCATE_USE_POOL) && defined(GR_HAS_THREAD_LOCAL)
+#if defined(GR_HAS_THREAD_LOCAL)
     void* operator new(size_t s);
     void operator delete(void* b) noexcept;
     static void ClearCache();

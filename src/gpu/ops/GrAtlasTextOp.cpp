@@ -35,7 +35,7 @@
 #include <utility>
 
 // If we have thread local, then cache memory for a single GrAtlasTextOp.
-#if !defined(GR_OP_ALLOCATE_USE_POOL) && defined(GR_HAS_THREAD_LOCAL)
+#if defined(GR_HAS_THREAD_LOCAL)
 static thread_local void* gCache = nullptr;
 void* GrAtlasTextOp::operator new(size_t s) {
     if (gCache != nullptr) {
