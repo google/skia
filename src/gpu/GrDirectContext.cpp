@@ -214,7 +214,7 @@ bool GrDirectContext::init() {
     fResourceCache->setThreadSafeCache(this->threadSafeCache());
     fResourceProvider = std::make_unique<GrResourceProvider>(fGpu.get(), fResourceCache.get(),
                                                              this->singleOwner());
-    fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->contextID());
+    fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->directContextID());
 
     fDidTestPMConversions = false;
 
