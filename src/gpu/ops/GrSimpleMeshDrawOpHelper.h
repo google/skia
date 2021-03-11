@@ -196,18 +196,10 @@ template<typename Op, typename... Args>
 GrOp::Owner GrOp::MakeWithProcessorSet(
         GrRecordingContext* context, const SkPMColor4f& color,
         GrPaint&& paint, Args&&... args) {
-#if defined(GR_OP_ALLOCATE_USE_POOL)
-    GrMemoryPool* pool = context->priv().opMemoryPool();
-    char* bytes = (char*)pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
-    char* setMem = bytes + sizeof(Op);
-    GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};
-    return Owner{new (bytes) Op(processorSet, color, std::forward<Args>(args)...), pool};
-#else
     char* bytes = (char*)::operator new(sizeof(Op) + sizeof(GrProcessorSet));
     char* setMem = bytes + sizeof(Op);
     GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};
     return Owner{new (bytes) Op(processorSet, color, std::forward<Args>(args)...)};
-#endif
 }
 
 template <typename Op, typename... OpArgs>
