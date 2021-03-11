@@ -1431,7 +1431,7 @@ static void test_15(GrDirectContext* dContext, skiatest::Reporter* reporter,
     GrUniqueKeyInvalidatedMessage msg(key, dContext->priv().contextID(),
                                       /* inThreadSafeCache */ true);
 
-    SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+    SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(msg);
 
     // This purge call is needed to process the invalidation messages
     dContext->purgeUnlockedResources(/* scratchResourcesOnly */ true);
