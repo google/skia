@@ -68,6 +68,7 @@
 namespace SkSL {
 extern bool gSkSLOptimizer;
 extern bool gSkSLInliner;
+extern bool gSkSLDeadCodeElimination;
 }
 
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
@@ -2344,10 +2345,11 @@ void Viewer::drawImGui() {
                 bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
                             GrContextOptions::ShaderCacheStrategy::kSkSL;
 
-                int optLevel =                           sksl ? kShaderOptLevel_Source :
-                                           SkSL::gSkSLInliner ? kShaderOptLevel_Inline :
-                                         SkSL::gSkSLOptimizer ? kShaderOptLevel_Optimize :
-                                                                kShaderOptLevel_Compile;
+                int optLevel =                          sksl ? kShaderOptLevel_Source :
+                                          SkSL::gSkSLInliner ? kShaderOptLevel_Inline :
+                              SkSL::gSkSLDeadCodeElimination ? kShaderOptLevel_DeadCodeElimination :
+                                        SkSL::gSkSLOptimizer ? kShaderOptLevel_Optimize :
+                                                               kShaderOptLevel_Compile;
 
 #if defined(SK_VULKAN)
                 const bool isVulkan = fBackendType == sk_app::Window::kVulkan_BackendType;
@@ -2410,6 +2412,9 @@ void Viewer::drawImGui() {
                 ImGui::SameLine();
                 ImGui::RadioButton("Optimize", &newOptLevel, kShaderOptLevel_Optimize);
                 ImGui::SameLine();
+                ImGui::RadioButton("Dead-Code Elim", &newOptLevel,
+                                   kShaderOptLevel_DeadCodeElimination);
+                ImGui::SameLine();
                 ImGui::RadioButton("Inline", &newOptLevel, kShaderOptLevel_Inline);
 
                 // If we are changing the compile mode, we want to reset the cache and redo
@@ -2417,6 +2422,8 @@ void Viewer::drawImGui() {
                 if (doDump || newOptLevel != optLevel) {
                     sksl = doDump || (newOptLevel == kShaderOptLevel_Source);
                     SkSL::gSkSLOptimizer           = (newOptLevel >= kShaderOptLevel_Optimize);
+                    SkSL::gSkSLDeadCodeElimination = (newOptLevel >=
+                                                         kShaderOptLevel_DeadCodeElimination);
                     SkSL::gSkSLInliner             = (newOptLevel >= kShaderOptLevel_Inline);
 
                     params.fGrContextOptions.fShaderCacheStrategy =
