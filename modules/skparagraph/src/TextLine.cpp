@@ -415,7 +415,7 @@ void TextLine::justify(SkScalar maxWidth) {
     bool whitespacePatch = false;
     this->iterateThroughClustersInGlyphsOrder(false, false,
         [&whitespacePatches, &textLen, &whitespacePatch](const Cluster* cluster, bool ghost) {
-            if (cluster->isWhitespaces()) {
+            if (cluster->isWhitespaceBreak()) {
                 if (!whitespacePatch) {
                     whitespacePatch = true;
                     ++whitespacePatches;
@@ -448,7 +448,7 @@ void TextLine::justify(SkScalar maxWidth) {
         }
 
         auto prevShift = shift;
-        if (cluster->isWhitespaces()) {
+        if (cluster->isWhitespaceBreak()) {
             if (!whitespacePatch) {
                 shift += step;
                 whitespacePatch = true;

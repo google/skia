@@ -247,9 +247,10 @@ public:
         fWidth += shift;
     }
 
-    bool isWhitespaces() const { return fIsWhiteSpaces; }
-    bool isSpaces() const { return fIsSpaces; }
+    bool isWhitespaceBreak() const { return fIsWhiteSpaceBreak; }
+    bool isIntraWordBreak() const { return fIsIntraWordBreak; }
     bool isHardBreak() const { return fIsHardBreak; }
+
     bool isSoftBreak() const;
     bool isGraphemeBreak() const;
     bool canBreakLineAfter() const { return isHardBreak() || isSoftBreak(); }
@@ -298,8 +299,9 @@ private:
     SkScalar fSpacing;
     SkScalar fHeight;
     SkScalar fHalfLetterSpacing;
-    bool fIsWhiteSpaces;
-    bool fIsSpaces;
+
+    bool fIsWhiteSpaceBreak;
+    bool fIsIntraWordBreak;
     bool fIsHardBreak;
 };
 

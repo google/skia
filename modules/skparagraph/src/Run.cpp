@@ -366,6 +366,26 @@ bool Cluster::isGraphemeBreak() const {
     return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kGraphemeStart);
 }
 
+static bool is_ascii_7bit_space(int c) {
+    SkASSERT(c >= 0 && c <= 127);
+
+    // Extracted from https://en.wikipedia.org/wiki/Whitespace_character
+    //
+    enum WS {
+        kHT    = 9,
+        kLF    = 10,
+        kVT    = 11,
+        kFF    = 12,
+        kCR    = 13,
+        kSP    = 32,    // too big to use as shift
+    };
+#define M(shift)    (1 << (shift))
+    constexpr uint32_t kSpaceMask = M(kHT) | M(kLF) | M(kVT) | M(kFF) | M(kCR);
+    // we check for Space (32) explicitly, since it is too large to shift
+    return (c == kSP) || (c <= 31 && (kSpaceMask & M(c)));
+#undef M
+}
+
 Cluster::Cluster(ParagraphImpl* owner,
         RunIndex runIndex,
         size_t start,
@@ -383,9 +403,28 @@ Cluster::Cluster(ParagraphImpl* owner,
         , fSpacing(0)
         , fHeight(height)
         , fHalfLetterSpacing(0.0) {
-    size_t len = fOwner->getWhitespacesLength(fTextRange);
-    fIsWhiteSpaces = (len == this->fTextRange.width());
-    fIsSpaces = fOwner->isSpace(fTextRange);
+    size_t whiteSpacesBreakLen = 0;
+    size_t intraWordBreakLen = 0;
+
+    const char* ch = text.begin();
+    if (text.end() - ch == 1 && *(unsigned char*)ch <= 0x7F) {
+        // I am not even sure it's worth it if we do not save a unicode call
+        if (is_ascii_7bit_space(*ch)) {
+            ++whiteSpacesBreakLen;
+        }
+    } else {
+        for (auto i = fTextRange.start; i < fTextRange.end; ++i) {
+            if (fOwner->codeUnitHasProperty(i, CodeUnitFlags::kPartOfWhiteSpaceBreak)) {
+                ++whiteSpacesBreakLen;
+            }
+            if (fOwner->codeUnitHasProperty(i, CodeUnitFlags::kPartOfIntraWordBreak)) {
+                ++intraWordBreakLen;
+            }
+        }
+    }
+
+    fIsWhiteSpaceBreak = whiteSpacesBreakLen == fTextRange.width();
+    fIsIntraWordBreak = intraWordBreakLen == fTextRange.width();
     fIsHardBreak = fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore);
 }
 
