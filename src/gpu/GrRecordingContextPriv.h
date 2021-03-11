@@ -43,6 +43,9 @@ public:
 
     GrMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
     SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
+    GrSubRunAllocator* recordTimeSubRunAllocator() {
+        return fContext->arenas().recordTimeSubRunAllocator();
+    }
     GrRecordingContext::Arenas arenas() { return fContext->arenas(); }
 
     GrRecordingContext::OwnedArenas&& detachArenas() { return fContext->detachArenas(); }
