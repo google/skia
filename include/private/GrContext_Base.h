@@ -68,10 +68,7 @@ protected:
      */
     uint32_t contextID() const;
 
-    bool matches(GrContext_Base* candidate) const {
-        return candidate && candidate->contextID() == this->contextID();
-    }
-
+    bool inSameFamily(GrContext_Base* candidate) const;
     /*
      * The options in effect for this context
      */

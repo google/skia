@@ -184,7 +184,7 @@ protected:
                                          GrMipmapped mipMapped,
                                          GrImageTexGenPolicy policy) override {
         SkASSERT(rContext);
-        SkASSERT(rContext->priv().matches(fRContext.get()));
+        SkASSERT(rContext->priv().inSameFamily(fRContext.get()));
 
         if (!fView) {
             return {};
