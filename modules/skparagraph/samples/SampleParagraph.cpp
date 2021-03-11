@@ -2575,7 +2575,7 @@ protected:
                          cluster.textRange().start, cluster.textRange().end,
                          cluster.isSoftBreak() ? "soft" :
                          cluster.isHardBreak() ? "hard" :
-                         cluster.isWhitespaces() ? "spaces" : "");
+                         cluster.isWhitespaceBreak() ? "spaces" : "");
             }
 
             auto lines = impl->lines();

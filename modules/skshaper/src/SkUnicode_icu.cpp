@@ -381,26 +381,6 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractWhitespaces(const char utf8[],
-                                   int utf8Units,
-                                   std::vector<Position>* whitespaces) {
-
-        const char* start = utf8;
-        const char* end = utf8 + utf8Units;
-        const char* ch = start;
-        while (ch < end) {
-            auto index = ch - start;
-            auto unichar = utf8_next(&ch, end);
-            if (u_isWhitespace(unichar)) {
-                auto ending = ch - start;
-                for (auto k = index; k < ending; ++k) {
-                  whitespaces->emplace_back(k);
-                }
-            }
-        }
-        return true;
-    }
-
     static int utf8ToUtf16(const char* utf8, size_t utf8Units, std::unique_ptr<uint16_t[]>* utf16) {
         int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Units);
         if (utf16Units < 0) {
@@ -514,11 +494,6 @@ public:
         return extractPositions(utf8, utf8Units, BreakType::kGraphemes,
             [results](int pos, int status) { results->emplace_back(pos);
         });
-    }
-
-    bool getWhitespaces(const char utf8[], int utf8Units, std::vector<Position>* results) override {
-
-        return extractWhitespaces(utf8, utf8Units, results);
     }
 
     void reorderVisual(const BidiLevel runLevels[],

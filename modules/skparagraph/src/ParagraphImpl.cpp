@@ -28,11 +28,6 @@ namespace textlayout {
 
 namespace {
 
-static inline SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF::NextUTF8(ptr, end);
-    return val < 0 ? 0xFFFD : val;
-}
-
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
     auto val = std::fabs(a);
@@ -270,14 +265,20 @@ bool ParagraphImpl::computeCodeUnitProperties() {
         return false;
     }
 
-    // Get white spaces
-    std::vector<SkUnicode::Position> whitespaces;
-    if (!fUnicode->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
-        return false;
-    }
-    for (auto whitespace : whitespaces) {
-        fCodeUnitProperties[whitespace] |= CodeUnitFlags::kPartOfWhiteSpace;
-    }
+    // Get all spaces
+    fUnicode->forEachCodepoint(fText.c_str(), fText.size(),
+       [this](SkUnichar unichar, int32_t start, int32_t end) {
+            if (fUnicode->isWhitespace(unichar)) {
+                for (auto i = start; i < end; ++i) {
+                    fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpaceBreak;
+                }
+            }
+            if (fUnicode->isSpace(unichar)) {
+                for (auto i = start; i < end; ++i) {
+                    fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfIntraWordBreak;
+                }
+            }
+       });
 
     // Get line breaks
     std::vector<SkUnicode::LineBreakBefore> lineBreaks;
@@ -376,7 +377,7 @@ void ParagraphImpl::spaceGlyphs() {
 
             // Process word spacing
             if (currentStyle->fStyle.getWordSpacing() != 0) {
-                if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
+                if (cluster->isWhitespaceBreak() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
                         shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
                     }
@@ -387,7 +388,7 @@ void ParagraphImpl::spaceGlyphs() {
                 shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
             }
 
-            if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
+            if (soFarWhitespacesOnly && !cluster->isWhitespaceBreak()) {
                 soFarWhitespacesOnly = false;
             }
         });
@@ -714,66 +715,6 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
     //SkDebugf("getWordBoundary(%d): %d - %d\n", offset, start, end);
     return { SkToU32(start), SkToU32(end) };
-}
-
-void ParagraphImpl::forEachCodeUnitPropertyRange(CodeUnitFlags property, CodeUnitRangeVisitor visitor) {
-
-    size_t first = 0;
-    for (size_t i = 1; i < fText.size(); ++i) {
-        auto properties = fCodeUnitProperties[i];
-        if (properties & property) {
-            visitor({first, i});
-            first = i;
-        }
-
-    }
-    visitor({first, fText.size()});
-}
-
-size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
-    size_t len = 0;
-    for (auto i = textRange.start; i < textRange.end; ++i) {
-        auto properties = fCodeUnitProperties[i];
-        if (properties & CodeUnitFlags::kPartOfWhiteSpace) {
-            ++len;
-        }
-    }
-    return len;
-}
-
-static bool is_ascii_7bit_space(int c) {
-    SkASSERT(c >= 0 && c <= 127);
-
-    // Extracted from https://en.wikipedia.org/wiki/Whitespace_character
-    //
-    enum WS {
-        kHT    = 9,
-        kLF    = 10,
-        kVT    = 11,
-        kFF    = 12,
-        kCR    = 13,
-        kSP    = 32,    // too big to use as shift
-    };
-#define M(shift)    (1 << (shift))
-    constexpr uint32_t kSpaceMask = M(kHT) | M(kLF) | M(kVT) | M(kFF) | M(kCR);
-    // we check for Space (32) explicitly, since it is too large to shift
-    return (c == kSP) || (c <= 31 && (kSpaceMask & M(c)));
-#undef M
-}
-
-bool ParagraphImpl::isSpace(TextRange textRange) {
-    auto text = ParagraphImpl::text(textRange);
-    const char* ch = text.begin();
-    if (text.end() - ch == 1 && *(unsigned char*)ch <= 0x7F) {
-        return is_ascii_7bit_space(*ch);
-    }
-    while (ch != text.end()) {
-        SkUnichar unicode = nextUtf8Unit(&ch, text.end());
-        if (!fUnicode->isSpace(unicode)) {
-            return false;
-        }
-    }
-    return true;
 }
 
 void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {

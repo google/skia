@@ -36,7 +36,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
         auto roundedWidth = littleRound(width);
         if (cluster->isHardBreak()) {
         } else if (roundedWidth > maxWidth) {
-            if (cluster->isWhitespaces()) {
+            if (cluster->isWhitespaceBreak()) {
                 // It's the end of the word
                 fClusters.extend(cluster);
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
@@ -64,7 +64,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             SkScalar nextWordLength = fClusters.width();
             SkScalar nextShortWordLength = nextWordLength;
             for (auto further = cluster; further != endOfClusters; ++further) {
-                if (further->isSoftBreak() || further->isHardBreak() || further->isWhitespaces()) {
+                if (further->isSoftBreak() || further->isHardBreak() || further->isWhitespaceBreak()) {
                     break;
                 }
                 if (further->run().isPlaceholder()) {
@@ -72,7 +72,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                   break;
                 }
 
-                if (further->isSpaces() && nextWordLength <= maxWidth) {
+                if (nextWordLength > 0 && nextWordLength <= maxWidth && further->isIntraWordBreak()) {
                     // The cluster is spaces but not the end of the word in a normal sense
                     nextNonBreakingSpace = further;
                     nextShortWordLength = nextWordLength;
@@ -179,7 +179,7 @@ void TextWrapper::trimEndSpaces(TextAlign align) {
     fEndLine.saveBreak();
     // Skip all space cluster at the end
     for (auto cluster = fEndLine.endCluster();
-         cluster >= fEndLine.startCluster() && cluster->isWhitespaces();
+         cluster >= fEndLine.startCluster() && cluster->isWhitespaceBreak();
          --cluster) {
         fEndLine.trim(cluster);
     }
@@ -195,7 +195,7 @@ SkScalar TextWrapper::getClustersTrimmedWidth() {
             continue;
         }
         if (trailingSpaces) {
-            if (!cluster->isWhitespaces()) {
+            if (!cluster->isWhitespaceBreak()) {
                 width += cluster->trimmedWidth(cluster->endPos());
                 trailingSpaces = false;
             }
@@ -213,7 +213,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
         // End of line is always end of cluster, but need to skip \n
         auto width = fEndLine.width();
         auto cluster = fEndLine.endCluster() + 1;
-        while (cluster < fEndLine.breakCluster() && cluster->isWhitespaces()) {
+        while (cluster < fEndLine.breakCluster() && cluster->isWhitespaceBreak()) {
             width += cluster->width();
             ++cluster;
         }
@@ -224,7 +224,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
     // It's a soft line break so we need to move lineStart forward skipping all the spaces
     auto width = fEndLine.widthWithGhostSpaces();
     auto cluster = fEndLine.breakCluster() + 1;
-    while (cluster < endOfClusters && cluster->isWhitespaces()) {
+    while (cluster < endOfClusters && cluster->isWhitespaceBreak()) {
         width += cluster->width();
         ++cluster;
     }
@@ -391,7 +391,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 softLineMaxIntrinsicWidth = 0;
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
                 lastWordLength = 0;
-            } else if (cluster->isWhitespaces()) {
+            } else if (cluster->isWhitespaceBreak()) {
                 // Whitespaces end the word
                 softLineMaxIntrinsicWidth += cluster->width();
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
