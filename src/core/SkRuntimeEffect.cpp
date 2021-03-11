@@ -429,7 +429,7 @@ public:
             : fEffect(std::move(effect))
             , fUniforms(std::move(uniforms))
             , fChildren(children, children + childCount)
-            , fFlags(this->computeFlags()) {}
+            , fIsAlphaUnchanged(this->computeIsAlphaUnchanged()) {}
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -500,9 +500,9 @@ public:
                                    /*device=*/zeroCoord, /*local=*/zeroCoord, sampleChild);
     }
 
-    uint32_t onGetFlags() const override { return fFlags; }
+    bool onIsAlphaUnchanged() const override { return fIsAlphaUnchanged; }
 
-    uint32_t computeFlags() const {
+    bool computeIsAlphaUnchanged() const {
         skvm::Builder  p;
         SkColorSpace*  dstCS = sk_srgb_singleton();  // This _shouldn't_ matter for alpha.
         skvm::Uniforms uniforms{p.uniform(), 0};
@@ -511,10 +511,7 @@ public:
         skvm::Color in = p.load({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96}, p.arg(16)),
                    out = this->onProgram(&p,in,dstCS,&uniforms,&alloc);
 
-        if (out.a.id == in.a.id) {
-            return SkColorFilter::kAlphaUnchanged_Flag;
-        }
-        return 0;
+        return out.a.id == in.a.id;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -536,7 +533,7 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkData> fUniforms;
     std::vector<sk_sp<SkColorFilter>> fChildren;
-    const uint32_t fFlags;
+    const bool fIsAlphaUnchanged;
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
