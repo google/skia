@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d7e22dc_29cf12f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10123
+      },
+      "writtenOn": "2021-03-11T04:04:04Z",
+      "side": 1,
+      "message": "This works for my use case and it should work in general although possibly a bit of a pessimization because it defeats the sized delete. I\u0027m happy to have any other fix but we are currently dead in the water.",
+      "revId": "d1b21d1caf971937281e373dfa669666dcef858c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
