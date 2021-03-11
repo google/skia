@@ -317,6 +317,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         return ContextInfo();
     }
 
+    if (shareContext) {
+        SkASSERT(grCtx->directContextID() != shareContext->directContextID());
+    }
+
     // We must always add new contexts by pushing to the back so that when we delete them we delete
     // them in reverse order in which they were made.
     Context& context = fContexts.push_back();

@@ -51,8 +51,18 @@
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 
+GrDirectContext::DirectContextID GrDirectContext::DirectContextID::NextID() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id == SK_InvalidUniqueID);
+    return DirectContextID(id);
+}
+
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
-        : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options)) {
+        : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options))
+        , fDirectContextID(DirectContextID::NextID()) {
 }
 
 GrDirectContext::~GrDirectContext() {
