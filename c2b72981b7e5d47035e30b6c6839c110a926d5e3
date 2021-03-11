@@ -16,6 +16,23 @@
       "message": "PTAL again!",
       "revId": "c2b72981b7e5d47035e30b6c6839c110a926d5e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "771dde7c_d2ad4257",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-03-11T14:24:08Z",
+      "side": 1,
+      "message": "The failure is in the ninja command because \"error no space left on device\".",
+      "revId": "c2b72981b7e5d47035e30b6c6839c110a926d5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
