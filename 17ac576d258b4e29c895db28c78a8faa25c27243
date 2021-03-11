@@ -33,6 +33,29 @@
       "message": "Will likely collide with https://skia-review.googlesource.com/c/skia/+/382702 (unlanded), but oh well.",
       "revId": "17ac576d258b4e29c895db28c78a8faa25c27243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52e9e3c2_84a87541",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-11T18:24:51Z",
+      "side": 1,
+      "message": "nit: const ...",
+      "range": {
+        "startLine": 540,
+        "startChar": 4,
+        "endLine": 540,
+        "endChar": 12
+      },
+      "revId": "17ac576d258b4e29c895db28c78a8faa25c27243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
