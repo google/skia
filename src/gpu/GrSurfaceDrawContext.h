@@ -189,18 +189,16 @@ public:
     }
 
     /**
-     * Fills a rect with a paint and a localMatrix.
+     * Fills a block of pixels with a paint and a localMatrix, respecting the clip.
      */
-    void fillRectWithLocalMatrix(const GrClip* clip,
-                                 GrPaint&& paint,
-                                 GrAA aa,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& rect,
-                                 const SkMatrix& localMatrix) {
-        DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),
-                      GrQuad::MakeFromRect(rect, localMatrix),
-                      aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
-        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
+    void fillPixelsWithLocalMatrix(const GrClip* clip,
+                                   GrPaint&& paint,
+                                   const SkIRect& bounds,
+                                   const SkMatrix& localMatrix) {
+        SkRect rect = SkRect::Make(bounds);
+        DrawQuad quad{GrQuad::MakeFromRect(rect, SkMatrix::I()),
+                      GrQuad::MakeFromRect(rect, localMatrix), GrQuadAAFlags::kNone};
+        this->drawFilledQuad(clip, std::move(paint), GrAA::kNo, &quad);
     }
 
     /**
