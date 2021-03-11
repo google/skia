@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrTypes.h"
 
 class GrBaseContextPriv;
@@ -46,7 +47,7 @@ public:
     SK_API GrBackendFormat compressedBackendFormat(SkImage::CompressionType) const;
 
     // TODO: When the public version is gone, rename to refThreadSafeProxy and add raw ptr ver.
-    sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
+    sk_sp<GrContextThreadSafeProxy> threadSafeProxy() const;
 
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
@@ -68,10 +69,7 @@ protected:
      */
     uint32_t contextID() const;
 
-    bool matches(GrContext_Base* candidate) const {
-        return candidate && candidate->contextID() == this->contextID();
-    }
-
+    bool inSameFamily(GrContext_Base* candidate) const;
     /*
      * The options in effect for this context
      */
