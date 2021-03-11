@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: SPIR-V validation error: Variable must be decorated with a location
+  %a = OpVariable %_ptr_Input_float Input
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -39,3 +44,5 @@ OpDecorate %16 RelaxedPrecision
 OpStore %22 %21
 OpReturn
 OpFunctionEnd
+
+1 error

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: SPIR-V validation error: OpEntryPoint Entry Point <id> '2[%main]'s function return type is not void.
+error: SPIR-V validation error: [VUID-StandaloneSpirv-None-04633] OpEntryPoint Entry Point <id> '2[%main]'s function return type is not void.
   OpEntryPoint Fragment %main "main" %sk_Clockwise
 
 OpCapability Shader
