@@ -500,6 +500,51 @@ public:
                                    /*device=*/zeroCoord, /*local=*/zeroCoord, sampleChild);
     }
 
+    SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
+        fEffect->fColorFilterProgramOnce([&]{
+            skvm::Builder p;
+
+            skvm::Uniforms childColorUniforms{p.uniform(), 0};
+            std::vector<skvm::Color> childColors;
+            for (size_t i = 0; i < fChildren.size(); ++i) {
+                childColors.push_back(p.uniformColor(SkColors::kWhite, &childColorUniforms));
+            }
+            auto sampleChild = [&](int ix, skvm::Coord /*coord*/) { return childColors[ix]; };
+
+            skvm::Uniforms skslUniforms{p.uniform(), 0};
+            std::vector<skvm::Val> uniform;
+            for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
+                uniform.push_back(p.uniform32(skslUniforms.push(0)).id);
+            }
+
+            skvm::Coord zeroCoord = { p.splat(0.0f), p.splat(0.0f) };
+            skvm::Color result = SkSL::ProgramToSkVM(*fEffect->fBaseProgram,
+                                                     fEffect->fMain,
+                                                     &p,
+                                                     uniform,
+                                                     /*device=*/zeroCoord,
+                                                     /*local=*/zeroCoord,
+                                                     sampleChild);
+            p.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96}, p.arg(16), result);
+            fEffect->fColorFilterProgram =
+                    std::make_unique<skvm::Program>(p.done(nullptr, /*allow_jit=*/false));
+        });
+
+        sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, nullptr, dstCS);
+
+        // There should be no way for a color filter (which can't use "marker") to fail here
+        SkASSERT(inputs && fEffect->fColorFilterProgram);
+
+        SkSTArray<1, SkPMColor4f, true> inputColors;
+        for (const auto &child : fChildren) {
+            inputColors.push_back(child ? as_CFB(child)->onFilterColor4f(color, dstCS) : color);
+        }
+
+        SkPMColor4f result;
+        fEffect->fColorFilterProgram->eval(1, inputColors.begin(), inputs->data(), result.vec());
+        return result;
+    }
+
     bool onIsAlphaUnchanged() const override { return fIsAlphaUnchanged; }
 
     bool computeIsAlphaUnchanged() const {
