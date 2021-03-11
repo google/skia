@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68b25ec6_2f61319a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-11T14:35:16Z",
+      "side": 1,
+      "message": "The innershapes GM differences had me look into this a little bit more, so here are some thoughts on this:\n\n1. It looks like there\u0027s no enforced requirement that the inner rect be contained in the outer rect. When this isn\u0027t respected, the two contours are filled using regular path winding fill rules. Using a kDifference clip just cuts out the inner shape entirely. This is valid when inner is contained in outer, but not otherwise.\n  - We can probably use SkRRectPriv::ConservativeContains() to check before using a clip or analytic coverage FP approach.\n\n2. The rrect analytic coverage effects are only valid for axis-aligned rrects. The old drawFilledDRRect function would return false if that didn\u0027t happen and we\u0027d end up doing path rendering. This hides a similar issue with the current nested analytic FP implementation, since it would not handle inner rrects outside outer rrects. The innershapes GM has all non-axis aligned transforms when the containment property is violated so we end up using path rendering anyways.\n  - if you remove the rotation from the innershapes GM, you can see similar failures with our current drawDRRect to what shows up in the gold diffs on this CL.\n\n3. When we do clipRRect(kDifference), we might use the rrect analytic FP, but we could also push the inner rrect to the atlas or use a stencil mask or do a SW upload. These could be surprising performance hits, or even benefits. For instance, if the inner was an axis-aligned rect, we\u0027d handle it with just an exclude window rect and that\u0027d be very fast.\n\n4. I wonder if it\u0027d be better to just attempt to turn the inner into the rrect analytic FP and add it as a coverage FP to the GrPaint. If that\u0027s successful we call grSDC::drawRRect(). This avoids the possibly heavyweight push/pop on the clip stack (although hopefully it\u0027s not that much), and it would guarantee we used the FP when possible, and if not we\u0027d use path rendering for the entire drrect.\n\n5. As written, we lose out on the optimization(?) that turns a two nested circles into a stroked circle op with this approach. If it\u0027s valuable, we could move that optimization into SkGpuDevice maybe?",
+      "revId": "3a43a86bf9d6bd6dc0d0b2b9296df41c18180664",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
