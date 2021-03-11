@@ -180,6 +180,8 @@ public:
         void operator delete(void* target, void* placement) {
             ::operator delete(target, placement);
         }
+    #else
+        void operator delete(void* p) { ::operator delete(p); }
     #endif
 
     /**
