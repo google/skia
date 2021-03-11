@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "428d320d_2a683f63",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-11T20:45:51Z",
+      "side": 1,
+      "message": "Maybe add a comment that consecutive blurs are equivalent to a single blur whose sigma is the root of the squared radii?",
+      "range": {
+        "startLine": 84,
+        "startChar": 12,
+        "endLine": 84,
+        "endChar": 95
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c3c29b7_205e1fd5",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-11T20:45:51Z",
+      "side": 1,
+      "message": "Has this been replaced with contentArea?",
+      "range": {
+        "startLine": 117,
+        "startChar": 54,
+        "endLine": 117,
+        "endChar": 75
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c07fd253_b1c9a504",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-11T20:45:51Z",
+      "side": 1,
+      "message": "nit: const?",
+      "range": {
+        "startLine": 351,
+        "startChar": 7,
+        "endLine": 351,
+        "endChar": 12
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d231a9ae_d94f86a5",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-11T20:45:51Z",
+      "side": 1,
+      "message": "seems like an odd color? Was separate rgb values for the background useful in testing, vs. just doing a gray?",
+      "range": {
+        "startLine": 357,
+        "startChar": 25,
+        "endLine": 357,
+        "endChar": 39
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa45bf0b_e51dcb9d",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-11T20:45:51Z",
+      "side": 1,
+      "message": "This is the key fix for blurs with 0 sigma, right?",
+      "range": {
+        "startLine": 515,
+        "startChar": 37,
+        "endLine": 515,
+        "endChar": 46
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
