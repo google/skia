@@ -13,7 +13,7 @@
 
 static constexpr int kMaxKeyDataCountU32 = 256;  // 1kB of uint32_t's.
 
-DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key>, true);
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key>, uint32_t, true);
 
 static inline uint32_t next_path_cache_id() {
     static std::atomic<uint32_t> gNextID(1);
@@ -89,7 +89,7 @@ uint32_t* GrCCPathCache::Key::data() {
 
 void GrCCPathCache::Key::changed() {
     // Our key's corresponding path was invalidated. Post a thread-safe eviction message.
-    SkMessageBus<sk_sp<Key>>::Post(sk_ref_sp(this));
+    SkMessageBus<sk_sp<Key>, uint32_t>::Post(sk_ref_sp(this));
 }
 
 GrCCPathCache::GrCCPathCache(uint32_t contextUniqueID)
@@ -107,11 +107,11 @@ GrCCPathCache::~GrCCPathCache() {
     // Now take all the atlas textures we just invalidated and purge them from the GrResourceCache.
     // We just purge via message bus since we don't have any access to the resource cache right now.
     for (const sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
+        SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(
                 GrUniqueKeyInvalidatedMessage(proxy->getUniqueKey(), fContextUniqueID));
     }
     for (const GrUniqueKey& key : fInvalidatedProxyUniqueKeys) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
+        SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(
                 GrUniqueKeyInvalidatedMessage(key, fContextUniqueID));
     }
 }

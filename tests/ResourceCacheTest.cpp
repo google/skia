@@ -1080,7 +1080,7 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
     typedef GrUniqueKeyInvalidatedMessage Msg;
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage> Bus;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t> Bus;
 
     // Invalidate two of the three, they should be purged and no longer accessible via their keys.
     Bus::Post(Msg(key1, dContext->priv().contextID()));
@@ -1562,14 +1562,14 @@ static void test_free_texture_messages(skiatest::Reporter* reporter) {
 
     // Send message to free the first resource
     GrTextureFreedMessage msg1{wrapped[0], dContext->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage>::Post(msg1);
+    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg1);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 1 == (freed[0] + freed[1] + freed[2]));
     REPORTER_ASSERT(reporter, 1 == freed[0]);
 
     GrTextureFreedMessage msg2{wrapped[2], dContext->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage>::Post(msg2);
+    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg2);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 2 == (freed[0] + freed[1] + freed[2]));
@@ -1645,7 +1645,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxIn
     // In the past, creating this message could cause an exception due to
     // an un-safe downcast from GrTexture to GrGpuResource
     GrTextureFreedMessage msg{tex, context->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage>::Post(msg);
+    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg);
 
     // This doesn't actually do anything but it does trigger us to read messages
     context->purgeUnlockedResources(false);
