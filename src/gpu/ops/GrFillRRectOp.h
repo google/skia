@@ -23,7 +23,7 @@ namespace GrFillRRectOp {
                      GrPaint&&,
                      const SkMatrix& viewMatrix,
                      const SkRRect&,
-                     GrAAType);
+                     GrAA);
 }  // namespace GrFillRRectOp
 
 #endif
