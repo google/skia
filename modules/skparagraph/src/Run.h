@@ -247,8 +247,8 @@ public:
         fWidth += shift;
     }
 
-    bool isWhitespaces() const { return fIsWhiteSpaces; }
-    bool isSpaces() const { return fIsSpaces; }
+    bool isWhitespaceBreak() const { return fIsWhiteSpaceBreak; }
+    bool isIntraWordBreak() const { return fIsIntraWordBreak; }
     bool isHardBreak() const;
     bool isSoftBreak() const;
     bool isGraphemeBreak() const;
@@ -297,8 +297,8 @@ private:
     SkScalar fSpacing;
     SkScalar fHeight;
     SkScalar fHalfLetterSpacing;
-    bool fIsWhiteSpaces;
-    bool fIsSpaces;
+    bool fIsWhiteSpaceBreak;
+    bool fIsIntraWordBreak;
 };
 
 class InternalLineMetrics {

@@ -28,11 +28,6 @@ namespace textlayout {
 
 namespace {
 
-static inline SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF::NextUTF8(ptr, end);
-    return val < 0 ? 0xFFFD : val;
-}
-
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
     auto val = std::fabs(a);
@@ -270,14 +265,20 @@ bool ParagraphImpl::computeCodeUnitProperties() {
         return false;
     }
 
-    // Get white spaces
-    std::vector<SkUnicode::Position> whitespaces;
-    if (!fUnicode->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
-        return false;
-    }
-    for (auto whitespace : whitespaces) {
-        fCodeUnitProperties[whitespace] |= CodeUnitFlags::kPartOfWhiteSpace;
-    }
+    // Get all spaces
+    fUnicode->forEachCodepoint(fText.c_str(), fText.size(),
+       [this](SkUnichar unichar, int32_t start, int32_t end) {
+            if (fUnicode->isWhitespace(unichar)) {
+                for (auto i = start; i < end; ++i) {
+                    fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpaceBreak;
+                }
+            }
+            if (fUnicode->isSpace(unichar)) {
+                for (auto i = start; i < end; ++i) {
+                    fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfIntraWordBreak;
+                }
+            }
+       });
 
     // Get line breaks
     std::vector<SkUnicode::LineBreakBefore> lineBreaks;
@@ -376,7 +377,7 @@ void ParagraphImpl::spaceGlyphs() {
 
             // Process word spacing
             if (currentStyle->fStyle.getWordSpacing() != 0) {
-                if (cluster->isWhitespaces() && cluster->isSoftBreak()) {
+                if (cluster->isWhitespaceBreak() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
                         shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
                     }
@@ -387,7 +388,7 @@ void ParagraphImpl::spaceGlyphs() {
                 shift += run.addSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
             }
 
-            if (soFarWhitespacesOnly && !cluster->isWhitespaces()) {
+            if (soFarWhitespacesOnly && !cluster->isWhitespaceBreak()) {
                 soFarWhitespacesOnly = false;
             }
         });
@@ -730,27 +731,19 @@ void ParagraphImpl::forEachCodeUnitPropertyRange(CodeUnitFlags property, CodeUni
     visitor({first, fText.size()});
 }
 
-size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
-    size_t len = 0;
+std::pair<bool, bool> ParagraphImpl::isSpaces(TextRange textRange) {
+    size_t whiteSpacesBreakLen = 0;
+    size_t intraWordBreakLen = 0;
     for (auto i = textRange.start; i < textRange.end; ++i) {
         auto properties = fCodeUnitProperties[i];
-        if (properties & CodeUnitFlags::kPartOfWhiteSpace) {
-            ++len;
+        if (properties & CodeUnitFlags::kPartOfWhiteSpaceBreak) {
+            ++whiteSpacesBreakLen;
+        }
+        if (properties & CodeUnitFlags::kPartOfIntraWordBreak) {
+            ++intraWordBreakLen;
         }
     }
-    return len;
-}
-
-bool ParagraphImpl::isSpace(TextRange textRange) {
-    auto text = ParagraphImpl::text(textRange);
-    const char* ch = text.begin();
-    while (ch != text.end()) {
-        SkUnichar unicode = nextUtf8Unit(&ch, text.end());
-        if (!fUnicode->isSpace(unicode)) {
-            return false;
-        }
-    }
-    return true;
+    return {whiteSpacesBreakLen == textRange.width(), intraWordBreakLen == textRange.width() };
 }
 
 void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {
