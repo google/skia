@@ -368,7 +368,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
     GrProtected isProtected = sdc->asSurfaceProxy()->isProtected();
 
     return characterization.contextInfo() &&
-           characterization.contextInfo()->priv().matches(direct) &&
+           characterization.contextInfo()->priv().inSameFamily(direct) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == sdc->origin() &&
            characterization.backendFormat() == sdc->asSurfaceProxy()->backendFormat() &&

@@ -240,7 +240,7 @@ bool SkImage_Gpu::surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const {
 bool SkImage_Gpu::onHasMipmaps() const { return fChooser.mipmapped() == GrMipmapped::kYes; }
 
 GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFlushInfo& info) {
-    if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
+    if (!fContext->priv().inSameFamily(dContext) || dContext->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
@@ -297,7 +297,7 @@ size_t SkImage_Gpu::onTextureSize() const { return fChooser.gpuMemorySize(); }
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS,
                                                          GrDirectContext* direct) const {
-    if (!fContext->priv().matches(direct)) {
+    if (!fContext->priv().inSameFamily(direct)) {
         return nullptr;
     }
 
@@ -544,7 +544,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
     }
 
     if (this->isTextureBacked()) {
-        if (!as_IB(this)->context()->priv().matches(dContext)) {
+        if (!as_IB(this)->context()->priv().inSameFamily(dContext)) {
             return nullptr;
         }
 
@@ -827,7 +827,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Gpu::onAsView(
         GrRecordingContext* context,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
-    if (!fContext->priv().matches(context)) {
+    if (!fContext->priv().inSameFamily(context)) {
         return {};
     }
     if (policy != GrImageTexGenPolicy::kDraw) {

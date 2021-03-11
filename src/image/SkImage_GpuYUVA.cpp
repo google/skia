@@ -73,7 +73,7 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     // We shouldn't get here if the planes were already flattened to RGBA.
     SkASSERT(fYUVAProxies.isValid() && !fRGBView);
-    if (!context || !fContext->priv().matches(context)) {
+    if (!context || !fContext->priv().inSameFamily(context)) {
         return false;
     }
     if (!context->priv().caps()->mipmapSupport()) {
@@ -105,7 +105,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrDirectContext* dContext, const GrFlushInfo& info) {
-    if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
+    if (!fContext->priv().inSameFamily(dContext) || dContext->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
@@ -221,7 +221,7 @@ bool SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context, GrMipmapped mipm
         return true;
     }
 
-    if (!context || !fContext->priv().matches(context)) {
+    if (!context || !fContext->priv().inSameFamily(context)) {
         return false;
     }
 
@@ -243,7 +243,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
         GrRecordingContext* context,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
-    if (!fContext->priv().matches(context)) {
+    if (!fContext->priv().inSameFamily(context)) {
         return {};
     }
     if (policy != GrImageTexGenPolicy::kDraw) {

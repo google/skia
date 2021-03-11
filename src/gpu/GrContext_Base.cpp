@@ -25,6 +25,10 @@ bool GrContext_Base::init() {
     return true;
 }
 
+GrContextThreadSafeProxy::FamilyID GrContext_Base::familyID() const {
+    return fThreadSafeProxy->familyID();
+}
+
 uint32_t GrContext_Base::contextID() const { return fThreadSafeProxy->priv().contextID(); }
 GrBackendApi GrContext_Base::backend() const { return fThreadSafeProxy->priv().backend(); }
 
