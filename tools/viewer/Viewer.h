@@ -236,7 +236,6 @@ private:
         kShaderOptLevel_Compile,
         kShaderOptLevel_Optimize,
         kShaderOptLevel_Inline,
-        kShaderOptLevel_ControlFlow
     };
 };
 

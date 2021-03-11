@@ -1,5 +1,3 @@
-/*#pragma settings NoControlFlowAnalysis*/
-
 // Expect 17 errors
 
 int variable = 0;

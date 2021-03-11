@@ -1136,14 +1136,14 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     Var a(kFloat, "a"), b(kInt, "b");
 
-    Statement x = Switch(5,
+    Statement x = Switch(b,
         Case(0, a = 0, Break()),
         Case(1, a = 1, Continue()),
         Case(2, a = 2  /*Fallthrough*/),
         Default(Discard())
     );
     EXPECT_EQUAL(x, R"(
-        switch (5) {
+        switch (b) {
             case 0: (a = 0.0); break;
             case 1: (a = 1.0); continue;
             case 2: (a = 2.0);
@@ -1171,17 +1171,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
         ExpectError error(r, "error: case value must be a constant integer\n");
         Var b(kInt);
         DSLStatement(Switch(0, Case(b))).release();
-    }
-
-    {
-        ExpectError error(r, "error: continue statement must be inside a loop\n");
-        DSLFunction(kVoid, "fail").define(
-            Switch(5,
-                Case(0, a = 0, Break()),
-                Case(1, a = 1, Continue()),
-                Default(Discard())
-            )
-        );
     }
 }
 

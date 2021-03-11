@@ -204,12 +204,6 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_version450CoreCaps = Factory::Version450Core();
                     *caps = s_version450CoreCaps.get();
                 }
-                if (settingsText.consumeSuffix(" NoControlFlowAnalysis")) {
-                    settings->fControlFlowAnalysis = false;
-                }
-                if (settingsText.consumeSuffix(" NoDeadCodeElimination")) {
-                    settings->fDeadCodeElimination = false;
-                }
                 if (settingsText.consumeSuffix(" FlipY")) {
                     settings->fFlipY = true;
                 }

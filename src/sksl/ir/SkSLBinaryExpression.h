@@ -8,7 +8,6 @@
 #ifndef SKSL_BINARYEXPRESSION
 #define SKSL_BINARYEXPRESSION
 
-#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLOperators.h"
@@ -83,12 +82,6 @@ public:
 
     bool isConstantOrUniform() const override {
         return this->left()->isConstantOrUniform() && this->right()->isConstantOrUniform();
-    }
-
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
-        return ConstantFolder::Simplify(irGenerator.fContext, fOffset, *this->left(),
-                                        this->getOperator(), *this->right(), this->type());
     }
 
     bool hasProperty(Property property) const override {

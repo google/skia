@@ -68,7 +68,6 @@
 namespace SkSL {
 extern bool gSkSLOptimizer;
 extern bool gSkSLInliner;
-extern bool gSkSLControlFlowAnalysis;
 }
 
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
@@ -2346,7 +2345,6 @@ void Viewer::drawImGui() {
                             GrContextOptions::ShaderCacheStrategy::kSkSL;
 
                 int optLevel =                           sksl ? kShaderOptLevel_Source :
-                               SkSL::gSkSLControlFlowAnalysis ? kShaderOptLevel_ControlFlow :
                                            SkSL::gSkSLInliner ? kShaderOptLevel_Inline :
                                          SkSL::gSkSLOptimizer ? kShaderOptLevel_Optimize :
                                                                 kShaderOptLevel_Compile;
@@ -2413,8 +2411,6 @@ void Viewer::drawImGui() {
                 ImGui::RadioButton("Optimize", &newOptLevel, kShaderOptLevel_Optimize);
                 ImGui::SameLine();
                 ImGui::RadioButton("Inline", &newOptLevel, kShaderOptLevel_Inline);
-                ImGui::SameLine();
-                ImGui::RadioButton("Control-Flow", &newOptLevel, kShaderOptLevel_ControlFlow);
 
                 // If we are changing the compile mode, we want to reset the cache and redo
                 // everything.
@@ -2422,7 +2418,6 @@ void Viewer::drawImGui() {
                     sksl = doDump || (newOptLevel == kShaderOptLevel_Source);
                     SkSL::gSkSLOptimizer           = (newOptLevel >= kShaderOptLevel_Optimize);
                     SkSL::gSkSLInliner             = (newOptLevel >= kShaderOptLevel_Inline);
-                    SkSL::gSkSLControlFlowAnalysis = (newOptLevel >= kShaderOptLevel_ControlFlow);
 
                     params.fGrContextOptions.fShaderCacheStrategy =
                             sksl ? GrContextOptions::ShaderCacheStrategy::kSkSL

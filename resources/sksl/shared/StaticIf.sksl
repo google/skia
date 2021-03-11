@@ -1,5 +1,3 @@
-/*#pragma settings NoControlFlowAnalysis*/
-
 uniform half4 colorRed, colorGreen;
 
 half4 main() {

@@ -1,5 +1,3 @@
-/*#pragma settings NoDeadCodeElimination*/
-
 // A continue inside a switch (where permitted) prevents fallthrough to the next case block, just
 // like a break statement would.
 

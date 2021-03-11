@@ -64,9 +64,6 @@ public:
 
     String description() const override;
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override;
-
 private:
     const Variable* fVariable;
     VariableRefKind fRefKind;

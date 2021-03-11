@@ -7,7 +7,6 @@
 
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include "src/sksl/SkSLDefinitionMap.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -46,21 +45,6 @@ void VariableReference::setRefKind(RefKind refKind) {
 
 void VariableReference::setVariable(const Variable* variable) {
     fVariable = variable;
-}
-
-std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,
-                                                                 const DefinitionMap& definitions) {
-    if (this->refKind() != RefKind::kRead) {
-        return nullptr;
-    }
-    const Expression* initialValue = this->variable()->initialValue();
-    if ((this->variable()->modifiers().fFlags & Modifiers::kConst_Flag) && initialValue &&
-        initialValue->isCompileTimeConstant() &&
-        !this->type().isArray()) {
-        return initialValue->clone();
-    }
-    Expression* expr = definitions.getKnownDefinition(this->variable());
-    return expr ? expr->clone() : nullptr;
 }
 
 }  // namespace SkSL
