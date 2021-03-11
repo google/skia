@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a766fa9_fd463290",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-11T19:38:14Z",
+      "side": 1,
+      "message": "One minor problem is that this does introduce warnings. With the old GN file, we ignored warnings in third-party code. Now, if you have werror\u003dtrue in your GN args, the warnings cause build failure. eg:\n\nIn file included from ../../third_party/externals/spirv-tools/source/link/linker.cpp:30:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/build_module.h:21:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/ir_context.h:30:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/cfg.h:24:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/basic_block.h:29:\n../../third_party/externals/spirv-tools/source/opt/instruction.h:195:11: error: \u0027~Instruction\u0027 overrides a destructor but is not marked \u0027override\u0027 [-Werror,-Wsuggest-destructor-override]\n  virtual ~Instruction() \u003d default;\n          ^\n../../third_party/externals/spirv-tools/source/util/ilist_node.h:40:11: note: overridden virtual function is here\n  virtual ~IntrusiveNodeBase();\n          ^\nIn file included from ../../third_party/externals/spirv-tools/source/link/linker.cpp:30:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/build_module.h:21:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/ir_context.h:30:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/cfg.h:24:\nIn file included from ../../third_party/externals/spirv-tools/source/opt/basic_block.h:30:\n../../third_party/externals/spirv-tools/source/opt/instruction_list.h:56:18: error: \u0027~InstructionList\u0027 overrides a destructor but is not marked \u0027override\u0027 [-Werror,-Wsuggest-destructor-override]\n  inline virtual ~InstructionList();\n                 ^\n../../third_party/externals/spirv-tools/source/util/ilist.h:64:11: note: overridden virtual function is here\n  virtual ~IntrusiveList();\n          ^",
+      "revId": "89d6e79ec01f49ca2e693118db1f7b09c4d1c92b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
