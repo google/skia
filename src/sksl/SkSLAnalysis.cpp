@@ -483,15 +483,16 @@ public:
                 const SwitchStatement& s = stmt.as<SwitchStatement>();
                 bool foundDefault = false;
                 bool fellThrough = false;
-                for (const std::unique_ptr<SwitchCase>& sc : s.cases()) {
+                for (const std::unique_ptr<Statement>& stmt : s.cases()) {
                     // The default case is indicated by a null value. A switch without a default
                     // case cannot definitively return, as its value might not be in the cases list.
-                    if (!sc->value()) {
+                    const SwitchCase& sc = stmt->as<SwitchCase>();
+                    if (!sc.value()) {
                         foundDefault = true;
                     }
                     // Scan this switch-case for any exit (break, continue or return).
                     ReturnsOnAllPathsVisitor caseVisitor;
-                    caseVisitor.visitStatement(*sc);
+                    caseVisitor.visitStatement(sc);
 
                     // If we found a break or continue, whether conditional or not, this switch case
                     // can't be called an unconditional return. Switches absorb breaks but not

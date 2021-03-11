@@ -405,8 +405,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             AutoRehydratorSymbolTable symbols(this);
             std::unique_ptr<Expression> expr = this->expression();
             int caseCount = this->readU8();
-            std::vector<std::unique_ptr<SwitchCase>> cases;
-            cases.reserve(caseCount);
+            StatementArray cases;
+            cases.reserve_back(caseCount);
             for (int i = 0; i < caseCount; ++i) {
                 std::unique_ptr<Expression> value = this->expression();
                 std::unique_ptr<Statement> statement = this->statement();

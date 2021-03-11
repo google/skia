@@ -3112,10 +3112,11 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     fBreakTarget.push(end);
     int size = 3;
     auto& cases = s.cases();
-    for (const std::unique_ptr<SwitchCase>& c : cases) {
+    for (const std::unique_ptr<Statement>& stmt : cases) {
+        const SwitchCase& c = stmt->as<SwitchCase>();
         SpvId label = this->nextId();
         labels.push_back(label);
-        if (c->value()) {
+        if (c.value()) {
             size += 2;
         } else {
             defaultLabel = label;
@@ -3127,15 +3128,17 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     this->writeWord(value, out);
     this->writeWord(defaultLabel, out);
     for (size_t i = 0; i < cases.size(); ++i) {
-        if (!cases[i]->value()) {
+        const SwitchCase& c = cases[i]->as<SwitchCase>();
+        if (!c.value()) {
             continue;
         }
-        this->writeWord(cases[i]->value()->as<IntLiteral>().value(), out);
+        this->writeWord(c.value()->as<IntLiteral>().value(), out);
         this->writeWord(labels[i], out);
     }
     for (size_t i = 0; i < cases.size(); ++i) {
+        const SwitchCase& c = cases[i]->as<SwitchCase>();
         this->writeLabel(labels[i], out);
-        this->writeStatement(*cases[i]->statement(), out);
+        this->writeStatement(*c.statement(), out);
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, labels[i + 1], out);
         }

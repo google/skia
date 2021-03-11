@@ -462,9 +462,10 @@ void Dehydrator::write(const Statement* s) {
                 AutoDehydratorSymbolTable symbols(this, ss.symbols());
                 this->write(ss.value().get());
                 this->writeU8(ss.cases().size());
-                for (const std::unique_ptr<SwitchCase>& sc : ss.cases()) {
-                    this->write(sc->value().get());
-                    this->write(sc->statement().get());
+                for (const std::unique_ptr<Statement>& stmt : ss.cases()) {
+                    const SwitchCase& sc = stmt->as<SwitchCase>();
+                    this->write(sc.value().get());
+                    this->write(sc.statement().get());
                 }
                 break;
             }
