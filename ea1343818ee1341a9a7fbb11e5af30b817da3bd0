@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec7c7aee_fbbaccd3",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-11T13:01:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d872e54_eb521af5",
+      "revId": "ea1343818ee1341a9a7fbb11e5af30b817da3bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "128417fb_c5b7334f",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-03-10T19:14:52Z",
       "side": 1,
       "message": "dContext ?",
+      "range": {
+        "startLine": 390,
+        "startChar": 9,
+        "endLine": 390,
+        "endChar": 16
+      },
+      "revId": "ea1343818ee1341a9a7fbb11e5af30b817da3bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61461a83_de93d96d",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-11T13:01:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "128417fb_c5b7334f",
       "range": {
         "startLine": 390,
         "startChar": 9,
