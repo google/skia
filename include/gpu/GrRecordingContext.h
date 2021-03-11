@@ -96,10 +96,7 @@ public:
     // GrRecordingContext. Arenas does not maintain ownership of the pools it groups together.
     class Arenas {
     public:
-        Arenas(GrMemoryPool*, SkArenaAlloc*, GrSubRunAllocator*);
-
-        // For storing GrOp-derived classes recorded by a GrRecordingContext
-        GrMemoryPool* opMemoryPool() { return fOpMemoryPool; }
+        Arenas(SkArenaAlloc*, GrSubRunAllocator*);
 
         // For storing pipelines and other complex data as-needed by ops
         SkArenaAlloc* recordTimeAllocator() { return fRecordTimeAllocator; }
@@ -108,7 +105,6 @@ public:
         GrSubRunAllocator* recordTimeSubRunAllocator() { return fRecordTimeSubRunAllocator; }
 
     private:
-        GrMemoryPool* fOpMemoryPool;
         SkArenaAlloc* fRecordTimeAllocator;
         GrSubRunAllocator* fRecordTimeSubRunAllocator;
     };
@@ -129,7 +125,6 @@ protected:
         OwnedArenas& operator=(OwnedArenas&&);
 
     private:
-        std::unique_ptr<GrMemoryPool> fOpMemoryPool;
         std::unique_ptr<SkArenaAlloc> fRecordTimeAllocator;
         std::unique_ptr<GrSubRunAllocator> fRecordTimeSubRunAllocator;
     };
