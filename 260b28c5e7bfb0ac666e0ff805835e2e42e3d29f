@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a8fb01a_6fb1d921",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-11T15:34:13Z",
+      "side": 1,
+      "message": "This just uses whatever the rest of the code is configured to do (eg, SkSL -\u003e SkVM today).",
+      "revId": "260b28c5e7bfb0ac666e0ff805835e2e42e3d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
