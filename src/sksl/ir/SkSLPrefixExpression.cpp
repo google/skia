@@ -207,27 +207,4 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Opera
     return std::make_unique<PrefixExpression>(op, std::move(base));
 }
 
-std::unique_ptr<Expression> PrefixExpression::constantPropagate(const IRGenerator& irGenerator,
-                                                                const DefinitionMap& definitions) {
-    if (this->operand()->isCompileTimeConstant()) {
-        if (this->getOperator().kind() == Token::Kind::TK_MINUS) {
-            // Constant-propagate negation onto compile-time constants.
-            switch (this->operand()->kind()) {
-                case Expression::Kind::kFloatLiteral:
-                case Expression::Kind::kIntLiteral:
-                case Expression::Kind::kConstructor:
-                    return negate_operand(irGenerator.fContext, this->operand()->clone());
-
-                default:
-                    break;
-            }
-        } else if (this->getOperator().kind() == Token::Kind::TK_LOGICALNOT) {
-            if (this->operand()->is<BoolLiteral>()) {
-                return logical_not_operand(irGenerator.fContext, this->operand()->clone());
-            }
-        }
-    }
-    return nullptr;
-}
-
 }  // namespace SkSL

@@ -206,15 +206,6 @@ std::unique_ptr<Expression> Constructor::MakeArrayConstructor(const Context& con
     return std::make_unique<Constructor>(offset, type, std::move(args));
 }
 
-std::unique_ptr<Expression> Constructor::constantPropagate(const IRGenerator& irGenerator,
-                                                           const DefinitionMap& definitions) {
-    // Handle conversion constructors of literal values.
-    if (this->arguments().size() == 1) {
-        return SimplifyConversion(this->type(), *this->arguments().front());
-    }
-    return nullptr;
-}
-
 std::unique_ptr<Expression> Constructor::SimplifyConversion(const Type& constructorType,
                                                             const Expression& expr) {
     if (expr.is<IntLiteral>()) {
