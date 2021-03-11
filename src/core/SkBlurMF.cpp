@@ -694,13 +694,12 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
             return false;
         }
 
+        SkIRect proxyBounds;
         float extra=3.f*SkScalarCeilToScalar(xformedSigma-1/6.0f);
-        SkRect proxyRect = devRRect.rect();
-        proxyRect.outset(extra, extra);
+        devRRect.rect().makeOutset(extra, extra).roundOut(&proxyBounds);
 
         paint.setCoverageFragmentProcessor(std::move(fp));
-        surfaceDrawContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo,
-                                                    SkMatrix::I(), proxyRect, inverse);
+        surfaceDrawContext->fillPixelsWithLocalMatrix(clip, std::move(paint), proxyBounds, inverse);
     }
 
     return true;
