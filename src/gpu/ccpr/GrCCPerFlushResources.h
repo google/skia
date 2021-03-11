@@ -13,7 +13,6 @@
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCFiller.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
-#include "src/gpu/ccpr/GrCCStroker.h"
 #include "src/gpu/ccpr/GrStencilAtlasOp.h"
 
 class GrCCPathCache;
@@ -39,23 +38,19 @@ struct GrCCRenderedPathStats {
  * CCPR in a given flush.
  */
 struct GrCCPerFlushResourceSpecs {
-    static constexpr int kFillIdx = 0;
-    static constexpr int kStrokeIdx = 1;
-
     int fNumCachedPaths = 0;
 
-    int fNumCopiedPaths[2] = {0, 0};
-    GrCCRenderedPathStats fCopyPathStats[2];
+    int fNumCopiedPaths = 0;
+    GrCCRenderedPathStats fCopyPathStats;
     GrCCAtlas::Specs fCopyAtlasSpecs;
 
-    int fNumRenderedPaths[2] = {0, 0};
+    int fNumRenderedPaths = 0;
     int fNumClipPaths = 0;
-    GrCCRenderedPathStats fRenderedPathStats[2];
+    GrCCRenderedPathStats fRenderedPathStats;
     GrCCAtlas::Specs fRenderedAtlasSpecs;
 
     bool isEmpty() const {
-        return 0 == fNumCachedPaths + fNumCopiedPaths[kFillIdx] + fNumCopiedPaths[kStrokeIdx] +
-                    fNumRenderedPaths[kFillIdx] + fNumRenderedPaths[kStrokeIdx] + fNumClipPaths;
+        return 0 == fNumCachedPaths + fNumCopiedPaths + fNumRenderedPaths + fNumClipPaths;
     }
     // Converts the copies to normal cached draws.
     void cancelCopies();
@@ -115,7 +110,6 @@ public:
 
     // Accessors used by draw calls, once the resources have been finalized.
     const GrCCFiller& filler() const { SkASSERT(!this->isMapped()); return fFiller; }
-    const GrCCStroker& stroker() const { SkASSERT(!this->isMapped()); return fStroker; }
     sk_sp<const GrGpuBuffer> indexBuffer() const {
         SkASSERT(!this->isMapped());
         return fIndexBuffer;
@@ -146,7 +140,6 @@ private:
 
     const SkAutoSTArray<32, SkPoint> fLocalDevPtsBuffer;
     GrCCFiller fFiller;
-    GrCCStroker fStroker;
     GrCCAtlasStack fCopyAtlasStack;
     GrCCAtlasStack fRenderedAtlasStack;
 
