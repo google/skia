@@ -383,7 +383,8 @@ class SkUnicode_icu : public SkUnicode {
 
     static bool extractWhitespaces(const char utf8[],
                                    int utf8Units,
-                                   std::vector<Position>* whitespaces) {
+                                   std::vector<Position>* whitespaces,
+                                   std::vector<Position>* nonBreakingSpaces) {
 
         const char* start = utf8;
         const char* end = utf8 + utf8Units;
@@ -394,7 +395,13 @@ class SkUnicode_icu : public SkUnicode {
             if (u_isWhitespace(unichar)) {
                 auto ending = ch - start;
                 for (auto k = index; k < ending; ++k) {
-                  whitespaces->emplace_back(k);
+                    whitespaces->emplace_back(k);
+                }
+            }
+            if (u_isspace(unichar)) {
+                auto ending = ch - start;
+                for (auto k = index; k < ending; ++k) {
+                    nonBreakingSpaces->emplace_back(k);
                 }
             }
         }
@@ -516,9 +523,9 @@ public:
         });
     }
 
-    bool getWhitespaces(const char utf8[], int utf8Units, std::vector<Position>* results) override {
+    bool getWhitespaces(const char utf8[], int utf8Units, std::vector<Position>* results, std::vector<Position>* nonBreakingSpaces) override {
 
-        return extractWhitespaces(utf8, utf8Units, results);
+        return extractWhitespaces(utf8, utf8Units, results, nonBreakingSpaces);
     }
 
     void reorderVisual(const BidiLevel runLevels[],
