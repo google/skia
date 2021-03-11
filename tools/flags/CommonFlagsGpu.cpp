@@ -25,8 +25,6 @@ static DEFINE_bool(hwtess, false, "Enables support for tessellation shaders (if 
 static DEFINE_int(maxTessellationSegments, 0,
                   "Overrides the max number of tessellation segments supported by the caps.");
 
-static DEFINE_bool(cc, false, "Allow coverage counting shortcuts to render paths?");
-
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
               "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
@@ -94,7 +92,6 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
         : nullptr;
 
     ctxOptions->fExecutor                            = gGpuExecutor.get();
-    ctxOptions->fDisableCoverageCountingPaths        = !FLAGS_cc;
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
     ctxOptions->fAllPathsVolatile                    = FLAGS_allPathsVolatile;
     ctxOptions->fSuppressGeometryShaders             = !FLAGS_gs;

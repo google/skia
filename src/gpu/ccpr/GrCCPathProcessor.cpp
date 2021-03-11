@@ -78,11 +78,10 @@ sk_sp<const GrGpuBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourcePro
     }
 }
 
-GrCCPathProcessor::GrCCPathProcessor(CoverageMode coverageMode, const GrTexture* atlasTexture,
-                                     const GrSwizzle& swizzle, GrSurfaceOrigin atlasOrigin,
+GrCCPathProcessor::GrCCPathProcessor(const GrTexture* atlasTexture, const GrSwizzle& swizzle,
+                                     GrSurfaceOrigin atlasOrigin,
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
-        , fCoverageMode(coverageMode)
         , fAtlasAccess(GrSamplerState::Filter::kNearest, atlasTexture->backendFormat(), swizzle)
         , fAtlasDimensions(atlasTexture->dimensions())
         , fAtlasOrigin(atlasOrigin) {
@@ -103,7 +102,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
 
     static void GenKey(const GrCCPathProcessor& cc, GrProcessorKeyBuilder* b) {
-        b->add32(AddMatrixKeys((uint32_t) cc.fCoverageMode, SkMatrix::I(), cc.fLocalMatrix));
+        b->add32(AddMatrixKeys(0, SkMatrix::I(), cc.fLocalMatrix));
     }
 
 private:
@@ -164,7 +163,6 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
     GrGLSLVertexBuilder* v = args.fVertBuilder;
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-    bool isCoverageCount = (CoverageMode::kCoverageCount == proc.fCoverageMode);
 
     const char* atlasAdjust;
     fAtlasAdjustUniform = uniHandler->addUniform(
@@ -172,7 +170,7 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     varyingHandler->emitAttributes(proc);
 
-    GrGLSLVarying texcoord((isCoverageCount) ? kFloat3_GrSLType : kFloat2_GrSLType);
+    GrGLSLVarying texcoord(kFloat2_GrSLType);
     varyingHandler->addVarying("texcoord", &texcoord);
 
     GrGLSLVarying color(kHalf4_GrSLType);
@@ -222,9 +220,6 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         v->codeAppendf("%s.xy = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
                        texcoord.vsOut(), atlasAdjust, atlasAdjust);
     }
-    if (isCoverageCount) {
-        v->codeAppendf("%s.z = wind * .5;", texcoord.vsOut());
-    }
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
     this->writeLocalCoord(v, args.fUniformHandler, gpArgs, gpArgs->fPositionVar, proc.fLocalMatrix,
@@ -234,19 +229,6 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     f->codeAppendf("half coverage = ");
     f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str());
     f->codeAppendf(".a;");
-
-    if (isCoverageCount) {
-        f->codeAppendf("coverage = abs(coverage);");
-
-        // Scale coverage count by .5. Make it negative for even-odd paths and positive for
-        // winding ones. Clamp winding coverage counts at 1.0 (i.e. min(coverage/2, .5)).
-        f->codeAppendf("coverage = min(abs(coverage) * half(%s.z), .5);", texcoord.fsIn());
-
-        // For negative values, this finishes the even-odd sawtooth function. Since positive
-        // (winding) values were clamped at "coverage/2 = .5", this only undoes the previous
-        // multiply by .5.
-        f->codeAppend ("coverage = 1 - abs(fract(coverage) * 2 - 1);");
-    }
 
     f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
 }
