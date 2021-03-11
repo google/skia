@@ -42,7 +42,7 @@ static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
 static bool draw_mask(GrSurfaceDrawContext* surfaceDrawContext,
                       const GrClip* clip,
                       const SkMatrix& viewMatrix,
-                      const SkIRect& maskRect,
+                      const SkIRect& maskBounds,
                       GrPaint&& paint,
                       GrSurfaceProxyView mask) {
     SkMatrix inverse;
@@ -52,14 +52,13 @@ static bool draw_mask(GrSurfaceDrawContext* surfaceDrawContext,
 
     mask.concatSwizzle(GrSwizzle("aaaa"));
 
-    SkMatrix matrix = SkMatrix::Translate(-SkIntToScalar(maskRect.fLeft),
-                                          -SkIntToScalar(maskRect.fTop));
+    SkMatrix matrix = SkMatrix::Translate(-SkIntToScalar(maskBounds.fLeft),
+                                          -SkIntToScalar(maskBounds.fTop));
     matrix.preConcat(viewMatrix);
     paint.setCoverageFragmentProcessor(
             GrTextureEffect::Make(std::move(mask), kUnknown_SkAlphaType, matrix));
 
-    surfaceDrawContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                                SkRect::Make(maskRect), inverse);
+    surfaceDrawContext->fillPixelsWithLocalMatrix(clip, std::move(paint), maskBounds, inverse);
     return true;
 }
 
