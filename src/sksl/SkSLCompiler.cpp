@@ -592,6 +592,75 @@ bool Compiler::removeDeadGlobalVariables(Program& program, ProgramUsage* usage) 
     return madeChanges;
 }
 
+bool Compiler::removeDeadLocalVariables(Program& program, ProgramUsage* usage) {
+    class DeadLocalVariableEliminator : public ProgramWriter {
+    public:
+        DeadLocalVariableEliminator(const Context& context, ProgramUsage* usage)
+                : fContext(context)
+                , fUsage(usage) {}
+
+        bool visitExpressionPtr(std::unique_ptr<Expression>& expr) override {
+            // We don't need to look inside expressions at all.
+            return false;
+        }
+
+        bool visitStatementPtr(std::unique_ptr<Statement>& stmt) override {
+            if (stmt->is<VarDeclaration>()) {
+                VarDeclaration& varDecl = stmt->as<VarDeclaration>();
+                const Variable* var = &varDecl.var();
+                ProgramUsage::VariableCounts* counts = fUsage->fVariableCounts.find(var);
+                SkASSERT(counts);
+                SkASSERT(counts->fDeclared);
+                if (counts->fRead == 0) {
+                    if (counts->fWrite <= 0 && !varDecl.value()) {
+                        // No initial-value expression, no reads, no writes: this is a nop.
+                        fUsage->remove(stmt.get());
+                        stmt = std::make_unique<Nop>();
+                        fMadeChanges = true;
+                    } else if (counts->fWrite <= 1 && varDecl.value()) {
+                        // The variable has an initial-value expression which might be meaningful.
+                        // Preserve that expression (if necessary); eliminate the rest.
+                        fUsage->remove(stmt.get());
+                        stmt = ExpressionStatement::Make(fContext, std::move(varDecl.value()));
+                        fUsage->add(stmt.get());
+                        fMadeChanges = true;
+                    }
+                }
+                return false;
+            }
+            return INHERITED::visitStatementPtr(stmt);
+        }
+
+        bool fMadeChanges = false;
+        const Context& fContext;
+        ProgramUsage* fUsage;
+
+        using INHERITED = ProgramWriter;
+    };
+
+    DeadLocalVariableEliminator visitor{*fContext, usage};
+
+    if (program.fConfig->fSettings.fRemoveDeadVariables) {
+        SkDebugf("--\n");
+
+        for (auto& [var, counts] : usage->fVariableCounts) {
+            if (counts.fDeclared && counts.fRead == 0 && counts.fWrite <= 1 &&
+                var->storage() == VariableStorage::kLocal) {
+                // This program seems to contain a candidate for dead-local variable elimination.
+                // Run the dead local-variable elimination pass over every function.
+                for (std::unique_ptr<ProgramElement>& pe : program.ownedElements()) {
+                    if (pe->is<FunctionDefinition>()) {
+                        visitor.visitProgramElementPtr(pe);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    return visitor.fMadeChanges;
+}
+
 bool Compiler::optimize(Program& program) {
     // The optimizer only needs to run when it is enabled.
     if (!program.fConfig->fSettings.fOptimize) {
@@ -605,6 +674,7 @@ bool Compiler::optimize(Program& program) {
         bool madeChanges = fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
 
         madeChanges |= this->removeDeadFunctions(program, usage);
+        madeChanges |= this->removeDeadLocalVariables(program, usage);
 
         if (program.fConfig->fKind != ProgramKind::kFragmentProcessor) {
             madeChanges |= this->removeDeadGlobalVariables(program, usage);
