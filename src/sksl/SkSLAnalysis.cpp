@@ -184,6 +184,21 @@ class ProgramUsageVisitor : public ProgramVisitor {
 public:
     ProgramUsageVisitor(ProgramUsage* usage, int delta) : fUsage(usage), fDelta(delta) {}
 
+    bool visitStatement(const Statement& s) override {
+        if (s.is<VarDeclaration>()) {
+            // Add all declared variables to the usage map (even if never otherwise accessed).
+            const VarDeclaration& vd = s.as<VarDeclaration>();
+            ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[&vd.var()];
+            counts.fDeclared += fDelta;
+            SkASSERT(counts.fDeclared >= 0);
+            if (vd.value()) {
+                // The initial-value expression, when present, counts as a write.
+                counts.fWrite += fDelta;
+            }
+        }
+        return INHERITED::visitStatement(s);
+    }
+
     bool visitExpression(const Expression& e) override {
         if (e.is<FunctionCall>()) {
             const FunctionDeclaration* f = &e.as<FunctionCall>().function();
@@ -581,12 +596,9 @@ std::unique_ptr<ProgramUsage> Analysis::GetUsage(const LoadedModule& module) {
 }
 
 ProgramUsage::VariableCounts ProgramUsage::get(const Variable& v) const {
-    VariableCounts result = { 0, v.initialValue() ? 1 : 0 };
-    if (const VariableCounts* counts = fVariableCounts.find(&v)) {
-        result.fRead += counts->fRead;
-        result.fWrite += counts->fWrite;
-    }
-    return result;
+    const VariableCounts* counts = fVariableCounts.find(&v);
+    SkASSERT(counts);
+    return *counts;
 }
 
 bool ProgramUsage::isDead(const Variable& v) const {

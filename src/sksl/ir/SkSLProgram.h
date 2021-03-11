@@ -43,7 +43,11 @@ class Pool;
  */
 class ProgramUsage {
 public:
-    struct VariableCounts { int fRead = 0; int fWrite = 0; };
+    struct VariableCounts {
+        int fDeclared = 0;
+        int fRead = 0;
+        int fWrite = 0;
+    };
     VariableCounts get(const Variable&) const;
     bool isDead(const Variable&) const;
 
