@@ -215,15 +215,6 @@ bool GrDrawingManager::flush(
     }
     this->removeRenderTasks();
 
-#ifdef SK_DEBUG
-    // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
-    // When we move to partial flushes this assert will no longer be valid.
-    // In DDL mode this check is somewhat superfluous since the memory for most of the ops/opsTasks
-    // will be stored in the DDL's GrOpMemoryPools.
-    GrMemoryPool* opMemoryPool = fContext->priv().opMemoryPool();
-    opMemoryPool->isEmpty();
-#endif
-
     gpu->executeFlushInfo(proxies, access, info, newState);
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
