@@ -381,9 +381,19 @@ Cluster::Cluster(ParagraphImpl* owner,
         , fSpacing(0)
         , fHeight(height)
         , fHalfLetterSpacing(0.0) {
-    size_t len = fOwner->getWhitespacesLength(fTextRange);
-    fIsWhiteSpaces = (len == this->fTextRange.width());
-    fIsSpaces = fOwner->isSpace(fTextRange);
+
+    size_t whiteSpacesBreakLen = 0;
+    size_t intraWordBreakLen = 0;
+    for (auto i = fTextRange.start; i < fTextRange.end; ++i) {
+        if (fOwner->codeUnitHasProperty(i, CodeUnitFlags::kPartOfWhiteSpaceBreak)) {
+            ++whiteSpacesBreakLen;
+        }
+        if (fOwner->codeUnitHasProperty(i, CodeUnitFlags::kPartOfIntraWordBreak)) {
+            ++intraWordBreakLen;
+        }
+    }
+    fIsWhiteSpaceBreak = whiteSpacesBreakLen == fTextRange.width();
+    fIsIntraWordBreak = intraWordBreakLen == fTextRange.width();
 }
 
 }  // namespace textlayout
