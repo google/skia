@@ -35,7 +35,7 @@ public:
                             GrPaint&&,
                             const SkMatrix& viewMatrix,
                             const SkRRect&,
-                            GrAA);
+                            GrAAType);
 
     const char* name() const final { return "GrFillRRectOp"; }
 
@@ -142,7 +142,7 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
                               GrPaint&& paint,
                               const SkMatrix& viewMatrix,
                               const SkRRect& rrect,
-                              GrAA aa) {
+                              GrAAType aaType) {
     using Helper = GrSimpleMeshDrawOpHelper;
 
     const GrCaps* caps = ctx->priv().caps();
@@ -163,7 +163,7 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
         // coverage mode. We use them as long as the approximation will be accurate enough.
         flags |= ProcessorFlags::kUseHWDerivatives;
     }
-    if (aa == GrAA::kNo) {
+    if (aaType == GrAAType::kNone) {
         flags |= ProcessorFlags::kFakeNonAA;
     }
 
@@ -204,8 +204,7 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                                              ProcessorFlags::kMSAAEnabled)) {
     // FillRRectOp::Make fails if there is perspective.
     SkASSERT(!totalShapeMatrix.hasPerspective());
-    this->setBounds(devBounds, GrOp::HasAABloat(!(processorFlags & ProcessorFlags::kFakeNonAA)),
-                    GrOp::IsHairline::kNo);
+    this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsHairline::kNo);
 
     // Write the matrix attribs.
     const SkMatrix& m = totalShapeMatrix;
@@ -766,8 +765,8 @@ GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
                                 GrPaint&& paint,
                                 const SkMatrix& viewMatrix,
                                 const SkRRect& rrect,
-                                GrAA aa) {
-    return FillRRectOp::Make(ctx, std::move(paint), viewMatrix, rrect, aa);
+                                GrAAType aaType) {
+    return FillRRectOp::Make(ctx, std::move(paint), viewMatrix, rrect, aaType);
 }
 
 #if GR_TEST_UTILS
@@ -776,7 +775,10 @@ GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
 
 GR_DRAW_OP_TEST_DEFINE(FillRRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
-    GrAA aa = GrAA(random->nextBool());
+    GrAAType aaType = GrAAType::kNone;
+    if (random->nextBool()) {
+        aaType = (numSamples > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
+    }
 
     SkRect rect = GrTest::TestRect(random);
     float w = rect.width();
@@ -790,7 +792,7 @@ GR_DRAW_OP_TEST_DEFINE(FillRRectOp) {
                                std::move(paint),
                                viewMatrix,
                                rrect,
-                               aa);
+                               aaType);
 }
 
 #endif
