@@ -19,10 +19,18 @@ namespace SkSL {
 namespace dsl {
 
 void DSLFunction::init(const DSLType& returnType, const char* name,
-                       std::vector<const DSLVar*> params) {
+                       std::vector<DSLVar*> params) {
     std::vector<const Variable*> paramVars;
     paramVars.reserve(params.size());
-    for (const DSLVar* param : params) {
+    for (DSLVar* param : params) {
+        // Parameters aren't supposed to actually be declared; make sure it hasn't been declared yet
+        // and then kill its declaration statement. Otherwise the statement will hang around until
+        // after the Var is destroyed, which is probably after the End() call and therefore after
+        // the Pool's destruction. Freeing a pooled object after the Pool's destruction is a Bad
+        // Thing.
+        SkASSERT(!param->fDeclared);
+        param->fDeclared = true;
+        param->fDeclaration = nullptr;
         paramVars.push_back(&DSLWriter::Var(*param));
     }
     SkSL::SymbolTable& symbols = *DSLWriter::SymbolTable();

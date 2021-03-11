@@ -129,6 +129,7 @@ private:
 
     friend class DSLCore;
     friend class DSLExpression;
+    friend class DSLFunction;
     friend class DSLWriter;
 };
 

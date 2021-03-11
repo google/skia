@@ -191,6 +191,7 @@ public:
 private:
     SkSL::ProgramConfig fConfig;
     SkSL::Compiler* fCompiler;
+    std::unique_ptr<Pool> fPool;
     std::shared_ptr<SkSL::SymbolTable> fOldSymbolTable;
     SkSL::ProgramConfig* fOldConfig;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
