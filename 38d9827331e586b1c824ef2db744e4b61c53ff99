@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a922c4d9_b85667da",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-11T19:43:23Z",
+      "side": 1,
+      "message": "I\u0027m a little confused here; if it hasn\u0027t been declared, what is its declaration statement? And why do you say \"hasn\u0027t been declared *yet*\"?",
+      "range": {
+        "startLine": 27,
+        "startChar": 11,
+        "endLine": 27,
+        "endChar": 50
+      },
+      "revId": "38d9827331e586b1c824ef2db744e4b61c53ff99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
