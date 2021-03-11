@@ -135,7 +135,7 @@ class SKUNICODE_API SkUnicode {
         virtual bool getGraphemes
                (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
         virtual bool getWhitespaces
-               (const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
+               (const char utf8[], int utf8Units, std::vector<Position>* results, std::vector<Position>* nonBreakingSpaces) = 0;
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
 

@@ -381,9 +381,12 @@ Cluster::Cluster(ParagraphImpl* owner,
         , fSpacing(0)
         , fHeight(height)
         , fHalfLetterSpacing(0.0) {
-    size_t len = fOwner->getWhitespacesLength(fTextRange);
-    fIsWhiteSpaces = (len == this->fTextRange.width());
-    fIsSpaces = fOwner->isSpace(fTextRange);
+
+    size_t whitespaces;
+    size_t nonBreakingSpaces;
+    fOwner->getSpacesLength(fTextRange, &whitespaces, &nonBreakingSpaces);
+    fIsWhiteSpaces = (whitespaces == this->fTextRange.width());
+    fIsNonBreakingSpaces = (nonBreakingSpaces == this->fTextRange.width());
 }
 
 }  // namespace textlayout
