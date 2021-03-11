@@ -271,7 +271,7 @@ private:
     size_t  fSingleAllocationByteLimit;
     int     fCount;
 
-    SkMessageBus<PurgeSharedIDMessage>::Inbox fPurgeSharedIDInbox;
+    SkMessageBus<PurgeSharedIDMessage, uint32_t>::Inbox fPurgeSharedIDInbox;
 
     void checkMessages();
     void purgeAsNeeded(bool forcePurge = false);

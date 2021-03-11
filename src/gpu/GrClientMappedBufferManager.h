@@ -39,7 +39,7 @@ public:
         sk_sp<GrGpuBuffer> fBuffer;
         uint32_t fInboxID;
     };
-    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage, false>;
+    using BufferFinishedMessageBus = SkMessageBus<BufferFinishedMessage, uint32_t, false>;
 
     GrClientMappedBufferManager(uint32_t contextID);
     GrClientMappedBufferManager(const GrClientMappedBufferManager&) = delete;
