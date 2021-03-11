@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "057bd985_dad1e5e2",
+        "filename": "tests/MessageBusTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-11T19:14:49Z",
+      "side": 1,
+      "message": "I always find it harder to read when a copy constructor is written out explicitly like this rather than:\n ID id1 \u003d ID::NextID();\n\nIt\u0027s more obvious that we\u0027re just capturing the return of a function and not calling generic constructor which maybe takes some type other than ID.",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 25
+      },
+      "revId": "15835c46f4e855ad64d60d37146e8d0c74cdef6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
