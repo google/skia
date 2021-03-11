@@ -24,9 +24,11 @@ class SkColorMatrix;
 */
 class SK_API SkColorFilter : public SkFlattenable {
 public:
-    // DEPRECATED. skbug.com/8941
-
-    bool asColorMode(SkColor* color, SkBlendMode* mode) const;
+    // deprecated, use isAlphaUnchanged()
+    enum Flags {
+        kAlphaUnchanged_Flag = 1 << 0,
+    };
+    uint32_t getFlags() const { return this->isAlphaUnchanged() ? kAlphaUnchanged_Flag : 0; }
 
     /** If the filter can be represented by a source color plus Mode, this
      *  returns true, and sets (if not NULL) the color and mode appropriately.
@@ -39,13 +41,6 @@ public:
      *  If not, this returns false and ignores the parameter.
      */
     bool asAColorMatrix(float matrix[20]) const;
-
-    // deprecated, use isAlphaUnchanged()
-    enum Flags {
-        kAlphaUnchanged_Flag = 1 << 0,
-    };
-    uint32_t getFlags() const;
-
 
     // Returns true if the filter is guaranteed to never change the alpha of a color it filters.
     bool isAlphaUnchanged() const;

@@ -20,25 +20,20 @@
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
-static uint16_t ComputeFlags(const float matrix[20]) {
+static bool is_alpha_unchanged(const float matrix[20]) {
     const float* srcA = matrix + 15;
 
     return SkScalarNearlyZero (srcA[0])
         && SkScalarNearlyZero (srcA[1])
         && SkScalarNearlyZero (srcA[2])
         && SkScalarNearlyEqual(srcA[3], 1)
-        && SkScalarNearlyZero (srcA[4])
-            ? SkColorFilter::kAlphaUnchanged_Flag : 0;
+        && SkScalarNearlyZero (srcA[4]);
 }
 
 SkColorFilter_Matrix::SkColorFilter_Matrix(const float array[20], Domain domain)
-    : fFlags(ComputeFlags(array))
+    : fAlphaIsUnchanged(is_alpha_unchanged(array))
     , fDomain(domain) {
     memcpy(fMatrix, array, 20 * sizeof(float));
-}
-
-uint32_t SkColorFilter_Matrix::onGetFlags() const {
-    return this->INHERITED::onGetFlags() | fFlags;
 }
 
 void SkColorFilter_Matrix::flatten(SkWriteBuffer& buffer) const {
@@ -68,7 +63,7 @@ bool SkColorFilter_Matrix::onAsAColorMatrix(float matrix[20]) const {
 }
 
 bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
-    const bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag),
+    const bool willStayOpaque = shaderIsOpaque && fAlphaIsUnchanged,
                          hsla = fDomain == Domain::kHSLA;
 
     SkRasterPipeline* p = rec.fPipeline;
