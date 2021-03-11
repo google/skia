@@ -381,9 +381,8 @@ Cluster::Cluster(ParagraphImpl* owner,
         , fSpacing(0)
         , fHeight(height)
         , fHalfLetterSpacing(0.0) {
-    size_t len = fOwner->getWhitespacesLength(fTextRange);
-    fIsWhiteSpaces = (len == this->fTextRange.width());
-    fIsSpaces = fOwner->isSpace(fTextRange);
+
+    std::tie(fIsWhiteSpaceBreak, fIsIntraWordBreak) = fOwner->isSpaces(fTextRange);
 }
 
 }  // namespace textlayout

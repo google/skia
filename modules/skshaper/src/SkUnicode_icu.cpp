@@ -381,9 +381,9 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractWhitespaces(const char utf8[],
+    static bool extractSpaces(const char utf8[],
                                    int utf8Units,
-                                   std::vector<Position>* whitespaces) {
+                                   std::map<Position, bool>* spaces) {
 
         const char* start = utf8;
         const char* end = utf8 + utf8Units;
@@ -391,10 +391,17 @@ class SkUnicode_icu : public SkUnicode {
         while (ch < end) {
             auto index = ch - start;
             auto unichar = utf8_next(&ch, end);
-            if (u_isWhitespace(unichar)) {
+            auto isSpace = u_isspace(unichar);
+            if (isSpace) {
+                auto isWhitespace = u_isWhitespace(unichar);
                 auto ending = ch - start;
                 for (auto k = index; k < ending; ++k) {
-                  whitespaces->emplace_back(k);
+                    if (isWhitespace) {
+                        spaces->emplace(k, true);
+                    } else if (isSpace) {
+                        // Only set this flag for spaces that are not whitespaces
+                        spaces->emplace(k, false);
+                    }
                 }
             }
         }
@@ -516,9 +523,16 @@ public:
         });
     }
 
-    bool getWhitespaces(const char utf8[], int utf8Units, std::vector<Position>* results) override {
-
-        return extractWhitespaces(utf8, utf8Units, results);
+    void iterateThroughSpaces(const char utf8[], int utf8Units, SpaceVisitor visitor) override {
+        const char* start = utf8;
+        const char* end = utf8 + utf8Units;
+        const char* ch = start;
+        while (ch < end) {
+            auto index = ch - start;
+            auto unichar = utf8_next(&ch, end);
+            auto ending = ch - start;
+            visitor(index, ending, unichar);
+        }
     }
 
     void reorderVisual(const BidiLevel runLevels[],
