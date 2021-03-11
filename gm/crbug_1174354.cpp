@@ -44,14 +44,23 @@ static void draw_bg_blur(SkCanvas* canvas, SkIRect rect, float sigma) {
     canvas->restore();
 }
 
-DEF_SIMPLE_GM(crbug_1174354, canvas, 70, 250) {
+DEF_SIMPLE_GM(crbug_1174354, canvas, 70, 265) {
     // The initial fix for crbug.com/1156805 had an issue where the border added to the downsampled
     // texture that was used as input to the blur could actually bring in transparency when there
     // wasn't any within the original src bounds. It was populated the border using a filtering draw
     // from the full res source that could read from outside the pixels surrounding the original src
     // bounds.
+#if 1
     draw_bg_blur(canvas, SkIRect::MakeXYWH(10,  10,  50, 50),  5);
     draw_bg_blur(canvas, SkIRect::MakeXYWH(10,  70,  50, 50), 15);
     draw_bg_blur(canvas, SkIRect::MakeXYWH(10, 130,  50, 50), 30);
-    draw_bg_blur(canvas, SkIRect::MakeXYWH(10, 190, 50, 50),  70);
+    draw_bg_blur(canvas, SkIRect::MakeXYWH(10, 190,  50, 50), 70);
+#endif
+
+    // This last one is clipped by an additional saveLayer. When running the GM offscreen the
+    // the saveLayer isn't necessary as it gets clipped by the GM bounds. The saveLayer ensures it
+    // tests the clipping in Viewer with an expanded window.
+    canvas->saveLayer(SkRect::MakeWH(70, 265), nullptr);
+    draw_bg_blur(canvas, SkIRect::MakeXYWH(10, 250,  50, 50), 70);
+    canvas->restore();
 }
