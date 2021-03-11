@@ -34,6 +34,24 @@
       "parentUuid": "6e8764b7_0fd8142d",
       "revId": "f3adee127d2f0682904b553fefb8528d9187b221",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c44e790_b1a60f85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-11T14:42:18Z",
+      "side": 1,
+      "message": "I missed this comment when I wrote my earlier response. Since Skcanvas says behavior is undefined, I\u0027m okay with behaving differently than raster. Also saying inner is cut-out from outer is not an unreasonable behavior for \"undefined\".\n\nThat being said, I think my other points about how clipRRect may cut out inner still stands and we should think about that before doing this. I also think it\u0027d be good to update innershapes to not be 95% undefined behavior. That way we can update the GM first, rebase those images, and then land this CL and should see no bad behavior (other than what\u0027s going on with dawn).\n\nSince dawn is failing the non-axis-aligned clipRRects, I wonder if it has issues with stencil?",
+      "parentUuid": "91313aae_ff63aae2",
+      "revId": "f3adee127d2f0682904b553fefb8528d9187b221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
