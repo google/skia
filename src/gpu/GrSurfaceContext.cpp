@@ -644,10 +644,13 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
 
 class GrSurfaceContext::AsyncReadResult : public SkImage::AsyncReadResult {
 public:
-    AsyncReadResult(uint32_t inboxID) : fInboxID(inboxID) {}
+    AsyncReadResult(GrDirectContext::DirectContextID intendedRecipient)
+        : fIntendedRecipient(intendedRecipient) {
+    }
+
     ~AsyncReadResult() override {
         for (int i = 0; i < fPlanes.count(); ++i) {
-            fPlanes[i].releaseMappedBuffer(fInboxID);
+            fPlanes[i].releaseMappedBuffer(fIntendedRecipient);
         }
     }
 
@@ -706,10 +709,10 @@ private:
         Plane& operator=(const Plane&) = delete;
         Plane& operator=(Plane&&) = default;
 
-        void releaseMappedBuffer(uint32_t inboxID) {
+        void releaseMappedBuffer(GrDirectContext::DirectContextID intendedRecipient) {
             if (fMappedBuffer) {
                 GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
-                        {std::move(fMappedBuffer), inboxID});
+                        {std::move(fMappedBuffer), intendedRecipient});
             }
         }
 
@@ -731,7 +734,7 @@ private:
         size_t fRowBytes;
     };
     SkSTArray<3, Plane> fPlanes;
-    uint32_t fInboxID;
+    GrDirectContext::DirectContextID fIntendedRecipient;
 };
 
 void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
@@ -754,7 +757,8 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
     if (!transferResult.fTransferBuffer) {
         auto ii = SkImageInfo::Make(rect.size(), colorType, this->colorInfo().alphaType(),
                                     this->colorInfo().refColorSpace());
-        auto result = std::make_unique<AsyncReadResult>(0);
+        static const GrDirectContext::DirectContextID kInvalid;
+        auto result = std::make_unique<AsyncReadResult>(kInvalid);
         GrPixmap pm = GrPixmap::Allocate(ii);
         result->addCpuPlane(pm.pixelStorage(), pm.rowBytes());
 
@@ -786,10 +790,11 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
                                             std::move(transferResult)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
-        auto result = std::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
+        auto manager = context->fMappedBufferManager;
+        auto result = std::make_unique<AsyncReadResult>(manager->owningDirectContext());
         size_t rowBytes = context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType);
         if (!result->addTransferResult(context->fTransferResult, context->fSize, rowBytes,
-                                       context->fMappedBufferManager)) {
+                                       manager)) {
             result.reset();
         }
         (*context->fClientCallback)(context->fClientContext, std::move(result));
@@ -1004,7 +1009,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
             callback(callbackContext, nullptr);
             return;
         }
-        auto result = std::make_unique<AsyncReadResult>(dContext->priv().contextID());
+        auto result = std::make_unique<AsyncReadResult>(dContext->directContextID());
         result->addCpuPlane(yPmp.pixelStorage(), yPmp.rowBytes());
         result->addCpuPlane(uPmp.pixelStorage(), uPmp.rowBytes());
         result->addCpuPlane(vPmp.pixelStorage(), vPmp.rowBytes());
@@ -1033,8 +1038,8 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                             std::move(vTransfer)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
-        auto result = std::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
         auto manager = context->fMappedBufferManager;
+        auto result = std::make_unique<AsyncReadResult>(manager->owningDirectContext());
         size_t rowBytes = SkToSizeT(context->fSize.width());
         if (!result->addTransferResult(context->fYTransfer, context->fSize, rowBytes, manager)) {
             (*context->fClientCallback)(context->fClientContext, nullptr);
