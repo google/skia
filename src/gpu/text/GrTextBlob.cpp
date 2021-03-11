@@ -65,9 +65,6 @@ struct ARGB3DVertex {
     AtlasPt atlasPos;
 };
 
-template<typename T>
-using UP = std::unique_ptr<T, GrSubRunAllocator::Destroyer>;
-
 GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     switch (grMaskFormat) {
         case kA8_GrMaskFormat:   return GrAtlasTextOp::MaskType::kGrayscaleCoverage;
@@ -186,11 +183,11 @@ public:
 
     GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
-    static UP<GrSubRun> Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                             bool isAntiAliased,
-                             const SkStrikeSpec& strikeSpec,
-                             const GrTextBlob& blob,
-                             GrSubRunAllocator* alloc);
+    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              bool isAntiAliased,
+                              const SkStrikeSpec& strikeSpec,
+                              const GrTextBlob& blob,
+                              GrSubRunAllocator* alloc);
 
 private:
     struct PathGlyph {
@@ -274,12 +271,11 @@ bool PathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) cons
     return true;
 }
 
-auto PathSubRun::Make(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables,
-        bool isAntiAliased,
-        const SkStrikeSpec& strikeSpec,
-        const GrTextBlob& blob,
-        GrSubRunAllocator* alloc) -> UP<GrSubRun> {
+GrSubRunOwner PathSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                               bool isAntiAliased,
+                               const SkStrikeSpec& strikeSpec,
+                               const GrTextBlob& blob,
+                               GrSubRunAllocator* alloc) {
     auto pathData = alloc->makeUniqueArray<PathGlyph>(
             drawables.size(),
             [&](int i){
@@ -448,11 +444,11 @@ public:
                      GlyphVector glyphs,
                      bool glyphsOutOfBounds);
 
-    static UP<GrSubRun> Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                             const SkStrikeSpec& strikeSpec,
-                             GrMaskFormat format,
-                             GrTextBlob* blob,
-                             GrSubRunAllocator* alloc);
+    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              const SkStrikeSpec& strikeSpec,
+                              GrMaskFormat format,
+                              GrTextBlob* blob,
+                              GrSubRunAllocator* alloc);
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -510,11 +506,11 @@ DirectMaskSubRun::DirectMaskSubRun(GrMaskFormat format,
         , fSomeGlyphsExcluded{glyphsOutOfBounds}
         , fGlyphs{glyphs} {}
 
-UP<GrSubRun> DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                    const SkStrikeSpec& strikeSpec,
-                                    GrMaskFormat format,
-                                    GrTextBlob* blob,
-                                    GrSubRunAllocator* alloc) {
+GrSubRunOwner DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                     const SkStrikeSpec& strikeSpec,
+                                     GrMaskFormat format,
+                                     GrTextBlob* blob,
+                                     GrSubRunAllocator* alloc) {
     DevicePosition* glyphLeftTop = alloc->makePODArray<DevicePosition>(drawables.size());
     GlyphVector::Variant* glyphIDs = alloc->makePODArray<GlyphVector::Variant>(drawables.size());
 
@@ -834,11 +830,11 @@ public:
                           SkSpan<const VertexData> vertexData,
                           GlyphVector glyphs);
 
-    static UP<GrSubRun> Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                             const SkStrikeSpec& strikeSpec,
-                             GrMaskFormat format,
-                             GrTextBlob* blob,
-                             GrSubRunAllocator* alloc);
+    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              const SkStrikeSpec& strikeSpec,
+                              GrMaskFormat format,
+                              GrTextBlob* blob,
+                              GrSubRunAllocator* alloc);
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -894,11 +890,11 @@ TransformedMaskSubRun::TransformedMaskSubRun(GrMaskFormat format,
         , fVertexData{vertexData}
         , fGlyphs{glyphs} { }
 
-UP<GrSubRun> TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                         const SkStrikeSpec& strikeSpec,
-                                         GrMaskFormat format,
-                                         GrTextBlob* blob,
-                                         GrSubRunAllocator* alloc) {
+GrSubRunOwner TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                          const SkStrikeSpec& strikeSpec,
+                                          GrMaskFormat format,
+                                          GrTextBlob* blob,
+                                          GrSubRunAllocator* alloc) {
     SkRect bounds = SkRectPriv::MakeLargestInverted();
 
     SkScalar strikeToSource = strikeSpec.strikeToSourceRatio();
@@ -1084,11 +1080,11 @@ public:
                bool useLCDText,
                bool antiAliased);
 
-    static UP<GrSubRun> Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                             const SkFont& runFont,
-                             const SkStrikeSpec& strikeSpec,
-                             GrTextBlob* blob,
-                             GrSubRunAllocator* alloc);
+    static GrSubRunOwner Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                              const SkFont& runFont,
+                              const SkStrikeSpec& strikeSpec,
+                              GrTextBlob* blob,
+                              GrSubRunAllocator* alloc);
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -1157,13 +1153,11 @@ bool has_some_antialiasing(const SkFont& font ) {
            || edging == SkFont::Edging::kSubpixelAntiAlias;
 }
 
-UP<GrSubRun> SDFTSubRun::Make(
-        const SkZip<SkGlyphVariant, SkPoint>& drawables,
-        const SkFont& runFont,
-        const SkStrikeSpec& strikeSpec,
-        GrTextBlob* blob,
-        GrSubRunAllocator* alloc) {
-
+GrSubRunOwner SDFTSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                               const SkFont& runFont,
+                               const SkStrikeSpec& strikeSpec,
+                               GrTextBlob* blob,
+                               GrSubRunAllocator* alloc) {
     SkRect bounds = SkRectPriv::MakeLargestInverted();
     auto mapper = [&, strikeToSource=strikeSpec.strikeToSourceRatio()](const auto& d) {
         auto& [variant, pos] = d;
@@ -1554,7 +1548,7 @@ void GrTextBlob::addMultiMaskFormat(
     if (drawables.empty()) { return; }
 
     auto addSameFormat = [&](const SkZip<SkGlyphVariant, SkPoint>& drawable, GrMaskFormat format) {
-        UP<GrSubRun> subRun = addSingle(drawable, strikeSpec, format, this, &fAlloc);
+        GrSubRunOwner subRun = addSingle(drawable, strikeSpec, format, this, &fAlloc);
         if (subRun != nullptr) {
             fSubRunList.append(std::move(subRun));
         } else {

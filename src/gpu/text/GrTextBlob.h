@@ -290,6 +290,8 @@ public:
 //   * TransformedMaskSubRun - handle large bitmap/argb glyphs that need to be scaled to the screen.
 //   * SDFTSubRun - use signed distance fields to draw largish glyphs to the screen.
 //   * GrAtlasSubRun - this is an abstract class used for atlas drawing.
+class GrSubRun;
+using GrSubRunOwner = std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>;
 class GrSubRun {
 public:
     virtual ~GrSubRun() = default;
@@ -308,7 +310,7 @@ public:
     // * Don't use this API. It is only to support testing.
     virtual GrAtlasSubRun* testingOnly_atlasSubRun() = 0;
 
-    std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> fNext;
+    GrSubRunOwner fNext;
 };
 
 struct GrSubRunList {
@@ -330,8 +332,8 @@ struct GrSubRunList {
         GrSubRun* fPtr;
     };
 
-    void append(std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> subRun) {
-        std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>* newTail = &subRun->fNext;
+    void append(GrSubRunOwner subRun) {
+        GrSubRunOwner* newTail = &subRun->fNext;
         *fTail = std::move(subRun);
         fTail = newTail;
     }
@@ -342,8 +344,8 @@ struct GrSubRunList {
     Iterator end() const { return Iterator{nullptr}; }
     GrSubRun& front() const {return *fHead; }
 
-    std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> fHead{nullptr};
-    std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>* fTail{&fHead};
+    GrSubRunOwner fHead{nullptr};
+    GrSubRunOwner* fTail{&fHead};
 };
 
 // A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
