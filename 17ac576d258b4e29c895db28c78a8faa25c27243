@@ -16,6 +16,23 @@
       "message": "I\u0027m a little torn on this one, but it\u0027s probably for the best. Even with my upcoming plan to make evaluation faster, I don\u0027t see a good way to do this work more efficiently. I guess the extent of the logic that happens today can be computed as a side effect of making the generic program, but we wouldn\u0027t be able to do the uniform-\u003eliteral substitution. Maybe that\u0027s okay - many color filters may already use the pattern where they just return the original alpha, so the id comparison works?",
       "revId": "17ac576d258b4e29c895db28c78a8faa25c27243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0024e2c5_12583b16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-11T18:23:56Z",
+      "side": 1,
+      "message": "Will likely collide with https://skia-review.googlesource.com/c/skia/+/382702 (unlanded), but oh well.",
+      "revId": "17ac576d258b4e29c895db28c78a8faa25c27243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
