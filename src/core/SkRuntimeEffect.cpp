@@ -428,7 +428,8 @@ public:
                          size_t childCount)
             : fEffect(std::move(effect))
             , fUniforms(std::move(uniforms))
-            , fChildren(children, children + childCount) {}
+            , fChildren(children, children + childCount)
+            , fFlags(this->computeFlags()) {}
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -499,7 +500,9 @@ public:
                                    /*device=*/zeroCoord, /*local=*/zeroCoord, sampleChild);
     }
 
-    uint32_t onGetFlags() const override {
+    uint32_t onGetFlags() const override { return fFlags; }
+
+    uint32_t computeFlags() const {
         skvm::Builder  p;
         SkColorSpace*  dstCS = sk_srgb_singleton();  // This _shouldn't_ matter for alpha.
         skvm::Uniforms uniforms{p.uniform(), 0};
@@ -533,6 +536,7 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkData> fUniforms;
     std::vector<sk_sp<SkColorFilter>> fChildren;
+    const uint32_t fFlags;
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
