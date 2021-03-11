@@ -89,7 +89,7 @@ private:
 
     // In practice 'messageBusID' is always the unique ID of the owning GrContext
     const uint32_t fMessageBusID;
-    SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fSpinLock);
+    SkMessageBus<PurgeBlobMessage, uint32_t>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fSpinLock);
 };
 
 #endif

@@ -23,10 +23,10 @@ static inline bool SkShouldPostMessageToBus(const TestMessage&, uint32_t) {
 
 }  // namespace
 
-DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage, true)
+DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage, uint32_t, true)
 
 DEF_TEST(MessageBus, r) {
-    using TestMessageBus = SkMessageBus<TestMessage>;
+    using TestMessageBus = SkMessageBus<TestMessage, uint32_t>;
     // Register two inboxes to receive all TestMessages.
     TestMessageBus::Inbox inbox1, inbox2;
 
@@ -77,11 +77,11 @@ static inline bool SkShouldPostMessageToBus(const sk_sp<TestMessageRefCnt>&, uin
 
 }  // namespace
 
-DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<TestMessageRefCnt>, false)
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<TestMessageRefCnt>, uint32_t, false)
 
 DEF_TEST(MessageBusSp, r) {
     // Register two inboxes to receive all TestMessages.
-    using TestMessageBus = SkMessageBus<sk_sp<TestMessageRefCnt>, false>;
+    using TestMessageBus = SkMessageBus<sk_sp<TestMessageRefCnt>, uint32_t, false>;
     TestMessageBus::Inbox inbox1;
 
     // Send two messages.
@@ -132,10 +132,10 @@ static inline bool SkShouldPostMessageToBus(const AddressedMessage& msg, uint32_
 
 }  // namespace
 
-DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage, true)
+DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage, uint32_t, true)
 
 DEF_TEST(MessageBus_SkShouldPostMessageToBus, r) {
-    using AddressedMessageBus = SkMessageBus<AddressedMessage>;
+    using AddressedMessageBus = SkMessageBus<AddressedMessage, uint32_t>;
     AddressedMessageBus::Inbox inbox1(1), inbox2(2);
 
     AddressedMessageBus::Post({0});  // Should go to both
