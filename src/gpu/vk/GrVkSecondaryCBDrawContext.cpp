@@ -161,7 +161,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
     GrProtected isProtected = sdc->asRenderTargetProxy()->isProtected();
 
     return characterization.contextInfo() &&
-           characterization.contextInfo()->priv().matches(direct) &&
+           characterization.contextInfo()->priv().inSameFamily(direct) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == sdc->origin() &&
            characterization.backendFormat() == rtcFormat &&
