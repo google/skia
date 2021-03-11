@@ -29,7 +29,6 @@ class SkTaskGroup;
     data members or virtual methods. */
 class GrDirectContextPriv {
 public:
-
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }
 
