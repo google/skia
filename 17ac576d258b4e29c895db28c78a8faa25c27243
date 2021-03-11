@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcc05080_38999794",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-11T18:25:53Z",
+      "side": 1,
+      "message": "guess we could also imagine the client telling us the answer if they know it, and only computing when they don\u0027t... That idea could be explored after this change.",
+      "revId": "17ac576d258b4e29c895db28c78a8faa25c27243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "52e9e3c2_84a87541",
