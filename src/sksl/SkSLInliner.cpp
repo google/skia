@@ -515,11 +515,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
-            std::vector<std::unique_ptr<SwitchCase>> cases;
-            cases.reserve(ss.cases().size());
-            for (const std::unique_ptr<SwitchCase>& sc : ss.cases()) {
-                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc->value()),
-                                                             stmt(sc->statement())));
+            StatementArray cases;
+            cases.reserve_back(ss.cases().size());
+            for (const std::unique_ptr<Statement>& statement : ss.cases()) {
+                const SwitchCase& sc = statement->as<SwitchCase>();
+                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc.value()),
+                                                             stmt(sc.statement())));
             }
             return SwitchStatement::Make(*fContext, offset, ss.isStatic(), expr(ss.value()),
                                         std::move(cases), SymbolTable::WrapIfBuiltin(ss.symbols()));
@@ -952,9 +953,9 @@ public:
                 }
 
                 this->visitExpression(&switchStmt.value());
-                for (const std::unique_ptr<SwitchCase>& switchCase : switchStmt.cases()) {
+                for (const std::unique_ptr<Statement>& switchCase : switchStmt.cases()) {
                     // The switch-case's fValue cannot be a FunctionCall; skip it.
-                    this->visitStatement(&switchCase->statement());
+                    this->visitStatement(&switchCase->as<SwitchCase>().statement());
                 }
                 break;
             }
