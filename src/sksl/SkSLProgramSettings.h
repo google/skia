@@ -57,7 +57,7 @@ struct ProgramSettings {
     // function which starts out being used may end up being uncalled after optimization.
     bool fRemoveDeadFunctions = true;
     // (Requires fOptimize = true) Removes global variables which are never used.
-    bool fRemoveDeadVariables = true;
+    bool fRemoveDeadVariables = false;
     // (Requires fOptimize = true) When greater than zero, enables the inliner. The threshold value
     // sets an upper limit on the acceptable amount of code growth from inlining.
     int fInlineThreshold = SkSL::kDefaultInlineThreshold;
