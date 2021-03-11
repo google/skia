@@ -937,7 +937,7 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
     }
     if (!op && style.isSimpleFill()) {
         assert_alive(paint);
-        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect, aa);
+        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect, aaType);
     }
     if (!op && GrAAType::kCoverage == aaType) {
         assert_alive(paint);
@@ -1363,7 +1363,7 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
         // ovals the exact same way we do round rects.
         assert_alive(paint);
         op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, SkRRect::MakeOval(oval),
-                                 aa);
+                                 aaType);
     }
     if (!op && GrAAType::kCoverage == aaType) {
         assert_alive(paint);
