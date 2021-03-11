@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e8764b7_0fd8142d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-11T03:47:45Z",
+      "side": 1,
+      "message": "innershapes diffs are valid. The outer rect does not contain the inner, and that is spec\u0027d as undefined in SkCanvas.h.\n\nThe one that looks suspect is dawn, which we can probably just mark wrong and file a bug. (Against whom though?)\n\nLooking into the IntelIris failure.",
+      "revId": "f3adee127d2f0682904b553fefb8528d9187b221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
