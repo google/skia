@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84f20bbd_2582586a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-11T20:47:53Z",
+      "side": 1,
+      "message": "Note -- we are discussing allowing the client to just tell us the answer, so save computing it in the constructor...",
+      "revId": "c737a8370956b528cb9cd399fc6241aba6f19eb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
