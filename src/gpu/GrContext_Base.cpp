@@ -28,6 +28,11 @@ bool GrContext_Base::init() {
 uint32_t GrContext_Base::contextID() const { return fThreadSafeProxy->priv().contextID(); }
 GrBackendApi GrContext_Base::backend() const { return fThreadSafeProxy->priv().backend(); }
 
+bool GrContext_Base::inSameFamily(GrContext_Base* candidate) const {
+    return candidate && fThreadSafeProxy->priv().inSameFamily(candidate);
+}
+
+
 const GrContextOptions& GrContext_Base::options() const {
     return fThreadSafeProxy->priv().options();
 }
@@ -49,7 +54,9 @@ GrBackendFormat GrContext_Base::compressedBackendFormat(SkImage::CompressionType
     return format;
 }
 
-sk_sp<GrContextThreadSafeProxy> GrContext_Base::threadSafeProxy() { return fThreadSafeProxy; }
+sk_sp<GrContextThreadSafeProxy> GrContext_Base::threadSafeProxy() {
+    return fThreadSafeProxy;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrBaseContextPriv::refCaps() const {

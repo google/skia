@@ -170,7 +170,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
-    if (!fContext->priv().matches(dContext)) {
+    if (!fContext->priv().inSameFamily(dContext)) {
         return false;
     }
 

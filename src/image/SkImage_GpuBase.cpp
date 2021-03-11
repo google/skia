@@ -85,7 +85,7 @@ bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
 bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
                                   SkBitmap* dst,
                                   CachingHint chint) const {
-    if (!fContext->priv().matches(dContext)) {
+    if (!fContext->priv().inSameFamily(dContext)) {
         return false;
     }
 
@@ -133,7 +133,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
 
 sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
                                              GrDirectContext* direct) const {
-    if (!fContext->priv().matches(direct)) {
+    if (!fContext->priv().inSameFamily(direct)) {
         return nullptr;
     }
 
@@ -166,7 +166,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
                                    int srcX,
                                    int srcY,
                                    CachingHint) const {
-    if (!fContext->priv().matches(dContext) ||
+    if (!fContext->priv().inSameFamily(dContext) ||
         !SkImageInfoValidConversion(dstInfo, this->imageInfo())) {
         return false;
     }
@@ -189,7 +189,7 @@ bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
         return false;
     }
 
-    if (context && !fContext->priv().matches(context)) {
+    if (context && !fContext->priv().inSameFamily(context)) {
         return false;
     }
 
