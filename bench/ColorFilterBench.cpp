@@ -217,3 +217,35 @@ DEF_BENCH( return new ColorFilterBench("matrix_runtime", []() {
                                         &input, 1);
     });)
 #endif
+
+class FilterColorBench final : public Benchmark {
+public:
+    explicit FilterColorBench() {}
+
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+private:
+    const char* onGetName() override { return "matrix_filterColor4f"; }
+
+    void onDelayedSetup() override {
+        SkScalar colorMatrix[20] = {
+            0.9f, 0.9f, 0.9f, 0.9f, 0.9f,
+            0.9f, 0.9f, 0.9f, 0.9f, 0.9f,
+            0.9f, 0.9f, 0.9f, 0.9f, 0.9f,
+            0.9f, 0.9f, 0.9f, 0.9f, 0.9f
+        };
+        fColorFilter = SkColorFilters::Matrix(colorMatrix);
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkColor4f c = { 1.f, 1.f, 0.f, 1.0f };
+
+        for (int i = 0; i < loops; ++i) {
+            c = fColorFilter->filterColor4f(c, /*srcCS=*/nullptr, /*dstCS=*/nullptr);
+        }
+    }
+
+    sk_sp<SkColorFilter> fColorFilter;
+};
+
+DEF_BENCH( return new FilterColorBench(); )
