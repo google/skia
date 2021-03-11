@@ -39,7 +39,7 @@ public:
     };
 
     static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(
-            const GrCaps&, AllowCaching, uint32_t contextUniqueID);
+            const GrCaps&, AllowCaching, GrContextThreadSafeProxy::FamilyID);
 
     CoverageType coverageType() const { return fCoverageType; }
 

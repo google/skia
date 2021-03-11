@@ -227,7 +227,7 @@ public:
     GrDDLProvider isDDLProvider() const;
 
     // TODO: remove these entry points - it is a bit sloppy to be getting context info from here
-    uint32_t contextID() const;
+    GrContextThreadSafeProxy::FamilyID familyID() const;
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 

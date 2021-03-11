@@ -12,7 +12,6 @@
 #include "include/private/GrContext_Base.h"
 
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/text/GrTextBlobCache.h"
 
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
@@ -29,7 +28,7 @@ public:
 
     GrBackend backend() const { return fProxy->fBackend; }
     const GrContextOptions& options() const { return fProxy->fOptions; }
-    uint32_t contextID() const { return fProxy->fContextID; }
+    GrContextThreadSafeProxy::FamilyID familyID() const { return fProxy->fFamilyID; }
 
     const GrCaps* caps() const { return fProxy->fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }

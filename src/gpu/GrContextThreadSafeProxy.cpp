@@ -16,6 +16,7 @@
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/text/GrTextBlobCache.h"
 #include "src/image/SkSurface_Gpu.h"
 
 #ifdef SK_VULKAN
@@ -31,9 +32,27 @@ static int32_t next_id() {
     return id;
 }
 
+GrContextThreadSafeProxy::FamilyID::FamilyID()
+    : fID(NextID()) {
+}
+
+GrContextThreadSafeProxy::FamilyID GrContextThreadSafeProxy::FamilyID::Invalid() {
+    static constexpr FamilyID invalid(SK_InvalidUniqueID);
+    return invalid;
+}
+
+uint32_t GrContextThreadSafeProxy::FamilyID::NextID() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
                                                    const GrContextOptions& options)
-        : fBackend(backend), fOptions(options), fContextID(next_id()) {
+        : fBackend(backend), fOptions(options) {
 }
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
@@ -41,7 +60,7 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
                                     sk_sp<GrThreadSafePipelineBuilder> pipelineBuilder) {
     fCaps = std::move(caps);
-    fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
+    fTextBlobCache = std::make_unique<GrTextBlobCache>(fFamilyID);
     fThreadSafeCache = std::make_unique<GrThreadSafeCache>();
     fPipelineBuilder = std::move(pipelineBuilder);
 }

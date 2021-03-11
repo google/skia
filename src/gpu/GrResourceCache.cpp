@@ -108,12 +108,15 @@ inline bool GrResourceCache::TextureAwaitingUnref::finished() { return !fNumUnre
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrResourceCache::GrResourceCache(GrSingleOwner* singleOwner, uint32_t contextUniqueID)
-        : fInvalidUniqueKeyInbox(contextUniqueID)
-        , fFreedTextureInbox(contextUniqueID)
-        , fContextUniqueID(contextUniqueID)
+GrResourceCache::GrResourceCache(GrSingleOwner* singleOwner,
+                                 GrContextThreadSafeProxy::FamilyID familyID,
+                                 GrDirectContext::DirectContextID owningContextID)
+        : fInvalidUniqueKeyInbox(familyID)
+        , fFreedTextureInbox(familyID)
+        , fFamilyID(familyID)
+        , fOwningContextID(owningContextID)
         , fSingleOwner(singleOwner) {
-    SkASSERT(contextUniqueID != SK_InvalidUniqueID);
+    SkASSERT(fFamilyID.isValid() && fOwningContextID.isValid());
 }
 
 GrResourceCache::~GrResourceCache() {

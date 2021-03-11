@@ -9,6 +9,7 @@
 #define GrResourceCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
@@ -58,7 +59,9 @@ static inline bool SkShouldPostMessageToBus(
  */
 class GrResourceCache {
 public:
-    GrResourceCache(GrSingleOwner* owner, uint32_t contextUniqueID);
+    GrResourceCache(GrSingleOwner* owner,
+                    GrContextThreadSafeProxy::FamilyID,
+                    GrDirectContext::DirectContextID owningContextID);
     ~GrResourceCache();
 
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
@@ -68,8 +71,10 @@ public:
     class ResourceAccess;
     ResourceAccess resourceAccess();
 
-    /** Unique ID of the owning GrContext. */
-    uint32_t contextUniqueID() const { return fContextUniqueID; }
+    /** Unique ID of the owning GrDirectContext. */
+    GrDirectContext::DirectContextID owningContextID() const { return fOwningContextID; }
+
+    GrContextThreadSafeProxy::FamilyID familyID() const { return fFamilyID; }
 
     /** Sets the max gpu memory byte size of the cache. */
     void setLimit(size_t bytes);
@@ -365,8 +370,9 @@ private:
     FreedTextureInbox                   fFreedTextureInbox;
     TexturesAwaitingUnref               fTexturesAwaitingUnref;
 
-    uint32_t                            fContextUniqueID = SK_InvalidUniqueID;
-    GrSingleOwner*                      fSingleOwner = nullptr;
+    const GrContextThreadSafeProxy::FamilyID fFamilyID;
+    const GrDirectContext::DirectContextID   fOwningContextID;
+    GrSingleOwner*                           fSingleOwner = nullptr;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
     // we're in the midst of converting it to purgeable status.

@@ -14,13 +14,14 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkTextBlobPriv.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/text/GrTextBlob.h"
 
 #include <functional>
 
 class GrTextBlobCache {
 public:
-    GrTextBlobCache(uint32_t messageBusID);
+    GrTextBlobCache(GrContextThreadSafeProxy::FamilyID messageBusID);
 
     // If not already in the cache, then add it else, return the text blob from the cache.
     sk_sp<GrTextBlob> addOrReturnExisting(
@@ -87,8 +88,8 @@ private:
     size_t fSizeBudget SK_GUARDED_BY(fSpinLock);
     size_t fCurrentSize SK_GUARDED_BY(fSpinLock) {0};
 
-    // In practice 'messageBusID' is always the unique ID of the owning GrContext
-    const uint32_t fMessageBusID;
+    // In practice 'messageBusID' is always the family ID
+    const GrContextThreadSafeProxy::FamilyID fMessageBusID;
     SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fSpinLock);
 };
 

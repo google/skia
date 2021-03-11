@@ -866,8 +866,8 @@ GrDDLProvider GrProxyProvider::isDDLProvider() const {
     return fImageContext->asDirectContext() ? GrDDLProvider::kNo : GrDDLProvider::kYes;
 }
 
-uint32_t GrProxyProvider::contextID() const {
-    return fImageContext->priv().contextID();
+GrContextThreadSafeProxy::FamilyID GrProxyProvider::familyID() const {
+    return fImageContext->priv().familyID();
 }
 
 const GrCaps* GrProxyProvider::caps() const {
