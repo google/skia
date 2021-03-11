@@ -37,11 +37,12 @@ namespace skia {
 namespace textlayout {
 
 enum CodeUnitFlags {
-    kNoCodeUnitFlag = 0x0,
-    kPartOfWhiteSpace = 0x1,
-    kGraphemeStart = 0x2,
-    kSoftLineBreakBefore = 0x4,
-    kHardLineBreakBefore = 0x8,
+    kNoCodeUnitFlag = 0x00,
+    kPartOfWhiteSpace = 0x01,
+    kGraphemeStart = 0x02,
+    kSoftLineBreakBefore = 0x04,
+    kHardLineBreakBefore = 0x08,
+    kPartOfNonBreakingSpace = 0x10,
 };
 }  // namespace textlayout
 }  // namespace skia
@@ -220,7 +221,7 @@ public:
     using CodeUnitRangeVisitor = std::function<bool(TextRange textRange)>;
     void forEachCodeUnitPropertyRange(CodeUnitFlags property, CodeUnitRangeVisitor visitor);
     size_t getWhitespacesLength(TextRange textRange);
-    bool isSpace(TextRange textRange);
+    size_t getNonBreakingSpacesLength(TextRange textRange);
 
     bool codeUnitHasProperty(size_t index, CodeUnitFlags property) const { return (fCodeUnitProperties[index] & property) == property; }
 
