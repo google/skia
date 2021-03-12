@@ -1,0 +1,72 @@
+// This is a real-world shader that originally demonstrated several issues with missing
+// RelaxedPrecision decorations
+
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+layout (set=0, binding=0) uniform uniformBuffer
+{
+layout(offset=16) half4x4 um_Stage1_c0;
+layout(offset=80) half4 uv_Stage1_c0;
+layout(offset=96) half4 uleftBorderColor_Stage1_c0_c0_c0;
+layout(offset=112) half4 urightBorderColor_Stage1_c0_c0_c0;
+layout(offset=128) float3x3 umatrix_Stage1_c0_c0_c0_c0;
+layout(offset=176) half4 ustart_Stage1_c0_c0_c0_c1;
+layout(offset=192) half4 uend_Stage1_c0_c0_c0_c1;
+};
+layout(location = 0) in half4 vcolor_Stage0;layout(location = 1) in float2 vTransformedCoords_0_Stage0;layout(location = 0, index = 0) out half4 sk_FragColor;
+half4 LinearGradientLayout_Stage1_c0_c0_c0_c0_c0(half4 _input) {
+half t = half(vTransformedCoords_0_Stage0.x) + 9.9999997473787516e-06;
+return half4(t, 1.0, 0.0, 0.0);
+}
+
+half4 MatrixEffect_Stage1_c0_c0_c0_c0(half4 _input) {
+return LinearGradientLayout_Stage1_c0_c0_c0_c0_c0(_input);
+}
+
+half4 SingleIntervalGradientColorizer_Stage1_c0_c0_c0_c1(half4 _input, float2 _coords) {
+half t = half(_coords.x);
+return mix(ustart_Stage1_c0_c0_c0_c1, uend_Stage1_c0_c0_c0_c1, t);
+}
+
+half4 ClampedGradientEffect_Stage1_c0_c0_c0(half4 _input) {
+half4 t = MatrixEffect_Stage1_c0_c0_c0_c0(_input);
+half4 outColor;
+if (!true && t.y < 0.0) {
+    outColor = half4(0.0);
+} else if (t.x < 0.0) {
+    outColor = uleftBorderColor_Stage1_c0_c0_c0;
+} else if (t.x > 1.0) {
+    outColor = urightBorderColor_Stage1_c0_c0_c0;
+} else {
+    outColor = SingleIntervalGradientColorizer_Stage1_c0_c0_c0_c1(_input, float2(half2(t.x, 0.0)));
+}
+@if (false) {
+    outColor.xyz *= outColor.w;
+}
+return outColor;
+}
+
+half4 OverrideInputFragmentProcessor_Stage1_c0_c0(half4 _input) {
+return ClampedGradientEffect_Stage1_c0_c0_c0(false ? half4(0) : half4(1.000000, 1.000000, 1.000000, 1.000000));
+}
+
+inline half4 ColorMatrixFragmentProcessor_Stage1_c0(half4 _input) {
+half4 color = OverrideInputFragmentProcessor_Stage1_c0_c0(_input);
+@if (true) {
+    color = half4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
+}
+color = um_Stage1_c0 * color + uv_Stage1_c0;
+@if (true) {
+    color = clamp(color, 0.0, 1.0);
+} else {
+    color.w = clamp(color.w, 0.0, 1.0);
+}
+@if (true) {
+    color.xyz *= color.w;
+}
+return color;
+}
+
+void main() {half4 outputColor_Stage0;half4 outputCoverage_Stage0;{ // Stage 0, QuadPerEdgeAAGeometryProcessor
+outputColor_Stage0 = vcolor_Stage0;outputCoverage_Stage0 = half4(1);}half4 output_Stage1;output_Stage1 = ColorMatrixFragmentProcessor_Stage1_c0(outputColor_Stage0);{ // Xfer Processor: Porter Duff
+sk_FragColor = output_Stage1 * outputCoverage_Stage0;}}
