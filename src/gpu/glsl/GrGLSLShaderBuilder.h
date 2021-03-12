@@ -135,15 +135,13 @@ public:
     /** Emits a prototype for a helper function outside of main() in the fragment shader. */
     void emitFunctionPrototype(GrSLType returnType,
                                const char* mangledName,
-                               SkSpan<const GrShaderVar> args,
-                               bool forceInline = false);
+                               SkSpan<const GrShaderVar> args);
 
     /** Emits a helper function outside of main() in the fragment shader. */
     void emitFunction(GrSLType returnType,
                       const char* mangledName,
                       SkSpan<const GrShaderVar> args,
-                      const char* body,
-                      bool forceInline = false);
+                      const char* body);
 
     void emitFunction(const char* declaration, const char* body);
 
@@ -180,8 +178,7 @@ protected:
 
     void appendFunctionDecl(GrSLType returnType,
                             const char* mangledName,
-                            SkSpan<const GrShaderVar> args,
-                            bool forceInline);
+                            SkSpan<const GrShaderVar> args);
 
     /**
      * Features that should only be enabled internally by the builders.

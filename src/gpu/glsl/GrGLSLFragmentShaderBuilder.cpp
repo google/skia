@@ -149,7 +149,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
 
     SkString funcName = this->getMangledFunctionName(args.fFp.name());
     this->emitFunction(kHalf4_GrSLType, funcName.c_str(), {params, paramCount},
-                       this->code().c_str(), args.fForceInline);
+                       this->code().c_str());
     this->deleteStage();
     this->onAfterChildProcEmitCode();
     return funcName;
