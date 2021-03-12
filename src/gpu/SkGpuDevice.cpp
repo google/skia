@@ -41,6 +41,7 @@
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkReadPixelsRec.h"
@@ -499,6 +500,18 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
                                    this->localToDevice(), rrect, style);
 }
 
+static std::unique_ptr<GrFragmentProcessor> make_inverse_rrect_fp(const SkMatrix& viewMatrix,
+                                                                  const SkRRect& rrect, bool aa,
+                                                                  const GrShaderCaps& shaderCaps) {
+    SkTCopyOnFirstWrite<SkRRect> devRRect(rrect);
+    if (viewMatrix.isIdentity() || rrect.transform(viewMatrix, devRRect.writable())) {
+        auto edgeType = (aa) ? GrClipEdgeType::kInverseFillAA : GrClipEdgeType::kInverseFillBW;
+        auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, edgeType, *devRRect,
+                                                 shaderCaps);
+        return (success) ? std::move(fp) : nullptr;
+    }
+    return nullptr;
+}
 
 void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -514,15 +527,22 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
     SkStrokeRec stroke(paint);
 
     if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
-        GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
-                              this->asMatrixProvider(), &grPaint)) {
+        // For axis-aligned filled DRRects, just draw a regular rrect with inner clipped out using a
+        // coverage FP instead of using path rendering.
+        if (auto fp = make_inverse_rrect_fp(this->localToDevice(), inner, paint.isAntiAlias(),
+                                            *fSurfaceDrawContext->caps()->shaderCaps())) {
+            GrPaint grPaint;
+            if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
+                                  this->asMatrixProvider(), &grPaint)) {
+                return;
+            }
+            SkASSERT(!grPaint.hasCoverageFragmentProcessor());
+            grPaint.setCoverageFragmentProcessor(std::move(fp));
+            fSurfaceDrawContext->drawRRect(this->clip(), std::move(grPaint),
+                                           GrAA(paint.isAntiAlias()), this->localToDevice(), outer,
+                                           GrStyle());
             return;
         }
-
-        fSurfaceDrawContext->drawDRRect(this->clip(), std::move(grPaint), GrAA(paint.isAntiAlias()),
-                                        this->localToDevice(), outer, inner);
-        return;
     }
 
     SkPath path;

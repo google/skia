@@ -369,23 +369,6 @@ public:
                         const SkDrawShadowRec& rec);
 
     /**
-     * Shortcut for filling a SkPath consisting of nested rrects using a paint. The result is
-     * undefined if outer does not contain inner.
-     *
-     * @param paint        describes how to color pixels.
-     * @param GrAA         Controls whether rrects edges are antialiased
-     * @param viewMatrix   transformation matrix
-     * @param outer        the outer roundrect
-     * @param inner        the inner roundrect
-     */
-    void drawDRRect(const GrClip*,
-                    GrPaint&&,
-                    GrAA,
-                    const SkMatrix& viewMatrix,
-                    const SkRRect& outer,
-                    const SkRRect& inner);
-
-    /**
      * Draws a path.
      *
      * @param paint         describes how to color pixels.
@@ -667,14 +650,6 @@ private:
     void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
 
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
-
-    // Only consumes the GrPaint if successful.
-    bool drawFilledDRRect(const GrClip* clip,
-                          GrPaint&& paint,
-                          GrAA,
-                          const SkMatrix& viewMatrix,
-                          const SkRRect& origOuter,
-                          const SkRRect& origInner);
 
     // If the drawn quad's paint is a const blended color, provide it as a non-null pointer to
     // 'constColor', which enables the draw-as-clear optimization. Otherwise it is assumed the paint
