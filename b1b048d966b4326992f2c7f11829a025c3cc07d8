@@ -20,6 +20,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "21117943_2db93fb1",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-12T16:20:58Z",
+      "side": 1,
+      "message": "I\u0027m not a big fan of this getSpaces or the old getWhitespaces since they require allocating the space for all this (in particular std::map calls new for everything). Why not just pass this a callback which will be called which takes Position and bool for each found space? Then we don\u0027t even need to allocate anything extra at all.",
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "035c996b_f39adcbe",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-12T16:20:58Z",
+      "side": 1,
+      "message": "I think NonBreakingSpace is a bit too specific. This is more like \u0027BetterThanGraphemeLineBreakBefore\u0027. It may make more sense to use a few bits as a \u0027LineBreakPriority\u0027 number since there\u0027s really a list of places to look for making line breaks. These are something like \u0027must break\u0027, \u0027normal break location\u0027, \u0027hyphenation break location\u0027 (though this one isn\u0027t used here), \u0027split word break location\u0027 (this one, since it\u0027s something like a hyphenation break), \u0027grapheme break location\u0027, and \u0027glyph break location\u0027 (try to never break on one of these). In general one tries to break from highest to lowest priority on these and I\u0027m not sure it makes sense to even keep track of a lower priority one over a higher priority one for a given code unit.",
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a6cdc8f_177c6a05",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 7
@@ -37,6 +71,23 @@
         "endLine": 139,
         "endChar": 58
       },
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e27ce860_1ae6aa76",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-12T16:20:58Z",
+      "side": 1,
+      "message": "This seems like a very high level operation for SkUnicode. Why not just a wrapper around u_isspace and u_isWhitespace and write the logic of this code over in ParagraphImpl?",
       "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
