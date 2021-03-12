@@ -10,7 +10,6 @@
 #include "include/private/SkTPin.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
-#include "src/gpu/ccpr/GrCCPathCache.h"
 
 static SkISize choose_initial_atlas_size(const GrCCAtlas::Specs& specs) {
     // Begin with the first pow2 dimensions whose area is theoretically large enough to contain the
@@ -30,11 +29,10 @@ static int choose_max_atlas_size(const GrCCAtlas::Specs& specs, const GrCaps& ca
             specs.fMaxPreferredTextureSize : caps.maxRenderTargetSize();
 }
 
-GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps& caps)
-        : GrDynamicAtlas(CoverageTypeToColorType(coverageType),
-                         CoverageTypeHasInternalMultisample(coverageType),
-                         choose_initial_atlas_size(specs), choose_max_atlas_size(specs, caps), caps)
-        , fCoverageType(coverageType) {
+GrCCAtlas::GrCCAtlas(const Specs& specs, const GrCaps& caps)
+        : GrDynamicAtlas(GrColorType::kAlpha_8, InternalMultisample::kYes,
+                         choose_initial_atlas_size(specs), choose_max_atlas_size(specs, caps),
+                         caps) {
     SkASSERT(specs.fMaxPreferredTextureSize > 0);
 }
 
@@ -53,31 +51,6 @@ void GrCCAtlas::setEndStencilResolveInstance(int idx) {
     fEndStencilResolveInstance = idx;
 }
 
-static uint32_t next_atlas_unique_id() {
-    static std::atomic<uint32_t> nextID;
-    return nextID.fetch_add(1, std::memory_order_relaxed);
-}
-
-sk_sp<GrCCCachedAtlas> GrCCAtlas::refOrMakeCachedAtlas(GrOnFlushResourceProvider* onFlushRP) {
-    if (!fCachedAtlas) {
-        static const GrUniqueKey::Domain kAtlasDomain = GrUniqueKey::GenerateDomain();
-
-        GrUniqueKey atlasUniqueKey;
-        GrUniqueKey::Builder builder(&atlasUniqueKey, kAtlasDomain, 1, "CCPR Atlas");
-        builder[0] = next_atlas_unique_id();
-        builder.finish();
-
-        onFlushRP->assignUniqueKeyToProxy(atlasUniqueKey, this->textureProxy());
-
-        fCachedAtlas = sk_make_sp<GrCCCachedAtlas>(fCoverageType, atlasUniqueKey,
-                                                   sk_ref_sp(this->textureProxy()));
-    }
-
-    SkASSERT(fCachedAtlas->coverageType() == fCoverageType);
-    SkASSERT(fCachedAtlas->getOnFlushProxy() == this->textureProxy());
-    return fCachedAtlas;
-}
-
 GrCCAtlas* GrCCAtlasStack::addRect(const SkIRect& devIBounds, SkIVector* devToAtlasOffset) {
     GrCCAtlas* retiredAtlas = nullptr;
     SkIPoint16 location;
@@ -85,7 +58,7 @@ GrCCAtlas* GrCCAtlasStack::addRect(const SkIRect& devIBounds, SkIVector* devToAt
         !fAtlases.back().addRect(devIBounds.width(), devIBounds.height(), &location)) {
         // The retired atlas is out of room and can't grow any bigger.
         retiredAtlas = !fAtlases.empty() ? &fAtlases.back() : nullptr;
-        fAtlases.emplace_back(fCoverageType, fSpecs, *fCaps);
+        fAtlases.emplace_back(fSpecs, *fCaps);
         SkASSERT(devIBounds.width() <= fSpecs.fMinWidth);
         SkASSERT(devIBounds.height() <= fSpecs.fMinHeight);
         SkAssertResult(fAtlases.back().addRect(devIBounds.width(), devIBounds.height(), &location));

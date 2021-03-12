@@ -322,10 +322,6 @@ void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed
     fResourceCache->purgeAsNeeded();
     fResourceCache->purgeResourcesNotUsedSince(purgeTime);
 
-    if (auto ccpr = this->drawingManager()->getCoverageCountingPathRenderer()) {
-        ccpr->purgeCacheEntriesOlderThan(this->proxyProvider(), purgeTime);
-    }
-
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs
     this->getTextBlobCache()->purgeStaleBlobs();
