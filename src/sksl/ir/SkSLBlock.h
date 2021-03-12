@@ -27,6 +27,15 @@ public:
     , fSymbolTable(std::move(symbols))
     , fIsScope(isScope) {}
 
+    // Make a simple unscoped Block; it's just a collection of statements. This can simplify away
+    // empty or single-statement Blocks.
+    static std::unique_ptr<Statement> MakeUnscoped(int offset, StatementArray statements);
+
+    // Make a real Block, with scopes and symbol tables; always returns a Block object.
+    static std::unique_ptr<Block> Make(int offset, StatementArray statements,
+                                       std::shared_ptr<SymbolTable> symbols = nullptr,
+                                       bool isScope = true);
+
     const StatementArray& children() const {
         return fChildren;
     }
@@ -56,36 +65,16 @@ public:
         return true;
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        StatementArray cloned;
-        cloned.reserve_back(this->children().size());
-        for (const std::unique_ptr<Statement>& stmt : this->children()) {
-            cloned.push_back(stmt->clone());
-        }
-        return std::make_unique<Block>(fOffset, std::move(cloned),
-                                       SymbolTable::WrapIfBuiltin(this->symbolTable()),
-                                       this->isScope());
-    }
+    std::unique_ptr<Statement> clone() const override;
 
-    String description() const override {
-        String result;
-        if (fIsScope) {
-            result += "{";
-        }
-        for (const std::unique_ptr<Statement>& stmt : this->children()) {
-            result += "\n";
-            result += stmt->description();
-        }
-        result += fIsScope ? "\n}\n" : "\n";
-        return result;
-    }
+    String description() const override;
 
 private:
     StatementArray fChildren;
     std::shared_ptr<SymbolTable> fSymbolTable;
-    // if isScope is false, this is just a group of statements rather than an actual
-    // language-level block. This allows us to pass around multiple statements as if they were a
-    // single unit, with no semantic impact.
+    // If isScope is false, this is just a group of statements rather than an actual language-level
+    // block. This allows us to pass around multiple statements as if they were a single unit, with
+    // no semantic impact.
     bool fIsScope;
 
     using INHERITED = Statement;
