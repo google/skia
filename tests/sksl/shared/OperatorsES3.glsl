@@ -9,11 +9,6 @@ vec4 main() {
     x = (x - x) + ((y * x) * x) * (y - x);
     y = (x / y) / x;
     z = (((z / 2) % 3 << 4) >> 2) << 1;
-    bool b = x > 4.0 == x < 2.0 || 2.0 >= sqrt(2.0) && y <= x;
-    bool c = sqrt(2.0) > 2.0;
-    bool d = b ^^ c;
-    bool e = b && c;
-    bool f = b || c;
     x += 12.0;
     x -= 12.0;
     x *= (y /= 10.0);
