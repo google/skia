@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daa3c3e7_e1b0f794",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T15:37:32Z",
+      "side": 1,
+      "message": "There\u0027s a bunch of subtle stuff happening here, so please let me know if you want more comments/explanation. Greg, on my filterColor benchmark, this gets us to about 4x slower than where it used to be (and about 90x faster than where it was when you noticed the regression).",
+      "revId": "a1acd3ae0f9e12844b59c48264702ce1b7054661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
