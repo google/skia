@@ -27,6 +27,17 @@ public:
     , fSymbolTable(std::move(symbols))
     , fIsScope(isScope) {}
 
+    // Make always makes a real Block object. This is important because many callers rely on Blocks
+    // specifically; e.g. a function body must be a scoped Block, nothing else will do.
+    static std::unique_ptr<Block> Make(int offset,
+                                       StatementArray statements,
+                                       std::shared_ptr<SymbolTable> symbols = nullptr,
+                                       bool isScope = true);
+
+    // An unscoped Block is just a collection of Statements. For a single-statement Block,
+    // MakeUnscoped will return the Statement as-is. For an empty Block, MakeUnscoped returns Nop.
+    static std::unique_ptr<Statement> MakeUnscoped(int offset, StatementArray statements);
+
     const StatementArray& children() const {
         return fChildren;
     }
@@ -56,36 +67,16 @@ public:
         return true;
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        StatementArray cloned;
-        cloned.reserve_back(this->children().size());
-        for (const std::unique_ptr<Statement>& stmt : this->children()) {
-            cloned.push_back(stmt->clone());
-        }
-        return std::make_unique<Block>(fOffset, std::move(cloned),
-                                       SymbolTable::WrapIfBuiltin(this->symbolTable()),
-                                       this->isScope());
-    }
+    std::unique_ptr<Statement> clone() const override;
 
-    String description() const override {
-        String result;
-        if (fIsScope) {
-            result += "{";
-        }
-        for (const std::unique_ptr<Statement>& stmt : this->children()) {
-            result += "\n";
-            result += stmt->description();
-        }
-        result += fIsScope ? "\n}\n" : "\n";
-        return result;
-    }
+    String description() const override;
 
 private:
     StatementArray fChildren;
     std::shared_ptr<SymbolTable> fSymbolTable;
-    // if isScope is false, this is just a group of statements rather than an actual
-    // language-level block. This allows us to pass around multiple statements as if they were a
-    // single unit, with no semantic impact.
+    // If isScope is false, this is just a group of statements rather than an actual language-level
+    // block. This allows us to pass around multiple statements as if they were a single unit, with
+    // no semantic impact.
     bool fIsScope;
 
     using INHERITED = Statement;
