@@ -50,7 +50,7 @@ public:
     /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
         chain. */
     GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() {
-        return fCoverageCountingPathRenderer;
+        return fCoverageCountingPathRenderer.get();
     }
 
     /** Returns a direct pointer to the tessellation path renderer, or null if it is not in the
@@ -64,7 +64,7 @@ private:
         kPreAllocCount = 8,
     };
     SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
-    GrCoverageCountingPathRenderer*                     fCoverageCountingPathRenderer = nullptr;
+    std::unique_ptr<GrCoverageCountingPathRenderer>     fCoverageCountingPathRenderer;
     GrPathRenderer*                                     fTessellationPathRenderer = nullptr;
 };
 
