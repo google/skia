@@ -17,7 +17,7 @@ std::unique_ptr<Statement> ExpressionStatement::Make(const Context& context,
     if (context.fConfig->fSettings.fOptimize) {
         // Expression-statements without any side effect can be replaced with a Nop.
         if (!expr->hasSideEffects()) {
-            return std::make_unique<Nop>();
+            return Nop::Make();
         }
     }
 

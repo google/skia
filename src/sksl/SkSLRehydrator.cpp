@@ -355,11 +355,11 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                                            isScope);
         }
         case Rehydrator::kBreak_Command:
-            return std::make_unique<BreakStatement>(/*offset=*/-1);
+            return BreakStatement::Make(/*offset=*/-1);
         case Rehydrator::kContinue_Command:
-            return std::make_unique<ContinueStatement>(/*offset=*/-1);
+            return ContinueStatement::Make(/*offset=*/-1);
         case Rehydrator::kDiscard_Command:
-            return std::make_unique<DiscardStatement>(/*offset=*/-1);
+            return DiscardStatement::Make(/*offset=*/-1);
         case Rehydrator::kDo_Command: {
             std::unique_ptr<Statement> stmt = this->statement();
             std::unique_ptr<Expression> expr = this->expression();
@@ -390,15 +390,11 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kInlineMarker_Command: {
             const FunctionDeclaration* funcDecl = this->symbolRef<FunctionDeclaration>(
                                                           Symbol::Kind::kFunctionDeclaration);
-            return std::make_unique<InlineMarker>(funcDecl);
+            return InlineMarker::Make(funcDecl);
         }
         case Rehydrator::kReturn_Command: {
             std::unique_ptr<Expression> expr = this->expression();
-            if (expr) {
-                return std::make_unique<ReturnStatement>(std::move(expr));
-            } else {
-                return std::make_unique<ReturnStatement>(/*offset=*/-1);
-            }
+            return ReturnStatement::Make(/*offset=*/-1, std::move(expr));
         }
         case Rehydrator::kSwitch_Command: {
             bool isStatic = this->readU8();

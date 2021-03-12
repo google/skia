@@ -23,8 +23,12 @@ public:
     DiscardStatement(int offset)
     : INHERITED(offset, kStatementKind) {}
 
+    static std::unique_ptr<Statement> Make(int offset) {
+        return std::make_unique<DiscardStatement>(offset);
+    }
+
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new DiscardStatement(fOffset));
+        return std::make_unique<DiscardStatement>(fOffset);
     }
 
     String description() const override {

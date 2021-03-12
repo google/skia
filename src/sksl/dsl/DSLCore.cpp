@@ -66,11 +66,11 @@ public:
     }
 
     static DSLStatement Break() {
-        return std::unique_ptr<SkSL::Statement>(new SkSL::BreakStatement(/*offset=*/-1));
+        return SkSL::BreakStatement::Make(/*offset=*/-1);
     }
 
     static DSLStatement Continue() {
-        return std::unique_ptr<SkSL::Statement>(new SkSL::ContinueStatement(/*offset=*/-1));
+        return SkSL::ContinueStatement::Make(/*offset=*/-1);
     }
 
     static DSLStatement Declare(DSLVar& var, PositionInfo pos) {
@@ -82,7 +82,7 @@ public:
     }
 
     static DSLStatement Discard() {
-        return std::unique_ptr<SkSL::Statement>(new SkSL::DiscardStatement(/*offset=*/-1));
+        return SkSL::DiscardStatement::Make(/*offset=*/-1);
     }
 
     static DSLPossibleStatement Do(DSLStatement stmt, DSLExpression test) {
@@ -102,16 +102,11 @@ public:
     }
 
     static DSLPossibleStatement Return(DSLExpression value, PositionInfo pos) {
-        // note that because Return is called before the function in which it resides exists, at
+        // Note that because Return is called before the function in which it resides exists, at
         // this point we do not know the function's return type. We therefore do not check for
         // errors, or coerce the value to the correct type, until the return statement is actually
-        // added to a function
-        std::unique_ptr<SkSL::Expression> expr = value.release();
-        if (expr) {
-            return std::unique_ptr<SkSL::Statement>(new ReturnStatement(std::move(expr)));
-        } else {
-            return std::unique_ptr<SkSL::Statement>(new ReturnStatement(/*offset=*/-1));
-        }
+        // added to a function. (This is done in IRGenerator::finalizeFunction.)
+        return SkSL::ReturnStatement::Make(/*offset=*/-1, value.release());
     }
 
     static DSLExpression Swizzle(DSLExpression base, SkSL::SwizzleComponent::Type a,

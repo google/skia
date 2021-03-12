@@ -21,7 +21,11 @@ public:
     static constexpr Kind kStatementKind = Kind::kNop;
 
     Nop()
-    : INHERITED(-1, kStatementKind) {}
+    : INHERITED(/*offset=*/-1, kStatementKind) {}
+
+    static std::unique_ptr<Statement> Make() {
+        return std::make_unique<Nop>();
+    }
 
     bool isEmpty() const override {
         return true;
@@ -32,7 +36,7 @@ public:
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new Nop());
+        return std::make_unique<Nop>();
     }
 
 private:
