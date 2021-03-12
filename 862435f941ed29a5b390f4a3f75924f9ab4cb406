@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4b22a20_fcaff19b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-03-12T14:56:29Z",
+      "side": 1,
+      "message": "This is the GN change I mentioned in the other CL. WDYT?",
+      "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
