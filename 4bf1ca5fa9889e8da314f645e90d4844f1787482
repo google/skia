@@ -46,6 +46,30 @@
       },
       "revId": "4bf1ca5fa9889e8da314f645e90d4844f1787482",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8157b81c_5317e1e9",
+        "filename": "src/sksl/ir/SkSLReturnStatement.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T15:04:16Z",
+      "side": 0,
+      "message": "We don\u0027t really lose anything... the expression still has its own offset. If anything, we previously gave up the offset of the return statement itself for no reason.",
+      "parentUuid": "a28e0f91_2fef877a",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "4bf1ca5fa9889e8da314f645e90d4844f1787482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
