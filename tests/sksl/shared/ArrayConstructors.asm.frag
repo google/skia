@@ -28,7 +28,11 @@ OpDecorate %10 DescriptorSet 0
 OpDecorate %_arr_float_int_4 ArrayStride 16
 OpDecorate %_arr_v2float_int_2 ArrayStride 16
 OpDecorate %_arr_mat4v4float_int_1 ArrayStride 64
+OpDecorate %67 RelaxedPrecision
+OpDecorate %68 RelaxedPrecision
+OpDecorate %72 RelaxedPrecision
 OpDecorate %74 RelaxedPrecision
+OpDecorate %75 RelaxedPrecision
 OpDecorate %76 RelaxedPrecision
 OpDecorate %77 RelaxedPrecision
 %float = OpTypeFloat 32

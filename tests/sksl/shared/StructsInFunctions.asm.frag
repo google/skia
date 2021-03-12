@@ -34,10 +34,23 @@ OpDecorate %13 Binding 0
 OpDecorate %13 DescriptorSet 0
 OpMemberDecorate %S 0 Offset 0
 OpMemberDecorate %S 1 Offset 4
+OpDecorate %s RelaxedPrecision
 OpDecorate %35 RelaxedPrecision
+OpDecorate %46 RelaxedPrecision
+OpDecorate %s_0 RelaxedPrecision
 OpDecorate %59 RelaxedPrecision
+OpDecorate %60 RelaxedPrecision
+OpDecorate %valid RelaxedPrecision
+OpDecorate %68 RelaxedPrecision
+OpDecorate %74 RelaxedPrecision
+OpDecorate %75 RelaxedPrecision
+OpDecorate %81 RelaxedPrecision
+OpDecorate %82 RelaxedPrecision
 OpDecorate %83 RelaxedPrecision
+OpDecorate %84 RelaxedPrecision
+OpDecorate %89 RelaxedPrecision
 OpDecorate %91 RelaxedPrecision
+OpDecorate %92 RelaxedPrecision
 OpDecorate %93 RelaxedPrecision
 OpDecorate %94 RelaxedPrecision
 %float = OpTypeFloat 32

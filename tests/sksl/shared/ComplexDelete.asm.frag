@@ -25,6 +25,7 @@ OpMemberDecorate %_UniformBuffer 0 MatrixStride 16
 OpDecorate %_UniformBuffer Block
 OpDecorate %14 Binding 0
 OpDecorate %14 DescriptorSet 0
+OpDecorate %23 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4

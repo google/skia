@@ -23,8 +23,12 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
+OpDecorate %ok RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
+OpDecorate %24 RelaxedPrecision
+OpDecorate %29 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
+OpDecorate %34 RelaxedPrecision
 OpDecorate %36 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
 %float = OpTypeFloat 32

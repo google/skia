@@ -1,3 +1,7 @@
+### Compilation failed:
+
+error: SPIR-V validation error: The following forward referenced IDs have not been defined:
+89[%89] 88[%88] 57[%57]
 OpCapability Geometry
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -21,6 +25,9 @@ OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpDecorate %_UniformBuffer Block
 OpDecorate %15 Binding 0
 OpDecorate %15 DescriptorSet 0
+OpDecorate %57 RelaxedPrecision
+OpDecorate %88 RelaxedPrecision
+OpDecorate %89 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %sk_PerVertex = OpTypeStruct %v4float %float
@@ -115,3 +122,5 @@ OpEmitVertex
 OpEndPrimitive
 OpReturn
 OpFunctionEnd
+
+1 error

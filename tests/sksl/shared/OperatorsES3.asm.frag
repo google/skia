@@ -30,13 +30,37 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
+OpDecorate %b RelaxedPrecision
+OpDecorate %61 RelaxedPrecision
+OpDecorate %63 RelaxedPrecision
+OpDecorate %64 RelaxedPrecision
+OpDecorate %69 RelaxedPrecision
+OpDecorate %74 RelaxedPrecision
+OpDecorate %75 RelaxedPrecision
+OpDecorate %76 RelaxedPrecision
+OpDecorate %c RelaxedPrecision
+OpDecorate %79 RelaxedPrecision
+OpDecorate %d RelaxedPrecision
 OpDecorate %81 RelaxedPrecision
 OpDecorate %82 RelaxedPrecision
+OpDecorate %83 RelaxedPrecision
+OpDecorate %e RelaxedPrecision
 OpDecorate %85 RelaxedPrecision
 OpDecorate %88 RelaxedPrecision
+OpDecorate %89 RelaxedPrecision
+OpDecorate %f RelaxedPrecision
 OpDecorate %91 RelaxedPrecision
 OpDecorate %94 RelaxedPrecision
+OpDecorate %95 RelaxedPrecision
+OpDecorate %124 RelaxedPrecision
+OpDecorate %128 RelaxedPrecision
+OpDecorate %129 RelaxedPrecision
+OpDecorate %133 RelaxedPrecision
+OpDecorate %134 RelaxedPrecision
+OpDecorate %135 RelaxedPrecision
+OpDecorate %140 RelaxedPrecision
 OpDecorate %142 RelaxedPrecision
+OpDecorate %143 RelaxedPrecision
 OpDecorate %144 RelaxedPrecision
 OpDecorate %145 RelaxedPrecision
 %float = OpTypeFloat 32
