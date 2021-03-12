@@ -22,6 +22,30 @@
       },
       "revId": "38d9827331e586b1c824ef2db744e4b61c53ff99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67a57d56_bc6826a9",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T15:52:13Z",
+      "side": 1,
+      "message": "I think I know what\u0027s happening here (we always create the VarDeclaration as soon as the Var is instantiated, right?). Maybe just explain that in the comment.\n\nAlso: Do we want to try and report this (C++) misuse as an error? eg, if someone *does* declare a var, and then also include it in a parameter list, we could try to fail more gracefully? I don\u0027t think it\u0027s necessary - that\u0027s the kind of static code structure error that needs to be fixed at the call-site, just a thought.",
+      "parentUuid": "a922c4d9_b85667da",
+      "range": {
+        "startLine": 27,
+        "startChar": 11,
+        "endLine": 27,
+        "endChar": 50
+      },
+      "revId": "38d9827331e586b1c824ef2db744e4b61c53ff99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
