@@ -23,8 +23,12 @@ public:
     static constexpr Kind kStatementKind = Kind::kInlineMarker;
 
     InlineMarker(const FunctionDeclaration* function)
-            : INHERITED(-1, kStatementKind)
+            : INHERITED(/*offset=*/-1, kStatementKind)
             , fFunction(*function) {}
+
+    static std::unique_ptr<Statement> Make(const FunctionDeclaration* function) {
+        return std::make_unique<InlineMarker>(function);
+    }
 
     const FunctionDeclaration& function() const {
         return fFunction;

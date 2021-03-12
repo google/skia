@@ -714,11 +714,7 @@ std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(const ASTNode
 
 std::unique_ptr<Statement> IRGenerator::convertReturn(int offset,
                                                       std::unique_ptr<Expression> result) {
-    if (result) {
-        return std::make_unique<ReturnStatement>(std::move(result));
-    } else {
-        return std::make_unique<ReturnStatement>(offset);
-    }
+    return ReturnStatement::Make(offset, std::move(result));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
@@ -736,12 +732,12 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
 
 std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTNode& b) {
     SkASSERT(b.fKind == ASTNode::Kind::kBreak);
-    return std::make_unique<BreakStatement>(b.fOffset);
+    return BreakStatement::Make(b.fOffset);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
     SkASSERT(c.fKind == ASTNode::Kind::kContinue);
-    return std::make_unique<ContinueStatement>(c.fOffset);
+    return ContinueStatement::Make(c.fOffset);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
@@ -752,7 +748,7 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
                                     "discard statement is only permitted in fragment shaders");
         return nullptr;
     }
-    return std::make_unique<DiscardStatement>(d.fOffset);
+    return DiscardStatement::Make(d.fOffset);
 }
 
 std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main) {

@@ -472,11 +472,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                     // This function doesn't return a value, but has early returns, so we've wrapped
                     // it in a for loop. Use a continue to jump to the end of the loop and "leave"
                     // the function.
-                    return std::make_unique<ContinueStatement>(offset);
+                    return ContinueStatement::Make(offset);
                 } else {
                     // This function doesn't exit early or return a value. A return statement at the
                     // end is a no-op and can be treated as such.
-                    return std::make_unique<Nop>();
+                    return Nop::Make();
                 }
             }
 
@@ -486,7 +486,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             SkASSERT(resultExpr);
             if (returnComplexity <= ReturnComplexity::kSingleSafeReturn) {
                 *resultExpr = expr(r.expression());
-                return std::make_unique<Nop>();
+                return Nop::Make();
             }
 
             // For more complex functions, assign their result into a variable.
@@ -505,7 +505,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                 StatementArray block;
                 block.reserve_back(2);
                 block.push_back(std::move(assignment));
-                block.push_back(std::make_unique<ContinueStatement>(offset));
+                block.push_back(ContinueStatement::Make(offset));
                 return std::make_unique<Block>(offset, std::move(block), /*symbols=*/nullptr,
                                                /*isScope=*/true);
             }
@@ -635,7 +635,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             arguments.size() +  // Function arguments (copy out-params back)
             1);                 // Block for inlined code
 
-    inlinedBody.children().push_back(std::make_unique<InlineMarker>(&call->function()));
+    inlinedBody.children().push_back(InlineMarker::Make(&call->function()));
 
     std::unique_ptr<Expression> resultExpr;
     if (returnComplexity > ReturnComplexity::kSingleSafeReturn &&

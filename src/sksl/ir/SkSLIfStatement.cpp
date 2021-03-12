@@ -49,7 +49,7 @@ std::unique_ptr<Statement> IfStatement::Convert(const Context& context, int offs
 static std::unique_ptr<Statement> replace_empty_with_nop(std::unique_ptr<Statement> stmt,
                                                          bool isEmpty) {
     return (stmt && (!isEmpty || stmt->is<Nop>())) ? std::move(stmt)
-                                                   : std::make_unique<Nop>();
+                                                   : Nop::Make();
 }
 
 std::unique_ptr<Statement> IfStatement::Make(const Context& context, int offset, bool isStatic,
