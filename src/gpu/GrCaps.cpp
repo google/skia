@@ -56,8 +56,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fReadPixelsRowBytesSupport = false;
     fShouldCollapseSrcOverToSrcWhenAble = false;
     fMustSyncGpuDuringAbandon = true;
-    fDriverDisableCCPR = false;
-    fDriverDisableMSAACCPR = false;
+    fDriverDisableMSAAClipAtlas = false;
     fDisableTessellationPathRenderer = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
@@ -113,8 +112,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fShaderCaps->applyOptionsOverrides(options);
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
-        SkASSERT(!fDriverDisableCCPR);
-        SkASSERT(!fDriverDisableMSAACCPR);
+        SkASSERT(!fDriverDisableMSAAClipAtlas);
         SkASSERT(!fDisableTessellationPathRenderer);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAvoidWritePixelsFastPath);
@@ -238,9 +236,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                        fTransferFromSurfaceToBufferSupport);
     writer->appendBool("Write pixels row bytes support", fWritePixelsRowBytesSupport);
     writer->appendBool("Read pixels row bytes support", fReadPixelsRowBytesSupport);
-    writer->appendBool("Disable CCPR on current driver [workaround]", fDriverDisableCCPR);
-    writer->appendBool("Disable MSAA version of CCPR on current driver [workaround]",
-                       fDriverDisableMSAACCPR);
+    writer->appendBool("Disable msaa clip mask atlas on current driver [workaround]",
+                       fDriverDisableMSAAClipAtlas);
     writer->appendBool("Disable GrTessellationPathRenderer current driver [workaround]",
                        fDisableTessellationPathRenderer);
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);

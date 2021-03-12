@@ -375,9 +375,8 @@ public:
     /// op instead of using glClear seems to resolve the issue.
     bool performStencilClearsAsDraws() const { return fPerformStencilClearsAsDraws; }
 
-    // Should we disable the CCPR code due to a faulty driver?
-    bool driverDisableCCPR() const { return fDriverDisableCCPR; }
-    bool driverDisableMSAACCPR() const { return fDriverDisableMSAACCPR; }
+    // Should we disable the clip mask atlas due to a faulty driver?
+    bool driverDisableMSAAClipAtlas() const { return fDriverDisableMSAAClipAtlas; }
 
     // Should we disable GrTessellationPathRenderer due to a faulty driver?
     bool disableTessellationPathRenderer() const { return fDisableTessellationPathRenderer; }
@@ -526,8 +525,7 @@ protected:
     bool fMustSyncGpuDuringAbandon                   : 1;
 
     // Driver workaround
-    bool fDriverDisableCCPR                          : 1;
-    bool fDriverDisableMSAACCPR                      : 1;
+    bool fDriverDisableMSAAClipAtlas                 : 1;
     bool fDisableTessellationPathRenderer            : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
