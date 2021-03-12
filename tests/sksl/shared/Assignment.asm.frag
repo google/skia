@@ -39,10 +39,10 @@ OpDecorate %57 RelaxedPrecision
 OpDecorate %_arr_int_int_1 ArrayStride 16
 OpDecorate %_arr_v4int_int_1 ArrayStride 16
 OpDecorate %_arr_mat3v3float_int_1 ArrayStride 48
+OpDecorate %69 RelaxedPrecision
 OpDecorate %70 RelaxedPrecision
 OpDecorate %71 RelaxedPrecision
 OpDecorate %72 RelaxedPrecision
-OpDecorate %69 RelaxedPrecision
 OpDecorate %_arr_v4float_int_1 ArrayStride 16
 OpDecorate %_arr_float_int_5 ArrayStride 16
 OpDecorate %_arr_v4float_int_5 ArrayStride 16
