@@ -22,6 +22,30 @@
       },
       "revId": "a31a17082b3da531588aef868711e3de99aa76e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb75135d_930b7648",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T16:24:02Z",
+      "side": 1,
+      "message": "Yeah, there was a thread about this on one of the chat rooms recently - bungeman made some changes to try and normalize how viewer works relative to retina resolution. I think that different aspects of the UI and slide content have surprising (sometimes) behavior.",
+      "parentUuid": "25af9398_199a4733",
+      "range": {
+        "startLine": 374,
+        "startChar": 40,
+        "endLine": 375,
+        "endChar": 92
+      },
+      "revId": "a31a17082b3da531588aef868711e3de99aa76e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

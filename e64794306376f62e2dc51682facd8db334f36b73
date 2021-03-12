@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a82c5e23_097319d8",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T16:24:02Z",
+      "side": 1,
+      "message": "You can just declare this as float2x2 here, and not need the cast later. (The C++ layout in the builder will remain the same).",
+      "range": {
+        "startLine": 349,
+        "startChar": 16,
+        "endLine": 349,
+        "endChar": 22
+      },
+      "revId": "e64794306376f62e2dc51682facd8db334f36b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5911ddec_4c1ce8a3",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T16:24:02Z",
+      "side": 1,
+      "message": "You can replace clamp(x, 0, 1) with saturate(x), if you\u0027d like",
+      "range": {
+        "startLine": 357,
+        "startChar": 25,
+        "endLine": 357,
+        "endChar": 30
+      },
+      "revId": "e64794306376f62e2dc51682facd8db334f36b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
