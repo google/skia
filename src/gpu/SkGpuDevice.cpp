@@ -622,6 +622,7 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool pathIsMutable) {
 #if GR_TEST_UTILS
     if (fContext->priv().options().fAllPathsVolatile && !origSrcPath.isVolatile()) {
@@ -632,6 +633,21 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
     if (!paint.getMaskFilter()) {
+        if (fSurfaceDrawContext->numSamples() == 1 && paint.isAntiAlias()) {
+            SkRect devBounds;
+            this->localToDevice().mapRect(&devBounds, origSrcPath.getBounds());
+            SkIRect devIBounds;
+            devBounds.roundOut(&devIBounds);
+            if (devIBounds.height64() * devIBounds.width64() <=
+                    GrCoverageCountingPathRenderer::kMaxClipPathArea) {
+                fClip.save();
+                fClip.clipPath(this->localToDevice(), origSrcPath, GrAA::kYes,
+                               SkClipOp::kIntersect);
+                this->drawRect(origSrcPath.getBounds(), paint);
+                fClip.restore();
+                return;
+            }
+        }
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
                               this->asMatrixProvider(), &grPaint)) {
