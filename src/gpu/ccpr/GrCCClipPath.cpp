@@ -13,9 +13,8 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
-void GrCCClipPath::init(
-        const SkPath& deviceSpacePath, const SkIRect& accessRect,
-        GrCCAtlas::CoverageType atlasCoverageType, const GrCaps& caps) {
+void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
+                        const GrCaps& caps) {
     SkASSERT(!this->isInitialized());
 
     fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
@@ -41,8 +40,7 @@ void GrCCClipPath::init(
                 return GrSurfaceProxy::LazyCallbackResult(
                         std::move(texture), true,
                         GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced);
-            },
-            atlasCoverageType, caps, GrSurfaceProxy::UseAllocator::kYes);
+            }, caps, GrSurfaceProxy::UseAllocator::kYes);
 
     fDeviceSpacePath = deviceSpacePath;
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);
