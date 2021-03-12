@@ -1561,15 +1561,15 @@ static void test_free_texture_messages(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == (freed[0] + freed[1] + freed[2]));
 
     // Send message to free the first resource
-    GrTextureFreedMessage msg1{wrapped[0], dContext->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg1);
+    GrTextureFreedMessage msg1{wrapped[0], dContext->directContextID()};
+    SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Post(msg1);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 1 == (freed[0] + freed[1] + freed[2]));
     REPORTER_ASSERT(reporter, 1 == freed[0]);
 
-    GrTextureFreedMessage msg2{wrapped[2], dContext->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg2);
+    GrTextureFreedMessage msg2{wrapped[2], dContext->directContextID()};
+    SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Post(msg2);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 2 == (freed[0] + freed[1] + freed[2]));
@@ -1606,13 +1606,13 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
 // This simulates a portion of Chrome's context abandonment processing.
 // Please see: crbug.com/1011368 and crbug.com/1014993
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    GrGpu* gpu = context->priv().getGpu();
-    GrResourceCache* cache = context->priv().getResourceCache();
+    auto dContext = ctxInfo.directContext();
+    GrGpu* gpu = dContext->priv().getGpu();
+    GrResourceCache* cache = dContext->priv().getResourceCache();
 
-    GrBackendTexture backend = context->createBackendTexture(16, 16,
-                                                             SkColorType::kRGBA_8888_SkColorType,
-                                                             GrMipmapped::kNo, GrRenderable::kNo);
+    GrBackendTexture backend = dContext->createBackendTexture(16, 16,
+                                                              SkColorType::kRGBA_8888_SkColorType,
+                                                              GrMipmapped::kNo, GrRenderable::kNo);
     GrTexture* tex = gpu->wrapBackendTexture(backend,
                                              GrWrapOwnership::kBorrow_GrWrapOwnership,
                                              GrWrapCacheable::kYes,
@@ -1637,18 +1637,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxIn
 
     // We must delete the backend texture before abandoning the context in vulkan. We just do it
     // for all the backends for consistency.
-    context->deleteBackendTexture(backend);
-    context->abandonContext();
+    dContext->deleteBackendTexture(backend);
+    dContext->abandonContext();
 
     REPORTER_ASSERT(reporter, 1 == freed);
 
     // In the past, creating this message could cause an exception due to
     // an un-safe downcast from GrTexture to GrGpuResource
-    GrTextureFreedMessage msg{tex, context->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg);
+    GrTextureFreedMessage msg{tex, dContext->directContextID()};
+    SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Post(msg);
 
     // This doesn't actually do anything but it does trigger us to read messages
-    context->purgeUnlockedResources(false);
+    dContext->purgeUnlockedResources(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
