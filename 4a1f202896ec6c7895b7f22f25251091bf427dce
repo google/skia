@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d6012af_b8ddf3ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-12T17:21:42Z",
+      "side": 1,
+      "message": "I\u0027ll let one of the other folks give the final +1. But scanning the generator changes it looks okay. And then looking at the added test, the outputted SPIR-V now looks to have all the RelaxedPrecision modifiers that I saw were missing originally.",
+      "revId": "4a1f202896ec6c7895b7f22f25251091bf427dce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
