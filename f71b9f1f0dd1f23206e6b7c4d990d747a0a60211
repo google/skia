@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62e5a6c8_ef9d5678",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-03-12T10:47:31Z",
+      "side": 1,
+      "message": "PTAL! This does not enable Tint on its own and instead a Dawn side patch will do that.",
+      "revId": "f71b9f1f0dd1f23206e6b7c4d990d747a0a60211",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
