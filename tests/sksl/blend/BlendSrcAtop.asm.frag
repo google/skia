@@ -22,11 +22,9 @@ OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
 OpDecorate %16 RelaxedPrecision
 OpDecorate %18 RelaxedPrecision
-OpDecorate %19 RelaxedPrecision
 OpDecorate %21 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
-OpDecorate %25 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4

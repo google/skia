@@ -25,16 +25,10 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %main RelaxedPrecision
-OpDecorate %TRUE RelaxedPrecision
-OpDecorate %FALSE RelaxedPrecision
-OpDecorate %ok RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
 OpDecorate %39 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
-OpDecorate %45 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
 OpDecorate %55 RelaxedPrecision
 OpDecorate %58 RelaxedPrecision

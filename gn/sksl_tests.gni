@@ -236,7 +236,6 @@ sksl_spirv_tests = [
   "/sksl/spirv/LayoutMultipleOf4.sksl",
   "/sksl/spirv/LayoutOutOfOrder.sksl",
   "/sksl/spirv/OpaqueTypeInArray.sksl",
-  "/sksl/spirv/PrecisionModifiers.sksl",
   "/sksl/errors/UndefinedFunction.sksl",
 ]
 
