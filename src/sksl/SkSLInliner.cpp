@@ -429,9 +429,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     switch (statement.kind()) {
         case Statement::Kind::kBlock: {
             const Block& b = statement.as<Block>();
-            return std::make_unique<Block>(offset, blockStmts(b),
-                                           SymbolTable::WrapIfBuiltin(b.symbolTable()),
-                                           b.isScope());
+            return Block::Make(offset, blockStmts(b), SymbolTable::WrapIfBuiltin(b.symbolTable()),
+                               b.isScope());
         }
 
         case Statement::Kind::kBreak:
@@ -506,8 +505,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                 block.reserve_back(2);
                 block.push_back(std::move(assignment));
                 block.push_back(ContinueStatement::Make(offset));
-                return std::make_unique<Block>(offset, std::move(block), /*symbols=*/nullptr,
-                                               /*isScope=*/true);
+                return Block::Make(offset, std::move(block), /*symbols=*/nullptr, /*isScope=*/true);
             }
             // Functions without early returns aren't wrapped in a for loop and don't need to worry
             // about breaking out of the control flow.
@@ -623,19 +621,14 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     bool hasEarlyReturn = (returnComplexity >= ReturnComplexity::kEarlyReturns);
 
     InlinedCall inlinedCall;
-    inlinedCall.fInlinedBody = std::make_unique<Block>(offset, StatementArray{},
-                                                       /*symbols=*/nullptr,
-                                                       /*isScope=*/false);
+    StatementArray inlinedBlockStmts;
+    inlinedBlockStmts.reserve_back(1 +                 // Inline marker
+                                   1 +                 // Result variable
+                                   arguments.size() +  // Function arguments (passing in)
+                                   arguments.size() +  // Function arguments (copy out-params back)
+                                   1);                 // Block for inlined code
 
-    Block& inlinedBody = *inlinedCall.fInlinedBody;
-    inlinedBody.children().reserve_back(
-            1 +                 // Inline marker
-            1 +                 // Result variable
-            arguments.size() +  // Function arguments (passing in)
-            arguments.size() +  // Function arguments (copy out-params back)
-            1);                 // Block for inlined code
-
-    inlinedBody.children().push_back(InlineMarker::Make(&call->function()));
+    inlinedBlockStmts.push_back(InlineMarker::Make(&call->function()));
 
     std::unique_ptr<Expression> resultExpr;
     if (returnComplexity > ReturnComplexity::kSingleSafeReturn &&
@@ -648,7 +641,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                       &function.declaration().returnType(),
                                                       symbolTable.get(), Modifiers{},
                                                       caller->isBuiltin(), &noInitialValue);
-        inlinedBody.children().push_back(std::move(var.fVarDecl));
+        inlinedBlockStmts.push_back(std::move(var.fVarDecl));
         resultExpr = std::make_unique<VariableReference>(/*offset=*/-1, var.fVarSymbol);
     }
 
@@ -675,7 +668,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         InlineVariable var = this->makeInlineVariable(param->name(), &arguments[i]->type(),
                                                       symbolTable.get(), param->modifiers(),
                                                       caller->isBuiltin(), &arguments[i]);
-        inlinedBody.children().push_back(std::move(var.fVarDecl));
+        inlinedBlockStmts.push_back(std::move(var.fVarDecl));
         varMap[param] = std::make_unique<VariableReference>(/*offset=*/-1, var.fVarSymbol);
     }
 
@@ -713,20 +706,20 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 Token::Kind::TK_PLUSPLUS);
 
         // {...}
-        auto innerBlock = std::make_unique<Block>(offset, StatementArray{},
-                                                  /*symbols=*/nullptr, /*isScope=*/true);
+        auto innerBlock = Block::Make(offset, StatementArray{},
+                                      /*symbols=*/nullptr, /*isScope=*/true);
         inlineStatements = &innerBlock->children();
 
         // for (int _1_loop = 0; _1_loop < 1; _1_loop++) {...}
-        inlinedBody.children().push_back(ForStatement::Make(*fContext, /*offset=*/-1,
-                                                            std::move(loopVar.fVarDecl),
-                                                            std::move(test),
-                                                            std::move(increment),
-                                                            std::move(innerBlock),
-                                                            symbolTable));
+        inlinedBlockStmts.push_back(ForStatement::Make(*fContext, /*offset=*/-1,
+                                                       std::move(loopVar.fVarDecl),
+                                                       std::move(test),
+                                                       std::move(increment),
+                                                       std::move(innerBlock),
+                                                       symbolTable));
     } else {
         // No early returns, so we can just dump the code into our existing scopeless block.
-        inlineStatements = &inlinedBody.children();
+        inlineStatements = &inlinedBlockStmts;
     }
 
     inlineStatements->reserve_back(body.children().size() + argsToCopyBack.size());
@@ -747,6 +740,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                        Token::Kind::TK_EQ,
                                        std::move(varMap[p]))));
     }
+
+    // Wrap all of the generated statements in a block. We need a real Block here, because we want
+    // to add more child statements to the Block later, so we don't use MakeUnscoped.
+    inlinedCall.fInlinedBody = Block::Make(offset, std::move(inlinedBlockStmts),
+                                           /*symbols=*/nullptr, /*isScope=*/false);
 
     if (resultExpr) {
         // Return our result expression as-is.
