@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a4d00d1_f91027d0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-12T17:31:18Z",
+      "side": 1,
+      "message": "Can the number of writes be less than 0? And if it is 0, don\u0027t we already know it doesn\u0027t have an initial value? If the intent of these permissive checks is to be graceful in the case of unexpected values, it seems like unexpected values should be resulting in an assertion failure rather than just silently proceeding.",
+      "range": {
+        "startLine": 620,
+        "startChar": 24,
+        "endLine": 620,
+        "endChar": 63
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2e7b798_425c2a1d",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-12T17:31:18Z",
+      "side": 1,
+      "message": "Similar here - counts-\u003efWrite can\u0027t be less than 1 if there\u0027s a value, can it? Seems like a value plus a count of less than 1 should be an assertion failure.",
+      "range": {
+        "startLine": 625,
+        "startChar": 31,
+        "endLine": 625,
+        "endChar": 69
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdae8c7f_5828fa4e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-12T17:31:18Z",
+      "side": 1,
+      "message": "Wouldn\u0027t hasSideEffects() tell us for sure whether the value is meaningful? If there\u0027s a value but there are no side effects, I\u0027d think we could just drop it as a nop in the previous branch.",
+      "range": {
+        "startLine": 626,
+        "startChar": 78,
+        "endLine": 626,
+        "endChar": 97
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f60623d4_6c573805",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-12T17:31:18Z",
+      "side": 1,
+      "message": "So I guess we\u0027re not trying to catch cases like \"int a \u003d 1; a \u003d 2;\" (with no further refs to \u0027a\u0027) -  this would be a dead variable, but won\u0027t be caught by this code. We clearly do eliminate \"int a \u003d 1;\" - does \"int a; a \u003d 1;\" get caught?\n\nIf I\u0027m reading the code right, it seems like it wouldn\u0027t be eliminated, but it would pass this check and make it into the full scan - which is unnecessary, because we already know that it won\u0027t pass. We could check whether it has an initial value and change the threshold on the number of writes in this test to match; should let us skip some unnecessary scans.",
+      "range": {
+        "startLine": 650,
+        "startChar": 57,
+        "endLine": 650,
+        "endChar": 75
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
