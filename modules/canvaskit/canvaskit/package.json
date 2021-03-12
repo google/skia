@@ -1,5 +1,5 @@
 {
-  "name": "canvaskit-wasm",
+  "name": "@bluescape/canvaskit-wasm",
   "version": "0.20.0",
   "description": "A WASM version of Skia's Canvas API",
   "main": "bin/canvaskit.js",
@@ -9,7 +9,7 @@
   },
   "permsRepo": "skia-dev/.github",
   "publishConfig": {
-    "registry": "https://wombat-dressing-room.appspot.com"
+    "registry": "https://artifactory.common.bluescape.com/api/npm/bluescape-common/"
   },
   "scripts": {
     "dtslint": "dtslint types"
