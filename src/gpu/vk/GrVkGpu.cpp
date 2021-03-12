@@ -424,47 +424,53 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                             GrColorType surfaceColorType, GrColorType srcColorType,
                             const GrMipLevel texels[], int mipLevelCount,
                             bool prepForTexSampling) {
-    GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
-    if (!vkTex) {
+    GrVkTexture* texture = static_cast<GrVkTexture*>(surface->asTexture());
+    if (!texture) {
         return false;
     }
+    GrVkAttachment* texAttachment = texture->textureAttachment();
 
     // Make sure we have at least the base level
     if (!mipLevelCount || !texels[0].fPixels) {
         return false;
     }
 
-    SkASSERT(!GrVkFormatIsCompressed(vkTex->imageFormat()));
+    SkASSERT(!GrVkFormatIsCompressed(texAttachment->imageFormat()));
     bool success = false;
-    bool linearTiling = vkTex->isLinearTiled();
+    bool linearTiling = texAttachment->isLinearTiled();
     if (linearTiling) {
         if (mipLevelCount > 1) {
             SkDebugf("Can't upload mipmap data to linear tiled texture");
             return false;
         }
-        if (VK_IMAGE_LAYOUT_PREINITIALIZED != vkTex->currentLayout()) {
+        if (VK_IMAGE_LAYOUT_PREINITIALIZED != texAttachment->currentLayout()) {
             // Need to change the layout to general in order to perform a host write
-            vkTex->setImageLayout(this,
-                                  VK_IMAGE_LAYOUT_GENERAL,
-                                  VK_ACCESS_HOST_WRITE_BIT,
-                                  VK_PIPELINE_STAGE_HOST_BIT,
-                                  false);
+            texAttachment->setImageLayout(this,
+                                          VK_IMAGE_LAYOUT_GENERAL,
+                                          VK_ACCESS_HOST_WRITE_BIT,
+                                          VK_PIPELINE_STAGE_HOST_BIT,
+                                          false);
             if (!this->submitCommandBuffer(kForce_SyncQueue)) {
                 return false;
             }
         }
-        success = this->uploadTexDataLinear(vkTex, left, top, width, height, srcColorType,
+        success = this->uploadTexDataLinear(texAttachment, left, top, width, height, srcColorType,
                                             texels[0].fPixels, texels[0].fRowBytes);
     } else {
-        SkASSERT(mipLevelCount <= vkTex->maxMipmapLevel() + 1);
-        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, srcColorType, texels,
-                                             mipLevelCount);
+        SkASSERT(mipLevelCount <= (int)texAttachment->mipLevels());
+        success = this->uploadTexDataOptimal(texAttachment, left, top, width, height, srcColorType,
+                                             texels, mipLevelCount);
+        if (1 == mipLevelCount) {
+            texture->markMipmapsDirty();
+        }
     }
 
     if (prepForTexSampling) {
-        vkTex->setImageLayout(this, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                              VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                              false);
+        texAttachment->setImageLayout(this,
+                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                      VK_ACCESS_SHADER_READ_BIT,
+                                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                      false);
     }
 
     return success;
@@ -490,10 +496,11 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     if ((bufferOffset & 0x3) || (bufferOffset % bpp)) {
         return false;
     }
-    GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);
-    if (!vkTex) {
+    GrVkTexture* tex = static_cast<GrVkTexture*>(texture);
+    if (!tex) {
         return false;
     }
+    GrVkAttachment* vkTex = tex->textureAttachment();
 
     // Can't transfer compressed data
     SkASSERT(!GrVkFormatIsCompressed(vkTex->imageFormat()));
@@ -536,7 +543,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                                                     &region);
     this->currentCommandBuffer()->addGrBuffer(std::move(transferBuffer));
 
-    vkTex->markMipmapsDirty();
+    tex->markMipmapsDirty();
     return true;
 }
 
@@ -568,7 +575,8 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         }
         srcImage = rt->nonMSAAAttachment();
     } else {
-        srcImage = static_cast<GrVkTexture*>(surface->asTexture());
+        SkASSERT(surface->asTexture());
+        srcImage = static_cast<GrVkTexture*>(surface->asTexture())->textureAttachment();
     }
 
     if (GrVkFormatBytesPerBlock(srcImage->imageFormat()) !=
@@ -626,12 +634,12 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
     GrRenderTarget* dstRT = dst->asRenderTarget();
     GrTexture* dstTex = dst->asTexture();
     if (dstTex) {
-        dstImage = static_cast<GrVkTexture*>(dstTex);
+        dstImage = static_cast<GrVkTexture*>(dstTex)->textureAttachment();
     } else {
         SkASSERT(dst->asRenderTarget());
         dstImage = static_cast<GrVkRenderTarget*>(dstRT)->nonMSAAAttachment();
-        SkASSERT(dstImage);
     }
+    SkASSERT(dstImage);
 
     dstImage->setImageLayout(this,
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -665,21 +673,22 @@ void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
                        SkIPoint::Make(resolveRect.x(), resolveRect.y()));
 }
 
-bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width, int height,
-                                  GrColorType dataColorType, const void* data, size_t rowBytes) {
+bool GrVkGpu::uploadTexDataLinear(GrVkAttachment* texAttachment, int left, int top, int width,
+                                  int height, GrColorType dataColorType, const void* data,
+                                  size_t rowBytes) {
     SkASSERT(data);
-    SkASSERT(tex->isLinearTiled());
+    SkASSERT(texAttachment->isLinearTiled());
 
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
-        SkIRect bounds = SkIRect::MakeWH(tex->width(), tex->height());
+        SkIRect bounds = SkIRect::MakeWH(texAttachment->width(), texAttachment->height());
         SkASSERT(bounds.contains(subRect));
     )
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
     size_t trimRowBytes = width * bpp;
 
-    SkASSERT(VK_IMAGE_LAYOUT_PREINITIALIZED == tex->currentLayout() ||
-             VK_IMAGE_LAYOUT_GENERAL == tex->currentLayout());
+    SkASSERT(VK_IMAGE_LAYOUT_PREINITIALIZED == texAttachment->currentLayout() ||
+             VK_IMAGE_LAYOUT_GENERAL == texAttachment->currentLayout());
     const VkImageSubresource subres = {
         VK_IMAGE_ASPECT_COLOR_BIT,
         0,  // mipLevel
@@ -690,11 +699,11 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
     const GrVkInterface* interface = this->vkInterface();
 
     GR_VK_CALL(interface, GetImageSubresourceLayout(fDevice,
-                                                    tex->image(),
+                                                    texAttachment->image(),
                                                     &subres,
                                                     &layout));
 
-    const GrVkAlloc& alloc = tex->alloc();
+    const GrVkAlloc& alloc = texAttachment->alloc();
     if (VK_NULL_HANDLE == alloc.fMemory) {
         return false;
     }
@@ -777,42 +786,46 @@ static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
     return combinedBufferSize;
 }
 
-bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int width, int height,
-                                   GrColorType dataColorType, const GrMipLevel texels[],
+bool GrVkGpu::uploadTexDataOptimal(GrVkAttachment* texAttachment, int left, int top, int width,
+                                   int height, GrColorType dataColorType, const GrMipLevel texels[],
                                    int mipLevelCount) {
     if (!this->currentCommandBuffer()) {
         return false;
     }
 
-    SkASSERT(!tex->isLinearTiled());
+    SkASSERT(!texAttachment->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(1 == mipLevelCount ||
-             (0 == left && 0 == top && width == tex->width() && height == tex->height()));
+             (0 == left && 0 == top && width == texAttachment->width() &&
+              height == texAttachment->height()));
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
-    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->maxMipmapLevel() + 1));
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (int)texAttachment->mipLevels());
 
     if (width == 0 || height == 0) {
         return false;
     }
 
-    SkASSERT(this->vkCaps().surfaceSupportsWritePixels(tex));
-    SkASSERT(this->vkCaps().areColorTypeAndFormatCompatible(dataColorType, tex->backendFormat()));
+    SkASSERT(this->vkCaps().surfaceSupportsWritePixels(texAttachment));
+    SkASSERT(this->vkCaps().areColorTypeAndFormatCompatible(
+            dataColorType, texAttachment->backendFormat()));
 
     // For RGB_888x src data we are uploading it first to an RGBA texture and then copying it to the
     // dst RGB texture. Thus we do not upload mip levels for that.
-    if (dataColorType == GrColorType::kRGB_888x && tex->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
+    if (dataColorType == GrColorType::kRGB_888x &&
+        texAttachment->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
         // First check that we'll be able to do the copy to the to the R8G8B8 image in the end via a
         // blit or draw.
-        if (!this->vkCaps().formatCanBeDstofBlit(VK_FORMAT_R8G8B8_UNORM, tex->isLinearTiled()) &&
+        if (!this->vkCaps().formatCanBeDstofBlit(VK_FORMAT_R8G8B8_UNORM,
+                                                 texAttachment->isLinearTiled()) &&
             !this->vkCaps().isFormatRenderable(VK_FORMAT_R8G8B8_UNORM, 1)) {
             return false;
         }
         mipLevelCount = 1;
     }
 
-    SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
+    SkASSERT(this->vkCaps().isVkFormatTexturable(texAttachment->imageFormat()));
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     // texels is const.
@@ -868,39 +881,27 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
     int uploadLeft = left;
     int uploadTop = top;
-    GrVkTexture* uploadTexture = tex;
+    GrVkAttachment* uploadTexture = texAttachment;
     // For uploading RGB_888x data to an R8G8B8_UNORM texture we must first upload the data to an
     // R8G8B8A8_UNORM image and then copy it.
-    sk_sp<GrVkTexture> copyTexture;
-    if (dataColorType == GrColorType::kRGB_888x && tex->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
-        bool dstHasYcbcr = tex->ycbcrConversionInfo().isValid();
-        if (!this->vkCaps().canCopyAsBlit(tex->imageFormat(), 1, false, dstHasYcbcr,
+    sk_sp<GrVkAttachment> copyTexAttachment;
+    if (dataColorType == GrColorType::kRGB_888x &&
+        texAttachment->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
+        bool dstHasYcbcr = texAttachment->ycbcrConversionInfo().isValid();
+        if (!this->vkCaps().canCopyAsBlit(texAttachment->imageFormat(), 1, false, dstHasYcbcr,
                                           VK_FORMAT_R8G8B8A8_UNORM, 1, false, false)) {
             return false;
         }
 
-        VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
-                                       VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                       VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-        GrVkImage::ImageDesc imageDesc;
-        imageDesc.fImageType = VK_IMAGE_TYPE_2D;
-        imageDesc.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
-        imageDesc.fWidth = width;
-        imageDesc.fHeight = height;
-        imageDesc.fLevels = 1;
-        imageDesc.fSamples = 1;
-        imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-        imageDesc.fUsageFlags = usageFlags;
-        imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-        copyTexture = GrVkTexture::MakeNewTexture(this, SkBudgeted::kYes, {width, height},
-                                                  imageDesc, GrMipmapStatus::kNotAllocated);
-        if (!copyTexture) {
+        copyTexAttachment = GrVkAttachment::MakeTexture(this, {width, height},
+                                                        VK_FORMAT_R8G8B8A8_UNORM, /*mipLevels=*/1,
+                                                        GrRenderable::kNo, /*numSamples=*/1,
+                                                        SkBudgeted::kYes, GrProtected::kNo);
+        if (!copyTexAttachment) {
             return false;
         }
 
-        uploadTexture = copyTexture.get();
+        uploadTexture = copyTexAttachment.get();
         uploadLeft = 0;
         uploadTop = 0;
     }
@@ -958,13 +959,11 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
     // If we copied the data into a temporary image first, copy that image into our main texture
     // now.
-    if (copyTexture) {
+    if (copyTexAttachment) {
         SkASSERT(dataColorType == GrColorType::kRGB_888x);
-        SkAssertResult(this->copySurface(tex, copyTexture.get(), SkIRect::MakeWH(width, height),
+        SkAssertResult(this->copySurface(texAttachment, copyTexAttachment.get(),
+                                         SkIRect::MakeWH(width, height),
                                          SkIPoint::Make(left, top)));
-    }
-    if (1 == mipLevelCount) {
-        tex->markMipmapsDirty();
     }
 
     return true;
@@ -972,7 +971,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
 // It's probably possible to roll this into uploadTexDataOptimal,
 // but for now it's easier to maintain as a separate entity.
-bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
+bool GrVkGpu::uploadTexDataCompressed(GrVkAttachment* uploadTexture,
                                       SkImage::CompressionType compression, VkFormat vkFormat,
                                       SkISize dimensions, GrMipmapped mipMapped,
                                       const void* data, size_t dataSize) {
@@ -1047,36 +1046,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
     SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
-
-    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
-    if (renderable == GrRenderable::kYes) {
-        usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        // We always make our render targets support being used as input attachments
-        usageFlags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-    }
-
-    // For now we will set the VK_IMAGE_USAGE_TRANSFER_DESTINATION_BIT and
-    // VK_IMAGE_USAGE_TRANSFER_SOURCE_BIT on every texture since we do not know whether or not we
-    // will be using this texture in some copy or not. Also this assumes, as is the current case,
-    // that all render targets in vulkan are also textures. If we change this practice of setting
-    // both bits, we must make sure to set the destination bit if we are uploading srcData to the
-    // texture.
-    usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-    // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
-    // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
-    // to 1.
     SkASSERT(mipLevelCount > 0);
-    GrVkImage::ImageDesc imageDesc;
-    imageDesc.fImageType = VK_IMAGE_TYPE_2D;
-    imageDesc.fFormat = pixelFormat;
-    imageDesc.fWidth = dimensions.fWidth;
-    imageDesc.fHeight = dimensions.fHeight;
-    imageDesc.fLevels = mipLevelCount;
-    imageDesc.fSamples = 1;
-    imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    imageDesc.fUsageFlags = usageFlags;
-    imageDesc.fIsProtected = isProtected;
 
     GrMipmapStatus mipmapStatus =
             mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
@@ -1084,9 +1054,11 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
     sk_sp<GrVkTexture> tex;
     if (renderable == GrRenderable::kYes) {
         tex = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, budgeted, dimensions, renderTargetSampleCnt, imageDesc, mipmapStatus);
+                this, budgeted, dimensions, pixelFormat, mipLevelCount, renderTargetSampleCnt,
+                mipmapStatus, isProtected);
     } else {
-        tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipmapStatus);
+        tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, pixelFormat,
+                                          mipLevelCount, isProtected, mipmapStatus);
     }
 
     if (!tex) {
@@ -1099,7 +1071,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
         }
         SkSTArray<1, VkImageSubresourceRange> ranges;
         bool inRange = false;
-        for (uint32_t i = 0; i < tex->mipLevels(); ++i) {
+        GrVkImage* texImage = tex->textureAttachment();
+        for (uint32_t i = 0; i < texImage->mipLevels(); ++i) {
             if (levelClearMask & (1U << i)) {
                 if (inRange) {
                     ranges.back().levelCount++;
@@ -1118,9 +1091,9 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
         }
         SkASSERT(!ranges.empty());
         static constexpr VkClearColorValue kZeroClearColor = {};
-        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        texImage->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                             VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
-        this->currentCommandBuffer()->clearColorImage(this, tex.get(), &kZeroClearColor,
+        this->currentCommandBuffer()->clearColorImage(this, texImage, &kZeroClearColor,
                                                       ranges.count(), ranges.begin());
     }
     return std::move(tex);
@@ -1136,44 +1109,23 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
     SkAssertResult(format.asVkFormat(&pixelFormat));
     SkASSERT(GrVkFormatIsCompressed(pixelFormat));
 
-    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
-
-    // For now we will set the VK_IMAGE_USAGE_TRANSFER_DESTINATION_BIT and
-    // VK_IMAGE_USAGE_TRANSFER_SOURCE_BIT on every texture since we do not know whether or not we
-    // will be using this texture in some copy or not. Also this assumes, as is the current case,
-    // that all render targets in vulkan are also textures. If we change this practice of setting
-    // both bits, we must make sure to set the destination bit if we are uploading srcData to the
-    // texture.
-    usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
     int numMipLevels = 1;
     if (mipMapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
     }
 
-    // Compressed textures with MIP levels or multiple samples are not supported as of now.
-    GrVkImage::ImageDesc imageDesc;
-    imageDesc.fImageType = VK_IMAGE_TYPE_2D;
-    imageDesc.fFormat = pixelFormat;
-    imageDesc.fWidth = dimensions.width();
-    imageDesc.fHeight = dimensions.height();
-    imageDesc.fLevels = numMipLevels;
-    imageDesc.fSamples = 1;
-    imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    imageDesc.fUsageFlags = usageFlags;
-    imageDesc.fIsProtected = isProtected;
-
     GrMipmapStatus mipmapStatus = (mipMapped == GrMipmapped::kYes) ? GrMipmapStatus::kValid
                                                                    : GrMipmapStatus::kNotAllocated;
 
-    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipmapStatus);
+    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, pixelFormat,
+                                           numMipLevels, isProtected, mipmapStatus);
     if (!tex) {
         return nullptr;
     }
 
     SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
-    if (!this->uploadTexDataCompressed(tex.get(), compression, pixelFormat, dimensions, mipMapped,
-                                       data, dataSize)) {
+    if (!this->uploadTexDataCompressed(tex->textureAttachment(), compression, pixelFormat,
+                                       dimensions, mipMapped, data, dataSize)) {
         return nullptr;
     }
 
@@ -1434,7 +1386,7 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     if (!this->currentCommandBuffer()) {
         return false;
     }
-    auto* vkTex = static_cast<GrVkTexture*>(tex);
+    auto* vkTex = static_cast<GrVkTexture*>(tex)->textureAttachment();
     // don't do anything for linearly tiled textures (can't have mipmaps)
     if (vkTex->isLinearTiled()) {
         SkDebugf("Trying to create mipmap for linear tiled texture");
@@ -1671,14 +1623,16 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     if (!texture) {
         return false;
     }
+    GrVkAttachment* texAttachment = texture->textureAttachment();
 
     GrVkPrimaryCommandBuffer* cmdBuffer = this->currentCommandBuffer();
     if (!cmdBuffer) {
         return false;
     }
 
-    texture->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
+    texAttachment->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  false);
 
     // Unfortunately, CmdClearColorImage doesn't work for compressed formats
     bool fastPath = data->type() == BackendTextureData::Type::kColor &&
@@ -1700,7 +1654,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         range.baseMipLevel = 0;
         range.layerCount = 1;
         range.levelCount = info.fLevelCount;
-        cmdBuffer->clearColorImage(this, texture.get(), &vkColor, 1, &range);
+        cmdBuffer->clearColorImage(this, texAttachment, &vkColor, 1, &range);
     } else {
         SkImage::CompressionType compression = GrBackendFormatToCompressionType(
                 backendTexture.getBackendFormat());
@@ -1738,16 +1692,16 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         // command buffer has a ref on the buffer. This avoids having to add and remove a ref for
         // every upload in the frame.
         const GrVkBuffer* vkBuffer = static_cast<GrVkBuffer*>(slice.fBuffer);
-        cmdBuffer->copyBufferToImage(this, vkBuffer->vkBuffer(),
-                                     texture.get(), texture->currentLayout(), regions.count(),
+        cmdBuffer->copyBufferToImage(this, vkBuffer->vkBuffer(), texAttachment,
+                                     texAttachment->currentLayout(), regions.count(),
                                      regions.begin());
     }
 
     // Change image layout to shader read since if we use this texture as a borrowed
     // texture within Ganesh we require that its layout be set to that
-    texture->setImageLayout(this, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                            VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                            false);
+    texAttachment->setImageLayout(this, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                  false);
 
     if (finishedCallback) {
         this->addFinishedCallback(std::move(finishedCallback));
@@ -1835,9 +1789,10 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                      SkISize dimensions,
                                      const GrVkSharedImageInfo& newInfo,
                                      GrBackendSurfaceMutableState* previousState) {
-    sk_sp<GrVkTexture> texture = GrVkTexture::MakeWrappedTexture(
-            this, dimensions, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType, info,
-            std::move(currentState));
+    sk_sp<GrVkAttachment> texture = GrVkAttachment::MakeWrapped(
+            this, dimensions, info, std::move(currentState),
+           GrVkAttachment::UsageFlags::kColorAttachment, kBorrow_GrWrapOwnership,
+           GrWrapCacheable::kNo, /*forSecondaryCB=*/false);
     SkASSERT(texture);
     if (!texture) {
         return false;
@@ -2136,7 +2091,7 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
         for (GrSurfaceProxy* proxy : proxies) {
             SkASSERT(proxy->isInstantiated());
             if (GrTexture* tex = proxy->peekTexture()) {
-                image = static_cast<GrVkTexture*>(tex);
+                image = static_cast<GrVkTexture*>(tex)->textureAttachment();
             } else {
                 GrRenderTarget* rt = proxy->peekRenderTarget();
                 SkASSERT(rt);
@@ -2198,18 +2153,6 @@ void GrVkGpu::onReportSubmitHistograms() {
 #endif
 }
 
-static int get_surface_sample_cnt(GrSurface* surf, const GrVkCaps& caps) {
-    if (const GrRenderTarget* rt = surf->asRenderTarget()) {
-        auto vkRT = static_cast<const GrVkRenderTarget*>(rt);
-        if (caps.preferDiscardableMSAAAttachment() && vkRT->resolveAttachment() &&
-            vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
-            return 1;
-        }
-        return rt->numSamples();
-    }
-    return 0;
-}
-
 void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
                                      GrVkImage* srcImage, const SkIRect& srcRect,
                                      const SkIPoint& dstPoint) {
@@ -2218,8 +2161,8 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
     }
 
 #ifdef SK_DEBUG
-    int dstSampleCnt = get_surface_sample_cnt(dst, this->vkCaps());
-    int srcSampleCnt = get_surface_sample_cnt(src, this->vkCaps());
+    int dstSampleCnt = dstImage->vkImageInfo().fSampleCount;
+    int srcSampleCnt = srcImage->vkImageInfo().fSampleCount;
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
     VkFormat dstFormat = dstImage->imageFormat();
@@ -2279,8 +2222,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
     }
 
 #ifdef SK_DEBUG
-    int dstSampleCnt = get_surface_sample_cnt(dst, this->vkCaps());
-    int srcSampleCnt = get_surface_sample_cnt(src, this->vkCaps());
+    int dstSampleCnt = dstImage->vkImageInfo().fSampleCount;
+    int srcSampleCnt = srcImage->vkImageInfo().fSampleCount;
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
     VkFormat dstFormat = dstImage->imageFormat();
@@ -2363,9 +2306,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return false;
     }
 
-    int dstSampleCnt = get_surface_sample_cnt(dst, this->vkCaps());
-    int srcSampleCnt = get_surface_sample_cnt(src, this->vkCaps());
-
     bool useDiscardableMSAA = this->vkCaps().preferDiscardableMSAAAttachment();
 
     GrVkImage* dstImage;
@@ -2382,9 +2322,11 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         } else {
             dstImage = vkRT->colorAttachment();
         }
+    } else if (dst->asTexture()) {
+        dstImage = static_cast<GrVkTexture*>(dst->asTexture())->textureAttachment();
     } else {
-        SkASSERT(dst->asTexture());
-        dstImage = static_cast<GrVkTexture*>(dst->asTexture());
+        // The surface in a GrAttachment already
+        dstImage = static_cast<GrVkAttachment*>(dst);
     }
     GrRenderTarget* srcRT = src->asRenderTarget();
     if (srcRT) {
@@ -2395,13 +2337,19 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         } else {
             srcImage = vkRT->colorAttachment();
         }
-    } else {
+    } else if (src->asTexture()) {
         SkASSERT(src->asTexture());
-        srcImage = static_cast<GrVkTexture*>(src->asTexture());
+        srcImage = static_cast<GrVkTexture*>(src->asTexture())->textureAttachment();
+    } else {
+        // The surface in a GrAttachment already
+        srcImage = static_cast<GrVkAttachment*>(src);
     }
 
     VkFormat dstFormat = dstImage->imageFormat();
     VkFormat srcFormat = srcImage->imageFormat();
+
+    int dstSampleCnt = dstImage->vkImageInfo().fSampleCount;
+    int srcSampleCnt = srcImage->vkImageInfo().fSampleCount;
 
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
@@ -2454,7 +2402,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         }
         image = rt->nonMSAAAttachment();
     } else {
-        image = static_cast<GrVkTexture*>(surface->asTexture());
+        image = static_cast<GrVkTexture*>(surface->asTexture())->textureAttachment();
     }
 
     if (!image) {
@@ -2464,7 +2412,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     // Skia's RGB_888x color type, which we map to the vulkan R8G8B8_UNORM, expects the data to be
     // 32 bits, but the Vulkan format is only 24. So we first copy the surface into an R8G8B8A8
     // image and then do the read pixels from that.
-    sk_sp<GrVkTextureRenderTarget> copySurface;
+    sk_sp<GrVkAttachment> copySurface;
     if (dstColorType == GrColorType::kRGB_888x && image->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
         int srcSampleCount = 0;
         if (rt) {
@@ -2495,9 +2443,10 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         imageDesc.fUsageFlags = usageFlags;
         imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-        copySurface = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, SkBudgeted::kYes, {width, height}, 1, imageDesc,
-                GrMipmapStatus::kNotAllocated);
+        copySurface =
+                GrVkAttachment::MakeTexture(this, {width, height}, VK_FORMAT_R8G8B8A8_UNORM,
+                                            /*mipLevels=*/1, GrRenderable::kYes, /*numSamples=*/1,
+                                            SkBudgeted::kYes, GrProtected::kNo);
         if (!copySurface) {
             return false;
         }
@@ -2715,7 +2664,7 @@ void GrVkGpu::waitSemaphore(GrSemaphore* semaphore) {
 
 std::unique_ptr<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     SkASSERT(texture);
-    GrVkTexture* vkTexture = static_cast<GrVkTexture*>(texture);
+    GrVkAttachment* vkTexture = static_cast<GrVkTexture*>(texture)->textureAttachment();
     vkTexture->setImageLayout(this,
                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                               VK_ACCESS_SHADER_READ_BIT,

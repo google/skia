@@ -70,7 +70,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
     REPORTER_ASSERT(reporter, texture);
 
     // Verify that modifying the layout via the GrVkTexture is reflected in the GrBackendTexture
-    GrVkTexture* vkTexture = static_cast<GrVkTexture*>(texture);
+    GrVkAttachment* vkTexture = static_cast<GrVkTexture*>(texture)->textureAttachment();
     REPORTER_ASSERT(reporter, initLayout == vkTexture->currentLayout());
     REPORTER_ASSERT(reporter, initQueue == vkTexture->currentQueueFamilyIndex());
     vkTexture->updateImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
