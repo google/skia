@@ -131,8 +131,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::onRefPipelineStat
     if (entry && !(*entry)->fPipelineState) {
         // We've pre-compiled the MSL shaders but don't have the pipelineState
         const GrMtlPrecompiledLibraries* precompiledLibs = &((*entry)->fPrecompiledLibraries);
-        SkASSERT(precompiledLibs->fVertexLibrary);
-        SkASSERT(precompiledLibs->fFragmentLibrary);
+        SkASSERT(precompiledLibs->fPipelineState);
         (*entry)->fPipelineState.reset(
                 GrMtlPipelineStateBuilder::CreatePipelineState(fGpu, desc, programInfo,
                                                                precompiledLibs));
@@ -142,9 +141,8 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::onRefPipelineStat
             fStats.incNumCompilationFailures();
             return nullptr;
         }
-        // release the libraries
-        (*entry)->fPrecompiledLibraries.fVertexLibrary = nil;
-        (*entry)->fPrecompiledLibraries.fFragmentLibrary = nil;
+        // release the ref on the pipeline state
+        (*entry)->fPrecompiledLibraries.fPipelineState = nil;
 
         fStats.incNumPartialCompilationSuccesses();
         *stat = Stats::ProgramCacheResult::kPartial;
