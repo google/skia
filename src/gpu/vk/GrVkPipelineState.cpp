@@ -140,12 +140,13 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
 
         if (fNumSamplers == 1) {
             auto texture = samplerBindings[0].fTexture;
+            auto texAttachment = texture->textureAttachment();
             const auto& samplerState = samplerBindings[0].fState;
             const GrVkDescriptorSet* descriptorSet = texture->cachedSingleDescSet(samplerState);
             if (descriptorSet) {
                 commandBuffer->addGrSurface(sk_ref_sp<const GrSurface>(texture));
-                commandBuffer->addResource(texture->textureView());
-                commandBuffer->addResource(texture->resource());
+                commandBuffer->addResource(texAttachment->textureView());
+                commandBuffer->addResource(texAttachment->resource());
                 commandBuffer->addRecycledResource(descriptorSet);
                 commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kSamplerDSIdx,
                                                   /*setCount=*/1, descriptorSet->descriptorSet(),
@@ -164,14 +165,15 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         for (int i = 0; i < fNumSamplers; ++i) {
             GrSamplerState state = samplerBindings[i].fState;
             GrVkTexture* texture = samplerBindings[i].fTexture;
+            auto texAttachment = texture->textureAttachment();
 
-            const GrVkImageView* textureView = texture->textureView();
+            const GrVkImageView* textureView = texAttachment->textureView();
             const GrVkSampler* sampler = nullptr;
             if (fImmutableSamplers[i]) {
                 sampler = fImmutableSamplers[i];
             } else {
                 sampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
-                        state, texture->ycbcrConversionInfo());
+                        state, texAttachment->ycbcrConversionInfo());
             }
             SkASSERT(sampler);
 
@@ -200,8 +202,8 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
             if (!fImmutableSamplers[i]) {
                 sampler->unref();
             }
-            commandBuffer->addResource(samplerBindings[i].fTexture->textureView());
-            commandBuffer->addResource(samplerBindings[i].fTexture->resource());
+            commandBuffer->addResource(textureView);
+            commandBuffer->addResource(texAttachment->resource());
         }
         if (fNumSamplers == 1) {
             GrSamplerState state = samplerBindings[0].fState;
