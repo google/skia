@@ -347,6 +347,10 @@ void GrDrawingManager::removeRenderTasks() {
     }
     fDAG.reset();
     fLastRenderTasks.reset();
+    for (const sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
+        onFlushRenderTask->disown(this);
+    }
+    fOnFlushRenderTasks.reset();
 }
 
 void GrDrawingManager::sortTasks() {
