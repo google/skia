@@ -332,8 +332,8 @@ void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclar
     const VarDeclaration& decl = g.declaration()->as<VarDeclaration>();
     const Variable& var = decl.var();
 
-    if (var.isBuiltin()) {
-        // Don't mangle the name or re-declare this. (eg, sk_FragCoord)
+    if (var.isBuiltin() || var.type().isOpaque()) {
+        // Don't re-declare these. (eg, sk_FragCoord, or fragmentProcessor children)
     } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
         String uniformName = fCallbacks->declareUniform(&decl);
         fVariableNames.insert({&var, std::move(uniformName)});
