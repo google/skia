@@ -33,6 +33,24 @@
       "message": "Did a less-than-thorough review, trusting the bots.",
       "revId": "6899842183294e6e37be545f378dfd0da46795aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abdbe08a_9c985966",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T16:01:56Z",
+      "side": 1,
+      "message": "Thanks! Yeah, I think the bots can be pretty trustworthy in this case.",
+      "parentUuid": "7a1a2c6e_02f9d6a9",
+      "revId": "6899842183294e6e37be545f378dfd0da46795aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
