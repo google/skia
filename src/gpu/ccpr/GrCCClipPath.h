@@ -58,7 +58,7 @@ public:
         return fPathDevIBounds;
     }
 
-    void accountForOwnPath(GrCCPerFlushResourceSpecs*) const;
+    void accountForOwnPath(GrCCAtlas::Specs*) const;
     void renderPathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
 
     const SkIVector& atlasTranslate() const {
