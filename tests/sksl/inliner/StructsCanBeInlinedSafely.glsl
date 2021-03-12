@@ -14,5 +14,4 @@ void main() {
     _0_c.blue = 0.75;
     _0_c.alpha = 1.0;
     sk_FragColor = vec4(_0_c.red, _0_c.green, _0_c.blue, _0_c.alpha);
-
 }

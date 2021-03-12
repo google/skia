@@ -9,5 +9,4 @@ vec4 grow(vec4 v) {
 void main() {
     for (sk_FragColor = vec4(0.0625);shouldLoop(sk_FragColor); sk_FragColor = grow(sk_FragColor)) {
     }
-
 }

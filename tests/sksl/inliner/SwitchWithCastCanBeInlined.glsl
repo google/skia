@@ -12,5 +12,4 @@ void main() {
             break;
     }
     sk_FragColor = _0_result;
-
 }

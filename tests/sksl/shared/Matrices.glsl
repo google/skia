@@ -37,5 +37,4 @@ vec4 main() {
     mat4 _11_m11 = mat4(2.0);
     _11_m11 -= _10_m10;
     return true && test_half() ? colorGreen : colorRed;
-
 }

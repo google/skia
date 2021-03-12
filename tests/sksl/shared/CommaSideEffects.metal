@@ -19,9 +19,6 @@ void _skOutParamHelper0_setToColorBlack(Uniforms _uniforms, thread float4& d) {
     d = _var0;
 }
 
-
-
-
 void setToColorBlack(Uniforms _uniforms, thread float4& x) {
     x = _uniforms.colorBlack;
 }
@@ -32,7 +29,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float4 b;
     float4 c;
     float4 d;
-
     (b = _uniforms.colorRed , c = _uniforms.colorGreen);
     a = (    _skOutParamHelper0_setToColorBlack(_uniforms, d) , _uniforms.colorWhite);
     a *= a;

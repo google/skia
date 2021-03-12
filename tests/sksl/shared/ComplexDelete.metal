@@ -16,8 +16,6 @@ struct Globals {
 thread bool operator!=(const float4x4 left, const float4x4 right) {
     return any(left[0] != right[0]) || any(left[1] != right[1]) || any(left[2] != right[2]) || any(left[3] != right[3]);
 }
-
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], texture2d<float> s[[texture(0)]], sampler sSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{s, sSmplr};
     (void)_globals;

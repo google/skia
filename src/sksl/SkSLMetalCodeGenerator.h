@@ -126,6 +126,8 @@ protected:
 
     void writeLine(const String& s);
 
+    void finishLine();
+
     void writeHeader();
 
     void writeUniformStruct();

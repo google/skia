@@ -21,7 +21,6 @@ void _skOutParamHelper0_modifies_a_struct(thread S& s) {
     s = _var0;
 }
 
-
 S returns_a_struct() {
     S s;
     s.x = 1.0;

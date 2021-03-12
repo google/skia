@@ -12,5 +12,4 @@ vec4 main() {
     float _4_z = _0_v[_1_i.z];
     float _5_w = _0_v[_1_i.w];
     return vec4(_2_x, _3_y, _4_z, _5_w) == vec4(-1.25, -1.25, -1.25, 0.0) ? colorGreen : colorRed;
-
 }

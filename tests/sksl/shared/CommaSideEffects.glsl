@@ -12,7 +12,6 @@ vec4 main() {
     vec4 b;
     vec4 c;
     vec4 d;
-
     (b = colorRed , c = colorGreen);
     a = (setToColorBlack(d) , colorWhite);
     a *= a;

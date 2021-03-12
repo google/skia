@@ -11,10 +11,8 @@ vec4 live_fn(vec4 a, vec4 b) {
 vec4 main() {
     const bool TRUE = true;
     const bool FALSE = false;
-
     vec4 a;
     vec4 b;
-
     {
         a = live_fn(vec4(3.0), vec4(-5.0));
     }

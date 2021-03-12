@@ -24,7 +24,6 @@ void _skOutParamHelper1_func(thread float4& result) {
     result = _var0;
 }
 
-
 float2 tricky(float x, float y, thread float2& color, float z) {
     color = color.yx;
     return float2(x + y, z);

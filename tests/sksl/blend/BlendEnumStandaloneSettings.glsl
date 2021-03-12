@@ -10,10 +10,7 @@ void main() {
                 _0_blend = src * dst;
                 continue;
             }
-
-
         }
     }
     sk_FragColor = _0_blend;
-
 }

@@ -69,5 +69,4 @@ vec4 main() {
     _2_x /= 2;
     _1_ok = _1_ok && _2_x == -1;
     return _1_ok ? colorGreen : colorRed;
-
 }

@@ -21,5 +21,4 @@ vec4 main() {
     _2_result.z = float(-vec4(_1_two) == vec4(-_1_two, vec3(-_1_two)) ? 1 : 0);
     _2_result.w = float(vec2(1.0, -2.0) == -vec2(_0_one - _1_two, _1_two) ? 1 : 0);
     return bool(((_2_result.x * _2_result.y) * _2_result.z) * _2_result.w) && test_int() ? colorGreen : colorRed;
-
 }

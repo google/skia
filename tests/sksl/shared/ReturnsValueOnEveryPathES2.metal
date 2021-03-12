@@ -12,8 +12,6 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-
-
 bool return_on_both_sides(Uniforms _uniforms) {
     if (_uniforms.unknownInput == 1.0) return true; else return true;
 }
@@ -25,7 +23,6 @@ bool for_inside_body() {
 bool after_for_body() {
     for (int x = 0;x <= 10; ++x) {
         true;
-
     }
     return true;
 }
@@ -42,5 +39,4 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     _out.sk_FragColor = ((((true && return_on_both_sides(_uniforms)) && for_inside_body()) && after_for_body()) && for_with_double_sided_conditional_return(_uniforms)) && if_else_chain(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
-
 }

@@ -144,5 +144,4 @@ vec4 main() {
     _1_x = _1_x - 1.0;
     _0_ok = _0_ok && _1_x == vec4(_2_unknown);
     return _0_ok && test_int() ? colorGreen : colorRed;
-
 }

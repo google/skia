@@ -26,6 +26,4 @@ void main() {
         }
     }
     sk_FragColor = _0_branchy * _2_branchyAndBlocky;
-
-
 }

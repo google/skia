@@ -39,8 +39,6 @@ void main() {
     --_0_y;
     --_0_y;
     _0_y = 42.0;
-
     _0_y;
-
     sk_FragColor.x = z;
 }

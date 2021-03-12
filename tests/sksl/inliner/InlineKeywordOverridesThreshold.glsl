@@ -36,7 +36,6 @@ void main() {
     ++y;
     ++y;
     false;
-
     ++y;
     ++y;
     ++y;
@@ -72,5 +71,4 @@ void main() {
     ++y;
     ++y;
     false;
-
 }

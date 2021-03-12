@@ -14,7 +14,6 @@ bool for_inside_body() {
 bool after_for_body() {
     for (int x = 0;x <= 10; ++x) {
         true;
-
     }
     return true;
 }
@@ -124,5 +123,4 @@ bool switch_with_one_sided_if_then_fallthrough() {
 }
 vec4 main() {
     return (((((((((((((((((true && return_on_both_sides()) && for_inside_body()) && after_for_body()) && for_with_double_sided_conditional_return()) && if_else_chain()) && conditional_inside_while_loop()) && inside_do_loop()) && inside_while_loop()) && after_do_loop()) && after_while_loop()) && switch_with_all_returns()) && switch_only_default()) && switch_fallthrough()) && switch_fallthrough_twice()) && switch_with_break_in_loop()) && switch_with_continue_in_loop()) && switch_with_if_that_returns()) && switch_with_one_sided_if_then_fallthrough() ? colorGreen : colorRed;
-
 }

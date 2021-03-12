@@ -21,10 +21,6 @@ matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b)
     }
     return result;
 }
-
-
-
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{{}, {}, {}, {}};
     (void)_globals;

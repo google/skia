@@ -4,5 +4,4 @@ in vec4 src;
 in vec4 dst;
 void main() {
     sk_FragColor = vec4(0.0);
-
 }

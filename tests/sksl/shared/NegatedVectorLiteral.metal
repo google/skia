@@ -11,7 +11,6 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-
 bool test_int() {
     int one = 1;
     const int two = 2;
@@ -34,5 +33,4 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _2_result.w = float(all(float2(1.0, -2.0) == -float2(_0_one - _1_two, _1_two)) ? 1 : 0);
     _out.sk_FragColor = bool(((_2_result.x * _2_result.y) * _2_result.z) * _2_result.w) && test_int() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
-
 }

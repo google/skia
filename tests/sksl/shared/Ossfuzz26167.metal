@@ -11,9 +11,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     (void)_out;
     float _0_y = 0.0;
     float _1_z = _0_y;
-
-
     false;
-
     return _out;
 }

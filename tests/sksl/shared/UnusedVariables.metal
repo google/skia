@@ -12,7 +12,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float a = 1.0;
     float b = 2.0;
     float c = 3.0;
-
     float d = c;
     float e = d;
     b++;

@@ -6,7 +6,6 @@ vec4 main() {
     vec4 value = colorGreen.yyyy * 2.5;
     vec4 whole;
     vec4 fraction;
-
     bvec4 ok;
     fraction.x = modf(value.x, whole.x);
     ok.x = whole.x == 2.0 && fraction.x == 0.5;

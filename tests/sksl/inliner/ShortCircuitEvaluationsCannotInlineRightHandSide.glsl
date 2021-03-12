@@ -12,9 +12,7 @@ void main() {
     if (color.x <= 0.5 && testB(color)) {
         sk_FragColor = vec4(0.5);
     }
-
     if (color.x > 0.5 || testA(color)) {
         sk_FragColor = vec4(1.0);
     }
-
 }

@@ -9,5 +9,4 @@ void main() {
         _0_MakeTempVar = color.yyyy;
     }
     sk_FragColor = _0_MakeTempVar;
-
 }

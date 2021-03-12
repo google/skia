@@ -7,7 +7,6 @@ vec4 main() {
     bool _0_expr = unknownInput > 0.0;
     int _1_ok = 0;
     int _2_bad = 0;
-
     if (_0_expr) {
         ++_1_ok;
     } else {
@@ -102,7 +101,6 @@ vec4 main() {
     }
     float _3_a = sqrt(1.0);
     float _4_b = sqrt(2.0);
-
     if (_3_a == _4_b) {
         ++_2_bad;
     } else {
@@ -115,5 +113,4 @@ vec4 main() {
         ++_2_bad;
     }
     return _1_ok == 22 && _2_bad == 0 ? colorGreen : colorRed;
-
 }

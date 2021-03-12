@@ -14,7 +14,6 @@ bool for_inside_body() {
 bool after_for_body() {
     for (int x = 0;x <= 10; ++x) {
         true;
-
     }
     return true;
 }
@@ -28,5 +27,4 @@ bool if_else_chain() {
 }
 vec4 main() {
     return ((((true && return_on_both_sides()) && for_inside_body()) && after_for_body()) && for_with_double_sided_conditional_return()) && if_else_chain() ? colorGreen : colorRed;
-
 }

@@ -17,7 +17,6 @@ void _skOutParamHelper0_bar(thread float& x) {
     x = _var0;
 }
 
-
 float foo(float2 v) {
     return v.x * v.y;
 }

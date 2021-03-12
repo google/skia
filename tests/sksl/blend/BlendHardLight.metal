@@ -12,14 +12,11 @@ float _blend_overlay_component(float2 s, float2 d) {
     return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
 }
 
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
     float4 _0_result = float4(_blend_overlay_component(_in.dst.xw, _in.src.xw), _blend_overlay_component(_in.dst.yw, _in.src.yw), _blend_overlay_component(_in.dst.zw, _in.src.zw), _in.dst.w + (1.0 - _in.dst.w) * _in.src.w);
     _0_result.xyz = _0_result.xyz + _in.src.xyz * (1.0 - _in.dst.w) + _in.dst.xyz * (1.0 - _in.src.w);
     _out.sk_FragColor = _0_result;
-
-
     return _out;
 }
