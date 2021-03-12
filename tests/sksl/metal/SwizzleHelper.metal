@@ -20,7 +20,6 @@ float4 _skOutParamHelper0_fn(thread Outputs& _out, thread Globals& _globals, flo
     d[1].zyx = _var3;
     return _skResult;
 }
-
 float4 fn(thread Outputs& _out, thread Globals& _globals, float a, thread float2& b, thread float2& c, thread float3& d) {
     a = _out.sk_FragColor.x + a;
     b = _out.sk_FragColor.yz - _globals.glob.y;

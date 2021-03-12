@@ -44,7 +44,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     s.ah4[2].yw = float2(5.0);
     float l;
     float r;
-
     l = 0.0;
     ai[0] += ai4[0].x;
     s.f = 1.0;

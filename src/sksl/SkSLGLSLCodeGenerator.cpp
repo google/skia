@@ -39,8 +39,7 @@ void GLSLCodeGenerator::write(const char* s) {
 
 void GLSLCodeGenerator::writeLine(const char* s) {
     this->write(s);
-    fOut->writeText(fLineEnding);
-    fAtLineStart = true;
+    this->writeLine();
 }
 
 void GLSLCodeGenerator::write(const String& s) {
@@ -65,7 +64,14 @@ void GLSLCodeGenerator::writeLine(const String& s) {
 }
 
 void GLSLCodeGenerator::writeLine() {
-    this->writeLine("");
+    fOut->writeText(fLineEnding);
+    fAtLineStart = true;
+}
+
+void GLSLCodeGenerator::finishLine() {
+    if (!fAtLineStart) {
+        this->writeLine();
+    }
 }
 
 void GLSLCodeGenerator::writeExtension(const String& name) {
@@ -1032,7 +1038,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
         if (!stmt->isEmpty()) {
             this->writeStatement(*stmt);
-            this->writeLine();
+            this->finishLine();
         }
     }
 
@@ -1249,7 +1255,7 @@ void GLSLCodeGenerator::writeBlock(const Block& b) {
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         if (!stmt->isEmpty()) {
             this->writeStatement(*stmt);
-            this->writeLine();
+            this->finishLine();
         }
     }
     if (isScope) {
@@ -1352,7 +1358,7 @@ void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->write(tmpVar);
     this->writeLine(" = true;");
     this->writeStatement(*d.statement());
-    this->writeLine();
+    this->finishLine();
     fIndentation--;
     this->write("}");
 }
@@ -1374,6 +1380,7 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         if (!c.statement()->isEmpty()) {
             fIndentation++;
             this->writeStatement(*c.statement());
+            this->finishLine();
             fIndentation--;
         }
     }
@@ -1393,7 +1400,7 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 void GLSLCodeGenerator::writeHeader() {
     if (this->caps().versionDeclString()) {
         this->write(this->caps().versionDeclString());
-        this->writeLine();
+        this->finishLine();
     }
 }
 
@@ -1409,7 +1416,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             if (builtin == -1) {
                 // normal var
                 this->writeVarDeclaration(decl, true);
-                this->writeLine();
+                this->finishLine();
             } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                        this->caps().mustDeclareFragmentShaderOutput()) {
                 if (fProgram.fConfig->fSettings.fFragColorIsInOut) {

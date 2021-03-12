@@ -25,9 +25,6 @@ thread bool operator!=(const float3x3 left, const float3x3 right) {
     return any(left[0] != right[0]) || any(left[1] != right[1]) || any(left[2] != right[2]);
 }
 
-
-
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
@@ -38,5 +35,4 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _0_ok = _0_ok && _uniforms.testMatrix3x3 != float3x3(float3(9.0, 8.0, 7.0), float3(6.0, 5.0, 4.0), float3(3.0, 2.0, 1.0));
     _out.sk_FragColor = _0_ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
-
 }

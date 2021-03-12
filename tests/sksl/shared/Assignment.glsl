@@ -33,7 +33,6 @@ vec4 main() {
     s.ah4[2].yw = vec2(5.0);
     float l;
     float r;
-
     l = 0.0;
     ai[0] += ai4[0].x;
     s.f = 1.0;
