@@ -190,8 +190,9 @@ private:
     /** Eliminates unused functions from a Program, according to the stats in ProgramUsage. */
     bool removeDeadFunctions(Program& program, ProgramUsage* usage);
 
-    /** Eliminates unreferenced globals from a Program, according to the stats in ProgramUsage. */
+    /** Eliminates unreferenced variables from a Program, according to the stats in ProgramUsage. */
     bool removeDeadGlobalVariables(Program& program, ProgramUsage* usage);
+    bool removeDeadLocalVariables(Program& program, ProgramUsage* usage);
 
     Position position(int offset);
 
