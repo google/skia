@@ -22,11 +22,7 @@ size_t GrAttachment::onGpuMemorySize() const {
     // the msaa and stencil attachments track their own size because they do get cached separately.
     // For all GrTexture* based things we will continue to to use the GrTexture* to report size and
     // the owned attachments will have no size and be uncached.
-    // TODO: Once we start using texture attachments this check really should be !texture. However,
-    // until then in GrVkTextureRenderTarget we make a wrapped attachment to use for the render
-    // target which duplicates the GrTexture. These will be merged once we use texture attachments.
-    if ((fSupportedUsages & UsageFlags::kStencilAttachment) ||
-        ((fSupportedUsages & UsageFlags::kColorAttachment) && fSampleCnt > 1)) {
+    if (!(fSupportedUsages & UsageFlags::kTexture)) {
         GrBackendFormat format = this->backendFormat();
         SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 

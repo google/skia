@@ -384,7 +384,9 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
             SkASSERT(sampledProxies[i]->asTextureProxy());
             GrVkTexture* vkTex = static_cast<GrVkTexture*>(sampledProxies[i]->peekTexture());
             SkASSERT(vkTex);
-            vkTex->setImageLayout(
+            GrVkAttachment* texture = vkTex->textureAttachment();
+            SkASSERT(texture);
+            texture->setImageLayout(
                     fGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, false);
         }
@@ -714,7 +716,7 @@ void GrVkOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
 #ifdef SK_DEBUG
 void check_sampled_texture(GrTexture* tex, GrRenderTarget* rt, GrVkGpu* gpu) {
     SkASSERT(!tex->isProtected() || (rt->isProtected() && gpu->protectedContext()));
-    GrVkTexture* vkTex = static_cast<GrVkTexture*>(tex);
+    auto vkTex = static_cast<GrVkTexture*>(tex)->textureAttachment();
     SkASSERT(vkTex->currentLayout() == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 #endif
