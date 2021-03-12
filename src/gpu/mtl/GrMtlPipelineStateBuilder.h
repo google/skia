@@ -66,7 +66,7 @@ private:
                                            SkSL::Program::Inputs inputs,
                                            GrContextOptions::ShaderErrorHandler* errorHandler);
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
-                             SkSL::Program::Settings*, bool isSkSL);
+                             SkSL::Program::Settings*, sk_sp<SkData>, bool isSkSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
