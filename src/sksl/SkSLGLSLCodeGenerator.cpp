@@ -1385,6 +1385,7 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         }
     }
     fIndentation--;
+    this->finishLine();
     this->write("}");
 }
 
