@@ -627,34 +627,17 @@ skia_gl_gpu_sources = [
 
 skia_ccpr_sources = [
   # coverage counting path renderer
-  "$_src/gpu/ccpr/GrAutoMapVertexBuffer.h",
   "$_src/gpu/ccpr/GrCCAtlas.cpp",
   "$_src/gpu/ccpr/GrCCAtlas.h",
   "$_src/gpu/ccpr/GrCCClipPath.cpp",
   "$_src/gpu/ccpr/GrCCClipPath.h",
   "$_src/gpu/ccpr/GrCCClipProcessor.cpp",
   "$_src/gpu/ccpr/GrCCClipProcessor.h",
-  "$_src/gpu/ccpr/GrCCConicShader.cpp",
-  "$_src/gpu/ccpr/GrCCConicShader.h",
-  "$_src/gpu/ccpr/GrCCCoverageProcessor.cpp",
-  "$_src/gpu/ccpr/GrCCCoverageProcessor.h",
-  "$_src/gpu/ccpr/GrCCCubicShader.cpp",
-  "$_src/gpu/ccpr/GrCCCubicShader.h",
-  "$_src/gpu/ccpr/GrCCFillGeometry.cpp",
-  "$_src/gpu/ccpr/GrCCFillGeometry.h",
-  "$_src/gpu/ccpr/GrCCFiller.cpp",
-  "$_src/gpu/ccpr/GrCCFiller.h",
   "$_src/gpu/ccpr/GrCCPerFlushResources.cpp",
   "$_src/gpu/ccpr/GrCCPerFlushResources.h",
   "$_src/gpu/ccpr/GrCCPerOpsTaskPaths.h",
-  "$_src/gpu/ccpr/GrCCQuadraticShader.cpp",
-  "$_src/gpu/ccpr/GrCCQuadraticShader.h",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
-  "$_src/gpu/ccpr/GrSampleMaskProcessor.cpp",
-  "$_src/gpu/ccpr/GrSampleMaskProcessor.h",
-  "$_src/gpu/ccpr/GrStencilAtlasOp.cpp",
-  "$_src/gpu/ccpr/GrStencilAtlasOp.h",
 ]
 
 skia_nvpr_sources = [
