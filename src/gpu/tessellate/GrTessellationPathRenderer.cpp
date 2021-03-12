@@ -38,10 +38,6 @@ constexpr static int kMaxAtlasPathHeight = 128;
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
-           // We see perf regressions on platforms that don't have native support for indirect
-           // draws. Disable while we investigate, unless hw tessellation support exists.
-           // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
-           (caps.nativeDrawIndirectSupport() || caps.shaderCaps()->tessellationSupport()) &&
            caps.shaderCaps()->vertexIDSupport() &&
            !caps.disableTessellationPathRenderer();
 }
@@ -144,6 +140,14 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         if (!args.fProxy->canUseMixedSamples(*args.fCaps)) {
             return CanDrawPath::kNo;
         }
+    }
+    // We see perf regressions on platforms that don't have native support for indirect draws and/or
+    // tessellation. Don't use tessellation for cachable paths on these platforms.
+    // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
+    if (!args.fCaps->nativeDrawIndirectSupport() &&
+        !args.fCaps->shaderCaps()->tessellationSupport() &&
+        shape.hasUnstyledKey()) {
+        return CanDrawPath::kNo;
     }
     return CanDrawPath::kYes;
 }
