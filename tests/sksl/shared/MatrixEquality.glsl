@@ -11,5 +11,4 @@ vec4 main() {
     _0_ok = _0_ok && testMatrix2x2 != mat2(100.0);
     _0_ok = _0_ok && testMatrix3x3 != mat3(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0);
     return _0_ok ? colorGreen : colorRed;
-
 }

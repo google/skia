@@ -7,5 +7,4 @@ void main() {
         if (_1_x == value) _0_result = vec4(0.5);
     }
     sk_FragColor = _0_result;
-
 }

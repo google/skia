@@ -8,5 +8,4 @@ void main() {
         _0_MakeTempVar = _1_d.xxxx;
     }
     sk_FragColor = _0_MakeTempVar;
-
 }

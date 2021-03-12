@@ -87,8 +87,7 @@ void MetalCodeGenerator::write(const char* s) {
 
 void MetalCodeGenerator::writeLine(const char* s) {
     this->write(s);
-    fOut->writeText(fLineEnding);
-    fAtLineStart = true;
+    this->writeLine();
 }
 
 void MetalCodeGenerator::write(const String& s) {
@@ -100,7 +99,14 @@ void MetalCodeGenerator::writeLine(const String& s) {
 }
 
 void MetalCodeGenerator::writeLine() {
-    this->writeLine("");
+    fOut->writeText(fLineEnding);
+    fAtLineStart = true;
+}
+
+void MetalCodeGenerator::finishLine() {
+    if (!fAtLineStart) {
+        this->writeLine();
+    }
 }
 
 void MetalCodeGenerator::writeExtension(const Extension& ext) {
@@ -1594,14 +1600,14 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
             if (!stmt->isEmpty()) {
                 this->writeStatement(*stmt);
-                this->writeLine();
+                this->finishLine();
             }
         }
         if (f.declaration().name() == "main") {
             // If the main function doesn't end with a return, we need to synthesize one here.
             if (!is_block_ending_with_return(f.body().get())) {
                 this->writeReturnStatementFromMain();
-                this->writeLine("");
+                this->finishLine();
             }
         }
         fIndentation--;
@@ -1789,7 +1795,7 @@ void MetalCodeGenerator::writeBlock(const Block& b) {
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         if (!stmt->isEmpty()) {
             this->writeStatement(*stmt);
-            this->writeLine();
+            this->finishLine();
         }
     }
     if (isScope) {
@@ -1861,6 +1867,7 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         if (!c.statement()->isEmpty()) {
             fIndentation++;
             this->writeStatement(*c.statement());
+            this->finishLine();
             fIndentation--;
         }
     }
@@ -2174,7 +2181,7 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             if (-1 == builtin) {
                 // normal var
                 this->writeVarDeclaration(decl, true);
-                this->writeLine();
+                this->finishLine();
             } else if (SK_FRAGCOLOR_BUILTIN == builtin) {
                 // ignore
             }
