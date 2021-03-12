@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75294acc_9285969b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-12T16:15:27Z",
+      "side": 1,
+      "message": "I am thinking that std::vector\u003cbool\u003e will speed this up.",
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a6cdc8f_177c6a05",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-12T16:15:27Z",
+      "side": 1,
+      "message": "Would std::vector\u003cbool\u003e work here? std::map is terrible slow, and memory hungry.",
+      "range": {
+        "startLine": 139,
+        "startChar": 50,
+        "endLine": 139,
+        "endChar": 58
+      },
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
