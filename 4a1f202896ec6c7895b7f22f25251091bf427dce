@@ -33,6 +33,24 @@
       "message": "This looks okay. Seems like there still might be even more spots that could benefit. Are we allowed to decorate the id before we do anything else with it? If so, could we move to a pattern of passing the type to nextId(), so it\u0027s harder to omit these accidentally?",
       "revId": "4a1f202896ec6c7895b7f22f25251091bf427dce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82ed1903_7323b66f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-12T17:47:55Z",
+      "side": 1,
+      "message": "The order of the decorations doesn\u0027t matter, but not every operation is able to be decorated with RelaxedPrecision. I suppose I could require a type on nextId and just pass null to mean \"not able to be RelaxedPrecision\"?\n\nLet\u0027s land this as-is so I don\u0027t hold up Greg\u0027s performance work and I\u0027ll look at cleaning up the pattern in a followup.",
+      "parentUuid": "5a54cbec_a5af0dbe",
+      "revId": "4a1f202896ec6c7895b7f22f25251091bf427dce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
