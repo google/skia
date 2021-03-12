@@ -583,6 +583,15 @@ public:
         this->drawFilledQuad(clip, std::move(paint), doStencilMSAA, &quad, ss);
     }
 
+    // Fills the user stencil bits with a non-zero value at every sample inside the path. This will
+    // likely be implemented with a Redbook algorithm, but it is not guaranteed. The samples being
+    // rendered to must be zero initially.
+    bool stencilPath(const GrHardClip*,
+                     GrAA doStencilMSAA,
+                     const SkMatrix& viewMatrix,
+                     const SkPath&);
+
+    // Same as for stencilPath, but for an NVPR path object.
     void stencilPath(const GrHardClip*,
                      GrAA doStencilMSAA,
                      const SkMatrix& viewMatrix,

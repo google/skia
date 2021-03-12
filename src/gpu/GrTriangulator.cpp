@@ -1477,39 +1477,3 @@ int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertex
     vertexAllocator->unlock(actualCount);
     return actualCount;
 }
-
-int GrTriangulator::PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                                   WindingVertex** verts) {
-    SkArenaAlloc alloc(kArenaDefaultChunkSize);
-    GrTriangulator triangulator(path, &alloc);
-    bool isLinear;
-    Poly* polys = triangulator.pathToPolys(tolerance, clipBounds, &isLinear);
-    int64_t count64 = CountPoints(polys, path.getFillType());
-    if (0 == count64 || count64 > SK_MaxS32) {
-        *verts = nullptr;
-        return 0;
-    }
-    int count = count64;
-
-    *verts = new WindingVertex[count];
-    WindingVertex* vertsEnd = *verts;
-    SkPoint* points = new SkPoint[count];
-    SkPoint* pointsEnd = points;
-    for (Poly* poly = polys; poly; poly = poly->fNext) {
-        if (apply_fill_type(path.getFillType(), poly)) {
-            SkPoint* start = pointsEnd;
-            pointsEnd = static_cast<SkPoint*>(triangulator.emitPoly(poly, pointsEnd));
-            while (start != pointsEnd) {
-                vertsEnd->fPos = *start;
-                vertsEnd->fWinding = poly->fWinding;
-                ++start;
-                ++vertsEnd;
-            }
-        }
-    }
-    int actualCount = static_cast<int>(vertsEnd - *verts);
-    SkASSERT(actualCount <= count);
-    SkASSERT(pointsEnd - points == actualCount);
-    delete[] points;
-    return actualCount;
-}

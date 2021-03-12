@@ -101,10 +101,10 @@ void GrCoverageCountingPathRenderer::preFlush(
         return;  // Nothing to draw.
     }
 
-    GrCCPerFlushResourceSpecs specs;
+    GrCCAtlas::Specs specs;
     int maxPreferredRTSize = onFlushRP->caps()->maxPreferredRenderTargetSize();
-    specs.fRenderedAtlasSpecs.fMaxPreferredTextureSize = maxPreferredRTSize;
-    specs.fRenderedAtlasSpecs.fMinTextureSize = std::min(512, maxPreferredRTSize);
+    specs.fMaxPreferredTextureSize = maxPreferredRTSize;
+    specs.fMinTextureSize = std::min(512, maxPreferredRTSize);
 
     // Move the per-opsTask paths that are about to be flushed from fPendingPaths to fFlushingPaths,
     // and count them up so we can preallocate buffers.
@@ -123,45 +123,26 @@ void GrCoverageCountingPathRenderer::preFlush(
         }
     }
 
-    if (specs.isEmpty()) {
-        return;  // Nothing to draw.
-    }
+    fPerFlushResources = std::make_unique<GrCCPerFlushResources>(onFlushRP, specs);
 
-    auto resources = sk_make_sp<GrCCPerFlushResources>(onFlushRP, specs);
-    if (!resources->isMapped()) {
-        return;  // Some allocation failed.
-    }
-
-    // Layout the atlas(es) and parse paths.
+    // Layout the atlas(es) and render paths.
     for (const auto& flushingPaths : fFlushingPaths) {
         for (auto& clipsIter : flushingPaths->fClipPaths) {
-            clipsIter.second.renderPathInAtlas(resources.get(), onFlushRP);
+            clipsIter.second.renderPathInAtlas(fPerFlushResources.get(), onFlushRP);
         }
     }
 
     // Allocate resources and then render the atlas(es).
-    if (!resources->finalize(onFlushRP)) {
-        return;
-    }
-
-    // Commit flushing paths to the resources once they are successfully completed.
-    for (auto& flushingPaths : fFlushingPaths) {
-        SkASSERT(!flushingPaths->fFlushResources);
-        flushingPaths->fFlushResources = resources;
-    }
+    fPerFlushResources->finalize(onFlushRP);
 }
 
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken,
                                                SkSpan<const uint32_t> /* taskIDs */) {
     SkASSERT(fFlushing);
 
-    if (!fFlushingPaths.empty()) {
-        // In DDL mode these aren't guaranteed to be deleted so we must clear out the perFlush
-        // resources manually.
-        for (auto& flushingPaths : fFlushingPaths) {
-            flushingPaths->fFlushResources = nullptr;
-        }
+    fPerFlushResources.reset();
 
+    if (!fFlushingPaths.empty()) {
         // We wait to erase these until after flush, once Ops and FPs are done accessing their data.
         fFlushingPaths.reset();
     }

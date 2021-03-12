@@ -746,6 +746,43 @@ void GrSurfaceDrawContext::internalStencilClear(const SkIRect* scissor, bool ins
     }
 }
 
+bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
+                                       GrAA doStencilMSAA,
+                                       const SkMatrix& viewMatrix,
+                                       const SkPath& path) {
+    SkIRect clipBounds = clip ? clip->getConservativeBounds()
+                              : SkIRect::MakeSize(this->dimensions());
+    GrStyledShape shape(path, GrStyledShape::DoSimplify::kNo);
+
+    GrPathRenderer::CanDrawPathArgs canDrawArgs;
+    canDrawArgs.fCaps = fContext->priv().caps();
+    canDrawArgs.fProxy = this->asRenderTargetProxy();
+    canDrawArgs.fClipConservativeBounds = &clipBounds;
+    canDrawArgs.fViewMatrix = &viewMatrix;
+    canDrawArgs.fShape = &shape;
+    canDrawArgs.fPaint = nullptr;
+    canDrawArgs.fAAType = (doStencilMSAA == GrAA::kYes) ? GrAAType::kMSAA : GrAAType::kNone;
+    canDrawArgs.fHasUserStencilSettings = false;
+    canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
+    GrPathRenderer* pr = this->drawingManager()->getPathRenderer(
+            canDrawArgs, false, GrPathRendererChain::DrawType::kStencil);
+    if (!pr) {
+        SkDebugf("WARNING: No path renderer to stencil path.\n");
+        return false;
+    }
+
+    GrPathRenderer::StencilPathArgs args;
+    args.fContext = fContext;
+    args.fRenderTargetContext = this;
+    args.fClip = clip;
+    args.fClipConservativeBounds = &clipBounds;
+    args.fViewMatrix = &viewMatrix;
+    args.fShape = &shape;
+    args.fDoStencilMSAA = doStencilMSAA;
+    pr->stencilPath(args);
+    return true;
+}
+
 void GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
                                        GrAA doStencilMSAA,
                                        const SkMatrix& viewMatrix,

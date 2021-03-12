@@ -47,15 +47,12 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
     fAccessRect = accessRect;
 }
 
-void GrCCClipPath::accountForOwnPath(GrCCPerFlushResourceSpecs* specs) const {
+void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
     SkASSERT(this->isInitialized());
-
-    ++specs->fNumClipPaths;
-    specs->fRenderedPathStats.statPath(fDeviceSpacePath);
 
     SkIRect ibounds;
     if (ibounds.intersect(fAccessRect, fPathDevIBounds)) {
-        specs->fRenderedAtlasSpecs.accountForSpace(ibounds.width(), ibounds.height());
+        specs->accountForSpace(ibounds.width(), ibounds.height());
     }
 }
 
@@ -64,7 +61,7 @@ void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
     SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
     fAtlas = resources->renderDeviceSpacePathInAtlas(
-            fAccessRect, fDeviceSpacePath, fPathDevIBounds, GrFillRuleForSkPath(fDeviceSpacePath),
-            &fDevToAtlasOffset);
+            onFlushRP, fAccessRect, fDeviceSpacePath, fPathDevIBounds,
+            GrFillRuleForSkPath(fDeviceSpacePath), &fDevToAtlasOffset);
     SkDEBUGCODE(fHasAtlas = true);
 }
