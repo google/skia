@@ -16,6 +16,23 @@
       "message": "This is the GN change I mentioned in the other CL. WDYT?",
       "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aab23b91_b7531fad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T15:01:18Z",
+      "side": 1,
+      "message": "I think this makes sense, but I\u0027d like to get another person familiar with our build to weigh in.",
+      "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
