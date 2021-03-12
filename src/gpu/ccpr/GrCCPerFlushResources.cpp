@@ -182,9 +182,9 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
     }
 #ifdef SK_DEBUG
     // These paths should have been rendered and reset to empty by this point.
-    for (const auto& [uberPath, scissoredPaths] : fAtlasPaths) {
-        SkASSERT(uberPath.isEmpty());
-        SkASSERT(scissoredPaths.empty());
+    for (size_t i = 0; i < SK_ARRAY_COUNT(fAtlasPaths); ++i) {
+        SkASSERT(fAtlasPaths[i].fUberPath.isEmpty());
+        SkASSERT(fAtlasPaths[i].fScissoredPaths.empty());
     }
 #endif
     return true;
