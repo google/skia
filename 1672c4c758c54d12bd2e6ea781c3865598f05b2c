@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "baf51f3a_ac9f6676",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T19:39:51Z",
+      "side": 1,
+      "message": "PTAL. I\u0027m trying this first to make sure it works. If it\u0027s too slow I might try a version where we run the async pipeline build and depend on Apple to cache it, with the MTLLibraries in our cache as backup in case it doesn\u0027t finish by the time we need it.",
+      "revId": "1672c4c758c54d12bd2e6ea781c3865598f05b2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
