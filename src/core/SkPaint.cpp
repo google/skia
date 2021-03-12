@@ -22,7 +22,6 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkMaskGamma.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPaintPriv.h"
