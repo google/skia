@@ -126,7 +126,7 @@ public:
             fCoverageFP = std::move(fp);
         } else {
             // Compose this coverage FP with the previously-added coverage.
-            fCoverageFP = GrFragmentProcessor::Compose(std::move(fCoverageFP), std::move(fp));
+            fCoverageFP = GrFragmentProcessor::Compose(std::move(fp), std::move(fCoverageFP));
         }
     }
 
