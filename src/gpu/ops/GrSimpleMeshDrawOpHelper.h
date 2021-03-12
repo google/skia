@@ -196,7 +196,7 @@ template<typename Op, typename... Args>
 GrOp::Owner GrOp::MakeWithProcessorSet(
         GrRecordingContext* context, const SkPMColor4f& color,
         GrPaint&& paint, Args&&... args) {
-    char* bytes = (char*)::operator new(sizeof(Op) + sizeof(GrProcessorSet));
+    char* bytes = (char*)GrOp::operator new(sizeof(Op) + sizeof(GrProcessorSet));
     char* setMem = bytes + sizeof(Op);
     GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};
     return Owner{new (bytes) Op(processorSet, color, std::forward<Args>(args)...)};

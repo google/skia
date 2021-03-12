@@ -97,12 +97,15 @@ void GrRecordingContext::destroyDrawingManager() {
 }
 
 GrRecordingContext::Arenas::Arenas(SkArenaAlloc* recordTimeAllocator,
-                                   GrSubRunAllocator* subRunAllocator)
+                                   GrSubRunAllocator* subRunAllocator,
+                                   GrBagOfBytes* bagOfBytes)
         : fRecordTimeAllocator(recordTimeAllocator)
-        , fRecordTimeSubRunAllocator(subRunAllocator) {
+        , fRecordTimeSubRunAllocator(subRunAllocator)
+        , fRecordTimeBagOfBytes(bagOfBytes) {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
     SkASSERT(recordTimeAllocator);
     SkASSERT(subRunAllocator);
+    SkASSERT(bagOfBytes);
 }
 
 // Must be defined here so that std::unique_ptr can see the sizes of the various pools, otherwise
@@ -113,6 +116,7 @@ GrRecordingContext::OwnedArenas::~OwnedArenas() {}
 GrRecordingContext::OwnedArenas& GrRecordingContext::OwnedArenas::operator=(OwnedArenas&& a) {
     fRecordTimeAllocator = std::move(a.fRecordTimeAllocator);
     fRecordTimeSubRunAllocator = std::move(a.fRecordTimeSubRunAllocator);
+    fRecordTimeBagOfBytes = std::move(a.fRecordTimeBagOfBytes);
     return *this;
 }
 
@@ -126,7 +130,14 @@ GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
         fRecordTimeSubRunAllocator = std::make_unique<GrSubRunAllocator>();
     }
 
-    return {fRecordTimeAllocator.get(), fRecordTimeSubRunAllocator.get()};
+    if (!fRecordTimeBagOfBytes) {
+        fRecordTimeBagOfBytes = std::make_unique<GrBagOfBytes>();
+        GrOp::SetBagOfBytes(fRecordTimeBagOfBytes.get());
+    }
+
+    return {fRecordTimeAllocator.get(),
+            fRecordTimeSubRunAllocator.get(),
+            fRecordTimeBagOfBytes.get()};
 }
 
 GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {

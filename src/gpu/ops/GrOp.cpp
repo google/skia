@@ -6,9 +6,17 @@
  */
 
 #include "src/gpu/ops/GrOp.h"
+#include "src/gpu/text/GrTextBlob.h"
 
 std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
 std::atomic<uint32_t> GrOp::gCurrOpUniqueID{GrOp::kIllegalOpID + 1};
+
+thread_local GrBagOfBytes* gGrBagOfBytes;
+
+void GrOp::SetBagOfBytes(GrBagOfBytes* bagOfBytes) {
+    gGrBagOfBytes = bagOfBytes;
+}
+
 
 GrOp::GrOp(uint32_t classID) : fClassID(classID) {
     SkASSERT(classID == SkToU32(fClassID));

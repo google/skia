@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/GrBagOfBytes.h"
 #include "src/gpu/GrGpuResource.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -66,6 +67,7 @@ class GrPaint;
         return kClassID; \
     }
 
+extern thread_local GrBagOfBytes* gGrBagOfBytes;
 class GrOp : private SkNoncopyable {
 public:
         using Owner = std::unique_ptr<GrOp>;
@@ -83,11 +85,18 @@ public:
     template<typename Op, typename... Args>
     static Owner MakeWithExtraMemory(
             GrRecordingContext* context, size_t extraSize, Args&&... args) {
-        void* bytes = ::operator new(sizeof(Op) + extraSize);
+        void* bytes = GrOp::operator new(sizeof(Op) + extraSize);
         return Owner{new (bytes) Op(std::forward<Args>(args)...)};
     }
 
     virtual ~GrOp() = default;
+
+    static void SetBagOfBytes(GrBagOfBytes*);
+    void* operator new(size_t size) {
+        return gGrBagOfBytes->alignedBytes(size, alignof(max_align_t));
+    }
+    void* operator new(size_t size, void* ptr) { return ptr; }
+    void operator delete(void* bytes) noexcept {}
 
     virtual const char* name() const = 0;
 
@@ -140,8 +149,6 @@ public:
         SkASSERT(fBoundsFlags != kUninitialized_BoundsFlag);
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
-
-    void operator delete(void* p) { ::operator delete(p); }
 
     /**
      * Helper for safely down-casting to a GrOp subclass

@@ -42,7 +42,7 @@ void* GrAtlasTextOp::operator new(size_t s) {
         return std::exchange(gCache, nullptr);
     }
 
-    return ::operator new(s);
+    return GrOp::operator new(s);
 }
 
 void GrAtlasTextOp::operator delete(void* bytes) noexcept {
@@ -50,11 +50,11 @@ void GrAtlasTextOp::operator delete(void* bytes) noexcept {
         gCache = bytes;
         return;
     }
-    ::operator delete(bytes);
+    GrOp::operator delete(bytes);
 }
 
 void GrAtlasTextOp::ClearCache() {
-    ::operator delete(gCache);
+    GrOp::operator delete(gCache);
     gCache = nullptr;
 }
 #endif

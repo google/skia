@@ -14,6 +14,7 @@
 
 class GrAuditTrail;
 class GrBackendFormat;
+class GrBagOfBytes;
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
 class GrMemoryPool;
@@ -96,7 +97,7 @@ public:
     // GrRecordingContext. Arenas does not maintain ownership of the pools it groups together.
     class Arenas {
     public:
-        Arenas(SkArenaAlloc*, GrSubRunAllocator*);
+        Arenas(SkArenaAlloc*, GrSubRunAllocator*, GrBagOfBytes*);
 
         // For storing pipelines and other complex data as-needed by ops
         SkArenaAlloc* recordTimeAllocator() { return fRecordTimeAllocator; }
@@ -104,9 +105,13 @@ public:
         // For storing GrTextBlob SubRuns
         GrSubRunAllocator* recordTimeSubRunAllocator() { return fRecordTimeSubRunAllocator; }
 
+        // For storing ops
+        GrBagOfBytes* recordTimeBagOfBytes() { return fRecordTimeBagOfBytes; }
+
     private:
         SkArenaAlloc* fRecordTimeAllocator;
         GrSubRunAllocator* fRecordTimeSubRunAllocator;
+        GrBagOfBytes* fRecordTimeBagOfBytes;
     };
 
 protected:
@@ -127,6 +132,7 @@ protected:
     private:
         std::unique_ptr<SkArenaAlloc> fRecordTimeAllocator;
         std::unique_ptr<GrSubRunAllocator> fRecordTimeSubRunAllocator;
+        std::unique_ptr<GrBagOfBytes> fRecordTimeBagOfBytes;
     };
 
     GrRecordingContext(sk_sp<GrContextThreadSafeProxy>);
