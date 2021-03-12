@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "53f59cbf_798cd717",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T18:45:59Z",
+      "side": 1,
+      "message": "Any effect that wants to approximate antialiasing using the gradient function would need the matrix. I think it would be reasonable enough to have. Alternatively the effect can just manage its own uniform matrix and give Skia the identity. Would you have a preference?",
+      "parentUuid": "d5b0354d_85fdfb11",
+      "range": {
+        "startLine": 349,
+        "startChar": 16,
+        "endLine": 349,
+        "endChar": 22
+      },
+      "revId": "e64794306376f62e2dc51682facd8db334f36b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5911ddec_4c1ce8a3",
         "filename": "gm/runtimeshader.cpp",
         "patchSetId": 8
