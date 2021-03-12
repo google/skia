@@ -141,7 +141,7 @@ std::unique_ptr<ModifiersPool> IRGenerator::releaseModifiers() {
     return result;
 }
 
-std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& statement) {
+std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
     switch (statement.fKind) {
         case ASTNode::Kind::kBlock:
             return this->convertBlock(statement);
@@ -188,24 +188,6 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
             }
             return result;
     }
-}
-
-std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
-    StatementArray oldExtraStatements = std::move(fExtraStatements);
-    std::unique_ptr<Statement> result = this->convertSingleStatement(statement);
-    if (!result) {
-        fExtraStatements = std::move(oldExtraStatements);
-        return nullptr;
-    }
-    if (fExtraStatements.size()) {
-        fExtraStatements.push_back(std::move(result));
-        auto block = std::make_unique<Block>(/*offset=*/-1, std::move(fExtraStatements),
-                                             /*symbols=*/nullptr, /*isScope=*/false);
-        fExtraStatements = std::move(oldExtraStatements);
-        return std::move(block);
-    }
-    fExtraStatements = std::move(oldExtraStatements);
-    return result;
 }
 
 std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
