@@ -51,32 +51,6 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-const GrCCPerFlushResources*
-GrCoverageCountingPathRenderer::testingOnly_getCurrentFlushResources() {
-    SkASSERT(fFlushing);
-    if (fFlushingPaths.empty()) {
-        return nullptr;
-    }
-    // All pending paths should share the same resources.
-    const GrCCPerFlushResources* resources = fFlushingPaths.front()->fFlushResources.get();
-#ifdef SK_DEBUG
-    for (const auto& flushingPaths : fFlushingPaths) {
-        SkASSERT(flushingPaths->fFlushResources.get() == resources);
-    }
-#endif
-    return resources;
-}
-
-const GrTexture* GrCCPerFlushResources::testingOnly_frontRenderedAtlasTexture() const {
-    if (fRenderedAtlasStack.empty()) {
-        return nullptr;
-    }
-    const GrTextureProxy* proxy = fRenderedAtlasStack.front().textureProxy();
-    return (proxy) ? proxy->peekTexture() : nullptr;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern GrOp::Owner Op##__Test(GrPaint&&, SkRandom*, \
                                     GrRecordingContext*, int numSamples)
