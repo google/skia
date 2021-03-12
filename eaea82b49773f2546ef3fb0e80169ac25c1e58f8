@@ -211,6 +211,30 @@
       },
       "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74198a57_fa1f9ca1",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T18:55:21Z",
+      "side": 1,
+      "message": "If we leave behind \u003cvalue\u003e as-is then `int a; a\u003dsqrt(2);` optimizes to `sqrt(2);`. Which is still an improvement, but it\u0027s hardly ideal; we\u0027d like to eliminate that right-side expression as well in this case. That\u0027s a little higher up in the stack, it\u0027s the ExpressionStatement that holds the Expression we\u0027re optimizing. That\u0027s what I mean by touchy. \n\nI can experiment with this a bit and see? It was definitely too complex to justify the effort when I didn\u0027t have a ProgramWriter that exposed the unique_ptrs, but that\u0027s solved now.",
+      "parentUuid": "b1f67b86_2a6ccd33",
+      "range": {
+        "startLine": 650,
+        "startChar": 57,
+        "endLine": 650,
+        "endChar": 75
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
