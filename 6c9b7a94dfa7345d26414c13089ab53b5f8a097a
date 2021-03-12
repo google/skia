@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c182335_88f79b42",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1383,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T16:44:09Z",
+      "side": 1,
+      "message": "(This fixes the `discard` issue mentioned in the CL description.)",
+      "range": {
+        "startLine": 1383,
+        "startChar": 12,
+        "endLine": 1383,
+        "endChar": 31
+      },
+      "revId": "6c9b7a94dfa7345d26414c13089ab53b5f8a097a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
