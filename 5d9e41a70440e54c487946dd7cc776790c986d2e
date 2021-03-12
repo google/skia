@@ -51,6 +51,24 @@
       "parentUuid": "19d613d8_7adea099",
       "revId": "5d9e41a70440e54c487946dd7cc776790c986d2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2ca4d2e_c61502dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T19:55:33Z",
+      "side": 1,
+      "message": "Correct! See: https://skia-review.googlesource.com/c/skia/+/381618\n\nCCPR is just an atlas manager now. The atlas gets rendered by tessellation (if supported) or else the default path renderer.",
+      "parentUuid": "efc9f2db_af8df049",
+      "revId": "5d9e41a70440e54c487946dd7cc776790c986d2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
