@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b4be8f2_d00628f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-12T18:50:00Z",
+      "side": 1,
+      "message": "Do this just count all render passes every created by the gpu? When do we use this stats? Is it just in dm where we are only going to draw a frame once? If it is multiple frames things start to get a little weird since one run may do different number of loops than the next run (if something sped up in the code or device between runs).\n\nIf this is really meant for one frame can we just merge this and fCurrentSubmitRenderPassCount into one thing? Though you would need to figure out how to do the reseting of it in stats.",
+      "revId": "3f67412b0554e9c9c909ccf608bbb54c0a4120ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
