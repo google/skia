@@ -33,6 +33,24 @@
       "message": "Bots from all 3 have finished now and the gold images check out..",
       "revId": "5d9e41a70440e54c487946dd7cc776790c986d2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efc9f2db_af8df049",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-12T19:50:44Z",
+      "side": 1,
+      "message": "what changed to make the msaa ccpr issues go away on those bots? I imagine some of the disabling for the general ccpr cap (that is getting removed) don\u0027t apply since they were for the coverage counting version.\n\nOr is it (and maybe this point was made in a meeting and I misunderstood), none of the path rendering into the atlas uses the CCPR algorithm anymore, it just uses the atlas management and whatever path renderer applies for the path?",
+      "parentUuid": "19d613d8_7adea099",
+      "revId": "5d9e41a70440e54c487946dd7cc776790c986d2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
