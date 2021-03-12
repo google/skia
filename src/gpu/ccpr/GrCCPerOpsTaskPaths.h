@@ -23,8 +23,6 @@ class GrCCPerFlushResources;
 // DDL TODO: given the usage pattern in DDL mode, this could probably be non-atomic refcounting.
 struct GrCCPerOpsTaskPaths : public SkRefCnt {
     std::map<uint32_t, GrCCClipPath> fClipPaths;
-    SkSTArenaAlloc<10 * 1024> fAllocator{10 * 1024 * 2};
-    sk_sp<const GrCCPerFlushResources> fFlushResources;
 };
 
 #endif
