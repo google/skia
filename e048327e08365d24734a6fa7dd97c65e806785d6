@@ -16,6 +16,24 @@
       "message": "Adlai- I have really no idea what I\u0027m doing here, but this makes an assert go away. Does it look right to you?",
       "revId": "e048327e08365d24734a6fa7dd97c65e806785d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35ca9030_85236378",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T05:48:26Z",
+      "side": 1,
+      "message": "Not just an assert, a use-after-delete on an arena-allocted object that belonged to an onFlush render task.",
+      "parentUuid": "03d3e20a_ef39648f",
+      "revId": "e048327e08365d24734a6fa7dd97c65e806785d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
