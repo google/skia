@@ -27,7 +27,7 @@
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage, uint32_t, true);
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage, uint32_t, true);
+DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage, GrDirectContext::DirectContextID, true);
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fSingleOwner)
 
@@ -108,9 +108,11 @@ inline bool GrResourceCache::TextureAwaitingUnref::finished() { return !fNumUnre
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrResourceCache::GrResourceCache(GrSingleOwner* singleOwner, uint32_t contextUniqueID)
+GrResourceCache::GrResourceCache(GrSingleOwner* singleOwner,
+                                 GrDirectContext::DirectContextID owningContextID,
+                                 uint32_t contextUniqueID)
         : fInvalidUniqueKeyInbox(contextUniqueID)
-        , fFreedTextureInbox(contextUniqueID)
+        , fFreedTextureInbox(owningContextID)
         , fContextUniqueID(contextUniqueID)
         , fSingleOwner(singleOwner) {
     SkASSERT(contextUniqueID != SK_InvalidUniqueID);
@@ -679,7 +681,7 @@ void GrResourceCache::processFreedGpuResources() {
     SkTArray<GrTextureFreedMessage> msgs;
     fFreedTextureInbox.poll(&msgs);
     for (int i = 0; i < msgs.count(); ++i) {
-        SkASSERT(msgs[i].fOwningUniqueID == fContextUniqueID);
+        SkASSERT(msgs[i].fOwningUniqueID == fOwningContextID);
         uint32_t id = msgs[i].fTexture->uniqueID().asUInt();
         TextureAwaitingUnref* info = fTexturesAwaitingUnref.find(id);
         // If the GrContext was released or abandoned then fTexturesAwaitingUnref should have been

@@ -9,6 +9,7 @@
 #define GrResourceCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
@@ -30,11 +31,11 @@ class GrThreadSafeCache;
 
 struct GrTextureFreedMessage {
     GrTexture* fTexture;
-    uint32_t fOwningUniqueID;
+    GrDirectContext::DirectContextID fOwningUniqueID;
 };
 
 static inline bool SkShouldPostMessageToBus(
-        const GrTextureFreedMessage& msg, uint32_t msgBusUniqueID) {
+        const GrTextureFreedMessage& msg, GrDirectContext::DirectContextID msgBusUniqueID) {
     // The inbox's ID is the unique ID of the owning GrContext.
     return msgBusUniqueID == msg.fOwningUniqueID;
 }
@@ -58,7 +59,9 @@ static inline bool SkShouldPostMessageToBus(
  */
 class GrResourceCache {
 public:
-    GrResourceCache(GrSingleOwner* owner, uint32_t contextUniqueID);
+    GrResourceCache(GrSingleOwner* owner,
+                    GrDirectContext::DirectContextID owningContextID,
+                    uint32_t contextUniqueID);
     ~GrResourceCache();
 
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
@@ -322,7 +325,7 @@ private:
     }
 
     typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Inbox InvalidUniqueKeyInbox;
-    typedef SkMessageBus<GrTextureFreedMessage, uint32_t>::Inbox FreedTextureInbox;
+    typedef SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Inbox FreedTextureInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
@@ -365,6 +368,7 @@ private:
     FreedTextureInbox                   fFreedTextureInbox;
     TexturesAwaitingUnref               fTexturesAwaitingUnref;
 
+    GrDirectContext::DirectContextID    fOwningContextID;
     uint32_t                            fContextUniqueID = SK_InvalidUniqueID;
     GrSingleOwner*                      fSingleOwner = nullptr;
 
