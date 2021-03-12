@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "354a8194_08ac3f77",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T18:24:28Z",
+      "side": 1,
+      "message": "Let\u0027s get this clip atlas enabled everywhere!",
+      "revId": "5d9e41a70440e54c487946dd7cc776790c986d2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
