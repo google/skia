@@ -7,5 +7,4 @@ vec4 main() {
     x = 1.0;
     x = 2.0;
     return x == 1.0 && x == 2.0 ? colorGreen : colorRed;
-
 }

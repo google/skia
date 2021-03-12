@@ -31,5 +31,4 @@ vec4 main() {
     mat4 _8_m44 = _1_m24 * _4_m42;
     _8_m44 *= _8_m44;
     return true && test_half() ? colorGreen : colorRed;
-
 }

@@ -28,7 +28,6 @@ vec4 MatrixEffect_Stage1_c0_c0(vec4 _input, vec2 _coords) {
         _5_textureColor = uborder_Stage1_c0_c0_c0;
     }
     return _5_textureColor;
-
 }
 void main() {
     vec4 outputColor_Stage0;
@@ -119,7 +118,6 @@ void main() {
     _8_coord += uIncrement_Stage1_c0;
     _7_output *= outputColor_Stage0;
     output_Stage1 = _7_output;
-
     {
         sk_FragColor = output_Stage1 * outputCoverage_Stage0;
     }

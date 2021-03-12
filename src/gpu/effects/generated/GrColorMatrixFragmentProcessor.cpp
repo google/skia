@@ -44,7 +44,6 @@ public:
                 R"SkSL(half4 color = %s;
 @if (%s) {
     color = half4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
-
 }
 color = %s * color + %s;
 @if (%s) {

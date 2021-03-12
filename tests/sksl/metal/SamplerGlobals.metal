@@ -12,8 +12,6 @@ struct Globals {
     texture2d<float> texB;
     sampler texBSmplr;
 };
-
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> texA[[texture(1)]], sampler texASmplr[[sampler(1)]], texture2d<float> texB[[texture(0)]], sampler texBSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{texA, texASmplr, texB, texBSmplr};
     (void)_globals;
