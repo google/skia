@@ -21,15 +21,15 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
     switch (value->kind()) {
         case Expression::Kind::kFloatLiteral:
             // Convert -floatLiteral(1) to floatLiteral(-1).
-            return std::make_unique<FloatLiteral>(operand->fOffset,
-                                                  -value->as<FloatLiteral>().value(),
-                                                  &value->type());
+            return FloatLiteral::Make(operand->fOffset,
+                                      -value->as<FloatLiteral>().value(),
+                                      &value->type());
 
         case Expression::Kind::kIntLiteral:
             // Convert -intLiteral(1) to intLiteral(-1).
-            return std::make_unique<IntLiteral>(operand->fOffset,
-                                                -value->as<IntLiteral>().value(),
-                                                &value->type());
+            return IntLiteral::Make(operand->fOffset,
+                                    -value->as<IntLiteral>().value(),
+                                    &value->type());
 
         case Expression::Kind::kPrefix:
             if (context.fConfig->fSettings.fOptimize) {
@@ -81,7 +81,7 @@ static std::unique_ptr<Expression> logical_not_operand(const Context& context,
         case Expression::Kind::kBoolLiteral: {
             // Convert !boolLiteral(true) to boolLiteral(false).
             const BoolLiteral& b = value->as<BoolLiteral>();
-            return std::make_unique<BoolLiteral>(operand->fOffset, !b.value(), &operand->type());
+            return BoolLiteral::Make(operand->fOffset, !b.value(), &operand->type());
         }
         case Expression::Kind::kPrefix:
             if (context.fConfig->fSettings.fOptimize) {

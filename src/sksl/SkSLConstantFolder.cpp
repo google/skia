@@ -84,7 +84,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
                 [[fallthrough]];
 
             case Expression::ComparisonResult::kEqual:
-                return std::make_unique<BoolLiteral>(context, left.fOffset, equality);
+                return BoolLiteral::Make(context, left.fOffset, equality);
 
             case Expression::ComparisonResult::kUnknown:
                 return nullptr;
@@ -98,7 +98,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
         args.reserve_back(type.columns());
         for (int i = 0; i < type.columns(); i++) {
             U value = foldFn(left.getVecComponent<T>(i), right.getVecComponent<T>(i));
-            args.push_back(std::make_unique<Literal<T>>(left.fOffset, value, &componentType));
+            args.push_back(Literal<T>::Make(left.fOffset, value, &componentType));
         }
         auto foldedCtor = Constructor::Convert(context, left.fOffset, type, std::move(args));
         SkASSERT(foldedCtor);
@@ -349,7 +349,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             case Token::Kind::TK_NEQ:        result = leftVal != rightVal; break;
             default: return nullptr;
         }
-        return std::make_unique<BoolLiteral>(context, offset, result);
+        return BoolLiteral::Make(context, offset, result);
     }
 
     // If the left side is a Boolean literal, apply short-circuit optimizations.
@@ -372,13 +372,13 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     if (op.kind() == Token::Kind::TK_EQEQ && Analysis::IsSameExpressionTree(*left, *right)) {
         // With == comparison, if both sides are the same trivial expression, this is self-
         // comparison and is always true. (We are not concerned with NaN.)
-        return std::make_unique<BoolLiteral>(context, leftExpr.fOffset, /*value=*/true);
+        return BoolLiteral::Make(context, leftExpr.fOffset, /*value=*/true);
     }
 
     if (op.kind() == Token::Kind::TK_NEQ && Analysis::IsSameExpressionTree(*left, *right)) {
         // With != comparison, if both sides are the same trivial expression, this is self-
         // comparison and is always false. (We are not concerned with NaN.)
-        return std::make_unique<BoolLiteral>(context, leftExpr.fOffset, /*value=*/false);
+        return BoolLiteral::Make(context, leftExpr.fOffset, /*value=*/false);
     }
 
     if (ErrorOnDivideByZero(context, offset, op, *right)) {
@@ -404,13 +404,11 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
 
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
     // precision to calculate the results and hope the result makes sense.
-    // TODO: detect and handle integer overflow properly.
+    // TODO(skia:10932): detect and handle integer overflow properly.
     using SKSL_UINT = uint64_t;
-    #define RESULT(t, op) std::make_unique<t ## Literal>(context, offset, \
-                                                         leftVal op rightVal)
-    #define URESULT(t, op) std::make_unique<t ## Literal>(context, offset,       \
-                                                          (SKSL_UINT) leftVal op \
-                                                          (SKSL_UINT) rightVal)
+    #define RESULT(t, op) t ## Literal::Make(context, offset, leftVal op rightVal)
+    #define URESULT(t, op) t ## Literal::Make(context, offset, (SKSL_UINT) leftVal op \
+                                                               (SKSL_UINT) rightVal)
     if (left->is<IntLiteral>() && right->is<IntLiteral>()) {
         SKSL_INT leftVal  = left->as<IntLiteral>().value();
         SKSL_INT rightVal = right->as<IntLiteral>().value();
@@ -535,7 +533,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                 [[fallthrough]];
 
             case Expression::ComparisonResult::kEqual:
-                return std::make_unique<BoolLiteral>(context, offset, equality);
+                return BoolLiteral::Make(context, offset, equality);
 
             case Expression::ComparisonResult::kUnknown:
                 return nullptr;

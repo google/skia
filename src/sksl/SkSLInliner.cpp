@@ -691,9 +691,9 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // int _1_loop = 0;
         symbolTable = std::make_shared<SymbolTable>(std::move(symbolTable), caller->isBuiltin());
         const Type* intType = fContext->fTypes.fInt.get();
-        std::unique_ptr<Expression> initialValue = std::make_unique<IntLiteral>(/*offset=*/-1,
-                                                                                /*value=*/0,
-                                                                                intType);
+        std::unique_ptr<Expression> initialValue = IntLiteral::Make(/*offset=*/-1,
+                                                                    /*value=*/0,
+                                                                    intType);
         InlineVariable loopVar = this->makeInlineVariable("loop", intType, symbolTable.get(),
                                                           Modifiers{}, caller->isBuiltin(),
                                                           &initialValue);
@@ -703,7 +703,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 *fContext,
                 std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol),
                 Token::Kind::TK_LT,
-                std::make_unique<IntLiteral>(/*offset=*/-1, /*value=*/1, intType));
+                IntLiteral::Make(/*offset=*/-1, /*value=*/1, intType));
 
         // _1_loop++
         std::unique_ptr<Expression> increment = PostfixExpression::Make(
@@ -754,9 +754,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     } else if (function.declaration().returnType() == *fContext->fTypes.fVoid) {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.
-        inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(*fContext,
-                                                                     offset,
-                                                                     /*value=*/false);
+        inlinedCall.fReplacementExpr = BoolLiteral::Make(*fContext, offset, /*value=*/false);
     } else {
         // It's a non-void function, but it never created a result expression--that is, it never
         // returned anything on any path! This should have been detected in the function finalizer.

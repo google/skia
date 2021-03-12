@@ -95,7 +95,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 if (constantZeroIdx == -1) {
                     // Synthesize a 'type(0)' argument at the end of the constructor.
                     ExpressionArray zeroArgs;
-                    zeroArgs.push_back(std::make_unique<IntLiteral>(context, offset,/*fValue=*/0));
+                    zeroArgs.push_back(IntLiteral::Make(context, offset, /*value=*/0));
                     constructorArgs.push_back(Constructor::Convert(context, offset, *numberType,
                                                                    std::move(zeroArgs)));
                     constantZeroIdx = constantFieldIdx++;
@@ -106,7 +106,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 if (constantOneIdx == -1) {
                     // Synthesize a 'type(1)' argument at the end of the constructor.
                     ExpressionArray oneArgs;
-                    oneArgs.push_back(std::make_unique<IntLiteral>(context, offset, /*fValue=*/1));
+                    oneArgs.push_back(IntLiteral::Make(context, offset, /*value=*/1));
                     constructorArgs.push_back(Constructor::Convert(context, offset, *numberType,
                                                                    std::move(oneArgs)));
                     constantOneIdx = constantFieldIdx++;

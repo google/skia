@@ -212,39 +212,37 @@ std::unique_ptr<Expression> Constructor::SimplifyConversion(const Type& construc
         SKSL_INT value = expr.as<IntLiteral>().value();
         if (constructorType.isFloat()) {
             // promote float(1) to 1.0
-            return std::make_unique<FloatLiteral>(expr.fOffset, (SKSL_FLOAT)value,
-                                                  &constructorType);
+            return FloatLiteral::Make(expr.fOffset, (SKSL_FLOAT)value, &constructorType);
         } else if (constructorType.isInteger()) {
             // promote uint(1) to 1u
-            return std::make_unique<IntLiteral>(expr.fOffset, value, &constructorType);
+            return IntLiteral::Make(expr.fOffset, value, &constructorType);
         } else if (constructorType.isBoolean()) {
             // promote bool(1) to true/false
-            return std::make_unique<BoolLiteral>(expr.fOffset, value != 0, &constructorType);
+            return BoolLiteral::Make(expr.fOffset, value != 0, &constructorType);
         }
     } else if (expr.is<FloatLiteral>()) {
         float value = expr.as<FloatLiteral>().value();
         if (constructorType.isFloat()) {
             // promote float(1.23) to 1.23
-            return std::make_unique<FloatLiteral>(expr.fOffset, value, &constructorType);
+            return FloatLiteral::Make(expr.fOffset, value, &constructorType);
         } else if (constructorType.isInteger()) {
             // promote uint(1.23) to 1u
-            return std::make_unique<IntLiteral>(expr.fOffset, (SKSL_INT)value, &constructorType);
+            return IntLiteral::Make(expr.fOffset, (SKSL_INT)value, &constructorType);
         } else if (constructorType.isBoolean()) {
             // promote bool(1.23) to true/false
-            return std::make_unique<BoolLiteral>(expr.fOffset, value != 0.0f, &constructorType);
+            return BoolLiteral::Make(expr.fOffset, value != 0.0f, &constructorType);
         }
     } else if (expr.is<BoolLiteral>()) {
         bool value = expr.as<BoolLiteral>().value();
         if (constructorType.isFloat()) {
             // promote float(true) to 1.0
-            return std::make_unique<FloatLiteral>(expr.fOffset, value ? 1.0f : 0.0f,
-                                                  &constructorType);
+            return FloatLiteral::Make(expr.fOffset, value ? 1.0f : 0.0f, &constructorType);
         } else if (constructorType.isInteger()) {
             // promote uint(true) to 1u
-            return std::make_unique<IntLiteral>(expr.fOffset, value ? 1 : 0, &constructorType);
+            return IntLiteral::Make(expr.fOffset, value ? 1 : 0, &constructorType);
         } else if (constructorType.isBoolean()) {
             // promote bool(true) to true/false
-            return std::make_unique<BoolLiteral>(expr.fOffset, value, &constructorType);
+            return BoolLiteral::Make(expr.fOffset, value, &constructorType);
         }
     }
     return nullptr;

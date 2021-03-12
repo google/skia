@@ -549,7 +549,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 }
                 if (type.columns() > 0) {
                     SpvId typeId = this->getType(type.componentType(), layout);
-                    IntLiteral countLiteral(fContext, /*offset=*/-1, type.columns());
+                    IntLiteral countLiteral(/*offset=*/-1, type.columns(),
+                                            fContext.fTypes.fInt.get());
                     SpvId countId = this->writeIntLiteral(countLiteral);
                     this->writeInstruction(SpvOpTypeArray, result, typeId, countId,
                                            fConstantBuffer);
@@ -903,8 +904,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SpvId img = this->writeExpression(*arguments[0], out);
             ExpressionArray args;
             args.reserve_back(2);
-            args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
-            args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
+            args.push_back(IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
+            args.push_back(IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
             Constructor ctor(/*offset=*/-1, *fContext.fTypes.fInt2, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (arguments.size() == 1) {
@@ -970,7 +971,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             } else {
                 SkASSERT(arguments.size() == 2);
                 if (fProgram.fConfig->fSettings.fSharpenTextures) {
-                    FloatLiteral lodBias(fContext, -1, -0.5);
+                    FloatLiteral lodBias(/*offset=*/-1, /*value=*/-0.5,
+                                         fContext.fTypes.fFloat.get());
                     this->writeInstruction(op, type, result, sampler, uv,
                                            SpvImageOperandsBiasMask,
                                            this->writeFloatLiteral(lodBias),
@@ -1053,10 +1055,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             ExpressionArray finalArgs;
             finalArgs.reserve_back(3);
             finalArgs.push_back(arguments[0]->clone());
-            finalArgs.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1,
-                                                               /*value=*/0));
-            finalArgs.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1,
-                                                               /*value=*/1));
+            finalArgs.push_back(FloatLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
+            finalArgs.push_back(FloatLiteral::Make(fContext, /*offset=*/-1, /*value=*/1));
             std::vector<SpvId> spvArgs = this->vectorize(finalArgs, out);
             this->writeGLSLExtendedInstruction(callType, result, GLSLstd450FClamp, GLSLstd450SClamp,
                                                GLSLstd450UClamp, spvArgs, out);
@@ -1225,9 +1225,9 @@ SpvId SPIRVCodeGenerator::castScalarToFloat(SpvId inputId, const Type& inputType
     SpvId result = this->nextId();
     if (inputType.isBoolean()) {
         // Use OpSelect to convert the boolean argument to a literal 1.0 or 0.0.
-        FloatLiteral one(fContext, /*offset=*/-1, /*value=*/1);
+        FloatLiteral one(/*offset=*/-1, /*value=*/1, fContext.fTypes.fFloat.get());
         SpvId        oneID = this->writeFloatLiteral(one);
-        FloatLiteral zero(fContext, /*offset=*/-1, /*value=*/0);
+        FloatLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
         SpvId        zeroID = this->writeFloatLiteral(zero);
         this->writeInstruction(SpvOpSelect, this->getType(outputType), result,
                                inputId, oneID, zeroID, out);
@@ -1360,7 +1360,7 @@ SpvId SPIRVCodeGenerator::castScalarToBoolean(SpvId inputId, const Type& inputTy
 
 void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
                                                  OutputStream& out) {
-    FloatLiteral zero(fContext, -1, 0);
+    FloatLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
     SpvId zeroId = this->writeFloatLiteral(zero);
     std::vector<SpvId> columnIds;
     for (int column = 0; column < type.columns(); column++) {
@@ -1399,10 +1399,10 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                                                                            1));
     SpvId zeroId;
     if (dstType.componentType() == *fContext.fTypes.fFloat) {
-        FloatLiteral zero(fContext, -1, 0.0);
+        FloatLiteral zero(/*offset=*/-1, /*value=*/0.0, fContext.fTypes.fFloat.get());
         zeroId = this->writeFloatLiteral(zero);
     } else if (dstType.componentType() == *fContext.fTypes.fInt) {
-        IntLiteral zero(fContext, -1, 0);
+        IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
         zeroId = this->writeIntLiteral(zero);
     } else {
         SK_ABORT("unsupported matrix component type");
@@ -1745,7 +1745,7 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& fieldExpr = expr.as<FieldAccess>();
             chain = this->getAccessChain(*fieldExpr.base(), out);
-            IntLiteral index(fContext, /*offset=*/-1, fieldExpr.fieldIndex());
+            IntLiteral index(/*offset=*/-1, fieldExpr.fieldIndex(), fContext.fTypes.fInt.get());
             chain.push_back(this->writeIntLiteral(index));
             break;
         }
@@ -1894,7 +1894,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             const Variable& var = *expr.as<VariableReference>().variable();
             int uniformIdx = this->findUniformFieldIndex(var);
             if (uniformIdx >= 0) {
-                IntLiteral uniformIdxLiteral{fContext, /*offset=*/-1, uniformIdx};
+                IntLiteral uniformIdxLiteral{/*offset=*/-1, uniformIdx, fContext.fTypes.fInt.get()};
                 SpvId memberId = this->nextId();
                 SpvId typeId = this->getPointerType(type, SpvStorageClassUniform);
                 SpvId uniformIdxId = this->writeIntLiteral(uniformIdxLiteral);
@@ -1939,7 +1939,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             if (swizzle.components().size() == 1) {
                 SpvId member = this->nextId();
                 SpvId typeId = this->getPointerType(type, get_storage_class(*swizzle.base()));
-                IntLiteral index(fContext, /*offset=*/-1, swizzle.components()[0]);
+                IntLiteral index(/*offset=*/-1, swizzle.components()[0],
+                                 fContext.fTypes.fInt.get());
                 SpvId indexId = this->writeIntLiteral(index);
                 this->writeInstruction(SpvOpAccessChain, typeId, member, base, indexId, out);
                 return std::make_unique<PointerLValue>(*this, member, this->getType(type),
@@ -2038,7 +2039,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             }
             SkASSERT(fRTHeightFieldIndex != (SpvId)-1);
 
-            IntLiteral fieldIndex(fContext, -1, fRTHeightFieldIndex);
+            IntLiteral fieldIndex(/*offset=*/-1, fRTHeightFieldIndex, fContext.fTypes.fInt.get());
             SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
             SpvId heightPtr = this->nextId();
             this->writeOpCode(SpvOpAccessChain, 5, out);
@@ -2057,7 +2058,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         }
 
         // The z component will always be zero so we just get an id to the 0 literal
-        FloatLiteral zero(fContext, -1, 0.0);
+        FloatLiteral zero(/*offset=*/-1, /*value=*/0.0, fContext.fTypes.fFloat.get());
         SpvId zeroId = writeFloatLiteral(zero);
 
         // Calculate the w component
@@ -2233,10 +2234,10 @@ SpvId SPIRVCodeGenerator::writeComponentwiseMatrixBinary(const Type& operandType
 
 static std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
     if (type.isInteger()) {
-        return std::unique_ptr<Expression>(new IntLiteral(-1, 1, &type));
+        return IntLiteral::Make(/*offset=*/-1, /*value=*/1, &type);
     }
     else if (type.isFloat()) {
-        return std::unique_ptr<Expression>(new FloatLiteral(-1, 1.0, &type));
+        return FloatLiteral::Make(/*offset=*/-1, /*value=*/1.0, &type);
     } else {
         SK_ABORT("math is unsupported on type '%s'", String(type.name()).c_str());
     }
@@ -2483,7 +2484,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 
 SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStream& out) {
     SkASSERT(a.getOperator().kind() == Token::Kind::TK_LOGICALAND);
-    BoolLiteral falseLiteral(fContext, -1, false);
+    BoolLiteral falseLiteral(/*offset=*/-1, /*value=*/false, fContext.fTypes.fBool.get());
     SpvId falseConstant = this->writeBoolLiteral(falseLiteral);
     SpvId lhs = this->writeExpression(*a.left(), out);
     SpvId rhsLabel = this->nextId();
@@ -2504,7 +2505,7 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStrea
 
 SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream& out) {
     SkASSERT(o.getOperator().kind() == Token::Kind::TK_LOGICALOR);
-    BoolLiteral trueLiteral(fContext, -1, true);
+    BoolLiteral trueLiteral(/*offset=*/-1, /*value=*/true, fContext.fTypes.fBool.get());
     SpvId trueConstant = this->writeBoolLiteral(trueLiteral);
     SpvId lhs = this->writeExpression(*o.left(), out);
     SpvId rhsLabel = this->nextId();

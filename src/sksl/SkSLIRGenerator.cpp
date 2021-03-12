@@ -775,7 +775,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             fContext,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx),
             Token::Kind::TK_LT,
-            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, fInvocations));
+            IntLiteral::Make(fContext, /*offset=*/-1, fInvocations));
     auto next = PostfixExpression::Make(
             fContext,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,VariableRefKind::kReadWrite),
@@ -796,7 +796,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             fContext,
             std::make_unique<VariableReference>(/*offset=*/-1, loopIdx, VariableRefKind::kWrite),
             Token::Kind::TK_EQ,
-            std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
+            IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
     auto initializer = ExpressionStatement::Make(fContext, std::move(assignment));
     auto loop = ForStatement::Make(
             fContext, /*offset=*/-1, std::move(initializer), std::move(test), std::move(next),
@@ -858,7 +858,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
             Op(Swizzle(Pos(), kXYIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kXZIndices)),
             Token::Kind::TK_PLUS,
             Op(Swizzle(Pos(), kWWIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kYWIndices))));
-    children.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1, /*value=*/0.0));
+    children.push_back(FloatLiteral::Make(fContext, /*offset=*/-1, /*value=*/0.0));
     children.push_back(Swizzle(Pos(), kWIndex));
     std::unique_ptr<Expression> result =
             Op(Pos(), Token::Kind::TK_EQ,
@@ -1421,7 +1421,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                 return;
             }
         }
-        value = std::make_unique<IntLiteral>(fContext, e.fOffset, currentValue);
+        value = IntLiteral::Make(fContext, e.fOffset, currentValue);
         ++currentValue;
         auto var = std::make_unique<Variable>(e.fOffset, fModifiers->addToPool(modifiers),
                                               child.getString(), type, fIsBuiltinCode,
@@ -1491,22 +1491,19 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
         case ASTNode::Kind::kBinary:
             return this->convertBinaryExpression(expr);
         case ASTNode::Kind::kBool:
-            return std::unique_ptr<Expression>(new BoolLiteral(fContext, expr.fOffset,
-                                                               expr.getBool()));
+            return BoolLiteral::Make(fContext, expr.fOffset, expr.getBool());
         case ASTNode::Kind::kCall:
             return this->convertCallExpression(expr);
         case ASTNode::Kind::kField:
             return this->convertFieldExpression(expr);
         case ASTNode::Kind::kFloat:
-            return std::unique_ptr<Expression>(new FloatLiteral(fContext, expr.fOffset,
-                                                                expr.getFloat()));
+            return FloatLiteral::Make(fContext, expr.fOffset, expr.getFloat());
         case ASTNode::Kind::kIdentifier:
             return this->convertIdentifier(expr);
         case ASTNode::Kind::kIndex:
             return this->convertIndexExpression(expr);
         case ASTNode::Kind::kInt:
-            return std::unique_ptr<Expression>(new IntLiteral(fContext, expr.fOffset,
-                                                              expr.getInt()));
+            return IntLiteral::Make(fContext, expr.fOffset, expr.getInt());
         case ASTNode::Kind::kPostfix:
             return this->convertPostfixExpression(expr);
         case ASTNode::Kind::kPrefix:
@@ -1971,8 +1968,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     if (result) {
         const Variable& v = *result->as<VariableReference>().variable();
         SkASSERT(v.initialValue());
-        result = std::make_unique<IntLiteral>(offset, v.initialValue()->as<IntLiteral>().value(),
-                                              &type);
+        result = IntLiteral::Make(offset, v.initialValue()->as<IntLiteral>().value(), &type);
     } else {
         this->errorReporter().error(
                 offset, "type '" + type.name() + "' does not contain enumerator '" + field + "'");

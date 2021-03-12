@@ -41,9 +41,9 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression)
 }
 
 DSLExpression::DSLExpression(float value)
-    : fExpression(std::make_unique<SkSL::FloatLiteral>(DSLWriter::Context(),
-                                                       /*offset=*/-1,
-                                                       value)) {
+    : fExpression(SkSL::FloatLiteral::Make(DSLWriter::Context(),
+                                           /*offset=*/-1,
+                                           value)) {
     if (!isfinite(value)) {
         if (isinf(value)) {
             DSLWriter::ReportError("error: floating point value is infinite\n");
@@ -54,14 +54,14 @@ DSLExpression::DSLExpression(float value)
 }
 
 DSLExpression::DSLExpression(int value)
-    : fExpression(std::make_unique<SkSL::IntLiteral>(DSLWriter::Context(),
-                                                     /*offset=*/-1,
-                                                     value)) {}
+        : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+                                             /*offset=*/-1,
+                                             value)) {}
 
 DSLExpression::DSLExpression(bool value)
-    : fExpression(std::make_unique<SkSL::BoolLiteral>(DSLWriter::Context(),
-                                                     /*offset=*/-1,
-                                                     value)) {}
+    : fExpression(SkSL::BoolLiteral::Make(DSLWriter::Context(),
+                                          /*offset=*/-1,
+                                          value)) {}
 
 DSLExpression::DSLExpression(const DSLVar& var)
     : fExpression(std::make_unique<SkSL::VariableReference>(

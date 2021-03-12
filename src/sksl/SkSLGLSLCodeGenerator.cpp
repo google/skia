@@ -909,12 +909,12 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
         this->writeExpression(*b.right(), Precedence::kTernary);
     } else {
-        BoolLiteral boolTrue(fContext, -1, true);
+        BoolLiteral boolTrue(/*offset=*/-1, /*value=*/true, fContext.fTypes.fBool.get());
         this->writeBoolLiteral(boolTrue);
     }
     this->write(" : ");
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
-        BoolLiteral boolFalse(fContext, -1, false);
+        BoolLiteral boolFalse(/*offset=*/-1, /*value=*/false, fContext.fTypes.fBool.get());
         this->writeBoolLiteral(boolFalse);
     } else {
         this->writeExpression(*b.right(), Precedence::kTernary);
@@ -1289,7 +1289,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
         if (this->caps().addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
                     /*offset=*/-1, f.test()->clone(), Token::Kind::TK_LOGICALAND,
-                    std::make_unique<BoolLiteral>(fContext, -1, true),
+                    BoolLiteral::Make(fContext, /*offset=*/-1, /*value=*/true),
                     fContext.fTypes.fBool.get()));
             this->writeExpression(*and_true, Precedence::kTopLevel);
         } else {
