@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cc6fd57_68af3932",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T19:10:06Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/384298/1..2 is the change.\n\nI thin devices that don\u0027t support msaa disable should continue to render them antialiased",
+      "revId": "b537fe6bb25fa2f8107b8ed6aaed2804d2af1913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
