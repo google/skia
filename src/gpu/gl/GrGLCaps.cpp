@@ -3978,23 +3978,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     fWritePixelsRowBytesSupport = false;
 #endif
 
-    // CCPR edge AA is busted on Mesa, Sandy Bridge/Valley View (Bay Trail).
-    // http://skbug.com/8162
-    if (kMesa_GrGLDriver == ctxInfo.driver() &&
-        (kIntelSandyBridge_GrGLRenderer == ctxInfo.renderer() ||
-         kIntelIvyBridge_GrGLRenderer == ctxInfo.renderer() ||
-         kIntelValleyView_GrGLRenderer == ctxInfo.renderer())) {
-        fDriverDisableCCPR = true;
-    }
-
-    // Temporarily disable the MSAA implementation of CCPR on various platforms while we work out
-    // specific issues.
-    if (kATI_GrGLVendor == ctxInfo.vendor() ||  // Radeon drops stencil draws that use sample mask.
-        kImagination_GrGLVendor == ctxInfo.vendor() || /* PowerVR produces flaky results on Gold. */
-        kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() /* Wrong rendering on Adreno405/418*/) {
-        fDriverDisableMSAACCPR = true;
-    }
-
     if (kIntel_GrGLVendor == ctxInfo.vendor() ||  // IntelIris640 drops draws completely.
         ctxInfo.renderer() == kMaliT_GrGLRenderer ||  // Some curves appear flat on GalaxyS6.
         ctxInfo.renderer() == kAdreno3xx_GrGLRenderer ||
