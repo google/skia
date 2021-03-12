@@ -28,6 +28,11 @@ OpDecorate %sk_InstanceID BuiltIn InstanceIndex
 OpDecorate %sk_VertexID BuiltIn VertexIndex
 OpDecorate %vcoord_Stage0 Location 1
 OpDecorate %vcoord_Stage0 NoPerspective
+OpDecorate %67 RelaxedPrecision
+OpDecorate %108 RelaxedPrecision
+OpDecorate %122 RelaxedPrecision
+OpDecorate %134 RelaxedPrecision
+OpDecorate %142 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %sk_PerVertex = OpTypeStruct %v4float %float
