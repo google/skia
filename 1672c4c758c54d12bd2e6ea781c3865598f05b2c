@@ -33,6 +33,24 @@
       "message": "Can we check that reader.isValid() here, and fail if not. That should give us some protection against the cached pipeline data being corrupted or truncated. (Not sure how defensive we need to be within read_pipeline_data, if we\u0027re getting lots of zeros back from an invalid buffer)?",
       "revId": "1672c4c758c54d12bd2e6ea781c3865598f05b2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "110a3293_b39c8f42",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T21:04:45Z",
+      "side": 1,
+      "message": "Added. I think if the pipeline descriptor is full of garbage, it doesn\u0027t much matter until we try to create the pipeline.",
+      "parentUuid": "60dabf3d_74eb8ba3",
+      "revId": "1672c4c758c54d12bd2e6ea781c3865598f05b2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
