@@ -80,6 +80,10 @@ extern bool gSkVMJITViaDylib;
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/GrContextFactory.h"
 
+namespace SkSL {
+extern bool gSkSLInliner;
+}
+
 using sk_gpu_test::ContextInfo;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
@@ -1240,6 +1244,7 @@ int main(int argc, char** argv) {
     gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
     gUseSkVMBlitter = FLAGS_skvm;
     gSkVMAllowJIT = gSkVMJITViaDylib = FLAGS_jit;
+    SkSL::gSkSLInliner = false;  // Temporary experiment
 
     int runs = 0;
     BenchmarkStream benchStream;
