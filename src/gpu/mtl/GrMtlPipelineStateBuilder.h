@@ -24,9 +24,8 @@ class GrMtlPipelineState;
 class SkReadBuffer;
 
 struct GrMtlPrecompiledLibraries {
-    // TODO: wrap these in sk_cfp<> or unique_ptr<> when we remove ARC
-    id<MTLLibrary> fVertexLibrary;
-    id<MTLLibrary> fFragmentLibrary;
+    // TODO: wrap this in sk_cfp<> or unique_ptr<> when we remove ARC
+    id<MTLRenderPipelineState> fPipelineState;
     bool fRTHeight = false;
 };
 
@@ -66,7 +65,7 @@ private:
                                            SkSL::Program::Inputs inputs,
                                            GrContextOptions::ShaderErrorHandler* errorHandler);
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
-                             SkSL::Program::Settings*, bool isSkSL);
+                             SkSL::Program::Settings*, sk_sp<SkData>, bool isSkSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
