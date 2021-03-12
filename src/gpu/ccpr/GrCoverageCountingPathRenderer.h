@@ -83,10 +83,9 @@ private:
     // (It will only contain elements when fFlushing is true.)
     SkSTArray<4, sk_sp<GrCCPerOpsTaskPaths>> fFlushingPaths;
 
-    SkDEBUGCODE(bool fFlushing = false);
+    std::unique_ptr<GrCCPerFlushResources> fPerFlushResources;
 
-public:
-    const GrCCPerFlushResources* testingOnly_getCurrentFlushResources();
+    SkDEBUGCODE(bool fFlushing = false);
 };
 
 #endif
