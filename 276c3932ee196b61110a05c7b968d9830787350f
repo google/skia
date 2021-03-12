@@ -46,6 +46,30 @@
       },
       "revId": "276c3932ee196b61110a05c7b968d9830787350f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d7b5aeb_5d93107e",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T21:38:50Z",
+      "side": 1,
+      "message": "Ah crud, right. That code could probably be way simpler now. It\u0027s only called with lists of size 1 or 2. But yeah, I forgot to go back and flatten it out.",
+      "parentUuid": "579f2eea_31381323",
+      "range": {
+        "startLine": 472,
+        "startChar": 0,
+        "endLine": 473,
+        "endChar": 82
+      },
+      "revId": "276c3932ee196b61110a05c7b968d9830787350f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
