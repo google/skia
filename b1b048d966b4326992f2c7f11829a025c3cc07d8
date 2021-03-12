@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b40422e2_047fd4f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-12T16:26:38Z",
+      "side": 1,
+      "message": "Benchmark                                   Time           CPU Iterations\n-------------------------------------------------------------------------\nBefore any of the changes\nSkParagraphFixture/StylesBigO/8        531889 ns     531863 ns       1182\nSkParagraphFixture/StylesBigO/16       544820 ns     544738 ns       1199\nSkParagraphFixture/StylesBigO/64       581810 ns     581631 ns       1199\nSkParagraphFixture/StylesBigO/256      548222 ns     548211 ns       1186\nSkParagraphFixture/StylesBigO/1024     540014 ns     539843 ns       1032\nSkParagraphFixture/StylesBigO/4k       535817 ns     535638 ns       1204\n\nWith the fix that caused the performance drop (down 15%)\nSkParagraphFixture/StylesBigO/8        623330 ns     623146 ns       1050\nSkParagraphFixture/StylesBigO/16       624205 ns     624108 ns       1052\nSkParagraphFixture/StylesBigO/64       617811 ns     617785 ns       1048\nSkParagraphFixture/StylesBigO/256      615192 ns     615104 ns       1064\nSkParagraphFixture/StylesBigO/1024     608118 ns     608030 ns        979\nSkParagraphFixture/StylesBigO/4k       607488 ns     607459 ns       1060\n\nWith this fix (up 10%)\nSkParagraphFixture/StylesBigO/8        538610 ns     538531 ns       1176\nSkParagraphFixture/StylesBigO/16       537475 ns     537253 ns       1186\nSkParagraphFixture/StylesBigO/64       537825 ns     537613 ns       1186\nSkParagraphFixture/StylesBigO/256      537780 ns     537717 ns       1185\nSkParagraphFixture/StylesBigO/1024     538253 ns     538174 ns       1187\nSkParagraphFixture/StylesBigO/4k       537711 ns     537672 ns       1184",
+      "parentUuid": "a6c50a7a_52b2d2ab",
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21117943_2db93fb1",
@@ -71,6 +89,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cccb4e5a_c760cb1d",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-12T16:26:38Z",
+      "side": 1,
+      "message": "WeakSpace?",
+      "parentUuid": "035c996b_f39adcbe",
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a6cdc8f_177c6a05",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 7
@@ -82,6 +118,30 @@
       "writtenOn": "2021-03-12T16:15:27Z",
       "side": 1,
       "message": "Would std::vector\u003cbool\u003e work here? std::map is terrible slow, and memory hungry.",
+      "range": {
+        "startLine": 139,
+        "startChar": 50,
+        "endLine": 139,
+        "endChar": 58
+      },
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0d35cb2_c934f378",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-12T16:26:38Z",
+      "side": 1,
+      "message": "If I use a position as an index it\u0027s going to be a very long vector.\nThe map is pretty short - it keeps spaces and non-breaking spaces only.\nI tried 2 vectors (one for spaces, one for nbsp) and for some reason it also was slower.",
+      "parentUuid": "5a6cdc8f_177c6a05",
       "range": {
         "startLine": 139,
         "startChar": 50,
