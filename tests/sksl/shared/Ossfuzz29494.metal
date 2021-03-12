@@ -10,7 +10,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _out;
     (void)_out;
     false;
-
     _out.sk_FragColor = float4(0.0);
     return _out;
 }

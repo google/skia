@@ -5,7 +5,6 @@ uniform vec4 colorRed;
 vec4 main() {
     float x = 1.0;
     float y = 2.0;
-
     int z = 3;
     x = (x - x) + ((y * x) * x) * (y - x);
     y = (x / y) / x;

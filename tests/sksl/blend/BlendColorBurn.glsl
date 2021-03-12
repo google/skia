@@ -10,11 +10,9 @@ float _color_burn_component(vec2 s, vec2 d) {
     } else {
         float _1_n = (d.y - d.x) * s.y;
         float delta = max(0.0, d.y - _1_n / s.x);
-
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
 void main() {
     sk_FragColor = vec4(_color_burn_component(src.xw, dst.xw), _color_burn_component(src.yw, dst.yw), _color_burn_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
-
 }
