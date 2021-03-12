@@ -9,7 +9,6 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
@@ -20,11 +19,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
                 _0_blend = _in.src * _in.dst;
                 continue;
             }
-
-
         }
     }
     _out.sk_FragColor = _0_blend;
-
     return _out;
 }

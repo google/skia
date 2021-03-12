@@ -8,5 +8,4 @@ void main() {
         _0_c = _1_d;
     }
     sk_FragColor = _0_c.xxxx;
-
 }

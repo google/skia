@@ -74,6 +74,8 @@ protected:
 
     void writeLine(const String& s);
 
+    void finishLine();
+
     virtual void writeHeader();
 
     virtual bool usesPrecisionModifiers() const;

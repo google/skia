@@ -5,9 +5,7 @@ void main() {
     vec4 color = inColor;
     sk_FragColor = color.yzyx;
     sk_FragColor = color.yzyx;
-
     color = color.wzyx;
     false;
-
     sk_FragColor = color;
 }

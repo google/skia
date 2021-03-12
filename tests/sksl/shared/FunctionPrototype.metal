@@ -19,7 +19,5 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
-
-
 }
 int3 this_function_is_prototyped_at_the_very_end_and_never_defined(float2x2 x, bool2 y);

@@ -22,8 +22,6 @@ struct Globals {
     texture2d<float> uTextureSampler_0_Stage1;
     sampler uTextureSampler_0_Stage1Smplr;
 };
-
-
 float4 MatrixEffect_Stage1_c0_c0(thread Globals& _globals, float4 _input, float2 _coords) {
     float4 _output;
     float2 _0_coords = (_globals._anonInterface0->umatrix_Stage1_c0_c0 * float3(_coords, 1.0)).xy;
@@ -41,7 +39,6 @@ float4 MatrixEffect_Stage1_c0_c0(thread Globals& _globals, float4 _input, float2
         _5_textureColor = _globals._anonInterface0->uborder_Stage1_c0_c0_c0;
     }
     return _5_textureColor;
-
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTextureSampler_0_Stage1[[texture(0)]], sampler uTextureSampler_0_Stage1Smplr[[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{&_anonInterface0, uTextureSampler_0_Stage1, uTextureSampler_0_Stage1Smplr};
@@ -136,7 +133,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTexture
     _8_coord += _globals._anonInterface0->uIncrement_Stage1_c0;
     _7_output *= outputColor_Stage0;
     output_Stage1 = _7_output;
-
     {
         _out.sk_FragColor = output_Stage1 * outputCoverage_Stage0;
     }
