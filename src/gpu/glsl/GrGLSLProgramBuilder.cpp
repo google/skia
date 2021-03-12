@@ -180,8 +180,7 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                                            fp,
                                            "_input",
                                            "_coords",
-                                           coords,
-                                           /*forceInline=*/true);
+                                           coords);
     auto name = fFS.writeProcessorFunction(&glslFP, args);
     fFS.codeAppendf("%s = %s(%s);", output.c_str(), name.c_str(), input.c_str());
 
