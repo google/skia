@@ -543,7 +543,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, Run* run)
 
         Buffer runBuffer(const RunInfo& info) override {
             SkASSERT(!fRun);
-            fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, 0, 0);
+            fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, 0, 0.0f);
             return fRun->newRunBuffer();
         }
 
