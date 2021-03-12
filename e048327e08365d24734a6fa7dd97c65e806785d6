@@ -34,6 +34,23 @@
       "parentUuid": "03d3e20a_ef39648f",
       "revId": "e048327e08365d24734a6fa7dd97c65e806785d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75bb9ac1_df198402",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-12T14:30:43Z",
+      "side": 1,
+      "message": "Yeah this seems like a good bit of extra safety. ",
+      "revId": "e048327e08365d24734a6fa7dd97c65e806785d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
