@@ -15,9 +15,6 @@
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/ccpr/GrCCPerOpsTaskPaths.h"
 
-class GrCCDrawPathsOp;
-class GrCCPathCache;
-
 /**
  * This is a path renderer that draws antialiased paths by counting coverage in an offscreen
  * buffer. (See GrCCCoverageProcessor, GrCCPathProcessor.)
@@ -25,21 +22,14 @@ class GrCCPathCache;
  * It also serves as the per-render-target tracker for pending path draws, and at the start of
  * flush, it compiles GPU buffers and renders a "coverage count atlas" for the upcoming paths.
  */
-class GrCoverageCountingPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
+class GrCoverageCountingPathRenderer : public GrOnFlushCallbackObject {
 public:
     using CoverageType = GrCCAtlas::CoverageType;
 
-    const char* name() const final { return "CCPR"; }
-
     static bool IsSupported(const GrCaps&, CoverageType* = nullptr);
 
-    enum class AllowCaching : bool {
-        kNo = false,
-        kYes = true
-    };
-
-    static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(
-            const GrCaps&, AllowCaching, uint32_t contextUniqueID);
+    static std::unique_ptr<GrCoverageCountingPathRenderer> CreateIfSupported(
+            const GrCaps&, uint32_t contextUniqueID);
 
     CoverageType coverageType() const { return fCoverageType; }
 
@@ -74,8 +64,6 @@ public:
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
     void postFlush(GrDeferredUploadToken, SkSpan<const uint32_t> taskIDs) override;
 
-    void purgeCacheEntriesOlderThan(GrProxyProvider*, const GrStdSteadyClock::time_point&);
-
     // If a path spans more pixels than this, we need to crop it or else analytic AA can run out of
     // fp32 precision.
     static constexpr float kPathCropThreshold = 1 << 16;
@@ -88,21 +76,10 @@ public:
 
     static constexpr int kDoCopiesThreshold = 100;
 
-    static float GetStrokeDevWidth(const SkMatrix&, const SkStrokeRec&,
-                                   float* inflationRadius = nullptr);
-
 private:
-    GrCoverageCountingPathRenderer(CoverageType, AllowCaching, uint32_t contextUniqueID);
-
-    // GrPathRenderer overrides.
-    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
-        return GrPathRenderer::kNoSupport_StencilSupport;
-    }
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
-    bool onDrawPath(const DrawPathArgs&) override;
+    GrCoverageCountingPathRenderer(CoverageType, uint32_t contextUniqueID);
 
     GrCCPerOpsTaskPaths* lookupPendingPaths(uint32_t opsTaskID);
-    void recordOp(GrOp::Owner, const DrawPathArgs&);
 
     const CoverageType fCoverageType;
 
@@ -115,14 +92,10 @@ private:
     // (It will only contain elements when fFlushing is true.)
     SkSTArray<4, sk_sp<GrCCPerOpsTaskPaths>> fFlushingPaths;
 
-    std::unique_ptr<GrCCPathCache> fPathCache;
-
     SkDEBUGCODE(bool fFlushing = false);
 
 public:
-    void testingOnly_drawPathDirectly(const DrawPathArgs&);
     const GrCCPerFlushResources* testingOnly_getCurrentFlushResources();
-    const GrCCPathCache* testingOnly_getPathCache() const;
 };
 
 #endif

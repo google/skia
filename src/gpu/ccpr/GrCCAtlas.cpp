@@ -10,7 +10,6 @@
 #include "include/private/SkTPin.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
-#include "src/gpu/ccpr/GrCCPathCache.h"
 
 static SkISize choose_initial_atlas_size(const GrCCAtlas::Specs& specs) {
     // Begin with the first pow2 dimensions whose area is theoretically large enough to contain the
@@ -51,31 +50,6 @@ void GrCCAtlas::setEndStencilResolveInstance(int idx) {
     // This can't be called anymore once makeRenderTargetContext() has been called.
     SkASSERT(!this->isInstantiated());
     fEndStencilResolveInstance = idx;
-}
-
-static uint32_t next_atlas_unique_id() {
-    static std::atomic<uint32_t> nextID;
-    return nextID.fetch_add(1, std::memory_order_relaxed);
-}
-
-sk_sp<GrCCCachedAtlas> GrCCAtlas::refOrMakeCachedAtlas(GrOnFlushResourceProvider* onFlushRP) {
-    if (!fCachedAtlas) {
-        static const GrUniqueKey::Domain kAtlasDomain = GrUniqueKey::GenerateDomain();
-
-        GrUniqueKey atlasUniqueKey;
-        GrUniqueKey::Builder builder(&atlasUniqueKey, kAtlasDomain, 1, "CCPR Atlas");
-        builder[0] = next_atlas_unique_id();
-        builder.finish();
-
-        onFlushRP->assignUniqueKeyToProxy(atlasUniqueKey, this->textureProxy());
-
-        fCachedAtlas = sk_make_sp<GrCCCachedAtlas>(fCoverageType, atlasUniqueKey,
-                                                   sk_ref_sp(this->textureProxy()));
-    }
-
-    SkASSERT(fCachedAtlas->coverageType() == fCoverageType);
-    SkASSERT(fCachedAtlas->getOnFlushProxy() == this->textureProxy());
-    return fCachedAtlas;
 }
 
 GrCCAtlas* GrCCAtlasStack::addRect(const SkIRect& devIBounds, SkIVector* devToAtlasOffset) {

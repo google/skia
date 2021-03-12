@@ -14,8 +14,6 @@
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/ccpr/GrCCPathCache.h"
-#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {
@@ -31,25 +29,17 @@ namespace skiagm {
 
 
 /**
- * This test ensures that the ccpr path cache preserves fill rules properly, both in the case where
- * we copy paths into a8 literal coverage atlases, as well as in the case where we just reuse a
- * stashed fp16 coverage count atlas.
+ * This test originally ensured that the ccpr path cache preserved fill rules properly. CCRP is gone
+ * now, but we decided to keep the test.
  */
 class PreserveFillRuleGM : public GpuGM {
 public:
-    // fStarSize affects whether ccpr copies the paths to an a8 literal coverage atlas, or just
-    // leaves them stashed in an fp16 coverage count atlas. The threshold for copying to a8 is
-    // currently 256x256 total pixels copied. If this ever changes, there is code in onDraw that
-    // will detect the unexpected behavior and draw a failure message.
-    PreserveFillRuleGM(bool literalCoverageAtlas)
-            : fLiteralCoverageAtlas(literalCoverageAtlas)
-            , fStarSize((fLiteralCoverageAtlas) ? 200 : 20) {
-    }
+    PreserveFillRuleGM(bool big) : fBig(big) , fStarSize((big) ? 200 : 20) {}
 
 private:
     SkString onShortName() override {
         SkString name("preservefillrule");
-        name += (fLiteralCoverageAtlas) ? "_big" : "_little";
+        name += (fBig) ? "_big" : "_little";
         return name;
     }
     SkISize onISize() override { return SkISize::Make(fStarSize * 2, fStarSize * 2); }
@@ -61,8 +51,6 @@ private:
 
     DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
                       SkString* errorMsg) override {
-        using CoverageType = GrCCAtlas::CoverageType;
-
         if (rtc->numSamples() > 1) {
             errorMsg->set("ccpr is currently only used for coverage AA");
             return DrawResult::kSkip;
@@ -72,13 +60,6 @@ private:
         if (!ccpr) {
             errorMsg->set("ccpr only");
             return DrawResult::kSkip;
-        }
-
-        auto pathCache = ccpr->testingOnly_getPathCache();
-        if (!pathCache) {
-            errorMsg->set("ccpr is not in caching mode. "
-                          "Are you using viewer? Launch with \"--cachePathMasks true\".");
-            return DrawResult::kFail;
         }
 
         auto dContext = GrAsDirectContext(rContext);
@@ -107,56 +88,18 @@ private:
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);
 
-        for (int i = 0; i < 3; ++i) {
-            canvas->clear(SK_ColorWHITE);
-            canvas->drawPath(star7_winding, paint);
-            canvas->drawPath(star7_evenOdd, paint);
-            canvas->drawPath(star5_winding, paint);
-            canvas->drawPath(star5_evenOdd, paint);
-            dContext->priv().flushSurface(rtc->asSurfaceProxy());
-
-            // Ensure the path cache is behaving in such a way that we are actually testing what we
-            // think we are.
-            int numCachedPaths = 0;
-            for (GrCCPathCacheEntry* entry : pathCache->testingOnly_getLRU()) {
-                if (0 == i) {
-                    // We don't cache an atlas on the first hit.
-                    ERR_MSG_ASSERT(!entry->cachedAtlas());
-                } else {
-                    // The stars should be cached in an atlas now.
-                    ERR_MSG_ASSERT(entry->cachedAtlas());
-
-                    CoverageType atlasCoverageType = entry->cachedAtlas()->coverageType();
-                    if (i < 2) {
-                        // We never copy to an a8 atlas before the second hit.
-                        ERR_MSG_ASSERT(ccpr->coverageType() == atlasCoverageType);
-                    } else if (fLiteralCoverageAtlas) {
-                        // Verify fStarSize is large enough that the paths got copied to an a8
-                        // atlas.
-                        ERR_MSG_ASSERT(CoverageType::kA8_LiteralCoverage == atlasCoverageType);
-                    } else {
-                        // Verify fStarSize is small enough that the paths did *NOT* get copied to
-                        // an a8 atlas.
-                        ERR_MSG_ASSERT(ccpr->coverageType() == atlasCoverageType);
-                    }
-                }
-                ++numCachedPaths;
-            }
-
-            // CCPR is currently disabled.
-#if 0
-            if (dContext) {
-                // Verify all 4 paths are tracked by the path cache.
-                ERR_MSG_ASSERT(4 == numCachedPaths);
-            }
-#endif
-        }
+        canvas->clear(SK_ColorWHITE);
+        canvas->drawPath(star7_winding, paint);
+        canvas->drawPath(star7_evenOdd, paint);
+        canvas->drawPath(star5_winding, paint);
+        canvas->drawPath(star5_evenOdd, paint);
+        dContext->priv().flushSurface(rtc->asSurfaceProxy());
 
         return DrawResult::kOk;
     }
 
 private:
-    const bool fLiteralCoverageAtlas;
+    const bool fBig;
     const int fStarSize;
 };
 

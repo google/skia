@@ -10,7 +10,6 @@
 
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrTBlockList.h"
-#include "src/gpu/ccpr/GrCCPathProcessor.h"
 
 class GrCCCachedAtlas;
 
@@ -78,13 +77,10 @@ public:
     void setEndStencilResolveInstance(int idx);
     int getEndStencilResolveInstance() const { return fEndStencilResolveInstance; }
 
-    sk_sp<GrCCCachedAtlas> refOrMakeCachedAtlas(GrOnFlushResourceProvider*);
-
 private:
     const CoverageType fCoverageType;
     int fFillBatchID;
     int fEndStencilResolveInstance;
-    sk_sp<GrCCCachedAtlas> fCachedAtlas;
 };
 
 /**
