@@ -22,6 +22,30 @@
       },
       "revId": "6cb17ead60288e0efd9900abbc86bb784b496ec4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18bb8121_b6919341",
+        "filename": "src/gpu/mtl/GrMtlAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-12T16:06:33Z",
+      "side": 0,
+      "message": "It just doesn\u0027t mean anything so it\u0027s not idiomatic. `const id` applies no restriction.",
+      "parentUuid": "867ce31c_5ba83617",
+      "range": {
+        "startLine": 43,
+        "startChar": 20,
+        "endLine": 43,
+        "endChar": 25
+      },
+      "revId": "6cb17ead60288e0efd9900abbc86bb784b496ec4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
