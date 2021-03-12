@@ -10,6 +10,58 @@ release:
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
 
+strip_half:
+	# Does an incremental build where possible.
+	./compile.sh no_skottie no_particles no_font
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+
+strip_all:
+	# Does an incremental build where possible.
+	./compile.sh no_skp_serialization \
+				no_effects_deserialization \
+				no_skottie \
+				no_managed_skottie \
+				no_particles \
+				no_pathops \
+				no_rt_shader \
+				no_matrix \
+				no_canvas \
+				no_font \
+				no_embedded_font \
+				no_woff2 \
+				no_alias_font \
+				no_paragraph \
+				no_codecs \
+				no_encode_png
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+
+bluescape_release:
+	# Does an incremental build where possible.
+	# Note that we shouldn't disable: no_fonts no_paragraph primitive_shaper
+	rm -rf ../../out/canvaskit_wasm/canvaskit.js
+	rm -rf ../../out/canvaskit_wasm/canvaskit.wasm
+	./compile.sh no_skp_serialization \
+	            no_effects_deserialization \
+				no_skottie \
+				no_managed_skottie \
+				no_particles \
+				no_pathops \
+				no_rt_shader \
+				no_matrix \
+				no_canvas \
+				no_embedded_font \
+				no_woff2 \
+				no_alias_font \
+				no_codecs \
+				no_encode_png
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin	
+
 release_cpu:
 	# Does an incremental build where possible.
 	./compile.sh cpu_only
