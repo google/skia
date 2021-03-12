@@ -187,6 +187,30 @@
       },
       "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1f67b86_2a6ccd33",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-12T18:45:23Z",
+      "side": 1,
+      "message": "I don\u0027t think I see the issue. Wouldn\u0027t we just replace y \u003d \u003cvalue\u003e with \u003cvalue\u003e? That would collapse that down to x \u003d z \u003d 123. Maybe that\u0027s what you mean by having to handle BinaryExpressions with care, but it seems pretty straightforward.",
+      "parentUuid": "6d8b94eb_646a5307",
+      "range": {
+        "startLine": 650,
+        "startChar": 57,
+        "endLine": 650,
+        "endChar": 75
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
