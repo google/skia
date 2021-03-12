@@ -25,10 +25,11 @@ struct ShaderMetadata {
     SkTArray<SkSL::String> fAttributeNames;
     bool fHasCustomColorOutput = false;
     bool fHasSecondaryColorOutput = false;
+    sk_sp<SkData> fPlatformData;
 };
 
 // Increment this whenever the serialization format of cached shaders changes
-static constexpr int kCurrentVersion = 3;
+static constexpr int kCurrentVersion = 4;
 
 static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
                                               const SkSL::String shaders[],
@@ -63,6 +64,10 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
 
         writer.writeBool(meta->fHasCustomColorOutput);
         writer.writeBool(meta->fHasSecondaryColorOutput);
+
+        if (meta->fPlatformData) {
+            writer.writeByteArray(meta->fPlatformData->data(), meta->fPlatformData->size());
+        }
     }
     return writer.snapshotAsData();
 }
@@ -114,6 +119,8 @@ static inline bool UnpackCachedShaders(SkReadBuffer* reader,
 
         meta->fHasCustomColorOutput    = reader->readBool();
         meta->fHasSecondaryColorOutput = reader->readBool();
+
+        // a given platform will be responsible for reading its data
     }
 
     if (!reader->isValid()) {
