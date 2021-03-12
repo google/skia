@@ -45,7 +45,6 @@ float4x4 float4x4_inverse(float4x4 m) {
                     a31*b01 - a30*b03 - a32*b00,
                     a20*b03 - a21*b01 + a22*b00) * (1/det);
 }
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{{}};
     (void)_globals;

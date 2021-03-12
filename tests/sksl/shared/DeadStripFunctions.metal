@@ -14,7 +14,6 @@ float4 unpremul(float4 color) {
     return float4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
 }
 
-
 float4 live_fn(float4 a, float4 b) {
     return a + b;
 }
@@ -23,10 +22,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     const bool TRUE = true;
     const bool FALSE = false;
-
     float4 a;
     float4 b;
-
     {
         a = live_fn(float4(3.0), float4(-5.0));
     }

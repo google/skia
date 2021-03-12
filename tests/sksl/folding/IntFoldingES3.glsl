@@ -19,5 +19,4 @@ vec4 main() {
     _1_x = 33;
     _0_ok = _0_ok && _1_x == 33;
     return _0_ok ? colorGreen : colorRed;
-
 }

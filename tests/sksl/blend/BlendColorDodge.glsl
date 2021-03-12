@@ -12,12 +12,10 @@ float _color_dodge_component(vec2 s, vec2 d) {
         } else {
             float _0_n = d.x * s.y;
             delta = min(d.y, _0_n / delta);
-
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }
 }
 void main() {
     sk_FragColor = vec4(_color_dodge_component(src.xw, dst.xw), _color_dodge_component(src.yw, dst.yw), _color_dodge_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
-
 }
