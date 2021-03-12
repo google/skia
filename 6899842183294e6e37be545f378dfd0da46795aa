@@ -16,6 +16,23 @@
       "message": "This makes the next one easier.",
       "revId": "6899842183294e6e37be545f378dfd0da46795aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a1a2c6e_02f9d6a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T15:45:24Z",
+      "side": 1,
+      "message": "Did a less-than-thorough review, trusting the bots.",
+      "revId": "6899842183294e6e37be545f378dfd0da46795aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
