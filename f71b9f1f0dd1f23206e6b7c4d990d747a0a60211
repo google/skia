@@ -33,6 +33,24 @@
       "message": "Thanks!\n\nBecause I forgot to set AutoSubmit I can\u0027t submit this change, can you do it for me?",
       "revId": "f71b9f1f0dd1f23206e6b7c4d990d747a0a60211",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44910989_4c4886f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-12T13:25:34Z",
+      "side": 1,
+      "message": "I\u0027d like Brian to take a look, as I\u0027m not very familiar with the GN files.",
+      "parentUuid": "8ddccae4_651af7cf",
+      "revId": "f71b9f1f0dd1f23206e6b7c4d990d747a0a60211",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
