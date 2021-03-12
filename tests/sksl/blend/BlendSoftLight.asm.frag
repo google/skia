@@ -27,9 +27,12 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
+OpDecorate %_soft_light_component RelaxedPrecision
 OpDecorate %21 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
+OpDecorate %26 RelaxedPrecision
+OpDecorate %_2_n RelaxedPrecision
 OpDecorate %32 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %36 RelaxedPrecision
@@ -58,18 +61,24 @@ OpDecorate %67 RelaxedPrecision
 OpDecorate %69 RelaxedPrecision
 OpDecorate %71 RelaxedPrecision
 OpDecorate %72 RelaxedPrecision
+OpDecorate %74 RelaxedPrecision
+OpDecorate %DSqd RelaxedPrecision
 OpDecorate %79 RelaxedPrecision
 OpDecorate %81 RelaxedPrecision
 OpDecorate %83 RelaxedPrecision
+OpDecorate %DCub RelaxedPrecision
 OpDecorate %85 RelaxedPrecision
 OpDecorate %86 RelaxedPrecision
 OpDecorate %88 RelaxedPrecision
+OpDecorate %DaSqd RelaxedPrecision
 OpDecorate %90 RelaxedPrecision
 OpDecorate %92 RelaxedPrecision
 OpDecorate %94 RelaxedPrecision
+OpDecorate %DaCub RelaxedPrecision
 OpDecorate %96 RelaxedPrecision
 OpDecorate %97 RelaxedPrecision
 OpDecorate %99 RelaxedPrecision
+OpDecorate %_3_n RelaxedPrecision
 OpDecorate %101 RelaxedPrecision
 OpDecorate %102 RelaxedPrecision
 OpDecorate %104 RelaxedPrecision
@@ -130,6 +139,7 @@ OpDecorate %181 RelaxedPrecision
 OpDecorate %183 RelaxedPrecision
 OpDecorate %184 RelaxedPrecision
 OpDecorate %188 RelaxedPrecision
+OpDecorate %191 RelaxedPrecision
 OpDecorate %197 RelaxedPrecision
 OpDecorate %198 RelaxedPrecision
 OpDecorate %201 RelaxedPrecision

@@ -33,12 +33,27 @@ OpMemberDecorate %_UniformBuffer 2 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %15 Binding 0
 OpDecorate %15 DescriptorSet 0
+OpDecorate %return_on_both_sides RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
+OpDecorate %31 RelaxedPrecision
+OpDecorate %for_inside_body RelaxedPrecision
+OpDecorate %47 RelaxedPrecision
+OpDecorate %after_for_body RelaxedPrecision
+OpDecorate %59 RelaxedPrecision
+OpDecorate %for_with_double_sided_conditional_return RelaxedPrecision
+OpDecorate %70 RelaxedPrecision
 OpDecorate %72 RelaxedPrecision
+OpDecorate %73 RelaxedPrecision
+OpDecorate %if_else_chain RelaxedPrecision
 OpDecorate %81 RelaxedPrecision
+OpDecorate %82 RelaxedPrecision
 OpDecorate %87 RelaxedPrecision
+OpDecorate %89 RelaxedPrecision
 OpDecorate %95 RelaxedPrecision
+OpDecorate %97 RelaxedPrecision
 OpDecorate %102 RelaxedPrecision
+OpDecorate %104 RelaxedPrecision
+OpDecorate %main RelaxedPrecision
 OpDecorate %137 RelaxedPrecision
 OpDecorate %139 RelaxedPrecision
 OpDecorate %140 RelaxedPrecision

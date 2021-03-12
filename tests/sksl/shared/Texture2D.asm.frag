@@ -18,7 +18,9 @@ OpDecorate %tex RelaxedPrecision
 OpDecorate %tex Binding 0
 OpDecorate %tex DescriptorSet 0
 OpDecorate %20 RelaxedPrecision
+OpDecorate %19 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
+OpDecorate %25 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

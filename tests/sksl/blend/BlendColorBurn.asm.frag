@@ -23,8 +23,10 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
+OpDecorate %_color_burn_component RelaxedPrecision
 OpDecorate %20 RelaxedPrecision
 OpDecorate %22 RelaxedPrecision
+OpDecorate %24 RelaxedPrecision
 OpDecorate %28 RelaxedPrecision
 OpDecorate %30 RelaxedPrecision
 OpDecorate %32 RelaxedPrecision
@@ -39,20 +41,24 @@ OpDecorate %45 RelaxedPrecision
 OpDecorate %46 RelaxedPrecision
 OpDecorate %47 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
+OpDecorate %51 RelaxedPrecision
 OpDecorate %55 RelaxedPrecision
 OpDecorate %57 RelaxedPrecision
 OpDecorate %59 RelaxedPrecision
 OpDecorate %60 RelaxedPrecision
+OpDecorate %_1_n RelaxedPrecision
 OpDecorate %63 RelaxedPrecision
 OpDecorate %65 RelaxedPrecision
 OpDecorate %67 RelaxedPrecision
 OpDecorate %68 RelaxedPrecision
 OpDecorate %70 RelaxedPrecision
+OpDecorate %delta RelaxedPrecision
 OpDecorate %73 RelaxedPrecision
 OpDecorate %75 RelaxedPrecision
 OpDecorate %76 RelaxedPrecision
 OpDecorate %78 RelaxedPrecision
 OpDecorate %79 RelaxedPrecision
+OpDecorate %72 RelaxedPrecision
 OpDecorate %80 RelaxedPrecision
 OpDecorate %81 RelaxedPrecision
 OpDecorate %83 RelaxedPrecision

@@ -14,6 +14,9 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
+OpDecorate %main RelaxedPrecision
+OpDecorate %r RelaxedPrecision
+OpDecorate %g RelaxedPrecision
 OpDecorate %22 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
 %float = OpTypeFloat 32
