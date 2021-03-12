@@ -23,11 +23,9 @@ OpDecorate %dst RelaxedPrecision
 OpDecorate %17 RelaxedPrecision
 OpDecorate %19 RelaxedPrecision
 OpDecorate %20 RelaxedPrecision
-OpDecorate %23 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
 OpDecorate %27 RelaxedPrecision
-OpDecorate %29 RelaxedPrecision
 OpDecorate %30 RelaxedPrecision
 OpDecorate %31 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision

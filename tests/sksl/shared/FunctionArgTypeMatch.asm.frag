@@ -43,28 +43,6 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %31 Binding 0
 OpDecorate %31 DescriptorSet 0
-OpDecorate %takes_float2 RelaxedPrecision
-OpDecorate %takes_float3 RelaxedPrecision
-OpDecorate %takes_float4 RelaxedPrecision
-OpDecorate %takes_float2x2 RelaxedPrecision
-OpDecorate %takes_float3x3 RelaxedPrecision
-OpDecorate %takes_float4x4 RelaxedPrecision
-OpDecorate %takes_half RelaxedPrecision
-OpDecorate %takes_half2 RelaxedPrecision
-OpDecorate %takes_half3 RelaxedPrecision
-OpDecorate %takes_half4 RelaxedPrecision
-OpDecorate %takes_half2x2 RelaxedPrecision
-OpDecorate %takes_half3x3 RelaxedPrecision
-OpDecorate %takes_half4x4 RelaxedPrecision
-OpDecorate %takes_bool RelaxedPrecision
-OpDecorate %takes_bool2 RelaxedPrecision
-OpDecorate %takes_bool3 RelaxedPrecision
-OpDecorate %takes_bool4 RelaxedPrecision
-OpDecorate %takes_int RelaxedPrecision
-OpDecorate %takes_int2 RelaxedPrecision
-OpDecorate %takes_int3 RelaxedPrecision
-OpDecorate %takes_int4 RelaxedPrecision
-OpDecorate %main RelaxedPrecision
 OpDecorate %200 RelaxedPrecision
 OpDecorate %201 RelaxedPrecision
 OpDecorate %199 RelaxedPrecision
