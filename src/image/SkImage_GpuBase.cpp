@@ -259,7 +259,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // In the future the GrSurface class hierarchy refactoring should eliminate this
             // difficulty by removing the virtual inheritance.
             if (fTexture) {
-                SkMessageBus<GrTextureFreedMessage, uint32_t>::Post({fTexture, fTextureContextID});
+                SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Post({fTexture, fTextureContextID});
             }
         }
 
@@ -313,7 +313,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // our destructor.
             auto dContext = fTexture->getContext();
             dContext->priv().getResourceCache()->insertDelayedTextureUnref(fTexture);
-            fTextureContextID = dContext->priv().contextID();
+            fTextureContextID = dContext->directContextID();
             return {std::move(tex), kReleaseCallbackOnInstantiation, kKeySyncMode};
         }
 
@@ -321,7 +321,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         PromiseImageTextureFulfillProc fFulfillProc;
         sk_sp<GrRefCntedCallback> fReleaseHelper;
         GrTexture* fTexture = nullptr;
-        uint32_t fTextureContextID = SK_InvalidUniqueID;
+        GrDirectContext::DirectContextID fTextureContextID;
         bool fFulfillProcFailed = false;
     } callback(fulfillProc, std::move(releaseHelper));
 
