@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6f23893_464fa178",
+        "filename": "src/sksl/ir/SkSLBlock.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T19:18:46Z",
+      "side": 1,
+      "message": "SkTArray doesn\u0027t have erase(iter, iter) so I needed to get creative.",
+      "range": {
+        "startLine": 23,
+        "startChar": 16,
+        "endLine": 23,
+        "endChar": 22
+      },
+      "revId": "6225e4530955fcee42aedbff415ced78d2ccee88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

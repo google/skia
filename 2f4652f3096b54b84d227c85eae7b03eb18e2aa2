@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "170dd687_1c0d8e73",
+        "filename": "src/sksl/generated/sksl_gpu.dehydrated.sksl",
+        "patchSetId": 5
+      },
+      "lineNbr": 5623,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T19:18:46Z",
+      "side": 0,
+      "message": "These changes come from the switch in blend(). Each switch-case is only one unscoped statement, so Block::MakeUnscoped is optimizing away the unnecessary Block, saving an IRNode.",
+      "range": {
+        "startLine": 5622,
+        "startChar": 0,
+        "endLine": 5623,
+        "endChar": 5
+      },
+      "revId": "2f4652f3096b54b84d227c85eae7b03eb18e2aa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
