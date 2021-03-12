@@ -321,6 +321,12 @@ Milestone 87
 Milestone 86
 ------------
 
+  * Add text contrast and gamma settings to SkSurfaceProps, allowing these to be
+    specified at device creation.  Similar to SK_FONT_HOST_USE_SYSTEM_SETTINGS,
+    but can be used in scenarios where Skia isn't able to query the values from
+    DirectWrite directly (e.g., sandboxed processes).
+    https://review.skia.org/309880
+
   * Remove support for 'in' variables from SkRuntimeEffect. API now exclusively refers to inputs
     as 'uniforms'.
     https://review.skia.org/309050
