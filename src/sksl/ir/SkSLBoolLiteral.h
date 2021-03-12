@@ -25,12 +25,21 @@ class Literal<bool> final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
-    Literal(const Context& context, int offset, bool value)
-        : Literal(offset, value, context.fTypes.fBool.get()) {}
-
     Literal(int offset, bool value, const Type* type)
         : INHERITED(offset, kExpressionKind, type)
         , fValue(value) {}
+
+    // Makes a literal of boolean type.
+    static std::unique_ptr<BoolLiteral> Make(const Context& context, int offset, float value) {
+        return std::make_unique<BoolLiteral>(offset, value, context.fTypes.fBool.get());
+    }
+
+    // Makes a literal of boolean type. (Functionally identical to the above, but useful if you
+    // don't have access to the Context.)
+    static std::unique_ptr<BoolLiteral> Make(int offset, float value, const Type* type) {
+        SkASSERT(type->isBoolean());
+        return std::make_unique<BoolLiteral>(offset, value, type);
+    }
 
     bool value() const {
         return fValue;

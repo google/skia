@@ -288,7 +288,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 int value = this->readS32();
                 // enum variables aren't really 'declared', but we have to create a declaration to
                 // store the value
-                auto valueLiteral = std::make_unique<IntLiteral>(fContext, /*offset=*/-1, value);
+                auto valueLiteral = IntLiteral::Make(fContext, /*offset=*/-1, value);
                 auto declaration = std::make_unique<VarDeclaration>(&v, &v.type(), /*arraySize=*/0,
                                                                     std::move(valueLiteral));
                 v.setDeclaration(declaration.get());
@@ -446,7 +446,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
-            return std::make_unique<BoolLiteral>(fContext, -1, value);
+            return BoolLiteral::Make(fContext, /*offset=*/-1, value);
         }
         case Rehydrator::kConstructor_Command: {
             const Type* type = this->type();
@@ -470,7 +470,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             const Type* type = this->type();
             FloatIntUnion u;
             u.fInt = this->readS32();
-            return std::make_unique<FloatLiteral>(-1, u.fFloat, type);
+            return FloatLiteral::Make(/*offset=*/-1, u.fFloat, type);
         }
         case Rehydrator::kFunctionCall_Command: {
             const Type* type = this->type();
@@ -492,7 +492,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kIntLiteral_Command: {
             const Type* type = this->type();
             int value = this->readS32();
-            return std::make_unique<IntLiteral>(-1, value, type);
+            return IntLiteral::Make(/*offset=*/-1, value, type);
         }
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
