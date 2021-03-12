@@ -95,6 +95,12 @@ config("skia_private") {
   if (skia_enable_winuwp) {
     defines += [ "SK_WINUWP" ]
   }
+
+  configs = []
+  if (!is_official_build) {
+    configs += [ "//gn:warnings" ]
+  }
+  configs += [ "//gn:warnings_except_public_headers" ]
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
@@ -1589,7 +1595,6 @@ if (skia_enable_tools) {
 
   source_set("public_headers_warnings_check") {
     sources = [ "tools/public_headers_warnings_check.cpp" ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
     configs += [
       ":our_vulkan_headers",
       ":cpp14",
@@ -2365,9 +2370,6 @@ if (skia_enable_tools) {
     source_set("skqp_lib") {
       check_includes = false
       testonly = true
-      if (!is_official_build) {
-        configs -= [ "//gn:warnings" ]
-      }
       public_configs = [ ":skia_private" ]
       defines =
           [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
@@ -2408,9 +2410,6 @@ if (skia_enable_tools) {
   if (is_android) {
     shared_library("libskqp_app") {
       configs += [ ":skia_private" ]
-      if (!is_official_build) {
-        configs -= [ "//gn:warnings" ]
-      }
       testonly = true
       sources = [ "tools/skqp/src/jni_skqp.cpp" ]
       deps = [

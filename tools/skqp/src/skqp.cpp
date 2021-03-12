@@ -142,6 +142,7 @@ static void get_render_tests(SkQPAssetManager* mgr,
 
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
     using U = std::unique_ptr<sk_gpu_test::TestContext>;
+    static_assert(sizeof(U) > 0, "suppress unused type alias warning");
     switch (backend) {
 // TODO(halcanary): Fuchsia will have SK_SUPPORT_GPU and SK_VULKAN, but *not* SK_GL.
 #ifdef SK_GL
