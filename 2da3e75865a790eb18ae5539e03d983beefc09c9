@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4309b3eb_b74d2ab5",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-12T21:30:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3d41551_509533f0",
+      "range": {
+        "startLine": 431,
+        "startChar": 20,
+        "endLine": 431,
+        "endChar": 25
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f1da7c44_fc019c47",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-12T20:49:59Z",
       "side": 1,
       "message": "I guess this is guaranteed to be non-null since it would have crashed on line 574 (of the original file) otherwise. Still seems a little risky. Maybe add an assert?",
+      "range": {
+        "startLine": 576,
+        "startChar": 45,
+        "endLine": 576,
+        "endChar": 65
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79336890_9388a168",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-12T21:30:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1da7c44_fc019c47",
       "range": {
         "startLine": 576,
         "startChar": 45,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d80ebb1_7df525d2",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-12T21:30:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c8a1583_05904f2b",
+      "range": {
+        "startLine": 634,
+        "startChar": 19,
+        "endLine": 634,
+        "endChar": 74
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "796aef0d_3c745464",
@@ -110,6 +182,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad6a4d40_0892a4a9",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-12T21:30:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "796aef0d_3c745464",
+      "range": {
+        "startLine": 785,
+        "startChar": 51,
+        "endLine": 785,
+        "endChar": 54
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10605654_a2b652cb",
@@ -123,6 +219,30 @@
       "writtenOn": "2021-03-12T20:49:59Z",
       "side": 1,
       "message": "And again.",
+      "range": {
+        "startLine": 879,
+        "startChar": 26,
+        "endLine": 879,
+        "endChar": 37
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86caed9c_d41dbc07",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-12T21:30:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10605654_a2b652cb",
       "range": {
         "startLine": 879,
         "startChar": 26,
