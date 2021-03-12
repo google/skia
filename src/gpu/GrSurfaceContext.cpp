@@ -165,12 +165,14 @@ static bool alpha_types_compatible(SkAlphaType srcAlphaType, SkAlphaType dstAlph
     return (srcAlphaType == kUnknown_SkAlphaType) == (dstAlphaType == kUnknown_SkAlphaType);
 }
 
-bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoint pt) {
+bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoint pt, bool foo) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
-    if (!fContext->priv().matches(dContext)) {
+
+    // TODO: ???
+    if (!fContext->priv().inSameFamily(dContext)) {
         return false;
     }
 
@@ -306,7 +308,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
             tempCtx = GrSurfaceContext::Make(dContext, std::move(view), this->colorInfo());
             SkASSERT(tempCtx);
         }
-        return tempCtx->readPixels(dContext, dst, pt);
+        return tempCtx->readPixels(dContext, dst, pt, true);
     }
 
     bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
@@ -763,7 +765,7 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
         result->addCpuPlane(pm.pixelStorage(), pm.rowBytes());
 
         SkIPoint pt{rect.fLeft, rect.fTop};
-        if (!this->readPixels(dContext, pm, pt)) {
+        if (!this->readPixels(dContext, pm, pt, true)) {
             callback(callbackContext, nullptr);
             return;
         }
@@ -1003,9 +1005,9 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
         GrPixmap yPmp = GrPixmap::Allocate(yInfo);
         GrPixmap uPmp = GrPixmap::Allocate(uvInfo);
         GrPixmap vPmp = GrPixmap::Allocate(uvInfo);
-        if (!yFC->readPixels(dContext, yPmp, {0, 0}) ||
-            !uFC->readPixels(dContext, uPmp, {0, 0}) ||
-            !vFC->readPixels(dContext, vPmp, {0, 0})) {
+        if (!yFC->readPixels(dContext, yPmp, {0, 0}, true) ||
+            !uFC->readPixels(dContext, uPmp, {0, 0}, true) ||
+            !vFC->readPixels(dContext, vPmp, {0, 0}, true)) {
             callback(callbackContext, nullptr);
             return;
         }

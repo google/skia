@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
                                 sk_memset32(read.get(), 0, kW * kH);
                                 GrPixmap readPM(ii, read.get(), kRowBytes);
-                                if (!dstContext->readPixels(dContext, readPM, {0, 0})) {
+                                if (!dstContext->readPixels(dContext, readPM, {0, 0}, true)) {
                                     ERRORF(reporter, "Error calling readPixels");
                                     continue;
                                 }

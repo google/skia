@@ -20,6 +20,8 @@
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 
+#include "include/gpu/GrRecordingContext.h"
+
 class GrCaps;
 class GrProxyProvider;
 class SkString;
@@ -30,13 +32,13 @@ class GrThreadSafeCache;
 
 struct GrTextureFreedMessage {
     GrTexture* fTexture;
-    uint32_t fOwningUniqueID;
+    GrRecordingContext::ExplicitContextID fOwningExplicitContextID;
 };
 
 static inline bool SkShouldPostMessageToBus(
-        const GrTextureFreedMessage& msg, uint32_t msgBusUniqueID) {
+        const GrTextureFreedMessage& msg, GrRecordingContext::ExplicitContextID msgBusUniqueID) {
     // The inbox's ID is the unique ID of the owning GrContext.
-    return msgBusUniqueID == msg.fOwningUniqueID;
+    return msgBusUniqueID == msg.fOwningExplicitContextID;
 }
 
 /**
@@ -58,7 +60,7 @@ static inline bool SkShouldPostMessageToBus(
  */
 class GrResourceCache {
 public:
-    GrResourceCache(GrSingleOwner* owner, uint32_t contextUniqueID);
+    GrResourceCache(GrSingleOwner* owner, GrRecordingContext::ExplicitContextID);
     ~GrResourceCache();
 
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
@@ -69,7 +71,7 @@ public:
     ResourceAccess resourceAccess();
 
     /** Unique ID of the owning GrContext. */
-    uint32_t contextUniqueID() const { return fContextUniqueID; }
+    GrRecordingContext::ExplicitContextID explicitContextID() const { return fExplicitContextID; }
 
     /** Sets the max gpu memory byte size of the cache. */
     void setLimit(size_t bytes);
@@ -321,8 +323,8 @@ private:
         return res->cacheAccess().accessCacheIndex();
     }
 
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Inbox InvalidUniqueKeyInbox;
-    typedef SkMessageBus<GrTextureFreedMessage, uint32_t>::Inbox FreedTextureInbox;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, GrRecordingContext::ExplicitContextID>::Inbox InvalidUniqueKeyInbox;
+    typedef SkMessageBus<GrTextureFreedMessage, GrRecordingContext::ExplicitContextID>::Inbox FreedTextureInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
@@ -365,7 +367,7 @@ private:
     FreedTextureInbox                   fFreedTextureInbox;
     TexturesAwaitingUnref               fTexturesAwaitingUnref;
 
-    uint32_t                            fContextUniqueID = SK_InvalidUniqueID;
+    GrRecordingContext::ExplicitContextID fExplicitContextID;
     GrSingleOwner*                      fSingleOwner = nullptr;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because

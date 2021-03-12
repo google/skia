@@ -1080,11 +1080,11 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
     typedef GrUniqueKeyInvalidatedMessage Msg;
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t> Bus;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, GrRecordingContext::ExplicitContextID> Bus;
 
     // Invalidate two of the three, they should be purged and no longer accessible via their keys.
-    Bus::Post(Msg(key1, dContext->priv().contextID()));
-    Bus::Post(Msg(key2, dContext->priv().contextID()));
+    Bus::Post(Msg(key1, dContext->priv().explicitContextID()));
+    Bus::Post(Msg(key2, dContext->priv().explicitContextID()));
     cache->purgeAsNeeded();
     // a should be deleted now, but we still have a ref on b.
     REPORTER_ASSERT(reporter, !cache->hasUniqueKey(key1));
@@ -1093,7 +1093,7 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, cache->hasUniqueKey(key3));
 
     // Invalidate the third.
-    Bus::Post(Msg(key3, dContext->priv().contextID()));
+    Bus::Post(Msg(key3, dContext->priv().explicitContextID()));
     cache->purgeAsNeeded();
     // we still have a ref on b, c should be recycled as scratch.
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
@@ -1561,15 +1561,15 @@ static void test_free_texture_messages(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == (freed[0] + freed[1] + freed[2]));
 
     // Send message to free the first resource
-    GrTextureFreedMessage msg1{wrapped[0], dContext->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg1);
+    GrTextureFreedMessage msg1{wrapped[0], dContext->priv().explicitContextID()};
+    SkMessageBus<GrTextureFreedMessage, GrRecordingContext::ExplicitContextID>::Post(msg1);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 1 == (freed[0] + freed[1] + freed[2]));
     REPORTER_ASSERT(reporter, 1 == freed[0]);
 
-    GrTextureFreedMessage msg2{wrapped[2], dContext->priv().contextID()};
-    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg2);
+    GrTextureFreedMessage msg2{wrapped[2], dContext->priv().explicitContextID()};
+    SkMessageBus<GrTextureFreedMessage, GrRecordingContext::ExplicitContextID>::Post(msg2);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 2 == (freed[0] + freed[1] + freed[2]));

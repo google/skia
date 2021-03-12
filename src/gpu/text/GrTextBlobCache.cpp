@@ -7,24 +7,24 @@
 
 #include "src/gpu/text/GrTextBlobCache.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage, uint32_t, true)
+DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage, GrContextThreadSafeProxy::FamilyID, true)
 
 // This function is captured by the above macro using implementations from SkMessageBus.h
 static inline bool SkShouldPostMessageToBus(
-        const GrTextBlobCache::PurgeBlobMessage& msg, uint32_t msgBusUniqueID) {
-    return msg.fContextID == msgBusUniqueID;
+        const GrTextBlobCache::PurgeBlobMessage& msg, GrContextThreadSafeProxy::FamilyID msgBusUniqueID) {
+    return msg.fFamilyID == msgBusUniqueID;
 }
 
-GrTextBlobCache::GrTextBlobCache(uint32_t messageBusID)
+GrTextBlobCache::GrTextBlobCache(GrContextThreadSafeProxy::FamilyID messageBusID, bool foo)
         : fSizeBudget(kDefaultBudget)
-        , fMessageBusID(messageBusID)
+        , fMessageBusID1(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
 sk_sp<GrTextBlob> GrTextBlobCache::addOrReturnExisting(
         const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) {
     SkAutoSpinlock lock{fSpinLock};
     blob = this->internalAdd(std::move(blob));
-    glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);
+    glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID1);
     return blob;
 }
 
@@ -73,9 +73,9 @@ void GrTextBlobCache::freeAll() {
     fCurrentSize = 0;
 }
 
-void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
+void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID, GrContextThreadSafeProxy::FamilyID cacheID) {
     SkASSERT(blobID != SK_InvalidGenID);
-    SkMessageBus<PurgeBlobMessage, uint32_t>::Post(PurgeBlobMessage(blobID, cacheID));
+    SkMessageBus<PurgeBlobMessage, GrContextThreadSafeProxy::FamilyID>::Post(PurgeBlobMessage(blobID, cacheID));
 }
 
 void GrTextBlobCache::purgeStaleBlobs() {

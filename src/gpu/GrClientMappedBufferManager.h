@@ -14,6 +14,8 @@
 #include "src/gpu/GrGpuBuffer.h"
 #include <forward_list>
 
+#include "include/gpu/GrRecordingContext.h"
+
 /**
  * We sometimes hand clients objects that contain mapped GrGpuBuffers. The client may consume
  * the mapped buffer on another thread. This object manages receiving messages that buffers are
@@ -74,7 +76,9 @@ public:
     void abandon();
 
 private:
+    GrRecordingContext::ExplicitContextID fExplicitContextID;
     BufferFinishedMessageBus::Inbox fFinishedBufferInbox;
+
     std::forward_list<sk_sp<GrGpuBuffer>> fClientHeldBuffers;
     bool fAbandoned = false;
 

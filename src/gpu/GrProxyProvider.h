@@ -13,6 +13,9 @@
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrTextureProxy.h"
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/GrRecordingContext.h"
+
 class GrImageContext;
 class GrBackendRenderTarget;
 class SkBitmap;
@@ -227,7 +230,8 @@ public:
     GrDDLProvider isDDLProvider() const;
 
     // TODO: remove these entry points - it is a bit sloppy to be getting context info from here
-    uint32_t contextID() const;
+    GrRecordingContext::ExplicitContextID explicitContextID() const;
+    GrContextThreadSafeProxy::FamilyID familyID() const;
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 

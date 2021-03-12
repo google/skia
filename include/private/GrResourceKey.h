@@ -15,6 +15,8 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
+#include "include/gpu/GrRecordingContext.h"
+
 #include <new>
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
@@ -333,11 +335,14 @@ static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1, GrUnique
 // The cache listens for these messages to purge junk resources proactively.
 class GrUniqueKeyInvalidatedMessage {
 public:
-    GrUniqueKeyInvalidatedMessage() = default;
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID,
+//    GrUniqueKeyInvalidatedMessage() = default;
+    GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key,
+                                  GrRecordingContext::ExplicitContextID explicitContextID,
                                   bool inThreadSafeCache = false)
-            : fKey(key), fContextID(contextUniqueID), fInThreadSafeCache(inThreadSafeCache) {
-        SkASSERT(SK_InvalidUniqueID != contextUniqueID);
+                : fKey(key)
+                , fExplicitContextID(explicitContextID)
+                , fInThreadSafeCache(inThreadSafeCache) {
+        SkASSERT(explicitContextID.isValid());
     }
 
     GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage&) = default;
@@ -345,18 +350,18 @@ public:
     GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage&) = default;
 
     const GrUniqueKey& key() const { return fKey; }
-    uint32_t contextID() const { return fContextID; }
+    GrRecordingContext::ExplicitContextID explicitContextID() const { return fExplicitContextID; }
     bool inThreadSafeCache() const { return fInThreadSafeCache; }
 
 private:
     GrUniqueKey fKey;
-    uint32_t fContextID = SK_InvalidUniqueID;
+    GrRecordingContext::ExplicitContextID fExplicitContextID;
     bool fInThreadSafeCache = false;
 };
 
 static inline bool SkShouldPostMessageToBus(const GrUniqueKeyInvalidatedMessage& msg,
-                                            uint32_t msgBusUniqueID) {
-    return msg.contextID() == msgBusUniqueID;
+                                            GrRecordingContext::ExplicitContextID msgBusUniqueID) {
+    return msg.explicitContextID() == msgBusUniqueID;
 }
 
 #endif

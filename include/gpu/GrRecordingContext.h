@@ -37,6 +37,23 @@ class GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;
 
+    struct ExplicitContextID {
+        static const ExplicitContextID& Invalid();
+
+        bool isValid() const { return fFoo1 != SK_InvalidUniqueID; }
+        bool operator==(const ExplicitContextID& that) const {
+            return fFoo1 == that.fFoo1;
+        }
+        bool operator!=(const ExplicitContextID& that) const { return !(*this == that); }
+
+        void makeInvalid() { fFoo1 = SK_InvalidUniqueID; }
+        uint32_t asInt() const { return fFoo1; }
+    private:
+        uint32_t fFoo1 {SK_InvalidUniqueID};
+    };
+
+    ExplicitContextID explicitContextID() const { return fExplicitContextID; }
+
     SK_API GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
         return INHERITED::defaultBackendFormat(ct, renderable);
     }
@@ -238,6 +255,8 @@ protected:
     void dumpJSON(SkJSONWriter*) const;
 
 private:
+    const ExplicitContextID           fExplicitContextID;
+
     // Delete last in case other objects call it during destruction.
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
 

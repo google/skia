@@ -166,6 +166,11 @@ void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlu
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const GrRecordingContext::ExplicitContextID& GrRecordingContext::ExplicitContextID::Invalid() {
+    static constexpr ExplicitContextID invalid;
+    return invalid;
+}
+
 int GrRecordingContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
 
 int GrRecordingContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }

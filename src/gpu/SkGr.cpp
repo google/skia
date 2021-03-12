@@ -64,20 +64,20 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 ////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey* key,
-                                                              uint32_t contextID) {
+                                                              GrRecordingContext::ExplicitContextID explicitContextID) {
     class Listener : public SkIDChangeListener {
     public:
-        Listener(const GrUniqueKey& key, uint32_t contextUniqueID) : fMsg(key, contextUniqueID) {}
+        Listener(const GrUniqueKey& key, GrRecordingContext::ExplicitContextID explicitContextID) : fMsg(key, explicitContextID) {}
 
         void changed() override {
-            SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Post(fMsg);
+            SkMessageBus<GrUniqueKeyInvalidatedMessage, GrRecordingContext::ExplicitContextID>::Post(fMsg);
         }
 
     private:
         GrUniqueKeyInvalidatedMessage fMsg;
     };
 
-    auto listener = sk_make_sp<Listener>(*key, contextID);
+    auto listener = sk_make_sp<Listener>(*key, explicitContextID);
 
     // We stick a SkData on the key that calls invalidateListener in its destructor.
     auto invalidateListener = [](const void* ptr, void* /*context*/) {

@@ -12,6 +12,8 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkMessageBus.h"
 
+#include "include/gpu/GrRecordingContext.h"
+
 class SkCachedData;
 class SkDiscardableMemory;
 class SkTraceMemoryDump;

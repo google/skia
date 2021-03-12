@@ -35,6 +35,20 @@ class SK_API GrContextThreadSafeProxy final : public SkNVRefCnt<GrContextThreadS
 public:
     ~GrContextThreadSafeProxy();
 
+    struct FamilyID {
+        FamilyID();
+
+        bool operator==(const FamilyID& that) const {
+            return fFoo == that.fFoo;
+        }
+        bool operator!=(const FamilyID& that) const { return !(*this == that); }
+
+        uint32_t asInt() const { return fFoo; }
+        void makeInvalid() { fFoo = SK_InvalidUniqueID; }
+    private:
+        uint32_t fFoo;
+    };
+
     /**
      *  Create a surface characterization for a DDL that will be replayed into the GrContext
      *  that created this proxy. On failure the resulting characterization will be invalid (i.e.,
@@ -109,7 +123,7 @@ public:
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (this->fContextID == that.fContextID));
+        SkASSERT((this == &that) == (this->fContextFamilyID == that.fContextFamilyID));
         return this == &that;
     }
 
@@ -135,7 +149,7 @@ private:
 
     const GrBackendApi                      fBackend;
     const GrContextOptions                  fOptions;
-    const uint32_t                          fContextID;
+    const FamilyID                          fContextFamilyID;
     sk_sp<const GrCaps>                     fCaps;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
     std::unique_ptr<GrThreadSafeCache>      fThreadSafeCache;

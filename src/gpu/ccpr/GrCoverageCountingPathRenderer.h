@@ -72,6 +72,15 @@ public:
     static constexpr int kDoCopiesThreshold = 100;
 
 private:
+    GrCoverageCountingPathRenderer(CoverageType, AllowCaching, GrRecordingContext::ExplicitContextID);
+
+    // GrPathRenderer overrides.
+    StencilSupport onGetStencilSupport(const GrStyledShape&) const override {
+        return GrPathRenderer::kNoSupport_StencilSupport;
+    }
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    bool onDrawPath(const DrawPathArgs&) override;
+
     GrCCPerOpsTaskPaths* lookupPendingPaths(uint32_t opsTaskID);
 
     // fPendingPaths holds the GrCCPerOpsTaskPaths objects that have already been created, but not

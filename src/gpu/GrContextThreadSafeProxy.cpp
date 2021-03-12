@@ -31,9 +31,14 @@ static int32_t next_id() {
     return id;
 }
 
+GrContextThreadSafeProxy::FamilyID::FamilyID()
+        : fFoo(next_id()) {
+}
+
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
                                                    const GrContextOptions& options)
-        : fBackend(backend), fOptions(options), fContextID(next_id()) {
+        : fBackend(backend)
+        , fOptions(options) {
 }
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
@@ -41,7 +46,7 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
                                     sk_sp<GrThreadSafePipelineBuilder> pipelineBuilder) {
     fCaps = std::move(caps);
-    fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
+    fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextFamilyID, true);
     fThreadSafeCache = std::make_unique<GrThreadSafeCache>();
     fPipelineBuilder = std::move(pipelineBuilder);
 }
