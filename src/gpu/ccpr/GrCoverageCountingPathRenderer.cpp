@@ -18,15 +18,14 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     GrBackendFormat defaultA8Format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                    GrRenderable::kYes);
-    if (caps.driverDisableCCPR() || !shaderCaps.integerSupport() ||
+    if (caps.driverDisableMSAAClipAtlas() || !shaderCaps.integerSupport() ||
         !caps.drawInstancedSupport() || !shaderCaps.floatIs32Bits() ||
         !defaultA8Format.isValid() || // This checks both texturable and renderable
         !caps.halfFloatVertexAttributeSupport()) {
         return false;
     }
 
-    if (!caps.driverDisableMSAACCPR() &&
-        caps.internalMultisampleCount(defaultA8Format) > 1 &&
+    if (caps.internalMultisampleCount(defaultA8Format) > 1 &&
         caps.sampleLocationsSupport() &&
         shaderCaps.sampleMaskSupport()) {
         return true;
