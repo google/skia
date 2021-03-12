@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96d2744a_18c045b1",
+        "filename": "src/sksl/ir/SkSLReturnStatement.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T04:11:03Z",
+      "side": 0,
+      "message": "I don\u0027t know why ReturnStatements originally had two ctors like this, but it simplified the code (both here and at all of the callers) to flatten it down to just one ctor.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "4bf1ca5fa9889e8da314f645e90d4844f1787482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
