@@ -33,6 +33,23 @@
       "message": "I think this makes sense, but I\u0027d like to get another person familiar with our build to weigh in.",
       "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cde99f6_8f80c2f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-12T17:17:14Z",
+      "side": 1,
+      "message": "This seems quite awkward. What is really being said is that if there are multiple projects in a build using gn then one really should be avoiding build globals in general (use of set_defaults). It seems gn itself does not really support a project scope (set_defaults for only a glob or namespace of targets). This is true all the way down to the toolchains (set_default_toolchain), where in theory each target (all the way down to the file level) could explicitly state its toolchain (and not implicitly through set_default_toolchain and having files with a particular extension). Or the toolchains could be explicitly placed into some namespace so they could be explicitly implied (much like if set_default_toolchain could take a target glob or target glob or prefix or something). Really what is wanted it to build all of Skia\u0027s third_party stuff in it\u0027s own build system (even if that build system happens to be Skia maintained BUILD.gn files) and then link Skia against those (the same way Skia would link against system libraries). Currently Dawn is built inside Skia\u0027s build directly so gets all the set_defaults and set_default_toolchain, but it seems the only thing really desired to be shared here is the toolchain definition so the build works on the bots? Of course, if the Dawn build depends on certain things being in set_defaults (does it? like NDEBUG and whatnot?) then they would also need to be set though set_defaults, with the reverse issue of Skia targets now getting additional config (potentially).\n\nEssentially the idea here is to use the skia_private config as a kind of project namespace instead of using default_configs through set_defaults. The awkward part is that it feels like Skia is being squeezed out of its own build system. The alternative way to look at it is that pulling as much out of BUILDCONFIG.gn and set_defaults and putting it into configs makes the Skia build more flexible and explicit. I\u0027ll go on a walk and think about it.",
+      "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
