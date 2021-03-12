@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be3bed13_eeace23c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T18:21:31Z",
+      "side": 1,
+      "message": "This line is gone now.",
+      "parentUuid": "5a4d00d1_f91027d0",
+      "range": {
+        "startLine": 620,
+        "startChar": 24,
+        "endLine": 620,
+        "endChar": 63
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2e7b798_425c2a1d",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-12T17:31:18Z",
       "side": 1,
       "message": "Similar here - counts-\u003efWrite can\u0027t be less than 1 if there\u0027s a value, can it? Seems like a value plus a count of less than 1 should be an assertion failure.",
+      "range": {
+        "startLine": 625,
+        "startChar": 31,
+        "endLine": 625,
+        "endChar": 69
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84ebc29b_5a735106",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T18:21:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2e7b798_425c2a1d",
       "range": {
         "startLine": 625,
         "startChar": 31,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdba7f48_06789040",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T18:21:31Z",
+      "side": 1,
+      "message": "You\u0027re right. ExpressionStatement::Make does exactly this (replaces non-side-effect expressions with Nop). Clarified the comment.",
+      "parentUuid": "bdae8c7f_5828fa4e",
+      "range": {
+        "startLine": 626,
+        "startChar": 78,
+        "endLine": 626,
+        "endChar": 97
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f60623d4_6c573805",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-03-12T17:31:18Z",
       "side": 1,
       "message": "So I guess we\u0027re not trying to catch cases like \"int a \u003d 1; a \u003d 2;\" (with no further refs to \u0027a\u0027) -  this would be a dead variable, but won\u0027t be caught by this code. We clearly do eliminate \"int a \u003d 1;\" - does \"int a; a \u003d 1;\" get caught?\n\nIf I\u0027m reading the code right, it seems like it wouldn\u0027t be eliminated, but it would pass this check and make it into the full scan - which is unnecessary, because we already know that it won\u0027t pass. We could check whether it has an initial value and change the threshold on the number of writes in this test to match; should let us skip some unnecessary scans.",
+      "range": {
+        "startLine": 650,
+        "startChar": 57,
+        "endLine": 650,
+        "endChar": 75
+      },
+      "revId": "eaea82b49773f2546ef3fb0e80169ac25c1e58f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d8b94eb_646a5307",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-12T18:21:31Z",
+      "side": 1,
+      "message": "Great catch! You\u0027re absolutely right. I had forgotten that you can check for the presence of an initial-value expression directly from a Variable. Done.\n\nRe `int a; a \u003d 1;` we could do this as well, but it becomes a lot harder if you consider expressions like:\n\n  int x, y, z;\n  x \u003d y \u003d z \u003d 123;  // \u003c-- pretend only `y` is dead\n\nIt\u0027s not unsolvable but it does require handling BinaryExpressions with some care.",
+      "parentUuid": "f60623d4_6c573805",
       "range": {
         "startLine": 650,
         "startChar": 57,
