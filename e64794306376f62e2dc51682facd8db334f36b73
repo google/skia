@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d5b0354d_85fdfb11",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-12T18:35:38Z",
+      "side": 1,
+      "message": "No. It\u0027s an interesting idea, we have some ability to get access to (portions of) the CTM, but not an effect\u0027s local matrix. Is that something you can imagine needing in other effects? It wouldn\u0027t be too difficult to allow access, actually.",
+      "parentUuid": "2121aa8e_0a2c410c",
+      "range": {
+        "startLine": 349,
+        "startChar": 16,
+        "endLine": 349,
+        "endChar": 22
+      },
+      "revId": "e64794306376f62e2dc51682facd8db334f36b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5911ddec_4c1ce8a3",
         "filename": "gm/runtimeshader.cpp",
         "patchSetId": 8
