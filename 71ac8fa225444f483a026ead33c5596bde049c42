@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "606a22fe_0e347e13",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T16:08:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b5b645e_cfb2aa41",
+      "range": {
+        "startLine": 509,
+        "startChar": 91,
+        "endLine": 509,
+        "endChar": 103
+      },
+      "revId": "71ac8fa225444f483a026ead33c5596bde049c42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae54f821_906f6633",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-12T15:31:10Z",
       "side": 1,
       "message": "Lets add a comment like:\n\n   // For axis-aligned filled DRRects, just draw a regular rrect with inner clipped out using a coverage FP instead of using path rendering.",
+      "range": {
+        "startLine": 529,
+        "startChar": 8,
+        "endLine": 529,
+        "endChar": 94
+      },
+      "revId": "71ac8fa225444f483a026ead33c5596bde049c42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fd7e8ca_fa2a9425",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-12T16:08:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae54f821_906f6633",
       "range": {
         "startLine": 529,
         "startChar": 8,
