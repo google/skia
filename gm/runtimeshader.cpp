@@ -335,6 +335,56 @@ public:
 };
 DEF_GM(return new DefaultColorRT;)
 
+// Emits coverage for a general superellipse defined by the boundary:
+//
+//   x^m + y^n == 1
+//
+// Where x and y are normalized coordinates ranging from -1..+1 inside the squircle's bounding box.
+//
+// See: https://en.wikipedia.org/wiki/Superellipse#Generalizations
+class ClipSquircle : public RuntimeShaderGM {
+public:
+    ClipSquircle() : RuntimeShaderGM("clip_squircle", {512, 256}, R"(
+        uniform float2x2 skewMatrix;
+        uniform float2 translate;
+        uniform float2 exponents;
+        half4 main(float2 xy) {
+            xy = abs(skewMatrix * xy + translate);
+            float2 expMinus1 = pow(xy, exponents - 1);
+            float2 exp = expMinus1 * xy;
+            float f = exp.x + exp.y - 1;
+            float2 grad = (exponents * expMinus1) * skewMatrix;
+            float fwidth = abs(grad.x) + abs(grad.y);
+            return half4(saturate(.5 - f/fwidth));
+        }
+    )") {}
+
+    void onDraw(SkCanvas* canvas) override {
+        SkMatrix matrix = SkMatrix::RotateDeg(9.2f, SkPoint{5, 185});
+        SkRect squircle = SkRect::MakeXYWH(7, 3, 300, 185.41f);
+        float m = 5.32f;
+        float n = 3.14f;
+
+        SkMatrix localMatrix = matrix;
+        localMatrix.preTranslate(squircle.centerX(), squircle.centerY());
+        localMatrix.preScale(squircle.width()*.5f, squircle.height()*.5f);
+
+        SkMatrix squircleMatrix;
+        if (localMatrix.invert(&squircleMatrix)) {
+            SkRuntimeShaderBuilder builder(fEffect);
+            builder.uniform("skewMatrix") = SkV4{squircleMatrix.getScaleX(),
+                                                 squircleMatrix.getSkewY(),
+                                                 squircleMatrix.getSkewX(),
+                                                 squircleMatrix.getScaleY()};
+            builder.uniform("translate") = SkV2{squircleMatrix.getTranslateX(),
+                                                squircleMatrix.getTranslateY()};
+            builder.uniform("exponents") = SkV2{m, n};
+            canvas->clipShader(builder.makeShader(nullptr, false));
+            canvas->clear(SkColorSetARGB(255, 144, 123, 189));
+        }
+    }
+};
+DEF_GM(return new ClipSquircle;)
 
 DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     static constexpr char scale[] =
