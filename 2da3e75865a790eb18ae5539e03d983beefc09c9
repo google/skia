@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d1e9b58_4e753e16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T20:49:59Z",
+      "side": 1,
+      "message": "In general it looks good. Just holding off until that Android crash is fixed. I didn\u0027t see anything obvious that could cause it.  Feel free to ignore any or all of the comments, they\u0027re all nits.",
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3d41551_509533f0",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T20:49:59Z",
+      "side": 1,
+      "message": "I know you don\u0027t want to change much, but this naming is a little confusing.",
+      "range": {
+        "startLine": 431,
+        "startChar": 20,
+        "endLine": 431,
+        "endChar": 25
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1da7c44_fc019c47",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T20:49:59Z",
+      "side": 1,
+      "message": "I guess this is guaranteed to be non-null since it would have crashed on line 574 (of the original file) otherwise. Still seems a little risky. Maybe add an assert?",
+      "range": {
+        "startLine": 576,
+        "startChar": 45,
+        "endLine": 576,
+        "endChar": 65
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c8a1583_05904f2b",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T20:49:59Z",
+      "side": 1,
+      "message": "SkASSERT(dstImage)?",
+      "range": {
+        "startLine": 634,
+        "startChar": 19,
+        "endLine": 634,
+        "endChar": 74
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "796aef0d_3c745464",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T20:49:59Z",
+      "side": 1,
+      "message": "Odd naming again.",
+      "range": {
+        "startLine": 785,
+        "startChar": 51,
+        "endLine": 785,
+        "endChar": 54
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10605654_a2b652cb",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-12T20:49:59Z",
+      "side": 1,
+      "message": "And again.",
+      "range": {
+        "startLine": 879,
+        "startChar": 26,
+        "endLine": 879,
+        "endChar": 37
+      },
+      "revId": "2da3e75865a790eb18ae5539e03d983beefc09c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
