@@ -107,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a7f258a2_2c24bc73",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-12T18:33:21Z",
+      "side": 1,
+      "message": "I think my comment was more that naming each one of these individually here seems strange, instead they could be named as an enum in priority order and one of those enum values stored here in the bitfield as a, say, three bit integer. On the extreme end note that graphite [0] has a per output glyph breakweight attribute which is an integer with named values like\n\n10 white-space break BREAK_WHITESPACE\n15 word break BREAK_WORD\n20 intraword break BREAK_INTRA\n30 letter break BREAK_LETTER\n40 clip break BREAK_CLIP\n\nThese are to be considered from lowest value (highest priority) to highest value (lowest priority). This new one is something like BREAK_INTRA.\n\n[0] https://scripts.sil.org/cms/scripts/page.php?site_id\u003dprojects\u0026item_id\u003dgraphite_devFont#fontdev",
+      "parentUuid": "cccb4e5a_c760cb1d",
+      "revId": "b1b048d966b4326992f2c7f11829a025c3cc07d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a6cdc8f_177c6a05",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 7
