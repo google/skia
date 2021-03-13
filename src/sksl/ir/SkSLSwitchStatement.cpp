@@ -93,8 +93,8 @@ static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray*
                 move_all_but_break(stmt, &blockStmts);
             }
 
-            target->push_back(std::make_unique<Block>(block.fOffset, std::move(blockStmts),
-                                                      block.symbolTable(), block.isScope()));
+            target->push_back(Block::Make(block.fOffset, std::move(blockStmts),
+                                          block.symbolTable(), block.isScope()));
             break;
         }
 
@@ -161,8 +161,7 @@ std::unique_ptr<Statement> SwitchStatement::BlockForCase(StatementArray* cases,
     }
 
     // Return our newly-synthesized block.
-    return std::make_unique<Block>(caseToCapture->fOffset, std::move(caseStmts),
-                                   std::move(symbolTable));
+    return Block::Make(caseToCapture->fOffset, std::move(caseStmts), std::move(symbolTable));
 }
 
 std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
