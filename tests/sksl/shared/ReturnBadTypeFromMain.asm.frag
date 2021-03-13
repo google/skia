@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: SPIR-V validation error: [VUID-StandaloneSpirv-None-04633] OpEntryPoint Entry Point <id> '2[%main]'s function return type is not void.
+error: SPIR-V validation error: OpEntryPoint Entry Point <id> '2[%main]'s function return type is not void.
   OpEntryPoint Fragment %main "main" %sk_Clockwise
 
 OpCapability Shader
@@ -10,7 +10,6 @@ OpEntryPoint Fragment %main "main" %sk_Clockwise
 OpExecutionMode %main OriginUpperLeft
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %main "main"
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
