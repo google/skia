@@ -351,8 +351,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                 statements.push_back(this->statement());
             }
             bool isScope = this->readU8();
-            return std::make_unique<Block>(/*offset=*/-1, std::move(statements), fSymbolTable,
-                                           isScope);
+            return Block::Make(/*offset=*/-1, std::move(statements), fSymbolTable, isScope);
         }
         case Rehydrator::kBreak_Command:
             return BreakStatement::Make(/*offset=*/-1);

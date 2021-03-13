@@ -3262,8 +3262,8 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     // Function bodies are always wrapped in a Block.
     StatementArray entrypointStmts;
     entrypointStmts.push_back(std::move(assignmentStmt));
-    auto entrypointBlock = std::make_unique<Block>(/*offset=*/-1, std::move(entrypointStmts),
-                                                   symbolTable, /*isScope=*/true);
+    auto entrypointBlock = Block::Make(/*offset=*/-1, std::move(entrypointStmts),
+                                       symbolTable, /*isScope=*/true);
     // Declare an entrypoint function.
     EntrypointAdapter adapter;
     adapter.fLayout = {};
