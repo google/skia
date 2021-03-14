@@ -146,6 +146,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2487cac3_8bf5cd95",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-14T19:50:41Z",
+      "side": 1,
+      "message": "I was going to say this - the local matrix is *just* the shader local matrix (eg, CTM -\u003e shader). It has nothing to do with the geometry, even. So you probably do want a way to get to the full CTM. I\u0027ll have to double-check the existing code to see if you can access that today...",
+      "parentUuid": "ed340818_11ed0c0f",
+      "range": {
+        "startLine": 349,
+        "startChar": 16,
+        "endLine": 349,
+        "endChar": 22
+      },
+      "revId": "e64794306376f62e2dc51682facd8db334f36b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5911ddec_4c1ce8a3",
         "filename": "gm/runtimeshader.cpp",
         "patchSetId": 8
