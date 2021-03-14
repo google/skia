@@ -122,6 +122,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ed340818_11ed0c0f",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-14T01:20:21Z",
+      "side": 1,
+      "message": "It looks like if you change the zoom in viewer, it concats a matrix onto the effect that we didn\u0027t know about. We really just need access to the actual matrix used by the runtime system in order to get the right derivatives.",
+      "parentUuid": "d260a296_65e139ea",
+      "range": {
+        "startLine": 349,
+        "startChar": 16,
+        "endLine": 349,
+        "endChar": 22
+      },
+      "revId": "e64794306376f62e2dc51682facd8db334f36b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5911ddec_4c1ce8a3",
         "filename": "gm/runtimeshader.cpp",
         "patchSetId": 8
