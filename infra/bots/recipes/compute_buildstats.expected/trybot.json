@@ -244,7 +244,9 @@
       "[START_DIR]/[SWARM_OUT_DIR]",
       "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
-      "[START_DIR]/bloaty/bloaty"
+      "[START_DIR]/bloaty/bloaty",
+      "total_size_bytes",
+      "#$%^&*"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -265,10 +267,19 @@
       "@@@STEP_LOG_END@bloaty_symbol_full@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
       "@@@STEP_LOG_LINE@perf_json@{@@@",
-      "@@@STEP_LOG_LINE@perf_json@  \"some\": \"json\"@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"some\": \"json\",@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"results\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@    \"pathkit.wasm\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@      \"default\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@        \"total_size_bytes\": 7391117,@@@",
+      "@@@STEP_LOG_LINE@perf_json@        \"gzip_size_bytes\": 2884841@@@",
+      "@@@STEP_LOG_LINE@perf_json@      }@@@",
+      "@@@STEP_LOG_LINE@perf_json@    }@@@",
+      "@@@STEP_LOG_LINE@perf_json@  }@@@",
       "@@@STEP_LOG_LINE@perf_json@}@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
-      "@@@STEP_LOG_END@perf_json@@@"
+      "@@@STEP_LOG_END@perf_json@@@",
+      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"pathkit.wasm\": 7391117}@@@"
     ]
   },
   {
@@ -298,7 +309,9 @@
       "[START_DIR]/build/pathkit.js",
       "[START_DIR]/[SWARM_OUT_DIR]",
       "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
-      "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit"
+      "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
+      "total_size_bytes",
+      "#$%^&*"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -334,14 +347,33 @@
       "[START_DIR]/build/pathkit.js.mem",
       "[START_DIR]/[SWARM_OUT_DIR]",
       "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
-      "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit"
+      "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
+      "total_size_bytes",
+      "#$%^&*"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Analyze [START_DIR]/build/pathkit.js.mem"
+    "name": "Analyze [START_DIR]/build/pathkit.js.mem",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@perf_json@@@@",
+      "@@@STEP_LOG_LINE@perf_json@{@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"some\": \"json\",@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"results\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@    \"pathkit.js.mem\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@      \"default\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@        \"total_size_bytes\": 7391117,@@@",
+      "@@@STEP_LOG_LINE@perf_json@        \"gzip_size_bytes\": 2884841@@@",
+      "@@@STEP_LOG_LINE@perf_json@      }@@@",
+      "@@@STEP_LOG_LINE@perf_json@    }@@@",
+      "@@@STEP_LOG_LINE@perf_json@  }@@@",
+      "@@@STEP_LOG_LINE@perf_json@}@@@",
+      "@@@STEP_LOG_LINE@perf_json@@@@",
+      "@@@STEP_LOG_END@perf_json@@@",
+      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"pathkit.js.mem\": 7391117}@@@"
+    ]
   },
   {
     "cmd": [
@@ -372,7 +404,11 @@
       "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
       "[START_DIR]/bloaty/bloaty",
-      "[START_DIR]/build/libflutter.so"
+      "[START_DIR]/build/libflutter.so",
+      "skia_in_flutter",
+      "total_size_bytes",
+      "libflutter.so",
+      "#$%^&*"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -403,10 +439,18 @@
       "@@@STEP_LOG_END@bloaty_symbol_file_full@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
       "@@@STEP_LOG_LINE@perf_json@{@@@",
-      "@@@STEP_LOG_LINE@perf_json@  \"some\": \"json\"@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"some\": \"json\",@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"results\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@    \"libflutter.so\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@      \"skia_in_flutter\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@        \"total_size_bytes\": 1256676@@@",
+      "@@@STEP_LOG_LINE@perf_json@      }@@@",
+      "@@@STEP_LOG_LINE@perf_json@    }@@@",
+      "@@@STEP_LOG_LINE@perf_json@  }@@@",
       "@@@STEP_LOG_LINE@perf_json@}@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
-      "@@@STEP_LOG_END@perf_json@@@"
+      "@@@STEP_LOG_END@perf_json@@@",
+      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"libflutter.so\": 1256676}@@@"
     ]
   },
   {
@@ -437,14 +481,33 @@
       "[START_DIR]/[SWARM_OUT_DIR]",
       "compiler EMCC configuration Release extra_config PathKit os Debian10 target_arch wasm",
       "gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456abc issue 456789 patchset 12 patch_storage gerrit",
-      "[START_DIR]/bloaty/bloaty"
+      "[START_DIR]/bloaty/bloaty",
+      "total_size_bytes",
+      "#$%^&*"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Analyze [START_DIR]/build/libskia.so"
+    "name": "Analyze [START_DIR]/build/libskia.so",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@perf_json@@@@",
+      "@@@STEP_LOG_LINE@perf_json@{@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"some\": \"json\",@@@",
+      "@@@STEP_LOG_LINE@perf_json@  \"results\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@    \"libskia.so\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@      \"default\": {@@@",
+      "@@@STEP_LOG_LINE@perf_json@        \"total_size_bytes\": 7391117,@@@",
+      "@@@STEP_LOG_LINE@perf_json@        \"gzip_size_bytes\": 2884841@@@",
+      "@@@STEP_LOG_LINE@perf_json@      }@@@",
+      "@@@STEP_LOG_LINE@perf_json@    }@@@",
+      "@@@STEP_LOG_LINE@perf_json@  }@@@",
+      "@@@STEP_LOG_LINE@perf_json@}@@@",
+      "@@@STEP_LOG_LINE@perf_json@@@@",
+      "@@@STEP_LOG_END@perf_json@@@",
+      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"libskia.so\": 7391117}@@@"
+    ]
   },
   {
     "cmd": [

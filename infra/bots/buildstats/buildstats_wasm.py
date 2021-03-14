@@ -18,13 +18,14 @@ def main():
   keystr = sys.argv[3]
   propstr = sys.argv[4]
   bloaty_path = sys.argv[5]
+  total_size_bytes_key = sys.argv[6]
+  magic_seperator = sys.argv[7]
 
   results = {
     'key': { },
     'results': { }
   }
 
-  magic_seperator = '#$%^&*'
   print magic_seperator
   print 'If you see lots of func[19] and such, go check out the debug build'
   print ('Note that template instantiations are grouped together, '
@@ -48,7 +49,7 @@ def main():
     results['key'][keys[i]] = keys[i+1]
 
   r = {
-    'total_size_bytes': os.path.getsize(input_file)
+    total_size_bytes_key: os.path.getsize(input_file)
   }
 
   # Make a copy to avoid destroying the hardlinked file.
