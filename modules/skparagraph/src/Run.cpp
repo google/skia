@@ -341,20 +341,26 @@ PlaceholderStyle* Run::placeholderStyle() const {
     }
 }
 
-Run* Cluster::run() const {
+Run* Cluster::runOrNull() const {
     if (fRunIndex >= fOwner->runs().size()) {
         return nullptr;
     }
     return &fOwner->run(fRunIndex);
 }
 
+Run& Cluster::run() const {
+    return fOwner->run(fRunIndex);
+}
+
 SkFont Cluster::font() const {
     return fOwner->run(fRunIndex).font();
 }
 
+#if 0
 bool Cluster::isHardBreak() const {
     return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore);
 }
+#endif
 
 bool Cluster::isSoftBreak() const {
     return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kSoftLineBreakBefore);
@@ -382,8 +388,17 @@ Cluster::Cluster(ParagraphImpl* owner,
         , fHeight(height)
         , fHalfLetterSpacing(0.0) {
     size_t len = fOwner->getWhitespacesLength(fTextRange);
-    fIsWhiteSpaces = (len == this->fTextRange.width());
-    fIsSpaces = fOwner->isSpace(fTextRange);
+
+    fFlags = 0;
+    if (fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore)) {
+        fFlags |= kIsHardBreak_Flag;
+    }
+    if (len == fTextRange.width()) {
+        fFlags |= kIsWhiteSpaces_Flag;
+    }
+    if (fOwner->isSpace(fTextRange)) {
+        fFlags |= kIsSpaces_Flag;
+    }
 }
 
 }  // namespace textlayout

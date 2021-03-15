@@ -247,9 +247,9 @@ public:
         fWidth += shift;
     }
 
-    bool isWhitespaces() const { return fIsWhiteSpaces; }
-    bool isSpaces() const { return fIsSpaces; }
-    bool isHardBreak() const;
+    bool isWhitespaces() const { return SkToBool(fFlags & kIsWhiteSpaces_Flag); }
+    bool isSpaces() const { return SkToBool(fFlags & kIsSpaces_Flag); }
+    bool isHardBreak() const { return SkToBool(fFlags & kIsHardBreak_Flag); }
     bool isSoftBreak() const;
     bool isGraphemeBreak() const;
     bool canBreakLineAfter() const { return isHardBreak() || isSoftBreak(); }
@@ -267,7 +267,8 @@ public:
     RunIndex runIndex() const { return fRunIndex; }
     ParagraphImpl* owner() const { return fOwner; }
 
-    Run* run() const;
+    Run* runOrNull() const;
+    Run& run() const;
     SkFont font() const;
 
     SkScalar trimmedWidth(size_t pos) const;
@@ -291,14 +292,19 @@ private:
     TextRange fTextRange;
     GraphemeRange fGraphemeRange;
 
+    enum Flags {
+        kIsHardBreak_Flag   = 1 << 0,
+        kIsWhiteSpaces_Flag = 1 << 1,
+        kIsSpaces_Flag      = 1 << 2,
+    };
+
     size_t fStart;
     size_t fEnd;
     SkScalar fWidth;
     SkScalar fSpacing;
     SkScalar fHeight;
     SkScalar fHalfLetterSpacing;
-    bool fIsWhiteSpaces;
-    bool fIsSpaces;
+    unsigned fFlags;
 };
 
 class InternalLineMetrics {

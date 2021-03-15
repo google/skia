@@ -744,10 +744,23 @@ size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
 bool ParagraphImpl::isSpace(TextRange textRange) {
     auto text = ParagraphImpl::text(textRange);
     const char* ch = text.begin();
+    if (text.end() - ch == 1 && *ch == ' ') {
+        return true;
+    }
     while (ch != text.end()) {
-        SkUnichar unicode = nextUtf8Unit(&ch, text.end());
-        if (!fUnicode->isSpace(unicode)) {
-            return false;
+#if 0
+        if (*(const uint8_t*)ch <= 127) {
+            if (*ch != ' ') {
+                return false;
+            }
+            ch++;
+        } else
+#endif
+        {
+            SkUnichar unicode = nextUtf8Unit(&ch, text.end());
+            if (!fUnicode->isSpace(unicode)) {
+                return false;
+            }
         }
     }
     return true;

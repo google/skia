@@ -31,18 +31,16 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
 
     Cluster* nextNonBreakingSpace = nullptr;
     for (auto cluster = fEndLine.endCluster(); cluster < endOfClusters; ++cluster) {
-        // TODO: Trying to deal with flutter rounding problem. Must be removed...
-        auto width = fWords.width() + fClusters.width() + cluster->width();
-        auto roundedWidth = littleRound(width);
         if (cluster->isHardBreak()) {
-        } else if (roundedWidth > maxWidth) {
+        } else if (littleRound(fWords.width() + fClusters.width() + cluster->width()) > maxWidth) {
+            // TODO: Trying to deal with flutter rounding problem. Must be removed...
             if (cluster->isWhitespaces()) {
                 // It's the end of the word
                 fClusters.extend(cluster);
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
                 fWords.extend(fClusters);
                 break;
-            } else if (cluster->run()->isPlaceholder()) {
+            } else if (cluster->run().isPlaceholder()) {
                 if (!fClusters.empty()) {
                     // Placeholder ends the previous word
                     fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
@@ -67,7 +65,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                 if (further->isSoftBreak() || further->isHardBreak() || further->isWhitespaces()) {
                     break;
                 }
-                if (further->run()->isPlaceholder()) {
+                if (further->run().isPlaceholder()) {
                   // Placeholder ends the word
                   break;
                 }
@@ -121,7 +119,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             break;
         }
 
-        if (cluster->run()->isPlaceholder()) {
+        if (cluster->run().isPlaceholder()) {
             if (!fClusters.empty()) {
                 // Placeholder ends the previous word (placeholders are ignored in trimming)
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
@@ -191,7 +189,7 @@ SkScalar TextWrapper::getClustersTrimmedWidth() {
     SkScalar width = 0;
     bool trailingSpaces = true;
     for (auto cluster = fClusters.endCluster(); cluster >= fClusters.startCluster(); --cluster) {
-        if (cluster->run()->isPlaceholder()) {
+        if (cluster->run().isPlaceholder()) {
             continue;
         }
         if (trailingSpaces) {
@@ -293,10 +291,11 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         // Deal with placeholder clusters == runs[@size==1]
         Run* lastRun = nullptr;
         for (auto cluster = fEndLine.startCluster(); cluster <= fEndLine.endCluster(); ++cluster) {
-            if (cluster->run() == lastRun) {
+            auto r = cluster->runOrNull();
+            if (r == lastRun) {
                 continue;
             }
-            lastRun = cluster->run();
+            lastRun = r;
             if (lastRun->placeholderStyle() != nullptr) {
                 SkASSERT(lastRun->size() == 1);
                 // Update the placeholder metrics so we can get the placeholder positions later
@@ -395,7 +394,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 softLineMaxIntrinsicWidth += cluster->width();
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
                 lastWordLength = 0;
-            } else if (cluster->run()->isPlaceholder()) {
+            } else if (cluster->run().isPlaceholder()) {
                 // Placeholder ends the previous word and creates a separate one
                 fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, lastWordLength);
                 // Placeholder width now counts in fMinIntrinsicWidth
