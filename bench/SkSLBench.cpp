@@ -162,39 +162,35 @@ DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  O
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kMetal);) \
 DEF_BENCH(return new SkSLCompileBench(#name, name ## _SRC, /*optimize=*/true,  Output::kSPIRV);)
 
-// Metal requires a layout set and binding for all of its uniforms. We just care that these shaders
-// compile, not that they actually work, so we just fill them with zeroes.
+// This fragment shader is from the third tile on the top row of GM_gradients_2pt_conical_outside.
 COMPILER_BENCH(large, R"(
-layout(set=0, binding=0) uniform half urange_Stage1;
-layout(set=0, binding=0) uniform half4 uleftBorderColor_Stage1_c0_c0;
-layout(set=0, binding=0) uniform half4 urightBorderColor_Stage1_c0_c0;
-layout(set=0, binding=0) uniform float3x3 umatrix_Stage1_c0_c0_c0;
-layout(set=0, binding=0) uniform half2 ufocalParams_Stage1_c0_c0_c0_c0;
-layout(set=0, binding=0) uniform float4 uscale0_1_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform float4 uscale2_3_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform float4 uscale4_5_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform float4 uscale6_7_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform float4 ubias0_1_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform float4 ubias2_3_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform float4 ubias4_5_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform float4 ubias6_7_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform half4 uthresholds1_7_Stage1_c0_c0_c1;
-layout(set=0, binding=0) uniform half4 uthresholds9_13_Stage1_c0_c0_c1;
+layout(set=0, binding=0) uniform half urange_Stage1_c0;
+layout(set=0, binding=0) uniform half4 uleftBorderColor_Stage1_c0_c0_c0;
+layout(set=0, binding=0) uniform half4 urightBorderColor_Stage1_c0_c0_c0;
+layout(set=0, binding=0) uniform float3x3 umatrix_Stage1_c0_c0_c0_c0;
+layout(set=0, binding=0) uniform half2 ufocalParams_Stage1_c0_c0_c0_c0_c0;
+layout(set=0, binding=0) uniform float4 uscale0_1_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform float4 uscale2_3_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform float4 uscale4_5_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform float4 uscale6_7_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform float4 ubias0_1_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform float4 ubias2_3_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform float4 ubias4_5_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform float4 ubias6_7_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform half4 uthresholds1_7_Stage1_c0_c0_c0_c1;
+layout(set=0, binding=0) uniform half4 uthresholds9_13_Stage1_c0_c0_c0_c1;
 flat in half4 vcolor_Stage0;
-in float vcoverage_Stage0;
-flat in float4 vgeomSubset_Stage0;
-in float2 vTransformedCoords_0_Stage0;
+noperspective in float2 vTransformedCoords_0_Stage0;
 out half4 sk_FragColor;
-half4 TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0(half4 _input)
+half4 TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0_c0(half4 _input)
 {
-    half4 _output;
     float t = -1.0;
     half v = 1.0;
     @switch (2)
     {
         case 1:
         {
-            half r0_2 = ufocalParams_Stage1_c0_c0_c0_c0.y;
+            half r0_2 = ufocalParams_Stage1_c0_c0_c0_c0_c0.y;
             t = float(r0_2) - vTransformedCoords_0_Stage0.y * vTransformedCoords_0_Stage0.y;
             if (t >= 0.0)
             {
@@ -208,7 +204,7 @@ half4 TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0(half4 _input)
         break;
         case 0:
         {
-            half r0 = ufocalParams_Stage1_c0_c0_c0_c0.x;
+            half r0 = ufocalParams_Stage1_c0_c0_c0_c0_c0.x;
             @if (true)
             {
                 t = length(vTransformedCoords_0_Stage0) - float(r0);
@@ -221,14 +217,14 @@ half4 TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0(half4 _input)
         break;
         case 2:
         {
-            half invR1 = ufocalParams_Stage1_c0_c0_c0_c0.x;
-            half fx = ufocalParams_Stage1_c0_c0_c0_c0.y;
+            half invR1 = ufocalParams_Stage1_c0_c0_c0_c0_c0.x;
+            half fx = ufocalParams_Stage1_c0_c0_c0_c0_c0.y;
             float x_t = -1.0;
             @if (false)
             {
                 x_t = dot(vTransformedCoords_0_Stage0, vTransformedCoords_0_Stage0) / vTransformedCoords_0_Stage0.x;
             }
-            else if (true)
+            else if (false)
             {
                 x_t = length(vTransformedCoords_0_Stage0) - vTransformedCoords_0_Stage0.x * float(invR1);
             }
@@ -247,7 +243,7 @@ half4 TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0(half4 _input)
                     }
                 }
             }
-            @if (!true)
+            @if (!false)
             {
                 if (x_t <= 0.0)
                 {
@@ -283,54 +279,51 @@ half4 TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0(half4 _input)
         }
         break;
     }
-    _output = half4(half(t), v, 0.0, 0.0);
-    return _output;
+    return half4(half(t), v, 0.0, 0.0);
 }
-half4 MatrixEffect_Stage1_c0_c0_c0(half4 _input)
+half4 MatrixEffect_Stage1_c0_c0_c0_c0(half4 _input)
 {
-    half4 _output;
-    _output = TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0(_input);
-    return _output;
+    return TwoPointConicalGradientLayout_Stage1_c0_c0_c0_c0_c0(_input);
 }
-half4 UnrolledBinaryGradientColorizer_Stage1_c0_c0_c1(half4 _input, float2 _coords)
+half4 UnrolledBinaryGradientColorizer_Stage1_c0_c0_c0_c1(half4 _input, float2 _coords)
 {
-    half4 _output;
     half t = half(_coords.x);
-    float4 scale, bias;
-    if (4 <= 4 || t < uthresholds1_7_Stage1_c0_c0_c1.w)
+    float4 scale;
+    float4 bias;
+    if (4 <= 4 || t < uthresholds1_7_Stage1_c0_c0_c0_c1.w)
     {
-        if (4 <= 2 || t < uthresholds1_7_Stage1_c0_c0_c1.y)
+        if (4 <= 2 || t < uthresholds1_7_Stage1_c0_c0_c0_c1.y)
         {
-            if (4 <= 1 || t < uthresholds1_7_Stage1_c0_c0_c1.x)
+            if (4 <= 1 || t < uthresholds1_7_Stage1_c0_c0_c0_c1.x)
             {
-                scale = uscale0_1_Stage1_c0_c0_c1;
-                bias = ubias0_1_Stage1_c0_c0_c1;
+                scale = uscale0_1_Stage1_c0_c0_c0_c1;
+                bias = ubias0_1_Stage1_c0_c0_c0_c1;
             }
             else
             {
-                scale = uscale2_3_Stage1_c0_c0_c1;
-                bias = ubias2_3_Stage1_c0_c0_c1;
+                scale = uscale2_3_Stage1_c0_c0_c0_c1;
+                bias = ubias2_3_Stage1_c0_c0_c0_c1;
             }
         }
         else
         {
-            if (4 <= 3 || t < uthresholds1_7_Stage1_c0_c0_c1.z)
+            if (4 <= 3 || t < uthresholds1_7_Stage1_c0_c0_c0_c1.z)
             {
-                scale = uscale4_5_Stage1_c0_c0_c1;
-                bias = ubias4_5_Stage1_c0_c0_c1;
+                scale = uscale4_5_Stage1_c0_c0_c0_c1;
+                bias = ubias4_5_Stage1_c0_c0_c0_c1;
             }
             else
             {
-                scale = uscale6_7_Stage1_c0_c0_c1;
-                bias = ubias6_7_Stage1_c0_c0_c1;
+                scale = uscale6_7_Stage1_c0_c0_c0_c1;
+                bias = ubias6_7_Stage1_c0_c0_c0_c1;
             }
         }
     }
     else
     {
-        if (4 <= 6 || t < uthresholds9_13_Stage1_c0_c0_c1.y)
+        if (4 <= 6 || t < uthresholds9_13_Stage1_c0_c0_c0_c1.y)
         {
-            if (4 <= 5 || t < uthresholds9_13_Stage1_c0_c0_c1.x)
+            if (4 <= 5 || t < uthresholds9_13_Stage1_c0_c0_c0_c1.x)
             {
                 scale = float4(0);
                 bias = float4(0);
@@ -343,7 +336,7 @@ half4 UnrolledBinaryGradientColorizer_Stage1_c0_c0_c1(half4 _input, float2 _coor
         }
         else
         {
-            if (4 <= 7 || t < uthresholds9_13_Stage1_c0_c0_c1.z)
+            if (4 <= 7 || t < uthresholds9_13_Stage1_c0_c0_c0_c1.z)
             {
                 scale = float4(0);
                 bias = float4(0);
@@ -355,89 +348,66 @@ half4 UnrolledBinaryGradientColorizer_Stage1_c0_c0_c1(half4 _input, float2 _coor
             }
         }
     }
-    _output = half4(float(t) * scale + bias);
-    return _output;
+    return half4(float(t) * scale + bias);
 }
-half4 ClampedGradientEffect_Stage1_c0_c0(half4 _input)
+half4 ClampedGradientEffect_Stage1_c0_c0_c0(half4 _input)
 {
-    half4 _output;
-    half4 t = MatrixEffect_Stage1_c0_c0_c0(_input);
+    half4 t = MatrixEffect_Stage1_c0_c0_c0_c0(_input);
+    half4 outColor;
     if (!false && t.y < 0.0)
     {
-        _output = half4(0.0);
+        outColor = half4(0.0);
     }
     else if (t.x < 0.0)
     {
-        _output = uleftBorderColor_Stage1_c0_c0;
+        outColor = uleftBorderColor_Stage1_c0_c0_c0;
     }
     else if (t.x > 1.0)
     {
-        _output = urightBorderColor_Stage1_c0_c0;
+        outColor = urightBorderColor_Stage1_c0_c0_c0;
     }
     else
     {
-        _output = UnrolledBinaryGradientColorizer_Stage1_c0_c0_c1(_input, float2(half2(t.x, 0.0)));
+        outColor = UnrolledBinaryGradientColorizer_Stage1_c0_c0_c0_c1(_input, float2(half2(t.x, 0.0)));
     }
     @if (false)
     {
-        _output.xyz *= _output.w;
+        outColor.xyz *= outColor.w;
     }
-    return _output;
+    return outColor;
 }
-half4 OverrideInputFragmentProcessor_Stage1_c0(half4 _input)
+half4 OverrideInputFragmentProcessor_Stage1_c0_c0(half4 _input)
 {
-    half4 _output;
-    half4 constColor;
-    @if (false)
+    return ClampedGradientEffect_Stage1_c0_c0_c0(false ? half4(0) : half4(1.000000, 1.000000, 1.000000, 1.000000));
+}
+half4 DitherEffect_Stage1_c0(half4 _input)
+{
+    half4 color = OverrideInputFragmentProcessor_Stage1_c0_c0(_input);
+    half value;
+    @if (sk_Caps.integerSupport)
     {
-        constColor = half4(0);
+        uint x = uint(sk_FragCoord.x);
+        uint y = uint(sk_FragCoord.y) ^ x;
+        uint m = (((((y & 1) << 5 | (x & 1) << 4) | (y & 2) << 2) | (x & 2) << 1) | (y & 4) >> 1) | (x & 4) >> 2;
+        value = half(m) / 64.0 - 0.4921875;
     }
     else
     {
-        constColor = half4(1.000000, 1.000000, 1.000000, 1.000000);
+        half4 bits = mod(half4(sk_FragCoord.yxyx), half4(2.0, 2.0, 4.0, 4.0));
+        bits.zw = step(2.0, bits.zw);
+        bits.xz = abs(bits.xz - bits.yw);
+        value = dot(bits, half4(0.5, 0.25, 0.125, 0.0625)) - 0.46875;
     }
-    _output = ClampedGradientEffect_Stage1_c0_c0(constColor);
-    return _output;
+    return half4(clamp(color.xyz + value * urange_Stage1_c0, 0.0, color.w), color.w);
 }
 void main()
 {
+    // Stage 0, QuadPerEdgeAAGeometryProcessor
     half4 outputColor_Stage0;
-    half4 outputCoverage_Stage0;
-    {
-        // Stage 0, QuadPerEdgeAAGeometryProcessor
-        outputColor_Stage0 = vcolor_Stage0;
-        float coverage = vcoverage_Stage0 * sk_FragCoord.w;
-        float4 geoSubset;
-        geoSubset = vgeomSubset_Stage0;
-        if (coverage < 0.5)
-        {
-            float4 dists4 = clamp(float4(1, 1, -1, -1) * (sk_FragCoord.xyxy - geoSubset), 0, 1);
-            float2 dists2 = dists4.xy * dists4.zw;
-            coverage = min(coverage, dists2.x * dists2.y);
-        }
-        outputCoverage_Stage0 = half4(half(coverage));
-    }
+    outputColor_Stage0 = vcolor_Stage0;
+    const half4 outputCoverage_Stage0 = half4(1);
     half4 output_Stage1;
-    {
-        // Stage 1, DitherEffect
-        half4 color = OverrideInputFragmentProcessor_Stage1_c0(outputColor_Stage0);
-        half value;
-        @if (sk_Caps.integerSupport)
-        {
-            uint x = uint(sk_FragCoord.x);
-            uint y = uint(sk_FragCoord.y) ^ x;
-            uint m = (((((y & 1) << 5 | (x & 1) << 4) | (y & 2) << 2) | (x & 2) << 1) | (y & 4) >> 1) | (x & 4) >> 2;
-            value = half(m) / 64.0 - 0.4921875;
-        }
-        else
-        {
-            half4 bits = mod(half4(sk_FragCoord.yxyx), half4(2.0, 2.0, 4.0, 4.0));
-            bits.zw = step(2.0, bits.zw);
-            bits.xz = abs(bits.xz - bits.yw);
-            value = dot(bits, half4(0.5, 0.25, 0.125, 0.0625)) - 0.46875;
-        }
-        output_Stage1 = half4(clamp(color.xyz + value * urange_Stage1, 0.0, color.w), color.w);
-    }
+    output_Stage1 = DitherEffect_Stage1_c0(outputColor_Stage0);
     {
         // Xfer Processor: Porter Duff
         sk_FragColor = output_Stage1 * outputCoverage_Stage0;
@@ -445,110 +415,131 @@ void main()
 }
 )");
 
+// This fragment shader is taken from GM_BlurDrawImage.
 COMPILER_BENCH(medium, R"(
-    layout(set=0, binding=0) uniform half2 uDstTextureUpperLeft_Stage1;
-    layout(set=0, binding=0) uniform half2 uDstTextureCoordScale_Stage1;
-    layout(set=0, binding=0) uniform sampler2D uDstTextureSampler_Stage1;
-    noperspective in half4 vQuadEdge_Stage0;
-    noperspective in half4 vinColor_Stage0;
-    out half4 sk_FragColor;
-    half luminance_Stage1(half3 color) {
-        return dot(half3(0.3, 0.59, 0.11), color);
+layout(set=0, binding=0) uniform float3x3 umatrix_Stage1_c0_c0_c0;
+layout(set=0, binding=0) uniform half4 urectH_Stage2_c1;
+layout(set=0, binding=0) uniform float3x3 umatrix_Stage2_c1_c0;
+layout(set=0, binding=0) uniform sampler2D uTextureSampler_0_Stage1;
+layout(set=0, binding=0) uniform sampler2D uTextureSampler_0_Stage2;
+flat in half4 vcolor_Stage0;
+noperspective in float2 vTransformedCoords_0_Stage0;
+out half4 sk_FragColor;
+half4 TextureEffect_Stage1_c0_c0_c0_c0(half4 _input)
+{
+    return sample(uTextureSampler_0_Stage1, vTransformedCoords_0_Stage0);
+}
+half4 MatrixEffect_Stage1_c0_c0_c0(half4 _input)
+{
+    return TextureEffect_Stage1_c0_c0_c0_c0(_input);
+}
+half4 Blend_Stage1_c0_c0(half4 _input)
+{
+    // Blend mode: SrcIn (Compose-One behavior)
+    return blend_src_in(MatrixEffect_Stage1_c0_c0_c0(half4(1)), _input);
+}
+half4 OverrideInputFragmentProcessor_Stage1_c0(half4 _input)
+{
+    return Blend_Stage1_c0_c0(false ? half4(0) : half4(1.000000, 1.000000, 1.000000, 1.000000));
+}
+half4 TextureEffect_Stage2_c1_c0_c0(half4 _input, float2 _coords)
+{
+    return sample(uTextureSampler_0_Stage2, _coords).000r;
+}
+half4 MatrixEffect_Stage2_c1_c0(half4 _input, float2 _coords)
+{
+    return TextureEffect_Stage2_c1_c0_c0(_input, ((umatrix_Stage2_c1_c0) * _coords.xy1).xy);
+}
+half4 RectBlurEffect_Stage2_c1(half4 _input)
+{
+    /* key */ const bool highPrecision = false;
+    half xCoverage;
+    half yCoverage;
+    float2 pos = sk_FragCoord.xy;
+    @if (false)
+    {
+        pos = (float3x3(1) * float3(pos, 1.0)).xy;
     }
-
-    half3 set_luminance_Stage1(half3 hueSat, half alpha, half3 lumColor) {
-        half diff = luminance_Stage1(lumColor - hueSat);
-        half3 outColor = hueSat + diff;
-        half outLum = luminance_Stage1(outColor);
-        half minComp = min(min(outColor.r, outColor.g), outColor.b);
-        half maxComp = max(max(outColor.r, outColor.g), outColor.b);
-        if (minComp < 0.0 && outLum != minComp) {
-            outColor = outLum + ((outColor - half3(outLum, outLum, outLum)) * outLum) /
-                       (outLum - minComp);
+    @if (true)
+    {
+        half2 xy;
+        @if (highPrecision)
+        {
+            xy = max(half2(float4(0).xy - pos), half2(pos - float4(0).zw));
         }
-        if (maxComp > alpha && maxComp != outLum) {
-            outColor = outLum +((outColor - half3(outLum, outLum, outLum)) * (alpha - outLum)) /
-                       (maxComp - outLum);
+        else
+        {
+            xy = max(half2(float2(urectH_Stage2_c1.xy) - pos), half2(pos - float2(urectH_Stage2_c1.zw)));
         }
-        return outColor;
+        xCoverage = MatrixEffect_Stage2_c1_c0(_input, float2(half2(xy.x, 0.5))).w;
+        yCoverage = MatrixEffect_Stage2_c1_c0(_input, float2(half2(xy.y, 0.5))).w;
     }
-
-    void main() {
-        half4 outputColor_Stage0;
-        half4 outputCoverage_Stage0;
-        { // Stage 0, QuadEdge
-            outputColor_Stage0 = vinColor_Stage0;
-            half edgeAlpha;
-            half2 duvdx = half2(dFdx(vQuadEdge_Stage0.xy));
-            half2 duvdy = half2(dFdy(vQuadEdge_Stage0.xy));
-            if (vQuadEdge_Stage0.z > 0.0 && vQuadEdge_Stage0.w > 0.0) {
-                edgeAlpha = min(min(vQuadEdge_Stage0.z, vQuadEdge_Stage0.w) + 0.5, 1.0);
-            } else {
-                half2 gF = half2(2.0 * vQuadEdge_Stage0.x * duvdx.x - duvdx.y,
-                                 2.0 * vQuadEdge_Stage0.x * duvdy.x - duvdy.y);
-                edgeAlpha = (vQuadEdge_Stage0.x*vQuadEdge_Stage0.x - vQuadEdge_Stage0.y);
-                edgeAlpha = saturate(0.5 - edgeAlpha / length(gF));
-            }
-            outputCoverage_Stage0 = half4(edgeAlpha);
+    else
+    {
+        half4 rect;
+        @if (highPrecision)
+        {
+            rect.xy = half2(float4(0).xy - pos);
+            rect.zw = half2(pos - float4(0).zw);
         }
-        { // Xfer Processor: Custom Xfermode
-            if (all(lessThanEqual(outputCoverage_Stage0.rgb, half3(0)))) {
-                discard;
-            }
-            // Read color from copy of the destination.
-            half2 _dstTexCoord = (half2(sk_FragCoord.xy) - uDstTextureUpperLeft_Stage1) *
-                                  uDstTextureCoordScale_Stage1;
-            _dstTexCoord.y = 1.0 - _dstTexCoord.y;
-            half4 _dstColor = sample(uDstTextureSampler_Stage1, _dstTexCoord);
-            sk_FragColor.a = outputColor_Stage0.a + (1.0 - outputColor_Stage0.a) * _dstColor.a;
-            half4 srcDstAlpha = outputColor_Stage0 * _dstColor.a;
-            sk_FragColor.rgb = set_luminance_Stage1(_dstColor.rgb * outputColor_Stage0.a,
-                                                    srcDstAlpha.a, srcDstAlpha.rgb);
-            sk_FragColor.rgb += (1.0 - outputColor_Stage0.a) * _dstColor.rgb + (1.0 - _dstColor.a) *
-                                outputColor_Stage0.rgb;
-            sk_FragColor = outputCoverage_Stage0 * sk_FragColor +
-                           (half4(1.0) - outputCoverage_Stage0) * _dstColor;
+        else
+        {
+            rect.xy = half2(float2(urectH_Stage2_c1.xy) - pos);
+            rect.zw = half2(pos - float2(urectH_Stage2_c1.zw));
         }
+        xCoverage = (1.0 - MatrixEffect_Stage2_c1_c0(_input, float2(half2(rect.x, 0.5))).w) - MatrixEffect_Stage2_c1_c0(_input, float2(half2(rect.z, 0.5))).w;
+        yCoverage = (1.0 - MatrixEffect_Stage2_c1_c0(_input, float2(half2(rect.y, 0.5))).w) - MatrixEffect_Stage2_c1_c0(_input, float2(half2(rect.w, 0.5))).w;
     }
+    return (_input * xCoverage) * yCoverage;
+}
+void main()
+{
+    // Stage 0, QuadPerEdgeAAGeometryProcessor
+    half4 outputColor_Stage0;
+    outputColor_Stage0 = vcolor_Stage0;
+    const half4 outputCoverage_Stage0 = half4(1);
+    half4 output_Stage1;
+    output_Stage1 = OverrideInputFragmentProcessor_Stage1_c0(outputColor_Stage0);
+    half4 output_Stage2;
+    output_Stage2 = RectBlurEffect_Stage2_c1(outputCoverage_Stage0);
+    {
+        // Xfer Processor: Porter Duff
+        sk_FragColor = output_Stage1 * output_Stage2;
+    }
+}
 )");
 
+// This is the fragment shader used to blit the Viewer window when running the software rasterizer.
 COMPILER_BENCH(small, R"(
-    layout(set=0, binding=0) uniform float3x3 umatrix_Stage1_c0_c0;
-    layout(set=0, binding=0) uniform sampler2D uTextureSampler_0_Stage1;
-    noperspective in float2 vTransformedCoords_0_Stage0;
-    out half4 sk_FragColor;
-    half4 TextureEffect_Stage1_c0_c0_c0(half4 _input)
+layout(set=0, binding=0) uniform float3x3 umatrix_Stage1_c0_c0;
+layout(set=0, binding=0) uniform sampler2D uTextureSampler_0_Stage1;
+noperspective in float2 vTransformedCoords_0_Stage0;
+out half4 sk_FragColor;
+half4 TextureEffect_Stage1_c0_c0_c0(half4 _input)
+{
+    return sample(uTextureSampler_0_Stage1, vTransformedCoords_0_Stage0);
+}
+half4 MatrixEffect_Stage1_c0_c0(half4 _input)
+{
+    return TextureEffect_Stage1_c0_c0_c0(_input);
+}
+half4 Blend_Stage1_c0(half4 _input)
+{
+    // Blend mode: Modulate (Compose-One behavior)
+    return blend_modulate(MatrixEffect_Stage1_c0_c0(half4(1)), _input);
+}
+void main()
+{
+    // Stage 0, QuadPerEdgeAAGeometryProcessor
+    half4 outputColor_Stage0 = half4(1);
+    const half4 outputCoverage_Stage0 = half4(1);
+    half4 output_Stage1;
+    output_Stage1 = Blend_Stage1_c0(outputColor_Stage0);
     {
-        half4 _output;
-        return sample(uTextureSampler_0_Stage1, vTransformedCoords_0_Stage0);
+        // Xfer Processor: Porter Duff
+        sk_FragColor = output_Stage1 * outputCoverage_Stage0;
     }
-    half4 MatrixEffect_Stage1_c0_c0(half4 _input)
-    {
-        half4 _output;
-        return TextureEffect_Stage1_c0_c0_c0(_input);
-    }
-    inline half4 Blend_Stage1_c0(half4 _input)
-    {
-        half4 _output;
-        // Blend mode: Modulate (Compose-One behavior)
-        return blend_modulate(MatrixEffect_Stage1_c0_c0(half4(1)), _input);
-    }
-    void main()
-    {
-        half4 outputColor_Stage0;
-        half4 outputCoverage_Stage0;
-        {
-            // Stage 0, QuadPerEdgeAAGeometryProcessor
-            outputColor_Stage0 = half4(1);
-            outputCoverage_Stage0 = half4(1);
-        }
-        half4 output_Stage1;
-        output_Stage1 = Blend_Stage1_c0(outputColor_Stage0);
-        {
-            // Xfer Processor: Porter Duff
-            sk_FragColor = output_Stage1 * outputCoverage_Stage0;
-        }
-    }
+}
 )");
 
 COMPILER_BENCH(tiny, "void main() { sk_FragColor = half4(1); }");
