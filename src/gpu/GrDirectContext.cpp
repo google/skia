@@ -209,7 +209,9 @@ bool GrDirectContext::init() {
     SkASSERT(this->threadSafeCache());
 
     fStrikeCache = std::make_unique<GrStrikeCache>();
-    fResourceCache = std::make_unique<GrResourceCache>(this->singleOwner(), this->contextID());
+    fResourceCache = std::make_unique<GrResourceCache>(this->singleOwner(),
+                                                       this->directContextID(),
+                                                       this->contextID());
     fResourceCache->setProxyProvider(this->proxyProvider());
     fResourceCache->setThreadSafeCache(this->threadSafeCache());
     fResourceProvider = std::make_unique<GrResourceProvider>(fGpu.get(), fResourceCache.get(),

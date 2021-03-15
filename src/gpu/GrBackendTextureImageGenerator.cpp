@@ -23,37 +23,38 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLTexture.h"
 
-GrBackendTextureImageGenerator::RefHelper::RefHelper(GrTexture* texture, uint32_t owningContextID,
-                                                     std::unique_ptr<GrSemaphore> semaphore)
+GrBackendTextureImageGenerator::RefHelper::RefHelper(
+                    GrTexture* texture,
+                    GrDirectContext::DirectContextID owningContextID,
+                    std::unique_ptr<GrSemaphore> semaphore)
         : fOriginalTexture(texture)
         , fOwningContextID(owningContextID)
         , fBorrowingContextReleaseProc(nullptr)
-        , fBorrowingContextID(SK_InvalidGenID)
         , fSemaphore(std::move(semaphore)) {}
 
 GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
-    SkASSERT(fBorrowingContextID == SK_InvalidUniqueID);
+    SkASSERT(!fBorrowingContextID.isValid());
 
     // Generator has been freed, and no one is borrowing the texture. Notify the original cache
     // that it can free the last ref, so it happens on the correct thread.
     GrTextureFreedMessage msg { fOriginalTexture, fOwningContextID };
-    SkMessageBus<GrTextureFreedMessage, uint32_t>::Post(msg);
+    SkMessageBus<GrTextureFreedMessage, GrDirectContext::DirectContextID>::Post(msg);
 }
 
 std::unique_ptr<SkImageGenerator>
 GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
                                      std::unique_ptr<GrSemaphore> semaphore, SkColorType colorType,
                                      SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    GrDirectContext* context = texture->getContext();
+    GrDirectContext* dContext = texture->getContext();
 
     // Attach our texture to this context's resource cache. This ensures that deletion will happen
     // in the correct thread/context. This adds the only ref to the texture that will persist from
     // this point. That ref will be released when the generator's RefHelper is freed.
-    context->priv().getResourceCache()->insertDelayedTextureUnref(texture.get());
+    dContext->priv().getResourceCache()->insertDelayedTextureUnref(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
 
-    if (!context->priv().caps()->areColorTypeAndFormatCompatible(
+    if (!dContext->priv().caps()->areColorTypeAndFormatCompatible(
             SkColorTypeToGrColorType(colorType), backendTexture.getBackendFormat())) {
         return nullptr;
     }
@@ -61,17 +62,17 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));
     return std::unique_ptr<SkImageGenerator>(new GrBackendTextureImageGenerator(
-          info, texture.get(), origin, context->priv().contextID(),
+          info, texture.get(), origin, dContext->directContextID(),
           std::move(semaphore), backendTexture));
 }
 
 GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(
-        const SkImageInfo& info,
-        GrTexture* texture,
-        GrSurfaceOrigin origin,
-        uint32_t owningContextID,
-        std::unique_ptr<GrSemaphore> semaphore,
-        const GrBackendTexture& backendTex)
+                    const SkImageInfo& info,
+                    GrTexture* texture,
+                    GrSurfaceOrigin origin,
+                    GrDirectContext::DirectContextID owningContextID,
+                    std::unique_ptr<GrSemaphore> semaphore,
+                    const GrBackendTexture& backendTex)
         : INHERITED(info)
         , fRefHelper(new RefHelper(texture, owningContextID, std::move(semaphore)))
         , fBackendTexture(backendTex)
@@ -88,33 +89,42 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     SkASSERT(refHelper);
 
     refHelper->fBorrowingContextReleaseProc = nullptr;
-    refHelper->fBorrowingContextID = SK_InvalidGenID;
+    refHelper->fBorrowingContextID.makeInvalid();
     refHelper->unref();
 }
 
 GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
-        GrRecordingContext* context,
+        GrRecordingContext* rContext,
         const SkImageInfo& info,
         const SkIPoint& origin,
         GrMipmapped mipMapped,
         GrImageTexGenPolicy texGenPolicy) {
-    SkASSERT(context);
+    SkASSERT(rContext);
 
-    if (context->backend() != fBackendTexture.backend()) {
+    // We currently limit GrBackendTextureImageGenerators to direct contexts since
+    // only Flutter uses them and doesn't use recording/DDL contexts. Ideally, the
+    // cross context texture functionality can be subsumed by the thread-safe cache
+    // working with utility contexts.
+    auto dContext = rContext->asDirectContext();
+    if (!dContext) {
+        return {};
+    }
+
+    if (dContext->backend() != fBackendTexture.backend()) {
         return {};
     }
     if (info.colorType() != this->getInfo().colorType()) {
         return {};
     }
 
-    auto proxyProvider = context->priv().proxyProvider();
+    auto proxyProvider = dContext->priv().proxyProvider();
 
     fBorrowingMutex.acquire();
     sk_sp<GrRefCntedCallback> releaseProcHelper;
-    if (SK_InvalidGenID != fRefHelper->fBorrowingContextID) {
-        if (fRefHelper->fBorrowingContextID != context->priv().contextID()) {
+    if (fRefHelper->fBorrowingContextID.isValid()) {
+        if (fRefHelper->fBorrowingContextID != dContext->directContextID()) {
             fBorrowingMutex.release();
-            context->priv().printWarningMessage(
+            rContext->priv().printWarningMessage(
                     "GrBackendTextureImageGenerator: Trying to use texture on two GrContexts!\n");
             return {};
         } else {
@@ -131,7 +141,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                 GrRefCntedCallback::Make(ReleaseRefHelper_TextureReleaseProc, fRefHelper);
         fRefHelper->fBorrowingContextReleaseProc = releaseProcHelper.get();
     }
-    fRefHelper->fBorrowingContextID = context->priv().contextID();
+    fRefHelper->fBorrowingContextID = dContext->directContextID();
     if (!fRefHelper->fBorrowedTextureKey.isValid()) {
         static const auto kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey::Builder builder(&fRefHelper->fBorrowedTextureKey, kDomain, 1);
@@ -139,7 +149,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     }
     fBorrowingMutex.release();
 
-    SkASSERT(fRefHelper->fBorrowingContextID == context->priv().contextID());
+    SkASSERT(fRefHelper->fBorrowingContextID == dContext->directContextID());
 
     GrBackendFormat backendFormat = fBackendTexture.getBackendFormat();
     SkASSERT(backendFormat.isValid());
@@ -154,7 +164,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
     GrMipmapStatus mipmapStatus = fBackendTexture.hasMipmaps()
             ? GrMipmapStatus::kValid : GrMipmapStatus::kNotAllocated;
 
-    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
+    GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(backendFormat, grColorType);
 
     // Must make copies of member variables to capture in the lambda since this image generator may
     // be deleted before we actually execute the lambda.
@@ -219,7 +229,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                                       ? SkBudgeted::kNo
                                       : SkBudgeted::kYes;
 
-        auto copy = GrSurfaceProxy::Copy(context,
+        auto copy = GrSurfaceProxy::Copy(dContext,
                                          std::move(proxy),
                                          fSurfaceOrigin,
                                          mipMapped,
