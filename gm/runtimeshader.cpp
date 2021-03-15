@@ -335,6 +335,71 @@ public:
 };
 DEF_GM(return new DefaultColorRT;)
 
+// Emits coverage for a general superellipse defined by the boundary:
+//
+//   x^m + y^n == 1
+//
+// Where x and y are normalized coordinates ranging from -1..+1 inside the squircle's bounding box.
+//
+// See: https://en.wikipedia.org/wiki/Superellipse#Generalizations
+class ClipSquircle : public RuntimeShaderGM {
+public:
+    ClipSquircle() : RuntimeShaderGM("clip_squircle", {512, 256}, R"(
+        uniform float2 exponentsMinus1;
+        uniform float2x2 derivatives;
+        half4 main(float2 xy) {
+            xy = abs(xy);
+            float2 expMinus1 = pow(xy, exponentsMinus1);
+            float f = dot(expMinus1, xy) - 1;  // f = x^m + y^n - 1
+            float2 grad = expMinus1 * derivatives;
+            float fwidth = abs(grad.x) + abs(grad.y);
+            return half4(saturate(.5 - f/fwidth)); // Approx coverage by riding the gradient to f=0.
+        }
+    )") {}
+
+    void onDraw(SkCanvas* canvas) override {
+        SkRect squircle = SkRect::MakeXYWH(7, 3, 300, 185.41f);
+        float m = 5.32f;
+        float n = 3.14f;
+
+        canvas->save();
+        canvas->rotate(9.2f, 5, 185);
+
+        SkRuntimeShaderBuilder builder(fEffect);
+        builder.uniform("exponentsMinus1") = SkV2{m - 1, n - 1};
+
+        // Calculate a 2x2 "derivatives" matrix that the shader will use to find the gradient.
+        //
+        //     f = s^m + t^n - 1   [s,t are "squircle" coordinates in normalized -1..+1 space]
+        //
+        //     gradient = [df/dx  df/dy] = [ms^(m-1)  nt^(n-1)] * |ds/dx  ds/dy|
+        //                                                        |dt/dx  dt/dy|
+        //
+        //              = [s^(m-1)  t^(n-1)] * |m  0| * |ds/dx  ds/dy|
+        //                                     |0  n|   |dt/dx  dt/dy|
+        //
+        //              = [s^(m-1)  t^(n-1)] * |2m/squircleWidth   0| * mat2x2(canvasMatrix)^-1
+        //                                     |0  2n/squricleHeight|
+        //
+        //              = [s^(m-1)  t^(n-1)] * "derivatives"
+        //
+        const SkMatrix& M = canvas->getTotalMatrix();
+        float a=M.getScaleX(), b=M.getSkewX(), c=M.getSkewY(), d=M.getScaleY();
+        float determinantTimesHalf = (a*d - b*c) * .5f;
+        float dx = m / (squircle.width() * determinantTimesHalf);
+        float dy = n / (squircle.height() * determinantTimesHalf);
+        builder.uniform("derivatives") = SkV4{d*dx, -c*dy, -b*dx, a*dy};
+
+        SkMatrix squircleToLocal;
+        squircleToLocal.setScaleTranslate(squircle.width()*.5f, squircle.height()*.5f,
+                                          squircle.centerX(), squircle.centerY());
+        canvas->clipShader(builder.makeShader(&squircleToLocal, false));
+        canvas->clear(SkColorSetARGB(255, 144, 123, 189));
+
+        canvas->restore();
+    }
+};
+DEF_GM(return new ClipSquircle;)
 
 DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     static constexpr char scale[] =
