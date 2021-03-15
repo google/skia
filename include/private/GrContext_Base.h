@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrTypes.h"
 
 class GrBaseContextPriv;
@@ -60,12 +61,14 @@ protected:
     virtual bool init();
 
     /**
-     * An identifier for this context. The id is used by all compatible contexts. For example,
+     * An identifier for a group of compatible contexts. For example,
      * if SkImages are created on one thread using an image creation context, then fed into a
      * DDL Recorder on second thread (which has a recording context) and finally replayed on
      * a third thread with a direct context, then all three contexts will report the same id.
      * It is an error for an image to be used with contexts that report different ids.
      */
+    GrContextThreadSafeProxy::FamilyID familyID() const;
+
     uint32_t contextID() const;
 
     bool matches(GrContext_Base* candidate) const {
