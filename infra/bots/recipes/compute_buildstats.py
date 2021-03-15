@@ -26,7 +26,7 @@ TOTAL_SIZE_BYTES_KEY = "total_size_bytes"
 
 
 def add_binary_size_output_property(result, source, binary_size):
-  result.presentation.properties['binary_size_plugin'] = {source: binary_size}
+  result.presentation.properties['binary_size_%s' % source] = binary_size
 
 
 def RunSteps(api):

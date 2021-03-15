@@ -279,7 +279,7 @@
       "@@@STEP_LOG_LINE@perf_json@}@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
       "@@@STEP_LOG_END@perf_json@@@",
-      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"pathkit.wasm\": 7391117}@@@"
+      "@@@SET_BUILD_PROPERTY@binary_size_pathkit.wasm@7391117@@@"
     ]
   },
   {
@@ -372,7 +372,7 @@
       "@@@STEP_LOG_LINE@perf_json@}@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
       "@@@STEP_LOG_END@perf_json@@@",
-      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"pathkit.js.mem\": 7391117}@@@"
+      "@@@SET_BUILD_PROPERTY@binary_size_pathkit.js.mem@7391117@@@"
     ]
   },
   {
@@ -450,7 +450,7 @@
       "@@@STEP_LOG_LINE@perf_json@}@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
       "@@@STEP_LOG_END@perf_json@@@",
-      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"libflutter.so\": 1256676}@@@"
+      "@@@SET_BUILD_PROPERTY@binary_size_libflutter.so@1256676@@@"
     ]
   },
   {
@@ -506,7 +506,7 @@
       "@@@STEP_LOG_LINE@perf_json@}@@@",
       "@@@STEP_LOG_LINE@perf_json@@@@",
       "@@@STEP_LOG_END@perf_json@@@",
-      "@@@SET_BUILD_PROPERTY@binary_size_plugin@{\"libskia.so\": 7391117}@@@"
+      "@@@SET_BUILD_PROPERTY@binary_size_libskia.so@7391117@@@"
     ]
   },
   {
