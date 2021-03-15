@@ -88,11 +88,23 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
     fGpu->getContext()->priv().getPersistentCache()->store(*key, *data, description);
 }
 
+static SkSL::String merge_shaders(const SkSL::String shaders[]) {
+    SkSL::String shader("namespace vrt {\n");
+    shader += shaders[kVertex_GrShaderType];
+    shader += "};\nnamespace frg {\n";
+    shader += shaders[kFragment_GrShaderType];
+    shader += "};";
+    return shader;
+}
+
 id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(
-        const SkSL::String& shader, SkSL::Program::Inputs inputs,
+        const SkSL::String shaders[], SkSL::Program::Inputs inputs[],
         GrContextOptions::ShaderErrorHandler* errorHandler) {
+    SkSL::String shader = merge_shaders(shaders);
+
     id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader, errorHandler);
-    if (shaderLibrary != nil && inputs.fRTHeight) {
+    if (shaderLibrary &&
+        (inputs[kVertex_GrShaderType].fRTHeight || inputs[kFragment_GrShaderType].fRTHeight)) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     return shaderLibrary;
@@ -535,7 +547,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
     SkASSERT(pipelineDescriptor.vertexDescriptor);
     SkASSERT(pipelineDescriptor.colorAttachments[0]);
 
-    id<MTLLibrary> shaderLibraries[kGrShaderTypeCount];
+    id<MTLLibrary> shaderLibrary;
 
     fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
     fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
@@ -635,30 +647,20 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                 this->storeShadersInCache(sksl, inputs, &settings,
                                           std::move(pipelineData), true);
             } else {
-                /*** dump pipeline data here */
                 this->storeShadersInCache(msl, inputs, nullptr,
                                           std::move(pipelineData), false);
             }
         }
     }
 
-    // Compile MSL to libraries
-    shaderLibraries[kVertex_GrShaderType] = this->compileMtlShaderLibrary(
-                                                    msl[kVertex_GrShaderType],
-                                                    inputs[kVertex_GrShaderType],
-                                                    errorHandler);
-    shaderLibraries[kFragment_GrShaderType] = this->compileMtlShaderLibrary(
-                                                    msl[kFragment_GrShaderType],
-                                                    inputs[kFragment_GrShaderType],
-                                                    errorHandler);
-    if (!shaderLibraries[kVertex_GrShaderType] || !shaderLibraries[kFragment_GrShaderType]) {
+    // Compile MSL to library
+    shaderLibrary = this->compileMtlShaderLibrary(msl, inputs, errorHandler);
+    if (!shaderLibrary) {
         return nullptr;
     }
 
-    pipelineDescriptor.vertexFunction =
-            [shaderLibraries[kVertex_GrShaderType] newFunctionWithName: @"vertexMain"];
-    pipelineDescriptor.fragmentFunction =
-            [shaderLibraries[kFragment_GrShaderType] newFunctionWithName: @"fragmentMain"];
+    pipelineDescriptor.vertexFunction = [shaderLibrary newFunctionWithName: @"vrt::vertexMain"];
+    pipelineDescriptor.fragmentFunction = [shaderLibrary newFunctionWithName: @"frg::fragmentMain"];
 
     if (pipelineDescriptor.vertexFunction == nil) {
         SkDebugf("Couldn't find vertexMain() in library\n");
@@ -756,14 +758,11 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
         return false;
     }
 
-    id<MTLLibrary> vertexLibrary;
-    id<MTLLibrary> fragmentLibrary;
+    id<MTLLibrary> shaderLibrary;
     switch (shaderType) {
         case kMSL_Tag: {
-            vertexLibrary =
-                    GrCompileMtlShaderLibrary(gpu, shaders[kVertex_GrShaderType], errorHandler);
-            fragmentLibrary =
-                    GrCompileMtlShaderLibrary(gpu, shaders[kFragment_GrShaderType], errorHandler);
+            SkSL::String shader = merge_shaders(shaders);
+            shaderLibrary = GrCompileMtlShaderLibrary(gpu, shader, errorHandler);
             break;
         }
 
@@ -787,10 +786,8 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
                            errorHandler)) {
                 return false;
             }
-            vertexLibrary =
-                    GrCompileMtlShaderLibrary(gpu, msl[kVertex_GrShaderType], errorHandler);
-            fragmentLibrary =
-                    GrCompileMtlShaderLibrary(gpu, msl[kFragment_GrShaderType], errorHandler);
+            SkSL::String mslShader = merge_shaders(msl);
+            shaderLibrary = GrCompileMtlShaderLibrary(gpu, mslShader, errorHandler);
             break;
         }
 
@@ -799,10 +796,8 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
         }
     }
 
-    pipelineDescriptor.vertexFunction =
-            [vertexLibrary newFunctionWithName: @"vertexMain"];
-    pipelineDescriptor.fragmentFunction =
-            [fragmentLibrary newFunctionWithName: @"fragmentMain"];
+    pipelineDescriptor.vertexFunction = [shaderLibrary newFunctionWithName: @"vrt::vertexMain"];
+    pipelineDescriptor.fragmentFunction = [shaderLibrary newFunctionWithName: @"frg::fragmentMain"];
 
     NSError* error = nil;
 #if GR_METAL_SDK_VERSION >= 230
