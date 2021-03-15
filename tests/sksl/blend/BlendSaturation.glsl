@@ -1,7 +1,7 @@
 #version 400
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
+uniform vec4 src;
+uniform vec4 dst;
 vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     if (minMidMax.x < minMidMax.z) {
         float _7_n = sat * (minMidMax.y - minMidMax.x);

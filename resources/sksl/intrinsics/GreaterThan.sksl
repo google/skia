@@ -1,1 +1,1 @@
-in half4 a, b; void main() { sk_FragColor.x = greaterThan(a, b).x ? 1 : 0; }
+uniform half4 a, b; void main() { sk_FragColor.x = greaterThan(a, b).x ? 1 : 0; }

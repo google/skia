@@ -1,4 +1,4 @@
-in uint a;
+uniform uint a;
 void main() {
     sk_FragColor.xy = half2(unpackHalf2x16(a));
     sk_FragColor.xy = half2(unpackUnorm2x16(a));
