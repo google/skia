@@ -16,6 +16,29 @@
       "message": "Fixes the errors introduced by newer SPIR-V tools at https://skia-review.googlesource.com/c/skia/+/383706",
       "revId": "157d52a2e6a81bc4543b584e647aa8e5905a9929",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15377a70_a5216243",
+        "filename": "resources/sksl/intrinsics/Acos.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-15T19:59:02Z",
+      "side": 1,
+      "message": "Any reason why the inputs in intrinsics/ aren\u0027t uniforms?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 8
+      },
+      "revId": "157d52a2e6a81bc4543b584e647aa8e5905a9929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
