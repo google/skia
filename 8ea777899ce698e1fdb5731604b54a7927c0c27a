@@ -22,6 +22,30 @@
       },
       "revId": "8ea777899ce698e1fdb5731604b54a7927c0c27a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b41501e7_0f724332",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-15T19:03:42Z",
+      "side": 1,
+      "message": "I don\u0027t think we should spend anytime on that, at least for now. We may evolve the semantics for this over time as we learn more from GPU implementation. For similar reasons I think we should just make this fail or be ignored in GPU if the device/api-backend doesn\u0027t support dmsaa featureset. Once we refine the implementation we can reconsider whether it makes sense to have a visually equivalent mode for use cases where the implementation is not dmsaa.\n\nI think we should find some way to hide this or indicate it\u0027s experimental. We may decide a surface prop flag isn\u0027t the right way to enable this or change its semantics. E.g. Could we define the flag in a private header?",
+      "parentUuid": "10926f8d_d52b0927",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 29
+      },
+      "revId": "8ea777899ce698e1fdb5731604b54a7927c0c27a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
