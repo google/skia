@@ -91,68 +91,6 @@ void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) cons
     fOriginalTextBlob->notifyAddedToCache(cacheID);
 }
 
-// -- SkGlyphIDSet ---------------------------------------------------------------------------------
-// A faster set implementation that does not need any initialization, and reading the set items
-// is order the number of items, and not the size of the universe.
-// This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
-// for Sparse Sets"
-//
-// This implementation assumes that the unique glyphs added are appended to a vector that may
-// already have unique glyph from a previous computation. This allows the packing of multiple
-// UniqueID sequences in a single vector.
-SkSpan<const SkGlyphID> SkGlyphIDSet::uniquifyGlyphIDs(
-        uint32_t universeSize,
-        SkSpan<const SkGlyphID> glyphIDs,
-        SkGlyphID* uniqueGlyphIDs,
-        uint16_t* denseIndices) {
-    static constexpr SkGlyphID  kUndefGlyph{0};
-
-    if (universeSize > fUniverseToUniqueSize) {
-        fUniverseToUnique.reset(universeSize);
-        fUniverseToUniqueSize = universeSize;
-        // If the following bzero becomes a performance problem, the memory can be marked as
-        // initialized for valgrind and msan.
-        // valgrind = VALGRIND_MAKE_MEM_DEFINED(fUniverseToUnique, universeSize * sizeof(SkGlyphID))
-        // msan = sk_msan_mark_initialized(fUniverseToUnique, universeSize * sizeof(SkGlyphID))
-        sk_bzero(fUniverseToUnique, universeSize * sizeof(SkGlyphID));
-    }
-
-    // No need to clear fUniverseToUnique here... the set insertion algorithm is designed to work
-    // correctly even when the fUniverseToUnique buffer is uninitialized!
-
-    size_t uniqueSize = 0;
-    size_t denseIndicesCursor = 0;
-    for (auto glyphID : glyphIDs) {
-
-        // If the glyphID is not in range then it is the undefined glyph.
-        if (glyphID >= universeSize) {
-            glyphID = kUndefGlyph;
-        }
-
-        // The index into the unique ID vector.
-        auto uniqueIndex = fUniverseToUnique[glyphID];
-
-        if (uniqueIndex >= uniqueSize || uniqueGlyphIDs[uniqueIndex] != glyphID) {
-            uniqueIndex = SkTo<uint16_t>(uniqueSize);
-            uniqueGlyphIDs[uniqueSize] = glyphID;
-            fUniverseToUnique[glyphID] = uniqueIndex;
-            uniqueSize += 1;
-        }
-
-        denseIndices[denseIndicesCursor++] = uniqueIndex;
-    }
-
-    // If we're hanging onto these arrays for a long time, we don't want their size to drift
-    // endlessly upwards. It's unusual to see a typeface with more than 4096 possible glyphs.
-    if (fUniverseToUniqueSize > 4096) {
-        fUniverseToUnique.reset(4096);
-        sk_bzero(fUniverseToUnique, 4096 * sizeof(SkGlyphID));
-        fUniverseToUniqueSize = 4096;
-    }
-
-    return SkSpan<const SkGlyphID>(uniqueGlyphIDs, uniqueSize);
-}
-
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
 void SkGlyphRunBuilder::drawTextUTF8(const SkPaint& paint, const SkFont& font, const void* bytes,
                                      size_t byteLength, SkPoint origin) {

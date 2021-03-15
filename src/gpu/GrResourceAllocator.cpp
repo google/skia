@@ -28,12 +28,6 @@
     }
 #endif
 
-void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
-    SkASSERT(!fAssignedSurface);
-    fAssignedSurface = s;
-    fProxy->priv().assign(std::move(s));
-}
-
 void GrResourceAllocator::determineRecyclability() {
     for (Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
         if (cur->proxy()->canSkipResourceAllocator()) {
@@ -100,15 +94,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         intvl->extendEnd(end);
         return;
     }
-    Interval* newIntvl;
-    if (fFreeIntervalList) {
-        newIntvl = fFreeIntervalList;
-        fFreeIntervalList = newIntvl->next();
-        newIntvl->setNext(nullptr);
-        newIntvl->resetTo(proxy, start, end);
-    } else {
-        newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
-    }
+    Interval* newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
 
     if (ActualUse::kYes == actualUse) {
         newIntvl->addUse();
@@ -275,21 +261,14 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
 // to the free pool if possible.
 void GrResourceAllocator::expire(unsigned int curIndex) {
     while (!fActiveIntvls.empty() && fActiveIntvls.peekHead()->end() < curIndex) {
-        Interval* temp = fActiveIntvls.popHead();
-        SkASSERT(!temp->next());
+        Interval* intvl = fActiveIntvls.popHead();
+        SkASSERT(!intvl->next());
 
-        if (temp->wasAssignedSurface()) {
-            sk_sp<GrSurface> surface = temp->detachSurface();
-
-            if (temp->isRecyclable()) {
-                this->recycleSurface(std::move(surface));
+        if (GrSurface* surf = intvl->proxy()->peekSurface()) {
+            if (intvl->isRecyclable()) {
+                this->recycleSurface(sk_ref_sp(surf));
             }
         }
-
-        // Add temp to the free interval list so it can be reused
-        SkASSERT(!temp->wasAssignedSurface()); // it had better not have a ref on a surface
-        temp->setNext(fFreeIntervalList);
-        fFreeIntervalList = temp;
     }
 }
 
@@ -342,7 +321,8 @@ bool GrResourceAllocator::assign() {
                  cur->proxy()->uniqueID().asUInt());
 #endif
 
-            cur->assign(std::move(surface));
+            SkASSERT(!cur->proxy()->peekSurface());
+            cur->proxy()->priv().assign(std::move(surface));
         } else {
             SkASSERT(!cur->proxy()->isInstantiated());
             fFailedInstantiation = true;

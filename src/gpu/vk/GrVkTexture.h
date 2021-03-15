@@ -12,19 +12,21 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/vk/GrVkImage.h"
+#include "src/gpu/vk/GrVkAttachment.h"
 
 class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 struct GrVkImageInfo;
 
-class GrVkTexture : public GrTexture, public GrVkImage {
+class GrVkTexture : public GrTexture {
 public:
     static sk_sp<GrVkTexture> MakeNewTexture(GrVkGpu*,
                                              SkBudgeted budgeted,
                                              SkISize dimensions,
-                                             const GrVkImage::ImageDesc&,
+                                             VkFormat format,
+                                             uint32_t mipLevels,
+                                             GrProtected,
                                              GrMipmapStatus);
 
     static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*,
@@ -39,10 +41,11 @@ public:
 
     GrBackendTexture getBackendTexture() const override;
 
-    GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
+    GrBackendFormat backendFormat() const override { return fTexture->getBackendFormat(); }
 
     void textureParamsModified() override {}
 
+    GrVkAttachment* textureAttachment() const { return fTexture.get(); }
     const GrVkImageView* textureView();
 
     // For each GrVkTexture, there is a cache of GrVkDescriptorSets which only contain a single
@@ -57,11 +60,8 @@ public:
 protected:
     GrVkTexture(GrVkGpu*,
                 SkISize dimensions,
-                const GrVkImageInfo&,
-                sk_sp<GrBackendSurfaceMutableStateImpl>,
-                sk_sp<const GrVkImageView>,
-                GrMipmapStatus,
-                GrBackendObjectOwnership);
+                sk_sp<GrVkAttachment> texture,
+                GrMipmapStatus);
 
     GrVkGpu* getVkGpu() const;
 
@@ -72,22 +72,19 @@ protected:
         return false;
     }
 
-private:
-    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, const GrVkImageInfo&,
-                sk_sp<GrBackendSurfaceMutableStateImpl>, sk_sp<const GrVkImageView> imageView,
-                GrMipmapStatus);
-    GrVkTexture(GrVkGpu*, SkISize, const GrVkImageInfo&, sk_sp<GrBackendSurfaceMutableStateImpl>,
-                sk_sp<const GrVkImageView>, GrMipmapStatus, GrBackendObjectOwnership,
-                GrWrapCacheable, GrIOType, bool isExternal);
-
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).
     void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {
-        // Forward the release proc on to GrVkImage
-        this->setResourceRelease(std::move(releaseHelper));
+        // Forward the release proc onto the fTexture's GrVkImage
+        fTexture->setResourceRelease(std::move(releaseHelper));
     }
 
-    sk_sp<const GrVkImageView> fTextureView;
+private:
+    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, sk_sp<GrVkAttachment> texture, GrMipmapStatus);
+    GrVkTexture(GrVkGpu*, SkISize, sk_sp<GrVkAttachment> texture, GrMipmapStatus,
+                GrWrapCacheable, GrIOType, bool isExternal);
+
+    sk_sp<GrVkAttachment> fTexture;
 
     struct SamplerHash {
         uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }
@@ -96,8 +93,6 @@ private:
     SkLRUCache<const GrSamplerState, std::unique_ptr<DescriptorCacheEntry>, SamplerHash>
             fDescSetCache;
     static constexpr int kMaxCachedDescSets = 8;
-
-    using INHERITED = GrTexture;
 };
 
 #endif
