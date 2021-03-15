@@ -137,24 +137,6 @@ private:
 #endif
         }
 
-        // Used when recycling an interval
-        void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
-            SkASSERT(proxy);
-            SkASSERT(!fProxy && !fNext);
-
-            fUses = 0;
-            fProxy = proxy;
-            fProxyID = proxy->uniqueID().asUInt();
-            fStart = start;
-            fEnd = end;
-            fNext = nullptr;
-#if GR_TRACK_INTERVAL_CREATION
-            fUniqueID = CreateUniqueID();
-            SkString proxyStr = proxy->dump();
-            SkDebugf("New intvl %d: %s [ %d, %d ]\n", fUniqueID, proxyStr.c_str(), start, end);
-#endif
-        }
-
         ~Interval() {
             SkASSERT(!fAssignedSurface);
         }
@@ -208,7 +190,7 @@ private:
 #if GR_TRACK_INTERVAL_CREATION
         uint32_t        fUniqueID;
 
-        uint32_t CreateUniqueID();
+        static uint32_t CreateUniqueID();
 #endif
     };
 
@@ -253,7 +235,6 @@ private:
     SkDEBUGCODE(bool             fAssigned = false;)
 
     SkSTArenaAlloc<kInitialArenaSize>   fIntervalAllocator;
-    Interval*                           fFreeIntervalList = nullptr;
     bool                                fFailedInstantiation = false;
 };
 
