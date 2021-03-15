@@ -16,6 +16,24 @@
       "message": "Do this just count all render passes every created by the gpu? When do we use this stats? Is it just in dm where we are only going to draw a frame once? If it is multiple frames things start to get a little weird since one run may do different number of loops than the next run (if something sped up in the code or device between runs).\n\nIf this is really meant for one frame can we just merge this and fCurrentSubmitRenderPassCount into one thing? Though you would need to figure out how to do the reseting of it in stats.",
       "revId": "3f67412b0554e9c9c909ccf608bbb54c0a4120ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56ccb0d1_8f292c5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-15T13:13:15Z",
+      "side": 1,
+      "message": "We use these stats when the --gpuStats option is set in dm, and they\u0027re sent up (via the dumpKeyValuePairs fn) in skpbench runs. The skpbench runner also enables them, and resets the stats between each frame SKPBench.cpp:143.\n\nThe SK_HISTOGRAMS system and the GR_GPU_STATS systems are pretty separate right now – GR_GPU_STATS is basically debug-only and the histograms are in prod AIUI. I think we should leave them separate and punt on unifying them in favor of getting reduced ops task splitting up and running.",
+      "parentUuid": "3b4be8f2_d00628f1",
+      "revId": "3f67412b0554e9c9c909ccf608bbb54c0a4120ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
