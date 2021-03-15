@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "611f9af9_f17f0366",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-15T20:50:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "428d320d_2a683f63",
+      "range": {
+        "startLine": 84,
+        "startChar": 12,
+        "endLine": 84,
+        "endChar": 95
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c3c29b7_205e1fd5",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-11T20:45:51Z",
       "side": 1,
       "message": "Has this been replaced with contentArea?",
+      "range": {
+        "startLine": 117,
+        "startChar": 54,
+        "endLine": 117,
+        "endChar": 75
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f74c54d_690a924a",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-15T20:50:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c3c29b7_205e1fd5",
       "range": {
         "startLine": 117,
         "startChar": 54,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f513e4e_84ba88db",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-15T20:50:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c07fd253_b1c9a504",
+      "range": {
+        "startLine": 351,
+        "startChar": 7,
+        "endLine": 351,
+        "endChar": 12
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d231a9ae_d94f86a5",
@@ -93,6 +165,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe539d26_656abdc4",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-15T20:50:09Z",
+      "side": 1,
+      "message": "Yeah, it increases the contrast with the test image image which has gray in it. Added a comment.",
+      "parentUuid": "d231a9ae_d94f86a5",
+      "range": {
+        "startLine": 357,
+        "startChar": 25,
+        "endLine": 357,
+        "endChar": 39
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa45bf0b_e51dcb9d",
@@ -106,6 +202,30 @@
       "writtenOn": "2021-03-11T20:45:51Z",
       "side": 1,
       "message": "This is the key fix for blurs with 0 sigma, right?",
+      "range": {
+        "startLine": 515,
+        "startChar": 37,
+        "endLine": 515,
+        "endChar": 46
+      },
+      "revId": "2b417109db4c820684436107a21a7264b9e54f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6d74bae_5d318fcb",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-15T20:50:09Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "aa45bf0b_e51dcb9d",
       "range": {
         "startLine": 515,
         "startChar": 37,
