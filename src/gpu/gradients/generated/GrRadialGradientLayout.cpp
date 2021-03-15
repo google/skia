@@ -25,8 +25,7 @@ public:
         const GrRadialGradientLayout& _outer = args.fFp.cast<GrRadialGradientLayout>();
         (void)_outer;
         fragBuilder->codeAppendf(
-                R"SkSL(half t = half(length(%s));
-return half4(t, 1.0, 0.0, 0.0);
+                R"SkSL(return half4(half(length(%s)), 1.0, 0.0, 0.0);
 )SkSL",
                 args.fSampleCoord);
     }
