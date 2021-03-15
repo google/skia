@@ -46,6 +46,30 @@
       },
       "revId": "8ea777899ce698e1fdb5731604b54a7927c0c27a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb799d2f_8f1b3056",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-15T22:58:49Z",
+      "side": 1,
+      "message": "Making the flag private is a good idea. I stuffed it in SkSurfacePriv.h.\n\nReviewers -\u003d Mike",
+      "parentUuid": "b41501e7_0f724332",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 29
+      },
+      "revId": "8ea777899ce698e1fdb5731604b54a7927c0c27a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
