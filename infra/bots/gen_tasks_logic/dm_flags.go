@@ -472,6 +472,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--hwtess", "--pr", "tess")
 		}
 
+		// Test dynamic MSAA.
+		if b.extraConfig("DMSAA") {
+			configs = []string{glPrefix + "dmsaa"}
+			args = append(args, "--hwtess")
+		}
+
 		// Test non-nvpr on NVIDIA.
 		if b.extraConfig("NonNVPR") {
 			configs = []string{"gl", "glmsaa4"}
