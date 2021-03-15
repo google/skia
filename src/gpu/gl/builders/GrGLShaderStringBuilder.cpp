@@ -57,7 +57,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const SkSL::String& glsl,
                                     GrThreadSafePipelineBuilder::Stats* stats,
                                     GrContextOptions::ShaderErrorHandler* errorHandler) {
-    TRACE_EVENT0_ALWAYS("skia.gpu", "driver_compile_shader");
+    TRACE_EVENT0_ALWAYS("skia.shaders", "driver_compile_shader");
     const GrGLInterface* gli = glCtx.glInterface();
 
     // Specify GLSL source to the driver.

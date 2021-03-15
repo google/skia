@@ -52,7 +52,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
                                                const GrProgramDesc& desc,
                                                const GrProgramInfo& programInfo,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
-    TRACE_EVENT0_ALWAYS("skia.gpu", "shader_compile");
+    TRACE_EVENT0_ALWAYS("skia.shaders", "shader_compile");
     GrAutoLocaleSetter als("C");
 
     GrGLGpu* glGpu = static_cast<GrGLGpu*>(dContext->priv().getGpu());
@@ -211,7 +211,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
 }
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompiledProgram) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
     // verify we can get a program id
     GrGLuint programID;
@@ -263,7 +263,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         this->computeCountsAndStrides(programID, primProc, false);
         usedProgramBinaries = true;
     } else if (cached) {
-        TRACE_EVENT0_ALWAYS("skia.gpu", "cache_hit");
+        TRACE_EVENT0_ALWAYS("skia.shaders", "cache_hit");
         SkReadBuffer reader(fCached->data(), fCached->size());
         SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
 
@@ -325,7 +325,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         }
     }
     if (!usedProgramBinaries) {
-        TRACE_EVENT0_ALWAYS("skia.gpu", "cache_miss");
+        TRACE_EVENT0_ALWAYS("skia.shaders", "cache_miss");
         // Either a cache miss, or we got something other than binaries from the cache
 
         /*
@@ -446,7 +446,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         this->bindProgramResourceLocations(programID);
 
         {
-            TRACE_EVENT0_ALWAYS("skia.gpu", "driver_link_program");
+            TRACE_EVENT0_ALWAYS("skia.shaders", "driver_link_program");
             GL_CALL(LinkProgram(programID));
             if (checkLinked) {
                 if (!this->checkLinkStatus(programID, errorHandler, sksl, glsl)) {
