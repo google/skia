@@ -186,7 +186,6 @@ cc_defaults {
     ],
     static_libs: [
         "libarect",
-        "libsfntly",
         "libwebp-decode",
         "libwebp-encode",
     ],

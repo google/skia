@@ -205,15 +205,14 @@ struct Metadata {
     */
     SkExecutor* fExecutor = nullptr;
 
-    /** Preferred Subsetter. Only respected if both are compiled in.
+    /** Preferred Subsetter.
 
-        The Sfntly subsetter is deprecated.
+        The only supported subsetter is harfbuzz-subset right now.
 
         Experimental.
     */
     enum Subsetter {
         kHarfbuzz_Subsetter,
-        kSfntly_Subsetter,
     } fSubsetter = kHarfbuzz_Subsetter;
 };
 
