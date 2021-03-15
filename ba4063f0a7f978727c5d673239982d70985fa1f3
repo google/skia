@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cae35c8d_f60bf4cd",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-15T20:08:09Z",
+      "side": 1,
+      "message": "Maybe this should be some sort of global testing state, like we had for mangling-disable, to avoid polluting all the variable tests with this?",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 0
+      },
+      "revId": "ba4063f0a7f978727c5d673239982d70985fa1f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
