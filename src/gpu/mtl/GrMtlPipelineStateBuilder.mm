@@ -476,7 +476,7 @@ static MTLRenderPipelineDescriptor* read_pipeline_data(SkReadBuffer* reader) {
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         const GrProgramDesc& desc, const GrProgramInfo& programInfo,
         const GrMtlPrecompiledLibraries* precompiledLibs) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
     // Geometry shaders are not supported
     SkASSERT(!this->primitiveProcessor().willUseGeoShader());
@@ -680,7 +680,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
             pipelineDescriptor.binaryArchives = archiveArray;
             BOOL result;
             {
-                TRACE_EVENT0("skia.gpu", "addRenderPipelineFunctionsWithDescriptor");
+                TRACE_EVENT0("skia.shaders", "addRenderPipelineFunctionsWithDescriptor");
                 result = [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
                                                                             error: &error];
             }
@@ -693,7 +693,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
 #endif
     id<MTLRenderPipelineState> pipelineState;
     {
-        TRACE_EVENT0("skia.gpu", "newRenderPipelineStateWithDescriptor");
+        TRACE_EVENT0("skia.shaders", "newRenderPipelineStateWithDescriptor");
 #if defined(SK_BUILD_FOR_MAC)
         pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
                                                      fGpu->device(), pipelineDescriptor, &error);
@@ -813,7 +813,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
             pipelineDescriptor.binaryArchives = archiveArray;
             BOOL result;
             {
-                TRACE_EVENT0("skia.gpu", "addRenderPipelineFunctionsWithDescriptor");
+                TRACE_EVENT0("skia.shaders", "addRenderPipelineFunctionsWithDescriptor");
                 result = [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
                                                                             error: &error];
             }
@@ -825,7 +825,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
     }
 #endif
     {
-        TRACE_EVENT0("skia.gpu", "newRenderPipelineStateWithDescriptor");
+        TRACE_EVENT0("skia.shaders", "newRenderPipelineStateWithDescriptor");
 #if defined(SK_BUILD_FOR_MAC)
         precompiledLibs->fPipelineState =
             GrMtlNewRenderPipelineStateWithDescriptor(gpu->device(), pipelineDescriptor, &error);

@@ -73,6 +73,7 @@ void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outp
 static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
                                            const SkSL::String& hlsl,
                                            SkSL::ProgramKind kind) {
+    TRACE_EVENT0("skia.shaders", "driver_compile_shader");
     const char* compileTarget = nullptr;
     switch (kind) {
         case SkSL::ProgramKind::kVertex:
@@ -532,8 +533,11 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
     psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     gr_cp<ID3D12PipelineState> pipelineState;
-    GR_D3D_CALL_ERRCHECK(gpu->device()->CreateGraphicsPipelineState(
-            &psoDesc, IID_PPV_ARGS(&pipelineState)));
+    {
+        TRACE_EVENT0("skia.shaders", "CreateGraphicsPipelineState");
+        GR_D3D_CALL_ERRCHECK(
+                gpu->device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+    }
 
     return pipelineState;
 }
@@ -542,7 +546,7 @@ static constexpr SkFourByteTag kHLSL_Tag = SkSetFourByteTag('H', 'L', 'S', 'L');
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
 sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
     // from our glsl shaders.
