@@ -744,6 +744,9 @@ size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
 bool ParagraphImpl::isSpace(TextRange textRange) {
     auto text = ParagraphImpl::text(textRange);
     const char* ch = text.begin();
+    if (text.end() - ch == 1 && *ch == ' ') {
+        return true;
+    }
     while (ch != text.end()) {
         SkUnichar unicode = nextUtf8Unit(&ch, text.end());
         if (!fUnicode->isSpace(unicode)) {
