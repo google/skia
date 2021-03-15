@@ -279,17 +279,14 @@ public:
 
         SkPaint paint;
 
-        // TODO: Should we add SkImage::makeNormalizedShader() to handle this automatically?
-        SkMatrix normalize = SkMatrix::Scale(1.0f / (kSize * kSize), 1.0f / kSize);
-
         // Now draw the image with an identity color cube - it should look like the original
-        builder.child("color_cube") = fIdentityCube->makeShader(sampling, normalize);
+        builder.child("color_cube") = fIdentityCube->makeNormalizedShader(sampling);
         paint.setShader(builder.makeShader(nullptr, true));
         canvas->translate(256, 0);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);
 
         // ... and with a sepia-tone color cube. This should match the sepia-toned image.
-        builder.child("color_cube") = fSepiaCube->makeShader(sampling, normalize);
+        builder.child("color_cube") = fSepiaCube->makeNormalizedShader(sampling);
         paint.setShader(builder.makeShader(nullptr, true));
         canvas->translate(0, 256);
         canvas->drawRect({ 0, 0, 256, 256 }, paint);

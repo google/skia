@@ -675,6 +675,17 @@ public:
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, lm);
     }
 
+    /**
+     *  Make a shader with the specified tiling and mipmap sampling, that uses normalized
+     *  coordinates.
+     */
+    sk_sp<SkShader> makeNormalizedShader(SkTileMode tmx, SkTileMode tmy,
+                                         const SkSamplingOptions&) const;
+
+    sk_sp<SkShader> makeNormalizedShader(const SkSamplingOptions& sampling) const {
+        return this->makeNormalizedShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling);
+    }
+
     using CubicResampler = SkCubicResampler;
 
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
