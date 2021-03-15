@@ -476,7 +476,7 @@ static MTLRenderPipelineDescriptor* read_pipeline_data(SkReadBuffer* reader) {
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         const GrProgramDesc& desc, const GrProgramInfo& programInfo,
         const GrMtlPrecompiledLibraries* precompiledLibs) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
     // Geometry shaders are not supported
     SkASSERT(!this->primitiveProcessor().willUseGeoShader());

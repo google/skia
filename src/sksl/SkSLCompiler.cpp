@@ -394,7 +394,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
         String text,
         const Program::Settings& settings,
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
-    TRACE_EVENT0("skia.gpu", "SkSL::Compiler::convertProgram");
+    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
     SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
 
@@ -709,6 +709,7 @@ bool Compiler::optimize(Program& program) {
 #if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
+    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     AutoSource as(this, program.fSource.get());
@@ -762,7 +763,7 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 }
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
-    TRACE_EVENT0("skia.gpu", "SkSL::Compiler::toGLSL");
+    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
     AutoSource as(this, program.fSource.get());
     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
@@ -788,6 +789,7 @@ bool Compiler::toHLSL(Program& program, String* out) {
 }
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {
+    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
     MetalCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     return result;
