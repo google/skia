@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10926f8d_d52b0927",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-15T18:20:50Z",
+      "side": 1,
+      "message": "Should we give this a different name since raster backend just ignores it? \"kAlwaysAntialiasOnGpu_Flag\"?\n\nOr should we make it work on raster backend as well, minus for drawVertices?",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 29
+      },
+      "revId": "8ea777899ce698e1fdb5731604b54a7927c0c27a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
