@@ -106,6 +106,24 @@
       "parentUuid": "43ac4cf8_1e6560e8",
       "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf1df79c_6b6b5ec5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-15T17:48:58Z",
+      "side": 1,
+      "message": "That does sound nice. Here we would want:\n\n float2x2(2*m/squircleWidth, 0, 0, 2*n/squircleHeight) * invert(float2x2(local_to_device))\n\nCan we land this CL as is, then work toward the new API?",
+      "parentUuid": "002270eb_4f6fbae5",
+      "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
