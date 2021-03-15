@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82d13062_0b48d40c",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-15T16:46:17Z",
+      "side": 1,
+      "message": "The SPIR-V spec says that you can apply RelaxedPrecision to \"the Result \u003cid\u003e of an instruction that operates on numerical types\". This is unfortunately extremely vague, and I went back and forth on whether that was intended to include CompositeExtract, and obviously ended up being inconsistent about it.\n\nAnd then it occurred to me that I should just check what glslang does. Turns out it decorates them, so that sorts that out. I\u0027ve restored the decorations here.",
+      "parentUuid": "6c272d10_abc3feb5",
+      "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4b5e0ba_1261190d",
@@ -58,6 +76,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34aaa549_abb4b2bc",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2172,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-15T16:46:17Z",
+      "side": 1,
+      "message": "These ones turned out to be correct.",
+      "parentUuid": "f4b5e0ba_1261190d",
+      "range": {
+        "startLine": 2172,
+        "startChar": 38,
+        "endLine": 2172,
+        "endChar": 49
+      },
+      "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a7f04cf_d2dadb41",
@@ -71,6 +113,24 @@
       "writtenOn": "2021-03-15T15:21:05Z",
       "side": 1,
       "message": "eg, are the diffs here (net -7 modifiers?) due to the matrix-copy change?",
+      "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cfee00c_e68b697e",
+        "filename": "tests/sksl/shared/Matrices.asm.frag",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-15T16:46:17Z",
+      "side": 1,
+      "message": "The change in net modifiers here was due to deduplication - there was a bug in the previous code that resulted in duplicate RelaxedPrecision decorations, and there are no duplicates in the new output. The actual number of things tagged RelaxedPrecision is the same between the two.",
+      "parentUuid": "7a7f04cf_d2dadb41",
       "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
