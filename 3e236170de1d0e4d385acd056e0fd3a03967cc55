@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ea9e364_5279b11e",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-15T20:34:07Z",
+      "side": 1,
+      "message": "I suppose this is fine, but I think I meant something more like\n\n    struct CodeUnitFlags {\n      unsigned int noCodeUnit : 1;\n      unsigned int graphemeStart : 1;\n      unsigned int breakBeforePriority : 3;\n    };\n\nsince the soft / hard / intra (and maybe other) breaks seem to be exclusive (if there\u0027s already a really good reason to break at a point, it doesn\u0027t really matter that there are less good reasons to break at that point). I suppose it doesn\u0027t make a difference right now, but something to keep in mind.",
+      "revId": "3e236170de1d0e4d385acd056e0fd3a03967cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2ca575f_8206f629",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-15T20:34:07Z",
+      "side": 1,
+      "message": "Unused?",
+      "revId": "3e236170de1d0e4d385acd056e0fd3a03967cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "118b34fd_0d0b6ee2",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-15T20:34:07Z",
+      "side": 1,
+      "message": "Unused, can remove?",
+      "revId": "3e236170de1d0e4d385acd056e0fd3a03967cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8ed625f_8c0295be",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-15T20:34:07Z",
+      "side": 1,
+      "message": "I don\u0027t understand the specificity of this name, this just calls \u0027visitor\u0027 for each codepoint. This has nothing to do with spaces?",
+      "range": {
+        "startLine": 526,
+        "startChar": 9,
+        "endLine": 526,
+        "endChar": 29
+      },
+      "revId": "3e236170de1d0e4d385acd056e0fd3a03967cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b44b0357_883316e9",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-15T20:34:07Z",
+      "side": 1,
+      "message": "Calling a std::function for each codepoint is quite heavy. Do we want a codepoint iterator instead? Maybe a templated for_each_codepoint?",
+      "range": {
+        "startLine": 534,
+        "startChar": 12,
+        "endLine": 534,
+        "endChar": 19
+      },
+      "revId": "3e236170de1d0e4d385acd056e0fd3a03967cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
