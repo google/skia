@@ -16,6 +16,40 @@
       "message": "Of course I\u0027ll understand if you don\u0027t want the removal to happen now or ever just that I saw sfntly is still pulled while the real use is gone more than one year so thought can be removed now and tested it compiles locally fine and in case you agree with it I\u0027ve proposed the patch also.",
       "revId": "82fa9b9eb26b7cd4692a3ec0f7b597baa27fa819",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fad36fe_fe1bb2ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-03-15T14:42:49Z",
+      "side": 1,
+      "message": "Works for me, but a Skia reviewer should review this.\n",
+      "revId": "82fa9b9eb26b7cd4692a3ec0f7b597baa27fa819",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18e84305_44ec6e89",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-03-15T14:42:49Z",
+      "side": 1,
+      "message": "Can this enum go away altogether?",
+      "revId": "82fa9b9eb26b7cd4692a3ec0f7b597baa27fa819",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
