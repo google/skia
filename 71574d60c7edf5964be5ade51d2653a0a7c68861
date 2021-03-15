@@ -88,6 +88,24 @@
       "parentUuid": "384c7516_4e509dfb",
       "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "002270eb_4f6fbae5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T17:38:07Z",
+      "side": 1,
+      "message": "This all segues nicely into our other idea for letting the sksl compute uniforms using a separate entry-point (evaluated on the CPU with skvm).\n\nStill need to figure out all the ergonomics, but we\u0027ve thrown around an idea where you could have something like:\n\n    struct ComputedUniforms {\n      float2x2 myMatrix;\n    };\n\n    ComputedUniforms compute_uniforms(float4x4 local_to_device) {\n      ComputedUniforms cu;\n      cu.myMatrix \u003d invert(float2x2(local_to_device));\n      return cu;\n    }\n\nThere\u0027s a bunch of unanswered questions about how we provide the matrices to the function (arguments like this, magically named globals, or using something like the current layout(marker) syntax). Also, do you have to then declare a uniform struct instance of ComputedUniforms, or do we auto-inject uniforms with all the field names, etc. But if we get to this point, it should let you do whatever you need (and also provide an easy way to hoist expensive calculation out of the fragment shader, like inverting image dimensions).",
+      "parentUuid": "43ac4cf8_1e6560e8",
+      "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
