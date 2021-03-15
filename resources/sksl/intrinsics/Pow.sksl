@@ -1,1 +1,1 @@
-in half a, b; void main() { sk_FragColor.x = pow(a, b); }
+uniform half a, b; void main() { sk_FragColor.x = pow(a, b); }
