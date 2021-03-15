@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8847d03e_9fd8d2f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-15T22:15:34Z",
+      "side": 1,
+      "message": "Were there actually angry android bots here? I see two failed android bots (that happen to both be Vulkan) but the logs have nothing in them besides no device/emulators. Is it possible you just hit an infra issue with this change?",
+      "revId": "9e476b798f03930b6bc7fb6eacab574f197e172d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
