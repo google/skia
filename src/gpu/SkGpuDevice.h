@@ -147,11 +147,11 @@ protected:
 
     void onClipRect(const SkRect& rect, SkClipOp op, bool aa) override {
         SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-        fClip.clipRect(this->localToDevice(), rect, GrAA(aa), op);
+        fClip.clipRect(this->localToDevice(), rect, this->chooseAA(aa), op);
     }
     void onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) override {
         SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-        fClip.clipRRect(this->localToDevice(), rrect, GrAA(aa), op);
+        fClip.clipRRect(this->localToDevice(), rrect, this->chooseAA(aa), op);
     }
     void onClipPath(const SkPath& path, SkClipOp op, bool aa) override;
     void onClipShader(sk_sp<SkShader> shader) override {
@@ -180,6 +180,7 @@ private:
     // We want these unreffed in SurfaceDrawContext, GrContext order.
     sk_sp<GrRecordingContext> fContext;
     std::unique_ptr<GrSurfaceDrawContext> fSurfaceDrawContext;
+    const bool fAlwaysAntialias;
 
     GR_CLIP_STACK fClip;
 
@@ -202,6 +203,9 @@ private:
     bool forceConservativeRasterClip() const override { return true; }
 
     const GrClip* clip() const { return &fClip; }
+
+    GrAA chooseAA(bool aa) const { return GrAA(fAlwaysAntialias | aa); }
+    GrAA chooseAA(const SkPaint& paint) const { return this->chooseAA(paint.isAntiAlias()); }
 
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.

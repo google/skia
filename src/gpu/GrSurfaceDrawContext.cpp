@@ -869,7 +869,8 @@ void GrSurfaceDrawContext::drawVertices(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
-    GrAAType aaType = this->chooseAAType(GrAA::kNo);
+    GrAAType aaType = (fSurfaceProps.isAlwaysAntialias()) ? GrAAType::kMSAA
+                                                          : this->chooseAAType(GrAA::kNo);
     GrOp::Owner op =
             GrDrawVerticesOp::Make(fContext, std::move(paint), std::move(vertices), matrixProvider,
                                    aaType, this->colorInfo().refColorSpaceXformFromSRGB(),
