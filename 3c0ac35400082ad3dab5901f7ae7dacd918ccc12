@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1afbd841_902dccf4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9398
+      },
+      "writtenOn": "2021-03-15T13:48:20Z",
+      "side": 1,
+      "message": "Here is its file https://crbug.com/skia/11745 just in case just that I can\u0027t edit commit summary on Gerrit apparently (gives permission error to me).",
+      "revId": "3c0ac35400082ad3dab5901f7ae7dacd918ccc12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
