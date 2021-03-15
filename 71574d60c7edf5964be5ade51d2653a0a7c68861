@@ -34,6 +34,24 @@
       "parentUuid": "744767e3_322310b9",
       "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e00a29fa_053678b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-15T16:41:24Z",
+      "side": 1,
+      "message": "Not if you\u0027re recording into a picture. The CTM is not knowable.\n\nIf we need a magic setting for inverse_ctm, so bet it. I agree that we don\u0027t want to invert in the frag-shader.",
+      "parentUuid": "4f37e548_88a33741",
+      "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
