@@ -1,15 +1,11 @@
 #version 400
 out vec4 sk_FragColor;
 uniform vec4 color;
-vec4 MakeTempVar(vec4 c) {
-    {
-        vec4 d = c * 0.75;
-        c = d;
-    }
-    {
-        return c.xxxx;
-    }
-}
 void main() {
-    sk_FragColor = MakeTempVar(color);
+    vec4 _0_c = color;
+    {
+        vec4 _1_d = _0_c * 0.75;
+        _0_c = _1_d;
+    }
+    sk_FragColor = _0_c.xxxx;
 }

@@ -9,33 +9,25 @@ int return_loop_0()
 	}
 	return 0;
 }
-int continue_loop_0()
+half4 main()
 {
-	int sum = 0;
-	for (int i = 0;i < 10; ++i) 
+	int _0_sum = 0;
+	for (int _1_i = 0;_1_i < 10; ++_1_i) 
 	{
-		if (i < 5) 
+		if (_1_i < 5) 
 		{
 			continue;
 		}
-		sum += i;
+		_0_sum += _1_i;
 	}
-	return sum;
-}
-int break_loop_0()
-{
-	int sum = 0;
-	for (int i = 0;i < 10; ++i) 
+	int _2_sum = 0;
+	for (int _3_i = 0;_3_i < 10; ++_3_i) 
 	{
-		if (i > 5) 
+		if (_3_i > 5) 
 		{
 			break;
 		}
-		sum += i;
+		_2_sum += _3_i;
 	}
-	return sum;
-}
-half4 main()
-{
-	return half4(half4(half(return_loop_0()), half(continue_loop_0()), half(break_loop_0()), 1.0));
+	return half4(half4(half(return_loop_0()), half(_0_sum), half(_2_sum), 1.0));
 }

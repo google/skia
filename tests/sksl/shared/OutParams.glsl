@@ -3,131 +3,100 @@ out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 uniform vec4 colorWhite;
-void out_half(out float v) {
-    v = colorWhite.x;
-}
-void out_half2(out vec2 v) {
-    v = vec2(colorWhite.y);
-}
-void out_half3(out vec3 v) {
-    v = vec3(colorWhite.z);
-}
-void out_half4(out vec4 v) {
-    v = vec4(colorWhite.w);
-}
-void out_half2x2(out mat2 v) {
-    v = mat2(colorWhite.x);
-}
-void out_half3x3(out mat3 v) {
-    v = mat3(colorWhite.y);
-}
-void out_half4x4(out mat4 v) {
-    v = mat4(colorWhite.z);
-}
-void out_int(out int v) {
-    v = int(colorWhite.x);
-}
-void out_int2(out ivec2 v) {
-    v = ivec2(int(colorWhite.y));
-}
-void out_int3(out ivec3 v) {
-    v = ivec3(int(colorWhite.z));
-}
-void out_int4(out ivec4 v) {
-    v = ivec4(int(colorWhite.w));
-}
-void out_float(out float v) {
-    v = colorWhite.x;
-}
-void out_float2(out vec2 v) {
-    v = vec2(colorWhite.y);
-}
-void out_float3(out vec3 v) {
-    v = vec3(colorWhite.z);
-}
-void out_float4(out vec4 v) {
-    v = vec4(colorWhite.w);
-}
-void out_float2x2(out mat2 v) {
-    v = mat2(colorWhite.x);
-}
-void out_float3x3(out mat3 v) {
-    v = mat3(colorWhite.y);
-}
-void out_float4x4(out mat4 v) {
-    v = mat4(colorWhite.z);
-}
-void out_bool(out bool v) {
-    v = bool(colorWhite.x);
-}
-void out_bool2(out bvec2 v) {
-    v = bvec2(bool(colorWhite.y));
-}
-void out_bool3(out bvec3 v) {
-    v = bvec3(bool(colorWhite.z));
-}
-void out_bool4(out bvec4 v) {
-    v = bvec4(bool(colorWhite.w));
-}
 vec4 main() {
     vec4 result;
     float h;
-    out_half(h);
+    h = colorWhite.x;
+    false;
     vec2 h2;
-    out_half2(h2);
+    h2 = vec2(colorWhite.y);
+    false;
     vec3 h3;
-    out_half3(h3);
+    h3 = vec3(colorWhite.z);
+    false;
     vec4 h4;
-    out_half4(h4);
-    out_half(h3.y);
-    out_half2(h3.xz);
-    out_half4(h4.zwxy);
+    h4 = vec4(colorWhite.w);
+    false;
+    h3.y = colorWhite.x;
+    false;
+    h3.xz = vec2(colorWhite.y);
+    false;
+    h4.zwxy = vec4(colorWhite.w);
+    false;
     mat2 h2x2;
-    out_half2x2(h2x2);
+    h2x2 = mat2(colorWhite.x);
+    false;
     mat3 h3x3;
-    out_half3x3(h3x3);
+    h3x3 = mat3(colorWhite.y);
+    false;
     mat4 h4x4;
-    out_half4x4(h4x4);
-    out_half3(h3x3[1]);
-    out_half(h4x4[3].w);
-    out_half(h2x2[0].x);
+    h4x4 = mat4(colorWhite.z);
+    false;
+    h3x3[1] = vec3(colorWhite.z);
+    false;
+    h4x4[3].w = colorWhite.x;
+    false;
+    h2x2[0].x = colorWhite.x;
+    false;
     int i;
-    out_int(i);
+    i = int(colorWhite.x);
+    false;
     ivec2 i2;
-    out_int2(i2);
+    i2 = ivec2(int(colorWhite.y));
+    false;
     ivec3 i3;
-    out_int3(i3);
+    i3 = ivec3(int(colorWhite.z));
+    false;
     ivec4 i4;
-    out_int4(i4);
-    out_int3(i4.xyz);
-    out_int(i2.y);
+    i4 = ivec4(int(colorWhite.w));
+    false;
+    i4.xyz = ivec3(int(colorWhite.z));
+    false;
+    i2.y = int(colorWhite.x);
+    false;
     float f;
-    out_float(f);
+    f = colorWhite.x;
+    false;
     vec2 f2;
-    out_float2(f2);
+    f2 = vec2(colorWhite.y);
+    false;
     vec3 f3;
-    out_float3(f3);
+    f3 = vec3(colorWhite.z);
+    false;
     vec4 f4;
-    out_float4(f4);
-    out_float2(f3.xy);
-    out_float(f2.x);
+    f4 = vec4(colorWhite.w);
+    false;
+    f3.xy = vec2(colorWhite.y);
+    false;
+    f2.x = colorWhite.x;
+    false;
     mat2 f2x2;
-    out_float2x2(f2x2);
+    f2x2 = mat2(colorWhite.x);
+    false;
     mat3 f3x3;
-    out_float3x3(f3x3);
+    f3x3 = mat3(colorWhite.y);
+    false;
     mat4 f4x4;
-    out_float4x4(f4x4);
-    out_float(f2x2[0].x);
+    f4x4 = mat4(colorWhite.z);
+    false;
+    f2x2[0].x = colorWhite.x;
+    false;
     bool b;
-    out_bool(b);
+    b = bool(colorWhite.x);
+    false;
     bvec2 b2;
-    out_bool2(b2);
+    b2 = bvec2(bool(colorWhite.y));
+    false;
     bvec3 b3;
-    out_bool3(b3);
+    b3 = bvec3(bool(colorWhite.z));
+    false;
     bvec4 b4;
-    out_bool4(b4);
-    out_bool2(b4.xw);
-    out_bool(b3.z);
+    b4 = bvec4(bool(colorWhite.w));
+    false;
+    b4.xw = bvec2(bool(colorWhite.y));
+    false;
+    b3.z = bool(colorWhite.x);
+    false;
     bool ok = true;
     ok = ok && 1.0 == (((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x;
     ok = ok && 1.0 == (((((f * f2.x) * f3.x) * f4.x) * f2x2[0].x) * f3x3[0].x) * f4x4[0].x;

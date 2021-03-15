@@ -9,42 +9,30 @@ float return_loop_0()
 	}
 	return 0.0;
 }
-float continue_loop_0()
+half4 main()
 {
-	float sum = 0.0;
-	for (float i = 0.0;i < 10.0; ++i) 
+	float _0_sum = 0.0;
+	for (float _1_i = 0.0;_1_i < 10.0; ++_1_i) 
 	{
-		if (i < 5.0) 
+		if (_1_i < 5.0) 
 		{
 			continue;
 		}
-		sum += i;
+		_0_sum += _1_i;
 	}
-	return sum;
-}
-float break_loop_0()
-{
-	float sum = 0.0;
-	for (float i = 0.0;i < 10.0; ++i) 
+	float _2_sum = 0.0;
+	for (float _3_i = 0.0;_3_i < 10.0; ++_3_i) 
 	{
-		if (i > 5.0) 
+		if (_3_i > 5.0) 
 		{
 			break;
 		}
-		sum += i;
+		_2_sum += _3_i;
 	}
-	return sum;
-}
-float float_loop_0()
-{
-	float sum = 0.0;
-	for (float i = 0.12300000339746475;i < 0.60000002384185791; i += 0.11100000143051147) 
+	float _4_sum = 0.0;
+	for (float _5_i = 0.12300000339746475;_5_i < 0.60000002384185791; _5_i += 0.11100000143051147) 
 	{
-		sum += i;
+		_4_sum += _5_i;
 	}
-	return sum;
-}
-half4 main()
-{
-	return half4(half4(half(return_loop_0()), half(continue_loop_0()), half(break_loop_0()), half(float_loop_0())));
+	return half4(half4(half(return_loop_0()), half(_0_sum), half(_2_sum), half(_4_sum)));
 }

@@ -1096,10 +1096,8 @@ bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, Inlinabili
     auto [iter, wasInserted] = cache->insert({&funcDecl, false});
     if (wasInserted) {
         // Recursion is forbidden here to avoid an infinite death spiral of inlining.
-        iter->second =
-                this->isSafeToInline(funcDecl.definition()) &&
-                !contains_recursive_call(funcDecl) &&
-                GetReturnComplexity(*funcDecl.definition()) <= ReturnComplexity::kOnlySingleReturn;
+        iter->second = this->isSafeToInline(funcDecl.definition()) &&
+                       !contains_recursive_call(funcDecl);
     }
 
     return iter->second;
