@@ -2,8 +2,11 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
+vec4 blend_lighten(vec4 src, vec4 dst) {
+    vec4 result = src + (1.0 - src.w) * dst;
+    result.xyz = max(result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
+    return result;
+}
 void main() {
-    vec4 _0_result = src + (1.0 - src.w) * dst;
-    _0_result.xyz = max(_0_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
-    sk_FragColor = _0_result;
+    sk_FragColor = blend_lighten(src, dst);
 }
