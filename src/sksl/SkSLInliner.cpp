@@ -1037,10 +1037,14 @@ public:
             }
             case Expression::Kind::kFunctionCall: {
                 FunctionCall& funcCallExpr = (*expr)->as<FunctionCall>();
+                bool trivialArguments = true;
                 for (std::unique_ptr<Expression>& arg : funcCallExpr.arguments()) {
                     this->visitExpression(&arg);
+                    trivialArguments &= Analysis::IsTrivialExpression(*arg);
                 }
-                this->addInlineCandidate(expr);
+                if (trivialArguments) {
+                    this->addInlineCandidate(expr);
+                }
                 break;
             }
             case Expression::Kind::kIndex:{

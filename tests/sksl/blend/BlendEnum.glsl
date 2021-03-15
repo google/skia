@@ -20,6 +20,9 @@ vec4 blend_lighten(vec4 src, vec4 dst) {
     result.xyz = max(result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
     return result;
 }
+float _guarded_divide(float n, float d) {
+    return n / d;
+}
 float _color_dodge_component(vec2 s, vec2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
@@ -28,8 +31,7 @@ float _color_dodge_component(vec2 s, vec2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _0_n = d.x * s.y;
-            delta = min(d.y, _0_n / delta);
+            delta = min(d.y, _guarded_divide(d.x * s.y, delta));
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }
@@ -40,25 +42,25 @@ float _color_burn_component(vec2 s, vec2 d) {
     } else if (s.x == 0.0) {
         return d.x * (1.0 - s.y);
     } else {
-        float _1_n = (d.y - d.x) * s.y;
-        float delta = max(0.0, d.y - _1_n / s.x);
+        float delta = max(0.0, d.y - _guarded_divide((d.y - d.x) * s.y, s.x));
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
 float _soft_light_component(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
-        float _2_n = (d.x * d.x) * (s.y - 2.0 * s.x);
-        return (_2_n / d.y + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
+        return (_guarded_divide((d.x * d.x) * (s.y - 2.0 * s.x), d.y) + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
     } else if (4.0 * d.x <= d.y) {
         float DSqd = d.x * d.x;
         float DCub = DSqd * d.x;
         float DaSqd = d.y * d.y;
         float DaCub = DaSqd * d.y;
-        float _3_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
-        return _3_n / DaSqd;
+        return _guarded_divide(((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x, DaSqd);
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
+}
+vec3 _guarded_divide(vec3 n, float d) {
+    return n / d;
 }
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
@@ -66,22 +68,17 @@ vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
     if (minComp < 0.0 && lum != minComp) {
-        float _4_d = lum - minComp;
-        result = lum + (result - lum) * (lum / _4_d);
+        result = lum + (result - lum) * _guarded_divide(lum, lum - minComp);
     }
     if (maxComp > alpha && maxComp != lum) {
-        vec3 _5_n = (result - lum) * (alpha - lum);
-        float _6_d = maxComp - lum;
-        return lum + _5_n / _6_d;
+        return lum + _guarded_divide((result - lum) * (alpha - lum), maxComp - lum);
     } else {
         return result;
     }
 }
 vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     if (minMidMax.x < minMidMax.z) {
-        float _7_n = sat * (minMidMax.y - minMidMax.x);
-        float _8_d = minMidMax.z - minMidMax.x;
-        return vec3(0.0, _7_n / _8_d, sat);
+        return vec3(0.0, _guarded_divide(sat * (minMidMax.y - minMidMax.x), minMidMax.z - minMidMax.x), sat);
     } else {
         return vec3(0.0);
     }

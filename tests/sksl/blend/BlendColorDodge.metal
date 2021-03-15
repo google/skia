@@ -8,6 +8,9 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float _guarded_divide(float n, float d) {
+    return n / d;
+}
 float _color_dodge_component(float2 s, float2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
@@ -16,8 +19,7 @@ float _color_dodge_component(float2 s, float2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _0_n = d.x * s.y;
-            delta = min(d.y, _0_n / delta);
+            delta = min(d.y, _guarded_divide(d.x * s.y, delta));
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }

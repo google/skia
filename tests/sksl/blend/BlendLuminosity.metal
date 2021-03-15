@@ -8,19 +8,22 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float _guarded_divide(float n, float d) {
+    return n / d;
+}
+float3 _guarded_divide(float3 n, float d) {
+    return n / d;
+}
 float3 _blend_set_color_luminance(float3 hueSatColor, float alpha, float3 lumColor) {
     float lum = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
     float3 result = (lum - dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
     if (minComp < 0.0 && lum != minComp) {
-        float _4_d = lum - minComp;
-        result = lum + (result - lum) * (lum / _4_d);
+        result = lum + (result - lum) * _guarded_divide(lum, lum - minComp);
     }
     if (maxComp > alpha && maxComp != lum) {
-        float3 _5_n = (result - lum) * (alpha - lum);
-        float _6_d = maxComp - lum;
-        return lum + _5_n / _6_d;
+        return lum + _guarded_divide((result - lum) * (alpha - lum), maxComp - lum);
     } else {
         return result;
     }
