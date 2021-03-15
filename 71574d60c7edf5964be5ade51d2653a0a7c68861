@@ -52,6 +52,24 @@
       "parentUuid": "4f37e548_88a33741",
       "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "384c7516_4e509dfb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T17:02:08Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ve been thinking about this over the weekend. We have the \"marker\" stuff, but it\u0027s overly generic, and still doesn\u0027t solve this problem. I think the most straightforward solution is probably to offer builtin variables:\n\n  float4x4 sk_local_to_device\n  float4x4 sk_device_to_local\n\nI don\u0027t know if there\u0027s any need to separate out the CTM from the effect\u0027s local matrix, or if we can just upload the combined matrix. local is usually identity, and if it isn\u0027t, I assume the thing that shaders want is how their local coordinates map to device coordinates, indepdendent of how that transform is split up between the shader and the geometry, right?",
+      "parentUuid": "e00a29fa_053678b0",
+      "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
