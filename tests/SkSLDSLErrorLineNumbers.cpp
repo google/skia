@@ -64,60 +64,63 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLErrorLineNumbers, r, ctxInfo) {
 
     {
         Var a(kBool);
+        DSLWriter::MarkDeclared(a);
         ExpectErrorLineNumber error(r,
                                     "error: type mismatch: '=' cannot operate on 'bool', 'float'\n",
-                                    70);
+                                    71);
         DSLExpression x = (a = 5.0f);
     }
 
     {
         Var a(Array(kInt, 5));
+        DSLWriter::MarkDeclared(a);
         ExpectErrorLineNumber error(r,
                                     "error: expected 'int', but found 'bool'\n",
-                                    78);
+                                    80);
         DSLExpression x = (a[true]);
     }
 
     {
         Var a(Array(kInt, 5));
+        DSLWriter::MarkDeclared(a);
         ExpectErrorLineNumber error(r,
                                     "error: '++' cannot operate on 'int[5]'\n",
-                                    86);
+                                    89);
         DSLExpression x = ++a;
     }
 
     {
         ExpectErrorLineNumber error(r,
                                     "error: expected 'bool', but found 'int'\n",
-                                    93);
+                                    96);
         DSLStatement x = Do(Discard(), 5);
     }
 
     {
         ExpectErrorLineNumber error(r,
                                     "error: expected 'bool', but found 'int'\n",
-                                    100);
+                                    103);
         DSLStatement x = For(DSLStatement(), 5, DSLExpression(), DSLStatement());
     }
 
     {
         ExpectErrorLineNumber error(r,
                                     "error: expected 'bool', but found 'int'\n",
-                                    107);
+                                    110);
         DSLStatement x = If(5, Discard());
     }
 
     {
         ExpectErrorLineNumber error(r,
                                     "error: expected 'bool', but found 'int'\n",
-                                    114);
+                                    117);
         DSLStatement x = While(5, Discard());
     }
 
     {
         ExpectErrorLineNumber error(r,
                                     "error: no match for abs(bool)\n",
-                                    121);
+                                    124);
         DSLStatement x = Abs(true);
     }
     End();

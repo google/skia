@@ -88,6 +88,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
     Expression e3 = true;
     REPORTER_ASSERT(r, e3.release()->description() == "true");
     Var a(kInt, "a");
+    DSLWriter::MarkDeclared(a);
     Expression e4 = a;
     REPORTER_ASSERT(r, e4.release()->description() == "a");
 
@@ -340,6 +341,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
 
     EXPECT_EQUAL(a + b,
                "(a + b)");
@@ -372,6 +375,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     {
         ExpectError error(r, "error: '+' cannot operate on 'bool'\n");
         Var c(kBool);
+        DSLWriter::MarkDeclared(c);
         DSLExpression(+c);
     }
 }
@@ -379,6 +383,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
 
     EXPECT_EQUAL(a - b,
                "(a - b)");
@@ -411,6 +417,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
     {
         ExpectError error(r, "error: '-' cannot operate on 'bool'\n");
         Var c(kBool);
+        DSLWriter::MarkDeclared(c);
         DSLExpression(-c);
     }
 }
@@ -418,6 +425,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
 
     EXPECT_EQUAL(a * b,
                "(a * b)");
@@ -447,6 +456,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
 
     EXPECT_EQUAL(a / b,
                "(a / b)");
@@ -481,6 +492,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
 
     {
         Var c(kFloat2, "c");
+        DSLWriter::MarkDeclared(c);
         ExpectError error(r, "error: division by zero\n");
         DSLExpression(c /= Float2(Float(0), 1)).release();
     }
@@ -489,6 +501,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a % b;
     EXPECT_EQUAL(e1, "(a % b)");
 
@@ -523,6 +537,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
 
     {
         Var c(kInt2, "c");
+        DSLWriter::MarkDeclared(c);
         ExpectError error(r, "error: division by zero\n");
         DSLExpression(c %= Int2(Int(0), 1)).release();
     }
@@ -531,6 +546,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a << b;
     EXPECT_EQUAL(e1, "(a << b)");
 
@@ -562,6 +579,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a >> b;
     EXPECT_EQUAL(e1, "(a >> b)");
 
@@ -593,6 +612,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a & b;
     EXPECT_EQUAL(e1, "(a & b)");
 
@@ -624,6 +645,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a | b;
     EXPECT_EQUAL(e1, "(a | b)");
 
@@ -655,6 +678,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a ^ b;
     EXPECT_EQUAL(e1, "(a ^ b)");
 
@@ -686,6 +711,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalAnd, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kBool, "a"), b(kBool, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a && b;
     EXPECT_EQUAL(e1, "(a && b)");
 
@@ -704,6 +731,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalAnd, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalOr, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kBool, "a"), b(kBool, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a || b;
     EXPECT_EQUAL(e1, "(a || b)");
 
@@ -722,6 +751,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalOr, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLComma, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = (a += b, b);
     EXPECT_EQUAL(e1, "((a += b) , b)");
 
@@ -732,6 +763,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLComma, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a == b;
     EXPECT_EQUAL(e1, "(a == b)");
 
@@ -747,6 +780,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a != b;
     EXPECT_EQUAL(e1, "(a != b)");
 
@@ -762,6 +797,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a > b;
     EXPECT_EQUAL(e1, "(a > b)");
 
@@ -777,6 +814,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a >= b;
     EXPECT_EQUAL(e1, "(a >= b)");
 
@@ -792,6 +831,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a < b;
     EXPECT_EQUAL(e1, "(a < b)");
 
@@ -807,6 +848,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = a <= b;
     EXPECT_EQUAL(e1, "(a <= b)");
 
@@ -822,6 +865,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalNot, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = !(a <= b);
     EXPECT_EQUAL(e1, "!(a <= b)");
 
@@ -834,6 +879,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalNot, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseNot, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kBool, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = ~a;
     EXPECT_EQUAL(e1, "~a");
 
@@ -846,6 +893,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseNot, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIncrement, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kBool, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = ++a;
     EXPECT_EQUAL(e1, "++a");
 
@@ -876,6 +925,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIncrement, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a"), b(kBool, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Expression e1 = --a;
     EXPECT_EQUAL(e1, "--a");
 
@@ -986,6 +1037,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
     EXPECT_EQUAL(x, "do {} while (true);");
 
     Var a(kFloat, "a"), b(kFloat, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Statement y = Do(Block(a++, --b), a != b);
     EXPECT_EQUAL(y, "do { a++; --b; } while ((a != b));");
 
@@ -1087,11 +1140,40 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
         DSLFunction(kFloat, "broken").define(
         );
     }
+
+    {
+        ExpectError error(r, "error: using an already-declared variable as a function parameter\n");
+        DSLWriter::Reset();
+        DSLVar p(kFloat);
+        Declare(p).release();
+        DSLFunction(kVoid, "broken", p).define(
+        );
+    }
+
+    {
+        ExpectError error(r, "error: variable has already been declared\n");
+        DSLWriter::Reset();
+        DSLVar p(kFloat);
+        DSLFunction(kVoid, "broken", p).define(
+        );
+        Declare(p).release();
+    }
+
+    {
+        ExpectError error(r, "error: variables used as function parameters cannot have initial "
+                             "values\n");
+        DSLWriter::Reset();
+        DSLVar p(kFloat, 1);
+        DSLFunction(kVoid, "broken", p).define(
+        );
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat, "a"), b(kFloat, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Statement x = If(a > b, a -= b);
     EXPECT_EQUAL(x, "if ((a > b)) (a -= b);");
 
@@ -1117,6 +1199,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt, "a");
+    DSLWriter::MarkDeclared(a);
     Expression x = Select(a > 0, 1, -1);
     EXPECT_EQUAL(x, "((a > 0) ? 1 : -1)");
 
@@ -1135,6 +1218,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     Var a(kFloat, "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
 
     Statement x = Switch(b,
         Case(0, a = 0, Break()),
@@ -1170,6 +1255,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     {
         ExpectError error(r, "error: case value must be a constant integer\n");
         Var b(kInt);
+        DSLWriter::MarkDeclared(b);
         DSLStatement(Switch(0, Case(b))).release();
     }
 }
@@ -1177,6 +1263,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat4, "a");
+    DSLWriter::MarkDeclared(a);
 
     EXPECT_EQUAL(a.x(),
                 "a.x");
@@ -1212,6 +1299,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
     EXPECT_EQUAL(x, "for (; true;) {}");
 
     Var a(kFloat, "a"), b(kFloat, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
     Statement y = While(a != b, Block(a++, --b));
     EXPECT_EQUAL(y, "for (; (a != b);) { a++; --b; }");
 
@@ -1224,6 +1313,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(Array(kInt, 5), "a"), b(kInt, "b");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
 
     EXPECT_EQUAL(a[0], "a[0]");
     EXPECT_EQUAL(a[b], "a[b]");
@@ -1249,8 +1340,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
     // There is a Fract type on Mac which can conflict with our Fract builtin
     using SkSL::dsl::Fract;
     Var a(kHalf4, "a"), b(kHalf4, "b"), c(kHalf4, "c");
+    DSLWriter::MarkDeclared(a);
+    DSLWriter::MarkDeclared(b);
+    DSLWriter::MarkDeclared(c);
     Var h3(kHalf3, "h3");
+    DSLWriter::MarkDeclared(h3);
     Var b4(kBool4, "b4");
+    DSLWriter::MarkDeclared(b4);
     EXPECT_EQUAL(Abs(a),                 "abs(a)");
     EXPECT_EQUAL(All(b4),                "all(b4)");
     EXPECT_EQUAL(Any(b4),                "any(b4)");
@@ -1314,24 +1410,30 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     // TODO: better tests when able
     Var v2(kIn_Modifier, kInt, "v2");
     REPORTER_ASSERT(r, DSLWriter::Var(v2).modifiers().fFlags == SkSL::Modifiers::kIn_Flag);
+    DSLWriter::MarkDeclared(v2);
 
     Var v3(kOut_Modifier, kInt, "v3");
     REPORTER_ASSERT(r, DSLWriter::Var(v3).modifiers().fFlags == SkSL::Modifiers::kOut_Flag);
+    DSLWriter::MarkDeclared(v3);
 
     Var v4(kFlat_Modifier, kInt, "v4");
     REPORTER_ASSERT(r, DSLWriter::Var(v4).modifiers().fFlags == SkSL::Modifiers::kFlat_Flag);
+    DSLWriter::MarkDeclared(v4);
 
     Var v5(kNoPerspective_Modifier, kInt, "v5");
     REPORTER_ASSERT(r, DSLWriter::Var(v5).modifiers().fFlags ==
                        SkSL::Modifiers::kNoPerspective_Flag);
+    DSLWriter::MarkDeclared(v5);
 
     Var v6(kIn_Modifier | kOut_Modifier, kInt, "v6");
     REPORTER_ASSERT(r, DSLWriter::Var(v6).modifiers().fFlags ==
                        (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
+    DSLWriter::MarkDeclared(v6);
 
     Var v7(kInOut_Modifier, kInt, "v7");
     REPORTER_ASSERT(r, DSLWriter::Var(v7).modifiers().fFlags ==
                        (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
+    DSLWriter::MarkDeclared(v7);
 
     Var v8(kUniform_Modifier, kInt, "v8");
     REPORTER_ASSERT(r, DSLWriter::Var(v8).modifiers().fFlags == SkSL::Modifiers::kUniform_Flag);
