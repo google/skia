@@ -1,29 +1,30 @@
 
 out vec4 sk_FragColor;
 uniform vec4 color;
-void main() {
-    vec4 _0_branchy;
-    vec4 _1_c = color;
-    _1_c *= 0.5;
-    if (_1_c.x > 0.0) _0_branchy = _1_c.xxxx; else if (_1_c.y > 0.0) _0_branchy = _1_c.yyyy; else if (_1_c.z > 0.0) _0_branchy = _1_c.zzzz; else _0_branchy = _1_c.wwww;
-    vec4 _2_branchyAndBlocky;
+vec4 branchy(vec4 c) {
+    c *= 0.5;
+    if (c.x > 0.0) return c.xxxx; else if (c.y > 0.0) return c.yyyy; else if (c.z > 0.0) return c.zzzz; else return c.wwww;
+}
+vec4 branchyAndBlocky(vec4 c) {
     {
         {
-            if (color.x > 0.0) {
-                vec4 _3_d = color * 0.5;
-                _2_branchyAndBlocky = _3_d.xxxx;
+            if (c.x > 0.0) {
+                vec4 d = c * 0.5;
+                return d.xxxx;
             } else {
                 {
                     {
-                        if (color.x < 0.0) {
-                            _2_branchyAndBlocky = color.wwww;
+                        if (c.x < 0.0) {
+                            return c.wwww;
                         } else {
-                            _2_branchyAndBlocky = color.yyyy;
+                            return c.yyyy;
                         }
                     }
                 }
             }
         }
     }
-    sk_FragColor = _0_branchy * _2_branchyAndBlocky;
+}
+void main() {
+    sk_FragColor = branchy(color) * branchyAndBlocky(color);
 }

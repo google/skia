@@ -8,12 +8,15 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float4 blend_darken(float4 src, float4 dst) {
+    float4 result = src + (1.0 - src.w) * dst;
+    result.xyz = min(result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
+    return result;
+}
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float4 _0_result = _in.src + (1.0 - _in.src.w) * _in.dst;
-    _0_result.xyz = min(_0_result.xyz, (1.0 - _in.dst.w) * _in.src.xyz + _in.dst.xyz);
-    _out.sk_FragColor = _0_result;
+    _out.sk_FragColor = blend_darken(_in.src, _in.dst);
     return _out;
 }

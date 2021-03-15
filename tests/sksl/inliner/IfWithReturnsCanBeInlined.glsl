@@ -1,8 +1,9 @@
 
 out vec4 sk_FragColor;
 uniform vec4 color;
+vec4 branchy(vec4 c) {
+    if (c.z == c.w) return c.yyyy; else return c.zzzz;
+}
 void main() {
-    vec4 _0_branchy;
-    if (color.z == color.w) _0_branchy = color.yyyy; else _0_branchy = color.zzzz;
-    sk_FragColor = _0_branchy;
+    sk_FragColor = branchy(color);
 }

@@ -1,7 +1,9 @@
 
 out vec4 sk_FragColor;
+float parameterWrite(float x) {
+    x *= 2.0;
+    return x;
+}
 void main() {
-    float _0_x = 1.0;
-    _0_x *= 2.0;
-    sk_FragColor.x = _0_x;
+    sk_FragColor.x = parameterWrite(1.0);
 }
