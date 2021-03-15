@@ -22,18 +22,20 @@
 #include "src/gpu/vk/GrVkCaps.h"
 #endif
 
-static int32_t next_id() {
-    static std::atomic<int32_t> nextID{1};
-    int32_t id;
+GrContextThreadSafeProxy::FamilyID GrContextThreadSafeProxy::FamilyID::Next() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
     do {
         id = nextID.fetch_add(1, std::memory_order_relaxed);
-    } while (id == SK_InvalidGenID);
-    return id;
+    } while (id == SK_InvalidUniqueID);
+    return FamilyID(id);
 }
 
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
                                                    const GrContextOptions& options)
-        : fBackend(backend), fOptions(options), fContextID(next_id()) {
+        : fBackend(backend)
+        , fOptions(options)
+        , fFamilyID(FamilyID::Next()) {
 }
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
@@ -41,7 +43,7 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
                                     sk_sp<GrThreadSafePipelineBuilder> pipelineBuilder) {
     fCaps = std::move(caps);
-    fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
+    fTextBlobCache = std::make_unique<GrTextBlobCache>(this->contextID());
     fThreadSafeCache = std::make_unique<GrThreadSafeCache>();
     fPipelineBuilder = std::move(pipelineBuilder);
 }

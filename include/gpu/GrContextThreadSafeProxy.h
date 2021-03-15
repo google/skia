@@ -108,12 +108,33 @@ public:
     bool isValid() const { return nullptr != fCaps; }
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
-        // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (this->fContextID == that.fContextID));
+        SkASSERT((this == &that) == (this->fFamilyID == that.fFamilyID));
         return this == &that;
     }
 
     bool operator!=(const GrContextThreadSafeProxy& that) const { return !(*this == that); }
+
+    class FamilyID {
+    public:
+        static FamilyID Next();
+
+        FamilyID() : fID(SK_InvalidUniqueID) {}
+
+        bool operator==(const FamilyID& that) const { return fID == that.fID; }
+        bool operator!=(const FamilyID& that) const { return !(*this == that); }
+
+        void makeInvalid() { fID = SK_InvalidUniqueID; }
+        bool isValid() const { return fID != SK_InvalidUniqueID; }
+
+    private:
+        friend class GrContextThreadSafeProxy;   // TODO: remove this!
+        uint32_t asUInt() const { return fID; }  // TODO: remove this!
+
+        constexpr FamilyID(uint32_t id) : fID(id) {}
+        uint32_t fID;
+    };
+
+    FamilyID familyID() const { return fFamilyID; }
 
     // Provides access to functions that aren't part of the public API.
     GrContextThreadSafeProxyPriv priv();
@@ -121,6 +142,8 @@ public:
 
 private:
     friend class GrContextThreadSafeProxyPriv; // for ctor and hidden methods
+
+    uint32_t contextID() const { return fFamilyID.asUInt(); }
 
     // DDL TODO: need to add unit tests for backend & maybe options
     GrContextThreadSafeProxy(GrBackendApi, const GrContextOptions&);
@@ -135,7 +158,7 @@ private:
 
     const GrBackendApi                      fBackend;
     const GrContextOptions                  fOptions;
-    const uint32_t                          fContextID;
+    const FamilyID                          fFamilyID;
     sk_sp<const GrCaps>                     fCaps;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
     std::unique_ptr<GrThreadSafeCache>      fThreadSafeCache;
