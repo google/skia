@@ -70,6 +70,24 @@
       "parentUuid": "e00a29fa_053678b0",
       "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43ac4cf8_1e6560e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-15T17:14:50Z",
+      "side": 1,
+      "message": "\u003e\u003e Not if you\u0027re recording into a picture. The CTM is not knowable.\n\nAh, good point.\n\n\u003e\u003e I assume the thing that shaders want is how their local coordinates map to device coordinates, indepdendent of how that transform is split up between the shader and the geometry, right?\n\nI imagine so. This shader only cares about the combined matrix.\n\nIt also only cares about the upper 2x2, which is much faster to invert and has fewer uniforms. Could sksl give a 2x2 version of this matrix? Or could sksl be smart enough to detect when a shader only uses the upper 2x2?\n\nAlso, we are currently saving cycles by folding the multiply by mn into the derivatives uniform. Could the effect somehow communicate to the system what it wants this current \"derivatives\" matrix to be? Namely, \"myCustomMatrix2x2 * upper2x2(canvasInverseMatrix)\"",
+      "parentUuid": "384c7516_4e509dfb",
+      "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
