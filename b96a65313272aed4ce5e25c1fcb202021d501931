@@ -16,6 +16,23 @@
       "message": "Hi Brian, PTAL this. Thanks",
       "revId": "b96a65313272aed4ce5e25c1fcb202021d501931",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5834e8bf_7aad1fd0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7953
+      },
+      "writtenOn": "2021-03-15T17:41:03Z",
+      "side": 1,
+      "message": "Hi Bran, PTAL this merge CL. Thanks.",
+      "revId": "b96a65313272aed4ce5e25c1fcb202021d501931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
