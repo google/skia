@@ -68,11 +68,28 @@ class GrPaint;
 
 class GrOp : private SkNoncopyable {
 public:
+    #if defined(GR_OP_ALLOCATE_USE_POOL)
+        struct DeleteFromPool {
+            DeleteFromPool() : fPool{nullptr} {}
+            DeleteFromPool(GrMemoryPool* pool) : fPool{pool} {}
+            void operator() (GrOp* op);
+            GrMemoryPool* fPool;
+        };
+        using Owner =  std::unique_ptr<GrOp, DeleteFromPool>;
+    #else
         using Owner = std::unique_ptr<GrOp>;
+    #endif
 
     template<typename Op, typename... Args>
     static Owner Make(GrRecordingContext* context, Args&&... args) {
-        return Owner{new Op(std::forward<Args>(args)...)};
+        #if defined(GR_OP_ALLOCATE_USE_POOL)
+            GrMemoryPool* pool = context->priv().opMemoryPool();
+            void* mem = pool->allocate(sizeof(Op));
+            GrOp* op = new (mem) Op(std::forward<Args>(args)...);
+            return Owner{op, pool};
+        #else
+            return Owner{new Op(std::forward<Args>(args)...)};
+        #endif
     }
 
     template<typename Op, typename... Args>
@@ -80,12 +97,23 @@ public:
             GrRecordingContext* context, const SkPMColor4f& color,
             GrPaint&& paint, Args&&... args);
 
-    template<typename Op, typename... Args>
-    static Owner MakeWithExtraMemory(
-            GrRecordingContext* context, size_t extraSize, Args&&... args) {
-        void* bytes = ::operator new(sizeof(Op) + extraSize);
-        return Owner{new (bytes) Op(std::forward<Args>(args)...)};
-    }
+    #if defined(GR_OP_ALLOCATE_USE_POOL)
+        template<typename Op, typename... Args>
+        static Owner MakeWithExtraMemory(
+                GrRecordingContext* context, size_t extraSize, Args&&... args) {
+            GrMemoryPool* pool = context->priv().opMemoryPool();
+            void* mem = pool->allocate(sizeof(Op) + extraSize);
+            GrOp* op = new (mem) Op(std::forward<Args>(args)...);
+            return Owner{op, pool};
+        }
+    #else
+        template<typename Op, typename... Args>
+        static Owner MakeWithExtraMemory(
+                GrRecordingContext* context, size_t extraSize, Args&&... args) {
+            void* bytes = ::operator new(sizeof(Op) + extraSize);
+            return Owner{new (bytes) Op(std::forward<Args>(args)...)};
+        }
+    #endif
 
     virtual ~GrOp() = default;
 
@@ -141,7 +169,20 @@ public:
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
 
-    void operator delete(void* p) { ::operator delete(p); }
+    #if defined(GR_OP_ALLOCATE_USE_POOL) && defined(SK_DEBUG)
+        // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
+        void* operator new(size_t size);
+        void operator delete(void* target);
+
+        void* operator new(size_t size, void* placement) {
+            return ::operator new(size, placement);
+        }
+        void operator delete(void* target, void* placement) {
+            ::operator delete(target, placement);
+        }
+    #else
+        void operator delete(void* p) { ::operator delete(p); }
+    #endif
 
     /**
      * Helper for safely down-casting to a GrOp subclass
