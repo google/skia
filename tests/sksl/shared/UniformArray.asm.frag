@@ -7,7 +7,6 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "arr"
 OpName %main "main"
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %_arr_float_int_3 ArrayStride 16
 OpMemberDecorate %_UniformBuffer 0 Offset 0
