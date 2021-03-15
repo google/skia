@@ -1,5 +1,5 @@
-in half2 a;
-in half4 b;
+uniform half2 a;
+uniform half4 b;
 void main() {
     sk_FragColor.x = half(packHalf2x16(a));
     sk_FragColor.x = half(packUnorm2x16(a));

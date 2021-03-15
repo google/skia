@@ -1,5 +1,5 @@
 struct Inputs {
-    float4 pos;
+    float4 pos  [[attribute(0)]];
 };
 struct Outputs {
     float4 sk_Position [[position]];

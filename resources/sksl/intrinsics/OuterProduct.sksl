@@ -1,9 +1,9 @@
-in half2 h2;
-in half3 h3;
-in half4 h4;
-in float2 f2;
-in float3 f3;
-in float4 f4;
+uniform half2 h2;
+uniform half3 h3;
+uniform half4 h4;
+uniform float2 f2;
+uniform float3 f3;
+uniform float4 f4;
 void main() {
     sk_FragColor = half4(outerProduct(f2, f2)[1].xyyy);
     sk_FragColor = half4(outerProduct(f3, f3)[2].xyzz);

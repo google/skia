@@ -1,7 +1,7 @@
 #version 400
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
+uniform vec4 src;
+uniform vec4 dst;
 float _soft_light_component(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
         float _2_n = (d.x * d.x) * (s.y - 2.0 * s.x);

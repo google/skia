@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
-in float a;
-in float b;
+uniform float a;
+uniform float b;
 void main() {
     sk_FragColor.x = pow(a, b);
 }

@@ -1,27 +1,28 @@
-### Compilation failed:
-
-error: SPIR-V validation error: Variable must be decorated with a location
-  %a = OpVariable %_ptr_Input_v4float Input
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise %a %b
+OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise
 OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
-OpName %a "a"
-OpName %b "b"
+OpName %_UniformBuffer "_UniformBuffer"
+OpMemberName %_UniformBuffer 0 "a"
+OpMemberName %_UniformBuffer 1 "b"
 OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %a RelaxedPrecision
-OpDecorate %b RelaxedPrecision
-OpDecorate %17 RelaxedPrecision
-OpDecorate %18 RelaxedPrecision
+OpMemberDecorate %_UniformBuffer 0 Offset 0
+OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
+OpMemberDecorate %_UniformBuffer 1 Offset 16
+OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
+OpDecorate %_UniformBuffer Block
+OpDecorate %10 Binding 0
+OpDecorate %10 DescriptorSet 0
+OpDecorate %21 RelaxedPrecision
+OpDecorate %24 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -29,27 +30,28 @@ OpDecorate %18 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%_ptr_Input_v4float = OpTypePointer Input %v4float
-%a = OpVariable %_ptr_Input_v4float Input
-%b = OpVariable %_ptr_Input_v4float Input
+%_UniformBuffer = OpTypeStruct %v4float %v4float
+%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
+%10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
 %14 = OpTypeFunction %void
-%v4bool = OpTypeVector %bool 4
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
-%int_1 = OpConstant %int 1
 %int_0 = OpConstant %int 0
+%int_1 = OpConstant %int 1
+%v4bool = OpTypeVector %bool 4
 %_ptr_Output_float = OpTypePointer Output %float
 %main = OpFunction %void None %14
 %15 = OpLabel
-%17 = OpLoad %v4float %a
-%18 = OpLoad %v4float %b
-%16 = OpFOrdLessThanEqual %v4bool %17 %18
-%20 = OpCompositeExtract %bool %16 0
-%21 = OpSelect %int %20 %int_1 %int_0
-%25 = OpConvertSToF %float %21
-%26 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %26 %25
+%17 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%21 = OpLoad %v4float %17
+%22 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
+%24 = OpLoad %v4float %22
+%16 = OpFOrdLessThanEqual %v4bool %21 %24
+%26 = OpCompositeExtract %bool %16 0
+%27 = OpSelect %int %26 %int_1 %int_0
+%28 = OpConvertSToF %float %27
+%29 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %29 %28
 OpReturn
 OpFunctionEnd
-
-1 error

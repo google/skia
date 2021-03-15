@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
+uniform vec4 src;
+uniform vec4 dst;
 void main() {
     float _0_alpha = dst.w * src.w;
     vec3 _1_sda = src.xyz * dst.w;

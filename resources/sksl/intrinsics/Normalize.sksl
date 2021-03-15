@@ -1,5 +1,5 @@
-in half a;
-in half4 b;
+uniform half a;
+uniform half4 b;
 void main() {
     sk_FragColor.x = normalize(a);
     sk_FragColor = normalize(b);

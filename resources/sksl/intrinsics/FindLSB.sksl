@@ -1,5 +1,5 @@
-in int a;
-in uint b;
+uniform int a;
+uniform uint b;
 void main() {
     sk_FragColor.x = half(findLSB(a));
     sk_FragColor.y = half(findLSB(b));

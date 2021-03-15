@@ -1,11 +1,11 @@
 
 out vec4 sk_FragColor;
-in vec2 h2;
-in vec3 h3;
-in vec4 h4;
-in vec2 f2;
-in vec3 f3;
-in vec4 f4;
+uniform vec2 h2;
+uniform vec3 h3;
+uniform vec4 h4;
+uniform vec2 f2;
+uniform vec3 f3;
+uniform vec4 f4;
 void main() {
     sk_FragColor = outerProduct(f2, f2)[1].xyyy;
     sk_FragColor = outerProduct(f3, f3)[2].xyzz;

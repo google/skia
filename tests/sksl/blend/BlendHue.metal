@@ -1,6 +1,8 @@
-struct Inputs {
+struct Uniforms {
     float4 src;
     float4 dst;
+};
+struct Inputs {
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
@@ -15,12 +17,12 @@ float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
     }
 }
 
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float _0_alpha = _in.dst.w * _in.src.w;
-    float3 _1_sda = _in.src.xyz * _in.dst.w;
-    float3 _2_dsa = _in.dst.xyz * _in.src.w;
+    float _0_alpha = _uniforms.dst.w * _uniforms.src.w;
+    float3 _1_sda = _uniforms.src.xyz * _uniforms.dst.w;
+    float3 _2_dsa = _uniforms.dst.xyz * _uniforms.src.w;
     float3 _3_blend_set_color_saturation;
     float _4_sat = max(max(_2_dsa.x, _2_dsa.y), _2_dsa.z) - min(min(_2_dsa.x, _2_dsa.y), _2_dsa.z);
     if (_1_sda.x <= _1_sda.y) {
@@ -54,6 +56,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     } else {
         _5_blend_set_color_luminance = _7_result;
     }
-    _out.sk_FragColor = float4((((_5_blend_set_color_luminance + _in.dst.xyz) - _2_dsa) + _in.src.xyz) - _1_sda, (_in.src.w + _in.dst.w) - _0_alpha);
+    _out.sk_FragColor = float4((((_5_blend_set_color_luminance + _uniforms.dst.xyz) - _2_dsa) + _uniforms.src.xyz) - _1_sda, (_uniforms.src.w + _uniforms.dst.w) - _0_alpha);
     return _out;
 }
