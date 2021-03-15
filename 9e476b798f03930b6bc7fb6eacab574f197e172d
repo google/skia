@@ -16,6 +16,24 @@
       "message": "Were there actually angry android bots here? I see two failed android bots (that happen to both be Vulkan) but the logs have nothing in them besides no device/emulators. Is it possible you just hit an infra issue with this change?",
       "revId": "9e476b798f03930b6bc7fb6eacab574f197e172d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4700811a_274812a7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T23:01:01Z",
+      "side": 1,
+      "message": "Here are the two failures I could find:\n\nTest-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan:\nhttps://ci.chromium.org/raw/build/logs.chromium.org/skia/525088bc565bcf11/+/annotations\n\nTest-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan:\nhttps://ci.chromium.org/raw/build/logs.chromium.org/skia/525087b82236ba11/+/annotations",
+      "parentUuid": "8847d03e_9fd8d2f2",
+      "revId": "9e476b798f03930b6bc7fb6eacab574f197e172d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
