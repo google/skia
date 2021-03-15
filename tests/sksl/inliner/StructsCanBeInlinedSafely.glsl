@@ -8,13 +8,10 @@ struct Color {
     float alpha;
 };
 void main() {
-    sk_FragColor = helper();
-}
-vec4 helper() {
-    Color c;
-    c.red = 0.25;
-    c.green = 0.5;
-    c.blue = 0.75;
-    c.alpha = 1.0;
-    return vec4(c.red, c.green, c.blue, c.alpha);
+    Color _0_c;
+    _0_c.red = 0.25;
+    _0_c.green = 0.5;
+    _0_c.blue = 0.75;
+    _0_c.alpha = 1.0;
+    sk_FragColor = vec4(_0_c.red, _0_c.green, _0_c.blue, _0_c.alpha);
 }

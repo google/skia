@@ -2,29 +2,25 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
-vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
-    float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
-    vec3 result = (lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
-    float minComp = min(min(result.x, result.y), result.z);
-    float maxComp = max(max(result.x, result.y), result.z);
-    if (minComp < 0.0 && lum != minComp) {
-        float _4_d = lum - minComp;
-        result = lum + (result - lum) * (lum / _4_d);
-    }
-    if (maxComp > alpha && maxComp != lum) {
-        vec3 _5_n = (result - lum) * (alpha - lum);
-        float _6_d = maxComp - lum;
-        return lum + _5_n / _6_d;
-    } else {
-        return result;
-    }
-}
-vec4 blend_luminosity(vec4 src, vec4 dst) {
-    float alpha = dst.w * src.w;
-    vec3 sda = src.xyz * dst.w;
-    vec3 dsa = dst.xyz * src.w;
-    return vec4((((_blend_set_color_luminance(dsa, alpha, sda) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
-}
 void main() {
-    sk_FragColor = blend_luminosity(src, dst);
+    float _0_alpha = dst.w * src.w;
+    vec3 _1_sda = src.xyz * dst.w;
+    vec3 _2_dsa = dst.xyz * src.w;
+    vec3 _3_blend_set_color_luminance;
+    float _4_lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _1_sda);
+    vec3 _5_result = (_4_lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _2_dsa)) + _2_dsa;
+    float _6_minComp = min(min(_5_result.x, _5_result.y), _5_result.z);
+    float _7_maxComp = max(max(_5_result.x, _5_result.y), _5_result.z);
+    if (_6_minComp < 0.0 && _4_lum != _6_minComp) {
+        float _8_d = _4_lum - _6_minComp;
+        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / _8_d);
+    }
+    if (_7_maxComp > _0_alpha && _7_maxComp != _4_lum) {
+        vec3 _9_n = (_5_result - _4_lum) * (_0_alpha - _4_lum);
+        float _10_d = _7_maxComp - _4_lum;
+        _3_blend_set_color_luminance = _4_lum + _9_n / _10_d;
+    } else {
+        _3_blend_set_color_luminance = _5_result;
+    }
+    sk_FragColor = vec4((((_3_blend_set_color_luminance + dst.xyz) - _2_dsa) + src.xyz) - _1_sda, (src.w + dst.w) - _0_alpha);
 }

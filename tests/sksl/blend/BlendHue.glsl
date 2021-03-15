@@ -2,23 +2,6 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
-vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
-    float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
-    vec3 result = (lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
-    float minComp = min(min(result.x, result.y), result.z);
-    float maxComp = max(max(result.x, result.y), result.z);
-    if (minComp < 0.0 && lum != minComp) {
-        float _4_d = lum - minComp;
-        result = lum + (result - lum) * (lum / _4_d);
-    }
-    if (maxComp > alpha && maxComp != lum) {
-        vec3 _5_n = (result - lum) * (alpha - lum);
-        float _6_d = maxComp - lum;
-        return lum + _5_n / _6_d;
-    } else {
-        return result;
-    }
-}
 vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     if (minMidMax.x < minMidMax.z) {
         float _7_n = sat * (minMidMax.y - minMidMax.x);
@@ -28,30 +11,42 @@ vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
         return vec3(0.0);
     }
 }
-vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
-    float sat = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
-    if (hueLumColor.x <= hueLumColor.y) {
-        if (hueLumColor.y <= hueLumColor.z) {
-            return _blend_set_color_saturation_helper(hueLumColor, sat);
-        } else if (hueLumColor.x <= hueLumColor.z) {
-            return _blend_set_color_saturation_helper(hueLumColor.xzy, sat).xzy;
-        } else {
-            return _blend_set_color_saturation_helper(hueLumColor.zxy, sat).yzx;
-        }
-    } else if (hueLumColor.x <= hueLumColor.z) {
-        return _blend_set_color_saturation_helper(hueLumColor.yxz, sat).yxz;
-    } else if (hueLumColor.y <= hueLumColor.z) {
-        return _blend_set_color_saturation_helper(hueLumColor.yzx, sat).zxy;
-    } else {
-        return _blend_set_color_saturation_helper(hueLumColor.zyx, sat).zyx;
-    }
-}
-vec4 blend_hue(vec4 src, vec4 dst) {
-    float alpha = dst.w * src.w;
-    vec3 sda = src.xyz * dst.w;
-    vec3 dsa = dst.xyz * src.w;
-    return vec4((((_blend_set_color_luminance(_blend_set_color_saturation(sda, dsa), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
-}
 void main() {
-    sk_FragColor = blend_hue(src, dst);
+    float _0_alpha = dst.w * src.w;
+    vec3 _1_sda = src.xyz * dst.w;
+    vec3 _2_dsa = dst.xyz * src.w;
+    vec3 _3_blend_set_color_saturation;
+    float _4_sat = max(max(_2_dsa.x, _2_dsa.y), _2_dsa.z) - min(min(_2_dsa.x, _2_dsa.y), _2_dsa.z);
+    if (_1_sda.x <= _1_sda.y) {
+        if (_1_sda.y <= _1_sda.z) {
+            _3_blend_set_color_saturation = _blend_set_color_saturation_helper(_1_sda, _4_sat);
+        } else if (_1_sda.x <= _1_sda.z) {
+            _3_blend_set_color_saturation = _blend_set_color_saturation_helper(_1_sda.xzy, _4_sat).xzy;
+        } else {
+            _3_blend_set_color_saturation = _blend_set_color_saturation_helper(_1_sda.zxy, _4_sat).yzx;
+        }
+    } else if (_1_sda.x <= _1_sda.z) {
+        _3_blend_set_color_saturation = _blend_set_color_saturation_helper(_1_sda.yxz, _4_sat).yxz;
+    } else if (_1_sda.y <= _1_sda.z) {
+        _3_blend_set_color_saturation = _blend_set_color_saturation_helper(_1_sda.yzx, _4_sat).zxy;
+    } else {
+        _3_blend_set_color_saturation = _blend_set_color_saturation_helper(_1_sda.zyx, _4_sat).zyx;
+    }
+    vec3 _5_blend_set_color_luminance;
+    float _6_lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _2_dsa);
+    vec3 _7_result = (_6_lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_blend_set_color_saturation)) + _3_blend_set_color_saturation;
+    float _8_minComp = min(min(_7_result.x, _7_result.y), _7_result.z);
+    float _9_maxComp = max(max(_7_result.x, _7_result.y), _7_result.z);
+    if (_8_minComp < 0.0 && _6_lum != _8_minComp) {
+        float _10_d = _6_lum - _8_minComp;
+        _7_result = _6_lum + (_7_result - _6_lum) * (_6_lum / _10_d);
+    }
+    if (_9_maxComp > _0_alpha && _9_maxComp != _6_lum) {
+        vec3 _11_n = (_7_result - _6_lum) * (_0_alpha - _6_lum);
+        float _12_d = _9_maxComp - _6_lum;
+        _5_blend_set_color_luminance = _6_lum + _11_n / _12_d;
+    } else {
+        _5_blend_set_color_luminance = _7_result;
+    }
+    sk_FragColor = vec4((((_5_blend_set_color_luminance + dst.xyz) - _2_dsa) + src.xyz) - _1_sda, (src.w + dst.w) - _0_alpha);
 }
