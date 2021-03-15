@@ -351,10 +351,6 @@ public:
         return fIsSampled;
     }
 
-    bool hasPrecision() const {
-        return this->componentType().isNumber() || fTypeKind == TypeKind::kSampler;
-    }
-
     bool highPrecision() const {
         if (fComponentType) {
             return fComponentType->highPrecision();

@@ -156,19 +156,13 @@ private:
     };
 
     enum class Precision {
-        kDefault,
-        kRelaxed,
+        kLow,
+        kHigh,
     };
 
     void setupIntrinsics();
 
-    /**
-     * Pass in the type to automatically add a RelaxedPrecision decoration for the id when
-     * appropriate, or null to never add one.
-     */
-    SpvId nextId(const Type* type);
-
-    SpvId nextId(Precision precision);
+    SpvId nextId();
 
     const Type& getActualType(const Type& type);
 
@@ -184,6 +178,10 @@ private:
 
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
+
+    void writePrecisionModifier(Precision precision, SpvId id);
+
+    void writePrecisionModifier(const Type& type, SpvId id);
 
     std::vector<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
 
