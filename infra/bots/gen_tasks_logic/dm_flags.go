@@ -229,6 +229,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		} else if b.matchGpu("Intel") {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
 			sampleCount = 0
+		} else if b.matchGpu("GTX", "Quadro") && b.extraConfig("ANGLE") {
+			// 8x MSAA is nondeterministic (by design) on NVIDIA hardware.
+			// The problem is especially bad on ANGLE, so use 4x instead.
+			// skia:6813 skia:6545
+			sampleCount = 4;
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
 		}
