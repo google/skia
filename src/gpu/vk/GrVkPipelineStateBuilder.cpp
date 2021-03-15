@@ -174,7 +174,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                       VkRenderPass compatibleRenderPass,
                                                       bool overrideSubpassForResolveLoad) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
@@ -335,8 +335,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
 
     VkPipelineLayout pipelineLayout;
     VkResult result;
-    GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
-                                                         &pipelineLayout));
+    {
+        TRACE_EVENT0("skia.shaders", "CreatePipelineLayout");
+        GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo,
+                                                             nullptr, &pipelineLayout));
+    }
     if (result != VK_SUCCESS) {
         return nullptr;
     }
