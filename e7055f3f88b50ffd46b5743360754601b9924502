@@ -51,6 +51,23 @@
       "parentUuid": "ff459ba3_ff2f350e",
       "revId": "e7055f3f88b50ffd46b5743360754601b9924502",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ca08d02_643ffca2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-15T15:57:55Z",
+      "side": 1,
+      "message": "Seems like in practice it works either way, but isn\u0027t the stuff from MetalCodeGenerator::writeHeader getting added into a namespace now? What if we moved those #includes out of MetalCodeGenerator entirely and into the pipeline builder:\n\nvoid MetalCodeGenerator::writeHeader() {\n    this-\u003ewrite(\"#include \u003cmetal_stdlib\u003e\\n\");\n    this-\u003ewrite(\"#include \u003csimd/simd.h\u003e\\n\");\n    this-\u003ewrite(\"using namespace metal;\\n\");\n}\n\n",
+      "revId": "e7055f3f88b50ffd46b5743360754601b9924502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
