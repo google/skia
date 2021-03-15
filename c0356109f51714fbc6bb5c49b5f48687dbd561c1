@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a808830_d6706786",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T14:38:04Z",
+      "side": 1,
+      "message": "I\u0027m not actually sure how helpful this is, but it\u0027s simple and cheap. For runtime effects that sample with explicit coordinates, there are some uses. In most cases, you need to understand what your *effect\u0027s* local coordinates are - and often that will mean you don\u0027t want to use this. Thoughts?",
+      "revId": "c0356109f51714fbc6bb5c49b5f48687dbd561c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
