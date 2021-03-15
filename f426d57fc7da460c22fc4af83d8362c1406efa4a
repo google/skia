@@ -77,6 +77,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e8265e3d_de5cb91d",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 48
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "Maybe just:\n\nSkASSERT(SkToBool(fSubRunDtor) !\u003d SkToBool(fBlob)); \n\n?",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 75
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "04d4d023_76a3eaa3",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 48
@@ -88,6 +111,345 @@
       "writtenOn": "2021-03-15T18:40:50Z",
       "side": 1,
       "message": "Made it up to here",
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3647afbd_78507a3d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 1713,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "Maybe keep the \u0027drawMatrix\u0027 name ?",
+      "range": {
+        "startLine": 1713,
+        "startChar": 37,
+        "endLine": 1713,
+        "endChar": 39
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7992bb01_8c4e822f",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 1735,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "Should this name be propagated back to DirectMaskSubRun ?",
+      "range": {
+        "startLine": 1735,
+        "startChar": 17,
+        "endLine": 1735,
+        "endChar": 35
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00bf8dbb_9a790aec",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 1747,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "deviceBounds ?",
+      "range": {
+        "startLine": 1747,
+        "startChar": 63,
+        "endLine": 1747,
+        "endChar": 69
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dccf47c5_3f670689",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 1884,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "Tab these over ?",
+      "range": {
+        "startLine": 1883,
+        "startChar": 0,
+        "endLine": 1884,
+        "endChar": 64
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44ea36ac_bc1d69c7",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 1889,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "add spaces here ?",
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e9e8a99_2dc8c669",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2028,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "sdc? and elsewhere ?",
+      "range": {
+        "startLine": 2028,
+        "startChar": 68,
+        "endLine": 2028,
+        "endChar": 71
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85222662_6ff85263",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2051,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "rContext ?",
+      "range": {
+        "startLine": 2051,
+        "startChar": 24,
+        "endLine": 2051,
+        "endChar": 32
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "796d1c05_b1dfe7ac",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "sdc ?",
+      "range": {
+        "startLine": 2176,
+        "startChar": 42,
+        "endLine": 2176,
+        "endChar": 45
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a52ec8c_c414e9a8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2258,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 2258,
+        "startChar": 37,
+        "endLine": 2258,
+        "endChar": 38
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f717258_cdf20f10",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2286,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "rContext ?",
+      "range": {
+        "startLine": 2286,
+        "startChar": 24,
+        "endLine": 2286,
+        "endChar": 32
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d056e83_3079a1e5",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2376,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "rm tab ?",
+      "range": {
+        "startLine": 2376,
+        "startChar": 0,
+        "endLine": 2376,
+        "endChar": 4
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9359b9d2_58ee5b7a",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2378,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 here and after \"return\" ? Here and below too ?",
+      "range": {
+        "startLine": 2378,
+        "startChar": 28,
+        "endLine": 2378,
+        "endChar": 29
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "000d922b_fa7f1f60",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2436,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "space ?",
+      "range": {
+        "startLine": 2436,
+        "startChar": 39,
+        "endLine": 2436,
+        "endChar": 40
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8ef3b83_28cba8ab",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 48
+      },
+      "lineNbr": 2444,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "Is there a better name for this? sourceSpacePath ?",
+      "range": {
+        "startLine": 2444,
+        "startChar": 19,
+        "endLine": 2444,
+        "endChar": 32
+      },
+      "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63f50e72_8e8413e5",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 48
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-15T21:22:02Z",
+      "side": 1,
+      "message": "of the subRun ?",
+      "range": {
+        "startLine": 506,
+        "startChar": 28,
+        "endLine": 506,
+        "endChar": 29
+      },
       "revId": "f426d57fc7da460c22fc4af83d8362c1406efa4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
