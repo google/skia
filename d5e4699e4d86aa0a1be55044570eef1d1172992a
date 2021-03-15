@@ -16,6 +16,23 @@
       "message": "PTAL",
       "revId": "d5e4699e4d86aa0a1be55044570eef1d1172992a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8f8b6e7_782d9c29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-15T20:29:31Z",
+      "side": 1,
+      "message": "Please set `skia_compile_processors \u003d true` in your GN args and rebuild",
+      "revId": "d5e4699e4d86aa0a1be55044570eef1d1172992a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
