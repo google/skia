@@ -52,6 +52,7 @@ class SK_API SkSurfaceProps {
 public:
     enum Flags {
         kUseDeviceIndependentFonts_Flag = 1 << 0,
+        kAlwaysAntialias_Flag           = 1 << 1,
     };
     /** Deprecated alias used by Chromium. Will be removed. */
     static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;
@@ -67,7 +68,10 @@ public:
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
 
     bool isUseDeviceIndependentFonts() const {
-        return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
+        return fFlags & kUseDeviceIndependentFonts_Flag;
+    }
+    bool isAlwaysAntialias() const {
+        return fFlags & kAlwaysAntialias_Flag;
     }
 
     bool operator==(const SkSurfaceProps& that) const {

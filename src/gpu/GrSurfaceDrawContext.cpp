@@ -307,6 +307,10 @@ GrSurfaceDrawContext::~GrSurfaceDrawContext() {
 
 inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
     if (GrAA::kNo == aa) {
+        // We never draw non-aa when using dmsaa. Enable multisample instead.
+        if (fSurfaceProps.isAlwaysAntialias()) {
+            return GrAAType::kMSAA;
+        }
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
         // that.
         if (this->numSamples() > 1 && !this->caps()->multisampleDisableSupport()) {
