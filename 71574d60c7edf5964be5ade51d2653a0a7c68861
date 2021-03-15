@@ -16,6 +16,24 @@
       "message": "Simplify the shader code is always nice.\n\nThat said, if we can get \u0027good\u0027 at writing shaders that automatically know how to react to the CTM, without the caller having to help (e.g. not having to manually update a uniform), this will be very helpful, esp. to shaders written by apps (who may not always know the CTM when they draw).",
       "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f37e548_88a33741",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-15T16:25:56Z",
+      "side": 1,
+      "message": "I misspoke earlier. The shader needs the inverse CTM, so inverting per pixel is pretty expensive. If you can call \"canvas-\u003eclipShader()\" then you can also call \"canvas-\u003egetTotalMatrix()\" and update a uniform, right?",
+      "parentUuid": "744767e3_322310b9",
+      "revId": "71574d60c7edf5964be5ade51d2653a0a7c68861",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

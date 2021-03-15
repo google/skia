@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1210d404_1c7c8a20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-15T16:25:56Z",
+      "side": 1,
+      "message": "I think I finally got it.. PTAL\n\nAlso, can we talk about where we might be able to put this shader for clients to reuse?",
+      "revId": "1807cfa9b487855b78bfac74f18916180a3dc2c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
