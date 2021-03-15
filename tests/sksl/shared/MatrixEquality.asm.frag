@@ -17,7 +17,6 @@ OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -36,27 +35,26 @@ OpDecorate %11 Binding 0
 OpDecorate %11 DescriptorSet 0
 OpDecorate %29 RelaxedPrecision
 OpDecorate %36 RelaxedPrecision
+OpDecorate %41 RelaxedPrecision
 OpDecorate %42 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
-OpDecorate %41 RelaxedPrecision
 OpDecorate %55 RelaxedPrecision
 OpDecorate %61 RelaxedPrecision
+OpDecorate %67 RelaxedPrecision
 OpDecorate %68 RelaxedPrecision
 OpDecorate %69 RelaxedPrecision
 OpDecorate %70 RelaxedPrecision
-OpDecorate %67 RelaxedPrecision
 OpDecorate %87 RelaxedPrecision
 OpDecorate %91 RelaxedPrecision
+OpDecorate %93 RelaxedPrecision
 OpDecorate %95 RelaxedPrecision
 OpDecorate %96 RelaxedPrecision
-OpDecorate %93 RelaxedPrecision
-OpDecorate %93 RelaxedPrecision
 OpDecorate %107 RelaxedPrecision
 OpDecorate %111 RelaxedPrecision
+OpDecorate %112 RelaxedPrecision
 OpDecorate %113 RelaxedPrecision
 OpDecorate %114 RelaxedPrecision
 OpDecorate %115 RelaxedPrecision
-OpDecorate %112 RelaxedPrecision
 OpDecorate %131 RelaxedPrecision
 OpDecorate %143 RelaxedPrecision
 OpDecorate %146 RelaxedPrecision

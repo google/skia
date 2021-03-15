@@ -66,7 +66,6 @@ OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
@@ -245,8 +244,8 @@ OpDecorate %367 RelaxedPrecision
 OpDecorate %369 RelaxedPrecision
 OpDecorate %370 RelaxedPrecision
 OpDecorate %371 RelaxedPrecision
-OpDecorate %374 RelaxedPrecision
 OpDecorate %373 RelaxedPrecision
+OpDecorate %374 RelaxedPrecision
 OpDecorate %376 RelaxedPrecision
 OpDecorate %378 RelaxedPrecision
 OpDecorate %379 RelaxedPrecision
@@ -332,6 +331,7 @@ OpDecorate %514 RelaxedPrecision
 OpDecorate %516 RelaxedPrecision
 OpDecorate %517 RelaxedPrecision
 OpDecorate %518 RelaxedPrecision
+OpDecorate %520 RelaxedPrecision
 OpDecorate %524 RelaxedPrecision
 OpDecorate %526 RelaxedPrecision
 OpDecorate %528 RelaxedPrecision
@@ -347,15 +347,18 @@ OpDecorate %553 RelaxedPrecision
 OpDecorate %554 RelaxedPrecision
 OpDecorate %555 RelaxedPrecision
 OpDecorate %556 RelaxedPrecision
+OpDecorate %558 RelaxedPrecision
 OpDecorate %559 RelaxedPrecision
 OpDecorate %560 RelaxedPrecision
 OpDecorate %561 RelaxedPrecision
+OpDecorate %564 RelaxedPrecision
 OpDecorate %565 RelaxedPrecision
 OpDecorate %566 RelaxedPrecision
 OpDecorate %570 RelaxedPrecision
 OpDecorate %571 RelaxedPrecision
 OpDecorate %578 RelaxedPrecision
 OpDecorate %579 RelaxedPrecision
+OpDecorate %581 RelaxedPrecision
 OpDecorate %582 RelaxedPrecision
 OpDecorate %583 RelaxedPrecision
 OpDecorate %584 RelaxedPrecision
@@ -365,6 +368,7 @@ OpDecorate %589 RelaxedPrecision
 OpDecorate %590 RelaxedPrecision
 OpDecorate %591 RelaxedPrecision
 OpDecorate %592 RelaxedPrecision
+OpDecorate %596 RelaxedPrecision
 OpDecorate %597 RelaxedPrecision
 OpDecorate %602 RelaxedPrecision
 OpDecorate %604 RelaxedPrecision
@@ -554,6 +558,7 @@ OpDecorate %1047 RelaxedPrecision
 OpDecorate %1048 RelaxedPrecision
 OpDecorate %1049 RelaxedPrecision
 OpDecorate %1050 RelaxedPrecision
+OpDecorate %1052 RelaxedPrecision
 OpDecorate %1053 RelaxedPrecision
 OpDecorate %1054 RelaxedPrecision
 OpDecorate %1055 RelaxedPrecision

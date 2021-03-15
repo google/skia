@@ -18,18 +18,15 @@ OpName %main "main"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %A 0 Offset 0
 OpMemberDecorate %A 1 Offset 4
-OpDecorate %a1 RelaxedPrecision
 OpDecorate %_arr_float_int_2 ArrayStride 16
 OpMemberDecorate %B 0 Offset 0
 OpMemberDecorate %B 1 Offset 16
 OpMemberDecorate %B 2 Binding 1
 OpMemberDecorate %B 2 Offset 48
 OpMemberDecorate %B 2 RelaxedPrecision
-OpDecorate %b1 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4

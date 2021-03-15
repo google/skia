@@ -8,7 +8,6 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %main "main"
 OpDecorate %_arr_int_int_1 ArrayStride 16
 OpDecorate %sk_SampleMask BuiltIn SampleMask
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %int = OpTypeInt 32 1
 %int_1 = OpConstant %int 1

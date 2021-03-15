@@ -8,7 +8,6 @@ OpName %bar "bar"
 OpName %y "y"
 OpName %z "z"
 OpName %main "main"
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
