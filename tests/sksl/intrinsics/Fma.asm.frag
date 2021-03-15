@@ -21,6 +21,7 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %a RelaxedPrecision
 OpDecorate %b RelaxedPrecision
 OpDecorate %c RelaxedPrecision
+OpDecorate %17 RelaxedPrecision
 OpDecorate %18 RelaxedPrecision
 OpDecorate %19 RelaxedPrecision
 OpDecorate %20 RelaxedPrecision

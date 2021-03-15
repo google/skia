@@ -23,10 +23,14 @@ OpDecorate %a RelaxedPrecision
 OpDecorate %b RelaxedPrecision
 OpDecorate %c RelaxedPrecision
 OpDecorate %d RelaxedPrecision
+OpDecorate %19 RelaxedPrecision
 OpDecorate %20 RelaxedPrecision
+OpDecorate %25 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
 OpDecorate %27 RelaxedPrecision
+OpDecorate %29 RelaxedPrecision
 OpDecorate %30 RelaxedPrecision
+OpDecorate %31 RelaxedPrecision
 OpDecorate %32 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
 %float = OpTypeFloat 32

@@ -26,8 +26,10 @@ OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %26 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
+OpDecorate %34 RelaxedPrecision
 OpDecorate %39 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
+OpDecorate %44 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
 OpDecorate %55 RelaxedPrecision
 OpDecorate %58 RelaxedPrecision

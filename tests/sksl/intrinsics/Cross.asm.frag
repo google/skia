@@ -20,10 +20,14 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %a RelaxedPrecision
 OpDecorate %b RelaxedPrecision
 OpDecorate %17 RelaxedPrecision
+OpDecorate %18 RelaxedPrecision
 OpDecorate %19 RelaxedPrecision
+OpDecorate %20 RelaxedPrecision
 OpDecorate %21 RelaxedPrecision
 OpDecorate %22 RelaxedPrecision
+OpDecorate %23 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
+OpDecorate %25 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
 OpDecorate %27 RelaxedPrecision
 %float = OpTypeFloat 32

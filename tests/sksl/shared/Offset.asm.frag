@@ -18,6 +18,7 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %Test 0 Offset 0
 OpMemberDecorate %Test 1 Offset 4
 OpMemberDecorate %Test 2 Offset 8
+OpDecorate %22 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
