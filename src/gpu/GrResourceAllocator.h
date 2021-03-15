@@ -137,10 +137,6 @@ private:
 #endif
         }
 
-        ~Interval() {
-            SkASSERT(!fAssignedSurface);
-        }
-
         const GrSurfaceProxy* proxy() const { return fProxy; }
         GrSurfaceProxy* proxy() { return fProxy; }
 
@@ -166,10 +162,6 @@ private:
             }
         }
 
-        void assign(sk_sp<GrSurface>);
-        bool wasAssignedSurface() const { return fAssignedSurface != nullptr; }
-        sk_sp<GrSurface> detachSurface() { return std::move(fAssignedSurface); }
-
         // for SkTDynamicHash
         static const uint32_t& GetKey(const Interval& intvl) {
             return intvl.fProxyID;
@@ -177,8 +169,6 @@ private:
         static uint32_t Hash(const uint32_t& key) { return key; }
 
     private:
-        // TODO: Do we really need this variable?
-        sk_sp<GrSurface> fAssignedSurface;
         GrSurfaceProxy*  fProxy;
         uint32_t         fProxyID; // This is here b.c. DynamicHash requires a ref to the key
         unsigned int     fStart;
