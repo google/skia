@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16d90dbf_1026e160",
+        "filename": "tests/sksl/spirv/PrecisionModifiers.asm.frag",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-15T13:26:15Z",
+      "side": 1,
+      "message": "I sent this off to some folks at ARM and they noticed that %87 is missing a relaxed precision. This is coming from a foo/bar call which is written as 87 \u003d 1/bar. 88 \u003d foo*87",
+      "range": {
+        "startLine": 211,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 32
+      },
+      "revId": "a04692f69eaadd0f56e373e4e83b3576e59f2e5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
