@@ -46,6 +46,30 @@
       },
       "revId": "38d9827331e586b1c824ef2db744e4b61c53ff99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3aedcdc_df315c93",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-15T18:49:20Z",
+      "side": 1,
+      "message": "Note: I wrote the remainder of this comment before Brian added his comment explaining that I should do... you know... exactly this.\n\n---\n\nIn order to fix the issue of variables being accessed before their declarations due to a lack of ordering guarantees in C++, https://skia-review.googlesource.com/c/skia/+/380358 made it so that variables create their declaration statements at creation time.\n\nFor parameters, this declaration statement goes unused, and its late destruction was causing a crash with this change. The \"hasn\u0027t been declared yet\" just meant \"not declared prior to this point, because this (adding it as a function parameter) counts as declaring it even though we aren\u0027t explicitly doing so\". I will reword that comment to be less confusing.\n\nNow that I think about it, we should be checking that parameters were not specified with values and that variables either get declared or used as function parameters prior to destruction. Adding a couple error checks around this.",
+      "parentUuid": "a922c4d9_b85667da",
+      "range": {
+        "startLine": 27,
+        "startChar": 11,
+        "endLine": 27,
+        "endChar": 50
+      },
+      "revId": "38d9827331e586b1c824ef2db744e4b61c53ff99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
