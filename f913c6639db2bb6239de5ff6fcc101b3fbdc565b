@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c44660f_74da6567",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-03-15T10:28:35Z",
+      "side": 1,
+      "message": "Non-OWNER LGTM - thanks very much for doing that! 🙏",
+      "revId": "f913c6639db2bb6239de5ff6fcc101b3fbdc565b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
