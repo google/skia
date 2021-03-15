@@ -6,7 +6,6 @@ OpExecutionMode %main OriginUpperLeft
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %main "main"
 OpName %x "x"
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
