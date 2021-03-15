@@ -1,9 +1,11 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
-struct Inputs {
+struct Uniforms {
     float4 src;
     float4 dst;
+};
+struct Inputs {
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
@@ -59,9 +61,9 @@ float4 blend_saturation(float4 src, float4 dst) {
     return float4((((_blend_set_color_luminance(_blend_set_color_saturation(dsa, sda), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
 
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = blend_saturation(_in.src, _in.dst);
+    _out.sk_FragColor = blend_saturation(_uniforms.src, _uniforms.dst);
     return _out;
 }

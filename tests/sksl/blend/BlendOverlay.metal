@@ -1,9 +1,11 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
-struct Inputs {
+struct Uniforms {
     float4 src;
     float4 dst;
+};
+struct Inputs {
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
@@ -17,9 +19,9 @@ float4 blend_overlay(float4 src, float4 dst) {
     return result;
 }
 
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = blend_overlay(_in.src, _in.dst);
+    _out.sk_FragColor = blend_overlay(_uniforms.src, _uniforms.dst);
     return _out;
 }

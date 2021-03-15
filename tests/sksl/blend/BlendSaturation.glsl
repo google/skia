@@ -1,7 +1,7 @@
 #version 400
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
+uniform vec4 src;
+uniform vec4 dst;
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
     vec3 result = (lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
