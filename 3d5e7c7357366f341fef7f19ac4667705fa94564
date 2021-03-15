@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15570476_8e1e1950",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T17:45:38Z",
+      "side": 1,
+      "message": "Reland adds missing configs to CommonFlagsConfig.cpp",
+      "revId": "3d5e7c7357366f341fef7f19ac4667705fa94564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
