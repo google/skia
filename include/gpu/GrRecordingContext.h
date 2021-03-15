@@ -37,9 +37,8 @@ class GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;
 
-    SK_API GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
-        return INHERITED::defaultBackendFormat(ct, renderable);
-    }
+    using GrImageContext::defaultBackendFormat;
+    using GrImageContext::familyID;
 
     /**
      * Reports whether the GrDirectContext associated with this GrRecordingContext is abandoned.
