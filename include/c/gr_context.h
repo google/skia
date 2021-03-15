@@ -27,6 +27,7 @@ SK_C_API gr_context_t* gr_context_make_metal_with_options(void* device, void* qu
 // TODO: the overloads with GrContextOptions
 
 SK_C_API void gr_context_unref(gr_context_t* context);
+SK_C_API bool gr_context_is_abandoned(gr_context_t* context);
 SK_C_API void gr_context_abandon_context(gr_context_t* context);
 SK_C_API void gr_context_release_resources_and_abandon_context(gr_context_t* context);
 SK_C_API size_t gr_context_get_resource_cache_limit(gr_context_t* context);
