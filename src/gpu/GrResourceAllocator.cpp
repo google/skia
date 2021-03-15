@@ -100,15 +100,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         intvl->extendEnd(end);
         return;
     }
-    Interval* newIntvl;
-    if (fFreeIntervalList) {
-        newIntvl = fFreeIntervalList;
-        fFreeIntervalList = newIntvl->next();
-        newIntvl->setNext(nullptr);
-        newIntvl->resetTo(proxy, start, end);
-    } else {
-        newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
-    }
+    Interval* newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
 
     if (ActualUse::kYes == actualUse) {
         newIntvl->addUse();
@@ -285,11 +277,6 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
                 this->recycleSurface(std::move(surface));
             }
         }
-
-        // Add temp to the free interval list so it can be reused
-        SkASSERT(!temp->wasAssignedSurface()); // it had better not have a ref on a surface
-        temp->setNext(fFreeIntervalList);
-        fFreeIntervalList = temp;
     }
 }
 
