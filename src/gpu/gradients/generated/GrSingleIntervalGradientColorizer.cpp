@@ -34,12 +34,11 @@ public:
         endVar = args.fUniformHandler->addUniform(
                 &_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "end");
         fragBuilder->codeAppendf(
-                R"SkSL(half t = half(%s.x);
-return mix(%s, %s, t);
+                R"SkSL(return mix(%s, %s, half(%s.x));
 )SkSL",
-                args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(startVar),
-                args.fUniformHandler->getUniformCStr(endVar));
+                args.fUniformHandler->getUniformCStr(endVar),
+                args.fSampleCoord);
     }
 
 private:

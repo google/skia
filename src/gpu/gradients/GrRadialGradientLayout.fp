@@ -6,8 +6,7 @@
  */
 
 half4 main(float2 coord) {
-    half t = half(length(coord));
-    return half4(t, 1, 0, 0); // y = 1 for always valid
+    return half4(half(length(coord)), 1, 0, 0); // y = 1 for always valid
 }
 
 //////////////////////////////////////////////////////////////////////////////

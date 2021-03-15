@@ -13,8 +13,7 @@ half4 main(float2 coord) {
     // falls at X.5 - delta then we still could get inconsistent results, but that is much less
     // likely. crbug.com/938592
     // If/when we add filtering of the gradient this can be removed.
-    half t = half(coord.x) + 0.00001;
-    return half4(t, 1, 0, 0); // y = 1 for always valid
+    return half4(half(coord.x) + 0.00001, 1, 0, 0); // y = 1 for always valid
 }
 
 //////////////////////////////////////////////////////////////////////////////
