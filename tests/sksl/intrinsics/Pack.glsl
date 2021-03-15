@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
-in vec2 a;
-in vec4 b;
+uniform vec2 a;
+uniform vec4 b;
 void main() {
     sk_FragColor.x = float(packHalf2x16(a));
     sk_FragColor.x = float(packUnorm2x16(a));

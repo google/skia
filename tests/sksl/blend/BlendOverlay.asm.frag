@@ -1,17 +1,13 @@
-### Compilation failed:
-
-error: SPIR-V validation error: Variable must be decorated with a location
-  %src = OpVariable %_ptr_Input_v4float Input
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise %src %dst
+OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise
 OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
-OpName %src "src"
-OpName %dst "dst"
+OpName %_UniformBuffer "_UniformBuffer"
+OpMemberName %_UniformBuffer 0 "src"
+OpMemberName %_UniformBuffer 1 "dst"
 OpName %_blend_overlay_component "_blend_overlay_component"
 OpName %blend_overlay "blend_overlay"
 OpName %result "result"
@@ -21,8 +17,13 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %src RelaxedPrecision
-OpDecorate %dst RelaxedPrecision
+OpMemberDecorate %_UniformBuffer 0 Offset 0
+OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
+OpMemberDecorate %_UniformBuffer 1 Offset 16
+OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
+OpDecorate %_UniformBuffer Block
+OpDecorate %12 Binding 0
+OpDecorate %12 DescriptorSet 0
 OpDecorate %22 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
 OpDecorate %25 RelaxedPrecision
@@ -67,8 +68,8 @@ OpDecorate %111 RelaxedPrecision
 OpDecorate %112 RelaxedPrecision
 OpDecorate %114 RelaxedPrecision
 OpDecorate %115 RelaxedPrecision
-OpDecorate %119 RelaxedPrecision
-OpDecorate %121 RelaxedPrecision
+OpDecorate %123 RelaxedPrecision
+OpDecorate %127 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -76,9 +77,9 @@ OpDecorate %121 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%_ptr_Input_v4float = OpTypePointer Input %v4float
-%src = OpVariable %_ptr_Input_v4float Input
-%dst = OpVariable %_ptr_Input_v4float Input
+%_UniformBuffer = OpTypeStruct %v4float %v4float
+%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
+%12 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %v2float = OpTypeVector %float 2
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %16 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
@@ -90,6 +91,10 @@ OpDecorate %121 RelaxedPrecision
 %v3float = OpTypeVector %float 3
 %void = OpTypeVoid
 %117 = OpTypeFunction %void
+%_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%int = OpTypeInt 32 1
+%int_0 = OpConstant %int 0
+%int_1 = OpConstant %int 1
 %_blend_overlay_component = OpFunction %float None %16
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpFunctionParameter %_ptr_Function_v2float
@@ -204,15 +209,15 @@ OpReturnValue %115
 OpFunctionEnd
 %main = OpFunction %void None %117
 %118 = OpLabel
-%120 = OpVariable %_ptr_Function_v4float Function
-%122 = OpVariable %_ptr_Function_v4float Function
-%119 = OpLoad %v4float %src
-OpStore %120 %119
-%121 = OpLoad %v4float %dst
-OpStore %122 %121
-%123 = OpFunctionCall %v4float %blend_overlay %120 %122
-OpStore %sk_FragColor %123
+%124 = OpVariable %_ptr_Function_v4float Function
+%128 = OpVariable %_ptr_Function_v4float Function
+%119 = OpAccessChain %_ptr_Uniform_v4float %12 %int_0
+%123 = OpLoad %v4float %119
+OpStore %124 %123
+%125 = OpAccessChain %_ptr_Uniform_v4float %12 %int_1
+%127 = OpLoad %v4float %125
+OpStore %128 %127
+%129 = OpFunctionCall %v4float %blend_overlay %124 %128
+OpStore %sk_FragColor %129
 OpReturn
 OpFunctionEnd
-
-1 error

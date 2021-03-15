@@ -1,7 +1,7 @@
 #version 400
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
+uniform vec4 src;
+uniform vec4 dst;
 float _blend_overlay_component(vec2 s, vec2 d) {
     return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
 }

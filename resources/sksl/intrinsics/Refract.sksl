@@ -1,5 +1,5 @@
-in half a, b, c;
-in half4 d, e;
+uniform half a, b, c;
+uniform half4 d, e;
 void main() {
     sk_FragColor.x = refract(a, b, c);
     sk_FragColor = refract(d, e, c);

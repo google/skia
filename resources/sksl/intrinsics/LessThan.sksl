@@ -1,6 +1,6 @@
-in half4 a, b;
-in uint2 c, d;
-in int3 e, f;
+uniform half4 a, b;
+uniform uint2 c, d;
+uniform int3 e, f;
 void main() {
     sk_FragColor.x = lessThan(a, b).x ? 1 : 0;
     sk_FragColor.y = lessThan(c, d).y ? 1 : 0;
