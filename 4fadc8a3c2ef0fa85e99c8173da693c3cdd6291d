@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7479148_91ff14b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T15:21:05Z",
+      "side": 1,
+      "message": "lgtm, just some questions around one spot that seems to have dropped precision that was there before (on matrices, not bools).",
+      "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c272d10_abc3feb5",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T15:21:05Z",
+      "side": 1,
+      "message": "Did you mean to drop the modifiers on these next few temporaries here? Ah, does composite-extract not allow/require it? (I see it\u0027s also not used in some later functions).",
+      "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4b5e0ba_1261190d",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2172,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T15:21:05Z",
+      "side": 1,
+      "message": "... hmm, maybe not?",
+      "range": {
+        "startLine": 2172,
+        "startChar": 38,
+        "endLine": 2172,
+        "endChar": 49
+      },
+      "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a7f04cf_d2dadb41",
+        "filename": "tests/sksl/shared/Matrices.asm.frag",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T15:21:05Z",
+      "side": 1,
+      "message": "eg, are the diffs here (net -7 modifiers?) due to the matrix-copy change?",
+      "revId": "4fadc8a3c2ef0fa85e99c8173da693c3cdd6291d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
