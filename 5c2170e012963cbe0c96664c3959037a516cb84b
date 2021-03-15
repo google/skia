@@ -16,6 +16,24 @@
       "message": "I have both short term and long term thoughts about this direction, which I\u0027ll outline below, but tl;dr I am okay with landing this now.\n\nShort term:\nI like that this is simplifying the code for op creation and not having two different paths. Since we saw little-to-no improvement using the memory pool, I\u0027m fine not doing that for the time being. I don\u0027t know how much farther in terms of simplification I want to go (see longer term thoughts). For instance, I think the Owner is a useful abstraction that isn\u0027t overly cumbersome to keep around and will be useful for experimentation in the future.\n\nLong term:\nCaveat - all gut feelings.\nWe\u0027ve been updating parts of the GrAtlasTextOp to use specialized memory management, Reed has found evidence that rectangle rendering would do so as well, and Chris has as well for path rendering in his new tessellating path renderer. The 5% improvement from reusing the last allocation shows that there is a noticeable overhead to malloc\u0027ing an op (at least when it\u0027s as common as text).\n\nThat being said, atlas ops are already some of the most optimized in terms of memory layout, while many other ops just use things like SkTArray or make copies of paths, etc. that trigger their own heap allocations. I suspect that if we can update the op types to use their own allocators for mergeable data and push them closer to being smaller, and more pod-like, we\u0027d see more universal improvements going back to an op arena.\n\nI don\u0027t necessarily think that new op arena should GrMemoryPool. GrMemoryPool is a particular abstraction on top of GrBlockAllocator that uses a fixed alignment and uses a fixed block size. Other design aspects for its metadata tracking are due to it being used as the global allocator for all GrFragmentProcessors. I would expect that a growth policy for an op arena would improve performance, as well as one that used variable alignment. Depending on how destruction went at the end of flush time, I could also imagine relaxing the backwards iteration requirement, random deletions, and deleting blocks in the middle of the linked-list (these are more useful for FPs in a global arena). This is all far in the future, so I don\u0027t think that should stop us from simplifying now; I just don\u0027t want to lose too many of the current features that let us switch allocation strategies easily.\n\n(sidenote: I think it should be possible for FPs to be allocated using a recording context\u0027s arenas and not be in a global pool, which would allow us to just wipe the arena at the end of the flush, particularly if texture proxy ownership was tracked external to the FP itself so it could just store a bare pointer).",
       "revId": "5c2170e012963cbe0c96664c3959037a516cb84b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84d1c3e9_9459f707",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-15T16:05:01Z",
+      "side": 1,
+      "message": "I tried an experiment with what I thought is an allocator with a very short allocation code path. It\u0027s the same perf as new/delete. It\u0027s implemented in:\nhttps://skia-review.googlesource.com/c/skia/+/384896\n\nIn engineering here, I think we need to separate the concepts of allocation speed and cache hotness. I think the GrAtlasTextOp is a performance win because of both portions of allocation speed (about 6 instructions), and cache hotness.\n\nThe above experiment has a short instruction path, but does not deal with cache hotness at all.",
+      "parentUuid": "02d0a09c_5c498512",
+      "revId": "5c2170e012963cbe0c96664c3959037a516cb84b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
