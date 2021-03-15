@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "33506010_f517424d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9399
+      },
+      "writtenOn": "2021-03-15T15:39:48Z",
+      "side": 1,
+      "message": "That\u0027s unfortunate :/ Hopefully that can be just removed as couldn\u0027t find more on that on Android\u0027s code search https://cs.android.com/search?q\u003dSkPDFSubsetFont but maybe there are some other internal downstream projects.",
+      "parentUuid": "c1cb4f1d_89dead42",
+      "revId": "82fa9b9eb26b7cd4692a3ec0f7b597baa27fa819",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "18e84305_44ec6e89",
         "filename": "include/docs/SkPDFDocument.h",
         "patchSetId": 5
@@ -65,6 +83,24 @@
       "writtenOn": "2021-03-15T14:42:49Z",
       "side": 1,
       "message": "Can this enum go away altogether?",
+      "revId": "82fa9b9eb26b7cd4692a3ec0f7b597baa27fa819",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be135a8c_b39f2515",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 9399
+      },
+      "writtenOn": "2021-03-15T15:39:48Z",
+      "side": 1,
+      "message": "I think it can just that it touches the `SkPDFSubsetFont` API, maybe we can go for that in a separate CL.",
+      "parentUuid": "18e84305_44ec6e89",
       "revId": "82fa9b9eb26b7cd4692a3ec0f7b597baa27fa819",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
