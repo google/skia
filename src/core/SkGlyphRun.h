@@ -103,16 +103,6 @@ private:
     SkPoint fOrigin = {0, 0};
 };
 
-class SkGlyphIDSet {
-public:
-    SkSpan<const SkGlyphID> uniquifyGlyphIDs(
-            uint32_t universeSize, SkSpan<const SkGlyphID> glyphIDs,
-            SkGlyphID* uniqueGlyphIDs, uint16_t* denseindices);
-private:
-    size_t fUniverseToUniqueSize{0};
-    SkAutoTMalloc<uint16_t> fUniverseToUnique;
-};
-
 class SkGlyphRunBuilder {
 public:
     void drawTextUTF8(
