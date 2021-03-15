@@ -110,6 +110,54 @@
       },
       "revId": "157d52a2e6a81bc4543b584e647aa8e5905a9929",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f95728b_75cf2fa1",
+        "filename": "resources/sksl/intrinsics/Acos.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T20:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15377a70_a5216243",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 8
+      },
+      "revId": "157d52a2e6a81bc4543b584e647aa8e5905a9929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec6601cc_ad0c1870",
+        "filename": "resources/sksl/intrinsics/Acos.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T20:49:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee21bc27_07e35555",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 1,
+        "endChar": 7
+      },
+      "revId": "157d52a2e6a81bc4543b584e647aa8e5905a9929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
