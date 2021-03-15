@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52619ed0_bfc15f5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T19:01:04Z",
+      "side": 1,
+      "message": "Fixes the errors introduced by newer SPIR-V tools at https://skia-review.googlesource.com/c/skia/+/383706",
+      "revId": "157d52a2e6a81bc4543b584e647aa8e5905a9929",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
