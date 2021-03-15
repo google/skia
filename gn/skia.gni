@@ -113,7 +113,6 @@ declare_args() {
   skia_use_dng_sdk =
       !is_fuchsia && skia_use_libjpeg_turbo_decode && skia_use_zlib
   skia_use_libgifcodec = !skia_use_wuffs
-  skia_use_sfntly = skia_use_icu
   skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
   skia_enable_direct3d_debug_layer = skia_enable_gpu_debug_layers
   skia_use_vma = skia_use_vulkan
