@@ -96,11 +96,14 @@ void GrRecordingContext::destroyDrawingManager() {
     fDrawingManager.reset();
 }
 
-GrRecordingContext::Arenas::Arenas(SkArenaAlloc* recordTimeAllocator,
+GrRecordingContext::Arenas::Arenas(GrMemoryPool* opMemoryPool,
+                                   SkArenaAlloc* recordTimeAllocator,
                                    GrSubRunAllocator* subRunAllocator)
-        : fRecordTimeAllocator(recordTimeAllocator)
+        : fOpMemoryPool(opMemoryPool)
+        , fRecordTimeAllocator(recordTimeAllocator)
         , fRecordTimeSubRunAllocator(subRunAllocator) {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
+    SkASSERT(opMemoryPool);
     SkASSERT(recordTimeAllocator);
     SkASSERT(subRunAllocator);
 }
@@ -111,12 +114,20 @@ GrRecordingContext::OwnedArenas::OwnedArenas() {}
 GrRecordingContext::OwnedArenas::~OwnedArenas() {}
 
 GrRecordingContext::OwnedArenas& GrRecordingContext::OwnedArenas::operator=(OwnedArenas&& a) {
+    fOpMemoryPool = std::move(a.fOpMemoryPool);
     fRecordTimeAllocator = std::move(a.fRecordTimeAllocator);
     fRecordTimeSubRunAllocator = std::move(a.fRecordTimeSubRunAllocator);
     return *this;
 }
 
 GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
+    if (!fOpMemoryPool) {
+        // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
+        // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
+        // memory.
+        fOpMemoryPool = GrMemoryPool::Make(16384, 16384);
+    }
+
     if (!fRecordTimeAllocator) {
         // TODO: empirically determine a better number for SkArenaAlloc's firstHeapAllocation param
         fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(sizeof(GrPipeline) * 100);
@@ -126,7 +137,7 @@ GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
         fRecordTimeSubRunAllocator = std::make_unique<GrSubRunAllocator>();
     }
 
-    return {fRecordTimeAllocator.get(), fRecordTimeSubRunAllocator.get()};
+    return {fOpMemoryPool.get(), fRecordTimeAllocator.get(), fRecordTimeSubRunAllocator.get()};
 }
 
 GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {

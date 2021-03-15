@@ -41,6 +41,7 @@ public:
     // from GrRecordingContext
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
+    GrMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
     SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
     GrSubRunAllocator* recordTimeSubRunAllocator() {
         return fContext->arenas().recordTimeSubRunAllocator();
