@@ -38,6 +38,8 @@ static const struct {
     { "gl",                    "gpu", "api=gl" },
     { "gles",                  "gpu", "api=gles" },
     { "glesfakev2",            "gpu", "api=glesfakev2" },
+    { "gldmsaa",               "gpu", "api=gl,dmsaa=true" },
+    { "glesdmsaa",             "gpu", "api=gles,dmsaa=true" },
     { "glmsaa4",               "gpu", "api=gl,samples=4" },
     { "glmsaa8" ,              "gpu", "api=gl,samples=8" },
     { "glesmsaa4",             "gpu", "api=gles,samples=4" },
@@ -141,7 +143,7 @@ static const char configExtendedHelp[] =
         "Extended form: 'backend(option=value,...)'\n\n"
         "Possible backends and options:\n"
         "\n"
-        "gpu[api=string,color=string,dit=bool,samples=int]\n"
+        "gpu[api=string,color=string,dit=bool,dmsaa=bool,samples=int]\n"
         "\tapi\ttype: string\trequired\n"
         "\t    Select graphics API to use with gpu backend.\n"
         "\t    Options:\n"
@@ -177,6 +179,8 @@ static const char configExtendedHelp[] =
         "\t\tf16\t\t\tLinearly blended 16-bit floating point.\n"
         "\tdit\ttype: bool\tdefault: false.\n"
         "\t    Use device independent text.\n"
+        "\tdmsaa\ttype: bool\tdefault: false.\n"
+        "\t    Use internal MSAA to render to non-MSAA surfaces.\n"
         "\tsamples\ttype: int\tdefault: 0.\n"
         "\t    Use multisampling with N samples.\n"
         "\tstencils\ttype: bool\tdefault: true.\n"
@@ -466,7 +470,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                const SkTArray<SkString>& viaParts,
                                                ContextType               contextType,
                                                bool                      fakeGLESVersion2,
-                                               bool                      useDIText,
+                                               uint32_t                  surfaceFlags,
                                                int                       samples,
                                                SkColorType               colorType,
                                                SkAlphaType               alphaType,
@@ -481,7 +485,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
-        , fUseDIText(useDIText)
+        , fSurfaceFlags(surfaceFlags)
         , fSamples(samples)
         , fColorType(colorType)
         , fAlphaType(alphaType)
@@ -506,6 +510,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     // Defaults for GPU backend.
     SkCommandLineConfigGpu::ContextType contextType         = GrContextFactory::kGL_ContextType;
     bool                                useDIText           = false;
+    bool                                useDMSAA            = false;
     int                                 samples             = 1;
     SkColorType                         colorType           = kRGBA_8888_SkColorType;
     SkAlphaType                         alphaType           = kPremul_SkAlphaType;
@@ -528,6 +533,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     bool validOptions =
             extendedOptions.get_option_gpu_api("api", &contextType, &fakeGLESVersion2, false) &&
             extendedOptions.get_option_bool("dit", &useDIText) &&
+            extendedOptions.get_option_bool("dmsaa", &useDMSAA) &&
             extendedOptions.get_option_int("samples", &samples) &&
             extendedOptions.get_option_gpu_color("color", &colorType, &alphaType, &colorSpace) &&
             extendedOptions.get_option_bool("stencils", &useStencils) &&
@@ -543,11 +549,19 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
         return nullptr;
     }
 
+    uint32_t surfaceFlags = 0;
+    if (useDIText) {
+        surfaceFlags |= SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
+    }
+    if (useDMSAA) {
+        surfaceFlags |= kDMSAA_SkSurfacePropsPrivateFlag;
+    }
+
     return new SkCommandLineConfigGpu(tag,
                                       vias,
                                       contextType,
                                       fakeGLESVersion2,
-                                      useDIText,
+                                      surfaceFlags,
                                       samples,
                                       colorType,
                                       alphaType,
