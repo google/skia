@@ -1913,12 +1913,6 @@ void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write(";");
 }
 
-void MetalCodeGenerator::writeHeader() {
-    this->write("#include <metal_stdlib>\n");
-    this->write("#include <simd/simd.h>\n");
-    this->write("using namespace metal;\n");
-}
-
 void MetalCodeGenerator::writeUniformStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
@@ -2366,7 +2360,6 @@ bool MetalCodeGenerator::generateCode() {
     StringStream header;
     {
         AutoOutputStream outputToHeader(this, &header, &fIndentation);
-        this->writeHeader();
         this->writeStructDefinitions();
         this->writeUniformStruct();
         this->writeInputStruct();

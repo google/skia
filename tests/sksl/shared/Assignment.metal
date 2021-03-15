@@ -1,6 +1,3 @@
-#include <metal_stdlib>
-#include <simd/simd.h>
-using namespace metal;
 struct S {
     float f;
     array<float, 5> af;
