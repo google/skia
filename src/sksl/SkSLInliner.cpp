@@ -200,12 +200,14 @@ public:
                 return (fNumReturns >= fLimit) || INHERITED::visitStatement(stmt);
             }
             case Statement::Kind::kVarDeclaration: {
+                ++fNumNonReturnStatements;
                 if (fScopedBlockDepth > 1) {
                     fVariablesInBlocks = true;
                 }
                 return INHERITED::visitStatement(stmt);
             }
             case Statement::Kind::kBlock: {
+                // Don't count Block as a statement.
                 int depthIncrement = stmt.as<Block>().isScope() ? 1 : 0;
                 fScopedBlockDepth += depthIncrement;
                 bool result = INHERITED::visitStatement(stmt);
@@ -219,12 +221,18 @@ public:
                 }
                 return result;
             }
+            case Statement::Kind::kNop:
+            case Statement::Kind::kInlineMarker:
+                // Don't count no-op statements.
+                return false;
             default:
+                ++fNumNonReturnStatements;
                 return INHERITED::visitStatement(stmt);
         }
     }
 
     int fNumReturns = 0;
+    int fNumNonReturnStatements = 0;
     int fDeepestReturn = 0;
     int fLimit = 0;
     int fScopedBlockDepth = 0;
@@ -246,7 +254,10 @@ Inliner::ReturnComplexity Inliner::GetReturnComplexity(const FunctionDefinition&
     if (counter.fVariablesInBlocks && counter.fDeepestReturn > 1) {
         return ReturnComplexity::kScopedReturns;
     }
-    return ReturnComplexity::kSingleSafeReturn;
+    if (counter.fNumNonReturnStatements > 0) {
+        return ReturnComplexity::kSingleSafeReturn;
+    }
+    return ReturnComplexity::kOnlySingleReturn;
 }
 
 void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) {
