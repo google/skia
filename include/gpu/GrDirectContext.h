@@ -791,9 +791,11 @@ public:
     SkString dump() const;
 #endif
 
+    using GrRecordingContext::familyID;
+
     class DirectContextID {
     public:
-        static GrDirectContext::DirectContextID Next();
+        static DirectContextID Next();
 
         DirectContextID() : fID(SK_InvalidUniqueID) {}
 
