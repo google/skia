@@ -1,1 +1,1 @@
-in float a; void main() { sk_FragColor.x = half(floatBitsToInt(a)); }
+ float a; void main() { sk_FragColor.x = half(floatBitsToInt(a)); }

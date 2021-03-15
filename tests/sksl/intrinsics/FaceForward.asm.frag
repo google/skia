@@ -1,12 +1,7 @@
-### Compilation failed:
-
-error: SPIR-V validation error: Variable must be decorated with a location
-  %a = OpVariable %_ptr_Input_float Input
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise %a %b %c %d %e %f
+OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise
 OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
@@ -41,14 +36,14 @@ OpDecorate %32 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%_ptr_Input_float = OpTypePointer Input %float
-%a = OpVariable %_ptr_Input_float Input
-%b = OpVariable %_ptr_Input_float Input
-%c = OpVariable %_ptr_Input_float Input
-%_ptr_Input_v4float = OpTypePointer Input %v4float
-%d = OpVariable %_ptr_Input_v4float Input
-%e = OpVariable %_ptr_Input_v4float Input
-%f = OpVariable %_ptr_Input_v4float Input
+%_ptr_Private_float = OpTypePointer Private %float
+%a = OpVariable %_ptr_Private_float Private
+%b = OpVariable %_ptr_Private_float Private
+%c = OpVariable %_ptr_Private_float Private
+%_ptr_Private_v4float = OpTypePointer Private %v4float
+%d = OpVariable %_ptr_Private_v4float Private
+%e = OpVariable %_ptr_Private_v4float Private
+%f = OpVariable %_ptr_Private_v4float Private
 %void = OpTypeVoid
 %19 = OpTypeFunction %void
 %_ptr_Output_float = OpTypePointer Output %float
@@ -69,5 +64,3 @@ OpStore %25 %21
 OpStore %sk_FragColor %29
 OpReturn
 OpFunctionEnd
-
-1 error

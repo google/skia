@@ -2,6 +2,11 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Inputs {
+};
+struct Outputs {
+    float4 sk_FragColor [[color(0)]];
+};
+struct Globals {
     float a;
     float b;
     float c;
@@ -9,14 +14,12 @@ struct Inputs {
     float4 e;
     float4 f;
 };
-struct Outputs {
-    float4 sk_FragColor [[color(0)]];
-};
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+    Globals _globals{{}, {}, {}, {}, {}, {}};
+    (void)_globals;
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor.x = ((((_in.c) * (_in.b) < 0) ? 1 : -1) * (_in.a));
-    _out.sk_FragColor = faceforward(_in.d, _in.e, _in.f);
+    _out.sk_FragColor.x = ((((_globals.c) * (_globals.b) < 0) ? 1 : -1) * (_globals.a));
+    _out.sk_FragColor = faceforward(_globals.d, _globals.e, _globals.f);
     return _out;
 }

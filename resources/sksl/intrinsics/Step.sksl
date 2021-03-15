@@ -1,1 +1,1 @@
-in half a, b; void main() { sk_FragColor.x = step(a, b); }
+ half a, b; void main() { sk_FragColor.x = step(a, b); }

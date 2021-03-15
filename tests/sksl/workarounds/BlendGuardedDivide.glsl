@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
+uniform vec4 src;
+uniform vec4 dst;
 float _color_dodge_component(vec2 s, vec2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);

@@ -1,12 +1,7 @@
-### Compilation failed:
-
-error: SPIR-V validation error: Variable must be decorated with a location
-  %a = OpVariable %_ptr_Input_uint Input
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise %a
+OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise
 OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
@@ -28,8 +23,8 @@ OpDecorate %28 RelaxedPrecision
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %uint = OpTypeInt 32 0
-%_ptr_Input_uint = OpTypePointer Input %uint
-%a = OpVariable %_ptr_Input_uint Input
+%_ptr_Private_uint = OpTypePointer Private %uint
+%a = OpVariable %_ptr_Private_uint Private
 %void = OpTypeVoid
 %14 = OpTypeFunction %void
 %v2float = OpTypeVector %float 2
@@ -58,5 +53,3 @@ OpStore %sk_FragColor %29
 OpStore %sk_FragColor %31
 OpReturn
 OpFunctionEnd
-
-1 error
