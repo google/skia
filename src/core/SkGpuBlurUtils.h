@@ -20,6 +20,9 @@ struct SkRect;
 
 namespace SkGpuBlurUtils {
 
+/** Maximum sigma before the implementation downscales the input image. */
+static constexpr float kMaxSigma = 4.f;
+
 /**
  * Applies a 2D Gaussian blur to a given texture. The blurred result is returned
  * as a surfaceDrawContext in case the caller wishes to draw into the result.
