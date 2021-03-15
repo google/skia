@@ -167,7 +167,8 @@ SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl"
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
 SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
-SKSL_TEST(SkSLOutParams,                       "shared/OutParams.sksl")
+// TODO(skia:11748): The OutParams test generates invalid SPIR-V when inlining is off.
+SKSL_TEST_CPU(SkSLOutParams,                   "shared/OutParams.sksl")
 SKSL_TEST(SkSLOutParamsTricky,                 "shared/OutParamsTricky.sksl")
 SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(SkSLReturnsValueOnEveryPathES2,      "shared/ReturnsValueOnEveryPathES2.sksl")
