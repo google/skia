@@ -33,6 +33,24 @@
       "message": "Wow, that looks even easier than I anticipated.",
       "revId": "e7055f3f88b50ffd46b5743360754601b9924502",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1824f91a_6cf7325a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-15T15:06:28Z",
+      "side": 1,
+      "message": "Yeah, it was astonishingly simple.",
+      "parentUuid": "ff459ba3_ff2f350e",
+      "revId": "e7055f3f88b50ffd46b5743360754601b9924502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
