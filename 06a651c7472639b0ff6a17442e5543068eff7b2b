@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b118cd2c_e11b26bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-15T16:01:56Z",
+      "side": 1,
+      "message": "... from looking at the ignores again, angle_msaa8 may be a bigger problem than glmsaa8 (or vkmsaa8). I\u0027m going to do a more targeted fix.",
+      "revId": "06a651c7472639b0ff6a17442e5543068eff7b2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
