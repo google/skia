@@ -31,7 +31,7 @@ sk_sp<GrDawnAttachment> GrDawnAttachment::MakeStencil(GrDawnGpu* gpu,
     desc.usage = wgpu::TextureUsage::OutputAttachment;
     desc.size.width = dimensions.width();
     desc.size.height = dimensions.height();
-    desc.size.depth = 1;
+    desc.size.depthOrArrayLayers = 1;
     desc.format = wgpu::TextureFormat::Depth24PlusStencil8;
     wgpu::Texture texture = gpu->device().CreateTexture(&desc);
     if (!texture) {
