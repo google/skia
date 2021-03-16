@@ -183,15 +183,9 @@ if (!is_debug) {
   ]
 }
 if (!is_official_build) {
-  default_configs += [
-    "//gn:debug_symbols",
-    "//gn:warnings",
-  ]
+  default_configs += [ "//gn:debug_symbols" ]
 }
-default_configs += [
-  "//gn:warnings_except_public_headers",
-  "//gn:extra_flags",
-]
+default_configs += [ "//gn:extra_flags" ]
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs
@@ -214,6 +208,21 @@ set_defaults("component") {
   if (!is_component_build) {
     complete_static_lib = true
   }
+}
+
+default_skia_configs = []
+if (!is_official_build) {
+  default_skia_configs += [ "//gn:warnings" ]
+}
+
+default_skia_header_configs = []
+if (!is_official_build) {
+  default_skia_header_configs += [ "//gn:warnings_for_public_headers" ]
+}
+
+declare_args() {
+  skia_target_default_configs = default_skia_configs
+  skia_header_target_default_configs = default_skia_header_configs
 }
 
 if (is_win) {
