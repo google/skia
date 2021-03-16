@@ -536,26 +536,23 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                                  radiusX, radiusY, mode, fit);
     }
 
+    GrColorInfo colorInfo(srcColorType, srcAlphaType, colorSpace);
+    auto srcCtx = GrSurfaceContext::Make(context, srcView, colorInfo);
+    SkASSERT(srcCtx);
+
     float scaleX = sigmaX > kMaxSigma ? kMaxSigma/sigmaX : 1.f;
     float scaleY = sigmaY > kMaxSigma ? kMaxSigma/sigmaY : 1.f;
-
     // We round down here so that when we recalculate sigmas we know they will be below
     // MAX_BLUR_SIGMA.
-    SkISize rescaledSize = {sk_float_floor2int(srcBounds.width() *scaleX),
-                            sk_float_floor2int(srcBounds.height()*scaleY)};
-    if (rescaledSize.isEmpty()) {
-        // TODO: Handle this degenerate case.
-        return nullptr;
-    }
-    // Compute the sigmas using the actual scale factors used once we integerized the rescaledSize.
+    SkISize rescaledSize = {std::max(sk_float_floor2int(srcBounds.width() *scaleX), 1),
+                            std::max(sk_float_floor2int(srcBounds.height()*scaleY), 1)};
+    // Compute the sigmas using the actual scale factors used once we integerized the
+    // rescaledSize.
     scaleX = static_cast<float>(rescaledSize.width()) /srcBounds.width();
     scaleY = static_cast<float>(rescaledSize.height())/srcBounds.height();
     sigmaX *= scaleX;
     sigmaY *= scaleY;
 
-    GrColorInfo colorInfo(srcColorType, srcAlphaType, colorSpace);
-    auto srcCtx = GrSurfaceContext::Make(context, srcView, colorInfo);
-    SkASSERT(srcCtx);
     // When we are in clamp mode any artifacts in the edge pixels due to downscaling may be
     // exacerbated because of the tile mode. The particularly egregious case is when the original
     // image has transparent black around the edges and the downscaling pulls in some non-zero
@@ -596,20 +593,20 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
         // single bilerp draw. If we find this quality unacceptable we should think more about how
         // to rescale these with better quality but without 4 separate multi-pass downscales.
         auto cheapDownscale = [&](SkIRect dstRect, SkIRect srcRect) {
-                rescaledSDC->drawTexture(nullptr,
-                                         srcCtx->readSurfaceView(),
-                                         srcAlphaType,
-                                         GrSamplerState::Filter::kLinear,
-                                         GrSamplerState::MipmapMode::kNone,
-                                         SkBlendMode::kSrc,
-                                         SK_PMColor4fWHITE,
-                                         SkRect::Make(srcRect),
-                                         SkRect::Make(dstRect),
-                                         GrAA::kNo,
-                                         GrQuadAAFlags::kNone,
-                                         SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint,
-                                         SkMatrix::I(),
-                                         nullptr);
+            rescaledSDC->drawTexture(nullptr,
+                                     srcCtx->readSurfaceView(),
+                                     srcAlphaType,
+                                     GrSamplerState::Filter::kLinear,
+                                     GrSamplerState::MipmapMode::kNone,
+                                     SkBlendMode::kSrc,
+                                     SK_PMColor4fWHITE,
+                                     SkRect::Make(srcRect),
+                                     SkRect::Make(dstRect),
+                                     GrAA::kNo,
+                                     GrQuadAAFlags::kNone,
+                                     SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint,
+                                     SkMatrix::I(),
+                                     nullptr);
         };
         auto [dw, dh] = rescaledSize;
         // The are the src rows and columns from the source that we will scale into the dst padding.
@@ -651,9 +648,12 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     rescaledSDC.reset();
     srcCtx.reset();
 
+    float remainingSigmaX = sigmaX;
+    float remainingSigmaY = sigmaY;
+    std::unique_ptr<GrSurfaceDrawContext> sdc;
     // Compute the dst bounds in the scaled down space. First move the origin to be at the top
-    // left since we trimmed off everything above and to the left of the original src bounds during
-    // the rescale.
+    // left since we trimmed off everything above and to the left of the original src bounds
+    // during the rescale.
     SkRect scaledDstBounds = SkRect::Make(dstBounds.makeOffset(-srcBounds.topLeft()));
     scaledDstBounds.fLeft   *= scaleX;
     scaledDstBounds.fTop    *= scaleY;
@@ -663,21 +663,50 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     scaledDstBounds.offset(pad, pad);
     // Turn the scaled down dst bounds into an integer pixel rect.
     auto scaledDstBoundsI = scaledDstBounds.roundOut();
-
-    SkIRect scaledSrcBounds = SkIRect::MakeSize(srcView.dimensions());
-    auto sdc = GaussianBlur(context,
-                            std::move(srcView),
-                            srcColorType,
-                            srcAlphaType,
-                            colorSpace,
-                            scaledDstBoundsI,
-                            scaledSrcBounds,
-                            sigmaX,
-                            sigmaY,
-                            mode,
-                            fit);
-    if (!sdc) {
-        return nullptr;
+    while (remainingSigmaX > 0 || remainingSigmaY > 0) {
+        float stepSigmaX, stepSigmaY;
+        if (remainingSigmaX <= kMaxSigma) {
+            stepSigmaX = remainingSigmaX;
+            remainingSigmaX = 0;
+        } else {
+            if (srcView.width() > 1 || mode == SkTileMode::kDecal) {
+                stepSigmaX = kMaxSigma;
+                remainingSigmaX = sqrt(remainingSigmaX*remainingSigmaX - kMaxSigma*kMaxSigma);
+            } else {
+                stepSigmaX = remainingSigmaX = 0;
+            }
+        }
+        if (remainingSigmaY <= kMaxSigma) {
+            stepSigmaY = remainingSigmaY;
+            remainingSigmaY = 0;
+        } else {
+            if (srcView.height() > 1 || mode == SkTileMode::kDecal) {
+                stepSigmaY = kMaxSigma;
+                remainingSigmaY = sqrt(remainingSigmaY*remainingSigmaY - kMaxSigma*kMaxSigma);
+            } else {
+                stepSigmaY = remainingSigmaY = 0;
+            }
+        }
+        SkIRect scaledSrcBounds = SkIRect::MakeSize(srcView.dimensions());
+        // We blur the src "in place" until there is one step left and then we blur to the final
+        // scaled dst bounds (which will be upscaled to the original dst bounds).
+        SkIRect tempDstBounds = (remainingSigmaX || remainingSigmaY) ? scaledSrcBounds
+                                                                     : scaledDstBoundsI;
+        sdc = GaussianBlur(context,
+                           std::move(srcView),
+                           srcColorType,
+                           srcAlphaType,
+                           colorSpace,
+                           tempDstBounds,
+                           scaledSrcBounds,
+                           stepSigmaX,
+                           stepSigmaY,
+                           mode,
+                           fit);
+        if (!sdc) {
+            return nullptr;
+        }
+        srcView = sdc->readSurfaceView();
     }
     // We rounded out the integer scaled dst bounds. Select the fractional dst bounds from the
     // integer dimension blurred result when we scale back up.
