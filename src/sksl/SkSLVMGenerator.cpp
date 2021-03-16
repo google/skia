@@ -331,6 +331,7 @@ static inline bool is_uniform(const SkSL::Variable& var) {
 static size_t slot_count(const Type& type) {
     switch (type.typeKind()) {
         case Type::TypeKind::kOther:
+        case Type::TypeKind::kVoid:
             return 0;
         case Type::TypeKind::kStruct: {
             size_t slots = 0;
