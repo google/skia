@@ -185,13 +185,59 @@ if (!is_debug) {
 if (!is_official_build) {
   default_configs += [
     "//gn:debug_symbols",
-    "//gn:warnings",
   ]
 }
 default_configs += [
-  "//gn:warnings_except_public_headers",
   "//gn:extra_flags",
 ]
+
+default_skia_configs = default_configs
+if (!is_official_build) {
+  default_skia_configs += [
+    "//gn:warnings",
+  ]
+}
+
+default_skia_header_configs = default_skia_configs
+if (!is_official_build) {
+  default_skia_header_configs += [
+    "//gn:warnings_for_public_headers",
+  ]
+}
+
+
+# skia_ namespaced targets receive Skia defaults.
+template("skia_executable") {
+  target("executable", target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_source_set") {
+  target("source_set", target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_static_library") {
+  target("static_library", target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_shared_library") {
+  target("shared_library", target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_component") {
+  target("component", target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_header_source_set") {
+  target("source_set", target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs
@@ -215,6 +261,31 @@ set_defaults("component") {
     complete_static_lib = true
   }
 }
+
+set_defaults("skia_executable") {
+  configs = default_skia_configs
+}
+
+set_defaults("skia_source_set") {
+  configs = default_skia_configs
+}
+
+set_defaults("skia_static_library") {
+  configs = default_skia_configs
+}
+
+set_defaults("skia_shared_library") {
+  configs = default_skia_configs
+}
+
+set_defaults("skia_component") {
+  configs = default_skia_configs
+}
+
+set_defaults("skia_header_source_set") {
+  configs = default_skia_header_configs
+}
+
 
 if (is_win) {
   # Windows tool chain

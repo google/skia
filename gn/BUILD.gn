@@ -453,6 +453,7 @@ config("warnings") {
       "-Wno-unreachable-code-return",
       "-Wno-unused-macros",
       "-Wno-unused-member-function",
+      "-Wno-unused-parameter",
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
       "-Wno-thread-safety-negative",
@@ -462,10 +463,6 @@ config("warnings") {
       "-Wno-abstract-vbase-init",
       "-Wno-weak-vtables",
     ]
-
-    # Turn back on after -Wno-conversion.
-    # This only affects public headers... see :warnings_except_public_headers.
-    cflags += [ "-Wsign-conversion" ]
 
     # We are unlikely to want to fix these.
     cflags += [
@@ -527,11 +524,11 @@ config("warnings") {
     ]
   }
 }
-config("warnings_except_public_headers") {
+config("warnings_for_public_headers") {
   if (!is_win || is_clang) {
     cflags = [
-      "-Wno-sign-conversion",
-      "-Wno-unused-parameter",
+      "-Wsign-conversion",
+      "-Wunused-parameter",
     ]
   }
 }
