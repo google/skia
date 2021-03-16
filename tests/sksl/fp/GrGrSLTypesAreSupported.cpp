@@ -19,52 +19,35 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrGrSLTypesAreSupported& _outer = args.fFp.cast<GrGrSLTypesAreSupported>();
         (void) _outer;
-        SkString test_i_name = fragBuilder->getMangledFunctionName("test_i");
-        const GrShaderVar test_i_args[] = { GrShaderVar("a", kInt_GrSLType) };
-        SkString test_i2_name = fragBuilder->getMangledFunctionName("test_i2");
-        const GrShaderVar test_i2_args[] = { GrShaderVar("a", kInt2_GrSLType) };
-        SkString test_i3_name = fragBuilder->getMangledFunctionName("test_i3");
-        const GrShaderVar test_i3_args[] = { GrShaderVar("a", kInt3_GrSLType) };
-        SkString test_i4_name = fragBuilder->getMangledFunctionName("test_i4");
-        const GrShaderVar test_i4_args[] = { GrShaderVar("a", kInt4_GrSLType) };
-        SkString test_h3x3_name = fragBuilder->getMangledFunctionName("test_h3x3");
-        const GrShaderVar test_h3x3_args[] = { GrShaderVar("a", kHalf3x3_GrSLType) };
-        SkString test_f2x2_name = fragBuilder->getMangledFunctionName("test_f2x2");
-        const GrShaderVar test_f2x2_args[] = { GrShaderVar("a", kFloat2x2_GrSLType) };
-        fragBuilder->emitFunction(kInt_GrSLType, test_i_name.c_str(), {test_i_args, 1},
-R"SkSL(for (; ; ) {
-    return a;
-}
-)SkSL");
-        fragBuilder->emitFunction(kInt2_GrSLType, test_i2_name.c_str(), {test_i2_args, 1},
-R"SkSL(for (; ; ) {
-    return a;
-}
-)SkSL");
-        fragBuilder->emitFunction(kInt3_GrSLType, test_i3_name.c_str(), {test_i3_args, 1},
-R"SkSL(for (; ; ) {
-    return a;
-}
-)SkSL");
-        fragBuilder->emitFunction(kInt4_GrSLType, test_i4_name.c_str(), {test_i4_args, 1},
-R"SkSL(for (; ; ) {
-    return a;
-}
-)SkSL");
-        fragBuilder->emitFunction(kHalf3x3_GrSLType, test_h3x3_name.c_str(), {test_h3x3_args, 1},
-R"SkSL(for (; ; ) {
-    return a;
-}
-)SkSL");
-        fragBuilder->emitFunction(kFloat2x2_GrSLType, test_f2x2_name.c_str(), {test_f2x2_args, 1},
-R"SkSL(for (; ; ) {
-    return a;
-}
-)SkSL");
         fragBuilder->codeAppendf(
-R"SkSL(return ((((((int4(%s(1)) , %s(int2(1)).xxxx) , %s(int3(1)).xxxx) , %s(int4(1)).xxxx) , %s(half3x3(1.0))[0]) , %s(float2x2(1.0))[0]) , half4(1.0));
+R"SkSL(int _0_test_i;
+for (; ; ) {
+    _0_test_i = 1;
+}
+int2 _1_test_i2;
+for (; ; ) {
+    _1_test_i2 = int2(1);
+}
+int3 _2_test_i3;
+for (; ; ) {
+    _2_test_i3 = int3(1);
+}
+int4 _3_test_i4;
+for (; ; ) {
+    _3_test_i4 = int4(1);
+}
+half3x3 _4_test_h3x3;
+for (; ; ) {
+    _4_test_h3x3 = half3x3(1.0);
+}
+float2x2 _5_test_f2x2;
+for (; ; ) {
+    _5_test_f2x2 = float2x2(1.0);
+}
+return ((((((int4(_0_test_i) , _1_test_i2.xxxx) , _2_test_i3.xxxx) , _3_test_i4.xxxx) , _4_test_h3x3[0]) , _5_test_f2x2[0]) , half4(1.0));
+
 )SkSL"
-, test_i_name.c_str(), test_i2_name.c_str(), test_i3_name.c_str(), test_i4_name.c_str(), test_h3x3_name.c_str(), test_f2x2_name.c_str());
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

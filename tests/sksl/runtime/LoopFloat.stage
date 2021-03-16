@@ -1,38 +1,36 @@
-float return_loop_0()
-{
-	for (float i = 0.0;i < 10.0; ++i) 
-	{
-		if (i == 5.0) 
-		{
-			return i;
-		}
-	}
-	return 0.0;
-}
 half4 main()
 {
-	float _0_sum = 0.0;
+	float _0_return_loop;
 	for (float _1_i = 0.0;_1_i < 10.0; ++_1_i) 
 	{
-		if (_1_i < 5.0) 
+		if (_1_i == 5.0) 
 		{
-			continue;
+			_0_return_loop = _1_i;
 		}
-		_0_sum += _1_i;
 	}
+	_0_return_loop = 0.0;
 	float _2_sum = 0.0;
 	for (float _3_i = 0.0;_3_i < 10.0; ++_3_i) 
 	{
-		if (_3_i > 5.0) 
+		if (_3_i < 5.0) 
 		{
-			break;
+			continue;
 		}
 		_2_sum += _3_i;
 	}
 	float _4_sum = 0.0;
-	for (float _5_i = 0.12300000339746475;_5_i < 0.60000002384185791; _5_i += 0.11100000143051147) 
+	for (float _5_i = 0.0;_5_i < 10.0; ++_5_i) 
 	{
+		if (_5_i > 5.0) 
+		{
+			break;
+		}
 		_4_sum += _5_i;
 	}
-	return half4(half4(half(return_loop_0()), half(_0_sum), half(_2_sum), half(_4_sum)));
+	float _6_sum = 0.0;
+	for (float _7_i = 0.12300000339746475;_7_i < 0.60000002384185791; _7_i += 0.11100000143051147) 
+	{
+		_6_sum += _7_i;
+	}
+	return half4(half4(half(_0_return_loop), half(_2_sum), half(_4_sum), half(_6_sum)));
 }

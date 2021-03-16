@@ -1,5 +1,5 @@
 4 registers, 8 instructions:
-0	r0 = splat 40A00000 (5)
+0	r0 = splat 0 (0)
 1	r1 = splat 420C0000 (35)
 2	r2 = splat 41700000 (15)
 3	r3 = splat 3F800000 (1)
