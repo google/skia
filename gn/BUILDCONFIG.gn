@@ -183,32 +183,22 @@ if (!is_debug) {
   ]
 }
 if (!is_official_build) {
-  default_configs += [
-    "//gn:debug_symbols",
-    "//gn:warnings",
-  ]
+  default_configs += [ "//gn:debug_symbols" ]
 }
-default_configs += [
-  "//gn:warnings_except_public_headers",
-  "//gn:extra_flags",
-]
+default_configs += [ "//gn:extra_flags" ]
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs
 }
-
 set_defaults("source_set") {
   configs = default_configs
 }
-
 set_defaults("static_library") {
   configs = default_configs
 }
-
 set_defaults("shared_library") {
   configs = default_configs
 }
-
 set_defaults("component") {
   configs = default_configs
   if (!is_component_build) {
