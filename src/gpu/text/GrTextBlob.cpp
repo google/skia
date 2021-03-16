@@ -1506,7 +1506,8 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                                  drawMatrix,
                                  glyphRunList.paint(),
                                  control,
-                                 blob.get());
+                                 blob.get(),
+                                 "GrTextBlob");
     }
 
     return blob;

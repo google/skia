@@ -654,6 +654,10 @@ sk_sp<SkData> SkStrikeServerImpl::serializeTypeface(SkTypeface* tf) {
 }
 
 void SkStrikeServerImpl::writeStrikeData(std::vector<uint8_t>* memory) {
+    #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+        SkString msg;
+        msg.appendf("\nBegin send strike differences\n");
+    #endif
     size_t strikesToSend = 0;
     fRemoteStrikesToSend.foreach ([&](RemoteStrike* strike) {
         if (strike->hasPendingGlyphs()) {
@@ -686,6 +690,9 @@ void SkStrikeServerImpl::writeStrikeData(std::vector<uint8_t>* memory) {
                 auto it = fDescToRemoteStrike.find(&strike->getDescriptor());
                 SkASSERT(it != fDescToRemoteStrike.end());
                 SkASSERT(it->second.get() == strike);
+                #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+                    msg.append(strike->getDescriptor().dumpRec());
+                #endif
             }
 
 #else
@@ -694,10 +701,17 @@ void SkStrikeServerImpl::writeStrikeData(std::vector<uint8_t>* memory) {
                     strike->writePendingGlyphs(&serializer);
                     strike->resetScalerContext();
                 }
+                #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+                    msg.append(strike->getDescriptor().dumpRec());
+                #endif
             }
 #endif
     );
     fRemoteStrikesToSend.reset();
+    #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+        msg.appendf("End send strike differences");
+        SkDebugf("%s\n", msg.c_str());
+    #endif
 }
 
 RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
@@ -831,7 +845,8 @@ protected:
                                      drawMatrix,
                                      glyphRunList.paint(),
                                      control,
-                                     nullptr);
+                                     nullptr,
+                                     "Cache Diff");
         }
         #endif  // SK_SUPPORT_GPU
     }
@@ -994,6 +1009,11 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         addTypeface(wire);
     }
 
+    #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+        SkString msg;
+        msg.appendf("\nBegin receive strike differences\n");
+    #endif
+
     if (!deserializer.read<uint64_t>(&strikeCount)) READ_FAILURE
 
     for (size_t i = 0; i < strikeCount; ++i) {
@@ -1002,6 +1022,9 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
 
         SkAutoDescriptor sourceAd;
         if (!deserializer.readDescriptor(&sourceAd)) READ_FAILURE
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("  Received descriptor:\n%s", sourceAd.getDesc()->dumpRec().c_str());
+        #endif
 
         bool fontMetricsInitialized;
         if (!deserializer.read(&fontMetricsInitialized)) READ_FAILURE
@@ -1023,6 +1046,9 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         SkAutoDescriptor ad;
         auto* client_desc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
 
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("  Mapped descriptor:\n%s", client_desc->dumpRec().c_str());
+        #endif
         auto strike = fStrikeCache->findStrike(*client_desc);
         // Metrics are only sent the first time. If the metrics are not initialized, there must
         // be an existing strike.
@@ -1076,6 +1102,11 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
             strike->mergePath(allocatedGlyph, pathPtr);
         }
     }
+
+#if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+    msg.appendf("End receive strike differences");
+    SkDebugf("%s\n", msg.c_str());
+#endif
 
     return true;
 }
