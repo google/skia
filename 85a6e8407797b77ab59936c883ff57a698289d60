@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84575794_d0948770",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T14:28:04Z",
+      "side": 1,
+      "message": "LGTM as well, when private. I can imagine making this be a GPU-only option, in which case public SkSurfaceProps may not be the right spot.",
+      "revId": "85a6e8407797b77ab59936c883ff57a698289d60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
