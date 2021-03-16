@@ -155,6 +155,7 @@ if (skia_use_system_zlib) {
     public_include_dirs = [ "../externals/zlib" ]
     defines = [ "ZLIB_IMPLEMENTATION" ]
     deps = []
+    configs = []
 
     sources = [
       "../externals/zlib/adler32.c",
