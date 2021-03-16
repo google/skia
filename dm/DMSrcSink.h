@@ -393,7 +393,6 @@ public:
         return fContextOverrides;
     }
     SkCommandLineConfigGpu::SurfType surfType() const { return fSurfType; }
-    bool useDIText() const { return fUseDIText; }
     bool serial() const override { return true; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override {
@@ -415,7 +414,7 @@ private:
     sk_gpu_test::GrContextFactory::ContextOverrides   fContextOverrides;
     SkCommandLineConfigGpu::SurfType                  fSurfType;
     int                                               fSampleCount;
-    bool                                              fUseDIText;
+    uint32_t                                          fSurfaceFlags;
     SkColorType                                       fColorType;
     SkAlphaType                                       fAlphaType;
     sk_sp<SkColorSpace>                               fColorSpace;
