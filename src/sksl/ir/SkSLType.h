@@ -84,7 +84,8 @@ public:
         kScalar,
         kStruct,
         kTexture,
-        kVector
+        kVector,
+        kVoid,
     };
 
     enum class NumberKind {
@@ -204,11 +205,12 @@ public:
 
     /**
      * Returns true if this is an "opaque type" (an external object which the shader references in
-     * some fashion). https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Opaque_types
+     * some fashion), or void. https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Opaque_types
      */
     bool isOpaque() const {
         switch (fTypeKind) {
             case TypeKind::kOther:
+            case TypeKind::kVoid:
             case TypeKind::kSampler:
             case TypeKind::kSeparateSampler:
             case TypeKind::kTexture:
@@ -309,6 +311,10 @@ public:
         return fIsArrayed;
     }
 
+    bool isVoid() const {
+        return fTypeKind == TypeKind::kVoid;
+    }
+
     bool isScalar() const {
         return fTypeKind == TypeKind::kScalar;
     }
@@ -384,7 +390,7 @@ private:
             , fTypeKind(TypeKind::kOther)
             , fNumberKind(NumberKind::kNonnumeric) {}
 
-    // Constructor for MakeEnumType and MakeSeparateSamplerType.
+    // Constructor for MakeVoidType, MakeEnumType and MakeSeparateSamplerType.
     Type(String name, TypeKind kind)
             : INHERITED(-1, kSymbolKind, "")
             , fNameString(std::move(name))
