@@ -9,8 +9,6 @@ vec4 live_fn(vec4 a, vec4 b) {
     return a + b;
 }
 vec4 main() {
-    const bool TRUE = true;
-    const bool FALSE = false;
     vec4 a;
     vec4 b;
     {

@@ -1,7 +1,6 @@
 
 out vec4 sk_FragColor;
 void main() {
-    float _1_y = 123.0;
     float z = 0.0;
     float _0_y = z;
     ++_0_y;

@@ -4,7 +4,6 @@ uniform vec4 colorGreen;
 uniform vec4 colorRed;
 uniform vec4 colorWhite;
 vec4 main() {
-    vec4 result;
     float h;
     h = colorWhite.x;
     false;
