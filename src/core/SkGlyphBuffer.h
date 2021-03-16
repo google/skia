@@ -172,6 +172,8 @@ public:
             const SkMatrix& drawMatrix,
             const SkGlyphPositionRoundingSpec& roundingSpec);
 
+    SkString dumpInput() const;
+
     // The input of SkPackedGlyphIDs
     SkZip<SkGlyphVariant, SkPoint> input() {
         SkASSERT(fPhase == kInput);

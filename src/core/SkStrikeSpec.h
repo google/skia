@@ -89,6 +89,7 @@ public:
     bool isEmpty() const { return SkScalarNearlyZero(fStrikeToSourceRatio); }
     const SkDescriptor& descriptor() const { return *fAutoDescriptor.getDesc(); }
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
+    SkString dump() const;
 
 private:
     SkStrikeSpec(
