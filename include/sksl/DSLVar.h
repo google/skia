@@ -123,12 +123,14 @@ private:
     std::unique_ptr<SkSL::Statement> fDeclaration;
     bool fDeclared = false;
     const SkSL::Variable* fVar;
+    const char* fRawName; // for error reporting
     const char* fName;
 
     friend DSLVar sk_SampleCoord();
 
     friend class DSLCore;
     friend class DSLExpression;
+    friend class DSLFunction;
     friend class DSLWriter;
 };
 
