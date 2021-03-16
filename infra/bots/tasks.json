@@ -15452,11 +15452,11 @@
           "cache/vpython"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 28800000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 28800000000000,
       "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -16903,11 +16903,11 @@
           "cache/vpython"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 28800000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 28800000000000,
       "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
