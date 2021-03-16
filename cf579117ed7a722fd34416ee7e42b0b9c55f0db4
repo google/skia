@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7dc3584_fa21da75",
+        "filename": "tests/SkSLDSLErrorLineNumbers.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-16T16:00:47Z",
+      "side": 1,
+      "message": "I\u0027m embarrassed by how long it took me to think of doing this.",
+      "range": {
+        "startLine": 57,
+        "startChar": 36,
+        "endLine": 57,
+        "endChar": 48
+      },
+      "revId": "cf579117ed7a722fd34416ee7e42b0b9c55f0db4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
