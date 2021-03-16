@@ -16,6 +16,29 @@
       "message": "LGTM as well, when private. I can imagine making this be a GPU-only option, in which case public SkSurfaceProps may not be the right spot.",
       "revId": "85a6e8407797b77ab59936c883ff57a698289d60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c50d3a4_073a5687",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-16T14:38:13Z",
+      "side": 1,
+      "message": "Last is used for enums more than bitfields. I see how you\u0027re using it internally, but it is a little confusing here (esp. if we had more than one bit defined publicly).\n\nkAllMask might be more meaningful for a bitfield. If you want to protect your private extension, you can always statically assert that your new bit does not overlap...\n\nstatic_assert((kNewBit \u0026 kAllMask) \u003d\u003d 0);",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "85a6e8407797b77ab59936c883ff57a698289d60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
