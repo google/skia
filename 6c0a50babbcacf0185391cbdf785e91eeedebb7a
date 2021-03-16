@@ -22,6 +22,30 @@
       },
       "revId": "6c0a50babbcacf0185391cbdf785e91eeedebb7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7908ce9f_90bd44ac",
+        "filename": "infra/bots/recipes/compute_buildstats.expected/normal_bot.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-03-16T12:25:43Z",
+      "side": 1,
+      "message": "I don\u0027t expect it to, but will change if it does.",
+      "parentUuid": "a570d819_602da943",
+      "range": {
+        "startLine": 234,
+        "startChar": 48,
+        "endLine": 234,
+        "endChar": 49
+      },
+      "revId": "6c0a50babbcacf0185391cbdf785e91eeedebb7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
