@@ -154,6 +154,7 @@ private:
     static std::unique_ptr<Type> MakeSamplerType(const char* name, const Type& textureType);
     static std::unique_ptr<Type> MakeSeparateSamplerType(const char* name);
     static std::unique_ptr<Type> MakeOtherType(const char* name);
+    static std::unique_ptr<Type> MakeVoidType(const char* name);
 };
 
 }  // namespace SkSL

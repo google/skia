@@ -84,7 +84,8 @@ public:
         kScalar,
         kStruct,
         kTexture,
-        kVector
+        kVector,
+        kVoid,
     };
 
     enum class NumberKind {
@@ -309,6 +310,10 @@ public:
         return fIsArrayed;
     }
 
+    bool isVoid() const {
+        return fTypeKind == TypeKind::kVoid;
+    }
+
     bool isScalar() const {
         return fTypeKind == TypeKind::kScalar;
     }
@@ -384,7 +389,7 @@ private:
             , fTypeKind(TypeKind::kOther)
             , fNumberKind(NumberKind::kNonnumeric) {}
 
-    // Constructor for MakeEnumType and MakeSeparateSamplerType.
+    // Constructor for MakeVoidType, MakeEnumType and MakeSeparateSamplerType.
     Type(String name, TypeKind kind)
             : INHERITED(-1, kSymbolKind, "")
             , fNameString(std::move(name))

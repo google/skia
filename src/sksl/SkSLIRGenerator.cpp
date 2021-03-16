@@ -230,7 +230,7 @@ int IRGenerator::convertArraySize(const Type& type, std::unique_ptr<Expression> 
     if (!size) {
         return 0;
     }
-    if (type == *fContext.fTypes.fVoid) {
+    if (type.isVoid()) {
         this->errorReporter().error(size->fOffset, "type 'void' may not be used in an array");
         return 0;
     }
@@ -921,7 +921,7 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
         }
 
         bool functionReturnsValue() const {
-            return fFunction->returnType() != *fIRGenerator->fContext.fTypes.fVoid;
+            return !fFunction->returnType().isVoid();
         }
 
         bool visitStatement(Statement& stmt) override {
@@ -1029,8 +1029,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                                     "functions may not return structs containing arrays");
         return;
     }
-    if (!fIsBuiltinCode && *returnType != *fContext.fTypes.fVoid &&
-        returnType->componentType().isOpaque()) {
+    if (!fIsBuiltinCode && !returnType->isVoid() && returnType->componentType().isOpaque()) {
         this->errorReporter().error(
                 f.fOffset,
                 "functions may not return opaque type '" + returnType->displayName() + "'");
@@ -1447,7 +1446,7 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     }
     const Type* result = &symbol->as<Type>();
     const bool isArray = (type.begin() != type.end());
-    if (*result == *fContext.fTypes.fVoid && !allowVoid) {
+    if (result->isVoid() && !allowVoid) {
         this->errorReporter().error(type.fOffset,
                                     "type '" + name + "' not allowed in this context");
         return nullptr;
