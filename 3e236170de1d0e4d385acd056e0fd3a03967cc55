@@ -174,6 +174,30 @@
       },
       "revId": "3e236170de1d0e4d385acd056e0fd3a03967cc55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72418f27_ed4f5cfd",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-16T18:27:19Z",
+      "side": 1,
+      "message": "utf8_next doesn\u0027t depend on ICU, and neither does the rest of this method. Seems like this could just be on a base SkUnicode implementation? In other words, this doesn\u0027t depend on ICU, so should it be implemented in an ICU specific class? That way it doesn\u0027t need to be virtual since we have a portable implementation.",
+      "parentUuid": "0a13c3a2_0377125a",
+      "range": {
+        "startLine": 534,
+        "startChar": 12,
+        "endLine": 534,
+        "endChar": 19
+      },
+      "revId": "3e236170de1d0e4d385acd056e0fd3a03967cc55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
