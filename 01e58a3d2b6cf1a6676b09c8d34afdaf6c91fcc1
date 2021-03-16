@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5f966d9a_8c5c018d",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T19:20:56Z",
+      "side": 1,
+      "message": "The draw bounds affects the results, but in the way you\u0027d want. If the draw bounds don\u0027t intersect at all, it returns kClippedOut so you can just stop then (instead of changing the draw type around and later getting rid of the draw op when the clip is fully applied). If the clip state is one of these simple types, and it\u0027s fully contained, it returns kUnclipped so you can ignore the GrClipStack entirely going forward.\n\nIn other cases, it says its clipped and tells you if it\u0027s a rect, rrect, or something more complicated. But when the draw bounds intersects the device rrect (so your last question), it\u0027ll report the full geometry of the clip like this new function does. This is almost a copy of GrClipStack\u0027s preApply implementation, so I wouldn\u0027t worry too much about it.\n\nI would pass the render target bounds in for the draw paint call. A really large rect would work too, but the internal queries are already intersected with the render target bounds.",
+      "parentUuid": "f8086ab6_caf7781d",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 54
+      },
+      "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9791cb25_aecd0e36",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 2
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "So dmsaa is really experimental right now, but the main idea here was to lift some optimizations from attemptQuadOptimization to the SkGpuDevice level to make sure we still get them when the dmsaa codepaths don\u0027t go through attemptQuadOptimization. This is mainly to get fewer diffs in gold, and it\u0027s also why I put it behind the fSurfaceIsDMSAA flag for now, but if it\u0027s too immature at this point we don\u0027t have to land.",
       "parentUuid": "9791cb25_aecd0e36",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 337,
+        "endChar": 55
+      },
+      "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bac362a8_ce67a735",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T19:20:56Z",
+      "side": 1,
+      "message": "I guess I\u0027m not understanding what code paths change with dmsaa that would make us miss attemptQuadOptimization. Are we planning to have drawRect, or drawImage go through path rendering and never hit GrSDC::drawFilledQuad or drawTexturedQuad?",
+      "parentUuid": "0e9e1343_4489014e",
       "range": {
         "startLine": 335,
         "startChar": 4,
