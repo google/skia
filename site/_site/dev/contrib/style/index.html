@@ -1,0 +1,392 @@
+<h1>Coding Style Guidelines</h1>
+<p>These conventions have evolved over time. Some of the earlier code in both
+projects doesn't strictly adhere to the guidelines. However, as the code evolves
+we hope to make the existing code conform to the guildelines.</p>
+<h2>Files</h2>
+<p>We use .cpp and .h as extensions for c++ source and header files.</p>
+<p>Headers that aren't meant for public consumption should be placed in src
+directories so that they aren't in a client's search path, or in
+include/private if they need to be used by public headers.</p>
+<p>We prefer to minimize includes. If forward declaring a name in a header is
+sufficient then that is preferred to an include.</p>
+<p>Forward declarations and file includes should be in alphabetical order.</p>
+<p><span id="no-define-before-sktypes"></span>
+Do not use #if/#ifdef before including &quot;SkTypes.h&quot; (directly or indirectly).
+Most things you'd #if on tend to not yet be decided until SkTypes.h.</p>
+<p>We use 4 spaces, not tabs.</p>
+<p>We use Unix style endlines (LF).</p>
+<p>We prefer no trailing whitespace but aren't very strict about it.</p>
+<p>We wrap lines at 100 columns unless it is excessively ugly (use your judgement).</p>
+<h2>Naming</h2>
+<p>Most externally visibile types and functions use an Sk- prefix to designate
+they're part of Skia, but code in Ganesh uses Gr-.  Nested types need not be
+prefixed.</p>
+<!--?prettify?-->
+<pre><code>class SkClass {
+public:
+    class HelperClass {
+        ...
+    };
+};
+</code></pre>
+<p>Data fields in structs, classes, and unions that have methods begin with
+lower-case f and are then camel-capped, to distinguish those fields from other
+variables.  Types that are predominantly meant for direct field access don't
+need f-decoration.</p>
+<!--?prettify?-->
+<pre><code>struct GrCar {
+    float milesDriven;
+    Color color;
+};
+
+class GrMotorcyle {
+public:
+    float getMilesDriven() const { return fMilesDriven; }
+    void  setMilesDriven(float milesDriven) { fMilesDriven = milesDriven; }
+
+    Color getColor() const { return fColor; }
+private:
+    float fMilesDriven;
+    Color fColor;
+};
+</code></pre>
+<p>Global variables are similar but prefixed with g and camel-capped.</p>
+<!--?prettify?-->
+<pre><code>bool gLoggingEnabled;
+</code></pre>
+<p>Local variables and arguments are camel-capped with no initial cap.</p>
+<!--?prettify?-->
+<pre><code>int herdCats(const Array&amp; cats) {
+    int numCats = cats.count();
+}
+</code></pre>
+<p>Variables declared <code>constexpr</code> or <code>const</code>, and whose value is fixed for the
+duration of the program, are named with a leading &quot;k&quot; and then camel-capped.</p>
+<!--?prettify?-->
+<pre><code>int drawPicture() {
+    constexpr SkISize kPictureSize = {100, 100};
+    constexpr float kZoom = 1.0f;
+}
+</code></pre>
+<p>Enum values are also prefixed with k. Unscoped enum values are postfixed with
+an underscore and singular name of the enum name. The enum itself should be
+singular for exclusive values or plural for a bitfield. If a count is needed it
+is  <code>k&lt;singular enum name&gt;Count</code> and not be a member of the enum (see example),
+or a kLast member of the enum is fine too.</p>
+<!--?prettify?-->
+<pre><code>// Enum class does not need suffixes.
+enum class SkPancakeType {
+     kBlueberry,
+     kPlain,
+     kChocolateChip,
+};
+</code></pre>
+<!--?prettify?-->
+<pre><code>// Enum should have a suffix after the enum name.
+enum SkDonutType {
+     kGlazed_DonutType,
+     kSprinkles_DonutType,
+     kChocolate_DonutType,
+     kMaple_DonutType,
+
+     kLast_DonutType = kMaple_DonutType
+};
+
+static const SkDonutType kDonutTypeCount = kLast_DonutType + 1;
+</code></pre>
+<!--?prettify?-->
+<pre><code>enum SkSausageIngredientBits {
+    kFennel_SausageIngredientBit = 0x1,
+    kBeef_SausageIngredientBit   = 0x2
+};
+</code></pre>
+<!--?prettify?-->
+<pre><code>enum SkMatrixFlags {
+    kTranslate_MatrixFlag = 0x1,
+    kRotate_MatrixFlag    = 0x2
+};
+</code></pre>
+<p>Macros are all caps with underscores between words. Macros that have greater
+than file scope should be prefixed SK or GR.</p>
+<p>Static non-class functions in implementation files are lower-case with
+underscores separating words:</p>
+<!--?prettify?-->
+<pre><code>static inline bool tastes_like_chicken(Food food) {
+    return kIceCream_Food != food;
+}
+</code></pre>
+<p>Externed functions or static class functions are camel-capped with an initial cap:</p>
+<!--?prettify?-->
+<pre><code>bool SkIsOdd(int n);
+
+class SkFoo {
+public:
+    static int FooInstanceCount();
+
+    // Not static.
+    int barBaz();
+};
+</code></pre>
+<h2>Macros</h2>
+<p>Ganesh macros that are GL-specific should be prefixed GR_GL.</p>
+<!--?prettify?-->
+<pre><code>#define GR_GL_TEXTURE0 0xdeadbeef
+</code></pre>
+<p>Ganesh prefers that macros are always defined and the use of <code>#if MACRO</code> rather than
+<code>#ifdef MACRO</code>.</p>
+<!--?prettify?-->
+<pre><code>#define GR_GO_SLOWER 0
+...
+#if GR_GO_SLOWER
+    Sleep(1000);
+#endif
+</code></pre>
+<p>The rest of Skia tends to use <code>#ifdef SK_MACRO</code> for boolean flags.</p>
+<h2>Braces</h2>
+<p>Open braces don't get a newline. <code>else</code> and <code>else if</code> appear on same line as
+opening and closing braces unless preprocessor conditional compilation
+interferes. Braces are always used with <code>if</code>, <code>else</code>, <code>while</code>, <code>for</code>, and <code>do</code>.</p>
+<!--?prettify?-->
+<pre><code>if (...) {
+    oneOrManyLines;
+}
+
+if (...) {
+    oneOrManyLines;
+} else if (...) {
+    oneOrManyLines;
+} else {
+    oneOrManyLines;
+}
+
+for (...) {
+    oneOrManyLines;
+}
+
+while (...) {
+    oneOrManyLines;
+}
+
+void function(...) {
+    oneOrManyLines;
+}
+
+if (!error) {
+    proceed_as_usual();
+}
+#if HANDLE_ERROR
+else {
+    freak_out();
+}
+#endif
+</code></pre>
+<h2>Flow Control</h2>
+<p>There is a space between flow control words and parentheses, and between
+parentheses and braces:</p>
+<!--?prettify?-->
+<pre><code>while (...) {
+}
+
+do {
+} while (...);
+
+switch (...) {
+...
+}
+</code></pre>
+<p>Cases and default in switch statements are indented from the switch.</p>
+<!--?prettify?-->
+<pre><code>switch (color) {
+    case kBlue:
+        ...
+        break;
+    case kGreen:
+        ...
+        break;
+    ...
+    default:
+       ...
+       break;
+}
+</code></pre>
+<p>Fallthrough from one case to the next is annotated with <code>[[fallthrough]]</code>.
+However, when multiple case statements in a row are used, they do not need the
+<code>[[fallthrough]]</code> annotation.</p>
+<!--?prettify?-->
+<pre><code>switch (recipe) {
+    ...
+    case kSmallCheesePizza_Recipe:
+    case kLargeCheesePizza_Recipe:
+        ingredients |= kCheese_Ingredient | kDough_Ingredient | kSauce_Ingredient;
+        break;
+    case kCheeseOmelette_Recipe:
+        ingredients |= kCheese_Ingredient;
+        [[fallthrough]]
+    case kPlainOmelette_Recipe:
+        ingredients |= (kEgg_Ingredient | kMilk_Ingredient);
+        break;
+    ...
+}
+</code></pre>
+<p>When a block is needed to declare variables within a case follow this pattern:</p>
+<!--?prettify?-->
+<pre><code>switch (filter) {
+    ...
+    case kGaussian_Filter: {
+        Bitmap srcCopy = src-&gt;makeCopy();
+        ...
+    } break;
+    ...
+};
+</code></pre>
+<h2>Classes</h2>
+<p>Unless there is a need for forward declaring something, class declarations
+should be ordered <code>public</code>, <code>protected</code>, <code>private</code>. Each should be preceded by a
+newline. Within each visibility section (<code>public</code>, <code>private</code>), fields should not be
+intermixed with methods.  It's nice to keep all data fields together at the end.</p>
+<!--?prettify?-->
+<pre><code>class SkFoo {
+
+public:
+    ...
+
+protected:
+    ...
+
+private:
+    void barHelper(...);
+    ...
+
+    SkBar fBar;
+    ...
+};
+</code></pre>
+<p>Virtual functions that are overridden in derived classes should use override,
+and the virtual keyword should be omitted.</p>
+<!--?prettify?-->
+<pre><code>void myVirtual() override {
+}
+</code></pre>
+<p>If you call a method on a parent type that must stand out as specifically the
+parent's version of that method, we usually privately alias that parent type to
+<code>INHERITED</code> within the class.  That lets calls like <code>INHERITED::onFoo()</code> stand
+out visually.  No need for <code>this-&gt;</code> when using <code>INHERITED::</code>.</p>
+<!--?prettify?-->
+<pre><code>class GrDillPickle : public GrPickle {
+    ...
+    bool onTasty() const override {
+        return INHERITED::onTasty()
+            &amp;&amp; fFreshDill;
+    }
+    ...
+private:
+    bool fFreshDill;
+    using INHERITED = GrPickle;
+};
+</code></pre>
+<p>Constructor initializers should be one per line, indented, with punctuation
+placed before the initializer.</p>
+<!--?prettify?-->
+<pre><code>GrDillPickle::GrDillPickle()
+    : GrPickle()
+    , fSize(kDefaultPickleSize) {
+    ...
+}
+</code></pre>
+<p>Constructors that take one argument should almost always be explicit, with
+exceptions made only for the (rare) automatic compatibility class.</p>
+<!--?prettify?-->
+<pre><code>class Foo {
+    explicit Foo(int x);  // Good.
+    Foo(float y);         // Spooky implicit conversion from float to Foo.  No no no!
+    ...
+};
+</code></pre>
+<p>Method calls within method calls should be prefixed with dereference of the
+'this' pointer. For example:</p>
+<!--?prettify?-->
+<pre><code>this-&gt;method();
+</code></pre>
+<p>A common pattern for virtual methods in Skia is to include a public non-virtual
+(or final) method, paired with a private virtual method named &quot;onMethodName&quot;.
+This ensures that the base-class method is always invoked and gives it control
+over how the virtual method is used, rather than relying on each subclass to
+call <code>INHERITED::onMethodName</code>. For example:</p>
+<!--?prettify?-->
+<pre><code>class SkSandwich {
+public:
+    void assemble() {
+        // All sandwiches must have bread on the top and bottom.
+        this-&gt;addIngredient(kBread_Ingredient);
+        this-&gt;onAssemble();
+        this-&gt;addIngredient(kBread_Ingredient);
+    }
+    bool cook() {
+        return this-&gt;onCook();
+    }
+
+private:
+    // All sandwiches must implement onAssemble.
+    virtual void onAssemble() = 0;
+    // Sandwiches can remain uncooked by default.
+    virtual bool onCook() { return true; }
+};
+
+class SkGrilledCheese : public SkSandwich {
+private:
+    void onAssemble() override {
+        this-&gt;addIngredient(kCheese_Ingredient);
+    }
+    bool onCook() override {
+        return this-&gt;toastOnGriddle();
+    }
+};
+
+class SkPeanutButterAndJelly : public SkSandwich {
+private:
+    void onAssemble() override {
+        this-&gt;addIngredient(kPeanutButter_Ingredient);
+        this-&gt;addIngredient(kGrapeJelly_Ingredient);
+    }
+};
+</code></pre>
+<h2>Integer Types</h2>
+<p>We follow the Google C++ guide for ints and are slowly making older code conform to this</p>
+<p>(http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Integer_Types)</p>
+<p>Summary: Use <code>int</code> unless you have need a guarantee on the bit count, then use
+<code>stdint.h</code> types (<code>int32_t</code>, etc). Assert that counts, etc are not negative instead
+of using unsigned. Bitfields use <code>uint32_t</code> unless they have to be made shorter
+for packing or performance reasons.</p>
+<h2>Function Parameters</h2>
+<p>Mandatory constant object parameters are passed to functions as const references.
+Optional constant object parameters are passed to functions as const pointers.
+Mutable object parameters are passed to functions as pointers.
+We very rarely pass anything by non-const reference.</p>
+<!--?prettify?-->
+<pre><code>// src and paint are optional
+void SkCanvas::drawBitmapRect(const SkBitmap&amp; bitmap, const SkIRect* src,
+                              const SkRect&amp; dst, const SkPaint* paint = nullptr);
+
+// metrics is mutable (it is changed by the method)
+SkScalar SkPaint::getFontMetrics(FontMetric* metrics, SkScalar scale) const;
+
+</code></pre>
+<p>If function arguments or parameters do not all fit on one line, the overflowing
+parameters may be lined up with the first parameter on the next line</p>
+<!--?prettify?-->
+<pre><code>void drawBitmapRect(const SkBitmap&amp; bitmap, const SkRect&amp; dst,
+                    const SkPaint* paint = nullptr) {
+    this-&gt;drawBitmapRectToRect(bitmap, nullptr, dst, paint,
+                               kNone_DrawBitmapRectFlag);
+}
+</code></pre>
+<p>or all parameters placed on the next line and indented eight spaces</p>
+<!--?prettify?-->
+<pre><code>void drawBitmapRect(
+        const SkBitmap&amp; bitmap, const SkRect&amp; dst, const SkPaint* paint = nullptr) {
+    this-&gt;drawBitmapRectToRect(
+            bitmap, nullptr, dst, paint, kNone_DrawBitmapRectFlag);
+}
+</code></pre>
+<h2>Python</h2>
+<p>Python code follows the <a href="http://google-styleguide.googlecode.com/svn/trunk/pyguide.html">Google Python Style Guide</a>.</p>

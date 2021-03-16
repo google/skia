@@ -1,0 +1,27 @@
+<h1>Skia in Chrome</h1>
+<p>Changes to the Skia repository will be rolled into Chromium by the AutoRoll bot
+several times per day.</p>
+<p>If you have a Skia change that needs to be tested in Chrome, or which requires
+associated changes in that repository, see the guides in this section for tips
+on execution.</p>
+<p>For problems in Chromium related to Skia rolls:</p>
+<ul>
+<li>Go to https://autoroll.skia.org/r/skia-autoroll. Login with google.com
+account and click the STOP button to pause new rolls.</li>
+<li>Revert the offending DEPS roll.</li>
+<li>If an obvious owner cannot be found in the list of CLs, assign to the Skia
+Gardener, listed in the gardeners widget on https://status.skia.org and as
+a reviewer on the roll CL.</li>
+<li>If the Skia Gardener cannot be assigned, cc them and assign the issue to hcm@.</li>
+</ul>
+<p>For more tips on bug triage and labeling, see the <a href="../../user/issue-tracker/">Issue Tracker page</a>.</p>
+<h2>Branching for Chrome</h2>
+<p>Every 6 weeks, we cut a new branch in Skia to reflect the new release branch in
+Chrome, eg. <a href="https://skia.googlesource.com/skia/+/chrome/m75">refs/heads/chrome/m75</a>.
+This process is simplified by running <a href="https://skia.googlesource.com/skia/+/7a5b6ec0f6c01d3039e3ec30de6f8065ffc8aac4/tools/chrome_release_branch.py'">tools/chrome_release_branch</a>.
+This script handles creation of the branch itself, as well as associated
+housekeeping like updating the Chrome milestone number for the next release,
+setting up the <a href="'https://skia.googlesource.com/skia/+/infra/config/commit-queue.cfg'">commit queue</a>
+for the new branch. For example:</p>
+<pre><code>tools/chrome_release_branch &lt;commit hash&gt;
+</code></pre>

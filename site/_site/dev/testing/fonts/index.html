@@ -1,0 +1,20 @@
+<h1>Fonts and GM Tests</h1>
+<h2>Overview</h2>
+<p>Each test in the gm directory draws a reference image. Their primary purpose is
+to detect when images change unexpectedly, indicating that a rendering bug has
+been introduced.</p>
+<p>The gm tests have a secondary purpose: they detect when rendering is different
+across platforms and configurations.</p>
+<h2>GM font selection</h2>
+<p>Each gm specifies the typeface to use when drawing text. For now, to set the
+portable typeface on the paint, call:</p>
+<pre><code>ToolUtils::set_portable_typeface(SkPaint* , const char* name = nullptr,
+SkFontStyle style = SkFontStyle());
+</code></pre>
+<p>To create a portable typeface, use:</p>
+<pre><code>SkTypeface* typeface = ToolUtils::create_portable_typeface(const char* name,
+SkFontStyle style);
+</code></pre>
+<p>Eventually, both <code>set_portable_typeface()</code> and <code>create_portable_typeface()</code> will be
+removed. Instead, a test-wide <code>SkFontMgr</code> will be selected to choose portable
+fonts or resource fonts.</p>

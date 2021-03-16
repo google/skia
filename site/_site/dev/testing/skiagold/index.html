@@ -1,0 +1,181 @@
+<h1>Skia Gold</h1>
+<h2>Overview</h2>
+<p>Gold is a web application that compares the images produced by our bots against
+known baseline images.<br>
+Key features:</p>
+<ul>
+<li>
+<p>Baselines are managed in Gold outside of Git, but in lockstep with Git commits.</p>
+</li>
+<li>
+<p>Each commit creates &gt;500k images.</p>
+</li>
+<li>
+<p>Deviations from the baseline are triaged after a CL lands and images are
+triaged as either <code>positive</code> or <code>negative</code>.  'Positive' means the diff is
+considered acceptable.  'Negative' means the diff is considered unacceptable
+and requires a fix.
+If a CL causes Skia to break it is reverted or an additional CL is landed to
+fix the problem.</p>
+</li>
+<li>
+<p>We test across a range of dimensions, e.g.:</p>
+<ul>
+<li>OS (Windows, Linux, Mac, Android, iOS)</li>
+<li>Architectures (Intel, ARM)</li>
+<li>Backends (CPU, OpenGL, Vulkan etc.)</li>
+<li>etc.</li>
+</ul>
+</li>
+<li>
+<p>Written in Go, Polymer and deployed on the Google Cloud.  The code
+is in the <a href="https://github.com/google/skia-buildbot">Skia Infra Repository</a>.</p>
+</li>
+</ul>
+<h2>Recommended Workflows</h2>
+<h3>How to best use Gold for commonly faced problems</h3>
+<p>These instructions will refer to various views which are accessible via the left
+navigation on <a href="https://gold.skia.org/">gold.skia.org</a>.<br>
+View access is public, triage access is granted to
+Skia contributors.  You must be logged in to triage.</p>
+<h2>Problem #1: As Skia Gardener, I need to triage and “assign” many incoming new images.</h2>
+<p>Solution today:</p>
+<ul>
+<li>Access the By Blame view to see digests needing triage and associated
+owners/CLs
+<ul>
+<li>Only untriaged digests will be shown by default</li>
+<li>Blame is not sorted in any particular order</li>
+<li>Digests are clustered by runs and the most minimal set of blame</li>
+</ul>
+</li>
+</ul>
+<p><img src=BlameView.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<ul>
+<li>Select digests for triage
+<ul>
+<li>Digests will be listed in order with largest difference first</li>
+<li>Click to open the digest view with detailed information</li>
+</ul>
+</li>
+</ul>
+<p><img src=Digests.png style="margin-left:40px" align="left" width="780"/> <br clear="left"></p>
+<ul>
+<li>Open bugs for identified owner(s)
+<ul>
+<li>The digest detail view has a link to open a bug from the UI</li>
+<li>Via the Gold UI or when manually entering a bug, copy the full URL of
+single digest into a bug report</li>
+<li>The URL reference to the digest in Issue Tracker will link the bug to
+the digest in Gold</li>
+</ul>
+</li>
+</ul>
+<p><img src="IssueHighlight.png" style="margin-left:60px" align="left" width="720" border=1/> <br clear="left"></p>
+<br>
+<p>Future improvements:</p>
+<ul>
+<li>Smarter, more granular blamelist</li>
+</ul>
+<br>
+<h2>Problem #2: As a developer, I need to land a CL that may change many images.</h2>
+<p>To find your results:</p>
+<ul>
+<li>Immediately following commit, access the By Blame view to find untriaged
+digest groupings associated with your ID</li>
+<li>Click on one of the clusters including your CL to triage</li>
+<li>Return to the By Blame view to walk through all untriaged digests involving
+your change</li>
+<li>Note:  It is not yet implemented in the UI but possible to filter the view
+by CL.  Delete hashes in the URL to only include the hash for your CL.</li>
+</ul>
+<p><img src=BlameView.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<p>To rebaseline images:</p>
+<ul>
+<li>Access the Ignores view and create a new, short-interval (hours) ignore for
+the most affected configuration(s)</li>
+</ul>
+<p><img src=Ignores.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<ul>
+<li>Click on the Ignore to bring up a search view filtered by the affected
+configuration(s)</li>
+<li>Mark untriaged images as positive (or negative if appropriate)</li>
+<li>Follow one of two options for handling former positives:
+<ul>
+<li>Leave former positives as-is and let them fall off with time if there is
+low risk of recurrence</li>
+<li>Mark former positives as negative if needed to verify the change moving
+forward</li>
+</ul>
+</li>
+</ul>
+<p>Future improvements:</p>
+<ul>
+<li>Trybot support prior to commit, with view limited to your CL</li>
+<li>Pre-triage prior to commit that will persist when the CL lands</li>
+</ul>
+<br>
+<h2>Problem #3: As a developer or infrastructure engineer, I need to add a new or updated config.</h2>
+<p>(ie: new bot, test mode, environment change)</p>
+<p>Solution today:</p>
+<ul>
+<li>Follow the process for rebaselining images:
+<ul>
+<li>Wait for the bot/test/config to be committed and show up in the Gold UI</li>
+<li>Access the Ignores view and create a short-interval ignore for the
+configuration(s)</li>
+<li>Triage the ignores for that config to identify positive images</li>
+<li>Delete the ignore</li>
+</ul>
+</li>
+</ul>
+<p>Future improvements:</p>
+<ul>
+<li>Introduction of a new or updated test can make use of try jobs and pre-triage.</li>
+<li>New configs may be able to use these features as well.</li>
+</ul>
+<br>
+<h2>Problem #4: As a developer, I need to analyze the details of a particular image digest.</h2>
+<p>Solution:</p>
+<ul>
+<li>Access the By Test view</li>
+</ul>
+<p><img src=ByTest.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<ul>
+<li>Click the magnifier to filter by configuration</li>
+<li>Access the Cluster view to see the distribution of digest results
+<ul>
+<li>Use control-click to select and do a direct compare between data points</li>
+<li>Click on configurations under “parameters” to highlight data points and
+compare</li>
+</ul>
+</li>
+</ul>
+<p><img src=ClusterConfig.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<ul>
+<li>Access the Grid view to see NxN diffs</li>
+</ul>
+<p><img src=Grid.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<ul>
+<li>Access the Dot diagram to see history of commits for the trace
+<ul>
+<li>Each dot represents a commit</li>
+<li>Each line represents a configuration</li>
+<li>Dot colors distinguish between digests</li>
+</ul>
+</li>
+</ul>
+<p><img src=DotDiagram.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<br>
+<p>Future improvements:</p>
+<ul>
+<li>Large diff display of image vs image</li>
+</ul>
+<br>
+<h2>Problem #5: As a developer, I need to find results for a particular configuration.</h2>
+<p>Solution:</p>
+<ul>
+<li>Access the Search view</li>
+<li>Select any parameters desired to search across tests</li>
+</ul>
+<p><img src=Search.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>

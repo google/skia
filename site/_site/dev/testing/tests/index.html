@@ -1,0 +1,127 @@
+<h1>Writing Skia Tests</h1>
+<ul>
+<li><a href="#test">Unit Tests</a></li>
+<li><a href="#gm">Rendering Tests</a></li>
+<li><a href="#bench">Benchmark Tests</a></li>
+</ul>
+<p>We assume you have already synced Skia's dependecies and set up Skia's build system.</p>
+<!--?prettify lang=sh?-->
+<pre><code>python2 tools/git-sync-deps
+bin/gn gen out/Debug
+bin/gn gen out/Release --args='is_debug=false'
+</code></pre>
+<p><span id="test"></span></p>
+<h2>Writing a Unit Test</h2>
+<ol>
+<li>
+<p>Add a file <code>tests/NewUnitTest.cpp</code>:</p>
+<!--?prettify lang=cc?-->
+<pre><code>/*
+ * Copyright ........
+ *
+ * Use of this source code is governed by a BSD-style license
+ * that can be found in the LICENSE file.
+ */
+#include &quot;Test.h&quot;
+DEF_TEST(NewUnitTest, reporter) {
+    if (1 + 1 != 2) {
+        ERRORF(reporter, &quot;%d + %d != %d&quot;, 1, 1, 2);
+    }
+    bool lifeIsGood = true;
+    REPORTER_ASSERT(reporter, lifeIsGood);
+}
+</code></pre>
+</li>
+<li>
+<p>Add <code>NewUnitTest.cpp</code> to <code>gn/tests.gni</code>.</p>
+</li>
+<li>
+<p>Recompile and run test:</p>
+<!--?prettify lang=sh?-->
+<pre><code>ninja -C out/Debug dm
+out/Debug/dm --match NewUnitTest
+</code></pre>
+</li>
+</ol>
+<p><span id="gm"></span></p>
+<h2>Writing a Rendering Test</h2>
+<ol>
+<li>
+<p>Add a file <code>gm/newgmtest.cpp</code>:</p>
+<!--?prettify lang=cc?-->
+<pre><code>/*
+ * Copyright ........
+ *
+ * Use of this source code is governed by a BSD-style license
+ * that can be found in the LICENSE file.
+ */
+#include &quot;gm.h&quot;
+DEF_SIMPLE_GM(newgmtest, canvas, 128, 128) {
+    canvas-&gt;clear(SK_ColorWHITE);
+    SkPaint p;
+    p.setStrokeWidth(2);
+    canvas-&gt;drawLine(16, 16, 112, 112, p);
+}
+</code></pre>
+</li>
+<li>
+<p>Add <code>newgmtest.cpp</code> to <code>gn/gm.gni</code>.</p>
+</li>
+<li>
+<p>Recompile and run test:</p>
+<!--?prettify lang=sh?-->
+<pre><code>ninja -C out/Debug dm
+out/Debug/dm --match newgmtest
+</code></pre>
+</li>
+<li>
+<p>Run the GM inside Viewer:</p>
+<!--?prettify lang=sh?-->
+<pre><code>ninja -C out/Debug viewer
+out/Debug/viewer --slide GM_newgmtest
+</code></pre>
+</li>
+</ol>
+<p><span id="bench"></span></p>
+<h2>Writing a Benchmark Test</h2>
+<ol>
+<li>
+<p>Add a file <code>bench/FooBench.cpp</code>:</p>
+<!--?prettify lang=cc?-->
+<pre><code>/*
+ * Copyright ........
+ *
+ * Use of this source code is governed by a BSD-style license
+ * that can be found in the LICENSE file.
+ */
+#include &quot;Benchmark.h&quot;
+#include &quot;SkCanvas.h&quot;
+namespace {
+class FooBench : public Benchmark {
+public:
+    FooBench() {}
+    virtual ~FooBench() {}
+protected:
+    const char* onGetName() override { return &quot;Foo&quot;; }
+    SkIPoint onGetSize() override { return SkIPoint{100, 100}; }
+    void onDraw(int loops, SkCanvas* canvas) override {
+        while (loops-- &gt; 0) {
+            canvas-&gt;drawLine(0.0f, 0.0f, 100.0f, 100.0f, SkPaint());
+        }
+    }
+};
+}  // namespace
+DEF_BENCH(return new FooBench;)
+</code></pre>
+</li>
+<li>
+<p>Add <code>FooBench.cpp</code> to <code>gn/bench.gni</code>.</p>
+</li>
+<li>
+<p>Recompile and run nanobench:</p>
+<!--?prettify lang=sh?-->
+<pre><code>ninja -C out/Release nanobench
+out/Release/nanobench --match Foo
+</code></pre>
+</li>
+</ol>

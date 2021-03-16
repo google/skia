@@ -1,0 +1,36 @@
+<h1>SkQP</h1>
+<p>Development APKs of SkQP are kept in Google storage.  Each file in named
+with a abbreviated Git hash that points at the commit in the Skia repository it
+was built with.</p>
+<p>These are universal APKs that contain native libraries for armeabi-v7a,
+arm64-v8a, x86, and x86_64 architectures. The most recent is listed first.</p>
+<p>The listing can be found here:
+<a href="https://storage.googleapis.com/skia-skqp/apklist">https://storage.googleapis.com/skia-skqp/apklist</a></p>
+<p>If you are looking at Android CTS failures, use the most recent commit on the
+<code>origin/skqp/release</code> branch.</p>
+<p>To run tests:</p>
+<pre><code>adb install -r skqp-universal-{APK_SHA_HERE}.apk
+adb logcat -c
+adb shell am instrument -w org.skia.skqp
+</code></pre>
+<p>Monitor the output with:</p>
+<pre><code>adb logcat TestRunner org.skia.skqp skia DEBUG &quot;*:S&quot;
+</code></pre>
+<p>Note the test's output path on the device.  It will look something like this:</p>
+<pre><code>01-23 15:22:12.688 27158 27173 I org.skia.skqp:
+output written to &quot;/storage/emulated/0/Android/data/org.skia.skqp/files/skqp_report_2019-02-28T102058&quot;
+</code></pre>
+<p>Retrieve and view the report with:</p>
+<pre><code>OUTPUT_LOCATION=&quot;/storage/emulated/0/Android/data/org.skia.skqp/files/skqp_report_2019-02-28T102058&quot;
+adb pull &quot;$OUTPUT_LOCATION&quot; /tmp/
+</code></pre>
+<p>(Your value of <code>$OUTPUT_LOCATION</code> will differ from mine.</p>
+<p>Open the file <code>/tmp/output/skqp_report_2019-02-28T102058/report.html</code> .</p>
+<p><strong>Zip up that directory to attach to a bug report:</strong></p>
+<pre><code>cd /tmp
+zip -r skqp_report_2019-02-28T102058.zip skqp_report_2019-02-28T102058
+ls -l skqp_report_2019-02-28T102058.zip
+</code></pre>
+<hr>
+<p>For more information about building your own APK, refer to
+https://skia.googlesource.com/skia/+/master/tools/skqp/README.md</p>

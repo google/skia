@@ -1,0 +1,13 @@
+<h1>ANGLE</h1>
+<h2>Introduction</h2>
+<p>ANGLE converts OpenGL ES 2 or 3 calls to DirectX 9, 11, or OpenGL calls. These
+instructions document how to use ANGLE instead of the native OpenGL backend on
+Windows or Linux.</p>
+<h2>Details</h2>
+<p><code>gclient sync</code> downloads ANGLE's source alongside Skia's other test-only dependencies.</p>
+<p>To build Skia testing tools against ANGLE, add <code>skia_use_angle = true</code> to your
+<code>args.gn</code> file (or run <code>gn args</code> to edit it).</p>
+<p>When running tools, use <code>--config angle_&lt;backend&gt;_&lt;frontend&gt;</code>, e.g.</p>
+<pre><code>out/Debug/dm --src gm --config angle_d3d11_es2
+out/Release/nanobench --config angle_gl_es2
+</code></pre>

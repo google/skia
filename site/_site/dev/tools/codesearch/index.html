@@ -1,0 +1,79 @@
+<h1>Code Search</h1>
+<p>There are a number of ways to search the Skia codebase, each with advantages and
+disadvantages.</p>
+<p><a href="http://cs.skia.org">cs.skia.org</a> redirects to
+<a href="https://code.google.com/p/chromium/codesearch">Chromium code search</a> restricted
+to the Skia portion of the Chromium tree. You can add a query after the slash;
+e.g. <a href="http://cs.skia.org/foo">cs.skia.org/foo</a> will search for &quot;foo&quot; within the
+Skia tree. Chromium code search provides cross-references.</p>
+<p>For Googlers, there is also the option of <a href="http://cs/#skia/">the skia depot</a> in
+internal Code Search. In addition to the
+main <a href="http://cs/#skia/skia/">skia</a> repo, internal Code Search indexes the
+<a href="http://cs/#skia/buildbot/">buildbot</a>, <a href="http://cs/#skia/common/">common</a>,
+and <a href="https://cs/#skia/skia_internal/">skia_internal</a> repos. However,
+cross-references and code analysis are not available.</p>
+<p>The GitHub mirrors of the <a href="https://github.com/google/skia">skia</a> and
+<a href="https://github.com/google/skia-buildbot">skia-buildbot</a> repos are useful for
+investigating history and blame, or for exploring release branches or other
+branches. However, the search functionality is fairly limited, cross-references
+are not available, and in history the original committer's username is replaced
+with that person's GitHub username.</p>
+<p>You can also navigate through the
+<a href="https://skia.googlesource.com/">Skia repos on googlesource.com</a>. All commits
+appear here first.</p>
+<table>
+<thead>
+<tr>
+<th>Code search option</th>
+<th>Search</th>
+<th>XRef</th>
+<th>History</th>
+<th>Repos</th>
+<th>Branches</th>
+<th>Freshness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="http://cs.skia.org/" title="Chromium code search">cs.skia.org</a></td>
+<td>regexp</td>
+<td>yes</td>
+<td>yes</td>
+<td>skia <a href="https://cs.chromium.org/chromium/skia/buildbot/">buildbot</a></td>
+<td>master</td>
+<td>last DEPS roll</td>
+</tr>
+<tr>
+<td><a href="http://cs/#skia/" title="Internal Code Search">Internal</a></td>
+<td>regexp</td>
+<td>no</td>
+<td>yes</td>
+<td>skia buildbot common internal</td>
+<td>master</td>
+<td>hours</td>
+</tr>
+<tr>
+<td><a href="https://github.com/google/skia" title="GitHub mirror of skia">GitHub</a></td>
+<td>basic</td>
+<td>no</td>
+<td>yes</td>
+<td>skia buildbot</td>
+<td>all</td>
+<td>hour</td>
+</tr>
+<tr>
+<td><a href="https://skia.googlesource.com/" title="Primary Skia repos on googlesource.com">googlesource</a></td>
+<td>none</td>
+<td>no</td>
+<td>yes</td>
+<td>all</td>
+<td>all</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<h2>Client code search</h2>
+<p>There is an <a href="https://goto.google.com/skia-client-search">internal tool for
+Googlers</a> to make it easier to
+search the repos of Skia clients, e.g. Chromium, Android, and Mozilla. If you
+use it and have suggestions, please let brianosman know.</p>

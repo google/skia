@@ -1,0 +1,28 @@
+<h1>How to revert a CL</h1>
+<h2>Using one-click revert</h2>
+<ul>
+<li>Find the codereview issue for the CL you want to revert.</li>
+<li>Click the &quot;revert&quot; button.</li>
+</ul>
+<h2>Using Git</h2>
+<p>Update the local repository</p>
+<pre><code>git fetch origin master
+</code></pre>
+<p>Create a local branch with origin/master as its start point.</p>
+<pre><code>git checkout -b revert$RANDOM origin/master
+</code></pre>
+<p>Find the SHA1 of the commit you want to revert</p>
+<pre><code>git log origin/master
+</code></pre>
+<p>Create a revert commit.</p>
+<pre><code>git revert &lt;SHA1&gt;
+</code></pre>
+<p>Upload it to Gerrit.</p>
+<pre><code>git cl upload
+</code></pre>
+<p>Land the revert in origin/master.</p>
+<pre><code>git cl land
+</code></pre>
+<p>Delete the local revert branch.</p>
+<pre><code>git checkout --detach &amp;&amp; git branch -D @{-1}
+</code></pre>

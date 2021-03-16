@@ -1,0 +1,55 @@
+<h1>API Reference and Overview</h1>
+<p>Skia documentation is actively under development.</p>
+<p>Some key classes are:</p>
+<ul>
+<li><a href="https://api.skia.org/classSkAutoCanvasRestore.html#details">SkAutoCanvasRestore</a> - Canvas save stack manager</li>
+<li><a href="https://api.skia.org/classSkBitmap.html#details">SkBitmap</a> - two-dimensional raster pixel array</li>
+<li><a href="https://api.skia.org/SkBlendMode_8h.html">SkBlendMode</a> - pixel color arithmetic</li>
+<li><a href="https://api.skia.org/classSkCanvas.html#details">SkCanvas</a> - drawing context</li>
+<li><a href="https://api.skia.org/SkColor_8h.html">SkColor</a> - color encoding using integer numbers</li>
+<li><a href="https://api.skia.org/classSkFont.html#details">SkFont</a> - text style and typeface</li>
+<li><a href="https://api.skia.org/classSkImage.html#details">SkImage</a> - two dimensional array of pixels to draw</li>
+<li><a href="https://api.skia.org/structSkImageInfo.html#details">SkImageInfo</a> - pixel dimensions and characteristics</li>
+<li><a href="https://api.skia.org/structSkIPoint.html#details">SkIPoint</a> - two integer coordinates</li>
+<li><a href="https://api.skia.org/structSkIRect.html#details">SkIRect</a> - integer rectangle</li>
+<li><a href="https://api.skia.org/classSkMatrix.html#details">SkMatrix</a> - 3x3 transformation matrix</li>
+<li><a href="https://api.skia.org/classSkPaint.html#details">SkPaint</a> - color, stroke, font, effects</li>
+<li><a href="https://api.skia.org/classSkPath.html#details">SkPath</a> - sequence of connected lines and curves</li>
+<li><a href="https://api.skia.org/classSkPicture.html#details">SkPicture</a> - sequence of drawing commands</li>
+<li><a href="https://api.skia.org/classSkPixmap.html#details">SkPixmap</a> - pixel map: image info and pixel address</li>
+<li><a href="https://api.skia.org/structSkPoint.html#details">SkPoint</a> - two floating point coordinates</li>
+<li><a href="https://api.skia.org/classSkRRect.html#details">SkRRect</a> - floating point rounded rectangle</li>
+<li><a href="https://api.skia.org/structSkRect.html#details">SkRect</a> - floating point rectangle</li>
+<li><a href="https://api.skia.org/classSkRegion.html#details">SkRegion</a> - compressed clipping mask</li>
+<li><a href="https://api.skia.org/classSkSurface.html#details">SkSurface</a> - drawing destination</li>
+<li><a href="https://api.skia.org/classSkTextBlob.html#details">SkTextBlob</a> - runs of glyphs</li>
+<li><a href="https://api.skia.org/classSkTextBlobBuilder.html#details">SkTextBlobBuilder</a> - constructor for runs of glyphs</li>
+</ul>
+<p>All public APIs are indexed by Doxygen.</p>
+<ul>
+<li><a href="https://api.skia.org">Skia Doxygen</a></li>
+</ul>
+<h2>Overview</h2>
+<p>Skia is organized around the <code>SkCanvas</code> object. It is the host for the
+&quot;draw&quot; calls: <code>drawRect</code>, <code>drawPath</code>, <code>drawText</code>, etc. Each of these
+has two components: the primitive being drawn (<code>SkRect</code>, <code>SkPath</code>, etc.)
+and color/style attributes (<code>SkPaint</code>).</p>
+<!--?prettify lang=cc?-->
+<pre><code>canvas-&gt;drawRect(rect, paint);
+</code></pre>
+<p>The paint holds much of the state describing how the rectangle (in
+this case) is drawn: what color it is, if it is filled or stroked, how
+it should blend with what was previously drawn.</p>
+<p>The canvas holds relatively little state. It points to the actual
+pixels being drawn, and it maintains a stack of matrices and
+clips. Thus in the above call, the canvas' current matrix may
+transform the coordinates of the rectangle (translation, rotation,
+skewing, perspective), and the canvas' current clip may restrict where
+on the canvas the rectangle will be drawn, but all other stylistic
+attributes of the drawing are controlled by the paint.</p>
+<p>Using the SkCanvas API:</p>
+<ol>
+<li><a href="/user/api/skcanvas_overview">SkCanvas Overview</a> - the drawing context</li>
+<li><a href="/user/api/skpaint_overview">SkPaint Overview</a> - color, stroke, font, effects</li>
+<li><a href="/user/api/skcanvas_creation">SkCanvas Creation</a></li>
+</ol>

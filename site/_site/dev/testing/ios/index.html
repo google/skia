@@ -1,0 +1,39 @@
+<h1>Testing on iOS</h1>
+<p>Before setting Skia up for automated testing from the command line, please
+follow the instructions to run Skia tests (<em>dm</em>, <em>nano-bench</em>) with the
+mainstream iOS tool chain. See the <a href="../../user/quick/ios">quick start guide for ios</a>.</p>
+<p>iOS doesn't lend itself well to compiling and running from the command line.
+Below are instructions on how to install a set of tools that make this possible.
+To see how they are used in automated testing please see the bash scripts
+used by the buildbot recipes: <a href="https://github.com/google/skia/tree/master/platform_tools/ios/bin">https://github.com/google/skia/tree/master/platform_tools/ios/bin</a>.</p>
+<h2>Installation</h2>
+<p>The key tools are</p>
+<ul>
+<li>
+<p>libimobiledevice <a href="http://www.libimobiledevice.org/">http://www.libimobiledevice.org/</a>, <a href="https://github.com/libimobiledevice/libimobiledevice">https://github.com/libimobiledevice/libimobiledevice</a></p>
+</li>
+<li>
+<p>ios-deploy <a href="https://github.com/phonegap/ios-deploy">https://github.com/phonegap/ios-deploy</a></p>
+</li>
+</ul>
+<p>Follow these steps to install them:</p>
+<ul>
+<li>Install Brew at <a href="http://brew.sh/">http://brew.sh/</a></li>
+<li>Install <em>libimobiledevice</em>
+(Note: All these are part of the <em>libimobiledevice</em> project but packaged/developed
+under different names. The <em>cask</em> extension to <em>brew</em> is necessary to install
+<em>osxfuse</em> and <em>ifuse</em>, which allows to mount the application directory on an iOS device).</li>
+</ul>
+<pre><code>brew install libimobiledevice
+brew install ideviceinstaller
+brew install caskroom/cask/brew-cask
+brew install Caskroom/cask/osxfuse
+brew install ifuse
+</code></pre>
+<ul>
+<li>Install node.js and ios-deploy</li>
+</ul>
+<pre><code>$ brew update
+$ brew install node
+$ npm install ios-deploy
+</code></pre>

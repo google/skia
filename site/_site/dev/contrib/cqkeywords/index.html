@@ -1,0 +1,60 @@
+<h1>Commit Queue Keywords</h1>
+<p>See <a href="https://chromium.googlesource.com/chromium/src/+/master/docs/infra/cq.md">CQ
+documentation</a>
+for more information.</p>
+<p>Options in the form &quot;Key: Value&quot;  must appear in the last paragraph of the
+commit message to be used.</p>
+<h2>Commit</h2>
+<p>If you are working on experimental code and do not want to risk accidentally
+submitting the change via the CQ, then you can mark it with &quot;Commit: false&quot;.
+The CQ will immediately abandon the change if it contains this option.
+To do a dry run through the CQ please use Gerrit's <a href="https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/G5-X0_tfmok">CQ Dry
+Run</a>
+feature.</p>
+<pre><code>Commit: false
+</code></pre>
+<p>The CQ will run through its list of verifiers (reviewer check, trybots, tree check,
+presubmit check), and will close the issue instead of committing it.</p>
+<h2>No-Dependency-Checks</h2>
+<pre><code>No-Dependency-Checks: true
+</code></pre>
+<p>The CQ rejects patchsets with open dependencies. An open dependency exists when a CL
+depends on another CL that is not yet closed. You can skip this check with this keyword.</p>
+<h2>Cq-Include-Trybots</h2>
+<p>Allows you to add arbitrary trybots to the CQ's list of default trybots.
+The CQ will block till these tryjobs pass just like the default list of tryjobs.</p>
+<p>This is the format of the values of this keyword:</p>
+<pre><code>Cq-Include-Trybots: bucket1:bot1,bot2;bucket2:bot3,bot4
+</code></pre>
+<p>Multiple lines are allowed:</p>
+<pre><code>Cq-Include-Trybots: bucket1:bot1
+Cq-Include-Trybots: bucket1:bot2
+Cq-Include-Trybots: bucket2:bot3
+Cq-Include-Trybots: bucket2:bot4
+</code></pre>
+<p>Here are some real world examples:</p>
+<pre><code>Cq-Include-Trybots: master.tryserver.chromium.linux:linux_chromium_asan_rel_ng
+Cq-Include-Trybots: skia.primary:Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE
+Cq-Include-Trybots: luci.skia.skia.primary:Build-Debian9-Clang-x86-devrel-Android_SKQP
+
+FIXME: what bucket are skia bots in now?
+</code></pre>
+<h2>No-Tree-Checks</h2>
+<p>If you want to skip the tree status checks, to make the CQ commit a CL even if
+the tree is closed, you can add the following line to the CL description:</p>
+<pre><code>No-Tree-Checks: true
+</code></pre>
+<p>This is discouraged, since the tree is closed for a reason. However, in rare
+cases this is acceptable, primarily to fix build breakages (i.e., your CL will
+help in reopening the tree).</p>
+<h2>No-Presubmit</h2>
+<p>If you want to skip the presubmit checks, add the following line to the CL description:</p>
+<pre><code>No-Presubmit: true
+</code></pre>
+<h2>No-Try</h2>
+<p>If you cannot wait for the try job results, you can add the following line to
+the CL description:</p>
+<pre><code>No-Try: true
+</code></pre>
+<p>The CQ will then not run any try jobs for your change and will commit the CL as
+soon as the tree is open, assuming the presubmit check passes.</p>

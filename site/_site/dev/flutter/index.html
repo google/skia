@@ -1,0 +1,18 @@
+<h1>Skia in Flutter &amp; Fuchsia</h1>
+<p>Skia is used by both <a href="https://flutter.io/">Flutter</a> and <a href="https://fuchsia.googlesource.com/docs/+/master/README.md">Fuchsia</a>.</p>
+<p>Fuchsia has a <a href="https://fuchsia-roll.skia.org/">roller</a> that will continuously roll latest Skia into that project. Fuchsia uses an XML <a href="https://fuchsia.googlesource.com/manifest/+/master/userspace">manifest</a> to specify the Skia revision (as well as other third party libraries).</p>
+<p>Flutter does not (yet) have a roller, so developers must manually perform rolls. Flutter uses <a href="https://github.com/flutter/engine/blob/master/DEPS">DEPS</a> to specify third party dependencies.</p>
+<p>Although each project is (almost always) building at a different revision of Skia, Fuchsia itself always builds the latest revision of Flutter as one of its components. Thus, the versions of Skia being used by Flutter and Fuchsia must be &quot;source compatible&quot; -- Flutter must be capable of compiling against either revision without any change to Flutter itself.</p>
+<h2>Making API Changes</h2>
+<p>If you need to make a breaking API change, the basic approach is:</p>
+<ul>
+<li>Add new code to Skia, leaving the old code in place.</li>
+<li>Deprecate the old code path so that it must be enabled with a flag such as 'SK_SUPPORT_LEGACY_XXX'.</li>
+<li>Add that same flag to <a href="https://skia.googlesource.com/skia/+/master/gn/flutter_defines.gni">flutter_defines.gni</a> in Skia.
+<ul>
+<li>Both Flutter and Fuchsia build Skia with a GN argument that enables all the defines listed in that file.</li>
+</ul>
+</li>
+<li>Land the Skia change, and test the new API in both Flutter and Fuchsia.</li>
+<li>Remove the flag and code when the legacy code path is no longer in use.</li>
+</ul>

@@ -1,0 +1,226 @@
+<h1>SkCanvas Creation</h1>
+<p>First, read about <a href="skcanvas_overview">the SkCanvas API</a>.</p>
+<p>Skia has multiple backends which receive SkCanvas drawing commands,
+including:</p>
+<ul>
+<li><a href="#raster">Raster</a> - CPU-only.</li>
+<li><a href="#gpu">GPU</a> - Skia's GPU-accelerated backend.</li>
+<li><a href="#skpdf">SkPDF</a> - PDF document creation.</li>
+<li><a href="#skpicture">SkPicture</a> - Skia's display list format.</li>
+<li><a href="#nullcanvas">NullCanvas</a>  - Useful for testing only.</li>
+<li><a href="#skxps">SkXPS</a> - Experimental XPS backend.</li>
+<li><a href="#sksvg">SkSVG</a> - Experimental SVG backend.</li>
+</ul>
+<p>Each backend has a unique way of creating a SkCanvas.  This page gives
+an example for each:</p>
+<h2><span id="raster"></span>
+Raster</h2>
+<p>The raster backend draws to a block of memory. This memory can be
+managed by Skia or by the client.</p>
+<p>The recommended way of creating a canvas for the Raster and Ganesh
+backends is to use a <code>SkSurface</code>, which is an object that manages
+the memory into which the canvas commands are drawn.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;SkData.h&quot;
+#include &quot;SkImage.h&quot;
+#include &quot;SkStream.h&quot;
+#include &quot;SkSurface.h&quot;
+void raster(int width, int height,
+            void (*draw)(SkCanvas*),
+            const char* path) {
+    sk_sp&lt;SkSurface&gt; rasterSurface =
+            SkSurface::MakeRasterN32Premul(width, height);
+    SkCanvas* rasterCanvas = rasterSurface-&gt;getCanvas();
+    draw(rasterCanvas);
+    sk_sp&lt;SkImage&gt; img(rasterSurface-&gt;makeImageSnapshot());
+    if (!img) { return; }
+    sk_sp&lt;SkData&gt; png(img-&gt;encode());
+    if (!png) { return; }
+    SkFILEWStream out(path);
+    (void)out.write(png-&gt;data(), png-&gt;size());
+}
+</code></pre>
+<p>Alternatively, we could have specified the memory for the surface
+explicitly, instead of asking Skia to manage it.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &lt;vector&gt;
+#include &quot;SkSurface.h&quot;
+std::vector&lt;char&gt; raster_direct(int width, int height,
+                                void (*draw)(SkCanvas*)) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    size_t rowBytes = info.minRowBytes();
+    size_t size = info.getSafeSize(rowBytes);
+    std::vector&lt;char&gt; pixelMemory(size);  // allocate memory
+    sk_sp&lt;SkSurface&gt; surface =
+            SkSurface::MakeRasterDirect(
+                    info, &amp;pixelMemory[0], rowBytes);
+    SkCanvas* canvas = surface-&gt;getCanvas();
+    draw(canvas);
+    return pixelMemory;
+}
+</code></pre>
+<h2><span id="gpu"></span>
+GPU</h2>
+<p>GPU Surfaces must have a <code>GrContext</code> object which manages the
+GPU context, and related caches for textures and fonts. GrContexts
+are matched one to one with OpenGL contexts or Vulkan devices. That is, all
+SkSurfaces that will be rendered to using the same OpenGL context or Vulkan
+device should share a GrContext. Skia does not create a OpenGL context or Vulkan
+device for you. In OpenGL mode it also assumes that the correct OpenGL context
+has been made current to the current thread when Skia calls are made.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;GrDirectContext.h&quot;
+#include &quot;gl/GrGLInterface.h&quot;
+#include &quot;SkData.h&quot;
+#include &quot;SkImage.h&quot;
+#include &quot;SkStream.h&quot;
+#include &quot;SkSurface.h&quot;
+
+void gl_example(int width, int height, void (*draw)(SkCanvas*), const char* path) {
+    // You've already created your OpenGL context and bound it.
+    const GrGLInterface* interface = nullptr;
+    // Leaving interface as null makes Skia extract pointers to OpenGL functions for the current
+    // context in a platform-specific way. Alternatively, you may create your own GrGLInterface and
+    // initialize it however you like to attach to an alternate OpenGL implementation or intercept
+    // Skia's OpenGL calls.
+    sk_sp&lt;GrContext&gt; context = GrContext::MakeGL(interface);
+    SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
+    sk_sp&lt;SkSurface&gt; gpuSurface(
+            SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    if (!gpuSurface) {
+        SkDebugf(&quot;SkSurface::MakeRenderTarget returned null\n&quot;);
+        return;
+    }
+    SkCanvas* gpuCanvas = gpuSurface-&gt;getCanvas();
+    draw(gpuCanvas);
+    sk_sp&lt;SkImage&gt; img(gpuSurface-&gt;makeImageSnapshot());
+    if (!img) { return; }
+    sk_sp&lt;SkData&gt; png(img-&gt;encode());
+    if (!png) { return; }
+    SkFILEWStream out(path);
+    (void)out.write(png-&gt;data(), png-&gt;size());
+}
+</code></pre>
+<h2><span id="skpdf"></span>
+SkPDF</h2>
+<p>The SkPDF backend uses <code>SkDocument</code> instead of <code>SkSurface</code>, since
+a document must include multiple pages.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;SkPDFDocument.h&quot;
+#include &quot;SkStream.h&quot;
+void skpdf(int width, int height,
+           void (*draw)(SkCanvas*),
+           const char* path) {
+    SkFILEWStream pdfStream(path);
+    auto pdfDoc = SkPDF::MakeDocument(&amp;pdfStream);
+    SkCanvas* pdfCanvas = pdfDoc-&gt;beginPage(SkIntToScalar(width),
+                                            SkIntToScalar(height));
+    draw(pdfCanvas);
+    pdfDoc-&gt;close();
+}
+</code></pre>
+<h2><span id="skpicture"></span>
+SkPicture</h2>
+<p>The SkPicture backend uses SkPictureRecorder instead of SkSurface.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;SkPictureRecorder.h&quot;
+#include &quot;SkPicture.h&quot;
+#include &quot;SkStream.h&quot;
+void picture(int width, int height,
+             void (*draw)(SkCanvas*),
+             const char* path) {
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width),
+                                                        SkIntToScalar(height));
+    draw(recordingCanvas);
+    sk_sp&lt;SkPicture&gt; picture = recorder.finishRecordingAsPicture();
+    SkFILEWStream skpStream(path);
+    // Open SKP files with `viewer --skps PATH_TO_SKP --slide SKP_FILE`
+    picture-&gt;serialize(&amp;skpStream);
+}
+</code></pre>
+<h2><span id="nullcanvas"></span>
+NullCanvas</h2>
+<p>The null canvas is a canvas that ignores all drawing commands and does
+nothing.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;SkNullCanvas.h&quot;
+void null_canvas_example(int, int, void (*draw)(SkCanvas*), const char*) {
+    std::unique_ptr&lt;SkCanvas&gt; nullCanvas = SkMakeNullCanvas();
+    draw(nullCanvas.get());  // NoOp
+}
+</code></pre>
+<h2><span id="skxps"></span>
+SkXPS</h2>
+<p>The (<em>still experimental</em>) SkXPS canvas writes into an XPS document.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;SkDocument.h&quot;
+#include &quot;SkStream.h&quot;
+#ifdef SK_BUILD_FOR_WIN
+void skxps(IXpsOMObjectFactory* factory;
+           int width, int height,
+           void (*draw)(SkCanvas*),
+           const char* path) {
+    SkFILEWStream xpsStream(path);
+    sk_sp&lt;SkDocument&gt; xpsDoc = SkDocument::MakeXPS(&amp;pdfStream, factory);
+    SkCanvas* xpsCanvas = xpsDoc-&gt;beginPage(SkIntToScalar(width),
+                                            SkIntToScalar(height));
+    draw(xpsCanvas);
+    xpsDoc-&gt;close();
+}
+#endif
+</code></pre>
+<h2><span id="sksvg"></span>
+SkSVG</h2>
+<p>The (<em>still experimental</em>) SkSVG canvas writes into an SVG document.</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;SkStream.h&quot;
+#include &quot;SkSVGCanvas.h&quot;
+#include &quot;SkXMLWriter.h&quot;
+void sksvg(int width, int height,
+           void (*draw)(SkCanvas*),
+           const char* path) {
+    SkFILEWStream svgStream(path);
+    std::unique_ptr&lt;SkXMLWriter&gt; xmlWriter(
+            new SkXMLStreamWriter(&amp;svgStream));
+    SkRect bounds = SkRect::MakeIWH(width, height);
+    std::unique_ptr&lt;SkCanvas&gt; svgCanvas =
+        SkSVGCanvas::Make(bounds, xmlWriter.get());
+    draw(svgCanvas.get());
+}
+</code></pre>
+<h2><span id="example"></span>
+Example</h2>
+<p>To try this code out, make a <a href="/dev/testing/tests">new unit test using instructions
+here</a> and wrap these funtions together:</p>
+<!--?prettify lang=cc?-->
+<pre><code>#include &quot;SkCanvas.h&quot;
+#include &quot;SkPath.h&quot;
+#include &quot;Test.h&quot;
+void example(SkCanvas* canvas) {
+    const SkScalar scale = 256.0f;
+    const SkScalar R = 0.45f * scale;
+    const SkScalar TAU = 6.2831853f;
+    SkPath path;
+    for (int i = 0; i &lt; 5; ++i) {
+        SkScalar theta = 2 * i * TAU / 5;
+        if (i == 0) {
+            path.moveTo(R * cos(theta), R * sin(theta));
+        } else {
+            path.lineTo(R * cos(theta), R * sin(theta));
+        }
+    }
+    path.close();
+    SkPaint p;
+    p.setAntiAlias(true);
+    canvas-&gt;clear(SK_ColorWHITE);
+    canvas-&gt;translate(0.5f * scale, 0.5f * scale);
+    canvas-&gt;drawPath(path, p);
+}
+DEF_TEST(FourBackends, r) {
+    raster(     256, 256, example, &quot;out_raster.png&quot; );
+    gl_example( 256, 256, example, &quot;out_gpu.png&quot;    );
+    skpdf(      256, 256, example, &quot;out_skpdf.pdf&quot;  );
+    picture(    256, 256, example, &quot;out_picture.skp&quot;);
+}
+</code></pre>

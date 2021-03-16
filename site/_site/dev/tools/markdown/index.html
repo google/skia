@@ -1,0 +1,393 @@
+<h1>Markdown</h1>
+<p>This site can handle normal Markdown and many common extensions. To learn
+how the following is done please see the <a href="./markdown.md">source for this page</a>.
+Any file you put under <code>/site/</code> that has the extension <code>.md</code> will be processed
+as Markdown. All other files will be served directly. For example, images
+can be added and they will be served correctly and referenced from within Markdown files.</p>
+<p>When preparing for a code review of site docs you can get a preview of how the
+page will render by visiting the skia.org site and add a query parameter <code>cl</code>
+with the value of the Reitveld issue id:</p>
+<pre><code>https://skia.org/path/to/markdown-file?cl=REITVELD_ISSUE_NUMBER
+</code></pre>
+<p>This is the preferred method of previewing docs changes.</p>
+<p>If for some reason you can't use the method above to preview docs changes you
+can also run a local copy of the documentation server, which will allow you to
+preview changes much quicker. You must have a recent version (&gt;=8.9) of
+<a href="https://nodejs.org/">node</a> installed on your machine. You must also have
+<a href="https://golang.org">Go</a> installed on your computer, which you will have if
+you are running on a Google corporate workstation. Installation also means
+that you have <code>$GOPATH/bin</code> <a href="https://golang.org/doc/code.html#GOPATH">added to your PATH</a>. Run:</p>
+<pre><code>git clone https://skia.googlesource.com/buildbot
+cd buildbot/docserverk
+make
+</code></pre>
+<p>And then <strong>from within</strong> the directory of your local Git checkout of Skia run:</p>
+<pre><code>docserverk --preview --local
+</code></pre>
+<p>Then visit http://localhost:8000 to preview your changes. There is no need to
+restart the server for file changes, but you will need to restart it if there
+are changes to the navigation menu, i.e. you add or remove a file and want it
+to appear in the navigation on the right hand side of the page.</p>
+<p>If port 8000 is unavailable on your machine you can set the port to use via
+the --port flag:</p>
+<pre><code>docserverk --preview --local --port=:8002
+</code></pre>
+<h2>METADATA</h2>
+<p>By default all files and directories that appear in the same level are sorted
+alphabetically by file name in the navigation menu, with files appearing
+before directories. You can override this default behavior by adding a
+METADATA file to a directory. A METADATA file is a JSON file of the following
+format:</p>
+<pre><code>   {
+     &quot;dirOrder&quot;: [&quot;sample&quot;, &quot;quick&quot;, &quot;special&quot;],
+     &quot;fileOrder&quot;: [&quot;download&quot;, &quot;api&quot;]
+   }
+</code></pre>
+<p>If a file or directory doesn't appear in <code>dirOrder</code> or <code>fileOrder</code> then it is sorted
+to appear after the members of <code>dirOrder</code> or <code>fileOrder</code> respectively. All
+files and directories that aren't controlled by a METADATA file are sorted in
+alphabetical order by their filename.</p>
+<h2>Some Example Markdown</h2>
+<p>This is a <a href="https://www.google.com">link</a>. You can also create
+ordered and unordered lists:</p>
+<ol>
+<li>First</li>
+<li>Second:</li>
+</ol>
+<ul>
+<li>Fee
+<ul>
+<li>Fie
+<ul>
+<li>Foe</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Fum</li>
+</ul>
+<ol start="3">
+<li>Third</li>
+</ol>
+<p>Incorporate images:</p>
+<p><img src="/dev/tools/image.png" alt="image"></p>
+<p>Or go old school and use <a href="http://asciiflow.com/">ASCII art</a>:</p>
+<pre><code>
+       +----------------+
+       |  Should you    |
+    +--+ use ASCII art? +--+
+    |  +----------------+  |
+    |                      |
++---v---+              +---v---+
+|       |              |       |
+|  Yes  |              |  No   |
+|       |              |       |
++-------+              +-------+
+
+</code></pre>
+<p>Format code snippets or other preformatted text. Just surround the code
+with <code>~~~~</code>. You can also trigger syntax highlighting by putting in
+the following HTML comment before the code section:</p>
+<pre><code>&lt;!--?prettify?--&gt;
+</code></pre>
+<!--?prettify?-->
+<pre><code>class SK_API SkPaint {
+public:
+    SkPaint();
+    SkPaint(const SkPaint&amp; paint);
+    ~SkPaint();
+
+    SkPaint&amp; operator=(const SkPaint&amp;);
+</code></pre>
+<p>Tables</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Value</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>27</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>B</td>
+<td>23</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>There are also inline styles for <em>emphasis</em>, <strong>bold</strong>,
+<s>strikethrough</s>, and <code>inline code</code>. Also small fractions,
+such as 1/2 are rendered nicely.</p>
+<blockquote>
+<h1>There are</h1>
+<h2>Headers</h2>
+<h3>Up To</h3>
+<h4>Six</h4>
+<h5>Levels</h5>
+<h6>Deep</h6>
+</blockquote>
+<p>And you can <b>always</b> use HTML, which is useful for features that can't be
+done in Markdown, such as iframes, but try to avoid using HTML outside of
+sitations like that.
+<svg viewBox="0 0 24 24" height="24px" width="24px" style="display: inline;">
+<g>
+<path d="M1
+    21h4v-12h-4v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06l-1.06-1.05-6.58
+    6.59c-.37.36-.59.86-.59 1.41v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5
+    1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01.01-.08z"> </path>
+</g>
+</svg></p>
+<h1>Reference</h1>
+<p>Below is a longer reference on the Markdown that docserver accepts.</p>
+<h2>Paragraphs</h2>
+<p>A paragraph is simply one or more consecutive lines of text, separated
+by one or more blank lines. (A blank line is any line that looks like a
+blank line -- a line containing nothing. Note: all spaces or tabs is considered
+blank.) Normal paragraphs should not be intended with spaces or tabs.</p>
+<h2>Headers and Blockquotes</h2>
+<p>You can create headers by either &quot;underlining&quot; with equal signs (<code>=</code>) and hyphens (<code>-</code>),
+or,you can put 1-6 hash marks (<code>#</code>) at the
+beginning of the line -- the number of hashes equals the resulting
+HTML header level.</p>
+<p>Blockquotes are indicated using email-style '<code>&gt;</code>' angle brackets.</p>
+<p>Markdown:</p>
+<pre><code>A First Level Header
+====================
+
+A Second Level Header
+---------------------
+
+Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.
+
+The quick brown fox jumped over the lazy
+dog's back.
+
+### Header 3
+
+&gt; This is a blockquote.
+&gt; 
+&gt; This is the second paragraph in the blockquote.
+&gt;
+&gt; ## This is an H2 in a blockquote
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;h1&gt;A First Level Header&lt;/h1&gt;
+
+&lt;h2&gt;A Second Level Header&lt;/h2&gt;
+
+&lt;p&gt;Now is the time for all good men to come to
+the aid of their country. This is just a
+regular paragraph.&lt;/p&gt;
+
+&lt;p&gt;The quick brown fox jumped over the lazy
+dog's back.&lt;/p&gt;
+
+&lt;h3&gt;Header 3&lt;/h3&gt;
+
+&lt;blockquote&gt;
+    &lt;p&gt;This is a blockquote.&lt;/p&gt;
+    
+    &lt;p&gt;This is the second paragraph in the blockquote.&lt;/p&gt;
+    
+    &lt;h2&gt;This is an H2 in a blockquote&lt;/h2&gt;
+&lt;/blockquote&gt;
+</code></pre>
+<h3>Phrase Emphasis</h3>
+<p>Markdown uses asterisks and underscores to indicate spans of emphasis.</p>
+<p>Markdown:</p>
+<pre><code>Some of these words *are emphasized*.
+Some of these words _are emphasized also_.
+
+Use two asterisks for **strong emphasis**.
+Or, if you prefer, __use two underscores instead__.
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;Some of these words &lt;em&gt;are emphasized&lt;/em&gt;.
+Some of these words &lt;em&gt;are emphasized also&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Use two asterisks for &lt;strong&gt;strong emphasis&lt;/strong&gt;.
+Or, if you prefer, &lt;strong&gt;use two underscores instead&lt;/strong&gt;.&lt;/p&gt;
+</code></pre>
+<h2>Lists</h2>
+<p>Unordered (bulleted) lists use asterisks, pluses, and hyphens (<code>*</code>,
+<code>+</code>, and <code>-</code>) as list markers. These three markers are
+interchangable; this:</p>
+<pre><code>*   Candy.
+*   Gum.
+*   Booze.
+</code></pre>
+<p>this:</p>
+<pre><code>+   Candy.
++   Gum.
++   Booze.
+</code></pre>
+<p>and this:</p>
+<pre><code>-   Candy.
+-   Gum.
+-   Booze.
+</code></pre>
+<p>all produce the same output:</p>
+<pre><code>&lt;ul&gt;
+&lt;li&gt;Candy.&lt;/li&gt;
+&lt;li&gt;Gum.&lt;/li&gt;
+&lt;li&gt;Booze.&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<p>Ordered (numbered) lists use regular numbers, followed by periods, as
+list markers:</p>
+<pre><code>1.  Red
+2.  Green
+3.  Blue
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;ol&gt;
+&lt;li&gt;Red&lt;/li&gt;
+&lt;li&gt;Green&lt;/li&gt;
+&lt;li&gt;Blue&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre>
+<p>If you put blank lines between items, you'll get <code>&lt;p&gt;</code> tags for the
+list item text. You can create multi-paragraph list items by indenting
+the paragraphs by 4 spaces or 1 tab:</p>
+<pre><code>*   A list item.
+
+    With multiple paragraphs.
+
+*   Another item in the list.
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;A list item.&lt;/p&gt;
+&lt;p&gt;With multiple paragraphs.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Another item in the list.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<h3>Links</h3>
+<p>Markdown supports two styles for creating links: <em>inline</em> and
+<em>reference</em>. With both styles, you use square brackets to delimit the
+text you want to turn into a link.</p>
+<p>Inline-style links use parentheses immediately after the link text.
+For example:</p>
+<pre><code>This is an [example link](http://example.com/).
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;This is an &lt;a href=&quot;http://example.com/&quot;&gt;
+example link&lt;/a&gt;.&lt;/p&gt;
+</code></pre>
+<p>Optionally, you may include a title attribute in the parentheses:</p>
+<pre><code>This is an [example link](http://example.com/ &quot;With a Title&quot;).
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;This is an &lt;a href=&quot;http://example.com/&quot; title=&quot;With a Title&quot;&gt;
+example link&lt;/a&gt;.&lt;/p&gt;
+</code></pre>
+<p>Reference-style links allow you to refer to your links by names, which
+you define elsewhere in your document:</p>
+<pre><code>I get 10 times more traffic from [Google][1] than from
+[Yahoo][2] or [MSN][3].
+
+[1]: http://google.com/        &quot;Google&quot;
+[2]: http://search.yahoo.com/  &quot;Yahoo Search&quot;
+[3]: http://search.msn.com/    &quot;MSN Search&quot;
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;I get 10 times more traffic from &lt;a href=&quot;http://google.com/&quot;
+title=&quot;Google&quot;&gt;Google&lt;/a&gt; than from &lt;a href=&quot;http://search.yahoo.com/&quot;
+title=&quot;Yahoo Search&quot;&gt;Yahoo&lt;/a&gt; or &lt;a href=&quot;http://search.msn.com/&quot;
+title=&quot;MSN Search&quot;&gt;MSN&lt;/a&gt;.&lt;/p&gt;
+</code></pre>
+<p>The title attribute is optional. Link names may contain letters,
+numbers and spaces, but are <em>not</em> case sensitive:</p>
+<pre><code>I start my morning with a cup of coffee and
+[The New York Times][NY Times].
+
+[ny times]: http://www.nytimes.com/
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;I start my morning with a cup of coffee and
+&lt;a href=&quot;http://www.nytimes.com/&quot;&gt;The New York Times&lt;/a&gt;.&lt;/p&gt;
+</code></pre>
+<h3>Images</h3>
+<p>Image syntax is very much like link syntax.</p>
+<p>Inline (titles are optional):</p>
+<pre><code>![alt text](/path/to/img.jpg &quot;Title&quot;)
+</code></pre>
+<p>Reference-style:</p>
+<pre><code>![alt text][id]
+
+[id]: /path/to/img.jpg &quot;Title&quot;
+</code></pre>
+<p>Both of the above examples produce the same output:</p>
+<pre><code>&lt;img src=&quot;/path/to/img.jpg&quot; alt=&quot;alt text&quot; title=&quot;Title&quot; /&gt;
+</code></pre>
+<h3>Code</h3>
+<p>In a regular paragraph, you can create code span by wrapping text in
+backtick quotes. Any ampersands (<code>&amp;</code>) and angle brackets (<code>&lt;</code> or
+<code>&gt;</code>) will automatically be translated into HTML entities. This makes
+it easy to use Markdown to write about HTML example code:</p>
+<pre><code>I strongly recommend against using any `&lt;blink&gt;` tags.
+
+I wish SmartyPants used named entities like `&amp;mdash;`
+instead of decimal-encoded entites like `&amp;#8212;`.
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;I strongly recommend against using any
+&lt;code&gt;&amp;lt;blink&amp;gt;&lt;/code&gt; tags.&lt;/p&gt;
+
+&lt;p&gt;I wish SmartyPants used named entities like
+&lt;code&gt;&amp;amp;mdash;&lt;/code&gt; instead of decimal-encoded
+entites like &lt;code&gt;&amp;amp;#8212;&lt;/code&gt;.&lt;/p&gt;
+</code></pre>
+<p>To specify an entire block of pre-formatted code, indent every line of
+the block by 4 spaces or 1 tab, or add a line containing three backticks before
+and after the code block. Just like with code spans, <code>&amp;</code>, <code>&lt;</code>,
+and <code>&gt;</code> characters will be escaped automatically.</p>
+<p>Markdown:</p>
+<pre><code>If you want your page to validate under XHTML 1.0 Strict,
+you've got to put paragraph tags in your blockquotes:
+
+    &lt;blockquote&gt;
+        &lt;p&gt;For example.&lt;/p&gt;
+    &lt;/blockquote&gt;
+</code></pre>
+<p>or</p>
+<pre><code>If you want your page to validate under XHTML 1.0 Strict,
+you've got to put paragraph tags in your blockquotes:
+
+```
+&lt;blockquote&gt;
+    &lt;p&gt;For example.&lt;/p&gt;
+&lt;/blockquote&gt;
+```
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;If you want your page to validate under XHTML 1.0 Strict,
+you've got to put paragraph tags in your blockquotes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;blockquote&amp;gt;
+    &amp;lt;p&amp;gt;For example.&amp;lt;/p&amp;gt;
+&amp;lt;/blockquote&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+</code></pre>
+<h3>Floating Menu</h3>
+<p>To create a floating menu for a single page that always appears
+in the upper right hand corner of the page, use a <code>div</code> with a
+class of &quot;float&quot;, for example:</p>
+<pre><code>&lt;div class=&quot;float&quot;&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href=&quot;#SkXfermode&quot;&gt;SkXfermode&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#SkShader&quot;&gt;SkShader&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#SkMaskFilter&quot;&gt;SkMaskFilter&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#SkColorFilter&quot;&gt;SkColorFilter&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href=&quot;#SkPathEffect&quot;&gt;SkPathEffect&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+</code></pre>
