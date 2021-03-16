@@ -610,7 +610,8 @@ bool ProgramUsage::isDead(const Variable& v) const {
                              Modifiers::kVarying_Flag))) {
         return false;
     }
-    return !counts.fWrite || !counts.fRead;
+    // Consider the variable dead if it's never read and never written (besides the initial-value).
+    return !counts.fRead && (counts.fWrite <= (v.initialValue() ? 1 : 0));
 }
 
 int ProgramUsage::get(const FunctionDeclaration& f) const {
