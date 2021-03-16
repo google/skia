@@ -72,7 +72,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         }
         return;
     }
-    if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
+    uint32_t proxyID = proxy->uniqueID().asUInt();
+    if (Interval** intvlPtr = fIntvlHash.find(proxyID)) {
+        Interval* intvl = *intvlPtr;
         // Revise the interval for an existing use
 #ifdef SK_DEBUG
         if (0 == start && 0 == end) {
@@ -100,7 +102,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         newIntvl->addUse();
     }
     fIntvlList.insertByIncreasingStart(newIntvl);
-    fIntvlHash.add(newIntvl);
+    fIntvlHash.set(proxyID, newIntvl);
 }
 
 GrResourceAllocator::Interval* GrResourceAllocator::IntervalList::popHead() {

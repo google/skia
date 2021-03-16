@@ -8,12 +8,14 @@
 #ifndef GrResourceAllocator_DEFINED
 #define GrResourceAllocator_DEFINED
 
+#include "include/private/SkTHash.h"
+
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrHashMapWithCache.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTMultiMap.h"
 
 class GrResourceProvider;
@@ -119,13 +121,12 @@ private:
     };
     typedef SkTMultiMap<GrSurface, GrScratchKey, FreePoolTraits> FreePoolMultiMap;
 
-    typedef SkTDynamicHash<Interval, unsigned int> IntvlHash;
+    typedef SkTHashMap<uint32_t, Interval*, GrCheapHash> IntvlHash;
 
     class Interval {
     public:
         Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
             : fProxy(proxy)
-            , fProxyID(proxy->uniqueID().asUInt())
             , fStart(start)
             , fEnd(end)
             , fNext(nullptr) {
@@ -162,15 +163,8 @@ private:
             }
         }
 
-        // for SkTDynamicHash
-        static const uint32_t& GetKey(const Interval& intvl) {
-            return intvl.fProxyID;
-        }
-        static uint32_t Hash(const uint32_t& key) { return key; }
-
     private:
         GrSurfaceProxy*  fProxy;
-        uint32_t         fProxyID; // This is here b.c. DynamicHash requires a ref to the key
         unsigned int     fStart;
         unsigned int     fEnd;
         Interval*        fNext;
