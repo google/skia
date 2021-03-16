@@ -37,7 +37,6 @@ OpName %ok "ok"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -58,23 +57,20 @@ OpDecorate %59 RelaxedPrecision
 OpDecorate %61 RelaxedPrecision
 OpDecorate %65 RelaxedPrecision
 OpDecorate %70 RelaxedPrecision
+OpDecorate %72 RelaxedPrecision
 OpDecorate %74 RelaxedPrecision
 OpDecorate %75 RelaxedPrecision
-OpDecorate %72 RelaxedPrecision
-OpDecorate %72 RelaxedPrecision
 OpDecorate %80 RelaxedPrecision
+OpDecorate %82 RelaxedPrecision
 OpDecorate %83 RelaxedPrecision
 OpDecorate %84 RelaxedPrecision
 OpDecorate %85 RelaxedPrecision
-OpDecorate %82 RelaxedPrecision
-OpDecorate %82 RelaxedPrecision
 OpDecorate %90 RelaxedPrecision
+OpDecorate %92 RelaxedPrecision
 OpDecorate %93 RelaxedPrecision
 OpDecorate %94 RelaxedPrecision
 OpDecorate %95 RelaxedPrecision
 OpDecorate %96 RelaxedPrecision
-OpDecorate %92 RelaxedPrecision
-OpDecorate %92 RelaxedPrecision
 OpDecorate %98 RelaxedPrecision
 OpDecorate %103 RelaxedPrecision
 OpDecorate %109 RelaxedPrecision
@@ -99,7 +95,6 @@ OpDecorate %224 RelaxedPrecision
 OpDecorate %232 RelaxedPrecision
 OpDecorate %240 RelaxedPrecision
 OpDecorate %245 RelaxedPrecision
-OpDecorate %250 RelaxedPrecision
 OpDecorate %252 RelaxedPrecision
 OpDecorate %258 RelaxedPrecision
 OpDecorate %262 RelaxedPrecision

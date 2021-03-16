@@ -51,7 +51,6 @@ OpName %b2f "b2f"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %39 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
