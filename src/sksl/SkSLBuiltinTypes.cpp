@@ -74,6 +74,11 @@ std::unique_ptr<Type> BuiltinTypes::MakeSeparateSamplerType(const char* name) {
     return std::unique_ptr<Type>(new Type(name, Type::TypeKind::kSeparateSampler));
 }
 
+/** Create a void type. */
+std::unique_ptr<Type> BuiltinTypes::MakeVoidType(const char* name) {
+    return std::unique_ptr<Type>(new Type(name, Type::TypeKind::kVoid));
+}
+
 /**
  * Create an "other" (special) type with the given name. These types cannot be directly
  * referenced from user code.
@@ -126,7 +131,7 @@ BuiltinTypes::BuiltinTypes()
         , fBool3(MakeVectorType("bool3", *fBool, /*columns=*/3))
         , fBool4(MakeVectorType("bool4", *fBool, /*columns=*/4))
         , fInvalid(MakeOtherType("<INVALID>"))
-        , fVoid(MakeOtherType("void"))
+        , fVoid(MakeVoidType("void"))
         , fFloatLiteral(MakeLiteralType("$floatLiteral", *fFloat, /*priority=*/8))
         , fIntLiteral(MakeLiteralType("$intLiteral", *fInt, /*priority=*/5))
         , fFloat2x2(MakeMatrixType("float2x2", *fFloat, /*columns=*/2, /*rows=*/2))

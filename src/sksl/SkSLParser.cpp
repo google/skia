@@ -582,8 +582,8 @@ ASTNode::ID Parser::structDeclaration() {
         SkASSERT(symbol);
         const Type* type = &symbol->as<Type>();
         if (type->isOpaque()) {
-            this->error(declsNode.fOffset,
-                        "opaque type '" + type->name() + "' is not permitted in a struct");
+            this->error(declsNode.fOffset, "opaque type '" + type->name() +
+                                           "' is not permitted in a struct");
         }
 
         for (auto iter = declsNode.begin() + 2; iter != declsNode.end(); ++iter) {
