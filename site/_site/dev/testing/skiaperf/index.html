@@ -1,0 +1,25 @@
+<h1>Skia Perf</h1>
+<p><a href="https://perf.skia.org">Skia Perf</a> is a web application for analyzing and
+viewing performance metrics produced by Skia's testing infrastructure.</p>
+<p><img src=Perf.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<p>Skia tests across a large number of platforms and configurations, and each
+commit to Skia generates more than 400,000 individual values that are sent to
+Perf, consisting mostly of performance benchmark results, but also including
+memory and coverage data.</p>
+<p>Perf offers clustering, which is a tool to pick out trends and patterns in large sets of traces.</p>
+<p><img src=Cluster.png style="margin-left:30px" align="left" width="400"/> <br clear="left"></p>
+<p>And can generate alerts when those trends spot a regression:</p>
+<p><img src=Regression.png style="margin-left:30px" align="left" width="800"/> <br clear="left"></p>
+<h2>Calculations</h2>
+<p>Skia Perf has the ability to perform calculations over the test data
+allowing you to build up interesting queries.</p>
+<p>This query displays the ratio of playback time in ms to the number of ops for desk_wowwiki.skp:</p>
+<pre><code>ratio(
+  ave(fill(filter(&quot;name=desk_wowwiki.skp&amp;sub_result=min_ms&quot;))),
+  ave(fill(filter(&quot;name=desk_wowwiki.skp&amp;sub_result=ops&quot;)))
+)
+</code></pre>
+<p>You can also use the data to answer questions like how many tests were run per commit.</p>
+<pre><code>count(filter(&quot;&quot;))
+</code></pre>
+<p>See Skia Perf for the <a href="https://perf.skia.org/help/">full list of functions available</a>.</p>

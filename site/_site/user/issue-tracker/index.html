@@ -1,0 +1,25 @@
+<h1>Issue Tracking</h1>
+<h2>The Skia Issue Tracker</h2>
+<p><a href="https://bugs.chromium.org/p/skia/issues/list">Skia's Issue Tracker</a>
+(bug.skia.org or skbug.com) is the primary bug database where we track all defect
+reports and feature requests.</p>
+<p>When filing a new issue, please select the appropriate template, most likely
+&quot;Defect report from user&quot; or &quot;Feature request&quot;.  Include an example
+<a href="https://fiddle.skia.org">fiddle</a> or image.  All issues will be triaged by our
+program manager and assigned to the appropriate functional team.</p>
+<h2>Skia issues in the Chromium Tracker</h2>
+<p>Skia bugs found in Chrome may be filed in the <a href="https://bugs.chromium.org/p/chromium/issues/list">Chromium Tracker</a> (crbug.com).</p>
+<h3>Triage for Chromium developers</h3>
+<ul>
+<li>To have an issue triaged by the Skia team, add <code>Component:Internals&gt;Skia</code>.</li>
+<li>For problems related to Skia rolls where an obvious owner cannot be found in
+the list of CLs, assign to the Skia Gardener, listed in the gardeners widget
+on <a href="https://status.skia.org">status.skia.org</a> and as a reviewer on the roll CL.
+<ul>
+<li>If the Gardener cannot be assigned, cc them and assign the issue to hcm@.</li>
+</ul>
+</li>
+<li>For GPU specific issues, add label <code>Hotlist-Ganesh</code>.</li>
+<li>For image encoding or decoding issues, add
+<code>Component:Internals&gt;Images&gt;Codecs</code>.</li>
+</ul>

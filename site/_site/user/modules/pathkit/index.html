@@ -1,0 +1,687 @@
+<h1>PathKit - Geometry in the Browser</h1>
+<p>Skia has made its <a href="../api/SkPath_Reference">SkPath</a> object and many related methods
+available to JS clients (e.g. Web Browsers) using WebAssembly and asm.js.</p>
+<h2>Features</h2>
+<p>PathKit is still under rapid development, so the exact API is subject to change.</p>
+<p>The primary features are:</p>
+<ul>
+<li>API compatibility (e.g. drop-in replacement) with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Path2D">Path2D</a></li>
+<li>Can output to SVG / Canvas / Path2D</li>
+<li>Exposes a variety of path effects:</li>
+</ul>
+<style>
+  canvas.patheffect {
+    border: 1px dashed #AAA;
+    width: 200px;
+    height: 200px;
+  }
+</style>
+<div id=effects>
+  <canvas class=patheffect id=canvas1 title="Plain: A drawn star with overlapping solid lines"></canvas>
+  <canvas class=patheffect id=canvas2 title="Dash: A drawn star with overlapping dashed lines"></canvas>
+  <canvas class=patheffect id=canvas3 title="Trim: A portion of a drawn star with overlapping solid lines"></canvas>
+  <canvas class=patheffect id=canvas4 title="Simplify: A drawn star with non-overlapping solid lines."></canvas>
+  <canvas class=patheffect id=canvas5 title="Stroke: A drawn star with non-overlapping solid lines stroked at various thicknesses and with square edges"></canvas>
+  <canvas class=patheffect id=canvas6 title="Grow: A drawn star's expanding outline"></canvas>
+  <canvas class=patheffect id=canvas7 title="Shrink: A solid drawn star shrunk down"></canvas>
+  <canvas class=patheffect id=canvasTransform title="Transform: A drawn star moved and rotated by an Affine Matrix"></canvas>
+</div>
+<script type="text/javascript">
+(function() {
+  // Tries to load the WASM version if supported, then falls back to asmjs
+  let s = document.createElement('script');
+  if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
+    console.log('WebAssembly is supported! Using the wasm version of PathKit');
+    window.__pathkit_locate_file = 'https://unpkg.com/pathkit-wasm@0.6.0/bin/';
+  } else {
+    console.log('WebAssembly is not supported (yet) on this browser. Using the asmjs version of PathKit');
+    window.__pathkit_locate_file = 'https://unpkg.com/pathkit-asmjs@0.6.0/bin/';
+  }
+  s.src = window.__pathkit_locate_file+'pathkit.js';
+  s.onload = () => {
+    // TODO(kjlubick) remove .ready() when we update the version served here.
+    try {
+      PathKitInit({
+        locateFile: (file) => window.__pathkit_locate_file+file,
+      }).ready().then((PathKit) => {
+        // Code goes here using PathKit
+        PathEffectsExample(PathKit);
+        MatrixTransformExample(PathKit);
+      });
+    }
+    catch(error) {
+      console.warn(error, 'falling back to image');
+      document.getElementById('effects').innerHTML = '<img width=800 src="./PathKit_effects.png"/>'
+    }
+  }
+
+  document.head.appendChild(s);
+
+  function setCanvasSize(ctx, width, height) {
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+  }
+
+  function drawStar(path) {
+    let R = 115.2, C = 128.0;
+    path.moveTo(C + R + 22, C);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      path.lineTo(C + R * Math.cos(a) + 22, C + R * Math.sin(a));
+    }
+    path.closePath();
+    return path;
+  }
+
+  function PathEffectsExample(PathKit) {
+    let effects = [
+      // no-op
+      (path) => path,
+      // dash
+      (path, counter) => path.dash(10, 3, counter/5),
+      // trim (takes optional 3rd param for returning the trimmed part
+      // or the complement)
+      (path, counter) => path.trim((counter/100) % 1, 0.8, false),
+      // simplify
+      (path) => path.simplify(),
+      // stroke
+      (path, counter) => path.stroke({
+        width: 10 * (Math.sin(counter/30) + 1),
+        join: PathKit.StrokeJoin.BEVEL,
+        cap: PathKit.StrokeCap.BUTT,
+        miter_limit: 1,
+      }),
+      // "offset effect", that is, making a border around the shape.
+      (path, counter) => {
+        let orig = path.copy();
+        path.stroke({
+          width: 10 + (counter / 4) % 50,
+          join: PathKit.StrokeJoin.ROUND,
+          cap: PathKit.StrokeCap.SQUARE,
+        })
+          .op(orig, PathKit.PathOp.DIFFERENCE);
+        orig.delete();
+      },
+      (path, counter) => {
+        let simplified = path.simplify().copy();
+        path.stroke({
+          width: 2 + (counter / 2) % 100,
+          join: PathKit.StrokeJoin.BEVEL,
+          cap: PathKit.StrokeCap.BUTT,
+        })
+          .op(simplified, PathKit.PathOp.REVERSE_DIFFERENCE);
+        simplified.delete();
+      }
+    ];
+
+    let names = ["(plain)", "Dash", "Trim", "Simplify", "Stroke", "Grow", "Shrink"];
+
+    let counter = 0;
+    function frame() {
+      counter++;
+      for (let i = 0; i < effects.length; i++) {
+        let path = PathKit.NewPath();
+        drawStar(path);
+
+        // The transforms apply directly to the path.
+        effects[i](path, counter);
+
+        let ctx = document.getElementById(`canvas${i+1}`);
+        if (!ctx) {
+          return;
+        } else {
+          ctx = ctx.getContext('2d');
+        }
+        setCanvasSize(ctx, 300, 300);
+        ctx.strokeStyle = '#3c597a';
+        ctx.fillStyle = '#3c597a';
+        if (i >=4 ) {
+          ctx.fill(path.toPath2D(), path.getFillTypeString());
+        } else {
+          ctx.stroke(path.toPath2D());
+        }
+
+        ctx.font = '42px monospace';
+
+        let x = 150-ctx.measureText(names[i]).width/2;
+        ctx.strokeText(names[i], x, 290);
+
+        path.delete();
+      }
+      window.requestAnimationFrame(frame);
+    }
+    window.requestAnimationFrame(frame);
+  }
+
+  function MatrixTransformExample(PathKit) {
+    // Creates an animated star that twists and moves.
+    let ctx = document.getElementById('canvasTransform').getContext('2d');
+    setCanvasSize(ctx, 300, 300);
+    ctx.strokeStyle = '#3c597a';
+
+    let path = drawStar(PathKit.NewPath());
+    // TODO(kjlubick): Perhaps expose some matrix helper functions to allow
+    // clients to build their own matrices like this?
+    // These matrices represent a 2 degree rotation and a 1% scale factor.
+    let scaleUp = [1.0094, -0.0352,  3.1041,
+                   0.0352,  1.0094, -6.4885,
+                   0     ,  0      , 1];
+
+    let scaleDown = [ 0.9895, 0.0346, -2.8473,
+                     -0.0346, 0.9895,  6.5276,
+                      0     , 0     ,  1];
+
+    let i = 0;
+    function frame(){
+      i++;
+      if (Math.round(i/100) % 2) {
+        path.transform(scaleDown);
+      } else {
+        path.transform(scaleUp);
+      }
+
+      ctx.clearRect(0, 0, 300, 300);
+      ctx.stroke(path.toPath2D());
+
+      ctx.font = '42px monospace';
+      let x = 150-ctx.measureText('Transform').width/2;
+      ctx.strokeText('Transform', x, 290);
+
+      window.requestAnimationFrame(frame);
+    }
+    window.requestAnimationFrame(frame);
+  }
+})();
+</script>
+<h2>Example Code</h2>
+<p>The best place to look for examples on how to use PathKit would be in the
+<a href="https://github.com/google/skia/blob/master/modules/pathkit/npm-wasm/example.html#L45">example.html</a>,
+which comes in the npm package.</p>
+<h2>Download the library</h2>
+<p>See the the npm page for either the <a href="https://www.npmjs.com/package/pathkit-wasm">WebAssembly</a> version
+or the <a href="https://www.npmjs.com/package/pathkit-asmjs">asm.js</a> version
+for details on downloading and getting started.</p>
+<p>WebAssembly has faster load times and better overall performance but is
+currently supported by Chrome, Firefox, Edge, and Safari.
+The asm.js version should run anywhere JavaScript does.</p>
+<h2>API</h2>
+<p>The primary feature of the library is the <code>SkPath</code> object. It can be created:</p>
+<ul>
+<li>From the SVG string of a path <code>PathKit.FromSVGString(str)</code></li>
+<li>From a 2D array of verbs and arguments <code>PathKit.FromCmds(cmds)</code></li>
+<li>From <code>PathKit.NewPath()</code> (It will be blank)</li>
+<li>As a copy of an existing <code>SkPath</code> with <code>path.copy()</code> or <code>PathKit.NewPath(path)</code></li>
+</ul>
+<p>It can be exported as:</p>
+<ul>
+<li>An SVG string <code>path.toSVGString()</code></li>
+<li>A <a href="https://developer.mozilla.org/en-US/docs/Web/API/Path2D">Path2D</a> object <code>path.toPath2D()</code></li>
+<li>Directly to a canvas 2D context <code>path.toCanvas(ctx)</code></li>
+<li>A 2D array of verbs and arguments <code>path.toCmds()</code></li>
+</ul>
+<p>Once an SkPath object has been made, it can be interacted with in the following ways:</p>
+<ul>
+<li>expanded by any of the Path2D operations (<code>moveTo</code>, <code>lineTo</code>, <code>rect</code>, <code>arc</code>, etc)</li>
+<li>combined with other paths using <code>op</code> or <code>PathKit.MakeFromOp(p1, p2, op)</code>.  For example, <code>path1.op(path2, PathKit.PathOp.INTERSECT)</code> will set path1 to be the area represented by where path1 and path2 overlap (intersect). <code>PathKit.MakeFromOp(path1, path2, PathKit.PathOp.INTERSECT)</code> will do the same but returned as a new <code>SkPath</code> object.</li>
+<li>adjusted with some of the effects (<code>trim</code>, <code>dash</code>, <code>stroke</code>, etc)</li>
+</ul>
+<p><strong>Important</strong>: Any objects (<code>SkPath</code>, <code>SkOpBuilder</code>, etc) that are created must be cleaned up with <code>path.delete()</code> when they
+leave the scope to avoid leaking the memory in the WASM heap. This includes any of the constructors, <code>copy()</code>,
+or any function prefixed with &quot;make&quot;.</p>
+<h3>PathKit</h3>
+<h4><code>FromSVGString(str)</code></h4>
+<p><strong>str</strong> - <code>String</code> representing an <a href="https://www.w3schools.com/graphics/svg_path.asp">SVGPath</a></p>
+<p>Returns an <code>SkPath</code> with the same verbs and arguments as the SVG string, or <code>null</code> on a failure.</p>
+<p>Example:</p>
+<pre><code>let path = PathKit.FromSVGString('M150 0 L75 200 L225 200 Z');
+// path represents a triangle
+// don't forget to do path.delete() when it goes out of scope.
+</code></pre>
+<h4><code>FromCmds(cmds)</code></h4>
+<p><strong>cmds</strong> - <code>Array&lt;Array&lt;Number&gt;&gt;</code>, a 2D array of commands, where a command is a verb
+followed by its arguments.</p>
+<p>Returns an <code>SkPath</code> with the verbs and arguments from the list or <code>null</code> on a failure.</p>
+<p>This can be faster than calling <code>.moveTo()</code>, <code>.lineTo()</code>, etc many times.</p>
+<p>Example:</p>
+<pre><code>let cmds = [
+    [PathKit.MOVE_VERB, 0, 10],
+    [PathKit.LINE_VERB, 30, 40],
+    [PathKit.QUAD_VERB, 20, 50, 45, 60],
+];
+let path = PathKit.FromCmds(cmds);
+// path is the same as if a user had done
+// let path = PathKit.NewPath().moveTo(0, 10).lineTo(30, 40).quadTo(20, 50, 45, 60);
+// don't forget to do path.delete() when it goes out of scope.
+</code></pre>
+<h4><code>NewPath()</code></h4>
+<p>Returns an empty <code>SkPath</code> object.</p>
+<p>Example:</p>
+<pre><code>let path = PathKit.NewPath();
+path.moveTo(0, 10)
+    .lineTo(30, 40)
+    .quadTo(20, 50, 45, 60);
+// don't forget to do path.delete() when it goes out of scope.
+// Users can also do let path = new PathKit.SkPath();
+</code></pre>
+<h4><code>NewPath(pathToCopy)</code></h4>
+<p><strong>pathToCopy</strong> - SkPath, a path to make a copy of.</p>
+<p>Returns a <code>SkPath</code> that is a copy of the passed in <code>SkPath</code>.</p>
+<p>Example:</p>
+<pre><code>let otherPath = ...;
+let clone = PathKit.NewPath(otherPath);
+clone.simplify();
+// don't forget to do clone.delete() when it goes out of scope.
+// Users can also do let clone = new PathKit.SkPath(otherPath);
+// or let clone = otherPath.copy();
+</code></pre>
+<h4><code>MakeFromOp(pathOne, pathTwo, op)</code></h4>
+<p><strong>pathOne</strong> - <code>SkPath</code>, a path. <br>
+<strong>pathTwo</strong> - <code>SkPath</code>, a path. <br>
+<strong>op</strong> - <code>PathOp</code>, an op to apply</p>
+<p>Returns a new <code>SkPath</code> that is the result of applying the given PathOp to the first and second
+path (order matters).</p>
+<p>Example:</p>
+<pre><code>let pathOne = PathKit.NewPath().moveTo(0, 20).lineTo(10, 10).lineTo(20, 20).close();
+let pathTwo = PathKit.NewPath().moveTo(10, 20).lineTo(20, 10).lineTo(30, 20).close();
+let mountains = PathKit.MakeFromOp(pathOne, pathTwo, PathKit.PathOp.UNION);
+// don't forget to do mountains.delete() when it goes out of scope.
+// Users can also do pathOne.op(pathTwo, PathKit.PathOp.UNION);
+// to have the resulting path be stored to pathOne and avoid allocating another object.
+</code></pre>
+<h4><code>cubicYFromX(cpx1, cpy1, cpx2, cpy2, X)</code></h4>
+<p><strong>cpx1, cpy1, cpx2, cpy2</strong> - <code>Number</code>, coordinates for control points. <br>
+<strong>X</strong> - <code>Number</code>, The X coordinate for which to find the corresponding Y coordinate.</p>
+<p>Fast evaluation of a cubic ease-in / ease-out curve. This is defined as a parametric cubic
+curve inside the unit square. Makes the following assumptions:</p>
+<ul>
+<li>pt[0] is implicitly { 0, 0 }</li>
+<li>pt[3] is implicitly { 1, 1 }</li>
+<li>pts[1, 2] are inside the unit square</li>
+</ul>
+<p>This returns the Y coordinate for the given X coordinate.</p>
+<h4><code>cubicPtFromT(cpx1, cpy1, cpx2, cpy2, T)</code></h4>
+<p><strong>cpx1, cpy1, cpx2, cpy2</strong> - <code>Number</code>, coordinates for control points. <br>
+<strong>T</strong> - <code>Number</code>, The T param for which to find the corresponding (X, Y) coordinates.</p>
+<p>Fast evaluation of a cubic ease-in / ease-out curve. This is defined as a parametric cubic
+curve inside the unit square. Makes the following assumptions:</p>
+<ul>
+<li>pt[0] is implicitly { 0, 0 }</li>
+<li>pt[3] is implicitly { 1, 1 }</li>
+<li>pts[1, 2] are inside the unit square</li>
+</ul>
+<p>This returns the (X, Y) coordinate for the given T value as a length 2 array.</p>
+<h3>SkPath (object)</h3>
+<h4><code>addPath(otherPath)</code></h4>
+<p><strong>otherPath</strong> - <code>SkPath</code>, a path to append to this path</p>
+<p>Adds the given path to <code>this</code> and then returns <code>this</code> for chaining purposes.</p>
+<h4><code>addPath(otherPath, transform)</code></h4>
+<p><strong>otherPath</strong> - <code>SkPath</code>, a path to append to this path. <br>
+<strong>transform</strong> - <a href="https://developer.mozilla.org/en-US/docs/Web/API/SVGMatrix">SVGMatrix</a>,
+a transform to apply to otherPath before appending it.</p>
+<p>Adds the given path to <code>this</code> after applying the transform and then returns <code>this</code> for
+chaining purposes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/Path2D/addPath">Path2D.addPath()</a>
+for more details.</p>
+<h4><code>addPath(otherPath, a, b, c, d, e, f)</code></h4>
+<p><strong>otherPath</strong> - <code>SkPath</code>, a path to append to this path. <br>
+<strong>a, b, c, d, e, f</strong> - <code>Number</code>, the six components of an
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/SVGMatrix">SVGMatrix</a>,
+which define the transform to apply to otherPath before appending it.</p>
+<p>Adds the given path to <code>this</code> after applying the transform and then returns <code>this</code> for
+chaining purposes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/Path2D/addPath">Path2D.addPath()</a>
+for more details.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+let moreBoxes = PathKit.NewPath();
+// add box un-transformed (i.e. at 0, 0)
+moreBoxes.addPath(box)
+// the params fill out a 2d matrix like:
+//     a c e
+//     b d f
+//     0 0 1
+// add box 300 points to the right
+         .addPath(box, 1, 0, 0, 1, 300, 0)
+// add a box shrunk by 50% in both directions
+         .addPath(box, 0.5, 0, 0, 0.5, 0, 0);
+// moreBoxes now has 3 paths appended to it
+</code></pre>
+<h4><code>addPath(otherPath, scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2)</code></h4>
+<p><strong>otherPath</strong> - <code>SkPath</code>, a path to append to this path. <br>
+<strong>scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2</strong> -
+<code>Number</code>, the nine components of an
+<a href="https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations">Affine Matrix</a>,
+which define the transform to apply to otherPath before appending it.</p>
+<p>Adds the given path to <code>this</code> after applying the transform and then returns <code>this</code> for
+chaining purposes.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+let moreBoxes = PathKit.NewPath();
+// add box un-transformed (i.e. at 0, 0)
+moreBoxes.addPath(box)
+// add box 300 points to the right
+         .addPath(box, 1, 0, 0,
+                       0, 1, 300,
+                       0, 0 ,1)
+// add a box shrunk by 50% in both directions
+         .addPath(box, 0.5, 0,   0,
+                       0,   0.5, 0,
+                       0,   0,   1)
+// moreBoxes now has 3 paths appended to it
+</code></pre>
+<h4><code>arc(x, y, radius, startAngle, endAngle, ccw=false)</code></h4>
+<p><strong>x, y</strong> - <code>Number</code>, The coordinates of the arc's center. <br>
+<strong>radius</strong> - <code>Number</code>, The radius of the arc. <br>
+<strong>startAngle, endAngle</strong> - <code>Number</code>, the start and end of the angle, measured
+clockwise from the positive x axis and in radians. <br>
+<strong>ccw</strong> - <code>Boolean</code>, optional argument specifying if the arc should be drawn
+counter-clockwise between <strong>startAngle</strong> and <strong>endAngle</strong> instead of
+clockwise, the default.</p>
+<p>Adds the described arc to <code>this</code> then returns <code>this</code> for
+chaining purposes.  See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/arc">Path2D.arc()</a>
+for more details.</p>
+<p>Example:</p>
+<pre><code>let path = PathKit.NewPath();
+path.moveTo(20, 120);
+    .arc(20, 120, 18, 0, 1.75 * Math.PI);
+    .lineTo(20, 120);
+// path looks like a pie with a 1/8th slice removed.
+</code></pre>
+<h4><code>arcTo(x1, y1, x2, y2, radius)</code></h4>
+<p><strong>x1, y1, x2, y2</strong> - <code>Number</code>, The coordinates defining the control points. <br>
+<strong>radius</strong> - <code>Number</code>, The radius of the arc.</p>
+<p>Adds the described arc to <code>this</code> (appending a line, if needed) then returns <code>this</code> for
+chaining purposes.  See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/arcTo">Path2D.arcTo()</a>
+for more details.</p>
+<h4><code>close()</code> or <code>closePath()</code></h4>
+<p>Returns the pen to the start of the current sub-path, then returns <code>this</code> for
+chaining purposes.  See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/closePath">Path2D.closePath()</a>
+for more details.</p>
+<h4><code>computeTightBounds()</code></h4>
+<p>Returns an <code>SkRect</code> that represents the minimum and maximum area of
+<code>this</code> path. See <a href="https://skia.org/user/api/SkPath_Reference#SkPath_computeTightBounds">SkPath reference</a>
+for more details.</p>
+<h4><code>conicTo(x1, y1, x2, y2, w)</code></h4>
+<p><strong>x1, y1, x2, y2</strong> - <code>Number</code>, The coordinates defining the control point and the end point. <br>
+<strong>w</strong> - <code>Number</code>, The weight of the conic.</p>
+<p>Adds the described conic line to <code>this</code> (appending a line, if needed) then returns <code>this</code> for
+chaining purposes. See <a href="https://skia.org/user/api/SkPath_Reference#SkPath_conicTo">SkPath reference</a>
+for more details.</p>
+<h4><code>copy()</code></h4>
+<p>Return a copy of <code>this</code> path.</p>
+<h4><code>cubicTo(cp1x, cp1y, cp2x, cp2y, x, y)</code> or <code>bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)</code></h4>
+<p><strong>cp1x, cp1y, cp2x, cp2y</strong> - <code>Number</code>, The coordinates defining the control points. <br>
+<strong>x,y</strong> - <code>Number</code>, The coordinates defining the end point</p>
+<p>Adds the described cubic line to <code>this</code> (appending a line, if needed) then returns <code>this</code> for
+chaining purposes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo">Path2D.bezierCurveTo</a>
+for more details.</p>
+<h4><code>dash(on, off, phase)</code></h4>
+<p><strong>on, off</strong> - <code>Number</code>, The number of pixels the dash should be on (drawn) and off (blank). <br>
+<strong>phase</strong> - <code>Number</code>, The number of pixels the on/off should be offset (mod <strong>on</strong> + <strong>off</strong>)</p>
+<p>Applies a dashed path effect to <code>this</code> then returns <code>this</code> for chaining purposes.
+See the &quot;Dash&quot; effect above for a visual example.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+box.dash(20, 10, 3);
+// box is now a dashed rectangle that will draw for 20 pixels, then
+// stop for 10 pixels.  Since phase is 3, the first line won't start
+// at (0, 0), but 3 pixels around the path (3, 0)
+</code></pre>
+<h4><code>ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, ccw=false)</code></h4>
+<p><strong>x, y</strong> - <code>Number</code>, The coordinates of the center of the ellipse. <br>
+<strong>radiusX, radiusY</strong> - <code>Number</code>, The radii in the X and Y directions. <br>
+<strong>rotation</strong> - <code>Number</code>, The rotation in radians of this ellipse. <br>
+<strong>startAngle, endAngle</strong> - <code>Number</code>, the starting and ending angles of which to draw,
+measured in radians from the positive x axis. <br>
+<strong>ccw</strong> - <code>Boolean</code>, optional argument specifying if the ellipse should be drawn
+counter-clockwise between <strong>startAngle</strong> and <strong>endAngle</strong> instead of
+clockwise, the default.</p>
+<p>Adds the described ellipse to <code>this</code> then returns <code>this</code> for chaining purposes.
+See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/ellipse">Path2D.ellipse</a>
+for more details.</p>
+<h4><code>equals(otherPath)</code></h4>
+<p><strong>otherPath</strong> - <code>SkPath</code>, the path to compare to.</p>
+<p>Returns a <code>Boolean</code> value based on if <code>this</code> path is equal
+to <strong>otherPath</strong>.</p>
+<h4><code>getBounds()</code></h4>
+<p>Returns an <code>SkRect</code> that represents the minimum and maximum area of
+<code>this</code> path. See <a href="https://skia.org/user/api/SkPath_Reference#SkPath_getBounds">SkPath reference</a>
+for more details.</p>
+<h4><code>getFillType()</code></h4>
+<p>Returns a <code>FillType</code> based on what this path is. This defaults to
+<code>PathKit.FillType.WINDING</code>, but may change with <code>op()</code> or <code>simplify()</code>.</p>
+<p>Clients will typically want <code>getFillTypeString()</code> because that value
+can be passed directly to an SVG or Canvas.</p>
+<h4><code>getFillTypeString()</code></h4>
+<p>Returns a <code>String</code> representing the fillType of <code>this</code> path.
+The values are either &quot;nonzero&quot; or &quot;evenodd&quot;.</p>
+<p>Example:</p>
+<pre><code>let path = ...;
+let ctx = document.getElementById('canvas1').getContext('2d');
+ctx.strokeStyle = 'green';
+ctx.fill(path.toPath2D(), path.getFillTypeString());
+</code></pre>
+<h4><code>moveTo(x, y)</code></h4>
+<p><strong>x, y</strong> - <code>Number</code>, The coordinates of where the pen should be moved to.</p>
+<p>Moves the pen (without drawing) to the given coordinates then returns <code>this</code> for chaining purposes.
+See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/moveTo">Path2D.moveTo</a>
+for more details.</p>
+<h4><code>lineTo(x, y)</code></h4>
+<p><strong>x, y</strong> - <code>Number</code>, The coordinates of where the pen should be moved to.</p>
+<p>Draws a straight line to the given coordinates then returns <code>this</code> for chaining purposes.
+See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo">Path2D.lineTo</a>
+for more details.</p>
+<h4><code>op(otherPath, operation)</code></h4>
+<p><strong>otherPath</strong> - <code>SkPath</code>, The other path to be combined with <code>this</code>. <br>
+<strong>operation</strong> - <code>PathOp</code>, The operation to apply to the two paths.</p>
+<p>Combines otherPath into <code>this</code> path with the given operation and returns <code>this</code>
+for chaining purposes.</p>
+<p>Example:</p>
+<pre><code>let pathOne = PathKit.NewPath().moveTo(0, 20).lineTo(10, 10).lineTo(20, 20).close();
+let pathTwo = PathKit.NewPath().moveTo(10, 20).lineTo(20, 10).lineTo(30, 20).close();
+// Combine the two triangles to look like two mountains
+let mountains = pathOne.copy().op(pathOne, pathTwo, PathKit.PathOp.UNION);
+// set pathOne to be the small triangle where pathOne and pathTwo overlap
+pathOne.op(pathOne, pathTwo, PathKit.PathOp.INTERSECT);
+// since copy() was called, don't forget to call delete() on mountains.
+</code></pre>
+<h4><code>quadTo(cpx, cpy, x, y)</code> or <code>quadraticCurveTo(cpx, cpy, x, y)</code></h4>
+<p><strong>cpx, cpy</strong> - <code>Number</code>, The coordinates for the control point. <br>
+<strong>x, y</strong> - <code>Number</code>, The coordinates for the end point.</p>
+<p>Draws a quadratic Bézier curve with the given coordinates then returns <code>this</code> for chaining purposes.
+See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/quadraticCurveTo">Path2D.quadraticCurveTo</a>
+for more details.</p>
+<h4><code>rect(x, y, w, h)</code></h4>
+<p><strong>x, y</strong> - <code>Number</code>, The coordinates of the upper-left corner of the rectangle. <br>
+<strong>w, h</strong> - <code>Number</code>, The width and height of the rectangle</p>
+<p>Draws a rectangle on <code>this</code>, then returns <code>this</code> for chaining purposes.
+See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rect">Path2D.rect</a>
+for more details.</p>
+<h4><code>setFillType(fillType)</code></h4>
+<p><strong>fillType</strong> - <code>FillType</code>, the new fillType.</p>
+<p>Set the fillType of the path. See <a href="https://skia.org/user/api/SkPath_Reference#SkPath_FillType">SkPath reference</a>
+for more details.</p>
+<h4><code>simplify()</code></h4>
+<p>Set <code>this</code> path to a set of <em>non-overlapping</em> contours that describe the same area
+as the original path. See the &quot;Simplify&quot; effect above for a visual example.</p>
+<h4><code>stroke(opts)</code></h4>
+<p><strong>opts</strong> - <code>StrokeOpts</code>, contains the options for stroking.</p>
+<p>Strokes <code>this</code> path out with the given options. This can be used for a variety of
+effects.  See the &quot;Stroke&quot;, &quot;Grow&quot;, and &quot;Shrink&quot; effects above for visual examples.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+// Stroke the path with width 10 and rounded corners
+let rounded = box.copy().stroke({width: 10, join: PathKit.StrokeJoin.ROUND});
+// Grow effect, that is, a 20 pixel expansion around the box.
+let grow = box.copy().stroke({width: 20}).op(box, PathKit.PathOp.DIFFERENCE);
+// Shrink effect, in which we subtract away from the original
+let simplified = box.copy().simplify(); // sometimes required for complicated paths
+let shrink = box.copy().stroke({width: 15, cap: PathKit.StrokeCap.BUTT})
+                       .op(simplified, PathKit.PathOp.REVERSE_DIFFERENCE);
+// Don't forget to call delete() on each of the copies!
+</code></pre>
+<h4><code>toCanvas(ctx)</code></h4>
+<p><strong>ctx</strong> - <code>Canvas2DContext</code>, Canvas on which to draw the path.</p>
+<p>Draws <code>this</code> path on the passed in
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D">Canvas Context</a>.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+let ctx = document.getElementById('canvas1').getContext('2d');
+ctx.strokeStyle = 'green';
+ctx.beginPath();
+box.toCanvas(ctx);
+ctx.stroke();  // could also ctx.fill()
+</code></pre>
+<h4><code>toCmds()</code></h4>
+<p>Returns a 2D Array of verbs and args. See <code>PathKit.FromCmds()</code> for
+more details.</p>
+<h4><code>toPath2D()</code></h4>
+<p>Returns a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Path2D">Path2D</a> object
+that has the same operations as <code>this</code> path.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+let ctx = document.getElementById('canvas1').getContext('2d');
+ctx.strokeStyle = 'green';
+ctx.stroke(box.toPath2D());
+</code></pre>
+<h4><code>toSVGString()</code></h4>
+<p>Returns a <code>String</code> representing an <a href="https://www.w3schools.com/graphics/svg_path.asp">SVGPath</a> based on <code>this</code> path.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+let svg = document.getElementById('svg1');
+let newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+newPath.setAttribute('stroke', 'green');
+newPath.setAttribute('fill', 'white');
+newPath.setAttribute('d', box.toSVGString());
+svg.appendChild(newPath);
+</code></pre>
+<h4><code>transform(matr)</code></h4>
+<p><strong>matr</strong> - <code>SkMatrix</code>, i.e. an <code>Array&lt;Number&gt;</code> of the nine numbers of an Affine Transform Matrix.</p>
+<p>Applies the specified <a href="https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations">transform</a>
+to <code>this</code> and then returns <code>this</code> for chaining purposes.</p>
+<h4><code>transform(scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2)</code></h4>
+<p><strong>scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2</strong> -
+<code>Number</code>, the nine numbers of an Affine Transform Matrix.</p>
+<p>Applies the specified <a href="https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations">transform</a>
+to <code>this</code> and then returns <code>this</code> for chaining purposes.</p>
+<p>Example:</p>
+<pre><code>let path = PathKit.NewPath().rect(0, 0, 100, 100);
+// scale up the path by 5x
+path.transform([5, 0, 0,
+                0, 5, 0,
+                0, 0, 1]);
+// move the path 75 px to the right.
+path.transform(1, 0, 75,
+               0, 1, 0,
+               0, 0, 1);
+</code></pre>
+<h4><code>trim(startT, stopT, isComplement=false)</code></h4>
+<p><strong>startT, stopT</strong> - <code>Number</code>, values in [0, 1] that indicate the start and stop
+&quot;percentages&quot; of the path to draw <br>
+<strong>isComplement</strong> - <code>Boolean</code>, If the complement of the trimmed section should
+be drawn instead of the areas between <strong>startT</strong> and <strong>stopT</strong>.</p>
+<p>Sets <code>this</code> path to be a subset of the original path, then returns <code>this</code> for chaining purposes.
+See the &quot;Trim&quot; effect above for a visual example.</p>
+<p>Example:</p>
+<pre><code>let box = PathKit.NewPath().rect(0, 0, 100, 100);
+box.trim(0.25, 1.0);
+// box is now the 3 segments that look like a U
+// (the top segment has been removed).
+</code></pre>
+<h3>SkOpBuilder (object)</h3>
+<p>This object enables chaining multiple PathOps together.
+Create one with <code>let builder = new PathKit.SkOpBuilder();</code>
+When created, the internal state is &quot;empty path&quot;.
+Don't forget to call <code>delete()</code> on both the builder and the result
+of <code>resolve()</code></p>
+<h4><code>add(path, operation)</code></h4>
+<p><strong>path</strong> - <code>SkPath</code>, The path to be combined with the given rule. <br>
+<strong>operation</strong> - <code>PathOp</code>, The operation to apply to the two paths.</p>
+<p>Adds a path and the operand to the builder.</p>
+<h4><code>make()</code> or <code>resolve()</code></h4>
+<p>Creates and returns a new <code>SkPath</code> based on all the given paths
+and operands.</p>
+<p>Don't forget to call <code>.delete()</code> on the returned path when it goes out of scope.</p>
+<h3>SkMatrix (struct)</h3>
+<p><code>SkMatrix</code> translates between a C++ struct and a JS Array.
+It basically takes a nine element 1D Array and turns it into a
+3x3 2D Affine Matrix.</p>
+<h3>SkRect (struct)</h3>
+<p><code>SkRect</code> translates between a C++ struct and a JS Object with
+the following keys (all values are <code>Number</code>:</p>
+<ul>
+<li><strong>fLeft</strong>: x coordinate of top-left corner</li>
+<li><strong>fTop</strong>: y coordinate of top-left corner</li>
+<li><strong>fRight</strong>: x coordinate of bottom-right corner</li>
+<li><strong>fBottom</strong>: y coordinate of bottom-rightcorner</li>
+</ul>
+<h3>StrokeOpts (struct)</h3>
+<p><code>StrokeOpts</code> translates between a C++ struct and a JS Object with
+the following keys:</p>
+<ul>
+<li><strong>width</strong>, <code>Number</code> the width of the lines of the path. Default 1.</li>
+<li><strong>miter_limit</strong>, <code>Number</code>, the miter limit. Defautl 4. See <a href="https://skia.org/user/api/SkPaint_Reference#Miter_Limit">SkPaint reference</a> for more details.</li>
+<li><strong>join</strong>, <code>StrokeJoin</code>, the join to use. Default <code>PathKit.StrokeJoin.MITER</code>.
+See <a href="https://skia.org/user/api/SkPaint_Reference#SkPaint_Join">SkPaint reference</a> for more details.</li>
+<li><strong>cap</strong>, <code>StrokeCap</code>, the cap to use. Default <code>PathKit.StrokeCap.BUTT</code>.
+See <a href="https://skia.org/user/api/SkPaint_Reference#Stroke_Cap">SkPaint reference</a> for more details.</li>
+</ul>
+<h3>PathOp (enum)</h3>
+<p>The following enum values are exposed. They are essentially constant
+objects, differentiated by thier <code>.value</code> property.</p>
+<ul>
+<li><code>PathKit.PathOp.DIFFERENCE</code></li>
+<li><code>PathKit.PathOp.INTERSECT</code></li>
+<li><code>PathKit.PathOp.REVERSE_DIFFERENCE</code></li>
+<li><code>PathKit.PathOp.UNION</code></li>
+<li><code>PathKit.PathOp.XOR</code></li>
+</ul>
+<p>These are used in <code>PathKit.MakeFromOp()</code> and <code>SkPath.op()</code>.</p>
+<h3>FillType (enum)</h3>
+<p>The following enum values are exposed. They are essentially constant
+objects, differentiated by thier <code>.value</code> property.</p>
+<ul>
+<li><code>PathKit.FillType.WINDING</code> (also known as nonzero)</li>
+<li><code>PathKit.FillType.EVENODD</code></li>
+<li><code>PathKit.FillType.INVERSE_WINDING</code></li>
+<li><code>PathKit.FillType.INVERSE_EVENODD</code></li>
+</ul>
+<p>These are used by <code>SkPath.getFillType()</code> and <code>SkPath.setFillType()</code>, but
+generally clients will want <code>SkPath.getFillTypeString()</code>.</p>
+<h3>StrokeJoin (enum)</h3>
+<p>The following enum values are exposed. They are essentially constant
+objects, differentiated by thier <code>.value</code> property.</p>
+<ul>
+<li><code>PathKit.StrokeJoin.MITER</code></li>
+<li><code>PathKit.StrokeJoin.ROUND</code></li>
+<li><code>PathKit.StrokeJoin.BEVEL</code></li>
+</ul>
+<p>See <a href="https://skia.org/user/api/SkPaint_Reference#SkPaint_Join">SkPaint reference</a> for more details.</p>
+<h3>StrokeCap (enum)</h3>
+<p>The following enum values are exposed. They are essentially constant
+objects, differentiated by thier <code>.value</code> property.</p>
+<ul>
+<li><code>PathKit.StrokeCap.BUTT</code></li>
+<li><code>PathKit.StrokeCap.ROUND</code></li>
+<li><code>PathKit.StrokeCap.SQUARE</code></li>
+</ul>
+<p>See <a href="https://skia.org/user/api/SkPaint_Reference#Stroke_Cap">SkPaint reference</a> for more details.</p>
+<h3>Constants</h3>
+<p>The following constants are exposed:</p>
+<ul>
+<li><code>PathKit.MOVE_VERB</code> = 0</li>
+<li><code>PathKit.LINE_VERB</code> = 1</li>
+<li><code>PathKit.QUAD_VERB</code> = 2</li>
+<li><code>PathKit.CONIC_VERB</code> = 3</li>
+<li><code>PathKit.CUBIC_VERB</code> = 4</li>
+<li><code>PathKit.CLOSE_VERB</code> = 5</li>
+</ul>
+<p>These are only needed for <code>PathKit.FromCmds()</code>.</p>
+<h3>Functions for testing only</h3>
+<h4><code>PathKit.LTRBRect(left, top, right, bottom)</code></h4>
+<p><strong>left</strong> - <code>Number</code>, x coordinate of top-left corner of the <code>SkRect</code>. <br>
+<strong>top</strong> - <code>Number</code>, y coordinate of top-left corner of the <code>SkRect</code>. <br>
+<strong>right</strong> - <code>Number</code>, x coordinate of bottom-right corner of the <code>SkRect</code>. <br>
+<strong>bottom</strong> - <code>Number</code>, y coordinate of bottom-right corner of the <code>SkRect</code>.</p>
+<p>Returns an <code>SkRect</code> object with the given params.</p>
+<h4><code>SkPath.dump()</code></h4>
+<p>Prints all the verbs and arguments to the console.
+Only available on Debug and Test builds.</p>

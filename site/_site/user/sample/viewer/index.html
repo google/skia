@@ -1,0 +1,98 @@
+<h1>Skia Viewer</h1>
+<p>The Skia Viewer displays a series of slides that exhibit specific features of Skia, including the Skia GMs and programmed samples that allow interaction. In addition, the Viewer is used to debug and understand different parts of the Skia system:</p>
+<ul>
+<li>Observe rendering performance - placing the Viewer in stats mode displays average frame times.</li>
+<li>Try different rendering methods - it's possible to cycle among the three rendering methods: raster, OpenGL and Vulkan (on supported platforms). You can use this with stats mode to see the effect that the different rendering methods have on drawing performance.</li>
+<li>Display and manipulate your own pictures.</li>
+</ul>
+<p>Some slides require resources stored outside the program. These resources are stored in the <code>&lt;skia-path&gt;/resources</code> directory.</p>
+<h2>Linux, Macintosh and Windows</h2>
+<p>The Viewer can be built using the regular GN build process, e.g.</p>
+<pre><code>bin/gn gen out/Release --args='is_debug=false'
+ninja -C out/Release viewer
+</code></pre>
+<p>To load resources in the desktop Viewers, use the <code>--resourcePath</code> option:</p>
+<pre><code>&lt;skia-path&gt;/out/Release/viewer --resourcePath &lt;skia-path&gt;/resources
+</code></pre>
+<p>Similarly, <code>--skps &lt;skp-file-path&gt;</code> will load any <code>.skp</code> files in that directory
+for display within the Viewer.</p>
+<p>Other useful command-line options: using <code>--match &lt;pattern&gt;</code> will load only SKPs or slides
+matching that name; using <code>--slide &lt;name&gt;</code> will launch at that slide; and you can start up
+with a particular rendering method by using <code>--backend</code>, i.e., <code>--backend sw</code>, <code>--backend gl</code>,
+<code>--backend vk</code>, or <code>--backend mtl</code>.</p>
+<p>The desktop Viewers are controlled using the keyboard and mouse: left (←) and right
+(→) arrows to move from slide to slide; up (↑) and down (↓) arrows to
+zoom in and out; clicking and dragging will translate. Other display options and a slide
+picker can be found in the Tools UI, which can be toggled by hitting the spacebar.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>← →</td>
+<td>Move between the slides</td>
+</tr>
+<tr>
+<td>↑ ↓</td>
+<td>Zoom in / out</td>
+</tr>
+<tr>
+<td>d</td>
+<td>Change render methods among raster, OpenGL and Vulkan</td>
+</tr>
+<tr>
+<td>s</td>
+<td>Display rendering times and graph</td>
+</tr>
+<tr>
+<td>Space</td>
+<td>Toggle display of Tools UI</td>
+</tr>
+</tbody>
+</table>
+<h2>Android</h2>
+<p>To build Viewer as an Android App, first follow the
+<a href="https://skia.org/user/build#android">Android build instructions</a> to set up the
+Android NDK and a ninja out directory. In addition, you will need the
+<a href="https://developer.android.com/studio/#command-tools">Android SDK</a> installed and your
+<code>ANDROID_HOME</code> environment variable set.</p>
+<pre><code>mkdir ~/android-sdk
+( cd ~/android-sdk; unzip ~/Downloads/sdk-tools-*.zip )
+yes | ~/android-sdk/tools/bin/sdkmanager --licenses
+export ANDROID_HOME=~/android-sdk  # Or wherever you installed the Android SDK.
+</code></pre>
+<p>If you are not using the NDK included with the Android SDK (at ~/android-sdk/ndk-bundle
+in this example) you'll need to set the environmental variable <code>ANDROID_NDK_HOME</code>, e.g.,</p>
+<pre><code>export ANDROID_NDK_HOME=/tmp/ndk
+</code></pre>
+<p>The Viewer APK must be built by gradle which can be invoked on the command line
+with the following script:</p>
+<pre><code>platform_tools/android/bin/android_build_app -C &lt;out_dir&gt; viewer
+</code></pre>
+<p>where <code>&lt;out_dir&gt;</code> is the ninja out directory (e.g., <code>out/arm64</code>)
+that you created. Upon completion of the script the APK
+can be found at <code>&lt;out_dir&gt;/viewer.apk</code></p>
+<p>To load resources in the Android Viewer place them in
+<code>/data/local/tmp/resources</code>; to load SKPs place them in <code>/data/local/tmp/skps</code>.</p>
+<p>Swiping left and right will switch slides, pinch-zoom will zoom in and out, and
+display options are available in the UI.</p>
+<h2>iOS</h2>
+<p>Viewer on iOS is built using the regular GN process, e.g.</p>
+<pre><code>bin/gn gen out/Release --args='target_os=&quot;ios&quot; is_debug=false'
+ninja -C out/Release viewer
+</code></pre>
+<p>Like other iOS apps it can be deployed either by using something like
+<a href="https://github.com/ios-control/ios-deploy">ios-deploy</a>
+or by building within Xcode and launching via the IDE. See the
+<a href="https://skia.org/user/build#ios">iOS build instructions</a> for more information
+on managing provisioning profiles for signing and deployment.</p>
+<p>Viewer will
+automatically bundle the <code>resources</code> directory in the top-level Skia directory,
+and will bundle an <code>skps</code> directory if also placed in the Skia directory.</p>
+<p>On iOS the Viewer provides basic touch functionality: you can view slides,
+swipe between them, pinch-zoom to scale, and translate via panning. There is not
+yet support for display options or selecting from a list of slides.</p>

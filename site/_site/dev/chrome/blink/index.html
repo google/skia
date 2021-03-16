@@ -1,0 +1,91 @@
+<h1>Blink layout tests</h1>
+<p>How to land Skia changes that change Blink layout test results.</p>
+<h2>Changes that affect a small number of layout test results</h2>
+<p>Changes affecting fewer than ~20 layout tests can be rebaselined without
+special coordination with the Blink gardener using these steps:</p>
+<ol>
+<li>
+<p>Prepare your Skia change, taking note of which layout tests will turn red
+(see http://www.chromium.org/developers/testing/webkit-layout-tests for more
+detail on running the Blink layout tests).</p>
+</li>
+<li>
+<p>Check in your code to the Skia repo.</p>
+</li>
+<li>
+<p>Ahead of the Skia auto roll including your change, manually push a change to the
+Blink LayoutTests/TestExpectations <a href="https://chromium.googlesource.com/chromium/src/+/master/third_party/blink/web_tests/TestExpectations">file</a>, flagging tests expected to fail as a result of your change as follows:
+foo/bar/test-name.html [ Failure Pass ]  # Needs rebaseline</p>
+</li>
+<li>
+<p>Wait for the Skia roll to land successfully.</p>
+</li>
+<li>
+<p>Check in another change to the Blink TestExpectations file removing all the
+skipped test expectations you add earlier, an run <code>git cl rebaseline</code> which will prompt the automatic rebaseline.</p>
+</li>
+</ol>
+<h2>Changes that affect a large number of test results</h2>
+<p>Where a 'large number' or 'many' means more than about 20.
+Follow the instructions below:</p>
+<p>In the following the term 'code suppression' means a build flag (a.k.a. define).
+Such code suppressions should be given a name with the form SK_IGNORE_xxx_FIX.</p>
+<p>Updating the version of Skia in Chromium is called a 'roll'.
+The Auto Roll Bot performs this roll multiple times per day, and can also be done manually.
+See https://chromium.googlesource.com/chromium/src/+log/master/DEPS and search for skia-deps-roller.</p>
+<h3>Setup</h3>
+<h4>Code suppression does not yet exist - Direct method</h4>
+<ol>
+<li>Make a change in Skia which will change many Blink layout tests.</li>
+<li>Put the change behind a code suppression.</li>
+<li>Check in the change to the Skia repository.</li>
+<li>Manually roll Skia or append the autoroll with the code suppression to
+Chromium's 'skia/chromium_skia_defines.gypi'</li>
+</ol>
+<h4>Code suppression does not yet exist - Alternate method</h4>
+<ol>
+<li>Add code suppression to Chromium's 'skia/chromium_skia_defines.gypi' before making code
+changes in Skia.</li>
+<li>Make a change in Skia which will change many Blink layout tests.</li>
+<li>Put the change behind a code suppression.</li>
+<li>Check in the change to the Skia repository.</li>
+<li>Wait for Skia roll into Chromium.</li>
+</ol>
+<h4>Code suppression exists in header</h4>
+<ol>
+<li>Remove code suppression from header file in Chromium and add code suppression to
+Chromium's 'skia/chromium_skia_defines.gypi'.
+The code suppression cannot be in a header file and a defined in a gyp file at the
+same time or a multiple definition warning will be treated as an error and break
+the Chromium build.</li>
+</ol>
+<h3>Rebaseline</h3>
+<ol>
+<li>Choose a time when the Blink tree is likely to be quiet. Avoid PST afternoons in
+particular. The bigger the change, the more important this is. Regardless,
+determine who the Blink gardener is and notify them. You will be making the
+Chromium.WebKit tree very red for an extended period, and the gardener needs to
+know that they are not expected to fix it.</li>
+<li>Create a CL removing the code suppression from Chromium's
+skia/chromium_skia_defines.gypi while simultaneously adding [ NeedsRebaseline ]
+lines to Blink's LayoutTests/TestExpectations <a href="https://chromium.googlesource.com/chromium/src/+/master/third_party/blink/web_tests/TestExpectations">file</a>.
+Then the auto rebaseline bot will take care of the work of actually checking in the
+new images. This is generally acceptable for up to 600 or so rebaselined images.
+Above that you might still use [ NeedsRebaseline ], but it's best to coordinate with
+the gardener. This should go through the CQ cleanly.</li>
+<li>Be careful with tests that are already failing or flakey. These may or may not need
+to be rebaselined and flakey tests should not be removed from TestExpectations
+regardless. In such cases revert the TestExpectations changes before committing.</li>
+<li>If you are not the one handling the cleanup step, please open a Skia Issue of the
+form
+Title: &quot;Remove code suppression SK_IGNORE_xxx_FIX.&quot;
+Comment: &quot;Code suppression SK_IGNORE_xxx_FIX rebaselined with Blink revision
+123456.&quot; and assign it to the individual responsible for the cleanup step.</li>
+</ol>
+<h3>Cleanup</h3>
+<ol>
+<li>Remove the now unused old code from Skia and any defines which were introduced
+to suppress the new code.</li>
+<li>Check in the cleanup change to the Skia repository.</li>
+<li>Wait for Skia roll into Chromium.</li>
+</ol>

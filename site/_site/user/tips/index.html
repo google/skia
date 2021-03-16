@@ -1,0 +1,109 @@
+<h1>Tips &amp; FAQ</h1>
+<ul>
+<li><a href="#bitmap-subsetting">Bitmap Subsetting</a></li>
+<li><a href="#skp-capture">Capture a <code>.skp</code> file on a web page in Chromium</a></li>
+<li><a href="#mskp-capture">Capture a <code>.mskp</code> file on a web page in Chromium</a></li>
+<li><a href="#hw-acceleration">How to add hardware acceleration in Skia</a></li>
+<li><a href="#font-hinting">Does Skia support Font hinting?</a></li>
+<li><a href="#kerning">Does Skia shape text (kerning)?</a></li>
+<li><a href="#text-shadow">How do I add drop shadow on text?</a></li>
+</ul>
+<hr>
+<h2><span id="skp-capture">Capture a <code>.skp</code> file on a web page in Chromium</span></h2>
+<p>Use the script <code>experimental/tools/web_to_skp</code> , <em>or</em> do the following:</p>
+<ol>
+<li>Launch Chrome or Chromium with <code>--no-sandbox --enable-gpu-benchmarking</code></li>
+<li>Open the JS console (Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (MacOS))</li>
+<li>Execute: <code>chrome.gpuBenchmarking.printToSkPicture('/tmp')</code>
+This returns &quot;undefined&quot; on success.</li>
+</ol>
+<p>Open the resulting file in the <a href="/dev/tools/debugger">Skia Debugger</a>, rasterize it with <code>dm</code>,
+or use Skia's <code>viewer</code> to view it:</p>
+<!--?prettify lang=sh?-->
+<pre><code>out/Release/dm --src skp --skps /tmp/layer_0.skp -w /tmp \
+    --config 8888 gpu pdf --verbose
+ls -l /tmp/*/skp/layer_0.skp.*
+
+out/Release/viewer --skps /tmp --slide layer_0.skp
+</code></pre>
+<hr>
+<h2><span id="mskp-capture">Capture a <code>.mskp</code> file on a web page in Chromium</span></h2>
+<p>Multipage Skia Picture files capture the commands sent to produce PDFs
+and printed documents.</p>
+<p>Use the script <code>experimental/tools/web_to_mskp</code> , <em>or</em> do the following:</p>
+<ol>
+<li>Launch Chrome or Chromium with <code>--no-sandbox --enable-gpu-benchmarking</code></li>
+<li>Open the JS console (Ctrl+Shift+J (Windows / Linux) or Cmd+Opt+J (MacOS))</li>
+<li>Execute: <code>chrome.gpuBenchmarking.printPagesToSkPictures('/tmp/filename.mskp')</code>
+This returns &quot;undefined&quot; on success.</li>
+</ol>
+<p>Open the resulting file in the <a href="/dev/tools/debugger">Skia Debugger</a> or
+process it with <code>dm</code>.</p>
+<!--?prettify lang=sh?-->
+<pre><code>experimental/tools/mskp_parser.py /tmp/filename.mskp /tmp/filename.mskp.skp
+ls -l /tmp/filename.mskp.skp
+# open filename.mskp.skp in the debugger.
+
+out/Release/dm --src mskp --mskps /tmp/filename.mskp -w /tmp \
+    --config pdf --verbose
+ls -l /tmp/pdf/mskp/filename.mskp.pdf
+</code></pre>
+<hr>
+<h2><span id="hw-acceleration">How to add hardware acceleration in Skia</span></h2>
+<p>There are two ways Skia takes advantage of specific hardware.</p>
+<ol>
+<li>
+<p>Custom bottleneck routines</p>
+<p>There are sets of bottleneck routines inside the blits of Skia
+that can be replace on a platform in order to take advantage of
+specific CPU features. One such example is the NEON SIMD
+instructions on ARM v7 devices. See <a href="https://skia.googlesource.com/skia/+/master/src/opts/">src/opts/</a></p>
+</li>
+</ol>
+<hr>
+<h2><span id="font-hinting">Does Skia support Font hinting?</span></h2>
+<p>Skia has a built-in font cache, but it does not know how to actually render font
+files like TrueType into its cache. For that it relies on the platform to
+supply an instance of <code>SkScalerContext</code>. This is Skia's abstract interface for
+communicating with a font scaler engine. In src/ports you can see support
+files for FreeType, macOS, and Windows GDI font engines. Other font
+engines can easily be supported in a like manner.</p>
+<hr>
+<h2><span id="kerning">Does Skia shape text (kerning)?</span></h2>
+<p>Shaping is the process that translates a span of Unicode text into a span of
+positioned glyphs with the apropriate typefaces.</p>
+<p>Skia does not shape text.  Skia provides interfaces to draw glyphs, but does
+not implement a text shaper. Skia's client's often use
+<a href="http://www.freedesktop.org/wiki/Software/HarfBuzz/">HarfBuzz</a> to
+generate the glyphs and their positions, including kerning.</p>
+<p><a href="https://github.com/aam/skiaex">Here is an example of how to use Skia and HarfBuzz
+together</a>.  In the example, a
+<code>SkTypeface</code> and a <code>hb_face_t</code> are created using the same <code>mmap()</code>ed
+<code>.ttf</code> font file. The HarfBuzz face is used to shape unicode text into
+a sequence of glyphs and positions, and the <code>SkTypeface</code> can then be
+used to draw those glyphs.</p>
+<hr>
+<h2><span id="text-shadow">How do I add drop shadow on text?</span></h2>
+<!--?prettify lang=cc?-->
+<pre><code>void draw(SkCanvas* canvas) {
+    const SkScalar sigma = 1.65f;
+    const SkScalar xDrop = 2.0f;
+    const SkScalar yDrop = 2.0f;
+    const SkScalar x = 8.0f;
+    const SkScalar y = 52.0f;
+    const SkScalar textSize = 48.0f;
+    const uint8_t blurAlpha = 127;
+    auto blob = SkTextBlob::MakeFromString(&quot;Skia&quot;, SkFont(nullptr, textSize));
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPaint blur(paint);
+    blur.setAlpha(blurAlpha);
+    blur.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, 0));
+    canvas-&gt;drawColor(SK_ColorWHITE);
+    canvas-&gt;drawTextBlob(blob.get(), x + xDrop, y + yDrop, blur);
+    canvas-&gt;drawTextBlob(blob.get(), x,         y,         paint);
+}
+</code></pre>
+<p><a href='https://fiddle.skia.org/c/@text_shadow'><img src='https://fiddle.skia.org/i/@text_shadow_raster.png'></a></p>
+<hr>
+<div style="margin-bottom:99%"></div>

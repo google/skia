@@ -1,0 +1,16 @@
+<h1>Chromium Command Buffer</h1>
+<p>It is possible to run Skia's correctness tool, dm, and benchmarking tool,
+nanobench, on top of the GL ES interface provided by Chromium's command
+buffer.</p>
+<p>The Skia tools are always built with this support. They dynamically load
+the command buffer as a shared library and thus no GYP/GN flags are
+required.</p>
+<p>The command buffer standalone shared library is built in a Chromium checkout
+by building the <code>command_buffer_gles2</code> target. The command buffer should be
+built with the <code>is_component_build</code> in GN set to false. This will produce a .so,
+.dylib, or .dll depending on the target OS. This should be copied alongside
+the dm or nanobench executable built from a Skia repository.</p>
+<p>Both tools have a <code>commandbuffer</code> config which can be used with the <code>--config</code>
+option to the tool and will run the tests or benchmarks using the command buffer
+library. Unit tests in dm always run on all appropriate and available backends
+regardless of the <code>--config</code> flag.</p>

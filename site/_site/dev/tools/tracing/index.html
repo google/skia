@@ -1,0 +1,80 @@
+<h1>Tracing Skia Execution</h1>
+<h2>Introduction</h2>
+<p>Skia is instrumented to provide execution traces in several ways. Within Chrome, Skia is traced
+with the standard <a href="chrome://tracing">tracing interface</a>, along with the rest of Chromium. In
+the Android framework, Skia's tracing is integrated into
+<a href="https://source.android.com/devices/tech/debug/ftrace">atrace</a>.</p>
+<p>For standalone builds, Skia's tools (DM, nanobench, and Viewer) are capable of tracing execution
+in three ways, controlled by the <code>--trace</code> command line argument.</p>
+<h2>Standalone Tracing</h2>
+<p>Most arguments to <code>--trace</code> will be interpreted as a filename (the two exceptions are described
+below), and trace events will be written to that file in JSON format, suitable for viewing with
+<a href="chrome://tracing">chrome://tracing</a>.</p>
+<!--?prettify lang=sh?-->
+<pre><code># Run DM on several GMs to get tracing data
+out/Release/dm --config gl --match bleed --trace gl_bleed_gms.json
+</code></pre>
+<p>This creates a file <code>gl_bleed_gms.json</code> in the current directory. There are limitations in Chrome's
+tracing tool that prevent loading a file larger than 256 MB. To stay under that limit (and avoid
+clutter and slowdown in the interface), it's best to run a small number of tests/benchmarks when
+tracing. Once you have generated a file in this way, go to
+<a href="chrome://tracing">chrome://tracing</a>, click Load:</p>
+<p><img src="tracing_load.png" alt="Load Button"></p>
+<p>... then select the JSON file. The data will be loaded and can be navigated/inspected using the
+tracing tools. Tip: press '?' for a help screen explaining the available keyboard and mouse
+controls.</p>
+<p><img src="tracing.png" alt="Tracing interface"></p>
+<h2>Android ATrace</h2>
+<p>Running any tool with <code>--trace atrace</code> on an Android device will cause the application to forward
+tracing information to <a href="https://source.android.com/devices/tech/debug/ftrace">atrace</a>. On other
+platforms, this has no effect.</p>
+<p>If you run <code>systrace</code> from the host command line, you will need to supply <code>-a &lt;app_name&gt;</code>,
+and the <code>&lt;app_name&gt;</code> argument will need to exactly match the command line used on the target
+device. For example, if you use <code>adb shell &quot;cd /data/local/tmp; ./nanobench --trace atrace ...&quot;</code>
+you must pass <code>-a ./nanobench</code> or systrace will ignore events from the application.</p>
+<h2>Console Logging</h2>
+<p>For simple situations, all tracing events can be directed to the console with <code>--trace debugf</code>:</p>
+<!--?prettify lang=sh?-->
+<pre><code># Run DM on a single GM with SkDebugf tracing
+out/Release/dm --config gl --match ^gamma$ --trace debugf
+</code></pre>
+<pre><code>[ 0] &lt;skia.gpu&gt; GrDrawingManager::internalFlush id=1 #0 {
+[ 0] } GrDrawingManager::internalFlush
+[ 0] &lt;skia.gpu&gt; GrGpu::createTexture id=1 #1 {
+[ 0] } GrGpu::createTexture
+[ 0] &lt;skia.gpu&gt; GrRenderTargetContext::discard id=1 #2 {
+[ 0] } GrRenderTargetContext::discard
+[ 0] &lt;skia.gpu&gt; SkGpuDevice::clearAll id=1 #3 {
+[ 1]  &lt;skia.gpu&gt; GrRenderTargetContext::clear id=1 #4 {
+[ 1]  } GrRenderTargetContext::clear
+[ 0] } SkGpuDevice::clearAll
+[ 0] &lt;skia&gt; SkCanvas::drawRect() #5 {
+[ 1]  &lt;skia.gpu&gt; SkGpuDevice::drawRect id=1 #6 {
+[ 2]   &lt;skia.gpu&gt; GrRenderTargetContext::drawRect id=1 #7 {
+[ 3]    &lt;skia.gpu&gt; GrRenderTargetContext::addDrawOp id=1 #8 {
+[ 3]    } GrRenderTargetContext::addDrawOp
+[ 2]   } GrRenderTargetContext::drawRect
+[ 1]  } SkGpuDevice::drawRect
+[ 0] } SkCanvas::drawRect()
+...
+</code></pre>
+<h2>Adding More Trace Events</h2>
+<p>Adding more trace events involves using a set of <code>TRACE_</code> macros. The simplest example, to record
+the time spent in a function or other scope, is:</p>
+<pre><code>#include &quot;SkTraceEvent.h&quot;
+...
+void doSomething() {
+  // Add an event for the duration of the current function (or other scope)
+  // &quot;skia&quot; is a category name, for filtering events while recording
+  // TRACE_FUNC is the event name, and expands to the name of the current function
+  TRACE_EVENT0(&quot;skia&quot;, TRACE_FUNC);
+
+  if (doExtraWork) {
+    TRACE_EVENT0(&quot;skia&quot;, &quot;ExtraWorkBeingDone&quot;);
+    ...
+  }
+}
+</code></pre>
+<p>For more examples, including other kinds of trace events and attaching parameters to events, see
+the comments in
+<a href="https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkTraceEventCommon.h">SkTraceEventCommon.h</a>.</p>

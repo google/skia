@@ -1,0 +1,68 @@
+<h1>Multiple repo Chromium trybots</h1>
+<p>When a proposed Skia change will require a change in Chromium or Blink it is
+often helpful to locally create the Chromium and Blink changes and test with the
+proposed Skia change. This often happens with Skia API changes and changes
+which affect Blink layout tests. While simple to do locally, this explains how
+to do so on the Chromium trybots.</p>
+<h2>Skia only changes</h2>
+<p>If the Skia patch is already in Gerrit and there are no associated Chromium
+changes, then it is possible to just run the Chromium trybots. This will apply
+the Skia patch and run the bot.</p>
+<h2>Skia and Chromium changes</h2>
+<p>If the Skia patch is already in Gerrit and there are associated Chromium
+changes, then in the Chromium CL add the following to
+&lt;chromium&gt;/src/DEPS in the 'hooks' array.</p>
+<pre><code>  {
+    'name': 'fetch_custom_patch',
+    'pattern': '.',
+    'action': [ 'git', '-C', 'src/third_party/skia/',
+                'fetch', 'https://skia.googlesource.com/skia', 'refs/changes/13/10513/13',
+    ],
+  },
+  {
+    'name': 'apply_custom_patch',
+    'pattern': '.',
+    'action': ['git', '-C', 'src/third_party/skia/',
+               '-c', 'user.name=Custom Patch', '-c', 'user.email=custompatch@example.com',
+               'cherry-pick', 'FETCH_HEAD',
+    ],
+  },
+</code></pre>
+<p>Modify the 'refs/changes/XX/YYYY/ZZ' to the appropriate values (where YYYY is
+the numeric change number, ZZ is the patch set number and XX is the last two
+digits of the numeric change number). This can be seen in the 'Download' link on
+Gerrit.</p>
+<p>If this is for a project other than Skia, update the checkout directory and
+fetch source. Note that this can be used multiple times to apply multiple
+issues.</p>
+<p>An example of this being used can be seen at
+https://crrev.com/2786433004/#ps1 .</p>
+<p>To test locally, run <code>gclient runhooks</code> to update the Skia source code.
+Note that if your local skia patch in <code>third_party/skia</code> isn't clean (e.g., you
+already applied some patch to it), then <code>gclient runhooks</code> won't successfully
+run. In that case, run <code>git reset --hard</code> inside <code>third_party/skia</code> before
+<code>gclient runhooks</code>.</p>
+<h2>Arbitrary changes</h2>
+<p>If the patch is to files where the above is not possible, then it is still
+possible to patch the files manually by adding the following to
+&lt;chromium&gt;/src/DEPS in the 'hooks' array just before the 'gyp' hook.</p>
+<pre><code>  {
+    'name': 'apply_custom_patch',
+    'pattern': '.',
+    'action': ['python2',
+               '-c', 'from distutils.dir_util import copy_tree; copy_tree(&quot;src/patch/&quot;, &quot;src/&quot;);'
+    ],
+  },
+</code></pre>
+<p>Then, copy all 'out of tree' files into &lt;chromium&gt;/src/patch/, using the same
+directory structure used by Chromium. When <code>gclient runhooks</code> is run, the files
+in &lt;chromium&gt;/src/patch/ will be copied to and overwrite corresponding files in
+&lt;chromium&gt;/src/. For example, if changing &lt;skia&gt;/include/core/SkPath.h, place
+a copy of the modified SkPath.h at
+&lt;chromium&gt;/src/patch/third_party/skia/include/core/SkPath.h.</p>
+<p>An example of this being used can be seen at
+https://crrev.com/1866773002/#ps20001 .</p>
+<h2>Try the patch</h2>
+<p>After committing a &lt;chromium&gt;/src/DEPS or &lt;chromium&gt;/src/patch/ change
+locally, <code>git cl upload</code> can be used in the usual way. Be sure to add
+<code>COMMIT=false</code> to the issue description to avoid accidentally checking it in.</p>

@@ -1,0 +1,34 @@
+<h1>Chrome changes</h1>
+<p>If your change modifies the Skia API, you may also need to land a change in Chromium.</p>
+<p>The strategy you use to synchronize changes in the Skia and Chromium
+repositories may differ based on the nature of the change, but in general, we
+recommend using build flag suppressions (defines).
+We also prefer making the old code path opt-in where possible.</p>
+<p>Method 1 (preferred) - Make the old code path opt-in for Chromium</p>
+<ul>
+<li>Add new code to Skia, leaving the old code in place.</li>
+<li>Deprecate the old code path so that it must be enabled with a flag such as
+'SK_SUPPORT_LEGACY_XXX'.</li>
+<li>Synchronize the above changes in Skia with a Chromium commit to
+'skia/skia_common.gypi' or 'skia/config/SkUserConfig.h' to enable the
+deprecated Skia API.
+<ul>
+<li>Note that the code suppression cannot exist in both the header file and
+the gyp file, it should only reside in one location.</li>
+</ul>
+</li>
+<li>Test the new or updated Skia API within Chromium.</li>
+<li>Remove the flag and code when the legacy code path is no longer in use.</li>
+</ul>
+<p>Method 2 - Make the new code path opt-in for Chromium</p>
+<ul>
+<li>Add new code to Skia, suppressed by a flag.</li>
+<li>Leave the old code path in place.</li>
+<li>Set the flag in Chromium's 'skia/skia_common.gypi' or
+'skia/config/SkUserConfig.h' to enable the new or updated Skia API.</li>
+<li>Test the new or updated Skia API within Chromium.</li>
+<li>Remove the code suppression (and code) when the legacy API is no longer
+in use.</li>
+</ul>
+<p>If your changes will affect Blink layout tests, see detailed instructions about
+how to synchronize the changes between Skia, Blink, and Chromium <a href="./blink">here</a>.</p>

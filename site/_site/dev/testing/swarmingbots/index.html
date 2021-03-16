@@ -1,0 +1,73 @@
+<h1>Skia Swarming Bots</h1>
+<h2>Overview</h2>
+<p>Skia's Swarming bots are hosted in three places:</p>
+<ul>
+<li>Google Compute Engine. This is the preferred location for bots which don't need to run on physical
+hardware, ie. anything that doesn't require a GPU or a specific hardware configuration. Most of
+our compile bots live here, along with some non-GPU test bots on Linux and Windows. We get
+surprisingly stable performance numbers from GCE, despite very few guarantees about the physical
+hardware.</li>
+<li>Chrome Golo. This is the preferred location for bots which require specific hardware or OS
+configurations that are not supported by GCE. We have several Mac, Linux, and Windows bots in the
+Golo.</li>
+<li>The Skolo (local Skia lab in Chapel Hill). Anything we can't get in GCE or the Golo lives
+here. This includes a wider variety of GPUs and all Android, ChromeOS, iOS, and other devices.</li>
+</ul>
+<p><a href="https://goto.google.com/skbl">go/skbl</a> lists all Skia Swarming bots.</p>
+<h2><a name="connecting-to-swarming-bots"></a>
+Connecting to Swarming Bots</h2>
+<p>If you need to make changes on a bot/device, please check with the Infra Gardener or another Infra team member. Most
+bots/devices can be flashed/imaged back to a clean state, but others can not.</p>
+<ul>
+<li>
+<p>Machine name like “skia-e-gce-NNN”, “skia-ct-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “ct-xxx-builder-NNN” -&gt; GCE</p>
+<ul>
+<li>First determine the project for the bot:
+<ul>
+<li>skia-e-gce-NNN, skia-ct-gce-NNN: <a href="https://console.cloud.google.com/compute/instances?project=skia-swarming-bots">skia-swarming-bots</a></li>
+<li>skia-i-gce-NNN: <a href="https://console.cloud.google.com/compute/instances?project=google.com:skia-buildbots">google.com:skia-buildbots</a></li>
+<li>ct-gce-NNN, ct-xxx-builder-NNN: <a href="https://console.cloud.google.com/compute/instances?project=ct-swarming-bots">ct-swarming-bots</a></li>
+</ul>
+</li>
+<li>To log in to a Linux bot in GCE, use <code>gcloud compute ssh --project &lt;project&gt; default@&lt;machine name&gt;</code>. Choose the zone listed on the VM's detail page (see links above). You may also specify the zone using the <code>--zone</code> command-line flag.</li>
+<li>To log in to a Windows bot in GCE, first go to the VM's detail page and click the &quot;Set Windows password&quot;
+button. (Alternatively, ask the Infra Team how to log in as chrome-bot.) There are two options to connect:
+<ul>
+<li>SSH: Follow the instructions for Linux using your username rather than <code>default</code>.</li>
+<li>RDP: On the VM's detail page, click the &quot;RDP&quot; button. (You will be instructed to install the Chrome RDP Extension
+for GCP if it hasn't already been installed.)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Machine name ends with “a9”, “m3”, &quot;m5&quot; -&gt; Chrome Golo/Labs</p>
+<ul>
+<li>To log in to Golo bots, see <a href="https://goto.google.com/chrome-infra-build-access">go/chrome-infra-build-access</a>.</li>
+</ul>
+</li>
+<li>
+<p>Machine name starts with “skia-e-”, “skia-i-” (other than “skia-i-gce-NNN”), “skia-rpi-” -&gt; Chapel Hill lab (aka Skolo)<br/>
+To log in to Skolo bots, see the <a href="https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.v77cmwbwc5la">Skolo maintenance doc</a> remote access section. See the following for OS specific instructions:<br/></p>
+<ul>
+<li><a href="https://docs.google.com/document/d/1nxn7TobfaLNNfhSTiwstOnjV0jCxYUI1uwW0T_V7BYg/">Remotely debug an Android device in Skolo</a></li>
+<li><a href="https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.7cqd856ft0s">VNC to Skolo Windows bots</a></li>
+<li><a href="https://docs.google.com/document/d/1yJ2LLfLzV6pXKjiameid1LHEz1mj71Ob4wySIYxlBdw/edit#heading=h.9arg79l59xrf">ChromeOS Debugging</a></li>
+</ul>
+</li>
+</ul>
+<h2>Debugging</h2>
+<p>If you need to run code on a specific machine/device to debug an issue, the simplest option is to
+run tryjobs (after adding debugging output to the relevant code). In some cases you may also need to
+<a href="automated_testing#adding-new-jobs">create or modify tryjobs</a>.</p>
+<p>For Googlers: If you need more control (e.g. to run GDB) and need to run directly on a swarming bot then you can use <a href="https://leasing.skia.org">leasing.skia.org</a>.<br/>
+If that does not work then the <a href="https://rotations.corp.google.com/rotation/4617277386260480">current infra gardener</a> can help you bring the device back to your desk and connect
+it to GoogleGuest Wifi or the <a href="http://go/gtn-criteria">Google Test Network</a>.</p>
+<p>If you need to make changes on a bot/device, please check with the Infra Gardener or another Infra team member. Most
+bots/devices can be flashed/imaged back to a clean state, but others can not.</p>
+<p>If a permanent change needs to be made on the machine (such as an OS or driver update), please <a href="https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug">file
+a bug</a> and assign to jcgregorio for reassignment.</p>
+<p>For your convenience, the machine skolo-builder is available for checking out and compiling code within the Skolo. See
+more info in the <a href="https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.v77cmwbwc5la">Skolo maintenance doc</a> remote access section.</p>
+<h2>Maintenance Tasks</h2>
+<p>See the <a href="https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit">Skolo maintenance doc</a>.</p>

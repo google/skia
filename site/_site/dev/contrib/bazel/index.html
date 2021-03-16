@@ -1,0 +1,78 @@
+<h1>Notes about Bazel Builds</h1>
+<p>Skia cannot be built with Bazel yet.</p>
+<p>But you should be able to build and run the trivial <code>tools/bazel_test.cc</code>:</p>
+<pre><code>$ bazel test ...
+</code></pre>
+<h2>Dependencies</h2>
+<p><code>WORKSPACE.bazel</code> acts like <code>DEPS</code>, listing external dependencies and how to
+fetch them.  You can call <code>bazel sync</code>, or just let <code>bazel {build,test,run}</code>
+handle it as needed on its own.  The easiest way to add a new dependency is to
+start using <code>tag=&quot;...&quot;</code> or <code>branch=&quot;...&quot;</code> and then follow the advice of Bazel
+to pin that to the <code>commit</code> and <code>shallow_since</code> it suggests.</p>
+<p>We must provide Bazel build configuration for dependencies like <code>libpng</code> that
+don't provide their own.  For <code>libpng</code> that's <code>bazel/libpng.bazel</code>, linked by
+the <code>new_git_repository()</code> <code>build_file</code> argument, written relative to that
+fetched Git repo's root.  Its resemblance to <code>third_party/libpng/BUILD.gn</code> is
+no coincidence... it's pretty much a 1:1 translation between GN and Bazel.</p>
+<p>Everything that's checked in builds external dependencies from source.  I've
+not written an integrated system for substituting prebuilt versions of these
+dependencies (e.g. <code>/usr/include/png.h</code> and <code>/usr/lib/libpng.so</code>), instead
+leaving that up to users who want it.  The process is not exactly trivial, but
+closer to tedious than difficult.  Here's an example, overriding <code>libpng</code> to
+point to prebuilts from Homebrew in ~/brew:</p>
+<p>Each overridden dependency will need its own directory with a few files.</p>
+<pre><code>$ find overrides
+overrides
+overrides/libpng
+overrides/libpng/include
+overrides/libpng/WORKSPACE.bazel
+overrides/libpng/BUILD.bazel
+</code></pre>
+<p><code>WORKSPACE.bazel</code> must be present, but in this case can be empty.</p>
+<pre><code>$ cat overrides/libpng/WORKSPACE.bazel
+</code></pre>
+<p><code>BUILD.bazel</code> is where it all happens:</p>
+<pre><code>$ cat overrides/libpng/BUILD.bazel
+cc_library(
+    name = &quot;libpng&quot;,
+    hdrs = [&quot;include/png.h&quot;],
+    srcs = [&quot;include/pngconf.h&quot;, &quot;include/pnglibconf.h&quot;],
+    includes = [&quot;include&quot;],
+    linkopts = [&quot;-lpng&quot;, &quot;-L/Users/mtklein/brew/lib&quot;],
+    visibility = [&quot;//visibility:public&quot;],
+)
+</code></pre>
+<p><code>include</code> is a symlink I've made to <code>~/brew/include</code> because Bazel doesn't like
+absolute paths in <code>hdrs</code> or <code>includes</code>.  On the other hand, a symlink to
+<code>~/brew/lib</code> doesn't work here, though <code>-L/Users/mtklein/brew/lib</code> works fine.</p>
+<pre><code>$ readlink overrides/libpng/include
+/Users/mtklein/brew/include/
+</code></pre>
+<p>Finally, we point Bazel at all that using <code>--override_repository</code>:</p>
+<pre><code>$ bazel test ... --override_repository libpng=/Users/mtklein/overrides/libpng
+</code></pre>
+<p>I expect building from source to be the most common use case, and it's more or
+less enough to simply know that we can substitute prebuilts this way.  The most
+interesting part to me is that we don't need to provide this mechanism... it's
+all there in stock Bazel.  This plan may all want some rethinking in the future
+if we want to add the option to trim the dependency entirely and make this
+tristate (build it, use it prebuilt, or trim).</p>
+<h2>.bazelrc</h2>
+<p>I have not (yet?) checked in a .bazelrc to the Skia repo, but have found it
+handy to write my own in ~/.bazelrc:</p>
+<pre><code>$ cat ~/.bazelrc
+# Print more information on failures.
+build --verbose_failures
+test --test_output errors
+
+# Create an ASAN config, try `bazel test --config asan ...`.
+build:asan --copt -fsanitize=address
+build:asan --copt -Wno-macro-redefined   # (_FORTIFY_SOURCE redefined.)
+build:asan --linkopt -fsanitize=address
+
+# Flip on and off prebuilt overrides easily.
+build --override_repository libpng=/Users/mtklein/overrides/libpng
+</code></pre>
+<p>I'm impressed by how much you can configure via bazelrc, and I think this
+should let our Bazel build configuration stay mostly focused on the structure
+of the project, less cluttered by build settings.</p>

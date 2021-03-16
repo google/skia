@@ -1,0 +1,67 @@
+<h1>Using Skia's PDF Backend</h1>
+<p>Here is an example of using Skia's PDF backend (SkPDF) via the
+SkDocument and SkCanvas APIs.</p>
+<p><fiddle-embed name='@PDF'></fiddle-embed></p>
+<!-- https://fiddle.skia.org/c/@PDF docs/examples/PDF.cpp -->
+<hr>
+<h2><span id="limits">SkPDF Limitations</span></h2>
+<p>There are several corners of Skia's public API that SkPDF currently
+does not handle because either no known client uses the feature or
+there is no simple PDF-ish way to handle it.</p>
+<p>In this document:</p>
+<ul>
+<li>
+<p><strong>drop</strong> means to draw nothing.</p>
+</li>
+<li>
+<p><strong>ignore</strong> means to draw without the effect</p>
+</li>
+<li>
+<p><strong>expand</strong> means to implement something in a non-PDF-ish way.
+This may mean to rasterize vector graphics, to expand paths with
+path effects into many individual paths, or to convert text to
+paths.</p>
+</li>
+</ul>
+<style scoped><!--
+#pdftable {border-collapse:collapse;}
+#pdftable tr th, #pdftable tr td {border:#888888 2px solid;padding: 5px;}
+--></style>
+<table id="pdftable">
+<tr><th>Effect</th>                  <th>text</th>   <th>images</th> <th>everything
+                                                                         else</th></tr>
+<tr><th>SkMaskFilter</th>            <td>drop</td>   <td>ignore</td> <td>ignore</td></tr>
+<tr><th>SkPathEffect</th>            <td>ignore</td> <td>n/a</td>    <td>expand</td></tr>
+<tr><th>SkColorFilter</th>           <td>ignore</td> <td>expand</td> <td>ignore</td></tr>
+<tr><th>SkImageFilter</th>           <td>expand</td> <td>expand</td> <td>expand</td></tr>
+<tr><th>unsupported SkXferModes</th> <td>ignore</td> <td>ignore</td> <td>ignore</td></tr>
+<tr><th>non-gradient SkShader</th>   <td>expand</td> <td>n/a</td>    <td>expand</td></tr>
+</table>
+<p>Notes:</p>
+<ul>
+<li>
+<p><em>SkImageFilter</em>: When SkImageFilter is expanded, text-as-text is lost.</p>
+</li>
+<li>
+<p><em>SkXferMode</em>: The following transfer modes are not natively
+supported by PDF: DstOver, SrcIn, DstIn, SrcOut, DstOut, SrcATop,
+DstATop, and Modulate.</p>
+</li>
+</ul>
+<p>Other limitations:</p>
+<ul>
+<li>
+<p><em>drawText with VerticalText</em> — drop. No known clients seem to make use
+of the VerticalText flag.</p>
+</li>
+<li>
+<p><em>drawTextOnPath</em> — expand. (Text-as-text is lost.)</p>
+</li>
+<li>
+<p><em>drawVertices</em> — drop.</p>
+</li>
+<li>
+<p><em>drawPatch</em> — drop.</p>
+</li>
+</ul>
+<hr>

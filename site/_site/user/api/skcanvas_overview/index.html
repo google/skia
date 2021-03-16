@@ -1,0 +1,49 @@
+<h1>SkCanvas Overview</h1>
+<p><em>The drawing context</em></p>
+<!-- Updated Mar 4, 2011 -->
+<h2>Preview</h2>
+<p>Here is an example of a set of drawing commands to draw a filled
+heptagram.  This function can be cut and pasted into
+<a href="https://fiddle.skia.org/">fiddle.skia.org</a>.</p>
+<p><fiddle-embed name='@skcanvas_star'></fiddle-embed></p>
+<h2>Details</h2>
+<p>SkCanvas is the drawing context for Skia. It knows where to direct the
+drawing (i.e. where the screen of offscreen pixels are), and maintains
+a stack of matrices and clips. Note however, that unlike similar
+contexts in other APIs like postscript, cairo, or awt, Skia does not
+store any other drawing attributes in the context (e.g. color, pen
+size). Rather, these are specified explicitly in each draw call, via a
+SkPaint.</p>
+<p><fiddle-embed name='@skcanvas_square'></fiddle-embed></p>
+<p>The code above will draw a rectangle rotated by 45 degrees. Exactly
+what color and style the rect will be drawn in is described by the
+paint, not the canvas.</p>
+<p>Check out more detailed info on <a href="canvas">creating a SkCanvas object</a>.</p>
+<p>To begin with, we might want to erase the entire canvas. We can do
+this by drawing an enormous rectangle, but there are easier ways to do
+it.</p>
+<!--?prettify lang=cc?-->
+<pre><code>void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    paint.setColor(SK_ColorWHITE);
+    canvas-&gt;drawPaint(paint);
+}
+</code></pre>
+<p>This fills the entire canvas (though respecting the current clip of
+course) with whatever color or shader (and xfermode) is specified by
+the paint. If there is a shader in the paint, then it will respect the
+current matrix on the canvas as well (see SkShader). If you just want
+to draw a color (with an optional xfermode), you can just call
+drawColor(), and save yourself having to allocate a paint.</p>
+<!--?prettify lang=cc?-->
+<pre><code>void draw(SkCanvas* canvas) {
+    canvas-&gt;drawColor(SK_ColorWHITE);
+}
+</code></pre>
+<p>All of the other draw APIs are similar, each one ending with a paint
+parameter.</p>
+<p><fiddle-embed name='@skcanvas_paint'></fiddle-embed></p>
+<p>In some of the calls, we pass a pointer, rather than a reference, to
+the paint. In those instances, the paint parameter may be null. In all
+other cases the paint parameter is required.</p>
+<p>Next: <a href="/user/api/skpaint_overview">SkPaint</a></p>

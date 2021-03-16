@@ -1,0 +1,28 @@
+<h1>How to download Skia</h1>
+<h2>Install <code>depot_tools</code> and Git</h2>
+<p>Follow the instructions on <a href="http://www.chromium.org/developers/how-tos/install-depot-tools">Installing Chromium's
+depot_tools</a>
+to download <code>depot_tools</code> (which includes gclient, git-cl, and Ninja).
+Below is a summary of the necessary steps.</p>
+<!--?prettify lang=sh?-->
+<pre><code>git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+export PATH=&quot;${PWD}/depot_tools:${PATH}&quot;
+</code></pre>
+<p><code>depot_tools</code> will also install Git on your system, if it wasn't installed
+already.</p>
+<h2>Clone the Skia repository</h2>
+<p>Skia can either be cloned using <code>git</code> or the <code>fetch</code> tool that is
+installed with <code>depot_tools</code>.</p>
+<!--?prettify lang=sh?-->
+<pre><code>git clone https://skia.googlesource.com/skia.git
+# or
+# fetch skia
+cd skia
+python2 tools/git-sync-deps
+</code></pre>
+<h2>Getting started with Skia</h2>
+<p>You will probably now want to <a href="./build">build</a> Skia.</p>
+<h2>Changing and contributing to Skia</h2>
+<p>At this point, you have everything you need to build and use Skia!  If
+you want to make changes, and possibly contribute them back to the Skia
+project, read <a href="../dev/contrib/submit">How To Submit a Patch</a>.</p>

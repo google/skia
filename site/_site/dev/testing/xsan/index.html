@@ -1,0 +1,78 @@
+<h1>MSAN, ASAN, &amp; TSAN</h1>
+<p><em>Testing Skia with memory, address, and thread santizers.</em></p>
+<p>Compiling Skia with ASAN, UBSAN, or TSAN can be done with the latest version of Clang.</p>
+<ul>
+<li>UBSAN works on Linux, Mac, Android, and Windows, though some checks are platform-specific.</li>
+<li>ASAN works on Linux, Mac, Android, and Windows.</li>
+<li>TSAN works on Linux and Mac.</li>
+<li>MSAN works on Linux[1].</li>
+</ul>
+<p>We find that testing sanitizer builds with libc++ uncovers more issues than
+with the system-provided C++ standard library, which is usually libstdc++.
+libc++ proactively hooks into sanitizers to help their analyses.
+We ship a copy of libc++ with our Linux toolchain in /lib.</p>
+<p>[1]To compile and run with MSAN, an MSAN-instrumented version of libc++ is needed.
+It's generally easiest to run one of the following 2 steps to build/download a recent version
+of Clang and the instrumented libc++, located in /msan.</p>
+<h2>Downloading Clang binaries (Googlers Only)</h2>
+<p>This requires gsutil, part of the <a href="https://cloud.google.com/sdk/downloads">gcloud sdk</a>.</p>
+<!--?prettify lang=sh?-->
+<pre><code>CLANGDIR=&quot;${HOME}/clang&quot;
+python2 infra/bots/assets/clang_linux/download.py -t $CLANGDIR
+</code></pre>
+<h2>Building Clang binaries from scratch (Other users)</h2>
+<!--?prettify lang=sh?-->
+<pre><code>CLANGDIR=&quot;${HOME}/clang&quot;
+
+python2 tools/git-sync-deps
+CC= CXX= infra/bots/assets/clang_linux/create.py -t &quot;$CLANGDIR&quot;
+</code></pre>
+<h2>Configure and Compile Skia with MSAN</h2>
+<!--?prettify lang=sh?-->
+<pre><code>CLANGDIR=&quot;${HOME}/clang&quot;
+mkdir -p out/msan
+cat &gt; out/msan/args.gn &lt;&lt;- EOF
+    cc = &quot;${CLANGDIR}/bin/clang&quot;
+    cxx = &quot;${CLANGDIR}/bin/clang++&quot;
+    extra_cflags = [ &quot;-B${CLANGDIR}/bin&quot; ]
+    extra_ldflags = [
+        &quot;-B${CLANGDIR}/bin&quot;,
+        &quot;-fuse-ld=lld&quot;,
+        &quot;-L${CLANGDIR}/msan&quot;,
+        &quot;-Wl,-rpath,${CLANGDIR}/msan&quot; ]
+    sanitize = &quot;MSAN&quot;
+    skia_use_fontconfig = false
+EOF
+python2 tools/git-sync-deps
+bin/gn gen out/msan
+ninja -C out/msan
+</code></pre>
+<h2>Configure and Compile Skia with ASAN</h2>
+<!--?prettify lang=sh?-->
+<pre><code>CLANGDIR=&quot;${HOME}/clang&quot;
+mkdir -p out/asan
+cat &gt; out/asan/args.gn &lt;&lt;- EOF
+    cc = &quot;${CLANGDIR}/bin/clang&quot;
+    cxx = &quot;${CLANGDIR}/bin/clang++&quot;
+    sanitize = &quot;ASAN&quot;
+    extra_ldflags = [ &quot;-fuse-ld=lld&quot;, &quot;-Wl,-rpath,${CLANGDIR}/lib&quot; ]
+EOF
+python2 tools/git-sync-deps
+bin/gn gen out/asan
+ninja -C out/asan
+</code></pre>
+<h2>Configure and Compile Skia with TSAN</h2>
+<!--?prettify lang=sh?-->
+<pre><code>CLANGDIR=&quot;${HOME}/clang&quot;
+mkdir -p out/tsan
+cat &gt; out/tsan/args.gn &lt;&lt;- EOF
+    cc = &quot;${CLANGDIR}/bin/clang&quot;
+    cxx = &quot;${CLANGDIR}/bin/clang++&quot;
+    sanitize = &quot;TSAN&quot;
+    is_debug = false
+    extra_ldflags = [ &quot;-Wl,-rpath,${CLANGDIR}/lib&quot; ]
+EOF
+python2 tools/git-sync-deps
+bin/gn gen out/tsan
+ninja -C out/tsan
+</code></pre>
