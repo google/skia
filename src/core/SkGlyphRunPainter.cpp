@@ -136,12 +136,22 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     }
 }
 
+#define SK_TRACE_GLYPH_RUN_PROCESS
+
 #if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkMatrix& drawMatrix,
                                             const SkPaint& runPaint,
                                             const GrSDFTControl& control,
-                                            SkGlyphRunPainterInterface* process) {
+                                            SkGlyphRunPainterInterface* process,
+                                            const char* tag) {
+    #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+        SkDebugf("Start processing");
+        if (tag != nullptr) {
+            SkDebugf(" for %s ", tag);
+        }
+        SkDebugf("\n");
+    #endif
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
     fRejects.setSource(glyphRun.source());
     const SkFont& runFont = glyphRun.font();
@@ -152,6 +162,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         // Process SDFT - This should be the .009% case.
         const auto& [strikeSpec, minScale, maxScale] =
                 SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix, control);
+
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            SkDebugf("SDFT case: %s", strikeSpec.dump().c_str());
+        #endif
 
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
@@ -174,6 +188,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
 
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags, drawMatrix);
+
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            SkDebugf("Mask case: %s", strikeSpec.dump().c_str());
+        #endif
 
         SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
@@ -198,6 +216,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            SkDebugf("Path case: %s", strikeSpec.dump().c_str());
+        #endif
+
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
@@ -221,6 +243,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                 runFont, runPaint, fDeviceProps,
                 fScalerContextFlags, maxDimensionInSourceSpace);
 
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            SkDebugf("Transformed case: %s", strikeSpec.dump().c_str());
+        #endif
+
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
@@ -234,6 +260,13 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
             }
         }
     }
+    #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+        SkDebugf("End processing");
+        if (tag != nullptr) {
+            SkDebugf(" for %s ", tag);
+        }
+        SkDebugf("\n\n");
+    #endif
 }
 #endif  // SK_SUPPORT_GPU
 

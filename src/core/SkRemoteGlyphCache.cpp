@@ -831,7 +831,8 @@ protected:
                                      drawMatrix,
                                      glyphRunList.paint(),
                                      control,
-                                     nullptr);
+                                     nullptr,
+                                     "Cache Diff");
         }
         #endif  // SK_SUPPORT_GPU
     }
