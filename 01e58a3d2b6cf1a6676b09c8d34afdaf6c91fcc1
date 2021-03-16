@@ -141,6 +141,30 @@
       },
       "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c272cd8a_b991e3a1",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-16T19:36:02Z",
+      "side": 1,
+      "message": "Yeah, path rendering and GrFillRRectOp. The startup plan is to draw everything either with GrFillRRectOp or to flip on MSAA.",
+      "parentUuid": "bac362a8_ce67a735",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 337,
+        "endChar": 55
+      },
+      "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
