@@ -136,12 +136,25 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     }
 }
 
+// Use the following in your args.gn to dump telemetry for diagnosing chrome Renderer/GPU
+// differences.
+// extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
+
 #if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkMatrix& drawMatrix,
                                             const SkPaint& runPaint,
                                             const GrSDFTControl& control,
-                                            SkGlyphRunPainterInterface* process) {
+                                            SkGlyphRunPainterInterface* process,
+                                            const char* tag) {
+    #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+        SkString msg;
+        msg.appendf("\nStart glyph run processing");
+        if (tag != nullptr) {
+            msg.appendf(" for %s ", tag);
+        }
+        msg.appendf("\n");
+    #endif
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
     fRejects.setSource(glyphRun.source());
     const SkFont& runFont = glyphRun.font();
@@ -153,10 +166,17 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         const auto& [strikeSpec, minScale, maxScale] =
                 SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix, control);
 
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("  SDFT case:\n%s", strikeSpec.dump().c_str());
+        #endif
+
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             fDrawable.startSource(fRejects.source());
+            #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+                msg.appendf("    glyphs:(x,y):\n      %s\n", fDrawable.dumpInput().c_str());
+            #endif
             strike->prepareForSDFTDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
@@ -175,9 +195,16 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags, drawMatrix);
 
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("  Mask case:\n%s", strikeSpec.dump().c_str());
+        #endif
+
         SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
         fDrawable.startGPUDevice(fRejects.source(), drawMatrix, strike->roundingSpec());
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("    glyphs:(x,y):\n      %s\n", fDrawable.dumpInput().c_str());
+        #endif
         strike->prepareForMaskDrawing(&fDrawable, &fRejects);
         fRejects.flipRejectsToSource();
 
@@ -198,10 +225,17 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("  Path case:\n%s", strikeSpec.dump().c_str());
+        #endif
+
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             fDrawable.startSource(fRejects.source());
+            #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+                msg.appendf("    glyphs:(x,y):\n      %s\n", fDrawable.dumpInput().c_str());
+            #endif
             strike->prepareForPathDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
             maxDimensionInSourceSpace =
@@ -221,10 +255,17 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                 runFont, runPaint, fDeviceProps,
                 fScalerContextFlags, maxDimensionInSourceSpace);
 
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
+        #endif
+
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             fDrawable.startSource(fRejects.source());
+            #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+                msg.appendf("glyphs:(x,y):\n      %s\n", fDrawable.dumpInput().c_str());
+            #endif
             strike->prepareForMaskDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
             SkASSERT(fRejects.source().empty());
@@ -234,6 +275,13 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
             }
         }
     }
+    #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+        msg.appendf("End glyph run processing");
+        if (tag != nullptr) {
+            msg.appendf(" for %s ", tag);
+        }
+        SkDebugf("%s\n", msg.c_str());
+    #endif
 }
 #endif  // SK_SUPPORT_GPU
 

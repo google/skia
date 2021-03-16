@@ -87,7 +87,8 @@ public:
                          const SkMatrix& drawMatrix,
                          const SkPaint& drawPaint,
                          const GrSDFTControl& control,
-                         SkGlyphRunPainterInterface* process);
+                         SkGlyphRunPainterInterface* process,
+                         const char* tag = nullptr);
 #endif  // SK_SUPPORT_GPU
 
 private:

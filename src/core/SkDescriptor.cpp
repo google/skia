@@ -83,6 +83,18 @@ bool SkDescriptor::operator==(const SkDescriptor& other) const {
     return true;
 }
 
+SkString SkDescriptor::dumpRec() const {
+    const SkScalerContextRec* rec = static_cast<const SkScalerContextRec*>(
+            this->findEntry(kRec_SkDescriptorTag, nullptr));
+
+    SkString result;
+    result.appendf("    Checksum: %x\n", fChecksum);
+    if (rec != nullptr) {
+        result.append(rec->dump());
+    }
+    return result;
+}
+
 uint32_t SkDescriptor::ComputeChecksum(const SkDescriptor* desc) {
     const uint32_t* ptr = (const uint32_t*)desc + 1; // skip the checksum field
     size_t len = desc->fLength - sizeof(uint32_t);

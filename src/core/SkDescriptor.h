@@ -63,6 +63,8 @@ public:
     uint32_t getCount() const { return fCount; }
 #endif
 
+    SkString dumpRec() const;
+
 private:
     SkDescriptor() = default;
     friend class SkDescriptorTestHelper;
