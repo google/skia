@@ -332,6 +332,32 @@ void SkGpuDevice::drawPaint(const SkPaint& paint) {
         return;
     }
 
+    // Apply optimizations for DMSAA now since they might not go through quad optimizations.
+    SkRRect clipRRect;
+    if (fSurfaceIsDMSAA && fClip.asRRect(&clipRRect)) {
+        // If the clip is a round rect, then draw it directly.
+        // TODO: Why not just pop any element off the clip and draw it?
+        if (this->localToDevice().isIdentity() || !grPaint.usesVaryingCoords()) {
+            fSurfaceDrawContext->drawRRect(nullptr, std::move(grPaint), GrAA::kYes,
+                                           SkMatrix::I(), clipRRect, GrStyle::SimpleFill());
+            return;
+        }
+        // SkRRects can only be transformed if they preserve axis alignment.
+        if (this->localToDevice().preservesAxisAlignment()) {
+            SkMatrix inverse;
+            if (!this->localToDevice().invert(&inverse)) {
+                return;
+            }
+            SkRRect localRRect;
+            if (clipRRect.transform(inverse, &localRRect)) {
+                fSurfaceDrawContext->drawRRect(nullptr, std::move(grPaint), GrAA::kYes,
+                                               this->localToDevice(), localRRect,
+                                               GrStyle::SimpleFill());
+                return;
+            }
+        }
+    }
+
     fSurfaceDrawContext->drawPaint(this->clip(), std::move(grPaint), this->localToDevice());
 }
 
@@ -419,7 +445,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
+void SkGpuDevice::drawRect(const SkRect& originalRect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRect", fContext.get());
 
@@ -427,11 +453,37 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
 
     // A couple reasons we might need to call drawPath.
     if (paint.getMaskFilter() || paint.getPathEffect()) {
-        GrStyledShape shape(rect, style);
+        GrStyledShape shape(originalRect, style);
 
         GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fSurfaceDrawContext.get(),
                                              this->clip(), paint, this->asMatrixProvider(), shape);
         return;
+    }
+
+    SkRect rect = originalRect;
+
+    // Apply optimizations for DMSAA now since they might not go through quad optimizations.
+    if (fSurfaceIsDMSAA && style.isSimpleFill()) {
+        SkRect devRect;
+        this->localToDevice().mapRect(&devRect, rect);
+        SkRect clipBounds = SkRect::Make(fClip.getConservativeBounds());
+        if (devRect.contains(clipBounds)) {
+            // We fully contain the clip. Fall back on drawPaint's optimizations.
+            this->drawPaint(paint);
+            return;
+        }
+        // Intersect the rect with the clip bounds so our draws won't need scissor.
+        if (localToDevice().rectStaysRect() && !clipBounds.contains(devRect)) {
+            if (!devRect.intersect(clipBounds, devRect)) {
+                return;
+            }
+            SkMatrix inverse;
+            if (!this->localToDevice().invert(&inverse)) {
+                return;
+            }
+            SkASSERT(inverse.rectStaysRect());
+            inverse.mapRect(&rect, devRect);
+        }
     }
 
     GrPaint grPaint;

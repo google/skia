@@ -83,6 +83,25 @@ public:
     }
 #endif
 
+    bool asRRect(SkRRect* rrect, GrAA* aa = nullptr) {
+        switch (this->clipState()) {
+            case ClipState::kDeviceRect:
+                rrect->setRect(fElements.back().shape().rect());
+                if (aa) {
+                    *aa = fElements.back().aa();
+                }
+                return true;
+            case ClipState::kDeviceRRect:
+                *rrect = fElements.back().shape().rrect();
+                if (aa) {
+                    *aa = fElements.back().aa();
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
 private:
     class SaveRecord;
     class Mask;
