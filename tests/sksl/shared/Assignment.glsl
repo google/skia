@@ -7,6 +7,8 @@ struct S {
     vec4 h4;
     vec4 ah4[5];
 };
+vec4 globalVar;
+S globalStruct;
 vec4 main() {
     int i;
     i = 0;
@@ -31,6 +33,8 @@ vec4 main() {
     s.af[1] = 0.0;
     s.h4.zxy = vec3(9.0);
     s.ah4[2].yw = vec2(5.0);
+    globalVar = vec4(0.0);
+    globalStruct.f = 0.0;
     float l;
     float r;
     l = 0.0;

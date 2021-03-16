@@ -7,6 +7,9 @@ struct S {
     half4 ah4[5];
 };
 
+half4 globalVar;
+S globalStruct;
+
 half4 main() {
     /* assign to scalar */               int i; i = 0;
     /* assign to vector */               int4 i4; i4 = int4(1,2,3,4);
@@ -21,6 +24,9 @@ half4 main() {
     /* assign to struct array */         s.af[1] = 0;
     /* assign to struct swizzle */       s.h4.zxy = half3(9);
     /* assign to struct array swizzle */ s.ah4[2].yw = half2(5);
+
+    /* assign to global var */           globalVar = half4(0);
+    /* assign to global struct */        globalStruct.f = 0;
 
 // Not allowed in ES2
 //  /* assign to array idx by lookup */  ai[0] = 0; ai[ai[0]] = 0;
