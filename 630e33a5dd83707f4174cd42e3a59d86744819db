@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "890768b6_bf93b7da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T18:13:58Z",
+      "side": 1,
+      "message": "Just noticed something for using the new GrClipStack with DMSAA, since it already has a way to track everything as just AA for merging on devices that didn\u0027t let us disable MSAA.",
+      "revId": "630e33a5dd83707f4174cd42e3a59d86744819db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1bdc3af_8d060b01",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T18:13:58Z",
+      "side": 1,
+      "message": "My guess is we\u0027ll want to force the clip stack to consider every element as AA here. This helps it choose how it picks scissor rects, but also means we don\u0027t need to change the AA type within each of the onClip functions.",
+      "range": {
+        "startLine": 138,
+        "startChar": 16,
+        "endLine": 138,
+        "endChar": 29
+      },
+      "revId": "630e33a5dd83707f4174cd42e3a59d86744819db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
