@@ -58,7 +58,7 @@
 
 class SurfaceParameters {
 public:
-    static const int kNumParams      = 13;
+    static const int kNumParams      = 15;
     static const int kFBO0Count      = 9;
     static const int kVkSCBCount     = 12;
 
@@ -177,6 +177,14 @@ public:
                 set(fIsTextureable, false);
                 set(fVkRTSupportsInputAttachment, false);
             }
+            break;
+        case 13:
+            set(fSurfaceProps, SkSurfaceProps(0x0, kUnknown_SkPixelGeometry, SK_GAMMA_CONTRAST,
+                                              1.8f));
+            break;
+        case 14:
+            set(fSurfaceProps, SkSurfaceProps(0x0, kUnknown_SkPixelGeometry, 0.75f,
+                                              SK_GAMMA_EXPONENT));
             break;
         }
         return changed;

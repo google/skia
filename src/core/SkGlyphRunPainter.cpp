@@ -44,7 +44,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
                                              SkScalerContextFlags flags,
                                              SkStrikeForGPUCacheInterface* strikeCache)
         : fDeviceProps{props}
-        ,  fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry}}
+        ,  fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry,
+                                props.textContrast(), props.textGamma()}}
         ,  fColorType{colorType}, fScalerContextFlags{flags}
         ,  fStrikeCache{strikeCache} {}
 

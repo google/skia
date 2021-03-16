@@ -1035,13 +1035,21 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         }
         SkASSERT(info.alphaType() != kOpaque_SkAlphaType);
 
-        SkPixelGeometry geo = saveLayerFlags & kPreserveLCDText_SaveLayerFlag
-                                      ? fProps.pixelGeometry()
-                                      : kUnknown_SkPixelGeometry;
+        SkPixelGeometry geo = kUnknown_SkPixelGeometry;
+        SkScalar textContrast = SK_GAMMA_CONTRAST;
+        SkScalar textGamma = SK_GAMMA_EXPONENT;
+        if (saveLayerFlags & kPreserveLCDText_SaveLayerFlag) {
+            geo = fProps.pixelGeometry();
+            textContrast = fProps.textContrast();
+            textGamma = fProps.textGamma();
+        }
+
         const bool trackCoverage =
                 SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
         const auto createInfo = SkBaseDevice::CreateInfo(info,
                                                          geo,
+                                                         textContrast,
+                                                         textGamma,
                                                          SkBaseDevice::kNever_TileUsage,
                                                          trackCoverage,
                                                          fAllocator.get());
