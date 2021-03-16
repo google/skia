@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a570d819_602da943",
+        "filename": "infra/bots/recipes/compute_buildstats.expected/normal_bot.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-16T11:49:13Z",
+      "side": 1,
+      "message": "These dots aren\u0027t going to cause issues, right?",
+      "range": {
+        "startLine": 234,
+        "startChar": 48,
+        "endLine": 234,
+        "endChar": 49
+      },
+      "revId": "6c0a50babbcacf0185391cbdf785e91eeedebb7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
