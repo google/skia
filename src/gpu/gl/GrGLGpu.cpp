@@ -950,7 +950,9 @@ bool GrGLGpu::uploadColorTypeTexData(GrGLFormat textureFormat,
     SkASSERT(this->glCaps().isFormatTexturable(textureFormat));
 
     size_t bpp = GrColorTypeBytesPerPixel(srcColorType);
-
+    SkDebugf("SKIA: Uploading colorType: %s, bytes per pixel: %d",
+             GrColorTypeToStr(srcColorType),
+             bpp);
     // External format and type come from the upload data.
     GrGLenum externalFormat;
     GrGLenum externalType;
@@ -1038,6 +1040,12 @@ void GrGLGpu::uploadTexData(SkISize texDims,
             GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
             GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
             restoreGLRowLength = true;
+            SkDebugf(
+                    "SKIA: upload pixels had to set GR_GL_UNPACK_ROW_LENGTH to %d, rowBytes: %d, "
+                    "trimRowBytes: %d",
+                    rowLength,
+                    rowBytes,
+                    trimRowBytes);
         } else {
             SkASSERT(rowBytes == trimRowBytes);
         }
@@ -3659,6 +3667,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     if (data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
         GrColorType colorType = data->pixmap(0).colorType();
+        SkDebugf("Skia: GrGlGpu uploading pixmap with numMipLevels: ", numMipLevels);
         texels.append(numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
             texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};
