@@ -502,7 +502,6 @@ static bool update_texture_with_pixmaps(GrGpu* gpu,
                                         sk_sp<GrRefCntedCallback> finishedCallback) {
     bool flip = textureOrigin == kBottomLeft_GrSurfaceOrigin;
     bool mustBeTight = !gpu->caps()->writePixelsRowBytesSupport();
-
     size_t size = 0;
     for (int i = 0; i < numLevels; ++i) {
         size_t minRowBytes = srcData[i].info().minRowBytes();
@@ -517,16 +516,27 @@ static bool update_texture_with_pixmaps(GrGpu* gpu,
     }
     size = 0;
     SkAutoSTArray<15, GrPixmap> tempPixmaps(numLevels);
+    bool packedPixels = false;
     for (int i = 0; i < numLevels; ++i) {
         size_t minRowBytes = srcData[i].info().minRowBytes();
         if (flip || (mustBeTight && srcData[i].rowBytes() != minRowBytes)) {
             tempPixmaps[i] = {srcData[i].info(), tempStorage.get() + size, minRowBytes};
             SkAssertResult(GrConvertPixels(tempPixmaps[i], srcData[i], flip));
             size += minRowBytes*srcData[i].height();
+            packedPixels = true;
         } else {
             tempPixmaps[i] = srcData[i];
         }
     }
+
+    SkDebugf(
+            "Updating texture with minRowBytes, rowBytes, flip %d, mustBeTight: %d, packedPixels: "
+            "%d",
+            srcData[0].info().minRowBytes(),
+            srcData[0].rowBytes(),
+            flip,
+            mustBeTight,
+            packedPixels);
 
     GrGpu::BackendTextureData data(tempPixmaps.get());
     return gpu->updateBackendTexture(backendTexture, std::move(finishedCallback), &data);
