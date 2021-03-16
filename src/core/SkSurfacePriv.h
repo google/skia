@@ -16,6 +16,15 @@ static inline SkSurfaceProps SkSurfacePropsCopyOrDefault(const SkSurfaceProps* p
     return props ? *props : SkSurfaceProps();
 }
 
+enum SkSurfacePropsPrivateFlags {
+    // Use internal MSAA to render to non-MSAA GPU surfaces.
+    kDMSAA_SkSurfacePropsPrivateFlag = SkSurfaceProps::kLast_Flag << 1
+};
+
+static inline bool SkSurfacePropsIsDMSAA(const SkSurfaceProps& props) {
+    return props.flags() & kDMSAA_SkSurfacePropsPrivateFlag;
+};
+
 constexpr size_t kIgnoreRowBytesValue = static_cast<size_t>(~0);
 
 bool SkSurfaceValidateRasterInfo(const SkImageInfo&, size_t rb = kIgnoreRowBytesValue);
