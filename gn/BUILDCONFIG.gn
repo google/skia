@@ -183,36 +183,105 @@ if (!is_debug) {
   ]
 }
 if (!is_official_build) {
-  default_configs += [
-    "//gn:debug_symbols",
-    "//gn:warnings",
-  ]
+  default_configs += [ "//gn:debug_symbols" ]
 }
-default_configs += [
-  "//gn:warnings_except_public_headers",
-  "//gn:extra_flags",
-]
+default_configs += [ "//gn:extra_flags" ]
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs
 }
-
 set_defaults("source_set") {
   configs = default_configs
 }
-
 set_defaults("static_library") {
   configs = default_configs
 }
-
 set_defaults("shared_library") {
   configs = default_configs
 }
-
 set_defaults("component") {
   configs = default_configs
   if (!is_component_build) {
     complete_static_lib = true
+  }
+}
+
+default_skia_configs = []
+if (!is_official_build) {
+  default_skia_configs += [ "//gn:warnings" ]
+}
+
+default_skia_header_configs = []
+if (!is_official_build) {
+  default_skia_header_configs += [ "//gn:warnings_for_public_headers" ]
+}
+
+template("skia_target") {
+  target(invoker._skia_target_type, target_name) {
+    # set_defaults(invoker._skia_target_type) might not exist or set configs
+    if (!defined(configs)) {
+      configs = []
+    }
+    configs += default_skia_configs
+
+    # "*" clobbers the current scope; append to existing configs
+    forward_variables_from(invoker, "*", [ "configs" ])
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+
+    #print(target_name, configs)
+  }
+}
+
+template("skia_executable") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "executable"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_source_set") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "source_set"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_static_library") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "static_library"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_shared_library") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "shared_library"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_component") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "component"
+    forward_variables_from(invoker, "*")
+  }
+}
+
+template("skia_header_source_set") {
+  target("skia_source_set", target_name) {
+    assert(!defined(configs), "No set_defaults(skia_source_set)")
+    configs = default_skia_header_configs
+
+    # "*" clobbers the current scope; append to existing configs
+    forward_variables_from(invoker, "*", [ "configs" ])
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+
+    #print(target_name, configs)
   }
 }
 
