@@ -52,14 +52,6 @@ config("default") {
   ldflags = []
   libs = []
 
-  if (werror) {
-    if (is_win) {
-      cflags += [ "/WX" ]
-    } else {
-      cflags += [ "-Werror" ]
-    }
-  }
-
   # Disable warnings about unknown attributes.
   # (These unknown attribute warnings are on by default, so we don't make
   # disabling them part of :warnings, as some targets remove :warnings.)
@@ -351,6 +343,15 @@ config("warnings") {
   cflags_cc = []
   cflags_objc = []
   cflags_objcc = []
+
+  if (werror) {
+    if (is_win) {
+      cflags += [ "/WX" ]
+    } else {
+      cflags += [ "-Werror" ]
+    }
+  }
+
   if (is_win) {
     cflags += [
       "/W3",  # Turn on lots of warnings.
@@ -380,6 +381,9 @@ config("warnings") {
       # deprecated in C++17. They are superseded by std::invoke_result and std::invoke_result_t.
       "/wd4996",
     ]
+    if (is_clang) {
+      "-Wno-unused-parameter",  # Re-enabled for header sources
+    }
   } else {
     cflags += [
       "-Wall",
@@ -392,6 +396,7 @@ config("warnings") {
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
       "-Wno-psabi",
+      "-Wno-unused-parameter",  # Re-enabled for header sources
     ]
     cflags_cc += [
       "-Wnon-virtual-dtor",
@@ -430,7 +435,7 @@ config("warnings") {
     cflags += [
       "-Wno-cast-align",
       "-Wno-cast-qual",
-      "-Wno-conversion",
+      "-Wno-conversion",  # -Wsign-conversion re-enabled for header sources
       "-Wno-disabled-macro-expansion",
       "-Wno-documentation",
       "-Wno-documentation-unknown-command",
@@ -462,10 +467,6 @@ config("warnings") {
       "-Wno-abstract-vbase-init",
       "-Wno-weak-vtables",
     ]
-
-    # Turn back on after -Wno-conversion.
-    # This only affects public headers... see :warnings_except_public_headers.
-    cflags += [ "-Wsign-conversion" ]
 
     # We are unlikely to want to fix these.
     cflags += [
@@ -527,11 +528,11 @@ config("warnings") {
     ]
   }
 }
-config("warnings_except_public_headers") {
+config("warnings_for_public_headers") {
   if (!is_win || is_clang) {
     cflags = [
-      "-Wno-sign-conversion",
-      "-Wno-unused-parameter",
+      "-Wsign-conversion",
+      "-Wunused-parameter",
     ]
   }
 }
