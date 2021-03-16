@@ -63,6 +63,30 @@
       },
       "revId": "630e33a5dd83707f4174cd42e3a59d86744819db",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c18749f_54f8bc4f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T19:26:37Z",
+      "side": 1,
+      "message": "Internally, GrClipStack tracks the aa of every element and the aa of the draw so that it can choose how best to determine the pixel bounds of the clip (just round, or roundIn and roundOut) and how to check containment (use floating coords for when everything is AA).\n\nAfter that, it still follows the exact same logic to check the sample count present to determine if it can use stencil: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/GrClipStack.cpp;drc\u003d7d592cda58bd4a71535c68a26f1e9426c56581b1;l\u003d1471\n\nBasically, if we have samples and the stencil isn\u0027t disabled by caps, we\u0027ll draw a stencil mask. If all clip elements are non-AA and we don\u0027t have samples, we\u0027ll also use a stencil mask.",
+      "parentUuid": "4317c264_ad87892f",
+      "range": {
+        "startLine": 138,
+        "startChar": 16,
+        "endLine": 138,
+        "endChar": 29
+      },
+      "revId": "630e33a5dd83707f4174cd42e3a59d86744819db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
