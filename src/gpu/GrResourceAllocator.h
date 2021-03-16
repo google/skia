@@ -109,8 +109,6 @@ private:
     void recycleSurface(sk_sp<GrSurface> surface);
     sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy);
 
-    void determineRecyclability();
-
     struct FreePoolTraits {
         static const GrScratchKey& GetKey(const GrSurface& s) {
             return s.resourcePriv().getScratchKey();
@@ -128,8 +126,7 @@ private:
         Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
             : fProxy(proxy)
             , fStart(start)
-            , fEnd(end)
-            , fNext(nullptr) {
+            , fEnd(end) {
             SkASSERT(proxy);
 #if GR_TRACK_INTERVAL_CREATION
             fUniqueID = CreateUniqueID();
@@ -148,11 +145,10 @@ private:
         const Interval* next() const { return fNext; }
         Interval* next() { return fNext; }
 
-        void markAsRecyclable() { fIsRecyclable = true;}
-        bool isRecyclable() const { return fIsRecyclable; }
+        bool isSurfaceRecyclable() const;
 
         void addUse() { fUses++; }
-        int uses() { return fUses; }
+        int uses() const { return fUses; }
 
         void extendEnd(unsigned int newEnd) {
             if (newEnd > fEnd) {
@@ -167,9 +163,8 @@ private:
         GrSurfaceProxy*  fProxy;
         unsigned int     fStart;
         unsigned int     fEnd;
-        Interval*        fNext;
+        Interval*        fNext = nullptr;
         unsigned int     fUses = 0;
-        bool             fIsRecyclable = false;
 
 #if GR_TRACK_INTERVAL_CREATION
         uint32_t        fUniqueID;
@@ -195,7 +190,6 @@ private:
         Interval* popHead();
         void insertByIncreasingStart(Interval*);
         void insertByIncreasingEnd(Interval*);
-        Interval* detachAll();
 
     private:
         SkDEBUGCODE(void validate() const;)
