@@ -33,7 +33,7 @@ class GrSwizzle;
 
 class GrGLGpu final : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrDirectContext*);
+    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, GrDirectContext*);
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;

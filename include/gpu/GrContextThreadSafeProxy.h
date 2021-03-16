@@ -139,7 +139,7 @@ private:
     sk_sp<const GrCaps>                     fCaps;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
     std::unique_ptr<GrThreadSafeCache>      fThreadSafeCache;
-    sk_sp<GrThreadSafePipelineBuilder>      fPipelineBuilder;
+//    sk_sp<GrThreadSafePipelineBuilder>      fPipelineBuilder;
     std::atomic<bool>                       fAbandoned{false};
 };
 

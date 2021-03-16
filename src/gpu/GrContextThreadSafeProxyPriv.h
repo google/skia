@@ -14,6 +14,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
+class GrThreadSafePipelineBuilder;
+
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
  * Skia. This class is purely a privileged window into GrContextThreadSafeProxy. It should never
@@ -21,6 +23,8 @@
  */
 class GrContextThreadSafeProxyPriv {
 public:
+    ~GrContextThreadSafeProxyPriv();
+
     void init(sk_sp<const GrCaps>, sk_sp<GrThreadSafePipelineBuilder>) const;
 
     bool matches(GrContext_Base* candidate) const {
@@ -40,6 +44,12 @@ public:
     GrThreadSafeCache* threadSafeCache() { return fProxy->fThreadSafeCache.get(); }
     const GrThreadSafeCache* threadSafeCache() const { return fProxy->fThreadSafeCache.get(); }
 
+//    GrThreadSafePipelineBuilder* pipelineBuilder() { return fProxy->fPipelineBuilder.get(); }
+//    sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder();
+//    const GrThreadSafePipelineBuilder* pipelineBuilder() const {
+//        return fProxy->fPipelineBuilder.get();
+//    }
+
     void abandonContext() { fProxy->abandonContext(); }
     bool abandoned() const { return fProxy->abandoned(); }
 
@@ -47,7 +57,7 @@ public:
     static sk_sp<GrContextThreadSafeProxy> Make(GrBackendApi, const GrContextOptions&);
 
 private:
-    explicit GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy* proxy) : fProxy(proxy) {}
+    explicit GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy*);
     GrContextThreadSafeProxyPriv(const GrContextThreadSafeProxy&) = delete;
     GrContextThreadSafeProxyPriv& operator=(const GrContextThreadSafeProxyPriv&) = delete;
 
