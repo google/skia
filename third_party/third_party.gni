@@ -67,7 +67,27 @@ template("third_party") {
 
   target(_mode, target_name) {
     if (enabled) {
-      forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+      # set_defaults(_mode) might not exist or set configs
+      if (!defined(configs)) {
+        configs = []
+      }
+      if (is_debug) {
+        configs += [ "//gn/skia:optimize" ]
+      }
+      if (sanitize == "ASAN") {
+        configs += [ "//gn/skia:recover_pointer_overflow" ]
+      }
+
+      # "*" clobbers the current scope; append to existing configs
+      forward_variables_from(invoker,
+                             "*",
+                             [
+                               "public_include_dirs",
+                               "configs",
+                             ])
+      if (defined(invoker.configs)) {
+        configs += invoker.configs
+      }
       public_configs = [ ":" + target_name + "_public" ]
 
       # Warnings are just noise if we're not maintaining the code.
@@ -77,22 +97,6 @@ template("third_party") {
         cflags = [ "-w" ]
       }
     }
-  }
-}
-
-set_defaults("third_party") {
-  configs = default_configs
-  if (!is_official_build) {
-    # Official builds don't have warnings to begin with.
-    configs -= [ "//gn:warnings" ]
-  }
-
-  if (is_debug) {
-    configs += [ "//gn:optimize" ]
-  }
-
-  if (sanitize == "ASAN") {
-    configs += [ "//gn:recover_pointer_overflow" ]
   }
 }
 

@@ -12,9 +12,9 @@ import("../third_party.gni")
 third_party("dng_sdk") {
   public_include_dirs = [ "../externals/dng_sdk/source" ]
 
-  configs -= [
-    "//gn:no_exceptions",
-    "//gn:no_rtti",
+  configs = [
+    "//gn/portable:add_exceptions",
+    "//gn/portable:add_rtti",
   ]
 
   public_defines = [ "qDNGBigEndian=0" ]

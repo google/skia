@@ -145,3 +145,67 @@ declare_args() {
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.
 skia_enable_tools = skia_enable_tools && !is_component_build && skia_enable_gpu
+
+# Skia's targets may be built inside other gn build systems.
+# Skia builds other project's build targets inside its build.
+# This is easier if the built-in target types remain generic.
+# Place Skia target specific configs in skia_target_default_configs.
+# These will be applied by the 'skia_*' templates.
+# In the Skia build these configs apply many warnings as errors.
+# Other projects may optionally set these configs as they see fit.
+template("skia_target") {
+  target(invoker._skia_target_type, target_name) {
+    # set_defaults(invoker._skia_target_type) might not exist or set configs
+    if (!defined(configs)) {
+      configs = []
+    }
+
+    # Explicit configs instead of set_defaults("skia_target")
+    # Allows template("skia_*") below to avoid the configs dance.
+    if (defined(skia_target_default_configs)) {
+      configs += skia_target_default_configs
+    }
+
+    # "*" clobbers the current scope; append to existing configs
+    forward_variables_from(invoker, "*", [ "configs" ])
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+  }
+}
+
+template("skia_executable") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "executable"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_source_set") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "source_set"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_static_library") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "static_library"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_shared_library") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "shared_library"
+    forward_variables_from(invoker, "*")
+  }
+}
+template("skia_component") {
+  skia_target(target_name) {
+    assert(!defined(configs), "No set_defaults(skia_target)")
+    _skia_target_type = "component"
+    forward_variables_from(invoker, "*")
+  }
+}

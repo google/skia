@@ -11,13 +11,13 @@ if (skia_enable_svg) {
     include_dirs = [ "include" ]
   }
 
-  component("svg") {
+  skia_component("svg") {
     check_includes = false
     import("svg.gni")
     public_configs = [ ":public_config" ]
     public = skia_svg_public
     sources = skia_svg_sources
-    configs += [ "../../:skia_private" ]
+    configs = [ "../../:skia_private" ]
     deps = [
       "../..:skia",
       "../skresources",
@@ -27,11 +27,11 @@ if (skia_enable_svg) {
 
   if (skia_enable_tools) {
     if (defined(is_skia_standalone)) {
-      source_set("tool") {
+      skia_source_set("tool") {
         check_includes = false
         testonly = true
 
-        configs += [ "../..:skia_private" ]
+        configs = [ "../..:skia_private" ]
         sources = [ "utils/SvgTool.cpp" ]
 
         deps = [
@@ -43,10 +43,10 @@ if (skia_enable_svg) {
       }
     }
 
-    source_set("tests") {
+    skia_source_set("tests") {
       testonly = true
 
-      configs += [ "../..:skia_private" ]
+      configs = [ "../..:skia_private" ]
       sources = [ "tests/Text.cpp" ]
 
       deps = [

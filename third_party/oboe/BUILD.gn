@@ -11,7 +11,7 @@ config("oboe_lib") {
 }
 
 third_party("oboe") {
-  configs += [ ":oboe_lib" ]
+  configs = [ ":oboe_lib" ]
 
   public_include_dirs = [
     "../externals/oboe/include",
