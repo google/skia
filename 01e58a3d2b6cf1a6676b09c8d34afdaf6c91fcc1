@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "658367eb_3e3872e3",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T18:14:33Z",
+      "side": 1,
+      "message": "This should already be handled by GrClip::preApply() and expose the same info.",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 54
+      },
+      "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9791cb25_aecd0e36",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T18:14:33Z",
+      "side": 1,
+      "message": "Is there a way we can just handle these in attemptQuadOptimization()? That already has code paths to turn a filled quad into a round rect draw. The logic here and in SkGpuDevice::drawRect is really similar to attemptQuadOptimization already. I had originally pulled all of these optimizations together into a single place so that all of our higher-level entry points that draw \"rectangles\" (e.g. drawPaint, drawImage, drawImageRect, drawRect, and chrome\u0027s special compositing APIs) all apply the clip in the same way so that we don\u0027t have surprising edge gaps between draws that used to go through different code paths and non-aa would snap them different directions.\n\nIf it\u0027s because fSurfaceIsDMSAA is not availabel to the GrSDC, maybe we should let it know that info?",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 337,
+        "endChar": 55
+      },
+      "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
