@@ -128,6 +128,8 @@ protected:
 
     void finishLine();
 
+    void writeHeader();
+
     void writeUniformStruct();
 
     void writeInputStruct();

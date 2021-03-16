@@ -1,3 +1,6 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
 struct Inputs {
     float2 vLocalCoord_Stage0  [[user(locn0)]];
 };

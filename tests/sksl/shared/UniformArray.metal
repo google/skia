@@ -1,3 +1,6 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
 struct Uniforms {
     array<float, 3> arr;
 };

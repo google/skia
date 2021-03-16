@@ -89,10 +89,7 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
 }
 
 static SkSL::String merge_shaders(const SkSL::String shaders[]) {
-    SkSL::String shader("#include <metal_stdlib>\n"
-                        "#include <simd/simd.h>\n"
-                        "using namespace metal;\n"
-                        "namespace vrt {\n");
+    SkSL::String shader("namespace vrt {\n");
     shader += shaders[kVertex_GrShaderType];
     shader += "};\nnamespace frg {\n";
     shader += shaders[kFragment_GrShaderType];
