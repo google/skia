@@ -21,10 +21,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float _3_z = _0_v.z;
     float _4_w = _0_v.w;
     float4 a = float4(_1_x, _2_y, _3_z, _4_w);
-    const int _5_ZERO = 0;
-    const int _6_ONE = 1;
-    const int _7_TWO = 2;
-    const int _8_THREE = 3;
     float _9_x = _uniforms.testInputs.x;
     float _10_y = _uniforms.testInputs.y;
     float _11_z = _uniforms.testInputs.z;

@@ -10,10 +10,6 @@ vec4 main() {
     float _3_z = _0_v.z;
     float _4_w = _0_v.w;
     vec4 a = vec4(_1_x, _2_y, _3_z, _4_w);
-    const int _5_ZERO = 0;
-    const int _6_ONE = 1;
-    const int _7_TWO = 2;
-    const int _8_THREE = 3;
     float _9_x = testInputs.x;
     float _10_y = testInputs.y;
     float _11_z = testInputs.z;

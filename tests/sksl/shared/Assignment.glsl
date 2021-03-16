@@ -36,7 +36,6 @@ vec4 main() {
     globalVar = vec4(0.0);
     globalStruct.f = 0.0;
     float l;
-    float r;
     l = 0.0;
     ai[0] += ai4[0].x;
     s.f = 1.0;

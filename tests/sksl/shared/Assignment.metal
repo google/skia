@@ -50,7 +50,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _globals.globalVar = float4(0.0);
     _globals.globalStruct.f = 0.0;
     float l;
-    float r;
     l = 0.0;
     ai[0] += ai4[0].x;
     s.f = 1.0;
