@@ -25,7 +25,7 @@ public:
     template<class... Parameters>
     DSLFunction(const DSLType& returnType, const char* name, Parameters&... parameters)
         : fReturnType(&returnType.skslType()) {
-        std::vector<const DSLVar*> parameterArray;
+        std::vector<DSLVar*> parameterArray;
         parameterArray.reserve(sizeof...(parameters));
 
         // in C++17, we could just do:
@@ -55,7 +55,7 @@ public:
     }
 
 private:
-    void init(const DSLType& returnType, const char* name, std::vector<const DSLVar*> params);
+    void init(const DSLType& returnType, const char* name, std::vector<DSLVar*> params);
 
     DSLExpression call(ExpressionArray args);
 

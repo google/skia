@@ -21,7 +21,9 @@ namespace SkSL {
 namespace dsl {
 
 DSLVar::DSLVar(const char* name)
-    : fVar(nullptr)
+    : fDeclared(true)
+    , fVar(nullptr)
+    , fRawName(name)
     , fName(name) {
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     if (!strcmp(name, "sk_SampleCoord")) {
@@ -57,7 +59,9 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue)
     : DSLVar(modifiers, type, "var", std::move(initialValue)) {}
 
 DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpression initialValue)
-    : fName(DSLWriter::Name(name)) {
+    : fDeclared(DSLWriter::Instance().fMarkVarsDeclared)
+    , fRawName(name)
+    , fName(DSLWriter::Name(name)) {
     Variable::Storage storage = Variable::Storage::kLocal;
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     if (modifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
@@ -88,6 +92,7 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
                                                                  &name).toIndex();
             fName = name;
         }
+        fDeclared = true;
     }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, modifiers.fModifiers,
@@ -105,6 +110,10 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
 }
 
 DSLVar::~DSLVar() {
+    if (!fDeclared) {
+        DSLWriter::ReportError(String::printf("error: variable '%s' was destroyed without being "
+                                              "declared\n", fRawName).c_str());
+    }
 }
 
 DSLPossibleExpression DSLVar::operator[](DSLExpression&& index) {

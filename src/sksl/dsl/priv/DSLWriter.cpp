@@ -11,6 +11,7 @@
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLErrorHandling.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/mock/GrMockCaps.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/sksl/SkSLCompiler.h"
@@ -41,12 +42,20 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler)
     ir.fSymbolTable = module.fSymbols;
     fCompiler->fContext->fConfig = &fConfig;
     ir.pushSymbolTable();
+    if (compiler->context().fCaps.useNodePools()) {
+        fPool = Pool::Create();
+        fPool->attachToThread();
+    }
 }
 
 DSLWriter::~DSLWriter() {
     SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
     ir.fSymbolTable = fOldSymbolTable;
     fCompiler->fContext->fConfig = fOldConfig;
+    fProgramElements.clear();
+    if (fPool) {
+        fPool->detachFromThread();
+    }
 }
 
 SkSL::IRGenerator& DSLWriter::IRGenerator() {
@@ -91,6 +100,7 @@ void DSLWriter::StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
 void DSLWriter::EndFragmentProcessor() {
     DSLWriter& instance = Instance();
     SkASSERT(!instance.fStack.empty());
+    CurrentEmitArgs()->fFragBuilder->fDeclarations.reset();
     instance.fStack.pop();
     IRGenerator().popSymbolTable();
 }
@@ -187,6 +197,11 @@ void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
 
 const SkSL::Variable& DSLWriter::Var(const DSLVar& var) {
     return *var.fVar;
+}
+
+void DSLWriter::MarkDeclared(DSLVar& var) {
+    SkASSERT(!var.fDeclared);
+    var.fDeclared = true;
 }
 
 #if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
