@@ -189,6 +189,30 @@
       },
       "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c84cb7a0_f0b6ffbc",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-16T20:25:05Z",
+      "side": 1,
+      "message": "I was likely on leave when the startup plan was discussed, so I don\u0027t want to re-open a super long discussion, but it feels a little too aggressive to skip the rect op for this. We\u0027d lose chaining for texturing, which would be a big perf hit, and we\u0027d lose the ability to handle perspective w/in the op.  It may be that the tessellating path renderer is significantly faster than the older path renderers for perspective that it won\u0027t be the same performance clip that there was in the past, but it\u0027s something to consider.\n\nIf the main concern is being able to switch between MSAA and coverage and get the same appearance, we ought to be able to do that with the existing rect op. It already supports both modes and has enough outset/inset capabilities that if we need to pad things for this particular mode of msaa, we can do so easily during vertex writing. The fill rect op also handles per-edge AA, which is used both by skia-renderer and for drawing bitmaps that need to be tiled. We can probably not worry about that for now since we won\u0027t use dmsaa for skia-renderer, and we can avoid edge flags for tiled bitmaps that need aa on the exterior by promoting it to msaa internally.\n\nIf we still do decide to just do path rendering and fillrrectop, I\u0027d prefer we have the GrSDC redirect drawFilledQuad to drawRRect and still go through attemptQuadOptimization. It\u0027s easy to identity a GrQuad that\u0027s still a rect and we don\u0027t have near duplicates of optimizations in several places.",
+      "parentUuid": "c272cd8a_b991e3a1",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 337,
+        "endChar": 55
+      },
+      "revId": "01e58a3d2b6cf1a6676b09c8d34afdaf6c91fcc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
