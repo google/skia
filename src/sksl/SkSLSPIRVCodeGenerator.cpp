@@ -596,7 +596,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 break;
             }
             default:
-                if (type == *fContext.fTypes.fVoid) {
+                if (type.isVoid()) {
                     this->writeInstruction(SpvOpTypeVoid, result, fConstantBuffer);
                 } else {
                     SkDEBUGFAILF("invalid type: %s", type.description().c_str());
@@ -790,7 +790,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
                     argumentIds.push_back(this->writeExpression(*arguments[i], out));
                 }
             }
-            if (c.type() != *fContext.fTypes.fVoid) {
+            if (!c.type().isVoid()) {
                 this->writeOpCode((SpvOp_) intrinsicId, 3 + (int32_t) arguments.size(), out);
                 this->writeWord(this->getType(c.type()), out);
                 this->writeWord(result, out);
@@ -2719,7 +2719,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
     }
     write_stringstream(bodyBuffer, out);
     if (fCurrentBlock) {
-        if (f.declaration().returnType() == *fContext.fTypes.fVoid) {
+        if (f.declaration().returnType().isVoid()) {
             this->writeInstruction(SpvOpReturn, out);
         } else {
             this->writeInstruction(SpvOpUnreachable, out);
