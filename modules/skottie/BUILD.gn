@@ -11,7 +11,7 @@ if (skia_enable_skottie) {
     include_dirs = [ "include" ]
   }
 
-  component("skottie") {
+  skia_component("skottie") {
     check_includes = false
     import("skottie.gni")
     public_configs = [ ":public_config" ]
@@ -30,7 +30,7 @@ if (skia_enable_skottie) {
     config("utils_config") {
       include_dirs = [ "utils" ]
     }
-    source_set("utils") {
+    skia_source_set("utils") {
       check_includes = false
       testonly = true
 
@@ -45,7 +45,7 @@ if (skia_enable_skottie) {
     }
 
     if (skia_enable_tools) {
-      source_set("tests") {
+      skia_source_set("tests") {
         testonly = true
 
         configs += [
@@ -68,7 +68,7 @@ if (skia_enable_skottie) {
         ]
       }
 
-      source_set("fuzz") {
+      skia_source_set("fuzz") {
         check_includes = false
         testonly = true
 
@@ -94,7 +94,7 @@ if (skia_enable_skottie) {
         public_deps = [ ":skottie" ]
       }
 
-      source_set("tool") {
+      skia_source_set("tool") {
         check_includes = false
         testonly = true
 
@@ -113,7 +113,7 @@ if (skia_enable_skottie) {
         ]
       }
 
-      source_set("gm") {
+      skia_source_set("gm") {
         check_includes = false
         testonly = true
 
