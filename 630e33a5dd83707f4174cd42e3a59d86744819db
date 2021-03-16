@@ -39,6 +39,30 @@
       },
       "revId": "630e33a5dd83707f4174cd42e3a59d86744819db",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4317c264_ad87892f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-16T19:20:38Z",
+      "side": 1,
+      "message": "Oh awesome! That\u0027s perfect. Will it still check sample counts before using stencil?",
+      "parentUuid": "b1bdc3af_8d060b01",
+      "range": {
+        "startLine": 138,
+        "startChar": 16,
+        "endLine": 138,
+        "endChar": 29
+      },
+      "revId": "630e33a5dd83707f4174cd42e3a59d86744819db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
