@@ -19,7 +19,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
     ]
   }
 
-  component("skparagraph") {
+  skia_component("skparagraph") {
     import("skparagraph.gni")
     public_configs = [ ":public_config" ]
     public = skparagraph_public
@@ -35,10 +35,10 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
   }
 
   if (defined(is_skia_standalone) && skia_enable_tools) {
-    source_set("utils") {
+    skia_source_set("utils") {
       import("skparagraph.gni")
       public_configs = [ ":utils_config" ]
-      configs += [ "../../:skia_private" ]
+      configs = [ "../../:skia_private" ]
       sources = skparagraph_utils
       deps = [
         "../..:skia",
@@ -46,7 +46,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
       ]
     }
 
-    source_set("gm") {
+    skia_source_set("gm") {
       if (paragraph_gms_enabled) {
         testonly = true
         sources = [ "gm/simple_gm.cpp" ]
@@ -61,7 +61,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
       }
     }
 
-    source_set("tests") {
+    skia_source_set("tests") {
       if (paragraph_tests_enabled) {
         testonly = true
         sources = [ "tests/SkParagraphTest.cpp" ]
@@ -76,7 +76,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
       }
     }
 
-    source_set("bench") {
+    skia_source_set("bench") {
       if (paragraph_bench_enabled) {
         testonly = true
         sources = [ "bench/ParagraphBench.cpp" ]
@@ -90,7 +90,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
       }
     }
 
-    source_set("samples") {
+    skia_source_set("samples") {
       testonly = true
       sources = [ "samples/SampleParagraph.cpp" ]
       deps = [

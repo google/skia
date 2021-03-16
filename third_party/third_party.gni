@@ -82,10 +82,6 @@ template("third_party") {
 
 set_defaults("third_party") {
   configs = default_configs
-  if (!is_official_build) {
-    # Official builds don't have warnings to begin with.
-    configs -= [ "//gn:warnings" ]
-  }
 
   if (is_debug) {
     configs += [ "//gn:optimize" ]
