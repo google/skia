@@ -1,3 +1,6 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
 struct A {
     int x;
     int y;

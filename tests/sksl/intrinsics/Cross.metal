@@ -1,3 +1,6 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+using namespace metal;
 struct Inputs {
     float2 a;
     float2 b;
