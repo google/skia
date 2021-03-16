@@ -406,10 +406,9 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     SkASSERT(fProxy->isLazy());
 
     sk_sp<GrSurface> surface;
-    if (fProxy->asTextureProxy() && fProxy->asTextureProxy()->getUniqueKey().isValid()) {
+    if (const auto& uniqueKey = fProxy->getUniqueKey(); uniqueKey.isValid()) {
         // First try to reattach to a cached version if the proxy is uniquely keyed
-        surface = resourceProvider->findByUniqueKey<GrSurface>(
-                                                        fProxy->asTextureProxy()->getUniqueKey());
+        surface = resourceProvider->findByUniqueKey<GrSurface>(uniqueKey);
     }
 
     bool syncKey = true;
