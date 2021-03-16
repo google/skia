@@ -68,7 +68,7 @@ public:
     /**
      * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
      */
-    const GrUniqueKey& getUniqueKey() const {
+    const GrUniqueKey& getUniqueKey() const override {
 #ifdef SK_DEBUG
         if (this->isInstantiated() && fUniqueKey.isValid() && fSyncTargetKey &&
             fCreatingProvider == GrDDLProvider::kNo) {

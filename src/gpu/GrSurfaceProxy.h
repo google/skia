@@ -227,6 +227,13 @@ public:
     virtual GrRenderTargetProxy* asRenderTargetProxy() { return nullptr; }
     virtual const GrRenderTargetProxy* asRenderTargetProxy() const { return nullptr; }
 
+    /** @return The unique key for this proxy. May be invalid. */
+    virtual const GrUniqueKey& getUniqueKey() const {
+        // Base class never has a valid unique key.
+        static const GrUniqueKey kInvalidKey;
+        return kInvalidKey;
+    }
+
     bool isInstantiated() const { return SkToBool(fTarget); }
 
     /** Called when this task becomes a target of a GrRenderTask. */
