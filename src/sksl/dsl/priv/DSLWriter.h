@@ -90,6 +90,12 @@ public:
     static const SkSL::Variable& Var(const DSLVar& var);
 
     /**
+     * For use in testing only: marks the variable as having been declared, so that it can be
+     * destroyed without generating errors.
+     */
+    static void MarkDeclared(DSLVar& var);
+
+    /**
      * Returns the (possibly mangled) final name that should be used for an entity with the given
      * raw name.
      */
@@ -191,11 +197,13 @@ public:
 private:
     SkSL::ProgramConfig fConfig;
     SkSL::Compiler* fCompiler;
+    std::unique_ptr<Pool> fPool;
     std::shared_ptr<SkSL::SymbolTable> fOldSymbolTable;
     SkSL::ProgramConfig* fOldConfig;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     ErrorHandler* fErrorHandler = nullptr;
     bool fMangle = true;
+    bool fMarkVarsDeclared = false;
     Mangler fMangler;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
@@ -206,6 +214,7 @@ private:
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
     friend class DSLCore;
+    friend class DSLVar;
     friend class ::AutoDSLContext;
 };
 
