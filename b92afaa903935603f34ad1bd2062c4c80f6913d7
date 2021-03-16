@@ -1,0 +1,2006 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "eb423809_a0695881",
+        "filename": "site/_site/dev/contrib/patch/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 16,
+        "startChar": 31,
+        "endLine": 16,
+        "endChar": 32
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a18f2a9d_d3506853",
+        "filename": "site/_site/dev/contrib/patch/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 45,
+        "startChar": 27,
+        "endLine": 45,
+        "endChar": 28
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "19c6b572_8602c9c9",
+        "filename": "site/_site/dev/contrib/patch/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 58,
+        "startChar": 34,
+        "endLine": 58,
+        "endChar": 35
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "b41ec12e_90bb6d51",
+        "filename": "site/_site/dev/tools/markdown/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 176,
+        "startChar": 4,
+        "endLine": 176,
+        "endChar": 5
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e6982c0b_16255208",
+        "filename": "site/_site/dev/tools/markdown/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 4
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e9ded258_73e4875b",
+        "filename": "site/_site/dev/tools/markdown/index.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 4
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "5aff5878_e164ca75",
+        "filename": "site2/blog/news/second-post.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "35b729d8_31e2e69b",
+        "filename": "site2/blog/news/second-post.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "91fddf33_8c0d04e1",
+        "filename": "site2/blog/releases/in-depth-monoliths-detailed-spec.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0c233807_2d5c54a9",
+        "filename": "site2/blog/releases/in-depth-monoliths-detailed-spec.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4879269f_d243492c",
+        "filename": "site2/docs/Concepts/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 6,
+        "startChar": 113,
+        "endLine": 6,
+        "endChar": 114
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "5e841073_15f79338",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 16,
+        "startChar": 78,
+        "endLine": 16,
+        "endChar": 79
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "68376d55_5a22a40a",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 17,
+        "startChar": 77,
+        "endLine": 17,
+        "endChar": 78
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "d58579ac_4fa24c3f",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 18,
+        "startChar": 77,
+        "endLine": 18,
+        "endChar": 78
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "cd73df11_8c4fe540",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 19,
+        "startChar": 80,
+        "endLine": 19,
+        "endChar": 81
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "dd9d9b39_1fdc2ac3",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 35,
+        "startChar": 77,
+        "endLine": 35,
+        "endChar": 78
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "b78aed8b_c8238289",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 36,
+        "startChar": 59,
+        "endLine": 36,
+        "endChar": 60
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0fea8bb5_f969abfe",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 37,
+        "startChar": 68,
+        "endLine": 37,
+        "endChar": 69
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "495f6b36_2c9913d5",
+        "filename": "site2/docs/Contribution guidelines/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 43,
+        "startChar": 78,
+        "endLine": 43,
+        "endChar": 79
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "28f8b87a_841029dc",
+        "filename": "site2/docs/Getting started/example-page.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 16,
+        "startChar": 296,
+        "endLine": 16,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0dc109fe_ca9a8c75",
+        "filename": "site2/docs/Getting started/example-page.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 47,
+        "startChar": 271,
+        "endLine": 47,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "45b8ff40_e6633c10",
+        "filename": "site2/docs/Getting started/example-page.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 47,
+        "startChar": 213,
+        "endLine": 47,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c5dad5e2_70df3d49",
+        "filename": "site2/docs/Getting started/example-page.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "be5dd70f_dba000e6",
+        "filename": "site2/docs/Getting started/example-page.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a55064e0_340e6368",
+        "filename": "site2/docs/Getting started/example-page.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 224,
+        "startChar": 55,
+        "endLine": 224,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1a28ff7b_e6da0467",
+        "filename": "site2/docs/Overview/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 14,
+        "startChar": 249,
+        "endLine": 14,
+        "endChar": 250
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ee0e04a6_41d3e6b4",
+        "filename": "site2/docs/Overview/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 24,
+        "startChar": 83,
+        "endLine": 24,
+        "endChar": 84
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "44909339_c80fe1e6",
+        "filename": "site2/docs/Reference/parameter-reference.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 15,
+        "startChar": 296,
+        "endLine": 15,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "76a1685e_570b84d8",
+        "filename": "site2/docs/Reference/parameter-reference.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 46,
+        "startChar": 271,
+        "endLine": 46,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "9af0349c_7b91d6ed",
+        "filename": "site2/docs/Reference/parameter-reference.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 46,
+        "startChar": 213,
+        "endLine": 46,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a604d982_f8cda3aa",
+        "filename": "site2/docs/Reference/parameter-reference.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 142,
+        "startChar": 356,
+        "endLine": 142,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "41a793e0_733bd3c1",
+        "filename": "site2/docs/Reference/parameter-reference.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 131,
+        "endLine": 143,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "087e0143_1c2cee47",
+        "filename": "site2/docs/Tasks/Ponycopters/configuring-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 16,
+        "startChar": 296,
+        "endLine": 16,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1775634a_8182ff13",
+        "filename": "site2/docs/Tasks/Ponycopters/configuring-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 47,
+        "startChar": 213,
+        "endLine": 47,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "95466c0a_903b8d0d",
+        "filename": "site2/docs/Tasks/Ponycopters/configuring-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 47,
+        "startChar": 271,
+        "endLine": 47,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1f7e8384_5394e0d9",
+        "filename": "site2/docs/Tasks/Ponycopters/configuring-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "16c40674_9da70112",
+        "filename": "site2/docs/Tasks/Ponycopters/configuring-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "351d72a2_f356d76d",
+        "filename": "site2/docs/Tasks/Ponycopters/configuring-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 224,
+        "startChar": 55,
+        "endLine": 224,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a9b1b747_6598ccf9",
+        "filename": "site2/docs/Tasks/Ponycopters/launching-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 16,
+        "startChar": 296,
+        "endLine": 16,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "9fc28d57_194e864f",
+        "filename": "site2/docs/Tasks/Ponycopters/launching-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 47,
+        "startChar": 213,
+        "endLine": 47,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c8283e32_d33e0bb3",
+        "filename": "site2/docs/Tasks/Ponycopters/launching-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 47,
+        "startChar": 271,
+        "endLine": 47,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4605b575_95509b7d",
+        "filename": "site2/docs/Tasks/Ponycopters/launching-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "66cb5111_c0e08532",
+        "filename": "site2/docs/Tasks/Ponycopters/launching-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "2f6718ab_ab58b994",
+        "filename": "site2/docs/Tasks/Ponycopters/launching-ponycopters.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 224,
+        "startChar": 55,
+        "endLine": 224,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "225f847e_7230ed4c",
+        "filename": "site2/docs/Tasks/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 17,
+        "startChar": 518,
+        "endLine": 17,
+        "endChar": 519
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1558a941_9b7a7c6d",
+        "filename": "site2/docs/Tasks/beds.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 16,
+        "startChar": 296,
+        "endLine": 16,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a4dfea98_60bfe652",
+        "filename": "site2/docs/Tasks/beds.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 47,
+        "startChar": 271,
+        "endLine": 47,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "70649880_5d90ff6d",
+        "filename": "site2/docs/Tasks/beds.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 47,
+        "startChar": 213,
+        "endLine": 47,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a47c9eea_9aa3ce79",
+        "filename": "site2/docs/Tasks/beds.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e9986e05_8e86979c",
+        "filename": "site2/docs/Tasks/beds.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c80d897d_ab9236b9",
+        "filename": "site2/docs/Tasks/beds.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 224,
+        "startChar": 55,
+        "endLine": 224,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "9567da7e_4d601941",
+        "filename": "site2/docs/Tasks/porridge.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 16,
+        "startChar": 296,
+        "endLine": 16,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0cc004b5_0bb213d3",
+        "filename": "site2/docs/Tasks/porridge.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 47,
+        "startChar": 271,
+        "endLine": 47,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "33865ba9_5dc67ffa",
+        "filename": "site2/docs/Tasks/porridge.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 47,
+        "startChar": 213,
+        "endLine": 47,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "deb059ac_2b2606c1",
+        "filename": "site2/docs/Tasks/porridge.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "30181b90_d49fdb04",
+        "filename": "site2/docs/Tasks/porridge.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "daf605f0_164e782c",
+        "filename": "site2/docs/Tasks/porridge.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 224,
+        "startChar": 55,
+        "endLine": 224,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e0e44232_fc6fa43b",
+        "filename": "site2/docs/Tasks/task.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 16,
+        "startChar": 296,
+        "endLine": 16,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "270edb8d_08e2427f",
+        "filename": "site2/docs/Tasks/task.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 47,
+        "startChar": 271,
+        "endLine": 47,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "cdc263a2_710bb1b6",
+        "filename": "site2/docs/Tasks/task.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 47,
+        "startChar": 213,
+        "endLine": 47,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "58d58c8c_5553c10b",
+        "filename": "site2/docs/Tasks/task.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 356,
+        "endLine": 143,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a7df9a62_a0c9ded2",
+        "filename": "site2/docs/Tasks/task.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 144,
+        "startChar": 131,
+        "endLine": 144,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "d4c952c7_b6d369fa",
+        "filename": "site2/docs/Tasks/task.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 224,
+        "startChar": 55,
+        "endLine": 224,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e2c6711e_9bc55ff4",
+        "filename": "site2/docs/Tutorials/multi-bear.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 15,
+        "startChar": 296,
+        "endLine": 15,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4b62b764_abe17816",
+        "filename": "site2/docs/Tutorials/multi-bear.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 46,
+        "startChar": 213,
+        "endLine": 46,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0bff4b8c_6f565446",
+        "filename": "site2/docs/Tutorials/multi-bear.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 46,
+        "startChar": 271,
+        "endLine": 46,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4c66077f_3b470cfa",
+        "filename": "site2/docs/Tutorials/multi-bear.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 142,
+        "startChar": 356,
+        "endLine": 142,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "7edefb8e_5e6b1bc2",
+        "filename": "site2/docs/Tutorials/multi-bear.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 131,
+        "endLine": 143,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "6bbacc43_c20e52fb",
+        "filename": "site2/docs/Tutorials/multi-bear.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 223,
+        "startChar": 55,
+        "endLine": 223,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "7b6a3766_c85ecc1f",
+        "filename": "site2/docs/Tutorials/tutorial2.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 15,
+        "startChar": 296,
+        "endLine": 15,
+        "endChar": 299
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e9aea72a_410a66b7",
+        "filename": "site2/docs/Tutorials/tutorial2.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 46,
+        "startChar": 213,
+        "endLine": 46,
+        "endChar": 216
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c0aed09f_e561e495",
+        "filename": "site2/docs/Tutorials/tutorial2.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 46,
+        "startChar": 271,
+        "endLine": 46,
+        "endChar": 272
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "f5abaa66_61928381",
+        "filename": "site2/docs/Tutorials/tutorial2.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 142,
+        "startChar": 356,
+        "endLine": 142,
+        "endChar": 361
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ff88327b_e05ef7b7",
+        "filename": "site2/docs/Tutorials/tutorial2.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 143,
+        "startChar": 131,
+        "endLine": 143,
+        "endChar": 134
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "2b00f171_c0c6d9a2",
+        "filename": "site2/docs/Tutorials/tutorial2.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 223,
+        "startChar": 55,
+        "endLine": 223,
+        "endChar": 58
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "163cb6ee_f3615fde",
+        "filename": "site2/docs/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 16,
+        "startChar": 154,
+        "endLine": 16,
+        "endChar": 155
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009038677",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/385336?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "2c984b9c_aeee283f",
+        "filename": "site2/docs/_index.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-16T16:20:41Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 18,
+        "startChar": 440,
+        "endLine": 18,
+        "endChar": 441
+      },
+      "revId": "b92afaa903935603f34ad1bd2062c4c80f6913d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
