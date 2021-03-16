@@ -31,7 +31,8 @@ if (is_ios && xcode_sysroot == "") {
       sdk = "iphonesimulator"
     }
   }
-  xcode_sysroot = exec_script("find_xcode_sysroot.py", [ sdk ], "trim string")
+  xcode_sysroot =
+      exec_script("../find_xcode_sysroot.py", [ sdk ], "trim string")
 }
 
 # If building for mac on a mac then lookup all the system includes so that goma and the clang
@@ -40,7 +41,7 @@ if (is_ios && xcode_sysroot == "") {
 # find needed include paths.
 if (is_mac && host_os == "mac" && xcode_sysroot == "") {
   xcode_sysroot =
-      exec_script("find_xcode_sysroot.py", [ "macosx" ], "trim string")
+      exec_script("../find_xcode_sysroot.py", [ "macosx" ], "trim string")
 }
 
 config("default") {
@@ -51,14 +52,6 @@ config("default") {
   defines = []
   ldflags = []
   libs = []
-
-  if (werror) {
-    if (is_win) {
-      cflags += [ "/WX" ]
-    } else {
-      cflags += [ "-Werror" ]
-    }
-  }
 
   # Disable warnings about unknown attributes.
   # (These unknown attribute warnings are on by default, so we don't make
@@ -293,7 +286,7 @@ config("default") {
       sanitizers = "memory"
     }
 
-    _suppressions = rebase_path("../tools/xsan.supp")
+    _suppressions = rebase_path("../../tools/xsan.supp")
 
     cflags += [
       "-fsanitize=$sanitizers",
@@ -351,6 +344,15 @@ config("warnings") {
   cflags_cc = []
   cflags_objc = []
   cflags_objcc = []
+
+  if (werror) {
+    if (is_win) {
+      cflags += [ "/WX" ]
+    } else {
+      cflags += [ "-Werror" ]
+    }
+  }
+
   if (is_win) {
     cflags += [
       "/W3",  # Turn on lots of warnings.
@@ -380,6 +382,11 @@ config("warnings") {
       # deprecated in C++17. They are superseded by std::invoke_result and std::invoke_result_t.
       "/wd4996",
     ]
+    if (is_clang) {
+      cflags += [
+        "-Wno-unused-parameter",  # Re-enabled for header sources
+      ]
+    }
   } else {
     cflags += [
       "-Wall",
@@ -392,6 +399,7 @@ config("warnings") {
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
       "-Wno-psabi",
+      "-Wno-unused-parameter",  # Re-enabled for header sources
     ]
     cflags_cc += [
       "-Wnon-virtual-dtor",
@@ -430,7 +438,7 @@ config("warnings") {
     cflags += [
       "-Wno-cast-align",
       "-Wno-cast-qual",
-      "-Wno-conversion",
+      "-Wno-conversion",  # -Wsign-conversion re-enabled for header sources
       "-Wno-disabled-macro-expansion",
       "-Wno-documentation",
       "-Wno-documentation-unknown-command",
@@ -462,10 +470,6 @@ config("warnings") {
       "-Wno-abstract-vbase-init",
       "-Wno-weak-vtables",
     ]
-
-    # Turn back on after -Wno-conversion.
-    # This only affects public headers... see :warnings_except_public_headers.
-    cflags += [ "-Wsign-conversion" ]
 
     # We are unlikely to want to fix these.
     cflags += [
@@ -527,11 +531,11 @@ config("warnings") {
     ]
   }
 }
-config("warnings_except_public_headers") {
-  if (!is_win || is_clang) {
+config("warnings_for_public_headers") {
+  if (is_clang) {
     cflags = [
-      "-Wno-sign-conversion",
-      "-Wno-unused-parameter",
+      "-Wsign-conversion",
+      "-Wunused-parameter",
     ]
   }
 }

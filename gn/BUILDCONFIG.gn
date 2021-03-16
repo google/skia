@@ -172,29 +172,23 @@ template("component") {
 
 # Default configs
 default_configs = [
-  "//gn:default",
-  "//gn:no_exceptions",
-  "//gn:no_rtti",
+  "//gn/skia:default",
+  "//gn/skia:no_exceptions",
+  "//gn/skia:no_rtti",
 ]
 if (!is_debug) {
   default_configs += [
-    "//gn:optimize",
-    "//gn:NDEBUG",
+    "//gn/skia:optimize",
+    "//gn/skia:NDEBUG",
   ]
 }
 if (!is_official_build) {
-  default_configs += [
-    "//gn:debug_symbols",
-    "//gn:warnings",
-  ]
+  default_configs += [ "//gn/skia:debug_symbols" ]
 }
-default_configs += [
-  "//gn:warnings_except_public_headers",
-  "//gn:extra_flags",
-]
+default_configs += [ "//gn/skia:extra_flags" ]
 
 set_defaults("executable") {
-  configs = [ "//gn:executable" ] + default_configs
+  configs = [ "//gn/skia:executable" ] + default_configs
 }
 
 set_defaults("source_set") {
@@ -214,6 +208,17 @@ set_defaults("component") {
   if (!is_component_build) {
     complete_static_lib = true
   }
+}
+
+skia_target_default_configs = []
+if (!is_official_build) {
+  skia_target_default_configs += [ "//gn/skia:warnings" ]
+}
+
+skia_header_target_default_configs = []
+if (!is_official_build) {
+  skia_header_target_default_configs +=
+      [ "//gn/skia:warnings_for_public_headers" ]
 }
 
 if (is_win) {
