@@ -140,6 +140,13 @@ bool SkStrikeSpec::ShouldDrawAsPath(
         || distance(SkMatrix::kMSkewX,  SkMatrix::kMScaleY) > maxSizeSquared;
 }
 
+SkString SkStrikeSpec::dump() const {
+    const SkScalerContextRec* rec = static_cast<const SkScalerContextRec*>(
+            fAutoDescriptor.getDesc()->findEntry(kRec_SkDescriptorTag, nullptr));
+
+    return rec->dump();
+}
+
 SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) {
     SkFont font;
     font.setHinting(SkFontHinting::kNone);

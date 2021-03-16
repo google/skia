@@ -136,6 +136,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     }
 }
 
+// #define DUMP_REC
+
 #if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkMatrix& drawMatrix,
@@ -152,6 +154,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         // Process SDFT - This should be the .009% case.
         const auto& [strikeSpec, minScale, maxScale] =
                 SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix, control);
+
+        #if defined(DUMP_REC)
+            SkDebugf("SDFT case: %s\n", strikeSpec.dump().c_str());
+        #endif
 
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
@@ -174,6 +180,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
 
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags, drawMatrix);
+
+        #if defined(DUMP_REC)
+            SkDebugf("Mask case: %s\n", strikeSpec.dump().c_str());
+        #endif
 
         SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
@@ -198,6 +208,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
+        #if defined(DUMP_REC)
+            SkDebugf("Path case: %s\n", strikeSpec.dump().c_str());
+        #endif
+
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
@@ -220,6 +234,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
                 runFont, runPaint, fDeviceProps,
                 fScalerContextFlags, maxDimensionInSourceSpace);
+
+        #if defined(DUMP_REC)
+            SkDebugf("Transformed case: %s\n", strikeSpec.dump().c_str());
+        #endif
 
         if (!strikeSpec.isEmpty()) {
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
