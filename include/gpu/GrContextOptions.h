@@ -314,6 +314,12 @@ struct SK_API GrContextOptions {
     bool fDisallowWritePixelRowBytes = false;
 
     /**
+     * Forces all draws to use antialiasing. This allows Ganesh to use internal multisampling
+     * as well as certain clip optimizations.
+     */
+    bool fAlwaysAntialias = false;
+
+    /**
      * Include or exclude specific GPU path renderers.
      */
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
