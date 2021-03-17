@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c407637b_0cd89d9d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-17T05:13:59Z",
+      "side": 1,
+      "message": "Brian- you already reviewed and gave this code a +1 in https://skia-review.googlesource.com/c/skia/+/384936\n\nI ended up moving the dmsaa knob into a context option, but I figure we might as well keep this code for managing surface flags in the tools in case we ever want to add new flags.",
+      "revId": "d7ae6aaee88caf5b72a9f1668bbd6a5becd06d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
