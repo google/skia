@@ -16,6 +16,24 @@
       "message": "lgtm, assuming that gold doesn\u0027t spit out a pile of broken GMs.",
       "revId": "d54e1ee95bf2f7deca390fe0b231b67d94d726e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ceac6f81_b44fc9d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-17T17:15:52Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m running it on a few test bots just to be sure.",
+      "parentUuid": "fa14373c_9d90fe1b",
+      "revId": "d54e1ee95bf2f7deca390fe0b231b67d94d726e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
