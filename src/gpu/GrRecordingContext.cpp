@@ -119,7 +119,7 @@ GrRecordingContext::OwnedArenas& GrRecordingContext::OwnedArenas::operator=(Owne
 GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
     if (!fRecordTimeAllocator) {
         // TODO: empirically determine a better number for SkArenaAlloc's firstHeapAllocation param
-        fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(sizeof(GrPipeline) * 100);
+        fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(1024);
     }
 
     if (!fRecordTimeSubRunAllocator) {
