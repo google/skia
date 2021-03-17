@@ -340,7 +340,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 
 #ifdef SK_DEBUG
     if (programInfo.isStencilEnabled()) {
-        SkASSERT(renderTarget->numStencilBits() == 8);
+        SkASSERT(programInfo.numStencilSamples() > 0);
     }
 #endif
     depthStencilState = create_depth_stencil_state(programInfo, depthStencilFormat);
