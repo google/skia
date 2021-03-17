@@ -101,6 +101,11 @@ public:
         // by a pointer (e.g. vector swizzles), returns -1.
         virtual SpvId getPointer() { return -1; }
 
+        // Returns true if a valid pointer returned by getPointer represents a memory object
+        // (see https://github.com/KhronosGroup/SPIRV-Tools/issues/2892). Has no meaning if
+        // getPointer() returns -1.
+        virtual bool isMemoryObjectPointer() const { return true; }
+
         // Applies a swizzle to the components of the LValue, if possible. This is used to create
         // LValues that are swizzes-of-swizzles. Non-swizzle LValues can just return false.
         virtual bool applySwizzle(const ComponentArray& components, const Type& newType) {
