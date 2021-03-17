@@ -96,13 +96,19 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                                    length:msl.size()
                                                  encoding:NSUTF8StringEncoding
                                              freeWhenDone:NO];
+    MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
+    options.fastMathEnabled = true;
+    if (@available(macOS 11.0, iOS 13.0, *)) {
+        options.preserveInvariance = true;
+    }
+
     NSError* error = nil;
 #if defined(SK_BUILD_FOR_MAC)
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), nsSource,
-                                                               nil, &error);
+                                                               options, &error);
 #else
     id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource:nsSource
-                                                                 options:nil
+                                                                 options:options
                                                                    error:&error];
 #endif
     if (!compiledLibrary) {
