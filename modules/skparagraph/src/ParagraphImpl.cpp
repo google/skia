@@ -741,9 +741,32 @@ size_t ParagraphImpl::getWhitespacesLength(TextRange textRange) {
     return len;
 }
 
+static bool is_ascii_7bit_space(int c) {
+    SkASSERT(c >= 0 && c <= 127);
+
+    // Extracted from https://en.wikipedia.org/wiki/Whitespace_character
+    //
+    enum WS {
+        kHT    = 9,
+        kLF    = 10,
+        kVT    = 11,
+        kFF    = 12,
+        kCR    = 13,
+        kSP    = 32,    // too big to use as shift
+    };
+#define M(shift)    (1 << (shift))
+    constexpr uint32_t kSpaceMask = M(kHT) | M(kLF) | M(kVT) | M(kFF) | M(kCR);
+    // we check for Space (32) explicitly, since it is too large to shift
+    return (c == kSP) || (c <= 31 && (kSpaceMask & M(c)));
+#undef M
+}
+
 bool ParagraphImpl::isSpace(TextRange textRange) {
     auto text = ParagraphImpl::text(textRange);
     const char* ch = text.begin();
+    if (text.end() - ch == 1 && *(unsigned char*)ch <= 0x7F) {
+        return is_ascii_7bit_space(*ch);
+    }
     while (ch != text.end()) {
         SkUnichar unicode = nextUtf8Unit(&ch, text.end());
         if (!fUnicode->isSpace(unicode)) {

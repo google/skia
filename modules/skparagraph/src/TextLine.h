@@ -118,7 +118,7 @@ public:
 
 private:
 
-    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, Run* run);
+    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, const Run& run);
     void justify(SkScalar maxWidth);
 
     void buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context);
