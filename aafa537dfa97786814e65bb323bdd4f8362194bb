@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5811381f_e80c58a9",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-17T14:21:09Z",
+      "side": 1,
+      "message": "If we\u0027re going to have this, shouldn\u0027t it be initialized (via CreateUniqueID) in the ctor ?",
+      "revId": "aafa537dfa97786814e65bb323bdd4f8362194bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
