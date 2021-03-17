@@ -185,15 +185,9 @@ if [[ $@ == *no_font* ]]; then
   GN_FONT+="skia_enable_fontmgr_custom_embedded=false skia_enable_fontmgr_custom_empty=false"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
-  rm -rf $BASE_DIR/fonts/empty.ttf
-  touch $BASE_DIR/fonts/empty.ttf
-  python tools/embed_resources.py \
-      --name SK_EMBEDDED_FONTS \
-      --input $BASE_DIR/fonts/empty.ttf \
-      --output $BASE_DIR/fonts/empty.ttf.cpp \
-      --align 4
-  BUILTIN_FONT="$BASE_DIR/fonts/empty.ttf.cpp"
-  GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_empty=false"
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=true \
+            skia_enable_fontmgr_custom_empty=false \
+            skia_enable_fontmgr_custom_embedded_factory_no_font=true"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \

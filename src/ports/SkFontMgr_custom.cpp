@@ -180,7 +180,7 @@ SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader) : fDefaultFam
         fDefaultFamily = set.get();
         break;
     }
-    if (nullptr == fDefaultFamily) {
+    if (nullptr == fDefaultFamily && !fFamilies.empty()) {
         fDefaultFamily = fFamilies[0].get();
     }
 }
@@ -291,7 +291,7 @@ sk_sp<SkTypeface> SkFontMgr_Custom::onLegacyMakeTypeface(const char familyName[]
         tf.reset(this->onMatchFamilyStyle(familyName, style));
     }
 
-    if (nullptr == tf) {
+    if (nullptr == tf && fDefaultFamily) {
         tf.reset(fDefaultFamily->matchStyle(style));
     }
 

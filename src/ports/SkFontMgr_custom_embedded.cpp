@@ -12,7 +12,7 @@
 struct SkEmbeddedResource { const uint8_t* data; size_t size; };
 struct SkEmbeddedResourceHeader { const SkEmbeddedResource* entries; int count; };
 
-static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
+static int load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
                                 const uint8_t* data, size_t size, int index,
                                 SkFontMgr_Custom::Families* families);
 
@@ -23,18 +23,22 @@ public:
     void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
                          SkFontMgr_Custom::Families* families) const override
     {
-        for (int i = 0; i < fHeader->count; ++i) {
-            const SkEmbeddedResource& fontEntry = fHeader->entries[i];
-            load_font_from_data(scanner, fontEntry.data, fontEntry.size, i, families);
+        int loaded = 0;
+        if (fHeader) {
+            for (int i = 0; i < fHeader->count; ++i) {
+                const SkEmbeddedResource& fontEntry = fHeader->entries[i];
+                loaded += load_font_from_data(scanner, fontEntry.data, fontEntry.size, i, families);
+            }
         }
 
-        if (families->empty()) {
+        if (families->empty() && loaded) {
             SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
             families->push_back().reset(family);
             family->appendTypeface(sk_make_sp<SkTypeface_Empty>());
         }
     }
 
+private:
     const SkEmbeddedResourceHeader* fHeader;
 };
 
@@ -45,17 +49,19 @@ public:
     void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
                          SkFontMgr_Custom::Families* families) const override
     {
+        int loaded = 0;
         for (int i = 0; i < fNum; ++i) {
-            load_font_from_data(scanner, fDatas[i], fSizes[i], i, families);
+            loaded += load_font_from_data(scanner, fDatas[i], fSizes[i], i, families);
         }
 
-        if (families->empty()) {
+        if (families->empty() && loaded) {
             SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
             families->push_back().reset(family);
             family->appendTypeface(sk_make_sp<SkTypeface_Empty>());
         }
     }
 
+private:
     const uint8_t** fDatas;
     const size_t* fSizes;
     const int fNum;
@@ -72,16 +78,21 @@ static SkFontStyleSet_Custom* find_family(SkFontMgr_Custom::Families& families,
     return nullptr;
 }
 
-static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
+static int load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
                                 const uint8_t* data, size_t size, int index,
                                 SkFontMgr_Custom::Families* families)
 {
+    if (!data || !size) {
+        SkDebugf("---- either because of data=%p or size=%d fail to open <%d> as a font\n", data, size, index);
+        return 0;
+    }
+
     auto stream = std::make_unique<SkMemoryStream>(data, size, false);
 
     int numFaces;
     if (!scanner.recognizedFont(stream.get(), &numFaces)) {
         SkDebugf("---- failed to open <%d> as a font\n", index);
-        return;
+        return 0;
     }
 
     for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex) {
@@ -92,7 +103,7 @@ static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
                               &realname, &style, &isFixedPitch, nullptr))
         {
             SkDebugf("---- failed to open <%d> <%d> as a font\n", index, faceIndex);
-            return;
+            return 0;
         }
 
         SkFontStyleSet_Custom* addTo = find_family(*families, realname.c_str());
@@ -105,6 +116,7 @@ static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
                                                             style, isFixedPitch,
                                                             true, realname));
     }
+    return (0 < numFaces) ? 1 : 0; // At least one is loaded
 }
 
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Embedded(const SkEmbeddedResourceHeader* header) {
