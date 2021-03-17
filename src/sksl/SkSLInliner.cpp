@@ -63,6 +63,11 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
             this->visitProgramElement(funcDef);
         }
 
+        bool visitExpression(const Expression& expr) override {
+            // Do not recurse into expressions.
+            return false;
+        }
+
         bool visitStatement(const Statement& stmt) override {
             switch (stmt.kind()) {
                 case Statement::Kind::kBlock: {
@@ -98,6 +103,11 @@ static int count_returns_in_continuable_constructs(const FunctionDefinition& fun
     public:
         CountReturnsInContinuableConstructs(const FunctionDefinition& funcDef) {
             this->visitProgramElement(funcDef);
+        }
+
+        bool visitExpression(const Expression& expr) override {
+            // Do not recurse into expressions.
+            return false;
         }
 
         bool visitStatement(const Statement& stmt) override {
@@ -190,6 +200,11 @@ class CountReturnsWithLimit : public ProgramVisitor {
 public:
     CountReturnsWithLimit(const FunctionDefinition& funcDef, int limit) : fLimit(limit) {
         this->visitProgramElement(funcDef);
+    }
+
+    bool visitExpression(const Expression& expr) override {
+        // Do not recurse into expressions.
+        return false;
     }
 
     bool visitStatement(const Statement& stmt) override {
