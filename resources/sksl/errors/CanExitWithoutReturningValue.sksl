@@ -1,4 +1,4 @@
-// Expect 17 errors
+// Expect 19 errors
 
 int variable = 0;
 uniform half mystery;
@@ -10,6 +10,10 @@ int return_on_else_but_not_if()     { if (variable == 1) variable *= 2; else ret
 int for_with_conditional_return()   { for (;;) { if (variable == 1) return 0; } }
 int for_with_conditional_break()    { for (;;) { if (variable == 1) break; return 0; } }
 int for_with_conditional_continue() { for (;;) { if (variable == 1) continue; return 0; } }
+
+bool do_with_conditional_return()   { do { if (mystery == 1) return true; } while(true); }
+bool do_with_conditional_break()    { do { if (mystery == 1) break; return true; } while(true); }
+bool do_with_conditional_continue() { do { if (mystery == 1) continue; return true; } while(true); }
 
 bool bad_if_else_chain() {
     if (mystery == 1)
@@ -24,11 +28,6 @@ bool bad_if_else_chain() {
         return true;
 }
 
-bool conditional_inside_do_loop() {
-    do {
-        if (mystery == 123) return true;
-    } while (true);
-}
 
 int switch_empty() {
     switch (variable) {}
