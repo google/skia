@@ -2087,6 +2087,12 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
     // not effect what we do here.
     if (!proxies.empty() && (access == SkSurface::BackendSurfaceAccess::kPresent || newState)) {
+        // We currently don't support passing in new surface state for multiple proxies here. The
+        // only time we have multiple proxies is if we are flushing a yuv SkImage which won't have
+        // state updates anyways. Additionally if we have a newState than we must not have any
+        // BackendSurfaceAccess.
+        SkASSERT(!newState || proxies.count() == 1);
+        SkASSERT(!newState || access == SkSurface::BackendSurfaceAccess::kNoAccess);
         GrVkImage* image;
         for (GrSurfaceProxy* proxy : proxies) {
             SkASSERT(proxy->isInstantiated());
@@ -2101,8 +2107,10 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
             if (newState) {
                 const GrVkSharedImageInfo& newInfo = newState->fVkState;
                 set_layout_and_queue_from_mutable_state(this, image, newInfo);
+            } else {
+                SkASSERT(access == SkSurface::BackendSurfaceAccess::kPresent);
+                image->prepareForPresent(this);
             }
-            image->prepareForPresent(this);
         }
     }
 }
