@@ -1,11 +1,12 @@
-void foo(out half x) {
+half foo(half x) {
     ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
     --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
     x = 42;
+    return x;
 }
 
 half bar(half y) {
-    foo(y);
+    y = foo(y);
     return y;
 }
 
