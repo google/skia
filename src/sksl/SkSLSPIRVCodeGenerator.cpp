@@ -1119,7 +1119,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
         if (is_out(*function.parameters()[i])) {
             std::unique_ptr<LValue> lv = this->getLValue(*arguments[i], out);
             SpvId ptr = lv->getPointer();
-            if (ptr != (SpvId) -1) {
+            if (ptr != (SpvId) -1 && lv->isMemoryObjectPointer()) {
                 argumentIds.push_back(ptr);
                 continue;
             } else {
@@ -1760,15 +1760,20 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
 
 class PointerLValue : public SPIRVCodeGenerator::LValue {
 public:
-    PointerLValue(SPIRVCodeGenerator& gen, SpvId pointer, SpvId type,
+    PointerLValue(SPIRVCodeGenerator& gen, SpvId pointer, bool isMemoryObject, SpvId type,
                   SPIRVCodeGenerator::Precision precision)
     : fGen(gen)
     , fPointer(pointer)
+    , fIsMemoryObject(isMemoryObject)
     , fType(type)
     , fPrecision(precision) {}
 
     SpvId getPointer() override {
         return fPointer;
+    }
+
+    bool isMemoryObjectPointer() const override {
+        return fIsMemoryObject;
     }
 
     SpvId load(OutputStream& out) override {
@@ -1785,6 +1790,7 @@ public:
 private:
     SPIRVCodeGenerator& fGen;
     const SpvId fPointer;
+    const bool fIsMemoryObject;
     const SpvId fType;
     const SPIRVCodeGenerator::Precision fPrecision;
 };
@@ -1900,8 +1906,9 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 SpvId uniformIdxId = this->writeIntLiteral(uniformIdxLiteral);
                 this->writeInstruction(SpvOpAccessChain, typeId, memberId, fUniformBufferId,
                                        uniformIdxId, out);
-                return std::make_unique<PointerLValue>(*this, memberId, this->getType(type),
-                                                       precision);
+                return std::make_unique<PointerLValue>(*this, memberId,
+                                                       /*isMemoryObjectPointer=*/true,
+                                                       this->getType(type), precision);
             }
             SpvId typeId;
             if (var.modifiers().fLayout.fBuiltin == SK_IN_BUILTIN) {
@@ -1912,7 +1919,9 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             }
             auto entry = fVariableMap.find(&var);
             SkASSERT(entry != fVariableMap.end());
-            return std::make_unique<PointerLValue>(*this, entry->second, typeId, precision);
+            return std::make_unique<PointerLValue>(*this, entry->second,
+                                                   /*isMemoryObjectPointer=*/true,
+                                                   typeId, precision);
         }
         case Expression::Kind::kIndex: // fall through
         case Expression::Kind::kFieldAccess: {
@@ -1924,7 +1933,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             for (SpvId idx : chain) {
                 this->writeWord(idx, out);
             }
-            return std::make_unique<PointerLValue>(*this, member, this->getType(type), precision);
+            return std::make_unique<PointerLValue>(*this, member, /*isMemoryObjectPointer=*/false,
+                                                   this->getType(type), precision);
         }
         case Expression::Kind::kSwizzle: {
             const Swizzle& swizzle = expr.as<Swizzle>();
@@ -1943,7 +1953,10 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                  fContext.fTypes.fInt.get());
                 SpvId indexId = this->writeIntLiteral(index);
                 this->writeInstruction(SpvOpAccessChain, typeId, member, base, indexId, out);
-                return std::make_unique<PointerLValue>(*this, member, this->getType(type),
+                return std::make_unique<PointerLValue>(*this,
+                                                       member,
+                                                       /*isMemoryObjectPointer=*/false,
+                                                       this->getType(type),
                                                        precision);
             } else {
                 return std::make_unique<SwizzleLValue>(*this, base, swizzle.components(),
@@ -1960,7 +1973,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             this->writeInstruction(SpvOpVariable, pointerType, result, SpvStorageClassFunction,
                                    fVariableBuffer);
             this->writeInstruction(SpvOpStore, result, this->writeExpression(expr, out), out);
-            return std::make_unique<PointerLValue>(*this, result, this->getType(type), precision);
+            return std::make_unique<PointerLValue>(*this, result, /*isMemoryObjectPointer=*/true,
+                                                   this->getType(type), precision);
         }
     }
 }
