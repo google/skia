@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83152534_8463d1f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-17T13:58:42Z",
+      "side": 1,
+      "message": "I like this. It also ties in with another change I\u0027d like to make: Easier testing for fragmentProcessor types (which is a special case that\u0027s tested in many places). I think that fp is the *only* kOther type now (or sk_Caps might be, too?). In any case, I have some ideas about making the runtime-effect version of fp actually called \"shader\" (and not be an alias to fragmentProcessor). And there\u0027s a chance we want two \"callable skia\" types in runtime effects (shader vs. color_filter).\n\nSo, how about we add another type-kind for \"SkiaCallable\" (better name?) that is currently just fragmentProcessor, and then we can update the various tests for fFragmentProcessor (or places that even do `name \u003d\u003d \"fragmentProcessor\"`).",
+      "revId": "883c87fc053a3b07e7675b36d591494aa9c07262",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
