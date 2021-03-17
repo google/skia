@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91696c90_eb5bb3ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-17T18:14:36Z",
+      "side": 1,
+      "message": "Only meaningful diff from the original version is respecting ForceHighPrecision in Vulkan.",
+      "revId": "6df167c037852fe4aa3e0d68d4fca8c4896e422c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
