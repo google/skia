@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5289844_4aac2157",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-17T19:34:07Z",
+      "side": 1,
+      "message": "Removed the dead code (again?!?)",
+      "revId": "f7db63a370f4d4dcdb1199f1c912f1955a8566b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
