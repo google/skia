@@ -184,6 +184,7 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
 
     // TODO: remove this reliance on the renderTarget
     bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+    SkASSERT(!programInfo.isStencilEnabled() || hasDepthStencil);
 
     b.add32(static_cast<uint32_t>(format));
     b.add32(static_cast<int32_t>(hasDepthStencil));

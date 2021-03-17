@@ -877,6 +877,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
 
     wgpu::TextureFormat stencilFormat = wgpu::TextureFormat::Depth24PlusStencil8;
     bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+    SkASSERT(!programInfo.isStencilEnabled() || hasDepthStencil);
 
     sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
         this, rt, programInfo, colorFormat,
