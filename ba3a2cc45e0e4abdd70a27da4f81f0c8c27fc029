@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b226cb60_8dafd20b",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-17T21:29:41Z",
+      "side": 1,
+      "message": "For later - but, is this comment still correct ? i.e. can we still pull uniquely keyed surfaces out of the resource cache?",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 48
+      },
+      "revId": "ba3a2cc45e0e4abdd70a27da4f81f0c8c27fc029",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c746e26_131d4a9b",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-17T21:29:41Z",
+      "side": 1,
+      "message": "// Resolve the register allocation to an actual GrSurface. \u0027fOriginatingProxy\u0027\n// is used to cache the allocation when a given register is used by multiple\n// proxies.",
+      "revId": "ba3a2cc45e0e4abdd70a27da4f81f0c8c27fc029",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
