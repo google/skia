@@ -11,10 +11,8 @@ OpMemberName %Test 0 "x"
 OpMemberName %Test 1 "y"
 OpMemberName %Test 2 "z"
 OpName %t "t"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %Test 0 Offset 0
 OpMemberDecorate %Test 1 Offset 4

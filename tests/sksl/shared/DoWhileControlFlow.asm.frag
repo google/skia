@@ -8,20 +8,9 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %_entrypoint "_entrypoint"
 OpName %main "main"
 OpName %x "x"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %30 RelaxedPrecision
-OpDecorate %32 RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
-OpDecorate %50 RelaxedPrecision
-OpDecorate %51 RelaxedPrecision
-OpDecorate %58 RelaxedPrecision
-OpDecorate %61 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

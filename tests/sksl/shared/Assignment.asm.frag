@@ -26,12 +26,9 @@ OpName %ah2x4 "ah2x4"
 OpName %af4 "af4"
 OpName %s "s"
 OpName %l "l"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %globalVar RelaxedPrecision
 OpDecorate %_arr_float_int_5 ArrayStride 16
 OpDecorate %_arr_v4float_int_5 ArrayStride 16
 OpMemberDecorate %S 0 Offset 0
@@ -40,29 +37,15 @@ OpMemberDecorate %S 2 Offset 96
 OpMemberDecorate %S 2 RelaxedPrecision
 OpMemberDecorate %S 3 Offset 112
 OpMemberDecorate %S 3 RelaxedPrecision
-OpDecorate %globalStruct RelaxedPrecision
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %19 Binding 0
 OpDecorate %19 DescriptorSet 0
-OpDecorate %65 RelaxedPrecision
 OpDecorate %_arr_int_int_1 ArrayStride 16
 OpDecorate %_arr_v4int_int_1 ArrayStride 16
 OpDecorate %_arr_mat3v3float_int_1 ArrayStride 48
-OpDecorate %78 RelaxedPrecision
-OpDecorate %79 RelaxedPrecision
-OpDecorate %80 RelaxedPrecision
-OpDecorate %77 RelaxedPrecision
 OpDecorate %_arr_v4float_int_1 ArrayStride 16
-OpDecorate %98 RelaxedPrecision
-OpDecorate %102 RelaxedPrecision
-OpDecorate %122 RelaxedPrecision
-OpDecorate %130 RelaxedPrecision
-OpDecorate %131 RelaxedPrecision
-OpDecorate %132 RelaxedPrecision
-OpDecorate %135 RelaxedPrecision
-OpDecorate %139 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

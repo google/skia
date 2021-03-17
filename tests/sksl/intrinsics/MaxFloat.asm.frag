@@ -13,10 +13,8 @@ OpName %_entrypoint "_entrypoint"
 OpName %main "main"
 OpName %expectedA "expectedA"
 OpName %expectedB "expectedB"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -27,32 +25,6 @@ OpMemberDecorate %_UniformBuffer 2 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %36 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %45 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
-OpDecorate %59 RelaxedPrecision
-OpDecorate %62 RelaxedPrecision
-OpDecorate %63 RelaxedPrecision
-OpDecorate %73 RelaxedPrecision
-OpDecorate %74 RelaxedPrecision
-OpDecorate %75 RelaxedPrecision
-OpDecorate %84 RelaxedPrecision
-OpDecorate %88 RelaxedPrecision
-OpDecorate %90 RelaxedPrecision
-OpDecorate %98 RelaxedPrecision
-OpDecorate %101 RelaxedPrecision
-OpDecorate %103 RelaxedPrecision
-OpDecorate %112 RelaxedPrecision
-OpDecorate %115 RelaxedPrecision
-OpDecorate %117 RelaxedPrecision
-OpDecorate %126 RelaxedPrecision
-OpDecorate %128 RelaxedPrecision
-OpDecorate %129 RelaxedPrecision
-OpDecorate %138 RelaxedPrecision
-OpDecorate %141 RelaxedPrecision
-OpDecorate %142 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

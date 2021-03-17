@@ -9,10 +9,8 @@ OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "src"
 OpMemberName %_UniformBuffer 1 "dst"
 OpName %main "main"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -21,23 +19,6 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %21 RelaxedPrecision
-OpDecorate %23 RelaxedPrecision
-OpDecorate %26 RelaxedPrecision
-OpDecorate %31 RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
-OpDecorate %35 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %40 RelaxedPrecision
-OpDecorate %43 RelaxedPrecision
-OpDecorate %45 RelaxedPrecision
-OpDecorate %46 RelaxedPrecision
-OpDecorate %51 RelaxedPrecision
-OpDecorate %54 RelaxedPrecision
-OpDecorate %56 RelaxedPrecision
-OpDecorate %58 RelaxedPrecision
-OpDecorate %60 RelaxedPrecision
-OpDecorate %61 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

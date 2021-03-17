@@ -15,10 +15,8 @@ OpName %_entrypoint "_entrypoint"
 OpName %main "main"
 OpName %expectedBW "expectedBW"
 OpName %expectedWT "expectedWT"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -33,48 +31,6 @@ OpMemberDecorate %_UniformBuffer 4 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %34 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
-OpDecorate %50 RelaxedPrecision
-OpDecorate %52 RelaxedPrecision
-OpDecorate %62 RelaxedPrecision
-OpDecorate %64 RelaxedPrecision
-OpDecorate %65 RelaxedPrecision
-OpDecorate %74 RelaxedPrecision
-OpDecorate %76 RelaxedPrecision
-OpDecorate %77 RelaxedPrecision
-OpDecorate %87 RelaxedPrecision
-OpDecorate %91 RelaxedPrecision
-OpDecorate %93 RelaxedPrecision
-OpDecorate %101 RelaxedPrecision
-OpDecorate %105 RelaxedPrecision
-OpDecorate %107 RelaxedPrecision
-OpDecorate %108 RelaxedPrecision
-OpDecorate %118 RelaxedPrecision
-OpDecorate %122 RelaxedPrecision
-OpDecorate %124 RelaxedPrecision
-OpDecorate %125 RelaxedPrecision
-OpDecorate %135 RelaxedPrecision
-OpDecorate %137 RelaxedPrecision
-OpDecorate %138 RelaxedPrecision
-OpDecorate %139 RelaxedPrecision
-OpDecorate %147 RelaxedPrecision
-OpDecorate %151 RelaxedPrecision
-OpDecorate %153 RelaxedPrecision
-OpDecorate %161 RelaxedPrecision
-OpDecorate %164 RelaxedPrecision
-OpDecorate %167 RelaxedPrecision
-OpDecorate %176 RelaxedPrecision
-OpDecorate %179 RelaxedPrecision
-OpDecorate %182 RelaxedPrecision
-OpDecorate %191 RelaxedPrecision
-OpDecorate %193 RelaxedPrecision
-OpDecorate %195 RelaxedPrecision
-OpDecorate %204 RelaxedPrecision
-OpDecorate %206 RelaxedPrecision
-OpDecorate %207 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

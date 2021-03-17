@@ -12,10 +12,8 @@ OpName %_color_burn_component "_color_burn_component"
 OpName %_1_n "_1_n"
 OpName %delta "delta"
 OpName %main "main"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -24,61 +22,6 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %11 Binding 0
 OpDecorate %11 DescriptorSet 0
-OpDecorate %20 RelaxedPrecision
-OpDecorate %22 RelaxedPrecision
-OpDecorate %28 RelaxedPrecision
-OpDecorate %30 RelaxedPrecision
-OpDecorate %32 RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
-OpDecorate %40 RelaxedPrecision
-OpDecorate %41 RelaxedPrecision
-OpDecorate %43 RelaxedPrecision
-OpDecorate %45 RelaxedPrecision
-OpDecorate %46 RelaxedPrecision
-OpDecorate %47 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
-OpDecorate %55 RelaxedPrecision
-OpDecorate %57 RelaxedPrecision
-OpDecorate %59 RelaxedPrecision
-OpDecorate %60 RelaxedPrecision
-OpDecorate %63 RelaxedPrecision
-OpDecorate %65 RelaxedPrecision
-OpDecorate %67 RelaxedPrecision
-OpDecorate %68 RelaxedPrecision
-OpDecorate %70 RelaxedPrecision
-OpDecorate %73 RelaxedPrecision
-OpDecorate %75 RelaxedPrecision
-OpDecorate %76 RelaxedPrecision
-OpDecorate %78 RelaxedPrecision
-OpDecorate %79 RelaxedPrecision
-OpDecorate %80 RelaxedPrecision
-OpDecorate %81 RelaxedPrecision
-OpDecorate %83 RelaxedPrecision
-OpDecorate %84 RelaxedPrecision
-OpDecorate %86 RelaxedPrecision
-OpDecorate %88 RelaxedPrecision
-OpDecorate %89 RelaxedPrecision
-OpDecorate %90 RelaxedPrecision
-OpDecorate %91 RelaxedPrecision
-OpDecorate %93 RelaxedPrecision
-OpDecorate %95 RelaxedPrecision
-OpDecorate %96 RelaxedPrecision
-OpDecorate %97 RelaxedPrecision
-OpDecorate %105 RelaxedPrecision
-OpDecorate %110 RelaxedPrecision
-OpDecorate %115 RelaxedPrecision
-OpDecorate %119 RelaxedPrecision
-OpDecorate %124 RelaxedPrecision
-OpDecorate %128 RelaxedPrecision
-OpDecorate %133 RelaxedPrecision
-OpDecorate %136 RelaxedPrecision
-OpDecorate %138 RelaxedPrecision
-OpDecorate %140 RelaxedPrecision
-OpDecorate %142 RelaxedPrecision
-OpDecorate %143 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

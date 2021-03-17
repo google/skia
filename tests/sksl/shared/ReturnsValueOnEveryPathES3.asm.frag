@@ -34,10 +34,8 @@ OpName %x_3 "x"
 OpName %switch_with_if_that_returns "switch_with_if_that_returns"
 OpName %switch_with_one_sided_if_then_fallthrough "switch_with_one_sided_if_then_fallthrough"
 OpName %main "main"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -48,26 +46,6 @@ OpMemberDecorate %_UniformBuffer 2 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %28 Binding 0
 OpDecorate %28 DescriptorSet 0
-OpDecorate %42 RelaxedPrecision
-OpDecorate %85 RelaxedPrecision
-OpDecorate %94 RelaxedPrecision
-OpDecorate %100 RelaxedPrecision
-OpDecorate %108 RelaxedPrecision
-OpDecorate %115 RelaxedPrecision
-OpDecorate %128 RelaxedPrecision
-OpDecorate %157 RelaxedPrecision
-OpDecorate %165 RelaxedPrecision
-OpDecorate %171 RelaxedPrecision
-OpDecorate %179 RelaxedPrecision
-OpDecorate %187 RelaxedPrecision
-OpDecorate %204 RelaxedPrecision
-OpDecorate %221 RelaxedPrecision
-OpDecorate %227 RelaxedPrecision
-OpDecorate %234 RelaxedPrecision
-OpDecorate %240 RelaxedPrecision
-OpDecorate %325 RelaxedPrecision
-OpDecorate %327 RelaxedPrecision
-OpDecorate %328 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

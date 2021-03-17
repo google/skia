@@ -19,10 +19,8 @@ OpName %for_with_double_sided_conditional_return "for_with_double_sided_conditio
 OpName %x_1 "x"
 OpName %if_else_chain "if_else_chain"
 OpName %main "main"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -33,15 +31,6 @@ OpMemberDecorate %_UniformBuffer 2 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %15 Binding 0
 OpDecorate %15 DescriptorSet 0
-OpDecorate %29 RelaxedPrecision
-OpDecorate %72 RelaxedPrecision
-OpDecorate %81 RelaxedPrecision
-OpDecorate %87 RelaxedPrecision
-OpDecorate %95 RelaxedPrecision
-OpDecorate %102 RelaxedPrecision
-OpDecorate %137 RelaxedPrecision
-OpDecorate %139 RelaxedPrecision
-OpDecorate %140 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

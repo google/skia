@@ -11,10 +11,8 @@ OpMemberName %_UniformBuffer 1 "dst"
 OpName %_blend_overlay_component "_blend_overlay_component"
 OpName %main "main"
 OpName %_0_result "_0_result"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -23,50 +21,6 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %11 Binding 0
 OpDecorate %11 DescriptorSet 0
-OpDecorate %21 RelaxedPrecision
-OpDecorate %23 RelaxedPrecision
-OpDecorate %24 RelaxedPrecision
-OpDecorate %32 RelaxedPrecision
-OpDecorate %34 RelaxedPrecision
-OpDecorate %35 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %40 RelaxedPrecision
-OpDecorate %42 RelaxedPrecision
-OpDecorate %43 RelaxedPrecision
-OpDecorate %45 RelaxedPrecision
-OpDecorate %47 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
-OpDecorate %51 RelaxedPrecision
-OpDecorate %53 RelaxedPrecision
-OpDecorate %54 RelaxedPrecision
-OpDecorate %55 RelaxedPrecision
-OpDecorate %56 RelaxedPrecision
-OpDecorate %66 RelaxedPrecision
-OpDecorate %71 RelaxedPrecision
-OpDecorate %76 RelaxedPrecision
-OpDecorate %80 RelaxedPrecision
-OpDecorate %85 RelaxedPrecision
-OpDecorate %89 RelaxedPrecision
-OpDecorate %94 RelaxedPrecision
-OpDecorate %98 RelaxedPrecision
-OpDecorate %100 RelaxedPrecision
-OpDecorate %102 RelaxedPrecision
-OpDecorate %104 RelaxedPrecision
-OpDecorate %105 RelaxedPrecision
-OpDecorate %107 RelaxedPrecision
-OpDecorate %108 RelaxedPrecision
-OpDecorate %111 RelaxedPrecision
-OpDecorate %114 RelaxedPrecision
-OpDecorate %116 RelaxedPrecision
-OpDecorate %119 RelaxedPrecision
-OpDecorate %122 RelaxedPrecision
-OpDecorate %124 RelaxedPrecision
-OpDecorate %126 RelaxedPrecision
-OpDecorate %127 RelaxedPrecision
-OpDecorate %129 RelaxedPrecision
-OpDecorate %130 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

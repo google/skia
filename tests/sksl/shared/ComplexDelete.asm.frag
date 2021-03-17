@@ -10,12 +10,9 @@ OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "colorXform"
 OpName %main "main"
 OpName %tmpColor "tmpColor"
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %s RelaxedPrecision
 OpDecorate %s Binding 0
 OpDecorate %s DescriptorSet 0
 OpMemberDecorate %_UniformBuffer 0 DescriptorSet 0
@@ -25,7 +22,6 @@ OpMemberDecorate %_UniformBuffer 0 MatrixStride 16
 OpDecorate %_UniformBuffer Block
 OpDecorate %14 Binding 0
 OpDecorate %14 DescriptorSet 0
-OpDecorate %24 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

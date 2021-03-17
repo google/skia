@@ -20,15 +20,9 @@ OpMemberDecorate %testBlock 1 RelaxedPrecision
 OpDecorate %testBlock Block
 OpDecorate %3 Binding 456
 OpDecorate %3 DescriptorSet 0
-OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %22 RelaxedPrecision
-OpDecorate %26 RelaxedPrecision
-OpDecorate %29 RelaxedPrecision
-OpDecorate %32 RelaxedPrecision
 %float = OpTypeFloat 32
 %v2float = OpTypeVector %float 2
 %mat2v2float = OpTypeMatrix %v2float 2
