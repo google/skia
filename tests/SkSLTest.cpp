@@ -151,7 +151,9 @@ SKSL_TEST(SkSLArrayTypes,                      "shared/ArrayTypes.sksl")
 SKSL_TEST(SkSLAssignment,                      "shared/Assignment.sksl")
 SKSL_TEST(SkSLCastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
 SKSL_TEST(SkSLCommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
-SKSL_TEST(SkSLCommaSideEffects,                "shared/CommaSideEffects.sksl")
+// This test causes the Adreno 330 driver to crash, and does not pass on Quadro P400 in wasm.
+// The CPU test confirms that we can get it right, even if not all drivers do.
+SKSL_TEST_CPU(SkSLCommaSideEffects,            "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLConstantIf,                      "shared/ConstantIf.sksl")
 SKSL_TEST(SkSLConstVariableComparison,         "shared/ConstVariableComparison.sksl")
 SKSL_TEST(SkSLDeadIfStatement,                 "shared/DeadIfStatement.sksl")
