@@ -51,7 +51,7 @@ static inline bool SkPixelGeometryIsV(SkPixelGeometry geo) {
 class SK_API SkSurfaceProps {
 public:
     enum Flags {
-        kUseDeviceIndependentFonts_Flag = 1 << 0,
+        kUseDeviceIndependentFonts_Flag =  1 << 0,
     };
     /** Deprecated alias used by Chromium. Will be removed. */
     static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;
