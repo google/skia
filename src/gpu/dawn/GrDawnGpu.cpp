@@ -876,11 +876,11 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     SkAssertResult(programInfo.backendFormat().asDawnFormat(&colorFormat));
 
     wgpu::TextureFormat stencilFormat = wgpu::TextureFormat::Depth24PlusStencil8;
-    bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+    bool needsDepthStencil = programInfo.isStencilEnabled();
 
-    sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
-        this, rt, programInfo, colorFormat,
-        hasDepthStencil, stencilFormat, &desc);
+    sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(this, rt, programInfo, colorFormat,
+                                                               needsDepthStencil, stencilFormat,
+                                                               &desc);
     fRenderPipelineCache.insert(desc, program);
     return program;
 }
