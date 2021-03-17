@@ -11,7 +11,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
@@ -50,16 +49,6 @@ public:
     }
     bool hasPointSize() const { return fProgramInfo.primitiveType() == GrPrimitiveType::kPoints; }
     virtual SkSL::Compiler* shaderCompiler() const = 0;
-
-    // TODO: stop passing in the renderTarget for just the sampleLocations
-    int effectiveSampleCnt() {
-        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
-        return fRenderTarget->getSampleLocations().count();
-    }
-    const SkTArray<SkPoint>& getSampleLocations() {
-        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
-        return fRenderTarget->getSampleLocations();
-    }
 
     const GrProgramDesc& desc() const { return fDesc; }
 
@@ -113,7 +102,6 @@ public:
 
     int fStageIndex;
 
-    GrRenderTarget*              fRenderTarget; // TODO: remove this
     const GrProgramDesc&         fDesc;
     const GrProgramInfo&         fProgramInfo;
 
@@ -124,7 +112,7 @@ public:
     std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
 
 protected:
-    explicit GrGLSLProgramBuilder(GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
+    explicit GrGLSLProgramBuilder(const GrProgramDesc&, const GrProgramInfo&);
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 

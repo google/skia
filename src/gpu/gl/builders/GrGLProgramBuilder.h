@@ -45,7 +45,6 @@ public:
      * @return the created program if generation was successful.
      */
     static sk_sp<GrGLProgram> CreateProgram(GrDirectContext*,
-                                            GrRenderTarget*,
                                             const GrProgramDesc&,
                                             const GrProgramInfo&,
                                             const GrGLPrecompiledProgram* = nullptr);
@@ -59,7 +58,7 @@ public:
     SkSL::Compiler* shaderCompiler() const override;
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
+    GrGLProgramBuilder(GrGLGpu*, const GrProgramDesc&, const GrProgramInfo&);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
     bool compileAndAttachShaders(const SkSL::String& glsl,

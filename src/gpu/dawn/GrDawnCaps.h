@@ -48,9 +48,7 @@ public:
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
 
-    GrProgramDesc makeDesc(GrRenderTarget*,
-                           const GrProgramInfo&,
-                           ProgramDescOverrideFlags) const override;
+    GrProgramDesc makeDesc(const GrProgramInfo&, ProgramDescOverrideFlags) const override;
 
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;

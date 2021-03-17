@@ -27,13 +27,6 @@ public:
         (void) fDummyPadding;
     }
 
-    /**
-     * Returns the variable name that holds the array of sample offsets from pixel center to each
-     * sample location. Before this is called, a processor must have advertised that it will use
-     * CustomFeatures::kSampleLocations.
-     */
-    virtual const char* sampleOffsets() = 0;
-
     enum class ScopeFlags {
         // Every fragment will always execute this code, and will do it exactly once.
         kTopLevel = 0,
@@ -55,20 +48,6 @@ public:
      * Requires MSAA and GLSL support for sample variables.
      */
     virtual void maskOffMultisampleCoverage(const char* mask, ScopeFlags) = 0;
-
-    /**
-     * Turns off coverage at each sample where the implicit function fn > 0.
-     *
-     * The provided "fn" value represents the implicit function at pixel center. We then approximate
-     * the implicit at each sample by riding the gradient, "grad", linearly from pixel center to
-     * each sample location.
-     *
-     * If "grad" is null, we approximate the gradient using HW derivatives.
-     *
-     * Requires MSAA and GLSL support for sample variables. Also requires HW derivatives if not
-     * providing a gradient.
-     */
-    virtual void applyFnToMultisampleMask(const char* fn, const char* grad, ScopeFlags) = 0;
 
     SkString writeProcessorFunction(GrGLSLFragmentProcessor*, GrGLSLFragmentProcessor::EmitArgs&);
 
@@ -127,9 +106,7 @@ public:
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
 
     // GrGLSLFPFragmentBuilder interface.
-    const char* sampleOffsets() override;
     void maskOffMultisampleCoverage(const char* mask, ScopeFlags) override;
-    void applyFnToMultisampleMask(const char* fn, const char* grad, ScopeFlags) override;
     void forceHighPrecision() override { fForceHighPrecision = true; }
 
     // GrGLSLXPFragmentBuilder interface.

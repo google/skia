@@ -75,7 +75,6 @@ struct GrDawnProgram : public SkRefCnt {
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {
 public:
     static sk_sp<GrDawnProgram> Build(GrDawnGpu*,
-                                      GrRenderTarget*,
                                       const GrProgramInfo&,
                                       wgpu::TextureFormat colorFormat,
                                       bool hasDepthStencil,
@@ -92,14 +91,13 @@ public:
 
 private:
     GrDawnProgramBuilder(GrDawnGpu*,
-                         GrRenderTarget*,
                          const GrProgramInfo&,
                          GrProgramDesc*);
     wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::ProgramKind,
                                           bool flipY, SkSL::Program::Inputs* inputs);
-    GrDawnGpu*             fGpu;
-    GrSPIRVVaryingHandler   fVaryingHandler;
-    GrSPIRVUniformHandler   fUniformHandler;
+    GrDawnGpu*            fGpu;
+    GrSPIRVVaryingHandler fVaryingHandler;
+    GrSPIRVUniformHandler fUniformHandler;
 
     using INHERITED = GrGLSLProgramBuilder;
 };

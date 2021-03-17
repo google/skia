@@ -251,23 +251,22 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
     return ycbcrConversion;
 }
 
-GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* renderTarget,
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineStateInline(
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
         bool overrideSubpassForResolveLoad) {
-    return fPipelineStateCache->findOrCreatePipelineState(renderTarget, programInfo,
-                                                          compatibleRenderPass,
-                                                          overrideSubpassForResolveLoad);
+    return fPipelineStateCache->findOrCreatePipelineStateInline(programInfo,
+                                                                compatibleRenderPass,
+                                                                overrideSubpassForResolveLoad);
 }
 
-GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineStatePre(
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
         GrThreadSafePipelineBuilder::Stats::ProgramCacheResult* stat) {
 
-    auto tmp =  fPipelineStateCache->findOrCreatePipelineState(desc, programInfo,
+    auto tmp =  fPipelineStateCache->findOrCreatePipelineStatePre(desc, programInfo,
                                                                compatibleRenderPass, stat);
     if (!tmp) {
         fPipelineStateCache->stats()->incNumPreCompilationFailures();

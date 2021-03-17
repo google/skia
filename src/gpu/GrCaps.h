@@ -461,7 +461,7 @@ public:
 
 
     virtual GrProgramDesc makeDesc(
-            GrRenderTarget*, const GrProgramInfo&,
+            const GrProgramInfo&,
             ProgramDescOverrideFlags overrideFlags = ProgramDescOverrideFlags::kNone) const = 0;
 
     // This method specifies, for each backend, the extra properties of a RT when Ganesh creates one

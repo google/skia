@@ -860,10 +860,8 @@ std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTex
     return nullptr;
 }
 
-sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
-        GrRenderTarget* rt,
-        const GrProgramInfo& programInfo) {
-    GrProgramDesc desc = this->caps()->makeDesc(rt, programInfo);
+sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(const GrProgramInfo& programInfo) {
+    GrProgramDesc desc = this->caps()->makeDesc(programInfo);
     if (!desc.isValid()) {
         return nullptr;
     }
@@ -876,10 +874,10 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     SkAssertResult(programInfo.backendFormat().asDawnFormat(&colorFormat));
 
     wgpu::TextureFormat stencilFormat = wgpu::TextureFormat::Depth24PlusStencil8;
-    bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+    bool hasDepthStencil = programInfo.isStencilEnabled();
 
     sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
-        this, rt, programInfo, colorFormat,
+        this, programInfo, colorFormat,
         hasDepthStencil, stencilFormat, &desc);
     fRenderPipelineCache.insert(desc, program);
     return program;

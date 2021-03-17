@@ -1817,8 +1817,8 @@ void GrGLGpu::disableWindowRectangles() {
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
     this->handleDirtyContext();
 
-    sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(this->getContext(),
-                                                                    renderTarget, programInfo);
+    sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgramInline(this->getContext(),
+                                                                          programInfo);
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -3688,12 +3688,10 @@ void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
 }
 
 bool GrGLGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
-    SkASSERT(!(GrProcessor::CustomFeatures::kSampleLocations & programInfo.requestedFeatures()));
-
     GrThreadSafePipelineBuilder::Stats::ProgramCacheResult stat;
 
-    sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(this->getContext(),
-                                                                desc, programInfo, &stat);
+    sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgramPre(this->getContext(),
+                                                                   desc, programInfo, &stat);
     if (!tmp) {
         return false;
     }
