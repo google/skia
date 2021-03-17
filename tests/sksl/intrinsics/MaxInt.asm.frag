@@ -18,7 +18,6 @@ OpName %expectedB "expectedB"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
@@ -30,7 +29,17 @@ OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %27 RelaxedPrecision
+OpDecorate %29 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
+OpDecorate %32 RelaxedPrecision
+OpDecorate %34 RelaxedPrecision
+OpDecorate %36 RelaxedPrecision
 OpDecorate %42 RelaxedPrecision
+OpDecorate %43 RelaxedPrecision
+OpDecorate %44 RelaxedPrecision
+OpDecorate %46 RelaxedPrecision
+OpDecorate %48 RelaxedPrecision
+OpDecorate %50 RelaxedPrecision
 OpDecorate %154 RelaxedPrecision
 OpDecorate %157 RelaxedPrecision
 OpDecorate %158 RelaxedPrecision

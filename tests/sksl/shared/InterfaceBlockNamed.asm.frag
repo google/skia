@@ -15,8 +15,8 @@ OpDecorate %3 DescriptorSet 0
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
+OpDecorate %21 RelaxedPrecision
 %float = OpTypeFloat 32
 %testBlock = OpTypeStruct %float
 %_ptr_Uniform_testBlock = OpTypePointer Uniform %testBlock

@@ -14,11 +14,11 @@ OpName %t "t"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %Test 0 Offset 0
 OpMemberDecorate %Test 1 Offset 4
 OpMemberDecorate %Test 2 Offset 8
+OpDecorate %22 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
