@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "76c03c52_df479b85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-17T21:17:48Z",
+      "side": 1,
+      "message": "- Added D3D events\n- Put up https://chromium-review.googlesource.com/c/chromium/src/+/2770238 to disable things in chromium by default. (The second hit is in the perfetto repo, which appears to just have a snapshot of chrome\u0027s disabled-by-default from m81).",
+      "parentUuid": "0167c251_cb00b773",
+      "revId": "a5ed297a1f46e90f66dc2b4c2fee31cae6ec044e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75ab8285_1c9b4626",
@@ -95,6 +113,30 @@
       "side": 1,
       "message": "Oops, yes. At first I thought this was the cheap one, then I looked later in GrVkPipeline, and missed that it was making an API call, and figured the work had already happened. I\u0027ll move this.",
       "parentUuid": "15ff5eac_c12831e8",
+      "range": {
+        "startLine": 339,
+        "startChar": 38,
+        "endLine": 339,
+        "endChar": 59
+      },
+      "revId": "a5ed297a1f46e90f66dc2b4c2fee31cae6ec044e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4337b1c3_3f7cf5b8",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-17T21:17:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1ff6094_a847b3da",
       "range": {
         "startLine": 339,
         "startChar": 38,
