@@ -204,6 +204,7 @@ private:
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
+    friend class GrVkPipelineStateBuilder;
 };
 
 #endif
