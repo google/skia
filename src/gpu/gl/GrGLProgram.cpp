@@ -26,7 +26,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrGLProgram> GrGLProgram::Make(
-        GrGLGpu* gpu,
+//        GrGLGpu* gpu,
+        const GrGLInterface *glInterface,
         const GrGLSLBuiltinUniformHandles& builtinUniforms,
         GrGLuint programID,
         const UniformInfoArray& uniforms,
@@ -40,7 +41,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
         int instanceAttributeCnt,
         int vertexStride,
         int instanceStride) {
-    sk_sp<GrGLProgram> program(new GrGLProgram(gpu,
+    sk_sp<GrGLProgram> program(new GrGLProgram(//gpu,
                                                builtinUniforms,
                                                programID,
                                                uniforms,
@@ -55,26 +56,26 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
                                                vertexStride,
                                                instanceStride));
     // Assign texture units to sampler uniforms one time up front.
-    gpu->flushProgram(program);
-    program->fProgramDataManager.setSamplerUniforms(textureSamplers, 0);
+//    gpu->flushProgram(program);
+    program->fProgramDataManager.setSamplerUniforms(glInterface, textureSamplers, 0);
     return program;
 }
 
 GrGLProgram::GrGLProgram(
-        GrGLGpu* gpu,
-        const GrGLSLBuiltinUniformHandles& builtinUniforms,
-        GrGLuint programID,
-        const UniformInfoArray& uniforms,
-        const UniformInfoArray& textureSamplers,
-        const VaryingInfoArray& pathProcVaryings,
-        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-        std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
-        std::unique_ptr<Attribute[]> attributes,
-        int vertexAttributeCnt,
-        int instanceAttributeCnt,
-        int vertexStride,
-        int instanceStride)
+    //        GrGLGpu* gpu,
+            const GrGLSLBuiltinUniformHandles& builtinUniforms,
+            GrGLuint programID,
+            const UniformInfoArray& uniforms,
+            const UniformInfoArray& textureSamplers,
+            const VaryingInfoArray& pathProcVaryings,
+            std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+            std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+            std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
+            std::unique_ptr<Attribute[]> attributes,
+            int vertexAttributeCnt,
+            int instanceAttributeCnt,
+            int vertexStride,
+            int instanceStride)
         : fBuiltinUniformHandles(builtinUniforms)
         , fProgramID(programID)
         , fPrimitiveProcessor(std::move(geometryProcessor))
@@ -85,15 +86,15 @@ GrGLProgram::GrGLProgram(
         , fInstanceAttributeCnt(instanceAttributeCnt)
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride)
-        , fGpu(gpu)
-        , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
+//        , fGpu(gpu)
+        , fProgramDataManager(/*gpu,*/ programID, uniforms, pathProcVaryings)
         , fNumTextureSamplers(textureSamplers.count()) {
 }
 
 GrGLProgram::~GrGLProgram() {
-    if (fProgramID) {
-        GL_CALL(DeleteProgram(fProgramID));
-    }
+//    if (fProgramID) {
+//        GL_CALL(DeleteProgram(fProgramID));
+//    }
 }
 
 void GrGLProgram::abandon() {
@@ -102,8 +103,11 @@ void GrGLProgram::abandon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
+void GrGLProgram::updateUniforms(const GrGLInterface* glInterface,
+                                 const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
+    fProgramDataManager.set(glInterface);
+
     this->setRenderTargetState(renderTarget, programInfo.origin(), programInfo.primProc());
 
     // we set the uniforms for installed processors in a generic way, but subclasses of GLProgram
@@ -126,16 +130,19 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
 
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
+
+    fProgramDataManager.set(nullptr);
 }
 
-void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc,
+void GrGLProgram::bindTextures(GrGLGpu* gpu,
+                               const GrPrimitiveProcessor& primProc,
                                const GrSurfaceProxy* const primProcTextures[],
                                const GrPipeline& pipeline) {
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         SkASSERT(primProcTextures[i]->asTextureProxy());
         auto* overrideTexture = static_cast<GrGLTexture*>(primProcTextures[i]->peekTexture());
-        fGpu->bindTexture(i, primProc.textureSampler(i).samplerState(),
-                          primProc.textureSampler(i).swizzle(), overrideTexture);
+        gpu->bindTexture(i, primProc.textureSampler(i).samplerState(),
+                         primProc.textureSampler(i).swizzle(), overrideTexture);
     }
     int nextTexSamplerIdx = primProc.numTextureSamplers();
 
@@ -143,20 +150,22 @@ void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc,
         GrSamplerState samplerState = te.samplerState();
         GrSwizzle swizzle = te.view().swizzle();
         auto* texture = static_cast<GrGLTexture*>(te.texture());
-        fGpu->bindTexture(nextTexSamplerIdx++, samplerState, swizzle, texture);
+        gpu->bindTexture(nextTexSamplerIdx++, samplerState, swizzle, texture);
     });
 
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
     if (dstTexture) {
-        fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::Filter::kNearest,
-                          pipeline.dstProxyView().swizzle(), static_cast<GrGLTexture*>(dstTexture));
+        gpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::Filter::kNearest,
+                         pipeline.dstProxyView().swizzle(), static_cast<GrGLTexture*>(dstTexture));
     }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
 }
 
-void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin,
+void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
+                                       GrSurfaceOrigin origin,
                                        const GrPrimitiveProcessor& primProc) {
+
     // Load the RT size uniforms if they are needed
     if (fBuiltinUniformHandles.fRTWidthUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fWidth != rt->width()) {
@@ -180,8 +189,8 @@ void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin
             fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
         }
     } else {
-        SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
+//        SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(), dimensions, origin);
+//        fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(), dimensions, origin);
     }
 }

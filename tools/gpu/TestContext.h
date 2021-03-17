@@ -18,6 +18,7 @@
 
 class GrDirectContext;
 struct GrContextOptions;
+class GrContextThreadSafeProxy;
 
 namespace sk_gpu_test {
 
@@ -63,6 +64,7 @@ public:
     virtual GrBackendApi backend() = 0;
 
     virtual sk_sp<GrDirectContext> makeContext(const GrContextOptions&);
+    virtual sk_sp<GrDirectContext> makeContext(sk_sp<GrContextThreadSafeProxy>);
 
     /**
      * This will flush work to the GPU. Additionally, if the platform supports fence syncs, we will

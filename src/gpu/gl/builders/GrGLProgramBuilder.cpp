@@ -561,7 +561,8 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, boo
 }
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return GrGLProgram::Make(fGpu,
+    return GrGLProgram::Make(//fGpu,
+                             fGpu->glInterface(),
                              fUniformHandles,
                              programID,
                              fUniformHandler.fUniforms,
