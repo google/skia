@@ -16,6 +16,29 @@
       "message": "Does this need to be updated?\n\nhttps://source.chromium.org/search?q\u003dskia%5C.gpu%20-filepath:third_party%2Fskia\u0026sq\u003d\u0026ss\u003dchromium\n\nShould we go ahead and do D3D now too?",
       "revId": "a5ed297a1f46e90f66dc2b4c2fee31cae6ec044e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15ff5eac_c12831e8",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-17T20:54:34Z",
+      "side": 1,
+      "message": "this is a relatively cheap function. Is there a reason you wanted to add a trace here?\n\nWere you possibly looking for the creation of the VkPipeline in GrVkPipeline?",
+      "range": {
+        "startLine": 339,
+        "startChar": 38,
+        "endLine": 339,
+        "endChar": 59
+      },
+      "revId": "a5ed297a1f46e90f66dc2b4c2fee31cae6ec044e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
