@@ -570,8 +570,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
         draw_shape_with_mask_filter(context, surfaceDrawContext, clip, std::move(grPaint),
                                     viewMatrix, mf, shape);
     } else {
-        GrAA aa = GrAA(paint.isAntiAlias());
-        surfaceDrawContext->drawShape(clip, std::move(grPaint), aa, viewMatrix,
-                                      GrStyledShape(shape));
+        surfaceDrawContext->drawShape(clip, std::move(grPaint), context->priv().chooseAA(paint),
+                                      viewMatrix, GrStyledShape(shape));
     }
 }
