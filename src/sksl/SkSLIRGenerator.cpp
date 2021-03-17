@@ -908,7 +908,7 @@ void IRGenerator::checkModifiers(int offset,
     SkASSERT(layoutFlags == 0);
 }
 
-void IRGenerator::finalizeFunction(FunctionDefinition& f) {
+void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statement* body) {
     class Finalizer : public ProgramWriter {
     public:
         Finalizer(IRGenerator* irGenerator, const FunctionDeclaration* function)
@@ -1001,12 +1001,12 @@ void IRGenerator::finalizeFunction(FunctionDefinition& f) {
         using INHERITED = ProgramWriter;
     };
 
-    Finalizer finalizer{this, &f.declaration()};
-    finalizer.visitStatement(*f.body());
+    Finalizer finalizer{this, &funcDecl};
+    finalizer.visitStatement(*body);
 
-    if (finalizer.functionReturnsValue() && Analysis::CanExitWithoutReturningValue(f)) {
-        this->errorReporter().error(f.fOffset, "function '" + f.declaration().name() +
-                                               "' can exit without returning a value");
+    if (Analysis::CanExitWithoutReturningValue(funcDecl, *body)) {
+        this->errorReporter().error(funcDecl.fOffset, "function '" + funcDecl.name() +
+                                                      "' can exit without returning a value");
     }
 }
 
@@ -1239,9 +1239,9 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (ProgramKind::kVertex == this->programKind() && funcData.fName == "main" && fRTAdjust) {
             body->children().push_back(this->getNormalizeSkPositionCode());
         }
+        this->finalizeFunction(*decl, body.get());
         auto result = std::make_unique<FunctionDefinition>(
                 f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(fReferencedIntrinsics));
-        this->finalizeFunction(*result);
         decl->setDefinition(result.get());
         result->setSource(&f);
         fProgramElements->push_back(std::move(result));
