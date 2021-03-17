@@ -407,33 +407,51 @@ public:
     using INHERITED = ProgramVisitor;
 };
 
-class ReturnsOnAllPathsVisitor : public ProgramVisitor {
+struct ExitAnalysisInfo {
+    int fNumReturns = 0;
+    int fDeepestReturn = 0;
+    bool fFoundEarlyReturn = false;
+    int fScopedBlockDepth = 0;
+    int fVariablesInBlocks = 0;
+};
+
+class ExitAnalysisVisitor : public ProgramVisitor {
 public:
+    ExitAnalysisVisitor(ExitAnalysisInfo* info) : fInfo(info) {}
+
     bool visitExpression(const Expression& expr) override {
         // We can avoid processing expressions entirely.
         return false;
     }
 
     bool visitStatement(const Statement& stmt) override {
+        // If we find any code at all after a return statement, that's considered an early return.
+        if (fFoundReturn) {
+            fInfo->fFoundEarlyReturn = true;
+            return true;
+        }
+
         switch (stmt.kind()) {
             // Returns, breaks, or continues will stop the scan, so only one of these should ever be
             // true.
             case Statement::Kind::kReturn:
+                fInfo->fNumReturns += 1;
+                fInfo->fDeepestReturn = std::max(fInfo->fDeepestReturn, fInfo->fScopedBlockDepth);
                 fFoundReturn = true;
-                return true;
+                return false;
 
             case Statement::Kind::kBreak:
                 fFoundBreak = true;
-                return true;
+                return false;
 
             case Statement::Kind::kContinue:
                 fFoundContinue = true;
-                return true;
+                return false;
 
             case Statement::Kind::kIf: {
                 const IfStatement& i = stmt.as<IfStatement>();
-                ReturnsOnAllPathsVisitor trueVisitor;
-                ReturnsOnAllPathsVisitor falseVisitor;
+                ExitAnalysisVisitor trueVisitor(fInfo);
+                ExitAnalysisVisitor falseVisitor(fInfo);
                 trueVisitor.visitStatement(*i.ifTrue());
                 if (i.ifFalse()) {
                     falseVisitor.visitStatement(*i.ifFalse());
@@ -452,7 +470,7 @@ public:
                 // We assume a for/while loop runs for at least one iteration; this isn't strictly
                 // guaranteed, but it's better to be slightly over-permissive here than to fail on
                 // reasonable code.
-                ReturnsOnAllPathsVisitor forVisitor;
+                ExitAnalysisVisitor forVisitor(fInfo);
                 forVisitor.visitStatement(*f.statement());
                 // A for loop that contains a break or continue is safe; it won't exit the entire
                 // function, just the loop. So we disregard those signals.
@@ -462,18 +480,35 @@ public:
             case Statement::Kind::kDo: {
                 const DoStatement& d = stmt.as<DoStatement>();
                 // Do-while blocks are always entered at least once.
-                ReturnsOnAllPathsVisitor doVisitor;
+                ExitAnalysisVisitor doVisitor(fInfo);
                 doVisitor.visitStatement(*d.statement());
                 // A do-while loop that contains a break or continue is safe; it won't exit the
                 // entire function, just the loop. So we disregard those signals.
                 fFoundReturn = doVisitor.fFoundReturn;
                 return fFoundReturn;
             }
-            case Statement::Kind::kBlock:
+            case Statement::Kind::kBlock: {
                 // Blocks are definitely entered and don't imply any additional control flow.
                 // If the block contains a break, continue or return, we want to keep that.
+                int depthIncrement = stmt.as<Block>().isScope() ? 1 : 0;
+                fInfo->fScopedBlockDepth += depthIncrement;
+                bool result = INHERITED::visitStatement(stmt);
+                fInfo->fScopedBlockDepth -= depthIncrement;
+                if (fInfo->fNumReturns == 0 && fInfo->fScopedBlockDepth <= 1) {
+                    // If closing this block puts us back at the top level, and we haven't
+                    // encountered any return statements yet, any vardecls we may have encountered
+                    // up until this point can be ignored. They are out of scope now, and they were
+                    // never used in a return statement.
+                    fInfo->fVariablesInBlocks = false;
+                }
+                return result;
+            }
+            case Statement::Kind::kVarDeclaration: {
+                if (fInfo->fScopedBlockDepth > 1) {
+                    fInfo->fVariablesInBlocks = true;
+                }
                 return INHERITED::visitStatement(stmt);
-
+            }
             case Statement::Kind::kSwitch: {
                 // Switches are the most complex control flow we need to deal with; fortunately we
                 // already have good primitives for dissecting them. We need to verify that:
@@ -491,7 +526,7 @@ public:
                         foundDefault = true;
                     }
                     // Scan this switch-case for any exit (break, continue or return).
-                    ReturnsOnAllPathsVisitor caseVisitor;
+                    ExitAnalysisVisitor caseVisitor(fInfo);
                     caseVisitor.visitStatement(sc);
 
                     // If we found a break or continue, whether conditional or not, this switch case
@@ -530,7 +565,6 @@ public:
             case Statement::Kind::kExpression:
             case Statement::Kind::kInlineMarker:
             case Statement::Kind::kNop:
-            case Statement::Kind::kVarDeclaration:
                 // None of these statements could contain a return.
                 break;
         }
@@ -541,6 +575,7 @@ public:
     bool fFoundReturn = false;
     bool fFoundBreak = false;
     bool fFoundContinue = false;
+    ExitAnalysisInfo* fInfo = nullptr;
 
     using INHERITED = ProgramVisitor;
 };
@@ -1080,14 +1115,24 @@ bool Analysis::IsConstantExpression(const Expression& expr) {
     return !visitor.visitExpression(expr);
 }
 
-bool Analysis::CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl,
+Analysis::ExitType Analysis::DoExitAnalysis(const FunctionDeclaration& funcDecl,
                                             const Statement& body) {
-    if (funcDecl.returnType().isVoid()) {
-        return false;
-    }
-    ReturnsOnAllPathsVisitor visitor;
+    ExitAnalysisInfo info;
+    ExitAnalysisVisitor visitor(&info);
     visitor.visitStatement(body);
-    return !visitor.fFoundReturn;
+    if (!funcDecl.returnType().isVoid() && !visitor.fFoundReturn) {
+        return ExitType::kCanExitWithoutReturningValue;
+    }
+    if (info.fFoundEarlyReturn) {
+        return ExitType::kEarlyExit;
+    }
+    if (info.fNumReturns > 1) {
+        return ExitType::kScopedExit;
+    }
+    if (info.fVariablesInBlocks && info.fDeepestReturn > 1) {
+        return ExitType::kScopedExit;
+    }
+    return ExitType::kSingleSafeExit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
