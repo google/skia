@@ -673,8 +673,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
     SkMatrix srcToDst = SkMatrix::RectToRect(src, dst);
 
     GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, downgrade_to_filter(sampling));
-    GrAA aa = paint.isAntiAlias() ? GrAA::kYes : GrAA::kNo;
-    GrQuadAAFlags aaFlags = paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+    GrAA aa = fContext->priv().chooseAA(paint);
+    GrQuadAAFlags aaFlags = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
     GrColorInfo colorInfo(SkColorTypeToGrColorType(special->colorType()),
                           special->alphaType(), sk_ref_sp(special->getColorSpace()));
