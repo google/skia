@@ -33,6 +33,24 @@
       "message": "Remove declaration as well?",
       "revId": "f7db63a370f4d4dcdb1199f1c912f1955a8566b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a89ab06c_a0f5f092",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-03-17T19:50:32Z",
+      "side": 1,
+      "message": "Something did went wrong. Git didn\u0027t want to commit my last changes claiming that \"there is nothing to change\". Sorry about that.",
+      "parentUuid": "127a95aa_ec675bd0",
+      "revId": "f7db63a370f4d4dcdb1199f1c912f1955a8566b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
