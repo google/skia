@@ -14,17 +14,26 @@
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 
-#if GR_TRACK_INTERVAL_CREATION
-    #include <atomic>
+#ifdef SK_DEBUG
+#include <atomic>
 
-    uint32_t GrResourceAllocator::Interval::CreateUniqueID() {
-        static std::atomic<uint32_t> nextID{1};
-        uint32_t id;
-        do {
-            id = nextID.fetch_add(1, std::memory_order_relaxed);
-        } while (id == SK_InvalidUniqueID);
-        return id;
-    }
+uint32_t GrResourceAllocator::Interval::CreateUniqueID() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
+uint32_t GrResourceAllocator::Register::CreateUniqueID() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
 #endif
 
 GrResourceAllocator::~GrResourceAllocator() {
@@ -80,7 +89,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         intvl->extendEnd(end);
         return;
     }
-    Interval* newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
+    Interval* newIntvl = fInternalAllocator.make<Interval>(proxy, start, end);
 
     if (ActualUse::kYes == actualUse) {
         newIntvl->addUse();
@@ -186,34 +195,36 @@ void GrResourceAllocator::IntervalList::validate() const {
 #endif
 
 // 'surface' can be reused. Add it back to the free pool.
-void GrResourceAllocator::recycleSurface(sk_sp<GrSurface> surface) {
-    const GrScratchKey &key = surface->resourcePriv().getScratchKey();
+void GrResourceAllocator::recycleRegister(Register* r) {
+    const GrScratchKey &key = r->scratchKey();
 
     if (!key.isValid()) {
         return; // can't do it w/o a valid scratch key
     }
 
+    GrSurface* surface = r->surface();
     if (surface->getUniqueKey().isValid()) {
         // If the surface has a unique key we throw it back into the resource cache.
-        // If things get really tight 'findSurfaceFor' may pull it back out but there is
+        // If things get really tight 'findRegisterFor' may pull it back out but there is
         // no need to have it in tight rotation.
         return;
     }
 
 #if GR_ALLOCATION_SPEW
-    SkDebugf("putting surface %d back into pool\n", surface->uniqueID().asUInt());
+    SkDebugf("putting register %d back into pool\n", r->uniqueID());
 #endif
     // TODO: fix this insertion so we get a more LRU-ish behavior
-    fFreePool.insert(key, surface.release());
+    fFreePool.insert(key, r);
 }
 
-// First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
-// If we can't find a useable one, create a new one.
-sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy) {
+// First try to reuse one of the recently allocated/used registers in the free pool.
+// If we can't find a usable one, try to instantiate a surface and wrap it in a new one.
+GrResourceAllocator::Register* GrResourceAllocator::findRegisterFor(const GrSurfaceProxy* proxy) {
     if (const auto& uniqueKey = proxy->getUniqueKey(); uniqueKey.isValid()) {
         // First try to reattach to a cached surface if the proxy is uniquely keyed
         if (sk_sp<GrSurface> surface = fResourceProvider->findByUniqueKey<GrSurface>(uniqueKey)) {
-            return surface;
+            // TODO: Find the register if we've encountered this unique key before.
+            return fInternalAllocator.make<Register>(std::move(surface));
         }
     }
 
@@ -222,11 +233,11 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
 
     proxy->priv().computeScratchKey(*fResourceProvider->caps(), &key);
 
-    auto filter = [] (const GrSurface* s) {
+    auto filter = [] (const Register* r) {
         return true;
     };
-    sk_sp<GrSurface> surface(fFreePool.findAndRemove(key, filter));
-    if (surface) {
+    if (Register* r = fFreePool.findAndRemove(key, filter)) {
+        GrSurface* surface = r->surface();
         if (SkBudgeted::kYes == proxy->isBudgeted() &&
             GrBudgetedType::kBudgeted != surface->resourcePriv().budgetedType()) {
             // This gets the job done but isn't quite correct. It would be better to try to
@@ -234,11 +245,13 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
             surface->resourcePriv().makeBudgeted();
         }
         SkASSERT(!surface->getUniqueKey().isValid());
-        return surface;
+        return r;
     }
 
-    // Failing that, try to grab a new one from the resource cache
-    return proxy->priv().createSurface(fResourceProvider);
+    if (sk_sp<GrSurface> surf = proxy->priv().createSurface(fResourceProvider)) {
+        return fInternalAllocator.make<Register>(std::move(surf));
+    }
+    return nullptr;
 }
 
 // Remove any intervals that end before the current index. Return their GrSurfaces
@@ -248,9 +261,9 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
         Interval* intvl = fActiveIntvls.popHead();
         SkASSERT(!intvl->next());
 
-        if (GrSurface* surf = intvl->proxy()->peekSurface()) {
+        if (Register* r = intvl->getRegister()) {
             if (intvl->isSurfaceRecyclable()) {
-                this->recycleSurface(sk_ref_sp(surf));
+                this->recycleRegister(r);
             }
         }
     }
@@ -283,7 +296,10 @@ bool GrResourceAllocator::assign() {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
                 fFailedInstantiation = true;
             }
-        } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy())) {
+        } else if (Register* r = this->findRegisterFor(cur->proxy())) {
+            sk_sp<GrSurface> surface = r->refSurface();
+
+            // propagate the proxy unique key to the surface if we have one.
             if (const auto& uniqueKey = cur->proxy()->getUniqueKey(); uniqueKey.isValid()) {
                 if (!surface->getUniqueKey().isValid()) {
                     fResourceProvider->assignUniqueKeyToResource(uniqueKey, surface.get());
@@ -298,6 +314,8 @@ bool GrResourceAllocator::assign() {
 #endif
 
             SkASSERT(!cur->proxy()->peekSurface());
+            cur->setRegister(r);
+            // TODO: surface creation and assignment should happen later
             cur->proxy()->priv().assign(std::move(surface));
         } else {
             SkASSERT(!cur->proxy()->isInstantiated());
