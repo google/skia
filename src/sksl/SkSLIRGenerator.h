@@ -46,6 +46,7 @@ class FunctionCall;
 class StructDefinition;
 struct ParsedModule;
 struct Swizzle;
+enum class AnalysisExitType : uint8_t;
 
 /**
  * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.
@@ -237,7 +238,7 @@ private:
     void findAndDeclareBuiltinVariables();
     bool detectVarDeclarationWithoutScope(const Statement& stmt);
     // Coerces returns to correct type and detects invalid break / continue placement
-    void finalizeFunction(const FunctionDeclaration& funcDecl, Statement* body);
+    Analysis::ExitType finalizeFunction(const FunctionDeclaration& funcDecl, Statement* body);
 
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).

@@ -510,6 +510,7 @@ void Dehydrator::write(const ProgramElement& e) {
             const FunctionDefinition& f = e.as<FunctionDefinition>();
             this->writeCommand(Rehydrator::kFunctionDefinition_Command);
             this->writeU16(this->symbolId(&f.declaration()));
+            this->writeU8((int)f.exitType());
             this->write(f.body().get());
             this->writeU8(f.referencedIntrinsics().size());
             std::set<uint16_t> ordered;
