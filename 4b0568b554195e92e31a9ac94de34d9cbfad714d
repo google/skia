@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8a0b6ae_fe0ff098",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-17T19:18:58Z",
+      "side": 1,
+      "message": "This should be a struct with names, it isn\u0027t very clear that .first means \u0027white spaces\u0027 and .second means \u0027itraword break\u0027.\n\nThat being said, I don\u0027t see where this is called anymore. It seems the similar code in the Cluster constructor has completely replaced this?",
+      "range": {
+        "startLine": 734,
+        "startChar": 0,
+        "endLine": 734,
+        "endChar": 21
+      },
+      "revId": "4b0568b554195e92e31a9ac94de34d9cbfad714d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
