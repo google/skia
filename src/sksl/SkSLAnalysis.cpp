@@ -1080,9 +1080,13 @@ bool Analysis::IsConstantExpression(const Expression& expr) {
     return !visitor.visitExpression(expr);
 }
 
-bool Analysis::CanExitWithoutReturningValue(const FunctionDefinition& funcDef) {
+bool Analysis::CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl,
+                                            const Statement& body) {
+    if (funcDecl.returnType().isVoid()) {
+        return false;
+    }
     ReturnsOnAllPathsVisitor visitor;
-    visitor.visitStatement(*funcDef.body());
+    visitor.visitStatement(body);
     return !visitor.fFoundReturn;
 }
 
