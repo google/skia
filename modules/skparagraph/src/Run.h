@@ -267,7 +267,8 @@ public:
     RunIndex runIndex() const { return fRunIndex; }
     ParagraphImpl* owner() const { return fOwner; }
 
-    Run* run() const;
+    Run* runOrNull() const;
+    Run& run() const;
     SkFont font() const;
 
     SkScalar trimmedWidth(size_t pos) const;

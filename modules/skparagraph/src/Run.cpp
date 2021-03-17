@@ -341,14 +341,20 @@ PlaceholderStyle* Run::placeholderStyle() const {
     }
 }
 
-Run* Cluster::run() const {
+Run* Cluster::runOrNull() const {
     if (fRunIndex >= fOwner->runs().size()) {
         return nullptr;
     }
     return &fOwner->run(fRunIndex);
 }
 
+Run& Cluster::run() const {
+    SkASSERT(fRunIndex < fOwner->runs().size());
+    return fOwner->run(fRunIndex);
+}
+
 SkFont Cluster::font() const {
+    SkASSERT(fRunIndex < fOwner->runs().size());
     return fOwner->run(fRunIndex).font();
 }
 

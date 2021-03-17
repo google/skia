@@ -38,8 +38,8 @@ class TextWrapper {
         TextStretch(Cluster* s, Cluster* e, bool forceStrut)
                 : fStart(s, 0), fEnd(e, e->endPos()), fMetrics(forceStrut), fWidth(0), fWidthWithGhostSpaces(0) {
             for (auto c = s; c <= e; ++c) {
-                if (c->run() != nullptr) {
-                    fMetrics.add(c->run());
+                if (auto r = c->runOrNull()) {
+                    fMetrics.add(r);
                 }
                 if (c < e) {
                     fWidth += c->width();
@@ -80,24 +80,25 @@ class TextWrapper {
             }
             fEnd = ClusterPos(cluster, cluster->endPos());
             // TODO: Make sure all the checks are correct and there are no unnecessary checks
-            if (!cluster->run()->isPlaceholder()) {
-                fMetrics.add(cluster->run());
+            auto& r = cluster->run();
+            if (!r.isPlaceholder()) {
+                fMetrics.add(&r);
             }
             fWidth += cluster->width();
         }
 
         void extend(Cluster* cluster, size_t pos) {
             fEnd = ClusterPos(cluster, pos);
-            if (cluster->run() != nullptr) {
-                fMetrics.add(cluster->run());
+            if (auto r = cluster->runOrNull()) {
+                fMetrics.add(r);
             }
         }
 
         void startFrom(Cluster* cluster, size_t pos) {
             fStart = ClusterPos(cluster, pos);
             fEnd = ClusterPos(cluster, pos);
-            if (cluster->run() != nullptr) {
-                fMetrics.add(cluster->run());
+            if (auto r = cluster->runOrNull()) {
+                fMetrics.add(r);
             }
             fWidth = 0;
         }
@@ -116,8 +117,8 @@ class TextWrapper {
 
             if (fEnd.cluster() != nullptr &&
                 fEnd.cluster()->owner() != nullptr &&
-                fEnd.cluster()->run() != nullptr &&
-                fEnd.cluster()->run()->placeholderStyle() == nullptr &&
+                fEnd.cluster()->runOrNull() != nullptr &&
+                fEnd.cluster()->run().placeholderStyle() == nullptr &&
                 fWidth > 0) {
                 fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
             }
