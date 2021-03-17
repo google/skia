@@ -16,6 +16,24 @@
       "message": "If we\u0027re going to have this, shouldn\u0027t it be initialized (via CreateUniqueID) in the ctor ?",
       "revId": "aafa537dfa97786814e65bb323bdd4f8362194bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad4d23dd_0f5bec2c",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-17T14:38:04Z",
+      "side": 1,
+      "message": "That would be useful; done. I also made it so that the uniqueID\u0027s themselves are always available in SK_DEBUG, and just the printing is controlled by GR_ALLOCATION_SPEW and GR_TRACK_INTERVAL_CREATION.",
+      "parentUuid": "5811381f_e80c58a9",
+      "revId": "aafa537dfa97786814e65bb323bdd4f8362194bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
