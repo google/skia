@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a8d90ef_041d0575",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-17T20:00:03Z",
+      "side": 1,
+      "message": "I\u0027ve added some code to detect Intel devices and disable fastmath in that case, please take another look.",
+      "revId": "dfb16ac2c21b142f21a5c38c4c7f6ba4e1fe8393",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
