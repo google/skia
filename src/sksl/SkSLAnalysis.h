@@ -137,7 +137,8 @@ struct Analysis {
     static void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 
     // Detects functions that fail to return a value on at least one path.
-    static bool CanExitWithoutReturningValue(const FunctionDefinition& funcDef);
+    static bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl,
+                                             const Statement& body);
 };
 
 /**
