@@ -98,45 +98,6 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
     return CountReturnsAtEndOfControlFlow{funcDef}.fNumReturns;
 }
 
-static int count_returns_in_continuable_constructs(const FunctionDefinition& funcDef) {
-    class CountReturnsInContinuableConstructs : public ProgramVisitor {
-    public:
-        CountReturnsInContinuableConstructs(const FunctionDefinition& funcDef) {
-            this->visitProgramElement(funcDef);
-        }
-
-        bool visitExpression(const Expression& expr) override {
-            // Do not recurse into expressions.
-            return false;
-        }
-
-        bool visitStatement(const Statement& stmt) override {
-            switch (stmt.kind()) {
-                case Statement::Kind::kDo:
-                case Statement::Kind::kFor: {
-                    ++fInsideContinuableConstruct;
-                    bool result = INHERITED::visitStatement(stmt);
-                    --fInsideContinuableConstruct;
-                    return result;
-                }
-
-                case Statement::Kind::kReturn:
-                    fNumReturns += (fInsideContinuableConstruct > 0) ? 1 : 0;
-                    [[fallthrough]];
-
-                default:
-                    return INHERITED::visitStatement(stmt);
-            }
-        }
-
-        int fNumReturns = 0;
-        int fInsideContinuableConstruct = 0;
-        using INHERITED = ProgramVisitor;
-    };
-
-    return CountReturnsInContinuableConstructs{funcDef}.fNumReturns;
-}
-
 static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
     class ContainsRecursiveCall : public ProgramVisitor {
     public:
@@ -494,16 +455,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kReturn: {
             const ReturnStatement& r = statement.as<ReturnStatement>();
             if (!r.expression()) {
-                if (returnComplexity >= ReturnComplexity::kEarlyReturns) {
-                    // This function doesn't return a value, but has early returns, so we've wrapped
-                    // it in a for loop. Use a continue to jump to the end of the loop and "leave"
-                    // the function.
-                    return ContinueStatement::Make(offset);
-                } else {
-                    // This function doesn't exit early or return a value. A return statement at the
-                    // end is a no-op and can be treated as such.
-                    return Nop::Make();
-                }
+                // This function doesn't return a value. We won't inline functions with early
+                // returns, so a return statement is a no-op and can be treated as such.
+                return Nop::Make();
             }
 
             // If a function only contains a single return, and it doesn't reference variables from
@@ -525,15 +479,6 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                             Token::Kind::TK_EQ,
                             expr(r.expression())));
 
-            // Early returns are wrapped in a for loop; we need to synthesize a continue statement
-            // to "leave" the function.
-            if (returnComplexity >= ReturnComplexity::kEarlyReturns) {
-                StatementArray block;
-                block.reserve_back(2);
-                block.push_back(std::move(assignment));
-                block.push_back(ContinueStatement::Make(offset));
-                return Block::Make(offset, std::move(block), /*symbols=*/nullptr, /*isScope=*/true);
-            }
             // Functions without early returns aren't wrapped in a for loop and don't need to worry
             // about breaking out of the control flow.
             return assignment;
@@ -645,7 +590,6 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     const int offset = call->fOffset;
     const FunctionDefinition& function = *call->function().definition();
     const ReturnComplexity returnComplexity = GetReturnComplexity(function);
-    bool hasEarlyReturn = (returnComplexity >= ReturnComplexity::kEarlyReturns);
 
     InlinedCall inlinedCall;
     StatementArray inlinedBlockStmts;
@@ -700,54 +644,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     }
 
     const Block& body = function.body()->as<Block>();
-    StatementArray* inlineStatements;
-
-    if (hasEarlyReturn) {
-        // Since we output to backends that don't have a goto statement (which would normally be
-        // used to perform an early return), we fake it by wrapping the function in a single-
-        // iteration for loop, and use a continue statement to jump to the end of the loop
-        // prematurely.
-
-        // int _1_loop = 0;
-        symbolTable = std::make_shared<SymbolTable>(std::move(symbolTable), caller->isBuiltin());
-        const Type* intType = fContext->fTypes.fInt.get();
-        std::unique_ptr<Expression> initialValue = IntLiteral::Make(/*offset=*/-1,
-                                                                    /*value=*/0,
-                                                                    intType);
-        InlineVariable loopVar = this->makeInlineVariable("loop", intType, symbolTable.get(),
-                                                          Modifiers{}, caller->isBuiltin(),
-                                                          &initialValue);
-
-        // _1_loop < 1;
-        std::unique_ptr<Expression> test = BinaryExpression::Make(
-                *fContext,
-                std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol),
-                Token::Kind::TK_LT,
-                IntLiteral::Make(/*offset=*/-1, /*value=*/1, intType));
-
-        // _1_loop++
-        std::unique_ptr<Expression> increment = PostfixExpression::Make(
-                *fContext,
-                std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol,
-                                                    VariableReference::RefKind::kReadWrite),
-                Token::Kind::TK_PLUSPLUS);
-
-        // {...}
-        auto innerBlock = Block::Make(offset, StatementArray{},
-                                      /*symbols=*/nullptr, /*isScope=*/true);
-        inlineStatements = &innerBlock->children();
-
-        // for (int _1_loop = 0; _1_loop < 1; _1_loop++) {...}
-        inlinedBlockStmts.push_back(ForStatement::Make(*fContext, /*offset=*/-1,
-                                                       std::move(loopVar.fVarDecl),
-                                                       std::move(test),
-                                                       std::move(increment),
-                                                       std::move(innerBlock),
-                                                       symbolTable));
-    } else {
-        // No early returns, so we can just dump the code into our existing scopeless block.
-        inlineStatements = &inlinedBlockStmts;
-    }
+    StatementArray* inlineStatements = &inlinedBlockStmts;
 
     inlineStatements->reserve_back(body.children().size() + argsToCopyBack.size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
@@ -815,11 +712,8 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
-    // We don't have any mechanism to simulate early returns within a construct that supports
-    // continues (for/do/while), so we can't inline if there's a return inside one.
-    bool hasReturnInContinuableConstruct =
-            (count_returns_in_continuable_constructs(*functionDef) > 0);
-    return !hasReturnInContinuableConstruct;
+    // We don't have a mechanism to simulate early returns, so we can't inline if there is one.
+    return GetReturnComplexity(*functionDef) < ReturnComplexity::kEarlyReturns;
 }
 
 // A candidate function for inlining, containing everything that `inlineCall` needs.
