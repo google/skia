@@ -120,6 +120,9 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
 
     id<MTLDevice> device = (__bridge id<MTLDevice>)(context.fDevice.get());
     id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)(context.fQueue.get());
+
+
+    SkDebugf("Device: %s\n", device.name.UTF8String);
     MTLFeatureSet featureSet;
     if (!get_feature_set(device, &featureSet)) {
         return nullptr;
