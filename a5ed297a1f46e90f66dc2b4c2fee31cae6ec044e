@@ -18,6 +18,46 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e6916ce_c7cba581",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-17T21:03:49Z",
+      "side": 1,
+      "message": "Metal looks good, just one comment.",
+      "revId": "a5ed297a1f46e90f66dc2b4c2fee31cae6ec044e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75ab8285_1c9b4626",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-17T21:03:49Z",
+      "side": 1,
+      "message": "I don\u0027t know if you need to track this -- this is what sets the pipeline to be stored in the binaryarchive, and no one\u0027s using it.",
+      "range": {
+        "startLine": 683,
+        "startChar": 30,
+        "endLine": 683,
+        "endChar": 86
+      },
+      "revId": "a5ed297a1f46e90f66dc2b4c2fee31cae6ec044e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15ff5eac_c12831e8",
