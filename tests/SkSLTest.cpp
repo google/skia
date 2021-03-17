@@ -135,6 +135,10 @@ SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.
 SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,             "folding/VectorVectorFolding.sksl")
 
+// TODO(skia:11052): SPIR-V does not yet honor `out` param semantics correctly
+SKSL_TEST_CPU(SkSLInlinerHonorsGLSLOutParamSemantics,
+              "inliner/InlinerHonorsGLSLOutParamSemantics.sksl")
+
 SKSL_TEST(SkSLIntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,                   "intrinsics/Ceil.sksl")
 SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
