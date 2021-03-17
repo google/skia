@@ -468,7 +468,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                const SkTArray<SkString>& viaParts,
                                                ContextType               contextType,
                                                bool                      fakeGLESVersion2,
-                                               bool                      useDIText,
+                                               uint32_t                  surfaceFlags,
                                                int                       samples,
                                                SkColorType               colorType,
                                                SkAlphaType               alphaType,
@@ -483,7 +483,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
-        , fUseDIText(useDIText)
+        , fSurfaceFlags(surfaceFlags)
         , fSamples(samples)
         , fColorType(colorType)
         , fAlphaType(alphaType)
@@ -545,11 +545,16 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
         return nullptr;
     }
 
+    uint32_t surfaceFlags = 0;
+    if (useDIText) {
+        surfaceFlags |= SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
+    }
+
     return new SkCommandLineConfigGpu(tag,
                                       vias,
                                       contextType,
                                       fakeGLESVersion2,
-                                      useDIText,
+                                      surfaceFlags,
                                       samples,
                                       colorType,
                                       alphaType,

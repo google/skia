@@ -55,7 +55,7 @@ public:
                            const SkTArray<SkString>& viaParts,
                            ContextType               contextType,
                            bool                      fakeGLESVer2,
-                           bool                      useDIText,
+                           uint32_t                  surfaceFlags,
                            int                       samples,
                            SkColorType               colorType,
                            SkAlphaType               alphaType,
@@ -71,7 +71,7 @@ public:
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType                   getContextType() const { return fContextType; }
     ContextOverrides              getContextOverrides() const { return fContextOverrides; }
-    bool          getUseDIText() const { return fUseDIText; }
+    uint32_t      getSurfaceFlags() const { return fSurfaceFlags; }
     int           getSamples() const { return fSamples; }
     SkColorType   getColorType() const { return fColorType; }
     SkAlphaType   getAlphaType() const { return fAlphaType; }
@@ -86,7 +86,7 @@ public:
 private:
     ContextType         fContextType;
     ContextOverrides    fContextOverrides;
-    bool                fUseDIText;
+    uint32_t            fSurfaceFlags;
     int                 fSamples;
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;

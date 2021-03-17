@@ -27,7 +27,7 @@ struct Config {
     int samples;
     sk_gpu_test::GrContextFactory::ContextType ctxType;
     sk_gpu_test::GrContextFactory::ContextOverrides ctxOverrides;
-    bool useDFText;
+    uint32_t surfaceFlags;
 };
 
 struct Target {

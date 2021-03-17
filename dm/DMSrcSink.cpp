@@ -1474,7 +1474,7 @@ GPUSink::GPUSink(const SkCommandLineConfigGpu* config,
         , fContextOverrides(config->getContextOverrides())
         , fSurfType(config->getSurfType())
         , fSampleCount(config->getSamples())
-        , fUseDIText(config->getUseDIText())
+        , fSurfaceFlags(config->getSurfaceFlags())
         , fColorType(config->getColorType())
         , fAlphaType(config->getAlphaType())
         , fColorSpace(sk_ref_sp(config->getColorSpace()))
@@ -1492,8 +1492,7 @@ sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context, SkISize siz
     sk_sp<SkSurface> surface;
 
     SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
-    uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
-    SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
+    SkSurfaceProps props(fSurfaceFlags, kRGB_H_SkPixelGeometry);
 
     switch (fSurfType) {
         case SkCommandLineConfigGpu::SurfType::kDefault:
