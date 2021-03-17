@@ -1004,7 +1004,8 @@ void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statemen
     Finalizer finalizer{this, &funcDecl};
     finalizer.visitStatement(*body);
 
-    if (Analysis::CanExitWithoutReturningValue(funcDecl, *body)) {
+    Analysis::ExitType exitType = Analysis::DoExitAnalysis(funcDecl, *body);
+    if (exitType == Analysis::ExitType::kCanExitWithoutReturningValue) {
         this->errorReporter().error(funcDecl.fOffset, "function '" + funcDecl.name() +
                                                       "' can exit without returning a value");
     }
