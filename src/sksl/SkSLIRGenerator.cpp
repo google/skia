@@ -743,7 +743,10 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
             std::vector<const Variable*>(),
             fContext.fTypes.fVoid.get(),
             fIsBuiltinCode));
-    auto invokeDef = std::make_unique<FunctionDefinition>(/*offset=*/-1, invokeDecl, fIsBuiltinCode,
+    auto invokeDef = std::make_unique<FunctionDefinition>(/*offset=*/-1,
+                                                          invokeDecl,
+                                                          fIsBuiltinCode,
+                                                          Analysis::ExitType::kSingleSafeExit,
                                                           std::move(main));
     invokeDecl->setDefinition(invokeDef.get());
     fProgramElements->push_back(std::move(invokeDef));
@@ -908,7 +911,8 @@ void IRGenerator::checkModifiers(int offset,
     SkASSERT(layoutFlags == 0);
 }
 
-void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statement* body) {
+Analysis::ExitType IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl,
+                                                 Statement* body) {
     class Finalizer : public ProgramWriter {
     public:
         Finalizer(IRGenerator* irGenerator, const FunctionDeclaration* function)
@@ -1009,6 +1013,7 @@ void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statemen
         this->errorReporter().error(funcDecl.fOffset, "function '" + funcDecl.name() +
                                                       "' can exit without returning a value");
     }
+    return exitType;
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
@@ -1240,9 +1245,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (ProgramKind::kVertex == this->programKind() && funcData.fName == "main" && fRTAdjust) {
             body->children().push_back(this->getNormalizeSkPositionCode());
         }
-        this->finalizeFunction(*decl, body.get());
-        auto result = std::make_unique<FunctionDefinition>(
-                f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(fReferencedIntrinsics));
+        Analysis::ExitType exitType = this->finalizeFunction(*decl, body.get());
+        auto result = std::make_unique<FunctionDefinition>(f.fOffset,
+                                                           decl,
+                                                           fIsBuiltinCode,
+                                                           exitType,
+                                                           std::move(body),
+                                                           std::move(fReferencedIntrinsics));
         decl->setDefinition(result.get());
         result->setSource(&f);
         fProgramElements->push_back(std::move(result));

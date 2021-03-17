@@ -15,6 +15,7 @@
 namespace SkSL {
 
 struct ASTNode;
+enum class AnalysisExitType : uint8_t;
 
 /**
  * A function definition (a declaration plus an associated block of code).
@@ -24,15 +25,18 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kFunction;
 
     FunctionDefinition(int offset,
-                       const FunctionDeclaration* declaration, bool builtin,
+                       const FunctionDeclaration* declaration,
+                       bool builtin,
+                       AnalysisExitType exitType,
                        std::unique_ptr<Statement> body,
                        std::unordered_set<const FunctionDeclaration*> referencedIntrinsics = {})
-        : INHERITED(offset, kProgramElementKind)
-        , fDeclaration(declaration)
-        , fBuiltin(builtin)
-        , fBody(std::move(body))
-        , fReferencedIntrinsics(std::move(referencedIntrinsics))
-        , fSource(nullptr) {}
+            : INHERITED(offset, kProgramElementKind)
+            , fDeclaration(declaration)
+            , fBuiltin(builtin)
+            , fExitType(exitType)
+            , fBody(std::move(body))
+            , fReferencedIntrinsics(std::move(referencedIntrinsics))
+            , fSource(nullptr) {}
 
     const FunctionDeclaration& declaration() const {
         return *fDeclaration;
@@ -40,6 +44,10 @@ public:
 
     bool isBuiltin() const {
         return fBuiltin;
+    }
+
+    AnalysisExitType exitType() const {
+        return fExitType;
     }
 
     std::unique_ptr<Statement>& body() {
@@ -63,8 +71,11 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<FunctionDefinition>(fOffset, &this->declaration(),
-                                                    /*builtin=*/false, this->body()->clone(),
+        return std::make_unique<FunctionDefinition>(fOffset,
+                                                    &this->declaration(),
+                                                    /*builtin=*/false,
+                                                    fExitType,
+                                                    this->body()->clone(),
                                                     this->referencedIntrinsics());
     }
 
@@ -75,6 +86,7 @@ public:
 private:
     const FunctionDeclaration* fDeclaration;
     bool fBuiltin;
+    AnalysisExitType fExitType;
     std::unique_ptr<Statement> fBody;
     // We track intrinsic functions we reference so that we can ensure that all of them end up
     // copied into the final output.

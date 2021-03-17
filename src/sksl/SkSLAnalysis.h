@@ -29,6 +29,25 @@ class Variable;
 class VariableReference;
 enum class VariableRefKind : int8_t;
 
+enum class AnalysisExitType : uint8_t {
+    // The function has exactly one return; it's either at the top level of the function, or if
+    // it's inside a scope, there are no variables declared inside that scope. In this case, the
+    // inliner is free to replace the FunctionCall node with the return expression directly.
+    kSingleSafeExit,
+    // The function has more than one return, or has a return inside of a scope that also
+    // declares a variable. There are no early exits. The inliner can replace `return`
+    // statements with an assignment to a temporary variable.
+    kScopedExit,
+    // The function contains conditional, or "early" returns--that is, it contains a statement
+    // which can return in some instances but not others. (e.g. `if (x == 5) return true;`)
+    // We will not inline these functions.
+    kEarlyExit,
+    // The function promises ot return a value, but contains at least one path that does not.
+    // Unlike the other types, this actually indicates an error condition and should cause the
+    // compile to fail.
+    kCanExitWithoutReturningValue,
+};
+
 /**
  * Provides utilities for analyzing SkSL statically before it's composed into a full program.
  */
@@ -138,23 +157,9 @@ struct Analysis {
 
     // Walks the function and verifies that every path returns a value; additionally determines if
     // the function is inlinable, depending on its return-statement patterns.
-    enum class ExitType {
-        // The function has exactly one return; it's either at the top level of the function, or if
-        // it's inside a scope, there are no variables declared inside that scope. In this case, the
-        // inliner is free to replace the FunctionCall node with the return expression directly.
-        kSingleSafeExit,
-        // The function has more than one return, or has a return inside of a scope that also
-        // declares a variable. There are no early exits. The inliner can replace `return`
-        // statements with assignments to a temporary variable.
-        kScopedExit,
-        // The function contains conditional, or "early" returns--that is, it contains a statement
-        // which can return in some instances but not others. (e.g. `if (x == 5) return true;`)
-        kEarlyExit,
-        // The function promises ot return a value, but contains at least one path that does not.
-        // Unlike the other types, this is actually an error condition leading to compile failure.
-        kCanExitWithoutReturningValue,
-    };
-    static ExitType DoExitAnalysis(const FunctionDeclaration& funcDecl, const Statement& body);
+    using ExitType = AnalysisExitType;
+    static Analysis::ExitType DoExitAnalysis(const FunctionDeclaration& funcDecl,
+                                             const Statement& body);
 };
 
 /**

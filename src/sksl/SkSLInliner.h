@@ -49,12 +49,6 @@ public:
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, std::unique_ptr<Expression>>;
 
-    enum class ReturnComplexity {
-        kSingleSafeReturn,
-        kScopedReturns,
-        kEarlyReturns,
-    };
-
     const Program::Settings& settings() const { return fContext->fConfig->fSettings; }
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
@@ -69,12 +63,9 @@ private:
                                                VariableRewriteMap* varMap,
                                                SymbolTable* symbolTableForStatement,
                                                std::unique_ptr<Expression>* resultExpr,
-                                               ReturnComplexity returnComplexity,
+                                               Analysis::ExitType exitType,
                                                const Statement& statement,
                                                bool isBuiltinCode);
-
-    /** Determines if a given function has multiple and/or early returns. */
-    static ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
 
     using InlinabilityCache = std::unordered_map<const FunctionDeclaration*, bool>;
     bool candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache);

@@ -298,18 +298,19 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                                           /*isSharedWithCpp=*/true, /*isBuiltin=*/true);
         }
         case Rehydrator::kFunctionDefinition_Command: {
-            const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(
-                                                                Symbol::Kind::kFunctionDeclaration);
+            const FunctionDeclaration* decl =
+                    this->symbolRef<FunctionDeclaration>(Symbol::Kind::kFunctionDeclaration);
+            auto exitType = (Analysis::ExitType)this->readU8();
             std::unique_ptr<Statement> body = this->statement();
             std::unordered_set<const FunctionDeclaration*> refs;
             uint8_t refCount = this->readU8();
             for (int i = 0; i < refCount; ++i) {
-                refs.insert(this->symbolRef<FunctionDeclaration>(
-                                                               Symbol::Kind::kFunctionDeclaration));
+                refs.insert(
+                        this->symbolRef<FunctionDeclaration>(Symbol::Kind::kFunctionDeclaration));
             }
             auto result = std::make_unique<FunctionDefinition>(/*offset=*/-1, decl,
-                                                               /*builtin=*/true, std::move(body),
-                                                               std::move(refs));
+                                                               /*builtin=*/true, exitType,
+                                                               std::move(body), std::move(refs));
             decl->setDefinition(result.get());
             return std::move(result);
         }

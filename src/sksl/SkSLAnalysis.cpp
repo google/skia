@@ -410,7 +410,7 @@ public:
 struct ExitAnalysisInfo {
     int fNumReturns = 0;
     int fDeepestReturn = 0;
-    bool fFoundEarlyReturn = false;
+    bool fFoundEarlyExit = false;
     int fScopedBlockDepth = 0;
     int fVariablesInBlocks = 0;
 };
@@ -427,7 +427,7 @@ public:
     bool visitStatement(const Statement& stmt) override {
         // If we find any code at all after a return statement, that's considered an early return.
         if (fFoundReturn) {
-            fInfo->fFoundEarlyReturn = true;
+            fInfo->fFoundEarlyExit = true;
             return true;
         }
 
@@ -463,6 +463,9 @@ public:
                 // On the other hand, we only want to report returns that definitely happen, so we
                 // require those to be found on both sides.
                 fFoundReturn   = (trueVisitor.fFoundReturn   && falseVisitor.fFoundReturn);
+                // If one side returns, but not the other, we've discovered an early exit.
+                fInfo->fFoundEarlyExit |= (trueVisitor.fFoundReturn != falseVisitor.fFoundReturn);
+
                 return fFoundBreak || fFoundContinue || fFoundReturn;
             }
             case Statement::Kind::kFor: {
@@ -474,7 +477,10 @@ public:
                 forVisitor.visitStatement(*f.statement());
                 // A for loop that contains a break or continue is safe; it won't exit the entire
                 // function, just the loop. So we disregard those signals.
-                fFoundReturn = forVisitor.fFoundReturn;
+                if (forVisitor.fFoundReturn) {
+                    fFoundReturn = true;
+                    fInfo->fFoundEarlyExit = true;
+                }
                 return fFoundReturn;
             }
             case Statement::Kind::kDo: {
@@ -484,7 +490,10 @@ public:
                 doVisitor.visitStatement(*d.statement());
                 // A do-while loop that contains a break or continue is safe; it won't exit the
                 // entire function, just the loop. So we disregard those signals.
-                fFoundReturn = doVisitor.fFoundReturn;
+                if (doVisitor.fFoundReturn) {
+                    fFoundReturn = true;
+                    fInfo->fFoundEarlyExit = true;
+                }
                 return fFoundReturn;
             }
             case Statement::Kind::kBlock: {
@@ -510,8 +519,7 @@ public:
                 return INHERITED::visitStatement(stmt);
             }
             case Statement::Kind::kSwitch: {
-                // Switches are the most complex control flow we need to deal with; fortunately we
-                // already have good primitives for dissecting them. We need to verify that:
+                // We need to verify that:
                 // - a default case exists, so that every possible input value is covered
                 // - every switch-case either (a) returns unconditionally, or
                 //                            (b) falls through to another case that does
@@ -526,8 +534,16 @@ public:
                         foundDefault = true;
                     }
                     // Scan this switch-case for any exit (break, continue or return).
+                    int numReturns = fInfo->fNumReturns;
                     ExitAnalysisVisitor caseVisitor(fInfo);
                     caseVisitor.visitStatement(sc);
+
+                    // The inliner isn't designed to cope with returns inside a switch statement.
+                    // If we encountered a return inside the switch-case, flag this function as
+                    // "early-exit" to prevent it from being inlined.
+                    if (fInfo->fNumReturns > numReturns) {
+                        fInfo->fFoundEarlyExit = true;
+                    }
 
                     // If we found a break or continue, whether conditional or not, this switch case
                     // can't be called an unconditional return. Switches absorb breaks but not
@@ -1116,23 +1132,23 @@ bool Analysis::IsConstantExpression(const Expression& expr) {
 }
 
 Analysis::ExitType Analysis::DoExitAnalysis(const FunctionDeclaration& funcDecl,
-                                            const Statement& body) {
+                                          const Statement& body) {
     ExitAnalysisInfo info;
     ExitAnalysisVisitor visitor(&info);
     visitor.visitStatement(body);
     if (!funcDecl.returnType().isVoid() && !visitor.fFoundReturn) {
-        return ExitType::kCanExitWithoutReturningValue;
+        return Analysis::ExitType::kCanExitWithoutReturningValue;
     }
-    if (info.fFoundEarlyReturn) {
-        return ExitType::kEarlyExit;
+    if (info.fFoundEarlyExit) {
+        return Analysis::ExitType::kEarlyExit;
     }
     if (info.fNumReturns > 1) {
-        return ExitType::kScopedExit;
+        return Analysis::ExitType::kScopedExit;
     }
     if (info.fVariablesInBlocks && info.fDeepestReturn > 1) {
-        return ExitType::kScopedExit;
+        return Analysis::ExitType::kScopedExit;
     }
-    return ExitType::kSingleSafeExit;
+    return Analysis::ExitType::kSingleSafeExit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
