@@ -14,6 +14,7 @@
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
 
+#include <deque>
 #include <memory>
 #include <vector>
 
@@ -110,7 +111,7 @@ public:
         return fBuiltin;
     }
 
-    const String* takeOwnershipOfString(std::unique_ptr<String> n);
+    const String* takeOwnershipOfString(String n);
 
     std::shared_ptr<SymbolTable> fParent;
 
@@ -138,7 +139,8 @@ private:
 
     bool fBuiltin = false;
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
-    std::vector<std::unique_ptr<String>> fOwnedStrings;
+    // A deque is used here because insertion is guaranteed not to invalidate the pointers inside.
+    std::deque<String> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     ErrorReporter& fErrorReporter;
 
