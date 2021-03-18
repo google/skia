@@ -16,6 +16,23 @@
       "message": "At patch set 20 this is mostly a no-op for the Skia build. The order of a few flags is changed for :raw (I think for the better), though I\u0027m not sure what is using :raw. Most templates now let the invoker configs take priority. The extra_flags configs now come before warnings instead of after. Not sure if it makes sense to have extra_flags and skia_extra_flags, though if that ever becomes desirable one could make skia_target_default_configs an arg so it could be set to anything directly.",
       "revId": "93851e89b1872742c4893d05ebfeef479b58d8c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "765b3762_2ccaf06b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-18T18:09:35Z",
+      "side": 1,
+      "message": "At patch set 20 this is mostly a no-op for the Skia build while making embedding Skia in other projects and embedding other projects in Skia nicer. The order of a few flags is changed for :raw (I think for the better), though I\u0027m not sure what is using :raw. Most templates now let the invoker configs take priority. The extra_flags configs now come before warnings instead of after (since extra_flags remains part of the base configs and the warnings are added by the skia_target template layer). If we care about that there are a number of things to try, like adding a skia_extra_flags. However, at the moment just not setting werror\u003dtrue seems to be enough to not need that right now.",
+      "revId": "93851e89b1872742c4893d05ebfeef479b58d8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
