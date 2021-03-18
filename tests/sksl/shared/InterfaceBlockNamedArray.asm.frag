@@ -24,6 +24,7 @@ OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
+OpDecorate %24 RelaxedPrecision
 %float = OpTypeFloat 32
 %testBlock = OpTypeStruct %float
 %int = OpTypeInt 32 1
