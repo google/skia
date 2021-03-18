@@ -62,7 +62,8 @@ private:
                                  SkColorType dstColorType, SkColorSpace* dstColorSpace,
                                  SkFilterMode paintFilter) const;
 
-    sk_sp<SkShader> makeShader(const SkImage*, SkFilterMode paintFilter) const;
+    SkFilterMode filter(const SkSamplingOptions&) const;
+    SkFilterMode filter(SkFilterQuality) const;
 
     class PictureShaderContext : public Context {
     public:

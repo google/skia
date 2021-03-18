@@ -178,12 +178,20 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 // legacy mode. When all clients only use the modern/explicit version, we can eliminate
 // all of this extra stuff.
 
-static SkFilterMode sampling_to_filter(const SkSamplingOptions& sampling) {
+SkFilterMode SkPictureShader::filter(const SkSamplingOptions& sampling) const {
+    if (fFilter != kInheritFromPaint) {
+        return static_cast<SkFilterMode>(fFilter);
+    }
+
     return sampling == SkSamplingOptions() ? SkFilterMode::kNearest
                                            : SkFilterMode::kLinear;
 }
 
-static SkFilterMode quality_to_filter(SkFilterQuality quality) {
+SkFilterMode SkPictureShader::filter(SkFilterQuality quality) const{
+    if (fFilter != kInheritFromPaint) {
+        return static_cast<SkFilterMode>(fFilter);
+    }
+
     return quality == kNone_SkFilterQuality ? SkFilterMode::kNearest
                                             : SkFilterMode::kLinear;
 }
@@ -301,17 +309,8 @@ sk_sp<SkShader> SkPictureShader::rasterShader(const SkMatrix& viewMatrix,
         SkResourceCache::Add(new ImageFromPictureRec(key, image));
         SkPicturePriv::AddedToCache(fPicture.get());
     }
-    return this->makeShader(image.get(), paintFilter);
-}
 
-sk_sp<SkShader> SkPictureShader::makeShader(const SkImage* image, SkFilterMode paintFilter) const {
-    SkFilterMode filter;
-    if (fFilter == kInheritFromPaint) {
-        filter = paintFilter;
-    } else {
-        filter = (SkFilterMode)fFilter;
-    }
-    return image->makeShader(fTmx, fTmy, SkSamplingOptions(filter), nullptr);
+    return image->makeShader(fTmx, fTmy, SkSamplingOptions(paintFilter), nullptr);
 }
 
 bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
@@ -320,7 +319,7 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
     bitmapShader = this->rasterShader(rec.fMatrixProvider.localToDevice(), &lm,
                                       rec.fDstColorType, rec.fDstCS,
-                                      quality_to_filter(rec.fPaint.getFilterQuality()));
+                                      this->filter(rec.fPaint.getFilterQuality()));
     if (!bitmapShader) {
         return false;
     }
@@ -342,7 +341,7 @@ skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
     bitmapShader = this->rasterShader(matrices.localToDevice(), &lm,
                                       dst.colorType(), dst.colorSpace(),
-                                      quality_to_filter(quality));
+                                      this->filter(quality));
     if (!bitmapShader) {
         return {};
     }
@@ -361,7 +360,7 @@ const {
     auto lm = this->totalLocalMatrix(rec.fLocalMatrix);
     sk_sp<SkShader> bitmapShader = this->rasterShader(*rec.fMatrix, &lm, rec.fDstColorType,
                                                       rec.fDstColorSpace,
-                                                      sampling_to_filter(rec.fPaintSampling));
+                                                      this->filter(rec.fPaintSampling));
     if (!bitmapShader) {
         return nullptr;
     }
@@ -465,7 +464,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 
     const GrSamplerState sampler(static_cast<GrSamplerState::WrapMode>(fTmx),
                                  static_cast<GrSamplerState::WrapMode>(fTmy),
-                                 sampling_to_filter(args.fSampling));
+                                 this->filter(args.fSampling));
     return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, inv, sampler,
                                  *ctx->priv().caps());
 }
