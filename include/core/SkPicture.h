@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 
@@ -20,7 +21,6 @@ struct SkDeserialProcs;
 class SkImage;
 class SkMatrix;
 struct SkSerialProcs;
-class SkShader;
 class SkStream;
 class SkWStream;
 
@@ -230,11 +230,16 @@ public:
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMode mode,
                                const SkMatrix* localMatrix, const SkRect* tileRect) const;
 
-    // DEPRECATED
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMode mode) const {
+        return this->makeShader(tmx, tmy, mode, nullptr, nullptr);
+    }
+
+#ifdef SK_SUPPORT_LEGACY_PICTURESHADER_NOFILTER
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix, const SkRect* tileRect) const;
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const;
+#endif
 
 private:
     // Allowed subclasses.

@@ -114,6 +114,7 @@ bool SkSVGPattern::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) cons
     paint->setShader(recorder.finishRecordingAsPicture()->makeShader(
                                                  SkTileMode::kRepeat,
                                                  SkTileMode::kRepeat,
+                                                 SkFilterMode::kLinear,
                                                  patternTransform,
                                                  &tile));
     return true;

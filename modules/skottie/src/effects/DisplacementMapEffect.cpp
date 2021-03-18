@@ -189,6 +189,7 @@ private:
         const auto child_tile = SkRect::MakeSize(fChildSize);
         auto child_shader = child_content->makeShader(fChildTileMode,
                                                       fChildTileMode,
+                                                      SkFilterMode::kLinear,
                                                       nullptr,
                                                       &child_tile);
 
@@ -197,6 +198,7 @@ private:
         const auto displ_matrix = this->displacementMatrix();
         auto displ_shader = displ_content->makeShader(displ_mode,
                                                       displ_mode,
+                                                      SkFilterMode::kLinear,
                                                       &displ_matrix,
                                                       &displ_tile);
 
