@@ -135,7 +135,7 @@ protected:
             }
 
             fShaders[i] = pictureRef->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                                 &localMatrix, tilePtr);
+                                                 SkFilterMode::kNearest, &localMatrix, tilePtr);
         }
     }
 

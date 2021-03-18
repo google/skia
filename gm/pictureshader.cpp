@@ -163,6 +163,7 @@ private:
 
         auto pictureShader = fPicture->makeShader(kTileConfigs[tileMode].tmx,
                                                   kTileConfigs[tileMode].tmy,
+                                                  SkFilterMode::kNearest,
                                                   fUseLocalMatrixWrapper ? nullptr : &localMatrix,
                                                   nullptr);
         paint.setShader(fUseLocalMatrixWrapper
@@ -222,70 +223,7 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     p.setColor(0xFFB6B6B6);  // gray
     canvas->drawPaint(p);
 
-    p.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
+    p.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                    SkFilterMode::kNearest));
     canvas->drawPaint(p);
 }
-
-#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-/*
-    Test picture-shader's filtering (after the tile is created.
-    The GM draws a 2x2 grid of tiled images (circle, square, X)
-
-    Column 0 should be hard-edged
-    Column 1 should be filtered
-
-    Row 0 deduces this from the paint (legacy behavior)
-    Row 1 takes this as an explicit parameter (SkFilterMode)
- */
-DEF_SIMPLE_GM(picture_shader_filter, canvas, 230, 230) {
-    auto pic = [&] {
-        SkRect r = SkRect::MakeWH(100, 100);
-        SkPictureRecorder recorder;
-        SkCanvas* c = recorder.beginRecording(r);
-        SkPaint paint;
-        paint.setStroke(true);
-        c->drawRect({5, 5, 95, 95}, paint);
-        c->drawCircle(50, 50, 30, paint);
-        c->drawLine(5, 1, 95,95, paint);
-        c->drawLine(5,95, 95, 1, paint);
-        return recorder.finishRecordingAsPicture();
-    }();
-
-    struct {
-        SkPoint         fLoc;
-        SkFilterMode    fFilter;
-        bool            fInheritFromPaint;
-
-        void setup(SkPaint* paint, sk_sp<SkPicture> pic) const {
-            SkTileMode tm = SkTileMode::kRepeat;
-            sk_sp<SkShader> sh;
-            if (fInheritFromPaint) {
-                sh = pic->makeShader(tm, tm, nullptr, nullptr);
-                paint->setFilterQuality(fFilter == SkFilterMode::kNearest ? kNone_SkFilterQuality
-                                                                          : kLow_SkFilterQuality);
-            } else {
-                sh = pic->makeShader(tm, tm, fFilter, nullptr, nullptr);
-                // the draw should ignore paint's filterquality,
-                // but we'll set it to something wacky just to be test that
-                paint->setFilterQuality(kHigh_SkFilterQuality);
-            }
-            paint->setShader(sh);
-        }
-    } recs[] = {
-        { {0, 0}, SkFilterMode::kNearest, true },
-        { {1, 0}, SkFilterMode::kLinear,  true },
-        { {0, 1}, SkFilterMode::kNearest, false },
-        { {1, 1}, SkFilterMode::kLinear,  false },
-    };
-
-    canvas->translate(10, 10);
-    canvas->scale(1.0f/3, 1.0f/3);
-    for (const auto& r : recs) {
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->translate(r.fLoc.fX * 330, r.fLoc.fY * 330);
-        SkPaint paint;
-        r.setup(&paint, pic);
-        canvas->drawRect({0, 0, 300, 300}, paint);
-    }
-}
-#endif

@@ -30,7 +30,8 @@ DEF_TEST(PictureShader_caching, reporter) {
 
     {
         SkPaint paint;
-        paint.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
+        paint.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                            SkFilterMode::kNearest));
         surface->getCanvas()->drawPaint(paint);
 
         // We should have about 3 refs by now: local + shader + shader cache.
@@ -40,7 +41,8 @@ DEF_TEST(PictureShader_caching, reporter) {
     // Draw another picture shader to have a chance to purge.
     {
         SkPaint paint;
-        paint.setShader(makePicture()->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
+        paint.setShader(makePicture()->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                  SkFilterMode::kNearest));
         surface->getCanvas()->drawPaint(paint);
 
     }
@@ -87,7 +89,7 @@ DEF_TEST(PictureShader_caching2, reporter) {
         SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kRepeat, SkTileMode::kDecal
     }) {
         SkPaint paint;
-        paint.setShader(picture->makeShader(m, m));
+        paint.setShader(picture->makeShader(m, m, SkFilterMode::kNearest));
         surface->getCanvas()->drawPaint(paint);
     }
 

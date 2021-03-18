@@ -922,8 +922,8 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
         SkMatrix m = SkMatrix::I();
         m.preRotate(45);
         return recorder.finishRecordingAsPicture()->makeShader(
-                                           SkTileMode::kRepeat,
-                                           SkTileMode::kRepeat, &m, nullptr);
+                                           SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                           SkFilterMode::kNearest, &m, nullptr);
     });
 
     draw_circle_shader(canvas, 400, 150, 100, []() -> sk_sp<SkShader> {
@@ -944,7 +944,7 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
 
         return recorder.finishRecordingAsPicture()->makeShader(
                                            SkTileMode::kRepeat,
-                                           SkTileMode::kRepeat);
+                                           SkTileMode::kRepeat, SkFilterMode::kNearest);
     });
 
     draw_circle_shader(canvas, 650, 150, 100, []() -> sk_sp<SkShader> {
