@@ -14,6 +14,7 @@
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
 
+#include <deque>
 #include <memory>
 #include <vector>
 
@@ -110,7 +111,11 @@ public:
         return fBuiltin;
     }
 
-    const String* takeOwnershipOfString(std::unique_ptr<String> n);
+    /**
+     * Returns a string fragment containing the text from `str`. This fragment points into the
+     * original string and so it is guaranteed to be zero-terminated.
+     */
+    StringFragment takeOwnershipOfString(String n);
 
     std::shared_ptr<SymbolTable> fParent;
 
@@ -138,7 +143,8 @@ private:
 
     bool fBuiltin = false;
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
-    std::vector<std::unique_ptr<String>> fOwnedStrings;
+    // A deque is used here because deques never move elements after they are inserted.
+    std::deque<String> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     ErrorReporter& fErrorReporter;
 
