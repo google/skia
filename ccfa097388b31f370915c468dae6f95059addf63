@@ -16,6 +16,24 @@
       "message": "Before this change, we were getting away without checking this because _at instantiation time_ the surface\u0027s scratch key was just deleted by the resource provider out from under us :facepalm:. Now that we are making the decision before instantiation, we have to check it here. LOL and WDYT?",
       "revId": "ccfa097388b31f370915c468dae6f95059addf63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2da531bc_4fe3711d",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-18T17:01:50Z",
+      "side": 1,
+      "message": "Talked",
+      "parentUuid": "57bff814_359f8b0c",
+      "revId": "ccfa097388b31f370915c468dae6f95059addf63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
