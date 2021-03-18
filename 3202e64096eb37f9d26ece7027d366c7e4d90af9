@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1e64534_24ef1f9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-18T19:27:14Z",
+      "side": 1,
+      "message": "Preview: https://skia.org/user/sksl?cl\u003d386797",
+      "revId": "3202e64096eb37f9d26ece7027d366c7e4d90af9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
