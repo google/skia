@@ -151,7 +151,7 @@ protected:
 
     typedef GrTBlockList<VaryingInfo> VaryingList;
     typedef GrTBlockList<GrShaderVar> VarArray;
-    typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
+//    typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
 
     VaryingList    fVaryings;
     VarArray       fVertexInputs;
