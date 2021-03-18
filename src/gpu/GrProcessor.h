@@ -120,7 +120,6 @@ public:
         kPremulFragmentProcessor_ClassID,
         kQuadEdgeEffect_ClassID,
         kQuadPerEdgeAAGeometryProcessor_ClassID,
-        kSampleLocationsTestProcessor_ClassID,
         kSeriesFragmentProcessor_ClassID,
         kShaderPDXferProcessor_ClassID,
         kStencilResolveProcessor_ClassID,
@@ -169,7 +168,6 @@ public:
      */
     enum class CustomFeatures {
         kNone = 0,
-        kSampleLocations = 1 << 0,
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(CustomFeatures);
