@@ -93,6 +93,7 @@ private:
     };
     InlinedCall inlineCall(FunctionCall*,
                            std::shared_ptr<SymbolTable>,
+                           const ProgramUsage&,
                            const FunctionDeclaration* caller);
 
     /** Creates a scratch variable for the inliner to use. */
