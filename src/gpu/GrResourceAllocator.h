@@ -121,7 +121,11 @@ private:
     typedef SkTMultiMap<Register, GrScratchKey, FreePoolTraits> FreePoolMultiMap;
 
     typedef SkTHashMap<uint32_t, Interval*, GrCheapHash>    IntvlHash;
-    typedef SkTHashMap<GrUniqueKey, Register*>              UniqueKeyRegisterHash;
+
+    struct UniqueKeyHash {
+        uint32_t operator()(const GrUniqueKey& key) const { return key.hash(); }
+    };
+    typedef SkTHashMap<GrUniqueKey, Register*, UniqueKeyHash> UniqueKeyRegisterHash;
 
     // Each proxy – with some exceptions – is assigned a register. After all assignments are made,
     // another pass is performed to instantiate and assign actual surfaces to the proxies. Right
