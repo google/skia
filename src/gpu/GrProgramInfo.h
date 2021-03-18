@@ -99,11 +99,6 @@ public:
     void validate(bool flushTime) const;
     void checkAllInstantiated() const;
     void checkMSAAAndMIPSAreResolved() const;
-
-    bool isNVPR() const {
-        return fPrimProc->isPathRendering() && !fPrimProc->willUseGeoShader() &&
-               !fPrimProc->numVertexAttributes() && !fPrimProc->numInstanceAttributes();
-    }
 #endif
 
 private:

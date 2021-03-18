@@ -592,12 +592,6 @@ public:
                      const SkMatrix& viewMatrix,
                      const SkPath&);
 
-    // Same as for stencilPath, but for an NVPR path object.
-    void stencilPath(const GrHardClip*,
-                     GrAA doStencilMSAA,
-                     const SkMatrix& viewMatrix,
-                     sk_sp<const GrPath>);
-
     /**
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.

@@ -10,6 +10,8 @@ Milestone 91
     development and isn't quite ready for prime time yet.
     https://review.skia.org/378496
 
+  * Skia's GPU backend no longer supports NVPR. Our more recent path renderers are more
+    performant and are not limited to nVidia hardware.
 * * *
 
 Milestone 90

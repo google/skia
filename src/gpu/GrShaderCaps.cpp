@@ -18,7 +18,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fShaderDerivativeSupport = false;
     fGeometryShaderSupport = false;
     fGSInvocationsSupport = false;
-    fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
@@ -86,7 +85,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Shader Derivative Support", fShaderDerivativeSupport);
     writer->appendBool("Geometry Shader Support", fGeometryShaderSupport);
     writer->appendBool("Geometry Shader Invocations Support", fGSInvocationsSupport);
-    writer->appendBool("Path Rendering Support", fPathRenderingSupport);
     writer->appendBool("Dst Read In Shader Support", fDstReadInShaderSupport);
     writer->appendBool("Dual Source Blending Support", fDualSourceBlendingSupport);
     writer->appendBool("Integer Support", fIntegerSupport);

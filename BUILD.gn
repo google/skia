@@ -872,10 +872,6 @@ optional("gpu") {
     sources -= skia_ccpr_sources
     sources += [ "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp" ]
   }
-  if (!skia_enable_nvpr) {
-    sources -= skia_nvpr_sources
-    sources += [ "src/gpu/GrPathRendering_none.cpp" ]
-  }
 
   libs = []
   frameworks = []

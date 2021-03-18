@@ -19,8 +19,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrPath.h"
-#include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceCache.h"
@@ -449,15 +447,6 @@ int GrResourceProvider::NumVertsPerAAQuad() { return kVertsPerAAQuad; }
 int GrResourceProvider::NumIndicesPerAAQuad() { return kIndicesPerAAQuad; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    SkASSERT(this->gpu()->pathRendering());
-    return this->gpu()->pathRendering()->createPath(path, style);
-}
-
 sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType intendedType,
                                                     GrAccessPattern accessPattern,
                                                     const void* data) {

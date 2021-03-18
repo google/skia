@@ -41,8 +41,7 @@ public:
     typedef GrTBlockList<GLUniformInfo> UniformInfoArray;
     typedef GrTBlockList<VaryingInfo>   VaryingInfoArray;
 
-    GrGLProgramDataManager(GrGLGpu*, GrGLuint programID, const UniformInfoArray&,
-                           const VaryingInfoArray&);
+    GrGLProgramDataManager(GrGLGpu*, const UniformInfoArray&);
 
     void setSamplerUniforms(const UniformInfoArray& samplers, int startUnit) const;
 
@@ -74,10 +73,6 @@ public:
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
-    // for nvpr only
-    void setPathFragmentInputTransform(VaryingHandle u, int components,
-                                       const SkMatrix& matrix) const override;
-
 private:
     enum {
         kUnusedUniform = -1,
@@ -91,24 +86,11 @@ private:
 #endif
     };
 
-    enum {
-        kUnusedPathProcVarying = -1,
-    };
-    struct PathProcVarying {
-        GrGLint     fLocation;
-        SkDEBUGCODE(
-            GrSLType    fType;
-            int         fArrayCount;
-        );
-    };
-
     template<int N> inline void setMatrices(UniformHandle, int arrayCount,
                                             const float matrices[]) const;
 
     SkTArray<Uniform, true> fUniforms;
-    SkTArray<PathProcVarying, true> fPathProcVaryings;
     GrGLGpu* fGpu;
-    GrGLuint fProgramID;
 
     using INHERITED = GrGLSLProgramDataManager;
 };

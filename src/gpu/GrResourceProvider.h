@@ -239,12 +239,6 @@ public:
     static int NumIndicesPerAAQuad();
 
     /**
-     * Factories for GrPath objects. It's an error to call these if path rendering
-     * is not supported.
-     */
-    sk_sp<GrPath> createPath(const SkPath&, const GrStyle&);
-
-    /**
      * Returns a buffer.
      *
      * @param size            minimum size of buffer to return.

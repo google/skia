@@ -378,11 +378,8 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             return nullptr;
         }
 
-        // This also binds vertex attribute locations. NVPR doesn't really use vertices,
-        // even though it requires a vertex shader in the program.
-        if (!primProc.isPathRendering()) {
-            this->computeCountsAndStrides(programID, primProc, true);
-        }
+        // This also binds vertex attribute locations.
+        this->computeCountsAndStrides(programID, primProc, true);
 
         /*
            Tessellation Shaders
@@ -493,18 +490,6 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
         GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
                                   GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
     }
-
-    // handle NVPR separable varyings
-    if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
-        !fGpu->glPathRendering()->shouldBindFragmentInputs()) {
-        return;
-    }
-    int i = 0;
-    for (auto& varying : fVaryingHandler.fPathProcVaryingInfos.items()) {
-        GL_CALL(BindFragmentInputLocation(programID, i, varying.fVariable.c_str()));
-        varying.fLocation = i;
-        ++i;
-    }
 }
 
 bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
@@ -544,20 +529,6 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
 
 void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, bool force) {
     fUniformHandler.getUniformLocations(programID, fGpu->glCaps(), force);
-
-    // handle NVPR separable varyings
-    if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
-        fGpu->glPathRendering()->shouldBindFragmentInputs()) {
-        return;
-    }
-    for (auto& varying : fVaryingHandler.fPathProcVaryingInfos.items()) {
-        GrGLint location;
-        GL_CALL_RET(location, GetProgramResourceLocation(
-                                       programID,
-                                       GR_GL_FRAGMENT_INPUT,
-                                       varying.fVariable.c_str()));
-        varying.fLocation = location;
-    }
 }
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
@@ -566,7 +537,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
                              programID,
                              fUniformHandler.fUniforms,
                              fUniformHandler.fSamplers,
-                             fVaryingHandler.fPathProcVaryingInfos,
                              std::move(fGeometryProcessor),
                              std::move(fXferProcessor),
                              std::move(fFPImpls),

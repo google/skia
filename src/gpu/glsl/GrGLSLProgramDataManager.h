@@ -58,11 +58,6 @@ public:
     // convenience method for uploading a SkMatrix to a 4x4 matrix uniform
     void setSkM44(UniformHandle, const SkM44&) const;
 
-    // for nvpr only
-    GR_DEFINE_RESOURCE_HANDLE_CLASS(VaryingHandle);
-    virtual void setPathFragmentInputTransform(VaryingHandle u, int components,
-                                               const SkMatrix& matrix) const = 0;
-
 protected:
     GrGLSLProgramDataManager() {}
 

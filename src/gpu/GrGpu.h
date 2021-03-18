@@ -33,7 +33,6 @@ class GrGLContext;
 class GrPath;
 class GrPathRenderer;
 class GrPathRendererChain;
-class GrPathRendering;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
@@ -63,8 +62,6 @@ public:
      */
     const GrCaps* caps() const { return fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fCaps; }
-
-    GrPathRendering* pathRendering() { return fPathRendering.get();  }
 
     virtual GrStagingBufferManager* stagingBufferManager() { return nullptr; }
 
@@ -700,7 +697,6 @@ protected:
     void setOOMed() { fOOMed = true; }
 
     Stats                            fStats;
-    std::unique_ptr<GrPathRendering> fPathRendering;
 
     // Subclass must call this to initialize caps & compiler in its constructor.
     void initCapsAndCompiler(sk_sp<const GrCaps> caps);

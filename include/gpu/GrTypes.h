@@ -218,7 +218,6 @@ enum GrGLBackendState {
     kProgram_GrGLBackendState          = 1 << 8,
     kFixedFunction_GrGLBackendState    = 1 << 9,
     kMisc_GrGLBackendState             = 1 << 10,
-    kPathRendering_GrGLBackendState    = 1 << 11,
     kALL_GrGLBackendState              = 0xffff
 };
 
