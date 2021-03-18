@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cc4fdad_576c198e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-18T15:03:56Z",
+      "side": 1,
+      "message": "Take 2 calls into attemptQuadOptimization. This seems to be the simplest approach that works for now. We can refactor later if it sticks.",
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
