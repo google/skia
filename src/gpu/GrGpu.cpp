@@ -723,7 +723,6 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
 #if GR_GPU_STATS
 
 void GrGpu::Stats::dump(SkString* out) {
-    out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
     out->appendf("Textures Created: %d\n", fTextureCreates);
     out->appendf("Texture Uploads: %d\n", fTextureUploads);
     out->appendf("Transfers to Texture: %d\n", fTransfersToTexture);
@@ -753,8 +752,6 @@ void GrGpu::Stats::dump(SkString* out) {
 }
 
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
-    keys->push_back(SkString("render_target_binds"));
-    values->push_back(fRenderTargetBinds);
     keys->push_back(SkString("render_passes"));
     values->push_back(fRenderPasses);
 }

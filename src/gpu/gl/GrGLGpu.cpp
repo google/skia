@@ -2928,7 +2928,6 @@ void GrGLGpu::onFBOChanged() {
 }
 
 void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
-    fStats.incRenderTargetBinds();
     GL_CALL(BindFramebuffer(target, fboid));
     if (target == GR_GL_FRAMEBUFFER || target == GR_GL_DRAW_FRAMEBUFFER) {
         fBoundDrawFramebuffer = fboid;
