@@ -338,11 +338,6 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     auto colorState = create_color_state(gpu, pipeline, colorFormat);
     wgpu::DepthStencilStateDescriptor depthStencilState;
 
-#ifdef SK_DEBUG
-    if (programInfo.isStencilEnabled()) {
-        SkASSERT(renderTarget->numStencilBits() == 8);
-    }
-#endif
     depthStencilState = create_depth_stencil_state(programInfo, depthStencilFormat);
 
     std::vector<wgpu::VertexBufferLayoutDescriptor> inputs;
