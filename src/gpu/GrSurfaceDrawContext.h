@@ -182,11 +182,7 @@ public:
                         GrAA aa,
                         const SkMatrix& viewMatrix,
                         const SkRect& rectToDraw,
-                        const SkRect& localRect) {
-        DrawQuad quad{GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect),
-                      aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
-        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
-    }
+                        const SkRect& localRect);
 
     /**
      * Fills a block of pixels with a paint and a localMatrix, respecting the clip.
@@ -679,7 +675,7 @@ private:
     // 'stencilSettings' are provided merely for decision making purposes; When non-null,
     // optimization strategies that submit special ops are avoided.
     QuadOptimization attemptQuadOptimization(const GrClip* clip,
-                                             const SkPMColor4f* constColor,
+                                             const GrPaint* paint,
                                              const GrUserStencilSettings* stencilSettings,
                                              GrAA* aa,
                                              DrawQuad* quad);
