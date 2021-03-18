@@ -219,7 +219,7 @@ private:
     Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
 
-    const String* fSource;
+    StringFragment fSource;
     int fErrorCount;
     String fErrorText;
     std::vector<size_t> fErrorTextLength;

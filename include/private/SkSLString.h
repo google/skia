@@ -37,6 +37,7 @@ struct StringFragment {
 
     const char* begin() const { return fChars; }
     const char* end() const { return fChars + fLength; }
+    bool empty() const { return fLength == 0; }
 
     const char* data() const { return fChars; }
     size_t size() const { return fLength; }
@@ -85,6 +86,10 @@ public:
     }
 
     bool consumeSuffix(const char suffix[]);
+
+    StringFragment asStringFragment() const {
+        return StringFragment{this->c_str(), this->size()};
+    }
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;

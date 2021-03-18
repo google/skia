@@ -82,7 +82,7 @@ using RefKind = VariableReference::RefKind;
 
 class AutoSource {
 public:
-    AutoSource(Compiler* compiler, const String* source)
+    AutoSource(Compiler* compiler, StringFragment source)
             : fCompiler(compiler), fOldSource(fCompiler->fSource) {
         fCompiler->fSource = source;
     }
@@ -90,7 +90,7 @@ public:
     ~AutoSource() { fCompiler->fSource = fOldSource; }
 
     Compiler* fCompiler;
-    const String* fOldSource;
+    StringFragment fOldSource;
 };
 
 class AutoProgramConfig {
@@ -306,7 +306,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         abort();
     }
     const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
-    AutoSource as(this, source);
+    AutoSource as(this, source->asStringFragment());
 
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
@@ -423,7 +423,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     std::unique_ptr<String> textPtr(new String(std::move(text)));
-    fSource = textPtr.get();
+    fSource = textPtr->asStringFragment();
 
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
@@ -712,7 +712,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->asStringFragment());
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
     if (result && program.fConfig->fSettings.fValidateSPIRV) {
@@ -746,7 +746,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
         out.write(data.c_str(), data.size());
     }
 #else
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->asStringFragment());
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
 #endif
@@ -764,7 +764,7 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->asStringFragment());
     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     return result;
@@ -806,14 +806,14 @@ bool Compiler::toMetal(Program& program, String* out) {
 
 #if defined(SKSL_STANDALONE) || GR_TEST_UTILS
 bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->asStringFragment());
     CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
     return result;
 }
 
 bool Compiler::toH(Program& program, String name, OutputStream& out) {
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->asStringFragment());
     HCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
     return result;
@@ -823,11 +823,11 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 Position Compiler::position(int offset) {
-    if (fSource && offset >= 0) {
+    if (!fSource.empty() && offset >= 0 && offset < (int)fSource.size()) {
         int line = 1;
         int column = 1;
         for (int i = 0; i < offset; i++) {
-            if ((*fSource)[i] == '\n') {
+            if (fSource[i] == '\n') {
                 ++line;
                 column = 1;
             }
