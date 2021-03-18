@@ -27,6 +27,7 @@ OpMemberDecorate %B 1 Offset 16
 OpMemberDecorate %B 2 Binding 1
 OpMemberDecorate %B 2 Offset 48
 OpMemberDecorate %B 2 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
