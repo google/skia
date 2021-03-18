@@ -83,6 +83,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b15d30de_8eb763bd",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-18T16:21:12Z",
+      "side": 1,
+      "message": "The only difference as far as I can see would be that we\u0027d preserve the original blend mode if it\u0027s opaque src-over? FWIW GrPaint doesn\u0027t have a public copy constructor. It has Clone(), which clones all the FPs (which should be nonexistent here).",
+      "parentUuid": "7b4db74f_6231ad61",
+      "range": {
+        "startLine": 577,
+        "startChar": 12,
+        "endLine": 578,
+        "endChar": 56
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d3b38def_1f623d2a",
         "filename": "src/gpu/GrSurfaceDrawContext.cpp",
         "patchSetId": 2
