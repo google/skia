@@ -241,23 +241,33 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrYUVtoRGBEffect::onMakeProgramImpl() c
                 sampleCoords = "snappedCoords";
             }
 
-            fragBuilder->codeAppendf("half4 planes[%d];", numPlanes);
-            for (int i = 0; i < numPlanes; ++i) {
-                SkString tempVar = this->invokeChild(i, args, sampleCoords);
-                fragBuilder->codeAppendf("planes[%d] = %s;", i, tempVar.c_str());
+            fragBuilder->codeAppendf("half4 color;");
+            const bool hasAlpha = yuvEffect.fLocations[SkYUVAInfo::YUVAChannels::kA].fPlane >= 0;
+
+            for (int planeIdx = 0; planeIdx < numPlanes; ++planeIdx) {
+                std::string colorChannel;
+                std::string planeChannel;
+                for (int locIdx = 0; locIdx < (hasAlpha ? 4 : 3); ++locIdx) {
+                    auto [yuvPlane, yuvChannel] = yuvEffect.fLocations[locIdx];
+                    if (yuvPlane == planeIdx) {
+                        colorChannel.push_back("rgba"[locIdx]);
+                        planeChannel.push_back("rgba"[static_cast<int>(yuvChannel)]);
+                    }
+                }
+
+                SkASSERT(colorChannel.size() == planeChannel.size());
+                if (!colorChannel.empty()) {
+                    fragBuilder->codeAppendf(
+                            "color.%s = (%s).%s;",
+                            colorChannel.c_str(),
+                            this->invokeChild(planeIdx, args, sampleCoords).c_str(),
+                            planeChannel.c_str());
+                }
             }
 
-            bool hasAlpha = yuvEffect.fLocations[SkYUVAInfo::YUVAChannels::kA].fPlane >= 0;
-            SkString rgba[4];
-            rgba[3] = "1";
-            for (int i = 0; i < (hasAlpha ? 4 : 3); ++i) {
-                auto [plane, channel] = yuvEffect.fLocations[i];
-                auto letter = "rgba"[static_cast<int>(channel)];
-                rgba[i].printf("planes[%d].%c", plane, letter);
+            if (!hasAlpha) {
+                fragBuilder->codeAppendf("color.a = 1;");
             }
-
-            fragBuilder->codeAppendf("half4 color = half4(%s, %s, %s, %s);",
-                    rgba[0].c_str(), rgba[1].c_str(), rgba[2].c_str(), rgba[3].c_str());
 
             if (kIdentity_SkYUVColorSpace != yuvEffect.fYUVColorSpace) {
                 fColorSpaceMatrixVar = args.fUniformHandler->addUniform(&yuvEffect,
