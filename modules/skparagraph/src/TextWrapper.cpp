@@ -432,6 +432,10 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
         }
 
+        if (disableLastDescent) {
+            fEndLine.metrics().fDescent = fEndLine.metrics().fRawDescent;
+        }
+
         ClusterRange clusters(fEndLine.breakCluster() - start, fEndLine.endCluster() - start);
         addLine(fEndLine.breakCluster()->textRange(),
                 fEndLine.endCluster()->textRange(),
