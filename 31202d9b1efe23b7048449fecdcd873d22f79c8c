@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1c6e321_24ec731e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-18T17:38:42Z",
+      "side": 1,
+      "message": "\u003e \"explicity\" is a possible misspelling of \"explicitly\".\n\nPlease fix.",
+      "parentUuid": "74fc724c_ba28d6ad",
+      "range": {
+        "startLine": 11,
+        "startChar": 27,
+        "endLine": 11,
+        "endChar": 36
+      },
+      "revId": "31202d9b1efe23b7048449fecdcd873d22f79c8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
