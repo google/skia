@@ -813,9 +813,9 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
 class SkTextBlobCacheDiffCanvas::TrackLayerDevice final : public SkNoPixelsDevice {
 public:
     TrackLayerDevice(
-            const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServerImpl* server,
+            const SkISize& dimensions, const SkSurfaceProps& props, SkStrikeServerImpl* server,
             sk_sp<SkColorSpace> colorSpace, bool DFTSupport)
-            : SkNoPixelsDevice(bounds, props, std::move(colorSpace))
+            : SkNoPixelsDevice(SkIRect::MakeSize(dimensions), props, std::move(colorSpace))
             , fStrikeServerImpl(server)
             , fDFTSupport(DFTSupport)
             , fPainter{props, kUnknown_SkColorType, imageInfo().colorSpace(), fStrikeServerImpl} {
@@ -824,7 +824,7 @@ public:
 
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps, fStrikeServerImpl,
+        return new TrackLayerDevice(cinfo.fInfo.dimensions(), surfaceProps, fStrikeServerImpl,
                                     cinfo.fInfo.refColorSpace(), fDFTSupport);
     }
 
@@ -869,7 +869,7 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      SkStrikeServer* strikeServer,
                                                      sk_sp<SkColorSpace> colorSpace,
                                                      bool DFTSupport)
-        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height),
+        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkISize::Make(width, height),
                                                       props,
                                                       strikeServer->impl(),
                                                       std::move(colorSpace),
@@ -1144,4 +1144,3 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
     return fImpl->deserializeTypeface(buf, len);
 }
-
