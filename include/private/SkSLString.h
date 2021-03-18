@@ -71,6 +71,7 @@ class SK_API String : public std::string {
 public:
     using std::string::string;
 
+    explicit String(std::string s) : INHERITED(std::move(s)) {}
     String(StringFragment s) : INHERITED(s.fChars, s.fLength) {}
 
     static String printf(const char* fmt, ...) SK_PRINTF_LIKE(1, 2);
