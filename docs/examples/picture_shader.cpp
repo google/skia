@@ -54,7 +54,7 @@ void draw(SkCanvas* canvas) {
     SkPictureRecorder rec;
     draw_wheel(rec.beginRecording(512, 512));
     paint.setShader(rec.finishRecordingAsPicture()->makeShader(
-            SkTileMode::kRepeat, SkTileMode::kRepeat, &matrix, nullptr));
+            SkTileMode::kRepeat, SkTileMode::kRepeat, SkFilterMode::kNearest, &matrix, nullptr));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

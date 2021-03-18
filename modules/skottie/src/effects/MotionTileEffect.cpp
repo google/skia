@@ -83,7 +83,8 @@ protected:
                     SkRect::MakeWH(fLayerSize.width(), fLayerSize.height()), tile);
 
         const auto tm = fMirrorEdges ? SkTileMode::kMirror : SkTileMode::kRepeat;
-        auto layer_shader = fLayerPicture->makeShader(tm, tm, &layerShaderMatrix);
+        auto layer_shader = fLayerPicture->makeShader(tm, tm, SkFilterMode::kLinear,
+                                                      &layerShaderMatrix, nullptr);
 
         if (fPhase) {
             // To implement AE phase semantics, we construct a mask shader for the pass-through

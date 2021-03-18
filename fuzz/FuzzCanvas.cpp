@@ -226,7 +226,8 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (useTile) {
                 fuzz->next(&tile);
             }
-            return pic->makeShader(tmX, tmY, useMatrix ? &matrix : nullptr, useTile ? &tile : nullptr);
+            return pic->makeShader(tmX, tmY, SkFilterMode::kNearest,
+                                   useMatrix ? &matrix : nullptr, useTile ? &tile : nullptr);
         }
         // EFFECTS:
         case 9:

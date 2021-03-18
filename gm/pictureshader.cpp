@@ -163,6 +163,7 @@ private:
 
         auto pictureShader = fPicture->makeShader(kTileConfigs[tileMode].tmx,
                                                   kTileConfigs[tileMode].tmy,
+                                                  SkFilterMode::kNearest,
                                                   fUseLocalMatrixWrapper ? nullptr : &localMatrix,
                                                   nullptr);
         paint.setShader(fUseLocalMatrixWrapper
@@ -222,7 +223,8 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     p.setColor(0xFFB6B6B6);  // gray
     canvas->drawPaint(p);
 
-    p.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
+    p.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                    SkFilterMode::kNearest));
     canvas->drawPaint(p);
 }
 
@@ -260,11 +262,11 @@ DEF_SIMPLE_GM(picture_shader_filter, canvas, 230, 230) {
             SkTileMode tm = SkTileMode::kRepeat;
             sk_sp<SkShader> sh;
             if (fInheritFromPaint) {
-                sh = pic->makeShader(tm, tm, nullptr, nullptr);
+                sh = pic->makeShader(tm, tm, SkFilterMode::kNearest);
                 paint->setFilterQuality(fFilter == SkFilterMode::kNearest ? kNone_SkFilterQuality
                                                                           : kLow_SkFilterQuality);
             } else {
-                sh = pic->makeShader(tm, tm, fFilter, nullptr, nullptr);
+                sh = pic->makeShader(tm, tm, fFilter);
                 // the draw should ignore paint's filterquality,
                 // but we'll set it to something wacky just to be test that
                 paint->setFilterQuality(kHigh_SkFilterQuality);

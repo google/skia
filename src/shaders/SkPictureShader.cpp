@@ -44,20 +44,6 @@ sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMo
                                  localMatrix, tile);
 }
 
-sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
-                                      const SkRect* tile) const {
-    if (localMatrix && !localMatrix->invert(nullptr)) {
-        return nullptr;
-    }
-    return SkPictureShader::Make(sk_ref_sp(this), tmx, tmy, SkPictureShader::kInheritFromPaint,
-                                 localMatrix, tile);
-}
-
-sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy,
-                                      const SkMatrix* localMatrix) const {
-    return this->makeShader(tmx, tmy, localMatrix, nullptr);
-}
-
 namespace {
 static unsigned gImageFromPictureKeyNamespaceLabel;
 
