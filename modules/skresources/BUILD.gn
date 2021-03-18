@@ -9,7 +9,7 @@ config("public_config") {
   include_dirs = [ "include" ]
 }
 
-static_library("skresources") {
+component("skresources") {
   import("skresources.gni")
   public_configs = [ ":public_config" ]
   public = skia_skresources_public
