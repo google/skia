@@ -21,6 +21,8 @@ static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
     matrix.setSinCos(-vec.fY, vec.fX, pts[0].fX, pts[0].fY);
     matrix.postTranslate(-pts[0].fX, -pts[0].fY);
     matrix.postScale(inv, inv);
+    // Compute the matrix type now so that we're thread-safe. skbug.com/11715
+    (void)matrix.getType();
     return matrix;
 }
 
