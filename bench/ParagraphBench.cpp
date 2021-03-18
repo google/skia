@@ -16,7 +16,7 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 
-class ParagraphBench : public Benchmark {
+class ParagraphBench final : public Benchmark {
     SkString fName;
     sk_sp<skia::textlayout::FontCollection> fFontCollection;
     skia::textlayout::TextStyle fTStyle;
@@ -73,6 +73,11 @@ protected:
         builder->addText(text);
         builder->pop();
         fParagraph = builder->Build();
+
+        // Call onDraw once to warm up the glyph cache otherwise nanobench will mis-calculate the
+        // loop count.
+        SkCanvas canvas;
+        this->onDraw(1, &canvas);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
