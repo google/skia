@@ -92,9 +92,6 @@ def skpbench_steps(api):
     skpbench_args += [api.flavor.device_dirs.mskp_dir]
   elif is_all_paths_volatile:
     skpbench_args += [
-        # nvpr takes every path when enabled, which isn't always the best choice
-        # for volatile paths.
-        '--pr', '~nvpr',
         '--allPathsVolatile',
         '--suffix', "_volatile",
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),

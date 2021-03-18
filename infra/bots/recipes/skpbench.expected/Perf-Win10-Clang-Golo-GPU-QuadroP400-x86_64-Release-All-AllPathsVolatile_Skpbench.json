@@ -78,8 +78,6 @@
       "--internalSamples",
       "8",
       "-v5",
-      "--pr",
-      "~nvpr",
       "--allPathsVolatile",
       "--suffix",
       "_volatile",
