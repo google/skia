@@ -13,7 +13,7 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrHashMapWithCache.h"
 #include "src/gpu/GrSurface.h"
-#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTMultiMap.h"
@@ -108,7 +108,7 @@ private:
 
     // These two methods wrap the interactions with the free pool
     void recycleRegister(Register* r);
-    Register* findRegisterFor(const GrSurfaceProxy* proxy);
+    Register* findOrCreateRegisterFor(GrSurfaceProxy* proxy);
 
     struct FreePoolTraits {
         static const GrScratchKey& GetKey(const Register& r) {
@@ -120,31 +120,42 @@ private:
     };
     typedef SkTMultiMap<Register, GrScratchKey, FreePoolTraits> FreePoolMultiMap;
 
-    typedef SkTHashMap<uint32_t, Interval*, GrCheapHash> IntvlHash;
+    typedef SkTHashMap<uint32_t, Interval*, GrCheapHash>    IntvlHash;
+    typedef SkTHashMap<GrUniqueKey, Register*>              UniqueKeyRegisterHash;
 
-    // Right now this is just a wrapper around an actual SkSurface.
-    // In the future this will be a placeholder for an SkSurface that will be
-    // created later, after the user of the resource allocator commits to
-    // a specific series of intervals.
+    // Each proxy – with some exceptions – is assigned a register. After all assignments are made,
+    // another pass is performed to instantiate and assign actual surfaces to the proxies. Right
+    // now these are performed in one call, but in the future they will be separable and the user
+    // will be able to query re: memory cost before committing to surface creation.
     class Register {
     public:
-        Register(sk_sp<GrSurface> s) : fSurface(std::move(s)) {
-            SkASSERT(fSurface);
+        // It's OK to pass an invalid scratch key iff the proxy has a unique key.
+        Register(GrSurfaceProxy* originatingProxy, GrScratchKey scratchKey)
+                : fOriginatingProxy(originatingProxy)
+                , fScratchKey(std::move(scratchKey)) {
+            SkASSERT(originatingProxy);
+            SkASSERT(!originatingProxy->isInstantiated());
+            SkASSERT(!originatingProxy->isLazy());
+            SkASSERT(this->scratchKey().isValid() ^ this->uniqueKey().isValid());
             SkDEBUGCODE(fUniqueID = CreateUniqueID();)
         }
-        ~Register() = default;
 
-        const GrScratchKey& scratchKey() const {
-            return fSurface->resourcePriv().getScratchKey();
-        }
+        const GrScratchKey& scratchKey() const { return fScratchKey; }
+        const GrUniqueKey& uniqueKey() const { return fOriginatingProxy->getUniqueKey(); }
 
-        GrSurface* surface() const { return fSurface.get(); }
-        sk_sp<GrSurface> refSurface() const { return fSurface; }
+        // Can this register be used by other proxies after this one?
+        bool isRecyclable(const GrCaps&, GrSurfaceProxy* proxy, int knownUseCount) const;
+
+        // Resolve the register allocation to an actual GrSurface. 'fOriginatingProxy'
+        // is used to cache the allocation when a given register is used by multiple
+        // proxies.
+        bool instantiateSurface(GrSurfaceProxy*, GrResourceProvider*);
 
         SkDEBUGCODE(uint32_t uniqueID() const { return fUniqueID; })
 
     private:
-        sk_sp<GrSurface> fSurface;
+        GrSurfaceProxy*  fOriginatingProxy;
+        GrScratchKey     fScratchKey; // free pool wants a reference to this.
 
 #ifdef SK_DEBUG
         uint32_t         fUniqueID;
@@ -156,9 +167,9 @@ private:
     class Interval {
     public:
         Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
-            : fProxy(proxy)
-            , fStart(start)
-            , fEnd(end) {
+                : fProxy(proxy)
+                , fStart(start)
+                , fEnd(end) {
             SkASSERT(proxy);
             SkDEBUGCODE(fUniqueID = CreateUniqueID());
 #if GR_TRACK_INTERVAL_CREATION
@@ -179,8 +190,6 @@ private:
 
         Register* getRegister() const { return fRegister; }
         void setRegister(Register* r) { fRegister = r; }
-
-        bool isSurfaceRecyclable() const;
 
         void addUse() { fUses++; }
         int uses() const { return fUses; }
@@ -246,6 +255,9 @@ private:
     IntervalList                 fIntvlList;         // All the intervals sorted by increasing start
     IntervalList                 fActiveIntvls;      // List of live intervals during assignment
                                                      // (sorted by increasing end)
+    IntervalList                 fFinishedIntvls;    // All the completed intervals
+                                                     // (sorted by increasing end)
+    UniqueKeyRegisterHash        fUniqueKeyRegisters;
     unsigned int                 fNumOps = 0;
 
     SkDEBUGCODE(bool             fAssigned = false;)
