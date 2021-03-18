@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b153954d_4c02cec7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-18T16:53:05Z",
+      "side": 1,
+      "message": "I may be missing it; where are we actually disabling NVPR?  Most of this seems to be getting rid of the NonNVPR config and associated flags.",
+      "revId": "af757bba8b31dfe938735e2103f7a5bfb2cef428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
