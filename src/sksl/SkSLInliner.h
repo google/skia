@@ -53,6 +53,7 @@ private:
         kSingleSafeReturn,
         kScopedReturns,
         kEarlyReturns,
+        kUnknown,
     };
 
     const Program::Settings& settings() const { return fContext->fConfig->fSettings; }
@@ -73,8 +74,11 @@ private:
                                                const Statement& statement,
                                                bool isBuiltinCode);
 
-    /** Determines if a given function has multiple and/or early returns. */
-    static ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
+    /**
+     * Determines if a given function has multiple and/or early returns. This indicator is stable--
+     * inlining into a function never adds or moves a return statement--so we can cache it.
+     */
+    ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
 
     using InlinabilityCache = std::unordered_map<const FunctionDeclaration*, bool>;
     bool candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache);
@@ -113,6 +117,9 @@ private:
 
     /** Checks whether inlining is viable for a FunctionCall, modulo recursion and function size. */
     bool isSafeToInline(const FunctionDefinition* functionDef);
+
+    using ReturnComplexityCache = std::unordered_map<const FunctionDefinition*, ReturnComplexity>;
+    ReturnComplexityCache fReturnComplexityCache;
 
     const Context* fContext = nullptr;
     ModifiersPool* fModifiers = nullptr;

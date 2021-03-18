@@ -211,18 +211,25 @@ public:
 }  // namespace
 
 Inliner::ReturnComplexity Inliner::GetReturnComplexity(const FunctionDefinition& funcDef) {
-    int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
-    CountReturnsWithLimit counter{funcDef, returnsAtEndOfControlFlow + 1};
-    if (counter.fNumReturns > returnsAtEndOfControlFlow) {
-        return ReturnComplexity::kEarlyReturns;
+    // Look up return complexity from the cache.
+    auto [iter, didInsert] = fReturnComplexityCache.insert({&funcDef, ReturnComplexity::kUnknown});
+    if (didInsert) {
+        // Determine return complexity.
+        int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
+        CountReturnsWithLimit counter{funcDef, returnsAtEndOfControlFlow + 1};
+
+        if (counter.fNumReturns > returnsAtEndOfControlFlow) {
+            iter->second = ReturnComplexity::kEarlyReturns;
+        } else if (counter.fNumReturns > 1) {
+            iter->second = ReturnComplexity::kScopedReturns;
+        } else if (counter.fVariablesInBlocks && counter.fDeepestReturn > 1) {
+            iter->second = ReturnComplexity::kScopedReturns;
+        } else {
+            iter->second = ReturnComplexity::kSingleSafeReturn;
+        }
     }
-    if (counter.fNumReturns > 1) {
-        return ReturnComplexity::kScopedReturns;
-    }
-    if (counter.fVariablesInBlocks && counter.fDeepestReturn > 1) {
-        return ReturnComplexity::kScopedReturns;
-    }
-    return ReturnComplexity::kSingleSafeReturn;
+
+    return iter->second;
 }
 
 void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) {
@@ -270,6 +277,7 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
 void Inliner::reset(ModifiersPool* modifiers) {
     fModifiers = modifiers;
     fMangler.reset();
+    fReturnComplexityCache.clear();
     fInlinedStatementCounter = 0;
 }
 
