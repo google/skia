@@ -299,8 +299,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 #if defined(SKSL_STANDALONE)
     SkASSERT(data.fPath);
     std::ifstream in(data.fPath);
-    std::unique_ptr<String> text = std::make_unique<String>(std::istreambuf_iterator<char>(in),
-                                                            std::istreambuf_iterator<char>());
+    String text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
     if (in.rdstate()) {
         printf("error reading %s\n", data.fPath);
         abort();

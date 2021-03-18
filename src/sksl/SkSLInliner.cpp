@@ -492,13 +492,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
-            auto name = std::make_unique<String>(fMangler.uniqueName(variable.name(),
-                                                                     symbolTableForStatement));
-            const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
+            const String* name = symbolTableForStatement->takeOwnershipOfString(
+                    fMangler.uniqueName(variable.name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
                                                      offset,
                                                      &variable.modifiers(),
-                                                     namePtr->c_str(),
+                                                     name->c_str(),
                                                      variable.type().clone(symbolTableForStatement),
                                                      isBuiltinCode,
                                                      variable.storage());
@@ -535,15 +534,14 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
     SkASSERT(!(modifiers.fFlags & Modifiers::kOut_Flag));
 
     // Provide our new variable with a unique name, and add it to our symbol table.
-    const String* namePtr = symbolTable->takeOwnershipOfString(
-            std::make_unique<String>(fMangler.uniqueName(baseName, symbolTable)));
-    StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
+    const String* name =
+            symbolTable->takeOwnershipOfString(fMangler.uniqueName(baseName, symbolTable));
 
     // Create our new variable and add it to the symbol table.
     InlineVariable result;
     auto var = std::make_unique<Variable>(/*offset=*/-1,
                                           fModifiers->addToPool(Modifiers()),
-                                          nameFrag,
+                                          name->c_str(),
                                           type,
                                           isBuiltinCode,
                                           Variable::Storage::kLocal);

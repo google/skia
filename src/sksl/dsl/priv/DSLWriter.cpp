@@ -82,9 +82,8 @@ const SkSL::Modifiers* DSLWriter::Modifiers(SkSL::Modifiers modifiers) {
 
 const char* DSLWriter::Name(const char* name) {
     if (ManglingEnabled()) {
-        auto mangled =
-                std::make_unique<String>(Instance().fMangler.uniqueName(name, SymbolTable().get()));
-        const SkSL::String* s = SymbolTable()->takeOwnershipOfString(std::move(mangled));
+        const String* s = SymbolTable()->takeOwnershipOfString(
+                Instance().fMangler.uniqueName(name, SymbolTable().get()));
         return s->c_str();
     }
     return name;

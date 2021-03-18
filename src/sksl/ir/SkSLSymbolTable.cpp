@@ -81,10 +81,11 @@ const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable, const Symbol
     return symbol;
 }
 
-const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
-    String* result = n.get();
-    fOwnedStrings.push_back(std::move(n));
-    return result;
+const String* SymbolTable::takeOwnershipOfString(String str) {
+    fOwnedStrings.push_back(std::move(str));
+    // Because fOwnedStrings is a deque and we only push_back new elements onto it, and never erase
+    // or reorder, returning a pointer to an element here is safe.
+    return &fOwnedStrings.back();
 }
 
 void SymbolTable::addAlias(StringFragment name, const Symbol* symbol) {
