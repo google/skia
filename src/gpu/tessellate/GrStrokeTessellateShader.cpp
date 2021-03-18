@@ -29,7 +29,7 @@ static const char* kCosineBetweenVectorsFn = R"(
 float cosine_between_vectors(float2 a, float2 b) {
     float ab_cosTheta = dot(a,b);
     float ab_pow2 = dot(a,a) * dot(b,b);
-    return (ab_pow2 == 0) ? 1 : clamp(ab_cosTheta * inversesqrt(ab_pow2), -1, 1);
+    return (ab_pow2 == 0.0) ? 1.0 : clamp(ab_cosTheta * inversesqrt(ab_pow2), -1.0, 1.0);
 })";
 
 // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the miter
@@ -77,7 +77,7 @@ static void append_wangs_formula_fn(SkString* code, bool hasConics) {
     if (hasConics) {
         code->appendf(R"(
         const float QUAD_TERM_POW2 = %f;
-        m = (w > 0) ? QUAD_TERM_POW2 * l0 : m;)", GrWangsFormula::length_term_pow2<2>(1));
+        m = (w > 0.0) ? QUAD_TERM_POW2 * l0 : m;)", GrWangsFormula::length_term_pow2<2>(1));
     }
     code->append(R"(
         return max(ceil(sqrt(parametricIntolerance * sqrt(m))), 1.0);
@@ -688,7 +688,7 @@ static void append_eval_stroke_edge_fn(SkString* code, bool hasConics) {
             // that we use to find a tangent.
             C *= w;
             B = .5*D - C;
-            A = (w - 1) * D;
+            A = (w - 1.0) * D;
             P[1] *= w;
         } else {)");
     } else {
