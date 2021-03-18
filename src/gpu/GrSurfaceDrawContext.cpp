@@ -43,6 +43,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
@@ -64,7 +65,6 @@
 #include "src/gpu/ops/GrOvalOpFactory.h"
 #include "src/gpu/ops/GrRegionOp.h"
 #include "src/gpu/ops/GrShadowRRectOp.h"
-#include "src/gpu/ops/GrStencilPathOp.h"
 #include "src/gpu/ops/GrStrokeRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
 #include "src/gpu/text/GrSDFTControl.h"
@@ -816,51 +816,6 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
     args.fDoStencilMSAA = doStencilMSAA;
     pr->stencilPath(args);
     return true;
-}
-
-void GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
-                                       GrAA doStencilMSAA,
-                                       const SkMatrix& viewMatrix,
-                                       sk_sp<const GrPath> path) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "stencilPath", fContext);
-
-    // TODO: extract portions of checkDraw that are relevant to path stenciling.
-    SkASSERT(path);
-    SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());
-
-    // FIXME: Use path bounds instead of this WAR once
-    // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
-    SkIRect bounds = SkIRect::MakeSize(this->dimensions());
-
-    // Setup clip and reject offscreen paths; we do this explicitly instead of relying on addDrawOp
-    // because GrStencilPathOp is not a draw op as its state depends directly on the choices made
-    // during this clip application.
-    GrAppliedHardClip appliedClip(this->dimensions(),
-                                  this->asSurfaceProxy()->backingStoreDimensions());
-
-    if (clip && GrClip::Effect::kClippedOut == clip->apply(&appliedClip, &bounds)) {
-        return;
-    }
-    // else see FIXME above; we'd normally want to check path bounds with render target bounds,
-    // but as it is, we're just using the full render target so intersecting the two bounds would
-    // do nothing.
-
-    GrOp::Owner op = GrStencilPathOp::Make(fContext,
-                                           viewMatrix,
-                                           doStencilMSAA == GrAA::kYes,
-                                           appliedClip.hasStencilClip(),
-                                           appliedClip.scissorState(),
-                                           std::move(path));
-    if (!op) {
-        return;
-    }
-    op->setClippedBounds(SkRect::Make(bounds));
-
-    this->setNeedsStencil(GrAA::kYes == doStencilMSAA);
-    this->addOp(std::move(op));
 }
 
 void GrSurfaceDrawContext::drawTextureSet(const GrClip* clip,

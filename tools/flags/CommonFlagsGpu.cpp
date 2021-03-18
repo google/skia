@@ -44,8 +44,6 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kNone;
     } else if (!strcmp(name, "dashline")) {
         return GpuPathRenderers::kDashLine;
-    } else if (!strcmp(name, "nvpr")) {
-        return GpuPathRenderers::kStencilAndCover;
     } else if (!strcmp(name, "ccpr")) {
         return GpuPathRenderers::kCoverageCounting;
     } else if (!strcmp(name, "aahairline")) {

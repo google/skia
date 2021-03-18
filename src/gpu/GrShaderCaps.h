@@ -44,7 +44,6 @@ public:
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
     bool geometryShaderSupport() const { return fGeometryShaderSupport; }
     bool gsInvocationsSupport() const { return fGSInvocationsSupport; }
-    bool pathRenderingSupport() const { return fPathRenderingSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
     bool integerSupport() const { return fIntegerSupport; }
@@ -263,7 +262,6 @@ private:
     bool fShaderDerivativeSupport           : 1;
     bool fGeometryShaderSupport             : 1;
     bool fGSInvocationsSupport              : 1;
-    bool fPathRenderingSupport              : 1;
     bool fDstReadInShaderSupport            : 1;
     bool fDualSourceBlendingSupport         : 1;
     bool fIntegerSupport                    : 1;

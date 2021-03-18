@@ -219,8 +219,6 @@ public:
         the object. */
     virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const = 0;
 
-    virtual bool isPathRendering() const { return false; }
-
     // We use these methods as a temporary back door to inject OpenGL tessellation code. Once
     // tessellation is supported by SkSL we can remove these.
     virtual SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,

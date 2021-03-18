@@ -108,7 +108,6 @@ declare_args() {
   skia_enable_fontmgr_win_gdi = is_win && !skia_enable_winuwp
   skia_enable_fontmgr_FontConfigInterface =
       skia_use_freetype && skia_use_fontconfig
-  skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk =
       !is_fuchsia && skia_use_libjpeg_turbo_decode && skia_use_zlib
