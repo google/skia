@@ -171,22 +171,18 @@ public:
     /**
      * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
      *
-     * @param paint        describes how to color pixels.
+     * @param GrPaint      describes how to color pixels.
      * @param GrAA         Controls whether rect is antialiased
-     * @param viewMatrix   transformation matrix which applies to rectToDraw
+     * @param SkMatrix     transformation matrix which applies to rectToDraw
      * @param rectToDraw   the rectangle to draw
      * @param localRect    the rectangle of shader coordinates applied to rectToDraw
      */
-    void fillRectToRect(const GrClip* clip,
-                        GrPaint&& paint,
-                        GrAA aa,
-                        const SkMatrix& viewMatrix,
+    void fillRectToRect(const GrClip*,
+                        GrPaint&&,
+                        GrAA,
+                        const SkMatrix&,
                         const SkRect& rectToDraw,
-                        const SkRect& localRect) {
-        DrawQuad quad{GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect),
-                      aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
-        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
-    }
+                        const SkRect& localRect);
 
     /**
      * Fills a block of pixels with a paint and a localMatrix, respecting the clip.
@@ -679,7 +675,7 @@ private:
     // 'stencilSettings' are provided merely for decision making purposes; When non-null,
     // optimization strategies that submit special ops are avoided.
     QuadOptimization attemptQuadOptimization(const GrClip* clip,
-                                             const SkPMColor4f* constColor,
+                                             const GrPaint* paint,
                                              const GrUserStencilSettings* stencilSettings,
                                              GrAA* aa,
                                              DrawQuad* quad);
