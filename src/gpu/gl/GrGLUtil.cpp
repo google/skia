@@ -5,22 +5,18 @@
  * found in the LICENSE file.
  */
 
-
-#include "include/core/SkMatrix.h"
-#include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include <stdio.h>
+#include "include/core/SkMatrix.h"
+#include "include/gpu/gl/GrGLConfig.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrDataUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_GL_LOG_CALLS
-    bool gLogCallsGL = !!(GR_GL_LOG_CALLS_START);
-#endif
+bool gLogCallsGL = true;
 
-#if GR_GL_CHECK_ERROR
-    bool gCheckErrorGL = !!(GR_GL_CHECK_ERROR_START);
-#endif
+bool gCheckErrorGL = true;
 
 ///////////////////////////////////////////////////////////////////////////////
 
