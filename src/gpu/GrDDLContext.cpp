@@ -48,11 +48,6 @@ private:
             return;
         }
 
-        if (programInfo->requestedFeatures() & GrProcessor::CustomFeatures::kSampleLocations) {
-            // Sample locations require a live renderTarget to compute the key
-            return;
-        }
-
         GrProgramDesc desc = caps->makeDesc(nullptr, *programInfo);
         if (!desc.isValid()) {
             return;
