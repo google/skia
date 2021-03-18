@@ -1497,6 +1497,7 @@ group("modules") {
     "modules/skottie",
     "modules/skparagraph",
     "modules/skshaper",
+    "modules/svg",
   ]
 }
 
