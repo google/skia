@@ -39,8 +39,8 @@ float4x3 unpack_rational_cubic(float2 p0, float2 p1, float2 p2, float2 p3) {
     if (isinf(P[3].y)) {
         // This patch is actually a conic. Convert to a rational cubic.
         float w = P[3].x;
-        float3 c = P[1] * (2/3.0 * w);
-        P = float4x3(P[0], fma(P[0], float3(1/3.0), c), fma(P[2], float3(1/3.0), c), P[2]);
+        float3 c = P[1] * ((2.0/3.0) * w);
+        P = float4x3(P[0], fma(P[0], float3(1.0/3.0), c), fma(P[2], float3(1.0/3.0), c), P[2]);
     }
     return P;
 })";
@@ -53,7 +53,7 @@ float3 safe_mix(float3 a, float3 b, float T, float one_minus_T) {
     return a*one_minus_T + b*T;
 }
 float2 eval_rational_cubic(float4x3 P, float T) {
-    float one_minus_T = 1 - T;
+    float one_minus_T = 1.0 - T;
     float3 ab = safe_mix(P[0], P[1], T, one_minus_T);
     float3 bc = safe_mix(P[1], P[2], T, one_minus_T);
     float3 cd = safe_mix(P[2], P[3], T, one_minus_T);

@@ -566,6 +566,7 @@ int main(int argc, char** argv) {
     // Create a context.
     GrContextOptions ctxOptions;
     SetCtxOptionsFromCommonFlags(&ctxOptions);
+    ctxOptions.fAlwaysAntialias = config->getUseDMSAA();
     sk_gpu_test::GrContextFactory factory(ctxOptions);
     sk_gpu_test::ContextInfo ctxInfo =
         factory.getContextInfo(config->getContextType(), config->getContextOverrides());

@@ -133,6 +133,7 @@ static DEFINE_bool(list, false, "List samples?");
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
 static DEFINE_int(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
+static DEFINE_bool(dmsaa, false, "Use internal MSAA to render to non-MSAA surfaces?");
 
 static DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
@@ -378,6 +379,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             GrContextOptions::ShaderCacheStrategy::kBackendSource;
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
+    displayParams.fGrContextOptions.fAlwaysAntialias = FLAGS_dmsaa;
     fWindow->setRequestedDisplayParams(displayParams);
     fDisplay = fWindow->getRequestedDisplayParams();
     fRefresh = FLAGS_redraw;

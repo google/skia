@@ -8,6 +8,7 @@
 #ifndef GrRecordingContextPriv_DEFINED
 #define GrRecordingContextPriv_DEFINED
 
+#include "include/core/SkPaint.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/text/GrSDFTControl.h"
 
@@ -24,6 +25,16 @@ public:
     bool matches(GrContext_Base* candidate) const { return fContext->matches(candidate); }
 
     const GrContextOptions& options() const { return fContext->options(); }
+
+#if GR_TEST_UTILS
+    bool alwaysAntialias() const { return fContext->options().fAlwaysAntialias; }
+    GrAA chooseAA(const SkPaint& paint) const {
+        return GrAA(paint.isAntiAlias() || this->alwaysAntialias());
+    }
+#else
+    bool alwaysAntialias() const { return false; }
+    GrAA chooseAA(const SkPaint& paint) const { return GrAA(paint.isAntiAlias()); }
+#endif
 
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const;
