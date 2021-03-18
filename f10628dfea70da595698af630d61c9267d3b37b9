@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "43d731a9_4ed4115f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-18T20:02:36Z",
+      "side": 1,
+      "message": "I generally use the following command line which runs nanobench for 30 seconds.\nxcrun xctrace record --template Time\\ Profile --launch -- ./out/Release/nanobench --match skparagraph --ms 30000",
+      "parentUuid": "c6d20829_4d60194a",
+      "revId": "f10628dfea70da595698af630d61c9267d3b37b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e77e6ffe_c1eb8b86",
