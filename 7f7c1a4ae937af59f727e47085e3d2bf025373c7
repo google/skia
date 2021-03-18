@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed366f97_90241ea6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-18T15:22:05Z",
+      "side": 1,
+      "message": "This is fine, but also one of the reasons I have been pushing for a break priority number instead of a bunch of bits, so that all of these *Break calls can be one call to just get the break priority.",
+      "revId": "7f7c1a4ae937af59f727e47085e3d2bf025373c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
