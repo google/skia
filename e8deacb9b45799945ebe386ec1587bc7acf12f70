@@ -16,6 +16,132 @@
       "message": "I think this is good to go.",
       "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab2a0cf7_293c0f27",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T13:38:53Z",
+      "side": 1,
+      "message": "Thanks! This looks really helpful for me. Just some minor thoughts on message content and alignment that you can take or leave.",
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a162a75d_369b9662",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T13:38:53Z",
+      "side": 1,
+      "message": "Maybe \"Start glyph run processing\" just so the message is more attached to glyphs?",
+      "range": {
+        "startLine": 152,
+        "startChar": 23,
+        "endLine": 152,
+        "endChar": 39
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c32b3efa_b707ddd9",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T13:38:53Z",
+      "side": 1,
+      "message": "idea: what if the case messages were indented by a space and the glyphs messages were by 2, so multiple glyph run processes are easier to break apart visually in logs?",
+      "range": {
+        "startLine": 170,
+        "startChar": 25,
+        "endLine": 170,
+        "endChar": 34
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "defa2943_ef32c8a0",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T13:38:53Z",
+      "side": 1,
+      "message": "e.g. add 2 spaces here?",
+      "range": {
+        "startLine": 178,
+        "startChar": 29,
+        "endLine": 178,
+        "endChar": 35
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a68f261_a6a38116",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T13:38:53Z",
+      "side": 1,
+      "message": "nit: extra line?",
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98c24e3b_e0e24f48",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1505,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T13:38:53Z",
+      "side": 1,
+      "message": "Maybe GrTextBlobs?",
+      "range": {
+        "startLine": 1505,
+        "startChar": 34,
+        "endLine": 1505,
+        "endChar": 39
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6482d2f_f37ca989",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T13:38:53Z",
+      "side": 0,
+      "message": "Why is this no longer valid?",
+      "range": {
+        "startLine": 390,
+        "startChar": 4,
+        "endLine": 390,
+        "endChar": 39
+      },
+      "revId": "4e94fd11cded4e0b48346eb411b5e953785c3f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
