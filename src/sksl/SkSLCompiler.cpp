@@ -299,21 +299,20 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 #if defined(SKSL_STANDALONE)
     SkASSERT(data.fPath);
     std::ifstream in(data.fPath);
-    std::unique_ptr<String> text = std::make_unique<String>(std::istreambuf_iterator<char>(in),
-                                                            std::istreambuf_iterator<char>());
+    String text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
     if (in.rdstate()) {
         printf("error reading %s\n", data.fPath);
         abort();
     }
-    const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
-    AutoSource as(this, source->asStringFragment());
+    StringFragment source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
+    AutoSource as(this, source);
 
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
-                                                            source->c_str(), source->length(),
+                                                            source.data(), source.size(),
                                                             /*externalFunctions=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };

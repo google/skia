@@ -81,10 +81,10 @@ const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable, const Symbol
     return symbol;
 }
 
-const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
-    String* result = n.get();
-    fOwnedStrings.push_back(std::move(n));
-    return result;
+StringFragment SymbolTable::takeOwnershipOfString(String str) {
+    fOwnedStrings.push_back(std::move(str));
+    const String& ownedString = fOwnedStrings.back();
+    return StringFragment{ownedString.c_str(), ownedString.size()};
 }
 
 void SymbolTable::addAlias(StringFragment name, const Symbol* symbol) {
