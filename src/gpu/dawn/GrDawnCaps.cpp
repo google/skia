@@ -182,11 +182,10 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
     stencil.genKey(&b, true);
 
-    // TODO: remove this reliance on the renderTarget
-    bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+    bool needsDepthStencil = programInfo.isStencilEnabled();
 
     b.add32(static_cast<uint32_t>(format));
-    b.add32(static_cast<int32_t>(hasDepthStencil));
+    b.add32(static_cast<int32_t>(needsDepthStencil));
     b.add32(get_blend_info_key(programInfo.pipeline()));
     b.add32(programInfo.primitiveTypeKey());
 
