@@ -53,15 +53,15 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* d
                                                               const GrProgramInfo& programInfo) {
     const GrCaps* caps = dContext->priv().caps();
 
-    GrProgramDesc desc; // = caps->makeDesc(renderTarget, programInfo);
+    GrProgramDesc desc = caps->makeDesc(renderTarget, programInfo);
     if (!desc.isValid()) {
         GrCapsDebugf(caps, "Failed to gl program descriptor!\n");
         return nullptr;
     }
 
     Stats::ProgramCacheResult stat;
-    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, renderTarget,
-                                                       desc, programInfo, &stat);
+    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, renderTarget, desc,
+                                                       programInfo, &stat);
     if (!tmp) {
         fStats.incNumInlineCompilationFailures();
     } else {
