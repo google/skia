@@ -22,6 +22,30 @@
       },
       "revId": "db6d53e3414e415890dd650d6d28146455d9af33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d740dd7d_4b9bf274",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-18T12:59:36Z",
+      "side": 1,
+      "message": "\u0027renderTarget\u0027 is going away. A different option is to just remove the assert here.",
+      "parentUuid": "694682a1_79628c1a",
+      "range": {
+        "startLine": 343,
+        "startChar": 49,
+        "endLine": 343,
+        "endChar": 52
+      },
+      "revId": "db6d53e3414e415890dd650d6d28146455d9af33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
