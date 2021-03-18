@@ -249,7 +249,7 @@ public:
 
     bool isWhitespaces() const { return fIsWhiteSpaces; }
     bool isSpaces() const { return fIsSpaces; }
-    bool isHardBreak() const;
+    bool isHardBreak() const { return fIsHardBreak; }
     bool isSoftBreak() const;
     bool isGraphemeBreak() const;
     bool canBreakLineAfter() const { return isHardBreak() || isSoftBreak(); }
@@ -300,6 +300,7 @@ private:
     SkScalar fHalfLetterSpacing;
     bool fIsWhiteSpaces;
     bool fIsSpaces;
+    bool fIsHardBreak;
 };
 
 class InternalLineMetrics {
