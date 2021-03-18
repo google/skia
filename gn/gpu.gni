@@ -613,7 +613,6 @@ skia_gl_gpu_sources = [
   "$_src/gpu/gl/GrGLUniformHandler.h",
   "$_src/gpu/gl/GrGLUtil.cpp",
   "$_src/gpu/gl/GrGLUtil.h",
-  "$_src/gpu/gl/GrGLVaryingHandler.cpp",
   "$_src/gpu/gl/GrGLVaryingHandler.h",
   "$_src/gpu/gl/GrGLVertexArray.cpp",
   "$_src/gpu/gl/GrGLVertexArray.h",
@@ -640,27 +639,7 @@ skia_ccpr_sources = [
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
 ]
 
-skia_nvpr_sources = [
-  "$_src/gpu/GrPath.cpp",
-  "$_src/gpu/GrPath.h",
-  "$_src/gpu/GrPathProcessor.cpp",
-  "$_src/gpu/GrPathProcessor.h",
-  "$_src/gpu/GrPathRendering.cpp",
-  "$_src/gpu/GrPathRendering.h",
-  "$_src/gpu/gl/GrGLPath.cpp",
-  "$_src/gpu/gl/GrGLPath.h",
-  "$_src/gpu/gl/GrGLPathRendering.cpp",
-  "$_src/gpu/gl/GrGLPathRendering.h",
-  "$_src/gpu/ops/GrDrawPathOp.cpp",
-  "$_src/gpu/ops/GrDrawPathOp.h",
-  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
-  "$_src/gpu/ops/GrStencilAndCoverPathRenderer.h",
-  "$_src/gpu/ops/GrStencilPathOp.cpp",
-  "$_src/gpu/ops/GrStencilPathOp.h",
-]
-
 skia_gpu_sources += skia_ccpr_sources
-skia_gpu_sources += skia_nvpr_sources
 
 skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
 

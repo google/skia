@@ -354,8 +354,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     this->initGLSL(ctxInfo, gli);
     GrShaderCaps* shaderCaps = fShaderCaps.get();
 
-    shaderCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
-
     // Enable supported shader-related caps
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fDualSourceBlendingSupport =
@@ -991,42 +989,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
       // WebGL 1.0 doesn't support do-while loops.
       shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);
     }
-}
-
-bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
-    bool hasChromiumPathRendering = ctxInfo.hasExtension("GL_CHROMIUM_path_rendering");
-
-    if (!(ctxInfo.hasExtension("GL_NV_path_rendering") || hasChromiumPathRendering)) {
-        return false;
-    }
-
-    if (GR_IS_GR_GL(ctxInfo.standard())) {
-        if (ctxInfo.version() < GR_GL_VER(4, 3) &&
-            !ctxInfo.hasExtension("GL_ARB_program_interface_query")) {
-            return false;
-        }
-    } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
-        if (!hasChromiumPathRendering &&
-            ctxInfo.version() < GR_GL_VER(3, 1)) {
-            return false;
-        }
-    } else if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
-        // No WebGL support
-        return false;
-    }
-    // We only support v1.3+ of GL_NV_path_rendering which allows us to
-    // set individual fragment inputs with ProgramPathFragmentInputGen. The API
-    // additions are detected by checking the existence of the function.
-    // We also use *Then* functions that not all drivers might have. Check
-    // them for consistency.
-    if (!gli->fFunctions.fStencilThenCoverFillPath ||
-        !gli->fFunctions.fStencilThenCoverStrokePath ||
-        !gli->fFunctions.fStencilThenCoverFillPathInstanced ||
-        !gli->fFunctions.fStencilThenCoverStrokePathInstanced ||
-        !gli->fFunctions.fProgramPathFragmentInputGen) {
-        return false;
-    }
-    return true;
 }
 
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
@@ -3942,19 +3904,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
             // Disable color-burn on ARM until the fix is released.
             fAdvBlendEqDisableFlags |= (1 << kColorBurn_GrBlendEquation);
         }
-    }
-
-    // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
-    if (fMultisampleDisableSupport &&
-        this->shaderCaps()->dualSourceBlendingSupport() &&
-        this->shaderCaps()->pathRenderingSupport() &&
-        fMixedSamplesSupport &&
-#if GR_TEST_UTILS
-        (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) &&
-#endif
-        (kNVIDIA_GrGLDriver == ctxInfo.driver() ||
-         kChromium_GrGLDriver == ctxInfo.driver())) {
-            fInvalidateFBType = kNone_InvalidateFBType;
     }
 
     // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
