@@ -531,27 +531,42 @@
     ],
   },
   {
-    "GL":    [{"ext": "GL_NV_path_rendering"}],
-    "GLES":  [{"ext": "GL_CHROMIUM_path_rendering"},
-              {"ext": "GL_NV_path_rendering"}],
+    "GL": [ { "ext": "GL_NV_path_rendering" } ],
+    "GLES": [
+      { "ext": "GL_CHROMIUM_path_rendering" },
+      { "ext": "GL_NV_path_rendering" }
+    ],
     "WebGL": null,
 
     "functions": [
-      "CoverFillPath", "CoverFillPathInstanced", "CoverStrokePath",
-      "CoverStrokePathInstanced", "DeletePaths", "GenPaths",
-      "IsPath", "PathCommands", "PathParameterf", "PathParameteri",
-      "PathStencilFunc", "ProgramPathFragmentInputGen", "StencilFillPath",
-      "StencilFillPathInstanced", "StencilStrokePath", "StencilStrokePathInstanced",
-      "StencilThenCoverFillPath", "StencilThenCoverFillPathInstanced",
-      "StencilThenCoverStrokePath", "StencilThenCoverStrokePathInstanced",
+      "CoverFillPath",
+      "CoverFillPathInstanced",
+      "CoverStrokePath",
+      "CoverStrokePathInstanced",
+      "DeletePaths",
+      "GenPaths",
+      "IsPath",
+      "PathCommands",
+      "PathParameterf",
+      "PathParameteri",
+      "PathStencilFunc",
+      "ProgramPathFragmentInputGen",
+      "StencilFillPath",
+      "StencilFillPathInstanced",
+      "StencilStrokePath",
+      "StencilStrokePathInstanced",
+      "StencilThenCoverFillPath",
+      "StencilThenCoverFillPathInstanced",
+      "StencilThenCoverStrokePath",
+      "StencilThenCoverStrokePathInstanced",
     ],
-    // List of functions that Skia uses, but which have been added since the initial release
-    // of NV_path_rendering driver. We do not want to fail interface validation due to
-    // missing features, we will just not use the extension.
-    // If one updates this list, then update GrGLCaps::hasPathRenderingSupport too.
+    // TODO: remove these functions. Since Skia no longer supports NV_path_rendering
+    // these will never be used.
     "optional": [
-      "ProgramPathFragmentInputGen", "StencilThenCoverFillPath",
-      "StencilThenCoverFillPathInstanced", "StencilThenCoverStrokePath",
+      "ProgramPathFragmentInputGen",
+      "StencilThenCoverFillPath",
+      "StencilThenCoverFillPathInstanced",
+      "StencilThenCoverStrokePath",
       "StencilThenCoverStrokePathInstanced",
     ],
   },

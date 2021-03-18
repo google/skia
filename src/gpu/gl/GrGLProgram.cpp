@@ -7,7 +7,6 @@
 
 #include "src/gpu/gl/GrGLProgram.h"
 
-#include "src/gpu/GrPathProcessor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -15,7 +14,6 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/gl/GrGLBuffer.h"
 #include "src/gpu/gl/GrGLGpu.h"
-#include "src/gpu/gl/GrGLPathRendering.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
@@ -31,7 +29,6 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
         GrGLuint programID,
         const UniformInfoArray& uniforms,
         const UniformInfoArray& textureSamplers,
-        const VaryingInfoArray& pathProcVaryings,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
@@ -45,7 +42,6 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
                                                programID,
                                                uniforms,
                                                textureSamplers,
-                                               pathProcVaryings,
                                                std::move(geometryProcessor),
                                                std::move(xferProcessor),
                                                std::move(fpImpls),
@@ -66,7 +62,6 @@ GrGLProgram::GrGLProgram(
         GrGLuint programID,
         const UniformInfoArray& uniforms,
         const UniformInfoArray& textureSamplers,
-        const VaryingInfoArray& pathProcVaryings,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
@@ -86,7 +81,7 @@ GrGLProgram::GrGLProgram(
         , fVertexStride(vertexStride)
         , fInstanceStride(instanceStride)
         , fGpu(gpu)
-        , fProgramDataManager(gpu, programID, uniforms, pathProcVaryings)
+        , fProgramDataManager(gpu, programID, uniforms)
         , fNumTextureSamplers(textureSamplers.count()) {
 }
 
@@ -169,19 +164,13 @@ void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin
 
     // set RT adjustment
     SkISize dimensions = rt->dimensions();
-    if (!primProc.isPathRendering()) {
-        if (fRenderTargetState.fRenderTargetOrigin != origin ||
-            fRenderTargetState.fRenderTargetSize != dimensions) {
-            fRenderTargetState.fRenderTargetSize = dimensions;
-            fRenderTargetState.fRenderTargetOrigin = origin;
+    if (fRenderTargetState.fRenderTargetOrigin != origin ||
+        fRenderTargetState.fRenderTargetSize != dimensions) {
+        fRenderTargetState.fRenderTargetSize = dimensions;
+        fRenderTargetState.fRenderTargetOrigin = origin;
 
-            float rtAdjustmentVec[4];
-            fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-            fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
-        }
-    } else {
-        SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
-        const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(), dimensions, origin);
+        float rtAdjustmentVec[4];
+        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
+        fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
     }
 }
