@@ -111,7 +111,6 @@ echo "Compiling bitcode"
   skia_enable_tools=false \
   skia_enable_skshaper=false \
   skia_enable_ccpr=false \
-  skia_enable_nvpr=false \
   skia_enable_fontmgr_custom_directory=false \
   skia_enable_fontmgr_custom_embedded=true \
   skia_enable_fontmgr_custom_empty=false \

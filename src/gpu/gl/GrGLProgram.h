@@ -55,7 +55,6 @@ public:
                                    GrGLuint programID,
                                    const UniformInfoArray& uniforms,
                                    const UniformInfoArray& textureSamplers,
-                                   const VaryingInfoArray&, // used for NVPR only currently
                                    std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                                    std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                                    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fps,
@@ -147,7 +146,6 @@ private:
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& textureSamplers,
-                const VaryingInfoArray&, // used for NVPR only currently
                 std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                 std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                 std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
