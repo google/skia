@@ -23,7 +23,6 @@
 #include "src/gpu/ops/GrDashLinePathRenderer.h"
 #include "src/gpu/ops/GrDefaultPathRenderer.h"
 #include "src/gpu/ops/GrSmallPathRenderer.h"
-#include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
@@ -55,6 +54,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
         fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
+#if 0
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
         auto direct = context->asDirectContext();
         if (direct) {
@@ -67,6 +67,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
             }
         }
     }
+#endif
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
         fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
     }
