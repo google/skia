@@ -16,7 +16,7 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 
-class ParagraphBench : public Benchmark {
+class ParagraphBench final : public Benchmark {
     SkString fName;
     sk_sp<skia::textlayout::FontCollection> fFontCollection;
     skia::textlayout::TextStyle fTStyle;
@@ -76,7 +76,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        for (int i = 0; i < loops; ++i) {
+        for (int i = 0; i < 100 * loops; ++i) {
             fParagraph->markDirty();
             fParagraph->layout(300);
         }
