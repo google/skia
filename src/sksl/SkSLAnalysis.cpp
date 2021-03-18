@@ -184,6 +184,18 @@ class ProgramUsageVisitor : public ProgramVisitor {
 public:
     ProgramUsageVisitor(ProgramUsage* usage, int delta) : fUsage(usage), fDelta(delta) {}
 
+    bool visitProgramElement(const ProgramElement& pe) override {
+        if (pe.is<FunctionDefinition>()) {
+            for (const Variable* param : pe.as<FunctionDefinition>().declaration().parameters()) {
+                // Ensure function-parameter variables exist in the variable usage map. They aren't
+                // otherwise declared, but ProgramUsage::get() should be able to find them, even if
+                // they are unread and unwritten.
+                fUsage->fVariableCounts[param];
+            }
+        }
+        return INHERITED::visitProgramElement(pe);
+    }
+
     bool visitStatement(const Statement& s) override {
         if (s.is<VarDeclaration>()) {
             // Add all declared variables to the usage map (even if never otherwise accessed).

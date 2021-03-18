@@ -558,6 +558,7 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
 
 Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                          std::shared_ptr<SymbolTable> symbolTable,
+                                         const ProgramUsage& usage,
                                          const FunctionDeclaration* caller) {
     // Inlining is more complicated here than in a typical compiler, because we have to have a
     // high-level IR and can't just drop statements into the middle of an expression or even use
@@ -606,11 +607,13 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // them.
     VariableRewriteMap varMap;
     for (int i = 0; i < arguments.count(); ++i) {
-        // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
+        // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index),
+        // or its parameter is only read from once...
         const Variable* param = function.declaration().parameters()[i];
-        if (Analysis::IsTrivialExpression(*arguments[i])) {
-            // ... and isn't written to within the inline function...
-            if (!Analysis::StatementWritesToVariable(body, *param)) {
+        const ProgramUsage::VariableCounts& paramUsage = usage.get(*param);
+        if (paramUsage.fRead == 1 || Analysis::IsTrivialExpression(*arguments[i])) {
+            // ... and the parameter isn't written to at all within the inline function...
+            if (!paramUsage.fWrite) {
                 // ... we don't need to copy it at all! We can just use the existing expression.
                 varMap[param] = arguments[i]->clone();
                 continue;
@@ -1087,7 +1090,7 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
         }
 
         // Convert the function call to its inlined equivalent.
-        InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols,
+        InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols, *usage,
                                                    &candidate.fEnclosingFunction->declaration());
 
         // Stop if an error was detected during the inlining process.

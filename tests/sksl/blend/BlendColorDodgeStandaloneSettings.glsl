@@ -10,8 +10,7 @@ float _color_dodge_component(vec2 s, vec2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _0_n = d.x * s.y;
-            delta = min(d.y, _0_n / delta);
+            delta = min(d.y, (d.x * s.y) / delta);
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }
