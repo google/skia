@@ -16,6 +16,138 @@
       "message": "Take 2 calls into attemptQuadOptimization. This seems to be the simplest approach that works for now. We can refactor later if it sticks.",
       "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c1a45ef_41a0e315",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T15:36:45Z",
+      "side": 1,
+      "message": "I like this approach much more, but I think we can simplify the fillRectToRect adapter to FillRRect even further.",
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f974e1ee_90b20deb",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T15:36:45Z",
+      "side": 1,
+      "message": "Now that we can provide a local rect to the GrFillRRect op, we may be able to expand this optimization for non-DMSAA cases when the original rect is still aligned with the rrect and we can compute appropriately interpolated coords for the rrect corners.\n\nI think that should be done separately, but it makes me excited.",
+      "range": {
+        "startLine": 471,
+        "startChar": 32,
+        "endLine": 471,
+        "endChar": 38
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b4db74f_6231ad61",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T15:36:45Z",
+      "side": 1,
+      "message": "This is trying to rebuild the original paint, that is now being passed in. I wonder if we should just call this-\u003edrawRRect(std::move(*paint)) and document that if QuadOptimization::kSubmitted is returned, the paint may be consumed.\n\nThat might be a little awkward since we pass in GrPaint* to allow the drawTextureQuad to pass in null and avoid allocating a GrPaint.\n\nIf that doesn\u0027t work, we can maybe do:\n  \n  GrPaint clearPaint \u003d *paint;\n  this-\u003edrawRRect(std::move(clearPaint));\n\nAnd avoid calling ClearToGrPaint.",
+      "range": {
+        "startLine": 577,
+        "startChar": 12,
+        "endLine": 578,
+        "endChar": 56
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3b38def_1f623d2a",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T15:36:45Z",
+      "side": 1,
+      "message": "I think we can delete this, see note below.",
+      "range": {
+        "startLine": 699,
+        "startChar": 12,
+        "endLine": 699,
+        "endChar": 21
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba9afc5b_507eb66e",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T15:36:45Z",
+      "side": 1,
+      "message": "Why do we need this check? If alwaysAntialias() returns true, then shouldn\u0027t aa already be yes? or be forced to yes here?",
+      "range": {
+        "startLine": 727,
+        "startChar": 8,
+        "endLine": 727,
+        "endChar": 24
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae4b46ac_4fa2061b",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-18T15:36:45Z",
+      "side": 1,
+      "message": "I don\u0027t think we quite need all of this, and rectStaysRect() can be tricky for this sort of thing since 90degree and axis flips will change how the local coordinates should line up, whereas mapRect sorts the ltrb (if I remember correctly for my own bugs in the past).  The GrQuad::asRect() checks for this in its return value, so it\u0027s safer than viewMatrix.rectStaysRect().\n\nGiven that, and that attemptQuadOptimization modifies the input DrawQuad in these same circumstances as (clip \u0026\u0026 viewMatrix.rectStaysRect()), I think we can just reconstruct the croppedRect and croppedLocal from the modified DrawQuad instead of defining a new crop_rect function. It would be something like:\n\n   if (clip \u0026\u0026 opt \u003d\u003d QuadOptimization::kClipApplied \u0026\u0026 quad.fDeviceQuad.asRect(\u0026croppedRect)) {\n       SkASSERT(viewMatrix.rectStaysRect());\n       SkAssertResult(quad.fLocalQuad.asRect(\u0026croppedLocal));\n       // Make croppedRect local to viewMatrix, which we know is safe and preserves the relationship with local since asRect returned true.\n       viewMatrix.inverseMapRect(\u0026croppedRect);\n       clip \u003d nullptr; // Explicitly null so it\u0027s completely skipped by addDrawOp\n   } else {\n       // Even if attemptQuadOptimization modified \u0027quad\u0027, we can\u0027t reconstruct what we need for FillRRectOp, so use the original coords and clip\n       croppedRect \u003d rectToDraw;\n       croppedLocal \u003d localRect;\n   }",
+      "range": {
+        "startLine": 738,
+        "startChar": 8,
+        "endLine": 747,
+        "endChar": 9
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
