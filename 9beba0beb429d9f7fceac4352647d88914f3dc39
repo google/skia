@@ -16,6 +16,91 @@
       "message": "WIP -- haven\u0027t added tests, but wanted to let you see the start...",
       "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c8ea1f9_525dec5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-03-18T23:24:38Z",
+      "side": 1,
+      "message": "I imagine other drawImage* methods will adopt the same style?",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a644407_c4f69a80",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-03-18T23:24:38Z",
+      "side": 1,
+      "message": "nit: would drawAtlasWithOptions be a better name?",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33e3c749_005454f4",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-03-18T23:24:38Z",
+      "side": 1,
+      "message": "Should this throw instead? (applies to other places too)",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "648826aa_1a009f79",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-03-18T23:24:38Z",
+      "side": 1,
+      "message": "The doc comments here and below mention \"clip\" and \"Matrix\" but it\u0027s unclear what they refer to.",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4726b5ed_5c5c0390",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-03-18T23:24:38Z",
+      "side": 1,
+      "message": "RSXform seems to refer to an internal Skia type (fine with me, but a CanvasKit user not familiar with the internals may not understand what this is).",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
