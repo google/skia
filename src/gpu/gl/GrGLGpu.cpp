@@ -16,6 +16,7 @@
 #include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/utils/SkBase64.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
@@ -950,7 +951,7 @@ bool GrGLGpu::uploadColorTypeTexData(GrGLFormat textureFormat,
     SkASSERT(this->glCaps().isFormatTexturable(textureFormat));
 
     size_t bpp = GrColorTypeBytesPerPixel(srcColorType);
-
+    SkDebugf("SKIA: Uploading colorType: %d, bytes per pixel: %d", srcColorType, bpp);
     // External format and type come from the upload data.
     GrGLenum externalFormat;
     GrGLenum externalType;
@@ -1033,15 +1034,48 @@ void GrGLGpu::uploadTexData(SkISize texDims,
         }
         const size_t trimRowBytes = dims.width() * bpp;
         const size_t rowBytes = texels[level].fRowBytes;
-
+        bool unpacked = false;
         if (caps.writePixelsRowBytesSupport() && (rowBytes != trimRowBytes || restoreGLRowLength)) {
             GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
             GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
             restoreGLRowLength = true;
+            SkDebugf(
+                    "SKIA: upload pixels had to set GR_GL_UNPACK_ROW_LENGTH to %d, rowBytes: %d, "
+                    "trimRowBytes: %d",
+                    rowLength,
+                    rowBytes,
+                    trimRowBytes);
+            unpacked = true;
         } else {
             SkASSERT(rowBytes == trimRowBytes);
+            SkDebugf("SKIA: upload pixels did not have to set GR_GL_UNPACK_ROW_LENGTH");
         }
 
+        if (unpacked) {
+            SkDebugf(
+                    "SKIA: Calling TexSubImage2D, target: %d, level: %d, x: %d, y: %d, width: %d, "
+                    "height: %d, externalFormat: %d, externalType: %d",
+                    target,
+                    level,
+                    dstRect.x(),
+                    dstRect.y(),
+                    dims.width(),
+                    dims.height(),
+                    externalFormat,
+                    externalType);
+        } else {
+            SkDebugf(
+                    "SKIA: Calling TexSubImage2D, target: %d, level: %d, x: %d, y: %d, width: %d, "
+                    "height: %d, externalFormat: %d, externalType: %d",
+                    target,
+                    level,
+                    dstRect.x(),
+                    dstRect.y(),
+                    dims.width(),
+                    dims.height(),
+                    externalFormat,
+                    externalType);
+        }
         GL_CALL(TexSubImage2D(target, level, dstRect.x(), dstRect.y(), dims.width(), dims.height(),
                               externalFormat, externalType, texels[level].fPixels));
     }
@@ -3636,6 +3670,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
     GrGLFormat glFormat = GrGLFormatFromGLEnum(info.fFormat);
 
+    SkDebugf("SKIA: Binding scratch texture id: %d, target: %#04x", info.fID, info.fTarget);
     this->bindTextureToScratchUnit(info.fTarget, info.fID);
 
     // If we have mips make sure the base level is set to 0 and the max level set to numMipLevels-1
@@ -3659,6 +3694,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     if (data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
         GrColorType colorType = data->pixmap(0).colorType();
+        SkDebugf("Skia: GrGlGpu uploading pixmap with numMipLevels: %d", numMipLevels);
         texels.append(numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
             texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};
