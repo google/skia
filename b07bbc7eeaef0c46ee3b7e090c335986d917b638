@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f33b4fb9_e1c95774",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-18T21:24:32Z",
+      "side": 1,
+      "message": "I think we can add\n\nBug: skia:8921",
+      "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "102422d4_29b40dd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-18T21:24:32Z",
+      "side": 1,
+      "message": "Can we also delete:\n\nGrCaps::sampleLocationsSupport\nGrShaderCaps::sampleMaskSupport\nGrShaderCaps::canOnlyUseSampleMaskWithStencil",
+      "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
