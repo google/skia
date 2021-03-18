@@ -8,8 +8,7 @@ float _color_burn_component(vec2 s, vec2 d) {
     } else if (s.x == 0.0) {
         return d.x * (1.0 - s.y);
     } else {
-        float _1_n = (d.y - d.x) * s.y;
-        float delta = max(0.0, d.y - _1_n / s.x);
+        float delta = max(0.0, d.y - ((d.y - d.x) * s.y) / s.x);
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
