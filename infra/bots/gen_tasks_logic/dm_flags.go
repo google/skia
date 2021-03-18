@@ -233,7 +233,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// 8x MSAA is nondeterministic (by design) on NVIDIA hardware.
 			// The problem is especially bad on ANGLE, so use 4x instead.
 			// skia:6813 skia:6545
-			sampleCount = 4;
+			sampleCount = 4
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
 		}
@@ -432,9 +432,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, "glestestprecompile")
 		}
 
-                // Test SkSL precompile on iPhone 8 as representative iOS device
+		// Test SkSL precompile on iPhone 8 as representative iOS device
 		if b.model("iPhone8") && b.extraConfig("Metal") {
-		        configs = append(configs, "mtltestprecompile")
+			configs = append(configs, "mtltestprecompile")
 			// avoid tests that can generate slightly different pixels per run
 			skip("mtltestprecompile gm _ atlastext")
 			skip("mtltestprecompile gm _ circular_arcs_hairline")
@@ -448,7 +448,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("mtltestprecompile gm _ texel_subset_linear_mipmap_linear_down")
 			skip("mtltestprecompile svg _ A_large_blank_world_map_with_oceans_marked_in_blue.svg")
 			skip("mtltestprecompile svg _ Chalkboard.svg")
-		        skip("mtltestprecompile svg _ Ghostscript_Tiger.svg")
+			skip("mtltestprecompile svg _ Ghostscript_Tiger.svg")
 		}
 
 		if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
@@ -476,12 +476,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("DMSAA") {
 			configs = []string{glPrefix + "dmsaa"}
 			args = append(args, "--hwtess")
-		}
-
-		// Test non-nvpr on NVIDIA.
-		if b.extraConfig("NonNVPR") {
-			configs = []string{"gl", "glmsaa4"}
-			args = append(args, "--pr", "~nvpr")
 		}
 
 		// DDL is a GPU-only feature

@@ -316,8 +316,6 @@
       "--adb",
       "--adb_binary",
       "adb.1.0.35",
-      "--pr",
-      "~nvpr",
       "--allPathsVolatile",
       "--suffix",
       "_volatile",
