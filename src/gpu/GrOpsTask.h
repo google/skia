@@ -21,7 +21,6 @@
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrAppliedClip.h"
-#include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrRenderTask.h"
 #include "src/gpu/ops/GrDrawOp.h"

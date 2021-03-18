@@ -479,7 +479,6 @@ private:
 
     void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
     void initGLSL(const GrGLContextInfo&, const GrGLInterface*);
-    bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
     struct FormatWorkarounds {
         bool fDisableSRGBRenderWithMSAAForMacAMD = false;
