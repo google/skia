@@ -536,6 +536,81 @@ CanvasKit.onRuntimeInitialized = function() {
     }
   };
 
+  CanvasKit.Canvas.prototype.drawAtlasOptions = function(atlas, srcRects, dstXforms, paint,
+                                                 filter, mipmap, /*optional*/ blendMode, colors) {
+    if (!atlas || !paint || !srcRects || !dstXforms || !filter || !mipmap) {
+      Debug('Doing nothing since missing a required input');
+      return;
+    }
+
+    // builder arguments report the length as the number of rects, but when passed as arrays
+    // their.length attribute is 4x higher because it's the number of total components of all rects.
+    // colors is always going to report the same length, at least until floats colors are supported
+    // by this function.
+    if (srcRects.length !== dstXforms.length) {
+      Debug('Doing nothing since input arrays length mismatches');
+      return;
+    }
+    if (!blendMode) {
+      blendMode = CanvasKit.BlendMode.SrcOver;
+    }
+
+    const srcRectPtr = copy1dArray(srcRects, 'HEAPF32');
+    const dstXformPtr = copy1dArray(dstXforms, 'HEAPF32');
+    const count = dstXforms.length / 4;
+
+    var colorPtr = nullptr;
+    if (colors) {
+        colorPtr = copy1dArray(assureIntColors(colors), 'HEAPU32');
+    }
+
+    this._drawAtlasOptions(atlas, dstXformPtr, srcRectPtr, colorPtr, count,
+                           filter, mipmap, blendMode, paint);
+
+    freeArraysThatAreNotMallocedByUsers(srcRectPtr, srcRects);
+    freeArraysThatAreNotMallocedByUsers(dstXformPtr, dstXforms);
+    if (colorPtr) {
+      freeArraysThatAreNotMallocedByUsers(colorPtr, colors);
+    }
+  };
+
+  CanvasKit.Canvas.prototype.drawAtlasCubic = function(atlas, srcRects, dstXforms, paint, B, C,
+                                                       /*optional*/ blendMode, colors) {
+    if (!atlas || !paint || !srcRects || !dstXforms || !B || !C) {
+      Debug('Doing nothing since missing a required input');
+      return;
+    }
+
+    // builder arguments report the length as the number of rects, but when passed as arrays
+    // their.length attribute is 4x higher because it's the number of total components of all rects.
+    // colors is always going to report the same length, at least until floats colors are supported
+    // by this function.
+    if (srcRects.length !== dstXforms.length) {
+      Debug('Doing nothing since input arrays length mismatches');
+      return;
+    }
+    if (!blendMode) {
+      blendMode = CanvasKit.BlendMode.SrcOver;
+    }
+
+    const srcRectPtr = copy1dArray(srcRects, 'HEAPF32');
+    const dstXformPtr = copy1dArray(dstXforms, 'HEAPF32');
+    const count = dstXforms.length / 4;
+
+    var colorPtr = nullptr;
+    if (colors) {
+        colorPtr = copy1dArray(assureIntColors(colors), 'HEAPU32');
+    }
+
+    this._drawAtlasCubic(atlas, dstXformPtr, srcRectPtr, colorPtr, count, B, C, blendMode, paint);
+
+    freeArraysThatAreNotMallocedByUsers(srcRectPtr, srcRects);
+    freeArraysThatAreNotMallocedByUsers(dstXformPtr, dstXforms);
+    if (colorPtr) {
+      freeArraysThatAreNotMallocedByUsers(colorPtr, colors);
+    }
+  };
+
   CanvasKit.Canvas.prototype.drawColor = function (color4f, mode) {
     var cPtr = copyColorToWasm(color4f);
     if (mode !== undefined) {
