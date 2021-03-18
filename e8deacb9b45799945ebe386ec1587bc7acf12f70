@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cfa8b51_721c26e4",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-18T15:00:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a162a75d_369b9662",
+      "range": {
+        "startLine": 152,
+        "startChar": 23,
+        "endLine": 152,
+        "endChar": 39
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c32b3efa_b707ddd9",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-03-18T13:38:53Z",
       "side": 1,
       "message": "idea: what if the case messages were indented by a space and the glyphs messages were by 2, so multiple glyph run processes are easier to break apart visually in logs?",
+      "range": {
+        "startLine": 170,
+        "startChar": 25,
+        "endLine": 170,
+        "endChar": 34
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e90b8efd_4fc782b0",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-18T15:00:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c32b3efa_b707ddd9",
       "range": {
         "startLine": 170,
         "startChar": 25,
@@ -104,6 +152,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9c23eb8_032bbc1d",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-18T15:00:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "defa2943_ef32c8a0",
+      "range": {
+        "startLine": 178,
+        "startChar": 29,
+        "endLine": 178,
+        "endChar": 35
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a68f261_a6a38116",
@@ -121,6 +193,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8467ad78_5f7eb323",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-18T15:00:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a68f261_a6a38116",
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98c24e3b_e0e24f48",
@@ -134,6 +224,30 @@
       "writtenOn": "2021-03-18T13:38:53Z",
       "side": 1,
       "message": "Maybe GrTextBlobs?",
+      "range": {
+        "startLine": 1505,
+        "startChar": 34,
+        "endLine": 1505,
+        "endChar": 39
+      },
+      "revId": "e8deacb9b45799945ebe386ec1587bc7acf12f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bacddfed_738bd23d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1505,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-18T15:00:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98c24e3b_e0e24f48",
       "range": {
         "startLine": 1505,
         "startChar": 34,
