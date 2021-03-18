@@ -3687,8 +3687,6 @@ void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
 }
 
 bool GrGLGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
-    SkASSERT(!(GrProcessor::CustomFeatures::kSampleLocations & programInfo.requestedFeatures()));
-
     GrThreadSafePipelineBuilder::Stats::ProgramCacheResult stat;
 
     sk_sp<GrGLProgram> tmp = fProgramCache->findOrCreateProgram(this->getContext(),
