@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fe59c63_ea3e0bfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-18T20:01:08Z",
+      "side": 1,
+      "message": "The first iteration of the loop throughs off the calculation of N. Here are the first few measurements in ms.\ntime: 11.3281\ntime: 0.078696\ntime: 0.067073\ntime: 0.065895\ntime: 0.065547\n\nAs you can see, the first (the one used in overhead calculation) is 11ms, but all the rest are 60-70 microseconds. Since the first one was 11ms, it choose N to be 1.",
+      "parentUuid": "59cabfc4_8621e152",
+      "revId": "f10628dfea70da595698af630d61c9267d3b37b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e77e6ffe_c1eb8b86",
