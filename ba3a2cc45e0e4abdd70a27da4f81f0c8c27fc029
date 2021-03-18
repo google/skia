@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5a23a4d_2aeb5232",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-18T14:13:04Z",
+      "side": 1,
+      "message": "Yes – in `instantiateSurface` we\u0027ll pull if our proxy has a unique key.",
+      "parentUuid": "b226cb60_8dafd20b",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 48
+      },
+      "revId": "ba3a2cc45e0e4abdd70a27da4f81f0c8c27fc029",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c746e26_131d4a9b",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-03-17T21:29:41Z",
       "side": 1,
       "message": "// Resolve the register allocation to an actual GrSurface. \u0027fOriginatingProxy\u0027\n// is used to cache the allocation when a given register is used by multiple\n// proxies.",
+      "revId": "ba3a2cc45e0e4abdd70a27da4f81f0c8c27fc029",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2cd08b8_375c7574",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-18T14:13:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c746e26_131d4a9b",
       "revId": "ba3a2cc45e0e4abdd70a27da4f81f0c8c27fc029",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
