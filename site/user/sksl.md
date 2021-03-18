@@ -1,0 +1,71 @@
+SkSL & Runtime Effects
+======================
+
++   [Overview](#overview)
++   [Sampling Textures, etc...](#children)
++   [Premultiplied Alpha](#premul)
++   [Coordinate Spaces](#coords)
+
+* * *
+
+<span id="overview">Overview</span>
+-----------------------------------
+
+**SkSL** is Skia's [shading language](https://en.wikipedia.org/wiki/Shading_language).
+**`SkRuntimeEffect`** is a Skia C++ object that can be used to create `SkShader` and
+`SkColorFilter` objects with behavior controlled by SkSL code.
+
+You can experiment with SkSL at https://shaders.skia.org/. The syntax is very similar to GLSL.
+When using SkSL effects in your Skia application, there are important differences (from GLSL)
+to remember. Most of these differences are because of one basic fact: **With GPU shading languages,
+you are programming a stage of the [GPU pipeline](https://www.khronos.org/opengl/wiki/Rendering_Pipeline_Overview). With SkSL, you are programming a stage of
+the Skia pipeline.**
+
+* * *
+
+<span id="children">Sampling other SkShaders</span>
+---------------------------------------------------
+
+In GLSL, a fragment shader can sample a _texture_. With runtime effects, the object that you bind
+(in C++) and sample (in SkSL) is an `SkShader`. Skia has simple methods for creating an `SkShader`
+from an `SkImage`, so it's easy to [use images](https://fiddle.skia.org/c/aafaa0b68d7fbefa56d7b38090b3021f) in your runtime effects. You will still need to understand how
+[alpha](#premul) is handled in Skia, and how [coordinates](#coords) work.
+
+Note that because the object you bind and sample is an `SkShader`, you can actually directly
+use **any** Skia shader, without necessarily turning it into an image (texture) first.
+For example, you can _sample_ a [linear gradient](https://fiddle.skia.org/c/e928ef443e70b65386d75a1a0ede2c5d), or even
+[another SkSL shader](https://fiddle.skia.org/c/bada141a46dae0a2e2a1e4a5b678e65e).
+
+* * *
+
+<span id="premul">Premultiplied Alpha</span>
+--------------------------------------------
+
+When dealing with transparent colors, there are actually two (common)
+[possible representations](https://en.wikipedia.org/wiki/Alpha_compositing#Straight_versus_premultiplied). Skia calls these _unpremultiplied_ (what
+Wikipedia calls _straight_), and _premultiplied_. In the Skia pipeline, every `SkShader` returns
+premultiplied colors.
+
+If you're familiar with OpenGL blending, you can think of it in terms of the blend equation.
+For common alpha blending (called [source-over](https://developer.android.com/reference/android/graphics/PorterDuff.Mode#SRC_OVER)), you would normally configure your blend function as
+`(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)`. Skia defines source-over blending as if the blend function
+were `(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)`.
+
+Skia's use of premultiplied alpha implies:
+
+* If you start with an unpremultiplied `SkImage` (like a PNG), turn that into an `SkImageShader`,
+  and sample that shader, the resulting colors will be `[R*A, G*B, B*A, A]`, **not** `[R, G, B, A]`.
+* If your SkSL will return transparent colors, it must be sure to multiply the `RGB` by `A`.
+* For more complex shaders, you must understand which of your colors are premultiplied vs.
+  unpremultiplied. Many operations don't make sense if you mix both kinds of color together.
+* Finally, Skia enforces that the color produced by your SkSL is a "valid" premultiplied color.
+  In other words, `RGB <= A`. If your SkSL returns colors where that is not true, they will be
+  **[clamped](https://shaders.skia.org/?id=0a8c655b2e7a5cc082edd24d1b90ad0e2176a0ed7f31e27bb9b4266a6f33dfec)**,
+  leading to incorrect colors.
+
+* * *
+
+<span id="coords">Coordinate Spaces</span>
+--------------------------------------------
+
+Under construction
