@@ -33,8 +33,12 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+/*#pragma settings Default*/
+
+uniform half4 src, dst;
+
+void main() {
+    sk_FragColor = blend_hue(src, dst);
+}
          )__SkSL__");
 }
