@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6f1ecf2_ca7c6154",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-18T16:37:33Z",
+      "side": 1,
+      "message": "At patch set 20 this is mostly a no-op for the Skia build. The order of a few flags is changed for :raw (I think for the better), though I\u0027m not sure what is using :raw. Most templates now let the invoker configs take priority. The extra_flags configs now come before warnings instead of after. Not sure if it makes sense to have extra_flags and skia_extra_flags, though if that ever becomes desirable one could make skia_target_default_configs an arg so it could be set to anything directly.",
+      "revId": "93851e89b1872742c4893d05ebfeef479b58d8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
