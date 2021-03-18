@@ -47,8 +47,11 @@ GrVkPipelineState::GrVkPipelineState(
         , fDataManager(uniforms, uniformSize, usePushConstants) {
     fNumSamplers = samplers.count();
     for (const auto& sampler : samplers.items()) {
-        // We store the immutable samplers here and take ownership of the ref from the
-        // GrVkUnformHandler.
+        // We store the immutable samplers here and take a ref on the sampler. Once we switch to
+        // using sk_sps here we should just move the immutable samplers to save the extra ref/unref.
+        if (sampler.fImmutableSampler) {
+            sampler.fImmutableSampler->ref();
+        }
         fImmutableSamplers.push_back(sampler.fImmutableSampler);
     }
 }
@@ -61,6 +64,12 @@ GrVkPipelineState::~GrVkPipelineState() {
 void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
     fPipeline.reset();
     fDataManager.releaseData();
+    for (int i = 0; i < fImmutableSamplers.count(); ++i) {
+        if (fImmutableSamplers[i]) {
+            fImmutableSamplers[i]->unref();
+            fImmutableSamplers[i] = nullptr;
+        }
+    }
 }
 
 bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
