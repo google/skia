@@ -358,10 +358,6 @@ SkFont Cluster::font() const {
     return fOwner->run(fRunIndex).font();
 }
 
-bool Cluster::isHardBreak() const {
-    return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore);
-}
-
 bool Cluster::isSoftBreak() const {
     return fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kSoftLineBreakBefore);
 }
@@ -390,6 +386,7 @@ Cluster::Cluster(ParagraphImpl* owner,
     size_t len = fOwner->getWhitespacesLength(fTextRange);
     fIsWhiteSpaces = (len == this->fTextRange.width());
     fIsSpaces = fOwner->isSpace(fTextRange);
+    fIsHardBreak = fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore);
 }
 
 }  // namespace textlayout
