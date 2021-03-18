@@ -3944,6 +3944,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         }
     }
 
+#if 0
     // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.
     if (fMultisampleDisableSupport &&
         this->shaderCaps()->dualSourceBlendingSupport() &&
@@ -3956,6 +3957,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
          kChromium_GrGLDriver == ctxInfo.driver())) {
             fInvalidateFBType = kNone_InvalidateFBType;
     }
+#endif
 
     // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
     // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2

@@ -48,11 +48,13 @@ public:
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
+#if 0
     // for nvpr only
     void setPathFragmentInputTransform(VaryingHandle u, int components,
                                        const SkMatrix& matrix) const override {
         SK_ABORT("Only supported in NVPR, which is only available in GL");
     }
+#endif
 
     // For the uniform data to be dirty so that we will reupload on the next use.
     void markDirty() { fUniformsDirty = true; }

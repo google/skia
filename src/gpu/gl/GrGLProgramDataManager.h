@@ -74,10 +74,6 @@ public:
     void setMatrix3fv(UniformHandle, int arrayCount, const float matrices[]) const override;
     void setMatrix4fv(UniformHandle, int arrayCount, const float matrices[]) const override;
 
-    // for nvpr only
-    void setPathFragmentInputTransform(VaryingHandle u, int components,
-                                       const SkMatrix& matrix) const override;
-
 private:
     enum {
         kUnusedUniform = -1,

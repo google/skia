@@ -494,11 +494,6 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
                                   GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
     }
 
-    // handle NVPR separable varyings
-    if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
-        !fGpu->glPathRendering()->shouldBindFragmentInputs()) {
-        return;
-    }
     int i = 0;
     for (auto& varying : fVaryingHandler.fPathProcVaryingInfos.items()) {
         GL_CALL(BindFragmentInputLocation(programID, i, varying.fVariable.c_str()));
@@ -545,11 +540,6 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
 void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, bool force) {
     fUniformHandler.getUniformLocations(programID, fGpu->glCaps(), force);
 
-    // handle NVPR separable varyings
-    if (!fGpu->glCaps().shaderCaps()->pathRenderingSupport() ||
-        fGpu->glPathRendering()->shouldBindFragmentInputs()) {
-        return;
-    }
     for (auto& varying : fVaryingHandler.fPathProcVaryingInfos.items()) {
         GrGLint location;
         GL_CALL_RET(location, GetProgramResourceLocation(

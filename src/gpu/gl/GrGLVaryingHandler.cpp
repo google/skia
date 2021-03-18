@@ -10,7 +10,7 @@
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
 
-
+#if 0
 GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying(
                                                                        const char* name,
                                                                        GrGLSLVarying* v) {
@@ -25,6 +25,7 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
     varyingInfo.fLocation = fPathProcVaryingInfos.count() - 1;
     return VaryingHandle(varyingInfo.fLocation);
 }
+#endif
 
 void GrGLVaryingHandler::onFinalize() {
     SkASSERT(fPathProcVaryingInfos.empty() || fPathProcVaryingInfos.count() == fFragInputs.count());

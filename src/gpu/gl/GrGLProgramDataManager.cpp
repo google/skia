@@ -32,6 +32,7 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         uniform.fLocation = builderUniform.fLocation;
     }
 
+#if 0
     // NVPR programs have separable varyings
     fPathProcVaryings.push_back_n(pathProcVaryings.count());
     i = 0;
@@ -46,6 +47,7 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         )
         pathProcVarying.fLocation = builderPathProcVarying.fLocation;
     }
+#endif
 }
 
 void GrGLProgramDataManager::setSamplerUniforms(const UniformInfoArray& samplers,
@@ -297,6 +299,7 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
+#if 0
 void GrGLProgramDataManager::setPathFragmentInputTransform(VaryingHandle u,
                                                            int components,
                                                            const SkMatrix& matrix) const {
@@ -314,3 +317,4 @@ void GrGLProgramDataManager::setPathFragmentInputTransform(VaryingHandle u,
                                                                   components,
                                                                   matrix);
 }
+#endif

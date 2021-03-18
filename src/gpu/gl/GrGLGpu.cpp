@@ -372,10 +372,6 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* dContext)
     }
     static_assert(kGrGpuBufferTypeCount == SK_ARRAY_COUNT(fHWBufferState));
 
-    if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
-        fPathRendering = std::make_unique<GrGLPathRendering>(this);
-    }
-
     if (this->glCaps().useSamplerObjects()) {
         fSamplerObjectCache = std::make_unique<SamplerObjectCache>(this);
     }
@@ -480,9 +476,6 @@ void GrGLGpu::disconnect(DisconnectType type) {
         fMipmapPrograms[i].fProgram = 0;
     }
 
-    if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
-        this->glPathRendering()->disconnect(type);
-    }
     fFinishCallbacks.callAll(/* doDelete */ DisconnectType::kCleanup == type);
 }
 
@@ -606,11 +599,13 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fBoundDrawFramebuffer = 0;
     }
 
+#if 0
     if (resetBits & kPathRendering_GrGLBackendState) {
         if (this->caps()->shaderCaps()->pathRenderingSupport()) {
             this->glPathRendering()->resetContext();
         }
     }
+#endif
 
     // we assume these values
     if (resetBits & kPixelStore_GrGLBackendState) {
