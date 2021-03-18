@@ -202,19 +202,19 @@ bool operator!=(const char* s1, StringFragment s2) {
 }
 
 String to_string(int32_t value) {
-    return SkSL::String::printf("%" PRIi32, value);
+    return SkSL::String(std::to_string(value));
 }
 
 String to_string(uint32_t value) {
-    return SkSL::String::printf("%" PRIu32, value);
+    return SkSL::String(std::to_string(value));
 }
 
 String to_string(int64_t value) {
-    return SkSL::String::printf("%" PRIi64, value);
+    return SkSL::String(std::to_string(value));
 }
 
 String to_string(uint64_t value) {
-    return SkSL::String::printf("%" PRIu64, value);
+    return SkSL::String(std::to_string(value));
 }
 
 String to_string(double value) {
