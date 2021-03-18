@@ -14,6 +14,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrImageContext.h"
 #include "include/private/SkShadowFlags.h"
+#include "include/private/SkVx.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
@@ -454,8 +455,8 @@ enum class GrSurfaceDrawContext::QuadOptimization {
 };
 
 GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimization(
-        const GrClip* clip, const SkPMColor4f* constColor,
-        const GrUserStencilSettings* stencilSettings, GrAA* aa, DrawQuad* quad) {
+        const GrClip* clip, const GrPaint* paint, const GrUserStencilSettings* stencilSettings,
+        GrAA* aa, DrawQuad* quad) {
     // Optimization requirements:
     // 1. kDiscard applies when clip bounds and quad bounds do not intersect
     // 2a. kSubmitted applies when constColor and final geom is pixel aligned rect;
@@ -463,6 +464,13 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
     // 2b. kSubmitted applies when constColor and rrect clip and quad covers clip
     // 4. kClipApplied applies when rect clip and (rect quad or quad covers clip)
     // 5. kCropped in all other scenarios (although a crop may be a no-op)
+    const SkPMColor4f* constColor = nullptr;
+    SkPMColor4f paintColor;
+    if (!stencilSettings && paint && !paint->hasCoverageFragmentProcessor() &&
+        paint->isConstantBlendedColor(&paintColor)) {
+        // Only consider clears/rrects when it's easy to guarantee 100% fill with single color
+        constColor = &paintColor;
+    }
 
     // Save the old AA flags since CropToRect will modify 'quad' and if kCropped is returned, it's
     // better to just keep the old flags instead of introducing mixed edge flags.
@@ -592,14 +600,7 @@ void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    SkPMColor4f* constColor = nullptr;
-    SkPMColor4f paintColor;
-    if (!ss && !paint.hasCoverageFragmentProcessor() && paint.isConstantBlendedColor(&paintColor)) {
-        // Only consider clears/rrects when it's easy to guarantee 100% fill with single color
-        constColor = &paintColor;
-    }
-
-    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss, &aa, quad);
+    QuadOptimization opt = this->attemptQuadOptimization(clip, &paint, ss, &aa, quad);
     if (opt >= QuadOptimization::kClipApplied) {
         // These optimizations require caller to add an op themselves
         const GrClip* finalClip = opt == QuadOptimization::kClipApplied ? nullptr : clip;
@@ -693,6 +694,68 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
                                      GrStyledShape(rect, *style, DoSimplify::kNo));
+}
+
+static void crop_rect(const SkRect& cropBox, const SkRect& rect, const SkRect& localRect,
+                      SkRect* croppedRect, SkRect* croppedLocal) {
+    using skvx::bit_pun;
+    using float4 = skvx::Vec<4,float>;
+    using float2 = skvx::Vec<2,float>;
+    if (croppedRect->intersect(cropBox) && croppedLocal) {
+        // Crop the local rect as well by mapping the newly cropped rect to local coords.
+        float2 rectCorner = float2{rect.fLeft, rect.fTop};
+        float2 localCorner = float2{localRect.fLeft, localRect.fTop};
+        float2 m = (float2{localRect.fRight, localRect.fBottom} - localCorner) /
+                   (float2{rect.fRight, rect.fBottom} - rectCorner);
+        float2 a = localCorner - rectCorner * m;
+        *croppedLocal = bit_pun<SkRect>(
+                bit_pun<float4>(*croppedRect) * skvx::join(m,m) + skvx::join(a,a));
+    }
+}
+
+void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
+                                          GrPaint&& paint,
+                                          GrAA aa,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& rectToDraw,
+                                          const SkRect& localRect) {
+    DrawQuad quad{GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect),
+                  aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
+
+    // If we are using DMSAA then attempt to draw the rect with GrFillRRectOp.
+    if (fContext->priv().alwaysAntialias() && this->caps()->drawInstancedSupport() &&
+        aa == GrAA::kYes) {
+        QuadOptimization opt = this->attemptQuadOptimization(clip, &paint, nullptr, &aa, &quad);
+        if (opt < QuadOptimization::kClipApplied) {
+            // The optimization was completely handled inside attempt().
+            return;
+        }
+
+        // We can't use the draw quad here since GrFillRRectOp operates in local space. Crop the
+        // rect by the clip in order to reduce the number of scissors we need.
+        SkRect croppedRect = rectToDraw;
+        SkRect croppedLocal = localRect;
+        if (clip && viewMatrix.rectStaysRect()) {
+            SkMatrix inverse;
+            if (!viewMatrix.invert(&inverse)) {
+                return;
+            }
+            SkASSERT(inverse.rectStaysRect());
+            SkRect clipLocalRect = inverse.mapRect(SkRect::Make(clip->getConservativeBounds()));
+            crop_rect(clipLocalRect, rectToDraw, localRect, &croppedRect,
+                      (paint.usesVaryingCoords()) ? &croppedLocal : nullptr);
+        }
+
+        if (auto op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix,
+                                          SkRRect::MakeRect(croppedRect), croppedLocal,
+                                          GrAA::kYes)) {
+            this->addDrawOp(clip, std::move(op));
+            return;
+        }
+    }
+
+    assert_alive(paint);
+    this->drawFilledQuad(clip, std::move(paint), aa, &quad);
 }
 
 void GrSurfaceDrawContext::drawQuadSet(const GrClip* clip,
@@ -1009,7 +1072,7 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
     }
     if (!op && style.isSimpleFill()) {
         assert_alive(paint);
-        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect,
+        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect, rrect.rect(),
                                  GrAA(aaType != GrAAType::kNone));
     }
     if (!op && GrAAType::kCoverage == aaType) {
@@ -1316,7 +1379,7 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
         // ovals the exact same way we do round rects.
         assert_alive(paint);
         op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, SkRRect::MakeOval(oval),
-                                 GrAA(aaType != GrAAType::kNone));
+                                 oval, GrAA(aaType != GrAAType::kNone));
     }
     if (!op && GrAAType::kCoverage == aaType) {
         assert_alive(paint);
