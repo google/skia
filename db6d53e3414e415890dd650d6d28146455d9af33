@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "694682a1_79628c1a",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-18T12:54:32Z",
+      "side": 1,
+      "message": "why change this? My guess is dawn may only support 8 if the assert was there???",
+      "range": {
+        "startLine": 343,
+        "startChar": 49,
+        "endLine": 343,
+        "endChar": 52
+      },
+      "revId": "db6d53e3414e415890dd650d6d28146455d9af33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
