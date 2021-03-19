@@ -16,6 +16,29 @@
       "message": "Oops, I meant to add Michael since this touches on your clipping code",
       "revId": "a868825cf403fd7122b9dc80311d20111cb1b0a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63c30427_33db65b8",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1508,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T16:53:31Z",
+      "side": 1,
+      "message": "Do we hit this? If we are, we should figure out why we didn\u0027t detect it earlier. If I\u0027m understanding this correctly, it means that the scissorBounds doesn\u0027t intersect with the device bounds of the clip path. This should have been caught earlier in apply to return kClippedOut.\n\nIf are catching it earlier and we don\u0027t hit this, can we assert success instead?",
+      "range": {
+        "startLine": 1506,
+        "startChar": 12,
+        "endLine": 1508,
+        "endChar": 13
+      },
+      "revId": "a868825cf403fd7122b9dc80311d20111cb1b0a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
