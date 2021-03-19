@@ -365,6 +365,22 @@ Cluster::Cluster(ParagraphImpl* owner,
     fIsHardBreak = fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore);
 }
 
+SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
+    SkASSERT(start <= end);
+    // clip |= end == size();  // Clip at the end of the run?
+    SkScalar shift = 0;
+    if (fSpaced && end > start) {
+        shift = fShifts[clip ? end - 1 : end] - fShifts[start];
+    }
+    auto correction = 0.0f;
+    if (end > start && !fJustificationShifts.empty()) {
+        // This is not a typo: we are using Point as a pair of SkScalars
+        correction = fJustificationShifts[end - 1].fX -
+                     fJustificationShifts[start].fY;
+    }
+    return posX(end) - posX(start) + shift + correction;
+}
+
 // Clusters in the order of the input text
 void ParagraphImpl::buildClusterTable() {
     int cluster_count = 1;
