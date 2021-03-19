@@ -53,6 +53,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "af8a314a_9ba85397",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-19T11:48:26Z",
+      "side": 1,
+      "message": "Implementation looks good. Also need updates to CHANGELOG.md, npm_build/types/canvaskit-wasm-test.ts, and a test in tests/core.spec.js",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3a644407_c4f69a80",
@@ -105,6 +122,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1d44478_6e23a1ed",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-19T11:48:26Z",
+      "side": 1,
+      "message": "I think this pattern of using Debug and return was an effort to reduce code size by having the error strings not be included in the release JS bundle. We can re-evaluate the effectiveness/ergonomics of that, but probably not in this CL because of the changes in many other functions.",
+      "parentUuid": "33e3c749_005454f4",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "648826aa_1a009f79",
@@ -135,6 +170,24 @@
       "writtenOn": "2021-03-18T23:24:38Z",
       "side": 1,
       "message": "RSXform seems to refer to an internal Skia type (fine with me, but a CanvasKit user not familiar with the internals may not understand what this is).",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50cb2471_9d50bbad",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-19T11:48:26Z",
+      "side": 1,
+      "message": "IIRC, RSXForm is documented elsewhere in types.d.ts",
+      "parentUuid": "4726b5ed_5c5c0390",
       "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
