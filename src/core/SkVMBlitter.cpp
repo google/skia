@@ -42,7 +42,6 @@ namespace {
         SkBlendMode             blendMode;
         Coverage                coverage;
         SkColor4f               paint;
-        SkFilterQuality         quality;
         const SkMatrixProvider& matrices;
 
         Params withCoverage(Coverage c) const {
@@ -144,8 +143,7 @@ namespace {
             if (auto c = sb->program(&p,
                                      device,/*local=*/device, paint,
                                      params.matrices, /*localM=*/nullptr,
-                                     params.quality, params.dst,
-                                     uniforms,alloc)) {
+                                     params.dst, uniforms,alloc)) {
                 hash = p.hash();
                 // p.hash() folds in all instructions to produce r,g,b,a but does not know
                 // precisely which value we'll treat as which channel.  Imagine the shader
@@ -200,8 +198,7 @@ namespace {
         // See note about arguments above: a SpriteShader will call p->arg() once during program().
         skvm::Color src = as_SB(params.shader)->program(p, device,/*local=*/device, paint,
                                                         params.matrices, /*localM=*/nullptr,
-                                                        params.quality, params.dst,
-                                                        uniforms, alloc);
+                                                        params.dst, uniforms, alloc);
         SkASSERT(src);
         if (params.coverage == Coverage::Mask3D) {
             skvm::F32 M = from_unorm(8, p->load8(p->varying<uint8_t>())),
@@ -271,8 +268,7 @@ namespace {
         if (params.clip) {
             skvm::Color clip = as_SB(params.clip)->program(p, device,/*local=*/device, paint,
                                                            params.matrices, /*localM=*/nullptr,
-                                                           params.quality, params.dst,
-                                                           uniforms, alloc);
+                                                           params.dst, uniforms, alloc);
             SkAssertResult(clip);
             cov.r *= clip.a;  // We use the alpha channel of clip for all four.
             cov.g *= clip.a;
@@ -353,7 +349,7 @@ namespace {
         skvm::Color onProgram(skvm::Builder* p,
                               skvm::Coord /*device*/, skvm::Coord /*local*/, skvm::Color /*paint*/,
                               const SkMatrixProvider&, const SkMatrix* /*localM*/,
-                              SkFilterQuality, const SkColorInfo& dst,
+                              const SkColorInfo& dst,
                               skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
             const SkColorType ct = fSprite.colorType();
 
@@ -379,11 +375,11 @@ namespace {
         skvm::Color onProgram(skvm::Builder* p,
                               skvm::Coord device, skvm::Coord local, skvm::Color paint,
                               const SkMatrixProvider& matrices, const SkMatrix* localM,
-                              SkFilterQuality quality, const SkColorInfo& dst,
+                              const SkColorInfo& dst,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
             // Run our wrapped shader.
             skvm::Color c = as_SB(fShader)->program(p, device,local, paint,
-                                                    matrices,localM, quality,dst, uniforms,alloc);
+                                                    matrices,localM, dst, uniforms,alloc);
             if (!c) {
                 return {};
             }
@@ -465,8 +461,7 @@ namespace {
 
         skvm::Color onProgram(skvm::Builder*,
                               skvm::Coord, skvm::Coord, skvm::Color paint,
-                              const SkMatrixProvider&, const SkMatrix*,
-                              SkFilterQuality, const SkColorInfo&,
+                              const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
                               skvm::Uniforms*, SkArenaAlloc*) const override {
             // Incoming `paint` is unpremul in the destination color space,
             // so we just need to premul it.
@@ -537,7 +532,6 @@ namespace {
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
             paintColor,
-            paint.getFilterQuality(),
             matrices,
         };
     }

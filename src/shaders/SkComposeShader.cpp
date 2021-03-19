@@ -130,20 +130,20 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
 static skvm::Color program_or_paint(const sk_sp<SkShader>& sh, skvm::Builder* p,
                                     skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                     const SkMatrixProvider& mats, const SkMatrix* localM,
-                                    SkFilterQuality q, const SkColorInfo& dst,
+                                    const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
-    return sh ? as_SB(sh)->program(p, device,local, paint, mats,localM, q,dst, uniforms,alloc)
+    return sh ? as_SB(sh)->program(p, device,local, paint, mats,localM, dst, uniforms,alloc)
               : p->premul(paint);
 }
 
 skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
                                       skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                       const SkMatrixProvider& mats, const SkMatrix* localM,
-                                      SkFilterQuality q, const SkColorInfo& dst,
+                                      const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)) &&
-        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)))
+    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, dst, uniforms,alloc)) &&
+        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, dst, uniforms,alloc)))
     {
         return p->blend(fMode, s,d);
     }
@@ -180,11 +180,11 @@ bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
 skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
                                      skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                      const SkMatrixProvider& mats, const SkMatrix* localM,
-                                     SkFilterQuality q, const SkColorInfo& dst,
+                                     const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)) &&
-        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, q,dst, uniforms,alloc)))
+    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, dst, uniforms,alloc)) &&
+        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, dst, uniforms,alloc)))
     {
         auto t = p->uniformF(uniforms->pushF(fWeight));
         return {
