@@ -143,7 +143,7 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. 'primProcProxies' must have
-     * GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
+     * GrGeometryProcessor::numTextureSamplers() entries. Can be null if no samplers.
      */
     virtual void recordDraw(const GrGeometryProcessor*,
                             const GrSimpleMesh[],

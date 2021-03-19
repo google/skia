@@ -162,10 +162,10 @@ void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
                                 nativeScissorRect.fWidth, nativeScissorRect.fHeight);
 }
 
-bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
-                                         const GrSurfaceProxy* const primProcTextures[],
+bool GrDawnOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,
+                                         const GrSurfaceProxy* const geomProcTextures[],
                                          const GrPipeline& pipeline) {
-    auto bindGroup = fCurrentProgram->setTextures(fGpu, primProc, pipeline, primProcTextures);
+    auto bindGroup = fCurrentProgram->setTextures(fGpu, geomProc, pipeline, geomProcTextures);
     if (bindGroup) {
         fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
     }

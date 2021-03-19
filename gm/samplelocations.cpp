@@ -29,7 +29,6 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -125,7 +124,7 @@ private:
 
 class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& proc = args.fGP.cast<SampleLocationsTestProcessor>();
+        const auto& proc = args.fGeomProc.cast<SampleLocationsTestProcessor>();
         auto* v = args.fVertBuilder;
         auto* f = args.fFragBuilder;
 
@@ -193,7 +192,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("}");
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override {}
 };
 
 GrGLSLPrimitiveProcessor* SampleLocationsTestProcessor::createGLSLInstance(
@@ -301,10 +300,10 @@ private:
 
     const GradType fGradType;
 
-    // The program info (and both the GrPipeline and GrPrimitiveProcessor it relies on), when
+    // The program info (and both the GrPipeline and GrGeometryProcessor it relies on), when
     // allocated, are allocated in either the ddl-record-time or flush-time arena. It is the
     // arena's job to free up their memory so we just have a bare programInfo pointer here. We
-    // don't even store the GrPipeline and GrPrimitiveProcessor pointers here bc they are
+    // don't even store the GrPipeline and GrGeometryProcessor pointers here bc they are
     // guaranteed to have the same lifetime as the program info.
     GrProgramInfo*  fProgramInfo = nullptr;
 
