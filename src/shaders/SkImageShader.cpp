@@ -233,9 +233,9 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
 
     auto supported = [](const SkSamplingOptions& sampling) {
         const std::tuple<SkFilterMode,SkMipmapMode> supported[] = {
-            {SkFilterMode::kNearest, SkMipmapMode::kNone},    // legacy kNone_SkFilterQuality
-            {SkFilterMode::kLinear,  SkMipmapMode::kNone},    // legacy kLow_SkFilterQuality
-            {SkFilterMode::kLinear,  SkMipmapMode::kNearest}, // legacy kMedium_SkFilterQuality
+            {SkFilterMode::kNearest, SkMipmapMode::kNone},    // legacy None
+            {SkFilterMode::kLinear,  SkMipmapMode::kNone},    // legacy Low
+            {SkFilterMode::kLinear,  SkMipmapMode::kNearest}, // legacy Medium
         };
         for (auto [f, m] : supported) {
             if (sampling.filter == f && sampling.mipmap == m) {
@@ -589,16 +589,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         decal_ctx->limit_x = limit_x->scale;
         decal_ctx->limit_y = limit_y->scale;
     }
-
-#if 0   // TODO: when we support kMedium
-    if (updator && (quality == kMedium_SkFilterQuality)) {
-        // if we change levels in mipmap, we need to update the scales (and invScales)
-        updator->fGather = gather;
-        updator->fLimitX = limit_x;
-        updator->fLimitY = limit_y;
-        updator->fDecal = decal_ctx;
-    }
-#endif
 
     auto append_tiling_and_gather = [&] {
         if (decal_x_and_y) {

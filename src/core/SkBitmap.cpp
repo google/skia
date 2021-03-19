@@ -8,7 +8,6 @@
 #include "include/core/SkBitmap.h"
 
 #include "include/core/SkData.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkMath.h"
 #include "include/core/SkPixelRef.h"

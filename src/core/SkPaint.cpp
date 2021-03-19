@@ -235,7 +235,7 @@ static uint32_t pack_v68(const SkPaint& paint, unsigned flatFlags) {
     packed |= shift_bits(paint.getStrokeCap(),     16, 2);
     packed |= shift_bits(paint.getStrokeJoin(),    18, 2);
     packed |= shift_bits(paint.getStyle(),         20, 2);
-    packed |= shift_bits(SkPaintPriv::GetFQ(paint), 22, 2);
+    packed |= shift_bits(paint.getFilterQuality(), 22, 2);
     packed |= shift_bits(flatFlags,                24, 8);
     return packed;
 }

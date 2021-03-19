@@ -225,7 +225,7 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingO
 }
 
 void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkSamplingOptions sampling(paint ? SkPaintPriv::GetFQ(*paint) : kNone_SkFilterQuality);
+    SkSamplingOptions sampling(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
     this->draw(canvas, x, y, sampling, paint);
 }
 
