@@ -289,9 +289,8 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 // enum variables aren't really 'declared', but we have to create a declaration to
                 // store the value
                 auto valueLiteral = IntLiteral::Make(fContext, /*offset=*/-1, value);
-                auto declaration = std::make_unique<VarDeclaration>(&v, &v.type(), /*arraySize=*/0,
-                                                                    std::move(valueLiteral));
-                v.setDeclaration(declaration.get());
+                auto declaration = VarDeclaration::Make(fContext, &v, &v.type(), /*arraySize=*/0,
+                                                        std::move(valueLiteral));
                 symbols->takeOwnershipOfIRNode(std::move(declaration));
             }
             return std::make_unique<Enum>(/*offset=*/-1, typeName, std::move(symbols),
@@ -416,10 +415,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             const Type* baseType = this->type();
             int arraySize = this->readS8();
             std::unique_ptr<Expression> value = this->expression();
-            auto result = std::make_unique<VarDeclaration>(var, baseType, arraySize,
-                                                           std::move(value));
-            var->setDeclaration(result.get());
-            return std::move(result);
+            return VarDeclaration::Make(fContext, var, baseType, arraySize, std::move(value));
         }
         case Rehydrator::kVoid_Command:
             return nullptr;
