@@ -24,15 +24,7 @@ class SkPicture;
  */
 class SkPictureShader : public SkShaderBase {
 public:
-    enum FilterEnum {
-        kNearest,           // SkFilterMode::kNearest
-        kLinear,            // SkFilterMode::kLinear
-        kInheritFromPaint,
-
-        kLastFilterEnum = kInheritFromPaint,
-    };
-
-    static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, FilterEnum,
+    static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, SkFilterMode,
                                 const SkMatrix*, const SkRect*);
 
 #if SK_SUPPORT_GPU
@@ -55,14 +47,11 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkPictureShader)
 
-    SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, FilterEnum,
+    SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, SkFilterMode,
                     const SkMatrix*, const SkRect*);
 
     sk_sp<SkShader> rasterShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
-                                 SkColorType dstColorType, SkColorSpace* dstColorSpace,
-                                 SkFilterMode paintFilter) const;
-
-    sk_sp<SkShader> makeShader(const SkImage*, SkFilterMode paintFilter) const;
+                                 SkColorType dstColorType, SkColorSpace* dstColorSpace) const;
 
     class PictureShaderContext : public Context {
     public:
@@ -83,7 +72,7 @@ private:
     sk_sp<SkPicture>    fPicture;
     SkRect              fTile;
     SkTileMode          fTmx, fTmy;
-    FilterEnum          fFilter;
+    SkFilterMode        fFilter;
 
     using INHERITED = SkShaderBase;
 };
