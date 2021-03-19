@@ -171,16 +171,16 @@ public:
     /**
      * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
      *
-     * @param GrPaint      describes how to color pixels.
+     * @param paint        describes how to color pixels.
      * @param GrAA         Controls whether rect is antialiased
-     * @param SkMatrix     transformation matrix which applies to rectToDraw
+     * @param viewMatrix   transformation matrix which applies to rectToDraw
      * @param rectToDraw   the rectangle to draw
      * @param localRect    the rectangle of shader coordinates applied to rectToDraw
      */
-    void fillRectToRect(const GrClip*,
-                        GrPaint&&,
-                        GrAA,
-                        const SkMatrix&,
+    void fillRectToRect(const GrClip* clip,
+                        GrPaint&& paint,
+                        GrAA aa,
+                        const SkMatrix& viewMatrix,
                         const SkRect& rectToDraw,
                         const SkRect& localRect);
 
@@ -250,27 +250,20 @@ public:
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
      * device space.
      */
-    void drawTexture(const GrClip* clip,
-                     GrSurfaceProxyView view,
-                     SkAlphaType srcAlphaType,
-                     GrSamplerState::Filter filter,
-                     GrSamplerState::MipmapMode mm,
-                     SkBlendMode mode,
-                     const SkPMColor4f& color,
+    void drawTexture(const GrClip*,
+                     GrSurfaceProxyView,
+                     SkAlphaType,
+                     GrSamplerState::Filter,
+                     GrSamplerState::MipmapMode,
+                     SkBlendMode,
+                     const SkPMColor4f&,
                      const SkRect& srcRect,
                      const SkRect& dstRect,
-                     GrAA aa,
-                     GrQuadAAFlags edgeAA,
-                     SkCanvas::SrcRectConstraint constraint,
-                     const SkMatrix& viewMatrix,
-                     sk_sp<GrColorSpaceXform> texXform) {
-        const SkRect* subset = constraint == SkCanvas::kStrict_SrcRectConstraint ?
-                &srcRect : nullptr;
-        DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
-
-        this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform), filter, mm,
-                               color, mode, aa, &quad, subset);
-    }
+                     GrAA,
+                     GrQuadAAFlags,
+                     SkCanvas::SrcRectConstraint,
+                     const SkMatrix&,
+                     sk_sp<GrColorSpaceXform>);
 
     /**
      * Variant of drawTexture that instead draws the texture applied to 'dstQuad' transformed by
