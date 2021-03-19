@@ -16,6 +16,75 @@
       "message": "Much nicer version, with the fiddles embedded.",
       "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e726f54_da2da036",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T15:50:38Z",
+      "side": 1,
+      "message": "I feel like this needs to be brought into the conversation ASAP. I feel like the reader will be wondering \"do I have to learn a whole new language\" and the sooner we can reduce that tension, the better. The names of the C++ bindings IMO are more of an implementation-detail concern and can be introduced later.",
+      "range": {
+        "startLine": 18,
+        "startChar": 59,
+        "endLine": 18,
+        "endChar": 94
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "523be34a_7567d2f3",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T15:50:38Z",
+      "side": 1,
+      "message": "This seems confusing; the previous example is already sampling from a SkGradientShader so the ability to \"sample from another SkSL shader\" doesn\u0027t really seem novel. Do you mean \"sample from another Runtime Effect\"?",
+      "range": {
+        "startLine": 40,
+        "startChar": 20,
+        "endLine": 40,
+        "endChar": 39
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5697d241_dbd71e12",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T15:50:38Z",
+      "side": 1,
+      "message": "Having this sentence come after the fiddle but before the next section makes it feel disconnected. Maybe move it to the top of the next section.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 0
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
