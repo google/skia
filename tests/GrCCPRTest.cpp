@@ -40,10 +40,16 @@ private:
     Effect apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc, GrAAType,
                  bool hasUserStencilSettings, GrAppliedClip* out,
                  SkRect* bounds) const override {
-        out->addCoverageFP(fCCPR->makeClipProcessor(
-                /*inputFP=*/nullptr, rtc->getOpsTask()->uniqueID(), fPath,
-                SkIRect::MakeWH(rtc->width(), rtc->height()), *context->priv().caps()));
-        return Effect::kClipped;
+        auto [success, fp] = fCCPR->makeClipProcessor(/*inputFP=*/nullptr,
+                                                      rtc->getOpsTask()->uniqueID(), fPath,
+                                                      SkIRect::MakeWH(rtc->width(), rtc->height()),
+                                                      *context->priv().caps());
+        if (success) {
+            out->addCoverageFP(std::move(fp));
+            return Effect::kClipped;
+        } else {
+            return Effect::kClippedOut;
+        }
     }
 
     GrCoverageCountingPathRenderer* const fCCPR;

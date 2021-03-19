@@ -248,10 +248,13 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
     // can cause a flush or otherwise change which opstask our draw is going into.
     uint32_t opsTaskID = surfaceDrawContext->getOpsTask()->uniqueID();
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider, ccpr,
-                                                                   opsTaskID)) {
+    auto [success, clipFPs] = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider,
+                                                                          ccpr, opsTaskID);
+    if (success) {
         out->addCoverageFP(std::move(clipFPs));
         effect = Effect::kClipped;
+    } else {
+        effect = Effect::kClippedOut;
     }
 
     return effect;

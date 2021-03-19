@@ -51,9 +51,9 @@ public:
     // Large clip paths should consider a different method, like MSAA stencil.
     constexpr static int64_t kMaxClipPathArea = 256 * 256;
 
-    std::unique_ptr<GrFragmentProcessor> makeClipProcessor(
-            std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
-            const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps);
+    GrFPResult makeClipProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
+                                 const SkPath& deviceSpacePath, const SkIRect& accessRect,
+                                 const GrCaps& caps);
 
     // GrOnFlushCallbackObject overrides.
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
