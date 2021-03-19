@@ -240,9 +240,6 @@ class CCPR_parseEmptyPath : public CCPRTest {
 };
 DEF_CCPR_TEST(CCPR_parseEmptyPath)
 
-// This test doesn't currently work with clips. Forcing unnatural early deletion of the pending
-// paths triggers an assert.
-#if 0
 class CCPR_unrefPerOpsTaskPathsBeforeOps : public CCPRTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
@@ -262,7 +259,6 @@ class CCPR_unrefPerOpsTaskPathsBeforeOps : public CCPRTest {
     }
 };
 DEF_CCPR_TEST(CCPR_unrefPerOpsTaskPathsBeforeOps)
-#endif
 
 class CCPRRenderingTest {
 public:

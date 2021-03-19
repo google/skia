@@ -13,10 +13,8 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
-void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
-                        const GrCaps& caps) {
-    SkASSERT(!this->isInitialized());
-
+GrCCClipPath::GrCCClipPath(const SkPath& deviceSpacePath, const SkIRect& accessRect,
+                           const GrCaps& caps) {
     fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
             [](GrResourceProvider*, const GrCCAtlas::LazyAtlasDesc&) {
                 // GrCCClipPaths get instantiated explicitly after the atlas is laid out. If this
@@ -30,8 +28,6 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
 }
 
 void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
-    SkASSERT(this->isInitialized());
-
     SkIRect ibounds;
     if (ibounds.intersect(fAccessRect, fPathDevIBounds)) {
         specs->accountForSpace(ibounds.width(), ibounds.height());
@@ -40,7 +36,6 @@ void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
 
 const GrCCAtlas* GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
                                                  GrOnFlushResourceProvider* onFlushRP) {
-    SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
     const GrCCAtlas* retiredAtlas = resources->renderDeviceSpacePathInAtlas(
             onFlushRP, fAccessRect, fDeviceSpacePath, fPathDevIBounds,

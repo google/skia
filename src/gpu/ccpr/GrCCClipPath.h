@@ -23,32 +23,15 @@ class GrProxyProvider;
  * where by clip FPs in a given opsTask. A single GrCCClipPath can be referenced by multiple FPs. At
  * flush time their coverage count masks are packed into atlas(es) alongside normal DrawPathOps.
  */
-class GrCCClipPath {
+class GrCCClipPath : public SkRefCnt {
 public:
-    GrCCClipPath() = default;
+    GrCCClipPath(const SkPath& deviceSpacePath, const SkIRect&, const GrCaps&);
     GrCCClipPath(const GrCCClipPath&) = delete;
 
-    bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
-    void init(const SkPath& deviceSpacePath,
-              const SkIRect& desc,
-              const GrCaps&);
-
-    void addAccess(const SkIRect& accessRect) {
-        SkASSERT(this->isInitialized());
-        fAccessRect.join(accessRect);
-    }
-    GrTextureProxy* atlasLazyProxy() const {
-        SkASSERT(this->isInitialized());
-        return fAtlasLazyProxy.get();
-    }
-    const SkPath& deviceSpacePath() const {
-        SkASSERT(this->isInitialized());
-        return fDeviceSpacePath;
-    }
-    const SkIRect& pathDevIBounds() const {
-        SkASSERT(this->isInitialized());
-        return fPathDevIBounds;
-    }
+    void addAccess(const SkIRect& accessRect) { fAccessRect.join(accessRect); }
+    GrTextureProxy* atlasLazyProxy() const { return fAtlasLazyProxy.get(); }
+    const SkPath& deviceSpacePath() const { return fDeviceSpacePath; }
+    const SkIRect& pathDevIBounds() const { return fPathDevIBounds; }
 
     void accountForOwnPath(GrCCAtlas::Specs*) const;
 
