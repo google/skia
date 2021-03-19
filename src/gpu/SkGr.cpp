@@ -226,7 +226,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
     // TODO: take sampling directly
-    SkSamplingOptions sampling(SkPaintPriv::GetFQ(skPaint),
+    SkSamplingOptions sampling(skPaint.getFilterQuality(),
                                SkSamplingOptions::kMedium_asMipmapLinear);
 
     // Convert SkPaint color to 4f format in the destination color space
@@ -434,7 +434,7 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint) {
     // TODO: take sampling directly
-    SkSamplingOptions sampling(SkPaintPriv::GetFQ(paint),
+    SkSamplingOptions sampling(paint.getFilterQuality(),
                                SkSamplingOptions::kMedium_asMipmapLinear);
 
     std::unique_ptr<GrFragmentProcessor> shaderFP;
