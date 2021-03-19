@@ -135,51 +135,6 @@ std::tuple<bool, TextIndex, TextIndex> Run::findLimitingGraphemes(TextRange text
     return std::make_tuple(true, start, end);
 }
 
-void Run::iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor) {
-    // Can't figure out how to do it with one code for both cases without 100 ifs
-    // Can't go through clusters because there are no cluster table yet
-    if (leftToRight()) {
-        size_t start = 0;
-        size_t cluster = this->clusterIndex(start);
-        for (size_t glyph = 1; glyph <= this->size(); ++glyph) {
-            auto nextCluster = this->clusterIndex(glyph);
-            if (nextCluster <= cluster) {
-                continue;
-            }
-
-            visitor(start,
-                    glyph,
-                    fClusterStart + cluster,
-                    fClusterStart + nextCluster,
-                    this->calculateWidth(start, glyph, glyph == size()),
-                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
-
-            start = glyph;
-            cluster = nextCluster;
-        }
-    } else {
-        size_t glyph = this->size();
-        size_t cluster = this->fUtf8Range.begin();
-        for (int32_t start = this->size() - 1; start >= 0; --start) {
-            size_t nextCluster =
-                    start == 0 ? this->fUtf8Range.end() : this->clusterIndex(start - 1);
-            if (nextCluster <= cluster) {
-                continue;
-            }
-
-            visitor(start,
-                    glyph,
-                    fClusterStart + cluster,
-                    fClusterStart + nextCluster,
-                    this->calculateWidth(start, glyph, glyph == 0),
-                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
-
-            glyph = start;
-            cluster = nextCluster;
-        }
-    }
-}
-
 void Run::iterateThroughClusters(const ClusterVisitor& visitor) {
 
     for (size_t index = 0; index < fClusterRange.width(); ++index) {
