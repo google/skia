@@ -74,6 +74,7 @@ public:
     // typically the color space of the device we're drawing into.
     static void RemoveColorFilter(SkPaint*, SkColorSpace* dstCS);
 
+private:
     static SkFilterQuality GetFQ(const SkPaint& paint) { return paint.getFilterQuality(); }
     static void SetFQ(SkPaint* paint, SkFilterQuality fq) { paint->setFilterQuality(fq); }
 };
