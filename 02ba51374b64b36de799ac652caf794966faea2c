@@ -16,6 +16,29 @@
       "message": "Addressed a bunch of comments.",
       "revId": "02ba51374b64b36de799ac652caf794966faea2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "188f18fd_10c7f8cc",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T18:26:05Z",
+      "side": 1,
+      "message": "Don\u0027t need air-quotes IMO; \"valid\" is the right word.",
+      "range": {
+        "startLine": 68,
+        "startChar": 58,
+        "endLine": 68,
+        "endChar": 65
+      },
+      "revId": "02ba51374b64b36de799ac652caf794966faea2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

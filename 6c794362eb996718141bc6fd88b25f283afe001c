@@ -135,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce5475ab_6a655219",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T18:26:05Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "e375aae5_2de7c6fe",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 0
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a23397e_b67d2882",
@@ -219,6 +243,30 @@
       "side": 1,
       "message": "Both good points. I had tried to whittle down the fiddle code when I started embedding it in the doc, but didn\u0027t think to remove the left band. Agree that it\u0027s not needed here. I actually removed it from the shaders.skia.org version, too. It makes that one easier to reason about, similarly. (And still tells the whole story).\n\nAdded your extra paragraph, merged it with the last bullet point (and pulled that out of the bulleted list, as it\u0027s not just a consequence of premultiplied colors, but an important standalone point).",
       "parentUuid": "6e1a6123_344cec42",
+      "range": {
+        "startLine": 71,
+        "startChar": 38,
+        "endLine": 71,
+        "endChar": 39
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0be6f8a0_ca6750cd",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T18:26:05Z",
+      "side": 1,
+      "message": "Thanks, this looks great.",
+      "parentUuid": "9ebb1c61_4eca1afc",
       "range": {
         "startLine": 71,
         "startChar": 38,
