@@ -302,6 +302,29 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     return true;
 }
 
+Cluster::Cluster(ParagraphImpl* owner,
+                 RunIndex runIndex,
+                 size_t start,
+                 size_t end,
+                 SkSpan<const char> text,
+                 SkScalar width,
+                 SkScalar height)
+        : fOwner(owner)
+        , fRunIndex(runIndex)
+        , fTextRange(text.begin() - fOwner->text().begin(), text.end() - fOwner->text().begin())
+        , fGraphemeRange(EMPTY_RANGE)
+        , fStart(start)
+        , fEnd(end)
+        , fWidth(width)
+        , fSpacing(0)
+        , fHeight(height)
+        , fHalfLetterSpacing(0.0) {
+    size_t len = fOwner->getWhitespacesLength(fTextRange);
+    fIsWhiteSpaces = (len == this->fTextRange.width());
+    fIsSpaces = fOwner->isSpace(fTextRange);
+    fIsHardBreak = fOwner->codeUnitHasProperty(fTextRange.end, CodeUnitFlags::kHardLineBreakBefore);
+}
+
 // Clusters in the order of the input text
 void ParagraphImpl::buildClusterTable() {
     int cluster_count = 1;
