@@ -27,6 +27,7 @@ SK_C_API gr_direct_context_t* gr_direct_context_make_metal_with_options(void* de
 // TODO: the overloads with GrContextOptions
 
 SK_C_API void gr_direct_context_unref(gr_direct_context_t* context);
+SK_C_API bool gr_direct_context_is_abandoned(gr_direct_context_t* context);
 SK_C_API void gr_direct_context_abandon_context(gr_direct_context_t* context);
 SK_C_API void gr_direct_context_release_resources_and_abandon_context(gr_direct_context_t* context);
 SK_C_API size_t gr_direct_context_get_resource_cache_limit(gr_direct_context_t* context);

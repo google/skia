@@ -56,6 +56,10 @@ void gr_direct_context_unref(gr_direct_context_t* context) {
     SK_ONLY_GPU(SkSafeUnref(AsGrDirectContext(context)));
 }
 
+bool gr_direct_context_is_abandoned(gr_direct_context_t* context) {
+    return SK_ONLY_GPU(AsGrDirectContext(context)->abandoned(), true);
+}
+
 void gr_direct_context_abandon_context(gr_direct_context_t* context) {
     SK_ONLY_GPU(AsGrDirectContext(context)->abandonContext());
 }
