@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "25bf5542_469332a3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T22:42:59Z",
+      "side": 1,
+      "message": "(The first patchset hit a snag because sk_RTHeight is sometimes a\nglobal and other times an interface-block variable.)",
+      "range": {
+        "startLine": 400,
+        "startChar": 16,
+        "endLine": 401,
+        "endChar": 72
+      },
+      "revId": "f3ecc8eb9a300f59b4b57d1a0de383a4d6dcab60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0099b5af_48b387b1",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 3
