@@ -12,13 +12,10 @@ void main() {
     float _6_minComp = min(min(_5_result.x, _5_result.y), _5_result.z);
     float _7_maxComp = max(max(_5_result.x, _5_result.y), _5_result.z);
     if (_6_minComp < 0.0 && _4_lum != _6_minComp) {
-        float _8_d = _4_lum - _6_minComp;
-        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / _8_d);
+        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / (_4_lum - _6_minComp));
     }
     if (_7_maxComp > _0_alpha && _7_maxComp != _4_lum) {
-        vec3 _9_n = (_5_result - _4_lum) * (_0_alpha - _4_lum);
-        float _10_d = _7_maxComp - _4_lum;
-        _3_blend_set_color_luminance = _4_lum + _9_n / _10_d;
+        _3_blend_set_color_luminance = _4_lum + ((_5_result - _4_lum) * (_0_alpha - _4_lum)) / (_7_maxComp - _4_lum);
     } else {
         _3_blend_set_color_luminance = _5_result;
     }

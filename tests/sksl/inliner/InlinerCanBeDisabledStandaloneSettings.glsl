@@ -7,22 +7,17 @@ vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
     if (minComp < 0.0 && lum != minComp) {
-        float _4_d = lum - minComp;
-        result = lum + (result - lum) * (lum / _4_d);
+        result = lum + (result - lum) * (lum / (lum - minComp));
     }
     if (maxComp > alpha && maxComp != lum) {
-        vec3 _5_n = (result - lum) * (alpha - lum);
-        float _6_d = maxComp - lum;
-        return lum + _5_n / _6_d;
+        return lum + ((result - lum) * (alpha - lum)) / (maxComp - lum);
     } else {
         return result;
     }
 }
 vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     if (minMidMax.x < minMidMax.z) {
-        float _7_n = sat * (minMidMax.y - minMidMax.x);
-        float _8_d = minMidMax.z - minMidMax.x;
-        return vec3(0.0, _7_n / _8_d, sat);
+        return vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
     } else {
         return vec3(0.0);
     }
@@ -52,9 +47,8 @@ vec4 blend_hue(vec4 src, vec4 dst) {
     return vec4((((_blend_set_color_luminance(_blend_set_color_saturation(sda, dsa), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
 void main() {
-    float _0_a = color.x * color.y;
-    float _1_c = _0_a + color.z;
-    sk_FragColor = vec4(_1_c);
+    float _0_c = color.x * color.y + color.z;
+    sk_FragColor = vec4(_0_c);
     sk_FragColor *= 1.25;
     sk_FragColor *= color.xxyy * color.w;
     sk_FragColor *= color.zzww * color.y;
