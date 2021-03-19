@@ -114,7 +114,6 @@ class GrDirectContext;
 #define DEBUGCANVAS_ATTRIBUTE_CUBICS "cubics"
 #define DEBUGCANVAS_ATTRIBUTE_COLORS "colors"
 #define DEBUGCANVAS_ATTRIBUTE_TEXTURECOORDS "textureCoords"
-#define DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY "filterQuality"
 #define DEBUGCANVAS_ATTRIBUTE_STARTANGLE "startAngle"
 #define DEBUGCANVAS_ATTRIBUTE_SWEEPANGLE "sweepAngle"
 #define DEBUGCANVAS_ATTRIBUTE_USECENTER "useCenter"
@@ -191,11 +190,6 @@ class GrDirectContext;
 #define DEBUGCANVAS_ALPHATYPE_PREMUL "premul"
 #define DEBUGCANVAS_ALPHATYPE_UNPREMUL "unpremul"
 #define DEBUGCANVAS_ALPHATYPE_UNKNOWN "unknown"
-
-#define DEBUGCANVAS_FILTERQUALITY_NONE "none"
-#define DEBUGCANVAS_FILTERQUALITY_LOW "low"
-#define DEBUGCANVAS_FILTERQUALITY_MEDIUM "medium"
-#define DEBUGCANVAS_FILTERQUALITY_HIGH "high"
 
 #define DEBUGCANVAS_HINTING_NONE "none"
 #define DEBUGCANVAS_HINTING_SLIGHT "slight"
@@ -824,24 +818,6 @@ static void apply_paint_join(const SkPaint& paint, SkJSONWriter& writer) {
     }
 }
 
-static void apply_paint_filterquality(const SkPaint& paint, SkJSONWriter& writer) {
-    SkFilterQuality quality = SkPaintPriv::GetFQ(paint);
-    switch (quality) {
-        case kNone_SkFilterQuality: break;
-        case kLow_SkFilterQuality:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY, DEBUGCANVAS_FILTERQUALITY_LOW);
-            break;
-        case kMedium_SkFilterQuality:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY,
-                                DEBUGCANVAS_FILTERQUALITY_MEDIUM);
-            break;
-        case kHigh_SkFilterQuality:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY,
-                                DEBUGCANVAS_FILTERQUALITY_HIGH);
-            break;
-    }
-}
-
 static void apply_paint_maskfilter(const SkPaint&  paint,
                                    SkJSONWriter&   writer,
                                    UrlDataManager& urlDataManager) {
@@ -948,7 +924,6 @@ void DrawCommand::MakeJsonPaint(SkJSONWriter&   writer,
     apply_paint_blend_mode(paint, writer);
     apply_paint_cap(paint, writer);
     apply_paint_join(paint, writer);
-    apply_paint_filterquality(paint, writer);
     apply_paint_patheffect(paint, writer, urlDataManager);
     apply_paint_maskfilter(paint, writer, urlDataManager);
     apply_flattenable(DEBUGCANVAS_ATTRIBUTE_SHADER, paint.getShader(), writer, urlDataManager);
