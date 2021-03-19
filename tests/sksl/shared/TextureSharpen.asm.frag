@@ -31,7 +31,6 @@ OpDecorate %24 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float

@@ -31,7 +31,6 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %24 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
-OpDecorate %31 RelaxedPrecision
 %float = OpTypeFloat 32
 %int = OpTypeInt 32 1
 %int_2 = OpConstant %int 2
