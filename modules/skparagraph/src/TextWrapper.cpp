@@ -6,17 +6,33 @@ namespace skia {
 namespace textlayout {
 
 namespace {
-SkScalar littleRound(SkScalar a) {
-    // This rounding is done to match Flutter tests. Must be removed..
-    auto val = std::fabs(a);
-    if (val < 10000) {
-        return SkScalarRoundToScalar(a * 100) * (1.0f/100);
-    } else if (val < 100000) {
-        return SkScalarRoundToScalar(a *  10) * (1.0f/10);
-    } else {
-        return SkScalarFloorToScalar(a);
+struct LineBreakerWithLittleRounding {
+    LineBreakerWithLittleRounding(SkScalar maxWidth)
+        : fLower(maxWidth - 0.25f)
+        , fMaxWidth(maxWidth)
+        , fUpper(maxWidth + 0.25f) {}
+
+    bool breakLine(SkScalar width) const {
+        if (width < fLower) {
+            return false;
+        } else if (width > fUpper) {
+            return true;
+        }
+
+        auto val = std::fabs(width);
+        SkScalar roundedWidth;
+        if (val < 10000) {
+            roundedWidth = SkScalarRoundToScalar(width * 100) * (1.0f/100);
+        } else if (val < 100000) {
+            roundedWidth = SkScalarRoundToScalar(width *  10) * (1.0f/10);
+        } else {
+            roundedWidth = SkScalarFloorToScalar(width);
+        }
+        return roundedWidth > fMaxWidth;
     }
-}
+
+    const SkScalar fLower, fMaxWidth, fUpper;
+};
 }  // namespace
 
 // Since we allow cluster clipping when they don't fit
@@ -29,13 +45,14 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     fClusters.startFrom(fEndLine.startCluster(), fEndLine.startPos());
     fClip.startFrom(fEndLine.startCluster(), fEndLine.startPos());
 
+    LineBreakerWithLittleRounding breaker(maxWidth);
     Cluster* nextNonBreakingSpace = nullptr;
     for (auto cluster = fEndLine.endCluster(); cluster < endOfClusters; ++cluster) {
-        // TODO: Trying to deal with flutter rounding problem. Must be removed...
-        auto width = fWords.width() + fClusters.width() + cluster->width();
-        auto roundedWidth = littleRound(width);
         if (cluster->isHardBreak()) {
-        } else if (roundedWidth > maxWidth) {
+        } else if (
+                // TODO: Trying to deal with flutter rounding problem. Must be removed...
+                SkScalar width = fWords.width() + fClusters.width() + cluster->width();
+                breaker.breakLine(width)) {
             if (cluster->isWhitespaceBreak()) {
                 // It's the end of the word
                 fClusters.extend(cluster);
@@ -89,8 +106,8 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                 if (nextNonBreakingSpace != nullptr) {
                     // We only get here if the non-breaking space improves our situation
                     // (allows us to break the text to fit the word)
-                    auto shortLength = littleRound(fWords.width() + nextShortWordLength);
-                    if (shortLength <= maxWidth) {
+                    if (SkScalar shortLength = fWords.width() + nextShortWordLength;
+                        !breaker.breakLine(shortLength)) {
                         // We can add the short word to the existing line
                         fClusters = TextStretch(fClusters.startCluster(), nextNonBreakingSpace, fClusters.metrics().getForceStrut());
                         fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, nextShortWordLength);
