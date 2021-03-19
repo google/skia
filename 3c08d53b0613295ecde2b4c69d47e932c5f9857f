@@ -16,6 +16,24 @@
       "message": "I figured I have to change all my visitors the same way...",
       "revId": "3c08d53b0613295ecde2b4c69d47e932c5f9857f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "683ba17b_a69d852c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-19T16:00:48Z",
+      "side": 1,
+      "message": "It is a balance between code size, and performance. Since iterateThroughClustersInTextOrder is only used in a single call site, this should be a win in both performance and size.\n\nIn general, if the templatized function is only used at a single call site, then it should both be smaller and faster.",
+      "parentUuid": "a7835608_e4c5a1e6",
+      "revId": "3c08d53b0613295ecde2b4c69d47e932c5f9857f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
