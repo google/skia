@@ -41,7 +41,7 @@ strip_all:
 
 bluescape_release:
 	# Does an incremental build where possible.
-	# Note that we shouldn't disable: no_fonts no_paragraph primitive_shaper
+	# Note that we shouldn't disable: no_fonts no_paragraph primitive_shaper no_embedded_font
 	rm -rf ../../out/canvaskit_wasm/canvaskit.js
 	rm -rf ../../out/canvaskit_wasm/canvaskit.wasm
 	./compile.sh no_skp_serialization \
@@ -53,7 +53,6 @@ bluescape_release:
 				no_rt_shader \
 				no_matrix \
 				no_canvas \
-				no_embedded_font \
 				no_woff2 \
 				no_alias_font \
 				no_codecs \
