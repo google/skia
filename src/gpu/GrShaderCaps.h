@@ -174,6 +174,9 @@ public:
     // least some cases.
     bool canUseDoLoops() const { return fCanUseDoLoops; }
 
+    // Some GPUs produce poor results when enabling Metal's fastmath option
+    bool canUseFastMath() const { return fCanUseFastMath; }
+
     // By default, SkSL pools IR nodes per-program. To debug memory corruption, it is sometimes
     // helpful to disable that feature.
     bool useNodePools() const { return fUseNodePools; }
@@ -306,6 +309,7 @@ private:
     bool fCanOnlyUseSampleMaskWithStencil             : 1;
     bool fColorSpaceMathNeedsFloat                    : 1;
     bool fCanUseDoLoops                               : 1;
+    bool fCanUseFastMath                              : 1;
 
     // This controls behavior of the SkSL compiler, not the code we generate
     bool fUseNodePools : 1;

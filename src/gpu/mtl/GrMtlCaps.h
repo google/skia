@@ -109,6 +109,8 @@ private:
     void initGrCaps(const id<MTLDevice> device);
     void initShaderCaps();
 
+    void applyDriverCorrectnessWorkarounds(const GrContextOptions&, const id<MTLDevice>);
+
     void initFormatTable();
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;

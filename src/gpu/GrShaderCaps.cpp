@@ -58,6 +58,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fBuiltinFMASupport = false;
     fBuiltinDeterminantSupport = false;
     fCanUseDoLoops = true;
+    fCanUseFastMath = false;
     fUseNodePools = true;
 
     fVersionDeclString = nullptr;
