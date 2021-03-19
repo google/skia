@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "945beabc_4191dca2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-03-19T20:06:27Z",
+      "side": 1,
+      "message": "This change should calculate the comparison exactly as the original code, but it would be good to make sure this passes all the correctness tests.\n\nWith this change and the three others, it looks like we have take the performance from 61.3 microseconds to 47.7 microseconds about a 22% improvement. I hope this improvement shows in the larger suite of tests.",
+      "revId": "46e7c690b46d2bf72c179094ea1224dae773ae7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
