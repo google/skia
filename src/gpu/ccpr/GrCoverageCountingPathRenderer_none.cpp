@@ -17,8 +17,8 @@ std::unique_ptr<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::
     return nullptr;
 }
 
-std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
+GrFPResult GrCoverageCountingPathRenderer::makeClipProcessor(
         std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
         const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps) {
-    return nullptr;
+    return GrFPFailure(nullptr);
 }
