@@ -9,8 +9,8 @@
 #define GrProgramInfo_DEFINED
 
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrPrimitiveProcessor.h"
 
 class GrStencilSettings;
 
@@ -19,7 +19,7 @@ public:
     GrProgramInfo(const GrSurfaceProxyView& targetView,
                   const GrPipeline* pipeline,
                   const GrUserStencilSettings* userStencilSettings,
-                  const GrPrimitiveProcessor* primProc,
+                  const GrGeometryProcessor* geomProc,
                   GrPrimitiveType primitiveType,
                   uint8_t tessellationPatchVertexCount,
                   GrXferBarrierFlags renderPassXferBarriers,
@@ -34,7 +34,7 @@ public:
                       targetView.asRenderTargetProxy()->supportsVkInputAttachment())
             , fPipeline(pipeline)
             , fUserStencilSettings(userStencilSettings)
-            , fPrimProc(primProc)
+            , fGeomProc(geomProc)
             , fPrimitiveType(primitiveType)
             , fTessellationPatchVertexCount(tessellationPatchVertexCount)
             , fRenderPassXferBarriers(renderPassXferBarriers)
@@ -43,7 +43,7 @@ public:
         SkASSERT(this->numRasterSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
                  (fTessellationPatchVertexCount > 0));
-        fRequestedFeatures = fPrimProc->requestedFeatures();
+        fRequestedFeatures = fGeomProc->requestedFeatures();
         for (int i = 0; i < fPipeline->numFragmentProcessors(); ++i) {
             fRequestedFeatures |= fPipeline->getFragmentProcessor(i).requestedFeatures();
         }
@@ -69,7 +69,7 @@ public:
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
     GrSurfaceOrigin origin() const { return fOrigin;  }
     const GrPipeline& pipeline() const { return *fPipeline; }
-    const GrPrimitiveProcessor& primProc() const { return *fPrimProc; }
+    const GrGeometryProcessor& geomProc() const { return *fGeomProc; }
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     uint8_t tessellationPatchVertexCount() const {
@@ -109,7 +109,7 @@ private:
     const bool                            fTargetSupportsVkResolveLoad;
     const GrPipeline*                     fPipeline;
     const GrUserStencilSettings*          fUserStencilSettings;
-    const GrPrimitiveProcessor*           fPrimProc;
+    const GrGeometryProcessor*            fGeomProc;
     GrProcessor::CustomFeatures           fRequestedFeatures;
     GrPrimitiveType                       fPrimitiveType;
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.

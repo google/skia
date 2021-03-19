@@ -79,8 +79,8 @@ static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
 }
 
 static void setup_vertex_input_state(
-        const GrPrimitiveProcessor::AttributeSet& vertexAttribs,
-        const GrPrimitiveProcessor::AttributeSet& instanceAttribs,
+        const GrGeometryProcessor::AttributeSet& vertexAttribs,
+        const GrGeometryProcessor::AttributeSet& instanceAttribs,
         VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
         SkSTArray<2, VkVertexInputBindingDescription, true>* bindingDescs,
         VkVertexInputAttributeDescription* attributeDesc) {
@@ -505,8 +505,8 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
 }
 
 sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
-                                   const GrPrimitiveProcessor::AttributeSet& vertexAttribs,
-                                   const GrPrimitiveProcessor::AttributeSet& instanceAttribs,
+                                   const GrGeometryProcessor::AttributeSet& vertexAttribs,
+                                   const GrGeometryProcessor::AttributeSet& instanceAttribs,
                                    GrPrimitiveType primitiveType,
                                    GrSurfaceOrigin origin,
                                    const GrStencilSettings& stencilSettings,
@@ -636,12 +636,12 @@ sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
                                        VkPipelineLayout layout,
                                        VkPipelineCache cache,
                                        uint32_t subpass) {
-    const GrPrimitiveProcessor& primProc = programInfo.primProc();
+    const GrGeometryProcessor& geomProc = programInfo.geomProc();
     const GrPipeline& pipeline = programInfo.pipeline();
 
     return Make(gpu,
-                primProc.vertexAttributes(),
-                primProc.instanceAttributes(),
+                geomProc.vertexAttributes(),
+                geomProc.instanceAttributes(),
                 programInfo.primitiveType(),
                 programInfo.origin(),
                 programInfo.nonGLStencilSettings(),

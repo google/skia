@@ -601,7 +601,7 @@ private:
             return;
         }
 
-        QuadHelper helper(target, fProgramInfo->primProc().vertexStride(), totalRectCount);
+        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), totalRectCount);
         GrVertexWriter vertices{ helper.vertices() };
         if (!vertices.fPtr) {
             return;
@@ -661,7 +661,7 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
 
@@ -867,7 +867,7 @@ public:
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override;
 
 private:
     UniformHandle fParamUniform;
@@ -892,7 +892,7 @@ GLDashingCircleEffect::GLDashingCircleEffect() {
 }
 
 void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    const DashingCircleEffect& dce = args.fGP.cast<DashingCircleEffect>();
+    const DashingCircleEffect& dce = args.fGeomProc.cast<DashingCircleEffect>();
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
@@ -942,8 +942,8 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                    const GrPrimitiveProcessor& processor) {
-    const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
+                                    const GrGeometryProcessor& geomProc) {
+    const DashingCircleEffect& dce = geomProc.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, dce.color().vec());
         fColor = dce.color();
@@ -1079,7 +1079,7 @@ public:
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override;
 
 private:
     SkPMColor4f   fColor;
@@ -1094,7 +1094,7 @@ private:
 GLDashingLineEffect::GLDashingLineEffect() : fColor(SK_PMColor4fILLEGAL) {}
 
 void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    const DashingLineEffect& de = args.fGP.cast<DashingLineEffect>();
+    const DashingLineEffect& de = args.fGeomProc.cast<DashingLineEffect>();
 
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -1170,8 +1170,8 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                  const GrPrimitiveProcessor& processor) {
-    const DashingLineEffect& de = processor.cast<DashingLineEffect>();
+                                  const GrGeometryProcessor& geomProc) {
+    const DashingLineEffect& de = geomProc.cast<DashingLineEffect>();
     if (de.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, de.color().vec());
         fColor = de.color();

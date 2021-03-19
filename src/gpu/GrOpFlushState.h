@@ -197,11 +197,12 @@ public:
 
     // This is a convenience method for when the primitive processor has exactly one texture. It
     // binds one texture for the primitive processor, and any others for FPs on the pipeline.
-    void bindTextures(const GrPrimitiveProcessor& primProc,
-                      const GrSurfaceProxy& singlePrimProcTexture, const GrPipeline& pipeline) {
-        SkASSERT(primProc.numTextureSamplers() == 1);
-        const GrSurfaceProxy* ptr = &singlePrimProcTexture;
-        this->bindTextures(primProc, &ptr, pipeline);
+    void bindTextures(const GrGeometryProcessor& geomProc,
+                      const GrSurfaceProxy& singleGeomProcTexture,
+                      const GrPipeline& pipeline) {
+        SkASSERT(geomProc.numTextureSamplers() == 1);
+        const GrSurfaceProxy* ptr = &singleGeomProcTexture;
+        this->bindTextures(geomProc, &ptr, pipeline);
     }
 
     // Makes the appropriate bindBuffers() and draw*() calls for the provided mesh.
@@ -214,9 +215,10 @@ public:
     void setScissorRect(const SkIRect& scissorRect) {
         fOpsRenderPass->setScissorRect(scissorRect);
     }
-    void bindTextures(const GrPrimitiveProcessor& primProc,
-                      const GrSurfaceProxy* const primProcTextures[], const GrPipeline& pipeline) {
-        fOpsRenderPass->bindTextures(primProc, primProcTextures, pipeline);
+    void bindTextures(const GrGeometryProcessor& geomProc,
+                      const GrSurfaceProxy* const geomProcTextures[],
+                      const GrPipeline& pipeline) {
+        fOpsRenderPass->bindTextures(geomProc, geomProcTextures, pipeline);
     }
     void bindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
                      sk_sp<const GrBuffer> vertexBuffer,
@@ -272,8 +274,8 @@ private:
         // the stack (for CCPR). In either case this object does not need to manage its
         // lifetime.
         const GrGeometryProcessor* fGeometryProcessor = nullptr;
-        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
-        const GrSurfaceProxy* const* fPrimProcProxies = nullptr;
+        // Must have GrGeometryProcessor::numTextureSamplers() entries. Can be null if no samplers.
+        const GrSurfaceProxy* const* fGeomProcProxies = nullptr;
         const GrSimpleMesh* fMeshes = nullptr;
         const GrOp* fOp = nullptr;
         int fMeshCnt = 0;
