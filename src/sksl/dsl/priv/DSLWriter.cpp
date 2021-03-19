@@ -111,6 +111,8 @@ GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLVar& va
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
+    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
+    // IRGenerator::call.
     return IRGenerator().call(/*offset=*/-1, function, std::move(arguments));
 }
 

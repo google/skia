@@ -325,10 +325,11 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
-            return std::make_unique<FunctionCall>(offset,
-                                                  funcCall.type().clone(symbolTableForExpression),
-                                                  &funcCall.function(),
-                                                  argList(funcCall.arguments()));
+            return FunctionCall::Make(*fContext,
+                                      offset,
+                                      funcCall.type().clone(symbolTableForExpression),
+                                      funcCall.function(),
+                                      argList(funcCall.arguments()));
         }
         case Expression::Kind::kFunctionReference:
             return expression.clone();

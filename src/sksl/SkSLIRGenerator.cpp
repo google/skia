@@ -1677,57 +1677,8 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             this->copyIntrinsicIfNeeded(function);
         }
     }
-    if (function.parameters().size() != arguments.size()) {
-        String msg = "call to '" + function.name() + "' expected " +
-                                 to_string((uint64_t) function.parameters().size()) +
-                                 " argument";
-        if (function.parameters().size() != 1) {
-            msg += "s";
-        }
-        msg += ", but found " + to_string((uint64_t) arguments.size());
-        this->errorReporter().error(offset, msg);
-        return nullptr;
-    }
-    // GLSL ES 1.0 requires static recursion be rejected by the compiler. Also, our CPU back-end
-    // can not handle recursion (and is tied to strictES2Mode front-ends). The safest way to reject
-    // all (potentially) recursive code is to disallow calls to functions before they're defined.
-    if (this->strictES2Mode() && !function.definition() && !function.isBuiltin()) {
-        String msg = "call to undefined function '" + function.name() + "'";
-        this->errorReporter().error(offset, msg);
-        return nullptr;
-    }
-    FunctionDeclaration::ParamTypes types;
-    const Type* returnType;
-    if (!function.determineFinalTypes(arguments, &types, &returnType)) {
-        String msg = "no match for " + function.name() + "(";
-        String separator;
-        for (size_t i = 0; i < arguments.size(); i++) {
-            msg += separator;
-            separator = ", ";
-            msg += arguments[i]->type().displayName();
-        }
-        msg += ")";
-        this->errorReporter().error(offset, msg);
-        return nullptr;
-    }
-    for (size_t i = 0; i < arguments.size(); i++) {
-        arguments[i] = this->coerce(std::move(arguments[i]), *types[i]);
-        if (!arguments[i]) {
-            return nullptr;
-        }
-        const Modifiers& paramModifiers = function.parameters()[i]->modifiers();
-        if (paramModifiers.fFlags & Modifiers::kOut_Flag) {
-            if (!Analysis::MakeAssignmentExpr(arguments[i].get(),
-                                              paramModifiers.fFlags & Modifiers::kIn_Flag
-                                                      ? VariableReference::RefKind::kReadWrite
-                                                      : VariableReference::RefKind::kPointer,
-                                              &fContext.fErrors)) {
-                return nullptr;
-            }
-        }
-    }
 
-    return std::make_unique<FunctionCall>(offset, returnType, &function, std::move(arguments));
+    return FunctionCall::Convert(fContext, offset, function, std::move(arguments));
 }
 
 /**
