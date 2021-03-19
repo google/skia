@@ -700,6 +700,8 @@ public:
 
         /** preserves LCD text, creates with prior layer contents */
         SaveLayerFlags       fSaveLayerFlags = 0;
+
+        SkSamplingOptions   fSampling;
     };
 
     /** Saves SkMatrix and clip, and allocates SkBitmap for subsequent drawing.

@@ -191,11 +191,15 @@ struct Layer {
     std::unique_ptr<const SkPaint> fPaint; // may be null (in the future)
     // original CTM; used by imagefilter in saveLayer
     SkM44                          fStashedMatrix;
+    SkSamplingOptions              fSampling;
 
-    Layer(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkM44& stashed)
+    Layer(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkM44& stashed,
+          const SkSamplingOptions& sampling)
             : fDevice(std::move(device))
             , fPaint(paint ? std::make_unique<SkPaint>(*paint) : nullptr)
-            , fStashedMatrix(stashed) {
+            , fStashedMatrix(stashed)
+            , fSampling(sampling)
+    {
         SkASSERT(fDevice);
     }
 };
@@ -257,9 +261,10 @@ public:
     }
 
     void newLayer(sk_sp<SkBaseDevice> layerDevice, const SkPaint* restorePaint,
-                  const SkM44& stashedMatrix) {
+                  const SkM44& stashedMatrix, const SkSamplingOptions& sampling) {
         SkASSERT(!fBackImage);
-        fLayer = std::make_unique<Layer>(std::move(layerDevice), restorePaint, stashedMatrix);
+        fLayer = std::make_unique<Layer>(std::move(layerDevice), restorePaint, stashedMatrix,
+                                         sampling);
         fDevice = fLayer->fDevice.get();
     }
 
@@ -1069,7 +1074,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     newDevice->setOrigin(fMCRec->fMatrix, ir.fLeft, ir.fTop);
     newDevice->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
 
-    fMCRec->newLayer(std::move(newDevice), paint, stashedMatrix);
+    fMCRec->newLayer(std::move(newDevice), paint, stashedMatrix, rec.fSampling);
 
     fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds());
 }
@@ -1158,13 +1163,11 @@ void SkCanvas::internalRestore() {
     if (layer) {
         layer->fDevice->setImmutable();
 
-        // TODO: store sampling in the layer
         const SkPaint* paint = layer->fPaint.get();
-        SkSamplingOptions sampling(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
 
         // At this point, 'layer' has been removed from the device stack, so the devices that
         // internalDrawDevice sees are the destinations that 'layer' is drawn into.
-        this->internalDrawDevice(layer->fDevice.get(), sampling, paint);
+        this->internalDrawDevice(layer->fDevice.get(), layer->fSampling, paint);
         // restore what we smashed in internalSaveLayer
         this->internalSetMatrix(SkM44(layer->fStashedMatrix));
     }
