@@ -51,7 +51,7 @@ GrCCPerOpsTaskPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t
     return it->second.get();
 }
 
-std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
+GrFPResult GrCoverageCountingPathRenderer::makeClipProcessor(
         std::unique_ptr<GrFragmentProcessor> inputFP, uint32_t opsTaskID,
         const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps) {
 #ifdef SK_DEBUG
@@ -63,6 +63,12 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         SkASSERT(maskBounds.height64() * maskBounds.width64() <= kMaxClipPathArea);
     }
 #endif
+
+    if (deviceSpacePath.isEmpty() ||
+        !SkIRect::Intersects(accessRect, deviceSpacePath.getBounds().roundOut())) {
+        // "Intersect" draws that don't intersect the clip can be dropped.
+        return deviceSpacePath.isInverseFillType() ? GrFPSuccess(nullptr) : GrFPFailure(nullptr);
+    }
 
     uint32_t key = deviceSpacePath.getGenerationID();
     key = (key << 1) | (uint32_t)GrFillRuleForSkPath(deviceSpacePath);
@@ -77,8 +83,8 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
 
     auto mustCheckBounds = GrCCClipProcessor::MustCheckBounds(
             !clipPath.pathDevIBounds().contains(accessRect));
-    return std::make_unique<GrCCClipProcessor>(std::move(inputFP), caps, &clipPath,
-                                               mustCheckBounds);
+    return GrFPSuccess(std::make_unique<GrCCClipProcessor>(std::move(inputFP), caps, &clipPath,
+                                                           mustCheckBounds));
 }
 
 void GrCoverageCountingPathRenderer::preFlush(
