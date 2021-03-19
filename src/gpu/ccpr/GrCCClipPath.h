@@ -9,6 +9,7 @@
 #define GrCCClipPath_DEFINED
 
 #include "include/core/SkPath.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 
@@ -26,15 +27,6 @@ class GrCCClipPath {
 public:
     GrCCClipPath() = default;
     GrCCClipPath(const GrCCClipPath&) = delete;
-
-    ~GrCCClipPath() {
-        // Ensure no clip FP exists with a dangling pointer back into this class. This works because
-        // a clip FP will have a ref on the proxy if it exists.
-        //
-        // This assert also guarantees there won't be a lazy proxy callback with a dangling pointer
-        // back into this class, since no proxy will exist after we destruct, if the assert passes.
-        SkASSERT(!fAtlasLazyProxy || fAtlasLazyProxy->unique());
-    }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
     void init(const SkPath& deviceSpacePath,
@@ -59,11 +51,22 @@ public:
     }
 
     void accountForOwnPath(GrCCAtlas::Specs*) const;
-    void renderPathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
+
+    // Allocates our clip path in an atlas and records the offset.
+    //
+    // If the return value is non-null, it means the given path did not fit in the then-current
+    // atlas, so it was retired and a new one was added to the stack. The return value is the
+    // newly-retired atlas. (*NOT* the atlas this path will reside in.) The caller must call
+    // assignAtlasTexture on all prior GrCCClipPaths that will use the retired atlas.
+    const GrCCAtlas* renderPathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
 
     const SkIVector& atlasTranslate() const {
-        SkASSERT(fHasAtlasTranslate);
+        SkASSERT(fHasAtlas);
         return fDevToAtlasOffset;
+    }
+
+    void assignAtlasTexture(sk_sp<GrTexture> atlasTexture) {
+        fAtlasLazyProxy->priv().assign(std::move(atlasTexture));
     }
 
 private:
@@ -72,10 +75,8 @@ private:
     SkIRect fPathDevIBounds;
     SkIRect fAccessRect;
 
-    const GrCCAtlas* fAtlas = nullptr;
     SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
     SkDEBUGCODE(bool fHasAtlas = false;)
-    SkDEBUGCODE(bool fHasAtlasTranslate = false;)
 };
 
 #endif

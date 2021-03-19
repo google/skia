@@ -40,25 +40,27 @@ const GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(
         return nullptr;
     }
 
-    this->placeRenderedPathInAtlas(onFlushRP, clippedPathIBounds, enableScissorInAtlas,
-                                   devToAtlasOffset);
+    const GrCCAtlas* retiredAtlas = this->placeRenderedPathInAtlas(onFlushRP, clippedPathIBounds,
+                                                                   enableScissorInAtlas,
+                                                                   devToAtlasOffset);
 
     SkMatrix atlasMatrix = SkMatrix::Translate(devToAtlasOffset->fX, devToAtlasOffset->fY);
     this->enqueueRenderedPath(devPath, fillRule, clippedPathIBounds, atlasMatrix,
                               enableScissorInAtlas, *devToAtlasOffset);
 
-    return &fRenderedAtlasStack.current();
+    return retiredAtlas;
 }
 
-void GrCCPerFlushResources::placeRenderedPathInAtlas(
+const GrCCAtlas* GrCCPerFlushResources::placeRenderedPathInAtlas(
         GrOnFlushResourceProvider* onFlushRP, const SkIRect& clippedPathIBounds,
         GrScissorTest scissorTest, SkIVector* devToAtlasOffset) {
-    if (GrCCAtlas* retiredAtlas =
-                fRenderedAtlasStack.addRect(clippedPathIBounds, devToAtlasOffset)) {
+    GrCCAtlas* retiredAtlas = fRenderedAtlasStack.addRect(clippedPathIBounds, devToAtlasOffset);
+    if (retiredAtlas) {
         // We did not fit in the previous coverage count atlas and it was retired. Render the
         // retired atlas.
         this->flushRenderedPaths(onFlushRP, retiredAtlas);
     }
+    return retiredAtlas;
 }
 
 void GrCCPerFlushResources::enqueueRenderedPath(const SkPath& path, GrFillRule fillRule,
@@ -176,7 +178,7 @@ void GrCCPerFlushResources::flushRenderedPaths(GrOnFlushResourceProvider* onFlus
     }
 }
 
-bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
+const GrCCAtlas* GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
     if (!fRenderedAtlasStack.empty()) {
         this->flushRenderedPaths(onFlushRP, &fRenderedAtlasStack.current());
     }
@@ -187,5 +189,5 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
         SkASSERT(fAtlasPaths[i].fScissoredPaths.empty());
     }
 #endif
-    return true;
+    return &fRenderedAtlasStack.current();
 }
