@@ -424,7 +424,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
                                             skvm::Coord device, skvm::Coord local,
                                             skvm::Color /*paint*/,
                                             const SkMatrixProvider& mats, const SkMatrix* localM,
-                                            SkFilterQuality quality, const SkColorInfo& dstInfo,
+                                            const SkColorInfo& dstInfo,
                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     SkMatrix inv;
     if (!this->computeTotalInverse(mats.localToDevice(), localM, &inv)) {
