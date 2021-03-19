@@ -70,16 +70,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
             this->lookupPendingPaths(opsTaskID)->fClipPaths[key];
     if (!clipPath.isInitialized()) {
         // This ClipPath was just created during lookup. Initialize it.
-        const SkRect& pathDevBounds = deviceSpacePath.getBounds();
-        if (std::max(pathDevBounds.height(), pathDevBounds.width()) > kPathCropThreshold) {
-            // The path is too large. Crop it or analytic AA can run out of fp32 precision.
-            SkPath croppedPath;
-            int maxRTSize = caps.maxRenderTargetSize();
-            CropPath(deviceSpacePath, SkIRect::MakeWH(maxRTSize, maxRTSize), &croppedPath);
-            clipPath.init(croppedPath, accessRect, caps);
-        } else {
-            clipPath.init(deviceSpacePath, accessRect, caps);
-        }
+        clipPath.init(deviceSpacePath, accessRect, caps);
     } else {
         clipPath.addAccess(accessRect);
     }
@@ -147,15 +138,4 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken,
     }
 
     SkDEBUGCODE(fFlushing = false);
-}
-
-void GrCoverageCountingPathRenderer::CropPath(const SkPath& path, const SkIRect& cropbox,
-                                              SkPath* out) {
-    SkPath cropboxPath;
-    cropboxPath.addRect(SkRect::Make(cropbox));
-    if (!Op(cropboxPath, path, kIntersect_SkPathOp, out)) {
-        // This can fail if the PathOps encounter NaN or infinities.
-        out->reset();
-    }
-    out->setIsVolatile(true);
 }
