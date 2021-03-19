@@ -22,10 +22,12 @@ static inline void SkRectMemcpy(void* dst, size_t dstRB, const void* src, size_t
     SkASSERT(trimRowBytes <= dstRB);
     SkASSERT(trimRowBytes <= srcRB);
     if (trimRowBytes == dstRB && trimRowBytes == srcRB) {
+        SkDebugf("SKIA: Doing straight memcpy");
         memcpy(dst, src, trimRowBytes * rowCount);
         return;
     }
 
+    SkDebugf("SKIA: Doing row by row copy into tightly packed");
     for (int i = 0; i < rowCount; ++i) {
         memcpy(dst, src, trimRowBytes);
         dst = SkTAddOffset<void>(dst, dstRB);

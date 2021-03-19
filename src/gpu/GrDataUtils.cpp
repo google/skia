@@ -570,12 +570,14 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         size_t tightRB = dstBpp * dstInfo.width();
         if (flipY) {
             dst = static_cast<char*>(dst) + dstRB * (dstInfo.height() - 1);
+            SkDebugf("SKIA: Doing row by row flip copy");
             for (int y = 0; y < dstInfo.height(); ++y) {
                 memcpy(dst, src, tightRB);
                 src = static_cast<const char*>(src) + srcRB;
                 dst = static_cast<      char*>(dst) - dstRB;
             }
         } else {
+            SkDebugf("SKIA: Doing rect memcpy");
             SkRectMemcpy(dst, dstRB, src, srcRB, tightRB, srcInfo.height());
         }
         return true;
@@ -631,7 +633,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
     }
 
     hasConversion = hasConversion || srcIsSRGB || dstIsSRGB;
-
+    SkDebugf("SKIA: Doing conversion pipeline when copying");
     for (int i = 0; i < cnt; ++i) {
         SkRasterPipeline_<256> pipeline;
         pipeline.append(load, &srcCtx);
