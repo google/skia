@@ -503,13 +503,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                      isBuiltinCode,
                                                      variable.storage());
             (*varMap)[&variable] = std::make_unique<VariableReference>(offset, clonedVar.get());
-            auto result = std::make_unique<VarDeclaration>(clonedVar.get(),
-                                                    decl.baseType().clone(symbolTableForStatement),
-                                                    decl.arraySize(),
-                                                    std::move(initialValue));
-            clonedVar->setDeclaration(result.get());
+            auto result = VarDeclaration::Make(*fContext,
+                                               clonedVar.get(),
+                                               decl.baseType().clone(symbolTableForStatement),
+                                               decl.arraySize(),
+                                               std::move(initialValue));
             symbolTableForStatement->takeOwnershipOfSymbol(std::move(clonedVar));
-            return std::move(result);
+            return result;
         }
         default:
             SkASSERT(false);
@@ -548,9 +548,8 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
                                           Variable::Storage::kLocal);
 
     // Create our variable declaration.
-    result.fVarDecl = std::make_unique<VarDeclaration>(var.get(), type, /*arraySize=*/0,
-                                                       std::move(*initialValue));
-    var->setDeclaration(&result.fVarDecl->as<VarDeclaration>());
+    result.fVarDecl = VarDeclaration::Make(*fContext, var.get(), type, /*arraySize=*/0,
+                                           std::move(*initialValue));
     result.fVarSymbol = symbolTable->add(std::move(var));
     return result;
 }

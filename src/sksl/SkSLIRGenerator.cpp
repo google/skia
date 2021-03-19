@@ -172,9 +172,9 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statemen
             // it's an expression
             std::unique_ptr<Statement> result = this->convertExpressionStatement(statement);
             if (fRTAdjust && this->programKind() == ProgramKind::kGeometry) {
-                SkASSERT(result->kind() == Statement::Kind::kExpression);
+                SkASSERT(result->is<ExpressionStatement>());
                 Expression& expr = *result->as<ExpressionStatement>().expression();
-                if (expr.kind() == Expression::Kind::kFunctionCall) {
+                if (expr.is<FunctionCall>()) {
                     FunctionCall& fc = expr.as<FunctionCall>();
                     if (fc.function().isBuiltin() && fc.function().name() == "EmitVertex") {
                         StatementArray statements;
@@ -364,7 +364,7 @@ std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& m
                                                   Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
-        this->programKind() == ProgramKind::kFragment && name != "sk_FragColor") {
+        this->programKind() == ProgramKind::kFragment && name != Compiler::FRAGCOLOR_NAME) {
         this->errorReporter().error(offset,
                                     "out location=0, index=0 is reserved for sk_FragColor");
     }
@@ -384,67 +384,36 @@ std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& m
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Variable> var,
                                                               std::unique_ptr<Expression> value) {
-    if (var->modifiers().fFlags & Modifiers::kConst_Flag) {
-        if (!value) {
-            this->errorReporter().error(var->fOffset, "'const' variables must be initialized");
+    std::unique_ptr<Statement> varDecl = VarDeclaration::Convert(fContext, var.get(),
+                                                                 std::move(value));
+    if (!varDecl) {
+        return nullptr;
+    }
+
+    // Detect the declaration of magical variables.
+    if ((var->storage() == Variable::Storage::kGlobal) && var->name() == Compiler::FRAGCOLOR_NAME) {
+        // Silently ignore duplicate definitions of `sk_FragColor`.
+        const Symbol* symbol = (*fSymbolTable)[var->name()];
+        if (symbol) {
             return nullptr;
         }
-        if (!Analysis::IsConstantExpression(*value)) {
-            this->errorReporter().error(
-                    value->fOffset, "'const' variable initializer must be a constant expression");
+    } else if ((var->storage() == Variable::Storage::kGlobal ||
+                var->storage() == Variable::Storage::kInterfaceBlock) &&
+               var->name() == Compiler::RTADJUST_NAME) {
+        // `sk_RTAdjust` is special, and makes the IR generator emit position-fixup expressions.
+        if (fRTAdjust) {
+            this->errorReporter().error(var->fOffset, "duplicate definition of 'sk_RTAdjust'");
             return nullptr;
         }
-    }
-    if (this->programKind() != ProgramKind::kFragmentProcessor &&
-        var->storage() == Variable::Storage::kGlobal && value) {
-        if (!Analysis::IsConstantExpression(*value)) {
-            this->errorReporter().error(
-                    value->fOffset, "global variable initializer must be a constant expression");
+        if (var->type() != *fContext.fTypes.fFloat4) {
+            this->errorReporter().error(var->fOffset, "sk_RTAdjust must have type 'float4'");
             return nullptr;
         }
-    }
-    if (value) {
-        if (var->type().isOpaque()) {
-            this->errorReporter().error(
-                    value->fOffset,
-                    "opaque type '" + var->type().name() +
-                    "' cannot use initializer expressions");
-        }
-        if (var->modifiers().fFlags & Modifiers::kIn_Flag) {
-            this->errorReporter().error(value->fOffset,
-                                        "'in' variables cannot use initializer expressions");
-        }
-        if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
-            this->errorReporter().error(value->fOffset,
-                                        "'uniform' variables cannot use initializer expressions");
-        }
-        value = this->coerce(std::move(value), var->type());
-        if (!value) {
-            return nullptr;
-        }
-    }
-    const Type* baseType = &var->type();
-    int arraySize = 0;
-    if (baseType->isArray()) {
-        arraySize = baseType->columns();
-        baseType = &baseType->componentType();
-    }
-    auto result = std::make_unique<VarDeclaration>(var.get(), baseType, arraySize,
-                                                   std::move(value));
-    var->setDeclaration(result.get());
-    if (var->name() == Compiler::RTADJUST_NAME) {
-        SkASSERT(!fRTAdjust);
-        SkASSERT(var->type() == *fContext.fTypes.fFloat4);
         fRTAdjust = var.get();
     }
-    const Symbol* symbol = (*fSymbolTable)[var->name()];
-    if (symbol && var->storage() == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
-        // Already defined, ignore.
-        return nullptr;
-    } else {
-        fSymbolTable->add(std::move(var));
-    }
-    return std::move(result);
+
+    fSymbolTable->add(std::move(var));
+    return varDecl;
 }
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
@@ -1413,9 +1382,8 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                                               Variable::Storage::kGlobal);
         // enum variables aren't really 'declared', but we have to create a declaration to store
         // the value
-        auto declaration = std::make_unique<VarDeclaration>(var.get(), &var->type(),
-                                                            /*arraySize=*/0, std::move(value));
-        var->setDeclaration(declaration.get());
+        auto declaration = VarDeclaration::Make(fContext, var.get(), &var->type(), /*arraySize=*/0,
+                                                std::move(value));
         fSymbolTable->add(std::move(var));
         fSymbolTable->takeOwnershipOfIRNode(std::move(declaration));
     }
@@ -2074,7 +2042,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
 
     if (scanner.fPreserveFragColor) {
         // main() returns a half4, so make sure we don't dead-strip sk_FragColor.
-        scanner.addDeclaringElement("sk_FragColor");
+        scanner.addDeclaringElement(Compiler::FRAGCOLOR_NAME);
     }
 
     switch (this->programKind()) {
@@ -2128,11 +2096,11 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
             m.fFlags = Modifiers::kIn_Flag;
             m.fLayout.fBuiltin = SK_INVOCATIONID_BUILTIN;
         }
-        auto var = std::make_unique<Variable>(-1, fModifiers->addToPool(m), "sk_InvocationID",
-                                              fContext.fTypes.fInt.get(), false,
-                                              Variable::Storage::kGlobal);
-        auto decl = std::make_unique<VarDeclaration>(var.get(), fContext.fTypes.fInt.get(),
-                                                     /*arraySize=*/0, /*value=*/nullptr);
+        auto var = std::make_unique<Variable>(/*offset=*/-1, fModifiers->addToPool(m),
+                                              "sk_InvocationID", fContext.fTypes.fInt.get(),
+                                              /*builtin=*/false, Variable::Storage::kGlobal);
+        auto decl = VarDeclaration::Make(fContext, var.get(), fContext.fTypes.fInt.get(),
+                                         /*arraySize=*/0, /*value=*/nullptr);
         fSymbolTable->add(std::move(var));
         fProgramElements->push_back(
                 std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl)));

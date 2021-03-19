@@ -1,5 +1,6 @@
 sampler a;
-void main() {
-    sampler b = a;
-    a = b;
-}
+sampler b;
+sampler c = a;
+void declare() { sampler d; }
+void initialize() { sampler e = a; }
+void assign() { a = b; }
