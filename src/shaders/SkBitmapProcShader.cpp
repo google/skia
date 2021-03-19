@@ -76,7 +76,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
-    const SkShaderBase& shader, SkTileMode tmx, SkTileMode tmy,
+    const SkShaderBase& shader, SkTileMode tmx, SkTileMode tmy, const SkSamplingOptions& sampling,
     const SkImage_Base* image, const ContextRec& rec, SkArenaAlloc* alloc)
 {
     SkMatrix totalInverse;
@@ -86,7 +86,7 @@ SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
     }
 
     SkBitmapProcState* state = alloc->make<SkBitmapProcState>(image, tmx, tmy);
-    if (!state->setup(totalInverse, rec.fPaintAlpha, rec.fPaintSampling)) {
+    if (!state->setup(totalInverse, rec.fPaintAlpha, sampling)) {
         return nullptr;
     }
     return alloc->make<BitmapProcShaderContext>(shader, rec, state);

@@ -234,13 +234,6 @@ public:
         return this->makeShader(tmx, tmy, mode, nullptr, nullptr);
     }
 
-#ifdef SK_SUPPORT_LEGACY_PICTURESHADER_NOFILTER
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
-                               const SkMatrix* localMatrix, const SkRect* tileRect) const;
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
-                               const SkMatrix* localMatrix = nullptr) const;
-#endif
-
 private:
     // Allowed subclasses.
     SkPicture();
