@@ -87,6 +87,30 @@
       },
       "revId": "a868825cf403fd7122b9dc80311d20111cb1b0a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5165a640_0b2e4805",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1508,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-19T21:45:05Z",
+      "side": 1,
+      "message": "Done. Do the above changes look right?",
+      "parentUuid": "2432b070_1afbccc3",
+      "range": {
+        "startLine": 1506,
+        "startChar": 12,
+        "endLine": 1508,
+        "endChar": 13
+      },
+      "revId": "a868825cf403fd7122b9dc80311d20111cb1b0a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
