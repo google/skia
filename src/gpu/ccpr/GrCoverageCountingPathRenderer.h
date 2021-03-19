@@ -63,8 +63,6 @@ public:
     // fp32 precision.
     static constexpr float kPathCropThreshold = 1 << 16;
 
-    static void CropPath(const SkPath&, const SkIRect& cropbox, SkPath* out);
-
     // Maximum inflation of path bounds due to stroking (from width, miter, caps). Strokes wider
     // than this will be converted to fill paths and drawn by the CCPR filler instead.
     static constexpr float kMaxBoundsInflationFromStroke = 4096;
