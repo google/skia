@@ -64,6 +64,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34143e45_e21a83ea",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-19T18:12:30Z",
+      "side": 1,
+      "message": "Ye. I was targeting the audience that doesn\u0027t know about SkSL being used internally -- for them \"SkSL \u003d\u003d Runtime Effects\", but we obviously have users across a spectrum of experience levels, so this is confusing. Rewrote it.",
+      "parentUuid": "523be34a_7567d2f3",
+      "range": {
+        "startLine": 40,
+        "startChar": 20,
+        "endLine": 40,
+        "endChar": 39
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5697d241_dbd71e12",
@@ -77,6 +101,30 @@
       "writtenOn": "2021-03-19T15:50:38Z",
       "side": 1,
       "message": "Having this sentence come after the fiddle but before the next section makes it feel disconnected. Maybe move it to the top of the next section.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 0
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e375aae5_2de7c6fe",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-19T18:12:30Z",
+      "side": 1,
+      "message": "Agreed about it feeling isolated. Going to just remove it - it made more sense in an earlier draft where it was closer to the top of this section, but now one of the things it links to is immediately after. This lets the different topics/sections stand on their own, I think?",
+      "parentUuid": "5697d241_dbd71e12",
       "range": {
         "startLine": 44,
         "startChar": 0,
@@ -110,6 +158,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb794383_c005ff3a",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-19T18:12:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a23397e_b67d2882",
+      "range": {
+        "startLine": 65,
+        "startChar": 64,
+        "endLine": 65,
+        "endChar": 67
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e1a6123_344cec42",
@@ -123,6 +195,30 @@
       "writtenOn": "2021-03-19T16:05:51Z",
       "side": 1,
       "message": "Two suggestions:\n- We should remove the left band from the fiddle which contains an opaque color; it adds extra LOC to the fiddle code and gives the reader more to try to reason about in the output image. The gradient bands are enough to tell the tale (IMO).\n\n- We should add a brief description here, explaining the output image. The fiddle code does this very well, but \"read English\" is a much lower bar than \"read and understand a fiddle.\" e.g.\n\n\"The image below demonstrates the difference: properly premultiplied colors produce a smooth gradient as alpha decreases. Unpremultipled colors cause the gradient to display incorrectly, with a shift in hue as the alpha changes. This hue shift is caused by Skia clamping the color\u0027s RGB values to its alpha.\"",
+      "range": {
+        "startLine": 71,
+        "startChar": 38,
+        "endLine": 71,
+        "endChar": 39
+      },
+      "revId": "6c794362eb996718141bc6fd88b25f283afe001c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ebb1c61_4eca1afc",
+        "filename": "site/user/sksl.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-19T18:12:30Z",
+      "side": 1,
+      "message": "Both good points. I had tried to whittle down the fiddle code when I started embedding it in the doc, but didn\u0027t think to remove the left band. Agree that it\u0027s not needed here. I actually removed it from the shaders.skia.org version, too. It makes that one easier to reason about, similarly. (And still tells the whole story).\n\nAdded your extra paragraph, merged it with the last bullet point (and pulled that out of the bulleted list, as it\u0027s not just a consequence of premultiplied colors, but an important standalone point).",
+      "parentUuid": "6e1a6123_344cec42",
       "range": {
         "startLine": 71,
         "startChar": 38,
