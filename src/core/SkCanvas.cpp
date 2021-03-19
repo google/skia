@@ -1158,9 +1158,8 @@ void SkCanvas::internalRestore() {
     if (layer) {
         layer->fDevice->setImmutable();
 
-        // TODO: store sampling in the layer
         const SkPaint* paint = layer->fPaint.get();
-        SkSamplingOptions sampling(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
+        SkSamplingOptions sampling;   // todo: determine as needed internally
 
         // At this point, 'layer' has been removed from the device stack, so the devices that
         // internalDrawDevice sees are the destinations that 'layer' is drawn into.
