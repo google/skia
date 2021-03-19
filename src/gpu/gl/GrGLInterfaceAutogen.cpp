@@ -589,58 +589,6 @@ bool GrGLInterface::validate() const {
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
-          (glVer >= GR_GL_VER(4,3)) ||
-          fExtensions.has("GL_ARB_program_interface_query"))) ||
-       (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,1))))) {
-        if (!fFunctions.fGetProgramResourceLocation) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if ((GR_IS_GR_GL(fStandard) && (
-          fExtensions.has("GL_NV_path_rendering"))) ||
-       (GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("GL_CHROMIUM_path_rendering") ||
-          fExtensions.has("GL_NV_path_rendering")))) {
-        if (!fFunctions.fMatrixLoadIdentity ||
-            !fFunctions.fMatrixLoadf) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if ((GR_IS_GR_GL(fStandard) && (
-          fExtensions.has("GL_NV_path_rendering"))) ||
-       (GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("GL_CHROMIUM_path_rendering") ||
-          fExtensions.has("GL_NV_path_rendering")))) {
-        if (!fFunctions.fCoverFillPath ||
-            !fFunctions.fCoverFillPathInstanced ||
-            !fFunctions.fCoverStrokePath ||
-            !fFunctions.fCoverStrokePathInstanced ||
-            !fFunctions.fDeletePaths ||
-            !fFunctions.fGenPaths ||
-            !fFunctions.fIsPath ||
-            !fFunctions.fPathCommands ||
-            !fFunctions.fPathParameterf ||
-            !fFunctions.fPathParameteri ||
-            !fFunctions.fPathStencilFunc ||
-            !fFunctions.fStencilFillPath ||
-            !fFunctions.fStencilFillPathInstanced ||
-            !fFunctions.fStencilStrokePath ||
-            !fFunctions.fStencilStrokePathInstanced) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if ((GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("GL_CHROMIUM_path_rendering")))) {
-        if (!fFunctions.fBindFragmentInputLocation) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if ((GR_IS_GR_GL(fStandard) && (
           fExtensions.has("GL_NV_framebuffer_mixed_samples"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_CHROMIUM_framebuffer_mixed_samples") ||

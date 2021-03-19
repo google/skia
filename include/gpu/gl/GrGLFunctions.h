@@ -199,37 +199,6 @@ using GrGLVertexAttribIPointerFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint indx, G
 using GrGLVertexAttribPointerFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr);
 using GrGLViewportFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
 
-/* GL_NV_path_rendering */
-using GrGLMatrixLoadfFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum matrixMode, const GrGLfloat* m);
-using GrGLMatrixLoadIdentityFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum);
-using GrGLPathCommandsFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLsizei numCommands, const GrGLubyte* commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid* coords);
-using GrGLPathParameteriFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLenum pname, GrGLint value);
-using GrGLPathParameterfFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLenum pname, GrGLfloat value);
-using GrGLGenPathsFn = GrGLuint GR_GL_FUNCTION_TYPE(GrGLsizei range);
-using GrGLDeletePathsFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLsizei range);
-using GrGLIsPathFn = GrGLboolean GR_GL_FUNCTION_TYPE(GrGLuint path);
-using GrGLPathStencilFuncFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum func, GrGLint ref, GrGLuint mask);
-using GrGLStencilFillPathFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLenum fillMode, GrGLuint mask);
-using GrGLStencilStrokePathFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLint reference, GrGLuint mask);
-using GrGLStencilFillPathInstancedFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid* paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum transformType, const GrGLfloat* transformValues);
-using GrGLStencilStrokePathInstancedFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid* paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum transformType, const GrGLfloat* transformValues);
-using GrGLCoverFillPathFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLenum coverMode);
-using GrGLCoverStrokePathFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint name, GrGLenum coverMode);
-using GrGLCoverFillPathInstancedFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid* paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat* transformValues);
-using GrGLCoverStrokePathInstancedFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid* paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat* transformValues);
-// NV_path_rendering v1.2
-using GrGLStencilThenCoverFillPathFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLenum fillMode, GrGLuint mask, GrGLenum coverMode);
-using GrGLStencilThenCoverStrokePathFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint path, GrGLint reference, GrGLuint mask, GrGLenum coverMode);
-using GrGLStencilThenCoverFillPathInstancedFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid* paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat* transformValues);
-using GrGLStencilThenCoverStrokePathInstancedFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid* paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat* transformValues);
-// NV_path_rendering v1.3
-using GrGLProgramPathFragmentInputGenFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint program, GrGLint location, GrGLenum genMode, GrGLint components, const GrGLfloat* coeffs);
-// CHROMIUM_path_rendering
-using GrGLBindFragmentInputLocationFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint program, GrGLint location, const GrGLchar* name);
-
-/* ARB_program_interface_query */
-using GrGLGetProgramResourceLocationFn = GrGLint GR_GL_FUNCTION_TYPE(GrGLuint program, GrGLenum programInterface, const GrGLchar* name);
-
 /* GL_NV_framebuffer_mixed_samples */
 using GrGLCoverageModulationFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum components);
 
