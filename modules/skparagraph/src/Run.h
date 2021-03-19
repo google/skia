@@ -131,13 +131,8 @@ public:
 
     void copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size) const;
 
-    using ClusterTextVisitor = std::function<void(size_t glyphStart,
-                                                  size_t glyphEnd,
-                                                  size_t charStart,
-                                                  size_t charEnd,
-                                                  SkScalar width,
-                                                  SkScalar height)>;
-    void iterateThroughClustersInTextOrder(const ClusterTextVisitor& visitor);
+    template<typename Visitor>
+    void iterateThroughClustersInTextOrder(Visitor visitor);
 
     using ClusterVisitor = std::function<void(Cluster* cluster)>;
     void iterateThroughClusters(const ClusterVisitor& visitor);
@@ -203,6 +198,52 @@ private:
     bool fEllipsis;
     uint8_t fBidiLevel;
 };
+
+template<typename Visitor>
+void Run::iterateThroughClustersInTextOrder(Visitor visitor) {
+    // Can't figure out how to do it with one code for both cases without 100 ifs
+    // Can't go through clusters because there are no cluster table yet
+    if (leftToRight()) {
+        size_t start = 0;
+        size_t cluster = this->clusterIndex(start);
+        for (size_t glyph = 1; glyph <= this->size(); ++glyph) {
+            auto nextCluster = this->clusterIndex(glyph);
+            if (nextCluster <= cluster) {
+                continue;
+            }
+
+            visitor(start,
+                    glyph,
+                    fClusterStart + cluster,
+                    fClusterStart + nextCluster,
+                    this->calculateWidth(start, glyph, glyph == size()),
+                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
+
+            start = glyph;
+            cluster = nextCluster;
+        }
+    } else {
+        size_t glyph = this->size();
+        size_t cluster = this->fUtf8Range.begin();
+        for (int32_t start = this->size() - 1; start >= 0; --start) {
+            size_t nextCluster =
+                    start == 0 ? this->fUtf8Range.end() : this->clusterIndex(start - 1);
+            if (nextCluster <= cluster) {
+                continue;
+            }
+
+            visitor(start,
+                    glyph,
+                    fClusterStart + cluster,
+                    fClusterStart + nextCluster,
+                    this->calculateWidth(start, glyph, glyph == 0),
+                    this->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS));
+
+            glyph = start;
+            cluster = nextCluster;
+        }
+    }
+}
 
 class Cluster {
 public:
