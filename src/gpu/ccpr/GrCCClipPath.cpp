@@ -15,6 +15,7 @@
 
 void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
                         const GrCaps& caps) {
+    SkASSERT(!deviceSpacePath.isEmpty());
     SkASSERT(!this->isInitialized());
 
     fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
@@ -45,6 +46,7 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
     fDeviceSpacePath = deviceSpacePath;
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);
     fAccessRect = accessRect;
+    SkASSERT(SkIRect::Intersects(fAccessRect, fPathDevIBounds));
 }
 
 void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
