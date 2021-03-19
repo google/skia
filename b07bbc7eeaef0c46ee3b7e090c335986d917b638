@@ -33,6 +33,23 @@
       "message": "Can we also delete:\n\nGrCaps::sampleLocationsSupport\nGrShaderCaps::sampleMaskSupport\nGrShaderCaps::canOnlyUseSampleMaskWithStencil",
       "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d5d9d8e_a8212331",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-19T12:31:08Z",
+      "side": 1,
+      "message": "I think this is unused now, too? (And it\u0027s the only code that references sk_SampleMask, so I\u0027ll feel safe removing that from SkSL when it\u0027s gone.",
+      "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
