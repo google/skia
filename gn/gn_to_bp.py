@@ -303,6 +303,7 @@ def generate_args(target_os, enable_gpu):
     # Use the custom FontMgr, as the framework will handle fonts.
     'skia_enable_fontmgr_custom_directory': 'false',
     'skia_enable_fontmgr_custom_embedded':  'false',
+    'skia_enable_fontmgr_custom_embedded_factory_no_font':  'false',
     'skia_enable_fontmgr_custom_empty':     'true',
     'skia_enable_fontmgr_android':          'false',
     'skia_enable_fontmgr_win':              'false',

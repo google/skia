@@ -3,6 +3,15 @@ A WASM version of Skia's Canvas API.
 See https://skia.org/user/modules/canvaskit for more background information.
 
 # Getting Started
+All the file names and links down below are for the general canvasKit version.
+Bluescape uses a slightly modified one. Note different naming of
+@bluescape/canvaskit-wasm in package.json
+
+### About Version ID 
+The *0.20.0-bluescape-2.1* means
+- 0.20.0 - is original Skia's canvaskit version this one is derived from.
+- bluescape - essential to emphasis the next symbols.
+- 2.1 - version modification. Should go only *up*.
 
 ## Browser
 To use the library, run `npm install canvaskit-wasm` and then simply include it:

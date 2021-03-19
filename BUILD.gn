@@ -371,9 +371,16 @@ optional("fontmgr_custom_embedded") {
   sources = [ "src/ports/SkFontMgr_custom_embedded.cpp" ]
 }
 optional("fontmgr_custom_embedded_factory") {
-  enabled = skia_enable_fontmgr_custom_embedded
+  enabled = !skia_enable_fontmgr_custom_embedded_factory_no_font
+          && skia_enable_fontmgr_custom_embedded
   deps = [ ":fontmgr_custom_embedded" ]
   sources = [ "src/ports/SkFontMgr_custom_embedded_factory.cpp" ]
+  defines = [ "SK_NO_EMBEDDED_FONT" ]
+}
+optional("fontmgr_custom_embedded_factory_no_font") {
+    enabled = skia_enable_fontmgr_custom_embedded_factory_no_font
+    deps = [ ":fontmgr_custom_embedded" ]
+    sources = [ "src/ports/SkFontMgr_custom_embedded_factory_no_font.cpp" ]
 }
 
 optional("fontmgr_custom_empty") {
@@ -1173,6 +1180,7 @@ component("skia") {
     ":fontmgr_android",
     ":fontmgr_custom_directory",
     ":fontmgr_custom_embedded",
+    ":fontmgr_custom_embedded_factory_no_font",
     ":fontmgr_custom_empty",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",

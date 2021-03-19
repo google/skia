@@ -10,6 +10,86 @@ release:
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
 
+strip_half:
+	# Does an incremental build where possible.
+	./compile.sh no_skottie no_particles no_font
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+
+strip_all:
+	# Does an incremental build where possible.
+	./compile.sh no_skp_serialization \
+				no_effects_deserialization \
+				no_skottie \
+				no_managed_skottie \
+				no_particles \
+				no_pathops \
+				no_rt_shader \
+				no_matrix \
+				no_canvas \
+				no_font \
+				no_embedded_font \
+				no_woff2 \
+				no_alias_font \
+				no_paragraph \
+				no_codecs \
+				no_encode_png
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+
+bluescape_release:
+	# Does an incremental build where possible.
+	# Note that we shouldn't disable: no_fonts no_paragraph primitive_shaper no_embedded_font
+	rm -rf ../../out/canvaskit_wasm
+	./compile.sh \
+				no_skp_serialization \
+	            no_effects_deserialization \
+				no_skottie \
+				no_managed_skottie \
+				no_particles \
+				no_pathops \
+				no_rt_shader \
+				no_matrix \
+				no_canvas \
+				no_embedded_font \
+				no_woff2 \
+				no_alias_font \
+				no_codecs \
+				no_encode_png
+	rm -rf ./canvaskit/bin
+	mkdir -p ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
+
+bluescape_debug:
+	# Does an incremental build where possible.
+	# Note that we shouldn't disable: no_fonts no_paragraph primitive_shaper
+	rm -rf ../../out/canvaskit_wasm_debug
+	./compile.sh debug \
+				no_skp_serialization \
+	            no_effects_deserialization \
+				no_skottie \
+				no_managed_skottie \
+				no_particles \
+				no_pathops \
+				no_rt_shader \
+				no_matrix \
+				no_canvas \
+				no_embedded_font \
+				no_woff2 \
+				no_alias_font \
+				no_codecs \
+				no_encode_png
+	rm -rf ./canvaskit-debug/
+	cp -r ./canvaskit canvaskit-debug
+	mkdir -p ./canvaskit-debug/bin
+	sed -i -e 's/@bluescape\/canvaskit-wasm/@bluescape\/canvaskit\-debug\-wasm/g' ./package.json
+	sed -i -e 's/\-bluescape\-/\-bluescape\-debug\-/g' canvaskit-debug/package.json
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit-debug/bin
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit-debug/bin
+
 release_cpu:
 	# Does an incremental build where possible.
 	./compile.sh cpu_only
