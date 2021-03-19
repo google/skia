@@ -296,7 +296,7 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
 skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
                                        skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                        const SkMatrixProvider& matrices, const SkMatrix* localM,
-                                       SkFilterQuality quality, const SkColorInfo& dst,
+                                       const SkColorInfo& dst,
                                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     auto lm = this->totalLocalMatrix(localM);
 
@@ -309,8 +309,7 @@ skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
     }
 
     return as_SB(bitmapShader)->program(p, device,local, paint,
-                                        matrices,lm,
-                                        quality,dst,
+                                        matrices,lm, dst,
                                         uniforms,alloc);
 }
 

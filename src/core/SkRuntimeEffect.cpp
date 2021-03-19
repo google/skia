@@ -687,7 +687,7 @@ public:
     skvm::Color onProgram(skvm::Builder* p,
                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider& matrices, const SkMatrix* localM,
-                          SkFilterQuality quality, const SkColorInfo& dst,
+                          const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
         sk_sp<SkData> inputs =
                 get_xformed_uniforms(fEffect.get(), fUniforms, &matrices, dst.colorSpace());
@@ -705,8 +705,7 @@ public:
             if (fChildren[ix]) {
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
                 return as_SB(fChildren[ix])->program(p, device, coord, paint,
-                                                     mats, nullptr,
-                                                     quality, dst,
+                                                     mats, nullptr, dst,
                                                      uniforms, alloc);
             } else {
                 return paint;
