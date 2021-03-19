@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "372ac9ad_e53d22a4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-19T21:40:24Z",
+      "side": 1,
+      "message": "These were just ASSERTs before. Seemed like a better idea to generate real errors?",
+      "range": {
+        "startLine": 402,
+        "startChar": 0,
+        "endLine": 410,
+        "endChar": 13
+      },
+      "revId": "9ee39a0bfd0273013175e66fb825a29539d07629",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
