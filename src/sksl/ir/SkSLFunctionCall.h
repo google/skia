@@ -27,7 +27,19 @@ public:
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
 
-    ~FunctionCall() override {}
+    // Resolves generic types, performs type conversion on arguments, determines return type, and
+    // reports errors via the ErrorReporter.
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                               int offset,
+                                               const FunctionDeclaration& function,
+                                               ExpressionArray arguments);
+
+    // Creates the function call; reports errors via ASSERT.
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            int offset,
+                                            const Type* returnType,
+                                            const FunctionDeclaration& function,
+                                            ExpressionArray arguments);
 
     const FunctionDeclaration& function() const {
         return fFunction;
@@ -41,40 +53,11 @@ public:
         return fArguments;
     }
 
-    bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects && (this->function().modifiers().fFlags &
-                                                   Modifiers::kHasSideEffects_Flag)) {
-            return true;
-        }
-        for (const auto& arg : this->arguments()) {
-            if (arg->hasProperty(property)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    bool hasProperty(Property property) const override;
 
-    std::unique_ptr<Expression> clone() const override {
-        ExpressionArray cloned;
-        cloned.reserve_back(this->arguments().size());
-        for (const auto& arg : this->arguments()) {
-            cloned.push_back(arg->clone());
-        }
-        return std::make_unique<FunctionCall>(fOffset, &this->type(), &this->function(),
-                                              std::move(cloned));
-    }
+    std::unique_ptr<Expression> clone() const override;
 
-    String description() const override {
-        String result = String(this->function().name()) + "(";
-        String separator;
-        for (size_t i = 0; i < this->arguments().size(); i++) {
-            result += separator;
-            result += this->arguments()[i]->description();
-            separator = ", ";
-        }
-        result += ")";
-        return result;
-    }
+    String description() const override;
 
 private:
     const FunctionDeclaration& fFunction;
