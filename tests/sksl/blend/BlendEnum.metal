@@ -26,8 +26,7 @@ float _color_dodge_component(float2 s, float2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _0_n = d.x * s.y;
-            delta = min(d.y, _0_n / delta);
+            delta = min(d.y, (d.x * s.y) / delta);
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }
@@ -38,22 +37,19 @@ float _color_burn_component(float2 s, float2 d) {
     } else if (s.x == 0.0) {
         return d.x * (1.0 - s.y);
     } else {
-        float _1_n = (d.y - d.x) * s.y;
-        float delta = max(0.0, d.y - _1_n / s.x);
+        float delta = max(0.0, d.y - ((d.y - d.x) * s.y) / s.x);
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
 float _soft_light_component(float2 s, float2 d) {
     if (2.0 * s.x <= s.y) {
-        float _2_n = (d.x * d.x) * (s.y - 2.0 * s.x);
-        return (_2_n / d.y + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
+        return (((d.x * d.x) * (s.y - 2.0 * s.x)) / d.y + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
     } else if (4.0 * d.x <= d.y) {
         float DSqd = d.x * d.x;
         float DCub = DSqd * d.x;
         float DaSqd = d.y * d.y;
         float DaCub = DaSqd * d.y;
-        float _3_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
-        return _3_n / DaSqd;
+        return (((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x) / DaSqd;
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
@@ -64,22 +60,17 @@ float3 _blend_set_color_luminance(float3 hueSatColor, float alpha, float3 lumCol
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
     if (minComp < 0.0 && lum != minComp) {
-        float _4_d = lum - minComp;
-        result = lum + (result - lum) * (lum / _4_d);
+        result = lum + (result - lum) * (lum / (lum - minComp));
     }
     if (maxComp > alpha && maxComp != lum) {
-        float3 _5_n = (result - lum) * (alpha - lum);
-        float _6_d = maxComp - lum;
-        return lum + _5_n / _6_d;
+        return lum + ((result - lum) * (alpha - lum)) / (maxComp - lum);
     } else {
         return result;
     }
 }
 float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
     if (minMidMax.x < minMidMax.z) {
-        float _7_n = sat * (minMidMax.y - minMidMax.x);
-        float _8_d = minMidMax.z - minMidMax.x;
-        return float3(0.0, _7_n / _8_d, sat);
+        return float3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
     } else {
         return float3(0.0);
     }
@@ -137,13 +128,13 @@ float4 blend(int mode, float4 src, float4 dst) {
         case 15:
             return blend_overlay(src, dst);
         case 16:
-            float4 _9_result = src + (1.0 - src.w) * dst;
-            _9_result.xyz = min(_9_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
-            return _9_result;
+            float4 _0_result = src + (1.0 - src.w) * dst;
+            _0_result.xyz = min(_0_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
+            return _0_result;
         case 17:
-            float4 _10_result = src + (1.0 - src.w) * dst;
-            _10_result.xyz = max(_10_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
-            return _10_result;
+            float4 _1_result = src + (1.0 - src.w) * dst;
+            _1_result.xyz = max(_1_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
+            return _1_result;
         case 18:
             return float4(_color_dodge_component(src.xw, dst.xw), _color_dodge_component(src.yw, dst.yw), _color_dodge_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
         case 19:
@@ -159,25 +150,25 @@ float4 blend(int mode, float4 src, float4 dst) {
         case 24:
             return float4(((1.0 - src.w) * dst.xyz + (1.0 - dst.w) * src.xyz) + src.xyz * dst.xyz, src.w + (1.0 - src.w) * dst.w);
         case 25:
+            float _2_alpha = dst.w * src.w;
+            float3 _3_sda = src.xyz * dst.w;
+            float3 _4_dsa = dst.xyz * src.w;
+            return float4((((_blend_set_color_luminance(_blend_set_color_saturation(_3_sda, _4_dsa), _2_alpha, _4_dsa) + dst.xyz) - _4_dsa) + src.xyz) - _3_sda, (src.w + dst.w) - _2_alpha);
+        case 26:
+            float _5_alpha = dst.w * src.w;
+            float3 _6_sda = src.xyz * dst.w;
+            float3 _7_dsa = dst.xyz * src.w;
+            return float4((((_blend_set_color_luminance(_blend_set_color_saturation(_7_dsa, _6_sda), _5_alpha, _7_dsa) + dst.xyz) - _7_dsa) + src.xyz) - _6_sda, (src.w + dst.w) - _5_alpha);
+        case 27:
+            float _8_alpha = dst.w * src.w;
+            float3 _9_sda = src.xyz * dst.w;
+            float3 _10_dsa = dst.xyz * src.w;
+            return float4((((_blend_set_color_luminance(_9_sda, _8_alpha, _10_dsa) + dst.xyz) - _10_dsa) + src.xyz) - _9_sda, (src.w + dst.w) - _8_alpha);
+        case 28:
             float _11_alpha = dst.w * src.w;
             float3 _12_sda = src.xyz * dst.w;
             float3 _13_dsa = dst.xyz * src.w;
-            return float4((((_blend_set_color_luminance(_blend_set_color_saturation(_12_sda, _13_dsa), _11_alpha, _13_dsa) + dst.xyz) - _13_dsa) + src.xyz) - _12_sda, (src.w + dst.w) - _11_alpha);
-        case 26:
-            float _14_alpha = dst.w * src.w;
-            float3 _15_sda = src.xyz * dst.w;
-            float3 _16_dsa = dst.xyz * src.w;
-            return float4((((_blend_set_color_luminance(_blend_set_color_saturation(_16_dsa, _15_sda), _14_alpha, _16_dsa) + dst.xyz) - _16_dsa) + src.xyz) - _15_sda, (src.w + dst.w) - _14_alpha);
-        case 27:
-            float _17_alpha = dst.w * src.w;
-            float3 _18_sda = src.xyz * dst.w;
-            float3 _19_dsa = dst.xyz * src.w;
-            return float4((((_blend_set_color_luminance(_18_sda, _17_alpha, _19_dsa) + dst.xyz) - _19_dsa) + src.xyz) - _18_sda, (src.w + dst.w) - _17_alpha);
-        case 28:
-            float _20_alpha = dst.w * src.w;
-            float3 _21_sda = src.xyz * dst.w;
-            float3 _22_dsa = dst.xyz * src.w;
-            return float4((((_blend_set_color_luminance(_22_dsa, _20_alpha, _21_sda) + dst.xyz) - _22_dsa) + src.xyz) - _21_sda, (src.w + dst.w) - _20_alpha);
+            return float4((((_blend_set_color_luminance(_13_dsa, _11_alpha, _12_sda) + dst.xyz) - _13_dsa) + src.xyz) - _12_sda, (src.w + dst.w) - _11_alpha);
         default:
             return float4(0.0);
     }

@@ -12,9 +12,7 @@ struct Outputs {
 };
 float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
     if (minMidMax.x < minMidMax.z) {
-        float _7_n = sat * (minMidMax.y - minMidMax.x);
-        float _8_d = minMidMax.z - minMidMax.x;
-        return float3(0.0, _7_n / _8_d, sat);
+        return float3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
     } else {
         return float3(0.0);
     }
@@ -49,13 +47,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float _8_minComp = min(min(_7_result.x, _7_result.y), _7_result.z);
     float _9_maxComp = max(max(_7_result.x, _7_result.y), _7_result.z);
     if (_8_minComp < 0.0 && _6_lum != _8_minComp) {
-        float _10_d = _6_lum - _8_minComp;
-        _7_result = _6_lum + (_7_result - _6_lum) * (_6_lum / _10_d);
+        _7_result = _6_lum + (_7_result - _6_lum) * (_6_lum / (_6_lum - _8_minComp));
     }
     if (_9_maxComp > _0_alpha && _9_maxComp != _6_lum) {
-        float3 _11_n = (_7_result - _6_lum) * (_0_alpha - _6_lum);
-        float _12_d = _9_maxComp - _6_lum;
-        _5_blend_set_color_luminance = _6_lum + _11_n / _12_d;
+        _5_blend_set_color_luminance = _6_lum + ((_7_result - _6_lum) * (_0_alpha - _6_lum)) / (_9_maxComp - _6_lum);
     } else {
         _5_blend_set_color_luminance = _7_result;
     }
