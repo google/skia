@@ -924,6 +924,11 @@ void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statemen
             return !fFunction->returnType().isVoid();
         }
 
+        bool visitExpression(Expression& expr) override {
+            // Do not recurse into expressions.
+            return false;
+        }
+
         bool visitStatement(Statement& stmt) override {
             switch (stmt.kind()) {
                 case Statement::Kind::kReturn: {
