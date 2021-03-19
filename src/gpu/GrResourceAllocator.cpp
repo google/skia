@@ -98,10 +98,63 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     fIntvlHash.set(proxyID, newIntvl);
 }
 
-bool GrResourceAllocator::Interval::isSurfaceRecyclable() const {
-    // All the refs on the proxy are known to the resource allocator thus no one
+bool GrResourceAllocator::Register::isRecyclable(const GrCaps& caps,
+                                                 GrSurfaceProxy* proxy,
+                                                 int knownUseCount) const {
+    if (!caps.reuseScratchTextures() && !proxy->asRenderTargetProxy()) {
+        // Tragically, scratch texture reuse is totally disabled in this case.
+        return false;
+    }
+
+    if (!this->scratchKey().isValid()) {
+        return false; // no scratch key, no free pool
+    }
+    if (this->uniqueKey().isValid()) {
+        return false; // rely on the resource cache to hold onto uniquely-keyed surfaces.
+    }
+    // If all the refs on the proxy are known to the resource allocator then no one
     // should be holding onto it outside of Ganesh.
-    return !fProxy->refCntGreaterThan(fUses);
+    return !proxy->refCntGreaterThan(knownUseCount);
+}
+
+bool GrResourceAllocator::Register::instantiateSurface(GrSurfaceProxy* proxy,
+                                                       GrResourceProvider* resourceProvider) {
+    SkASSERT(!proxy->peekSurface());
+
+    sk_sp<GrSurface> surface;
+    if (const auto& uniqueKey = proxy->getUniqueKey(); uniqueKey.isValid()) {
+        SkASSERT(uniqueKey == fOriginatingProxy->getUniqueKey());
+        // First try to reattach to a cached surface if the proxy is uniquely keyed
+        surface = resourceProvider->findByUniqueKey<GrSurface>(uniqueKey);
+    }
+    if (!surface) {
+        if (proxy == fOriginatingProxy) {
+            surface = proxy->priv().createSurface(resourceProvider);
+        } else {
+            surface = sk_ref_sp(fOriginatingProxy->peekSurface());
+        }
+    }
+    if (!surface) {
+        return false;
+    }
+
+    // Make surface budgeted if this proxy is budgeted.
+    if (SkBudgeted::kYes == proxy->isBudgeted() &&
+        GrBudgetedType::kBudgeted != surface->resourcePriv().budgetedType()) {
+        // This gets the job done but isn't quite correct. It would be better to try to
+        // match budgeted proxies w/ budgeted surfaces and unbudgeted w/ unbudgeted.
+        surface->resourcePriv().makeBudgeted();
+    }
+
+    // Propagate the proxy unique key to the surface if we have one.
+    if (const auto& uniqueKey = proxy->getUniqueKey(); uniqueKey.isValid()) {
+        if (!surface->getUniqueKey().isValid()) {
+            resourceProvider->assignUniqueKeyToResource(uniqueKey, surface.get());
+        }
+        SkASSERT(surface->getUniqueKey() == uniqueKey);
+    }
+    proxy->priv().assign(std::move(surface));
+    return true;
 }
 
 GrResourceAllocator::Interval* GrResourceAllocator::IntervalList::popHead() {
@@ -194,78 +247,49 @@ void GrResourceAllocator::IntervalList::validate() const {
 }
 #endif
 
-// 'surface' can be reused. Add it back to the free pool.
-void GrResourceAllocator::recycleRegister(Register* r) {
-    const GrScratchKey &key = r->scratchKey();
-
-    if (!key.isValid()) {
-        return; // can't do it w/o a valid scratch key
-    }
-
-    GrSurface* surface = r->surface();
-    if (surface->getUniqueKey().isValid()) {
-        // If the surface has a unique key we throw it back into the resource cache.
-        // If things get really tight 'findRegisterFor' may pull it back out but there is
-        // no need to have it in tight rotation.
-        return;
-    }
-
-#if GR_ALLOCATION_SPEW
-    SkDebugf("putting register %d back into pool\n", r->uniqueID());
-#endif
-    // TODO: fix this insertion so we get a more LRU-ish behavior
-    fFreePool.insert(key, r);
-}
-
 // First try to reuse one of the recently allocated/used registers in the free pool.
-// If we can't find a usable one, try to instantiate a surface and wrap it in a new one.
-GrResourceAllocator::Register* GrResourceAllocator::findRegisterFor(const GrSurfaceProxy* proxy) {
+GrResourceAllocator::Register* GrResourceAllocator::findOrCreateRegisterFor(GrSurfaceProxy* proxy) {
+    // Handle uniquely keyed proxies
     if (const auto& uniqueKey = proxy->getUniqueKey(); uniqueKey.isValid()) {
-        // First try to reattach to a cached surface if the proxy is uniquely keyed
-        if (sk_sp<GrSurface> surface = fResourceProvider->findByUniqueKey<GrSurface>(uniqueKey)) {
-            // TODO: Find the register if we've encountered this unique key before.
-            return fInternalAllocator.make<Register>(std::move(surface));
+        if (auto p = fUniqueKeyRegisters.find(uniqueKey)) {
+            return *p;
         }
+        // No need for a scratch key. These don't go in the free pool.
+        Register* r = fInternalAllocator.make<Register>(proxy, GrScratchKey());
+        fUniqueKeyRegisters.set(uniqueKey, r);
+        return r;
     }
 
     // Then look in the free pool
-    GrScratchKey key;
-
-    proxy->priv().computeScratchKey(*fResourceProvider->caps(), &key);
+    GrScratchKey scratchKey;
+    proxy->priv().computeScratchKey(*fResourceProvider->caps(), &scratchKey);
 
     auto filter = [] (const Register* r) {
         return true;
     };
-    if (Register* r = fFreePool.findAndRemove(key, filter)) {
-        GrSurface* surface = r->surface();
-        if (SkBudgeted::kYes == proxy->isBudgeted() &&
-            GrBudgetedType::kBudgeted != surface->resourcePriv().budgetedType()) {
-            // This gets the job done but isn't quite correct. It would be better to try to
-            // match budgeted proxies w/ budgeted surfaces and unbudgeted w/ unbudgeted.
-            surface->resourcePriv().makeBudgeted();
-        }
-        SkASSERT(!surface->getUniqueKey().isValid());
+    if (Register* r = fFreePool.findAndRemove(scratchKey, filter)) {
         return r;
     }
 
-    if (sk_sp<GrSurface> surf = proxy->priv().createSurface(fResourceProvider)) {
-        return fInternalAllocator.make<Register>(std::move(surf));
-    }
-    return nullptr;
+    return fInternalAllocator.make<Register>(proxy, std::move(scratchKey));
 }
 
-// Remove any intervals that end before the current index. Return their GrSurfaces
+// Remove any intervals that end before the current index. Add their registers
 // to the free pool if possible.
 void GrResourceAllocator::expire(unsigned int curIndex) {
     while (!fActiveIntvls.empty() && fActiveIntvls.peekHead()->end() < curIndex) {
         Interval* intvl = fActiveIntvls.popHead();
         SkASSERT(!intvl->next());
 
-        if (Register* r = intvl->getRegister()) {
-            if (intvl->isSurfaceRecyclable()) {
-                this->recycleRegister(r);
-            }
+        Register* r = intvl->getRegister();
+        if (r && r->isRecyclable(*fResourceProvider->caps(), intvl->proxy(), intvl->uses())) {
+#if GR_ALLOCATION_SPEW
+            SkDebugf("putting register %d back into pool\n", r->uniqueID());
+#endif
+            // TODO: fix this insertion so we get a more LRU-ish behavior
+            fFreePool.insert(r->scratchKey(), r);
         }
+        fFinishedIntvls.insertByIncreasingStart(intvl);
     }
 }
 
@@ -286,47 +310,48 @@ bool GrResourceAllocator::assign() {
     while (Interval* cur = fIntvlList.popHead()) {
         this->expire(cur->start());
 
-        if (cur->proxy()->isInstantiated()) {
+        // Already-instantiated proxies and lazy proxies don't use registers.
+        // No need to compute scratch keys (or CANT, in the case of fully-lazy).
+        if (cur->proxy()->isInstantiated() || cur->proxy()->isLazy()) {
             fActiveIntvls.insertByIncreasingEnd(cur);
 
             continue;
         }
 
-        if (cur->proxy()->isLazy()) {
-            if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
-                fFailedInstantiation = true;
-            }
-        } else if (Register* r = this->findRegisterFor(cur->proxy())) {
-            sk_sp<GrSurface> surface = r->refSurface();
-
-            // propagate the proxy unique key to the surface if we have one.
-            if (const auto& uniqueKey = cur->proxy()->getUniqueKey(); uniqueKey.isValid()) {
-                if (!surface->getUniqueKey().isValid()) {
-                    fResourceProvider->assignUniqueKeyToResource(uniqueKey, surface.get());
-                }
-                SkASSERT(surface->getUniqueKey() == uniqueKey);
-            }
-
+        Register* r = this->findOrCreateRegisterFor(cur->proxy());
 #if GR_ALLOCATION_SPEW
-            SkDebugf("Assigning %d to %d\n",
-                 surface->uniqueID().asUInt(),
-                 cur->proxy()->uniqueID().asUInt());
+        SkDebugf("Assigning register %d to %d\n",
+             r->uniqueID(),
+             cur->proxy()->uniqueID().asUInt());
 #endif
-
-            SkASSERT(!cur->proxy()->peekSurface());
-            cur->setRegister(r);
-            // TODO: surface creation and assignment should happen later
-            cur->proxy()->priv().assign(std::move(surface));
-        } else {
-            SkASSERT(!cur->proxy()->isInstantiated());
-            fFailedInstantiation = true;
-        }
+        SkASSERT(!cur->proxy()->peekSurface());
+        cur->setRegister(r);
 
         fActiveIntvls.insertByIncreasingEnd(cur);
     }
 
     // expire all the remaining intervals to drain the active interval list
     this->expire(std::numeric_limits<unsigned int>::max());
+
+    // TODO: Return here and give the caller a chance to estimate memory cost and bail before
+    // instantiating anything.
+
+    // Instantiate surfaces
+    while (Interval* cur = fFinishedIntvls.popHead()) {
+        if (fFailedInstantiation) {
+            break;
+        }
+        if (cur->proxy()->isInstantiated()) {
+            continue;
+        }
+        if (cur->proxy()->isLazy()) {
+            fFailedInstantiation = !cur->proxy()->priv().doLazyInstantiation(fResourceProvider);
+            continue;
+        }
+        Register* r = cur->getRegister();
+        SkASSERT(r);
+        fFailedInstantiation = !r->instantiateSurface(cur->proxy(), fResourceProvider);
+    }
     return !fFailedInstantiation;
 }
 
