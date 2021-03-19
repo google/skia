@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e72e1c92_cbb57e36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-19T18:32:21Z",
+      "side": 1,
+      "message": "A whole lot o\u0027 renaming",
+      "revId": "edc8d4b6f99840e89e6afde1308a23ca998c0af9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
