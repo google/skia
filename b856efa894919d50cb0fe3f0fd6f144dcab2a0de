@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f04e3ef7_d5acedb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "I\u0027m happy with this, just a small update for how we pass the clip pointer to addDrawOp.",
+      "revId": "b856efa894919d50cb0fe3f0fd6f144dcab2a0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c670815b_8abb43d2",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 717,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "We should have a \u0027finalClip\u0027 that starts out as \u0027clip\u0027 and is set to null when opt \u003d\u003d kClipApplied. Even if we can\u0027t update the coordinates later on because it\u0027s not a rect, preApply already ruled out clipping, so passing null to addDrawOp will entirely skip calling GrClip::apply().",
+      "range": {
+        "startLine": 714,
+        "startChar": 8,
+        "endLine": 717,
+        "endChar": 9
+      },
+      "revId": "b856efa894919d50cb0fe3f0fd6f144dcab2a0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efc8f324_63006ea8",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "We\u0027d still check \u0027clip\u0027 here because it\u0027s the original clip that could trigger the modifications to DrawQuad we\u0027re reconstructing.",
+      "range": {
+        "startLine": 720,
+        "startChar": 12,
+        "endLine": 720,
+        "endChar": 17
+      },
+      "revId": "b856efa894919d50cb0fe3f0fd6f144dcab2a0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffc0943f_674330dc",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "But then we\u0027d pass \u0027finalClip\u0027 here, which will either be \u0027clip\u0027 or null depending on opt",
+      "range": {
+        "startLine": 740,
+        "startChar": 28,
+        "endLine": 740,
+        "endChar": 32
+      },
+      "revId": "b856efa894919d50cb0fe3f0fd6f144dcab2a0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

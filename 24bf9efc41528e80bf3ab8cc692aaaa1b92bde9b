@@ -84,6 +84,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b2e7fe3f_cb1e3b03",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "True, if we can account for potential change between the back element\u0027s matrix and the view matrix needed for any paint shader.",
+      "parentUuid": "b2d7d39b_c28b9f6e",
+      "range": {
+        "startLine": 471,
+        "startChar": 32,
+        "endLine": 471,
+        "endChar": 38
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7b4db74f_6231ad61",
         "filename": "src/gpu/GrSurfaceDrawContext.cpp",
         "patchSetId": 2
@@ -143,6 +167,30 @@
       "side": 1,
       "message": "I think it\u0027s fine. I like it.",
       "parentUuid": "b15d30de_8eb763bd",
+      "range": {
+        "startLine": 577,
+        "startChar": 12,
+        "endLine": 578,
+        "endChar": 56
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57654e0b_357714cd",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "363010ee_e477da22",
       "range": {
         "startLine": 577,
         "startChar": 12,
@@ -247,6 +295,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec029603_68fcad5d",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6e0bd1bb_ec32e970",
+      "range": {
+        "startLine": 727,
+        "startChar": 8,
+        "endLine": 727,
+        "endChar": 24
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae4b46ac_4fa2061b",
@@ -284,6 +356,30 @@
       "side": 1,
       "message": "Much better. I like it. Since we\u0027re working in floating point I just blasted all those asserts into the if. It\u0027s mathematically possible for a non-rect to be mapped into a perfect rect in device space.\n\nSo this works because GrQuad::asRect only is true when the quad is in sorted LTRB order, right? i.e., A mirrored/rotated rectangle is not a \"rect\", correct?",
       "parentUuid": "ae4b46ac_4fa2061b",
+      "range": {
+        "startLine": 738,
+        "startChar": 8,
+        "endLine": 747,
+        "endChar": 9
+      },
+      "revId": "24bf9efc41528e80bf3ab8cc692aaaa1b92bde9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d21972a_703095c8",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T13:33:52Z",
+      "side": 1,
+      "message": "Exactly.",
+      "parentUuid": "2092c3d7_02a1c776",
       "range": {
         "startLine": 738,
         "startChar": 8,
