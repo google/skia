@@ -23,15 +23,21 @@ public:
     GrCCPerFlushResources(GrOnFlushResourceProvider*, const GrCCAtlas::Specs&);
 
     // Renders a path into an atlas.
+    //
+    // If the return value is non-null, it means the given path did not fit in the then-current
+    // atlas, so it was retired and a new one was added to the stack. The return value is the
+    // newly-retired atlas. The caller should instantiate all proxies that will use this atlas.
     const GrCCAtlas* renderDeviceSpacePathInAtlas(
             GrOnFlushResourceProvider*, const SkIRect& clipIBounds, const SkPath& devPath,
             const SkIRect& devPathIBounds, GrFillRule fillRule, SkIVector* devToAtlasOffset);
 
     // Finishes off the GPU buffers and renders the atlas(es).
-    bool finalize(GrOnFlushResourceProvider*);
+    const GrCCAtlas* finalize(GrOnFlushResourceProvider*);
 
-    // Accessors used by draw calls, once the resources have been finalized.
-    void placeRenderedPathInAtlas(
+    // If the return value is non-null, it means the given path did not fit in the then-current
+    // atlas, so it was retired and a new one was added to the stack. The return value is the
+    // newly-retired atlas. The caller should instantiate all proxies that will use this atlas.
+    const GrCCAtlas* placeRenderedPathInAtlas(
             GrOnFlushResourceProvider*, const SkIRect& clippedPathIBounds, GrScissorTest,
             SkIVector* devToAtlasOffset);
 

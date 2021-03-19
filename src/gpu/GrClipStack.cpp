@@ -264,7 +264,8 @@ static GrFPResult clip_atlas_fp(GrCoverageCountingPathRenderer* ccpr,
         auto [success, atlasFP] = ccpr->makeClipProcessor(nullptr, opsTaskID, *devicePath, bounds,
                                                           caps);
         if (!success) {
-            return GrFPFailure(nullptr);
+            // "Difference" draws that don't intersect the clip need to be drawn "wide open".
+            return GrFPSuccess(nullptr);
         }
         return GrFPSuccess(GrBlendFragmentProcessor::Make(std::move(atlasFP),  // src
                                                           std::move(fp),       // dst
