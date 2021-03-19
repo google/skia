@@ -683,18 +683,19 @@ bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
     ProgramUsage* usage = program.fUsage.get();
 
-    while (fErrorCount == 0) {
-        bool madeChanges = fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
+    if (fErrorCount == 0) {
+        // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
+        // more wins, but it's diminishing returns.
+        fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
 
-        madeChanges |= this->removeDeadFunctions(program, usage);
-        madeChanges |= this->removeDeadLocalVariables(program, usage);
-
-        if (program.fConfig->fKind != ProgramKind::kFragmentProcessor) {
-            madeChanges |= this->removeDeadGlobalVariables(program, usage);
+        while (this->removeDeadFunctions(program, usage)) {
+            // Removing dead functions may cause more functions to become unreferenced. Try again.
         }
-
-        if (!madeChanges) {
-            break;
+        while (this->removeDeadLocalVariables(program, usage)) {
+            // Removing dead variables may cause more variables to become unreferenced. Try again.
+        }
+        if (program.fConfig->fKind != ProgramKind::kFragmentProcessor) {
+            this->removeDeadGlobalVariables(program, usage);
         }
     }
 
