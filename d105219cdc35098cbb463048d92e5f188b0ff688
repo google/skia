@@ -45,6 +45,54 @@
       },
       "revId": "d105219cdc35098cbb463048d92e5f188b0ff688",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5fb6c238_79cb9dc0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T19:35:23Z",
+      "side": 1,
+      "message": "It may be devicePath().getBounds().round() or roundOut() depending on the draw\u0027s AA. non-AA uses round unless it lands close enough to 0.5 boundaries that we switch to out to play it conservative since we don\u0027t know how the GPU would snap. AA always rounds out.",
+      "parentUuid": "e7fd8cbe_bc5fdbb7",
+      "range": {
+        "startLine": 1426,
+        "startChar": 66,
+        "endLine": 1426,
+        "endChar": 84
+      },
+      "revId": "d105219cdc35098cbb463048d92e5f188b0ff688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b38f823_dd6ead8c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-19T19:35:23Z",
+      "side": 1,
+      "message": "Hmm, that\u0027s tricky to think about.\n\nAt the point this is called, scissorBounds represents one of two things.\n\n1. If all of the clip stack is intersect ops, scissorBounds is the bounds of their intersection (e.g. the largest region we can draw and show pixels; it hasn\u0027t been tightened to match the draw bounds yet so that we aren\u0027t necessarily changing scissor state if we don\u0027t have to. Seeline 1459 below).\n\n2. If we have a difference clip in the stack, scissorBounds starts out as the draw\u0027s outer bounds and then we shrink that by subtracting any known device rect that has 0 coverage (the inner bounds of a difference element).\n\nGiven that get_clip_geometry returned kBoth for this \u0027e\u0027 and \u0027draw\u0027, we should be able to assert that e\u0027s and the draw\u0027s outer bounds intersect. get_clip_geometry does go on to check if the draw\u0027s shape is contained with \u0027e\u0027 and vice versa. These queries will respect the actual floating point coords when everything is AA\u0027ed.\n\nSo I bet what is happening is that we have two shapes that get rounded out for the pixel bounds, and they intersect. But their actual float geometry does not intersect so the atlas then rejects it.\n\nThe get_clip_geometry template system isn\u0027t set up to answer that specific question very easily yet, because that outer function wants to be AA agnostic, so I am not apposed to having us doing the really late kClippedOut return as you\u0027ve written. But it is an optimization that could be lifted and applied anytime get_clip_geometry thinks kBoth is the answer, but their real geometry don\u0027t intersect. This optimization would only be valid if both the clip and the draw were AA\u0027ed.\n\nI made a bug for myself to add this capability more generally: https://bugs.chromium.org/p/skia/issues/detail?id\u003d11772",
+      "parentUuid": "4963fc22_263e7b4e",
+      "range": {
+        "startLine": 1426,
+        "startChar": 49,
+        "endLine": 1426,
+        "endChar": 64
+      },
+      "revId": "d105219cdc35098cbb463048d92e5f188b0ff688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
