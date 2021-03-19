@@ -61,7 +61,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   this->colorLoadOp());
 
         this->bindPipelineAndScissorClip(programInfo, chainBounds);
-        this->bindTextures(programInfo.primProc(), fCurrDraw->fPrimProcProxies,
+        this->bindTextures(programInfo.geomProc(), fCurrDraw->fGeomProcProxies,
                            programInfo.pipeline());
         for (int i = 0; i < fCurrDraw->fMeshCnt; ++i) {
             this->drawMesh(fCurrDraw->fMeshes[i]);
@@ -143,22 +143,22 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
 }
 
 void GrOpFlushState::recordDraw(
-        const GrGeometryProcessor* gp,
+        const GrGeometryProcessor* geomProc,
         const GrSimpleMesh meshes[],
         int meshCnt,
-        const GrSurfaceProxy* const primProcProxies[],
+        const GrSurfaceProxy* const geomProcProxies[],
         GrPrimitiveType primitiveType) {
     SkASSERT(fOpArgs);
     SkDEBUGCODE(fOpArgs->validate());
     bool firstDraw = fDraws.begin() == fDraws.end();
     auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
-    for (int i = 0; i < gp->numTextureSamplers(); ++i) {
-        SkASSERT(primProcProxies && primProcProxies[i]);
-        primProcProxies[i]->ref();
+    for (int i = 0; i < geomProc->numTextureSamplers(); ++i) {
+        SkASSERT(geomProcProxies && geomProcProxies[i]);
+        geomProcProxies[i]->ref();
     }
-    draw.fGeometryProcessor = gp;
-    draw.fPrimProcProxies = primProcProxies;
+    draw.fGeometryProcessor = geomProc;
+    draw.fGeomProcProxies = geomProcProxies;
     draw.fMeshes = meshes;
     draw.fMeshCnt = meshCnt;
     draw.fOp = fOpArgs->op();
@@ -238,7 +238,7 @@ void GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {
 
 GrOpFlushState::Draw::~Draw() {
     for (int i = 0; i < fGeometryProcessor->numTextureSamplers(); ++i) {
-        SkASSERT(fPrimProcProxies && fPrimProcProxies[i]);
-        fPrimProcProxies[i]->unref();
+        SkASSERT(fGeomProcProxies && fGeomProcProxies[i]);
+        fGeomProcProxies[i]->unref();
     }
 }

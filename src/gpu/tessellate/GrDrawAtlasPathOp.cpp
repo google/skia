@@ -56,7 +56,7 @@ private:
 
 class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGP.cast<DrawAtlasPathShader>();
+        const auto& shader = args.fGeomProc.cast<DrawAtlasPathShader>();
         args.fVaryingHandler->emitAttributes(shader);
 
         GrGLSLVarying atlasCoord(kFloat2_GrSLType);
@@ -99,8 +99,8 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
-        const SkISize& dimensions = primProc.cast<DrawAtlasPathShader>().fAtlasDimensions;
+                 const GrGeometryProcessor& geomProc) override {
+        const SkISize& dimensions = geomProc.cast<DrawAtlasPathShader>().fAtlasDimensions;
         pdman.set2f(fAtlasAdjustUniform, 1.f / dimensions.width(), 1.f / dimensions.height());
     }
 

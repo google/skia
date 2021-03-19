@@ -177,7 +177,7 @@ void GrTessellatingStencilFillOp::onExecute(GrOpFlushState* flushState, const Sk
     // Fill in the bounding box (if not in stencil-only mode).
     if (fFillBBoxProgram) {
         flushState->bindPipelineAndScissorClip(*fFillBBoxProgram, this->bounds());
-        flushState->bindTextures(fFillBBoxProgram->primProc(), nullptr,
+        flushState->bindTextures(fFillBBoxProgram->geomProc(), nullptr,
                                  fFillBBoxProgram->pipeline());
         flushState->bindBuffers(nullptr, nullptr, nullptr);
         flushState->draw(4, 0);

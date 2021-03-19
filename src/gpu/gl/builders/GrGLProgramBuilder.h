@@ -68,7 +68,8 @@ private:
                                  SkTDArray<GrGLuint>* shaderIds,
                                  GrContextOptions::ShaderErrorHandler* errorHandler);
 
-    void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
+    void computeCountsAndStrides(GrGLuint programID,
+                                 const GrGeometryProcessor&,
                                  bool bindAttribLocations);
     void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
                             const SkSL::String shaders[], bool isSkSL,

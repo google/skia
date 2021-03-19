@@ -59,8 +59,10 @@ public:
      * This must be called after setAndBindUniforms() since that function invalidates texture
      * bindings.
      */
-    bool setAndBindTextures(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
-                            const GrSurfaceProxy* const primitiveProcessorTextures[],
+    bool setAndBindTextures(GrVkGpu*,
+                            const GrGeometryProcessor&,
+                            const GrPipeline&,
+                            const GrSurfaceProxy* const geomProcTextures[],
                             GrVkCommandBuffer*);
 
     bool setAndBindInputAttachment(GrVkGpu*, GrVkRenderTarget* renderTarget, GrVkCommandBuffer*);

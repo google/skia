@@ -30,7 +30,7 @@ class GrSurfaceDrawContext;
 
 /**
  * This immutable object contains information needed to set build a shader program and set API
- * state for a draw. It is used along with a GrPrimitiveProcessor and a source of geometric
+ * state for a draw. It is used along with a GrGeometryProcessor and a source of geometric
  * data to draw.
  */
 class GrPipeline {
