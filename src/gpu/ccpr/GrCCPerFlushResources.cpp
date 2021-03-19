@@ -24,20 +24,15 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
 const GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(
         GrOnFlushResourceProvider* onFlushRP, const SkIRect& clipIBounds, const SkPath& devPath,
         const SkIRect& devPathIBounds, GrFillRule fillRule, SkIVector* devToAtlasOffset) {
-    if (devPath.isEmpty()) {
-        return nullptr;
-    }
-
+    SkASSERT(!devPath.isEmpty());
     GrScissorTest enableScissorInAtlas;
     SkIRect clippedPathIBounds;
     if (clipIBounds.contains(devPathIBounds)) {
         clippedPathIBounds = devPathIBounds;
         enableScissorInAtlas = GrScissorTest::kDisabled;
-    } else if (clippedPathIBounds.intersect(clipIBounds, devPathIBounds)) {
-        enableScissorInAtlas = GrScissorTest::kEnabled;
     } else {
-        // The clip and path bounds do not intersect. Draw nothing.
-        return nullptr;
+        SkAssertResult(clippedPathIBounds.intersect(clipIBounds, devPathIBounds));
+        enableScissorInAtlas = GrScissorTest::kEnabled;
     }
 
     this->placeRenderedPathInAtlas(onFlushRP, clippedPathIBounds, enableScissorInAtlas,
