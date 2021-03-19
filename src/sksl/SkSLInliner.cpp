@@ -605,12 +605,14 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // them.
     VariableRewriteMap varMap;
     for (int i = 0; i < arguments.count(); ++i) {
-        // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
+        // If the parameter isn't written to within the inline function ...
         const Variable* param = function.declaration().parameters()[i];
-        if (Analysis::IsTrivialExpression(*arguments[i])) {
-            // ... and isn't written to within the inline function...
-            const ProgramUsage::VariableCounts& paramUsage = usage.get(*param);
-            if (!paramUsage.fWrite) {
+        const ProgramUsage::VariableCounts& paramUsage = usage.get(*param);
+        if (!paramUsage.fWrite) {
+            // ... and can be inlined trivially (e.g. a swizzle, or a constant array index),
+            // or any expression without side effects that is only accessed at most once...
+            if ((paramUsage.fRead > 1) ? Analysis::IsTrivialExpression(*arguments[i])
+                                       : !arguments[i]->hasSideEffects()) {
                 // ... we don't need to copy it at all! We can just use the existing expression.
                 varMap[param] = arguments[i]->clone();
                 continue;
