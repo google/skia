@@ -19,7 +19,7 @@ class GrGLSLFragmentProcessor;
 class GrGLSLPrimitiveProcessor;
 class GrGLSLXferProcessor;
 class GrPipeline;
-class GrPrimitiveProcessor;
+class GrGeometryProcessor;
 class GrProgramInfo;
 class GrRenderTarget;
 class GrTextureProxy;
@@ -122,7 +122,8 @@ public:
     /**
      * Binds all primitive processor and fragment processor textures.
      */
-    void bindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
+    void bindTextures(const GrGeometryProcessor&,
+                      const GrSurfaceProxy* const geomProcTextures[],
                       const GrPipeline&);
 
     int vertexStride() const { return fVertexStride; }
@@ -156,7 +157,7 @@ private:
                 int instanceStride);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin, const GrPrimitiveProcessor&);
+    void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin, const GrGeometryProcessor&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;

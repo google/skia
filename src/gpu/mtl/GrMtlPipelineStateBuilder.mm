@@ -176,7 +176,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
     SK_ABORT("Unknown vertex attribute type");
 }
 
-static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor& primProc,
+static MTLVertexDescriptor* create_vertex_descriptor(const GrGeometryProcessor& geomProc,
                                                      SkBinaryWriteBuffer* writer) {
     uint32_t vertexBinding = 0, instanceBinding = 0;
 

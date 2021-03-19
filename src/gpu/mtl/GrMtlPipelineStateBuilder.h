@@ -34,7 +34,7 @@ public:
     /** Generates a pipeline state.
      *
      * The GrMtlPipelineState implements what is specified in the GrPipeline and
-     * GrPrimitiveProcessor as input. After successful generation, the builder result objects are
+     * GrGeometryProcessor as input. After successful generation, the builder result objects are
      * available to be used.
      * @return the created pipeline if generation was successful; nullptr otherwise
      */

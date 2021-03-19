@@ -59,7 +59,7 @@ public:
      * This must be called after setAndBindUniforms() since that function invalidates texture
      * bindings.
      */
-    bool setAndBindTextures(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
+    bool setAndBindTextures(GrVkGpu*, const GrGeometryProcessor&, const GrPipeline&,
                             const GrSurfaceProxy* const primitiveProcessorTextures[],
                             GrVkCommandBuffer*);
 

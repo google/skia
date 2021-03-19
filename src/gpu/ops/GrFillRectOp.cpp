@@ -315,7 +315,7 @@ private:
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindBuffers(std::move(fIndexBuffer), nullptr, std::move(fVertexBuffer));
-        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         GrQuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(), vertexSpec, 0,
                                    fQuads.count(), totalNumVertices, fBaseVertex);
     }

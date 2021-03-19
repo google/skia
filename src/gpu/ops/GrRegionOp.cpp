@@ -122,7 +122,7 @@ private:
             return;
         }
 
-        QuadHelper helper(target, fProgramInfo->primProc().vertexStride(), numRects);
+        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), numRects);
 
         GrVertexWriter vertices{helper.vertices()};
         if (!vertices.fPtr) {
@@ -149,7 +149,7 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
 
