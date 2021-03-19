@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7fd8cbe_bc5fdbb7",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-19T17:54:24Z",
+      "side": 1,
+      "message": "Is this guaranteed to be devicePath().getBounds()? It might not be, right?",
+      "range": {
+        "startLine": 1426,
+        "startChar": 66,
+        "endLine": 1426,
+        "endChar": 84
+      },
+      "revId": "d105219cdc35098cbb463048d92e5f188b0ff688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4963fc22_263e7b4e",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-19T17:54:24Z",
+      "side": 1,
+      "message": "Should this be scissorBounds?",
+      "range": {
+        "startLine": 1426,
+        "startChar": 49,
+        "endLine": 1426,
+        "endChar": 64
+      },
+      "revId": "d105219cdc35098cbb463048d92e5f188b0ff688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
