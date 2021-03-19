@@ -20,7 +20,7 @@ public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
                                 SkTileMode tmx,
                                 SkTileMode tmy,
-                                const SkSamplingOptions*,   // null means inherit-from-paint-fq
+                                const SkSamplingOptions&,
                                 const SkMatrix* localMatrix,
                                 bool clampAsIfUnpremul = false);
 
@@ -38,7 +38,7 @@ private:
     SkImageShader(sk_sp<SkImage>,
                   SkTileMode tmx,
                   SkTileMode tmy,
-                  const SkSamplingOptions*,
+                  const SkSamplingOptions&,
                   const SkMatrix* localMatrix,
                   bool clampAsIfUnpremul = false);
 
@@ -63,7 +63,6 @@ private:
     const SkTileMode        fTileModeX;
     const SkTileMode        fTileModeY;
     const bool              fClampAsIfUnpremul;
-    const bool              fUseSamplingOptions;    // else inherit filterquality from paint
 
     friend class SkShaderBase;
     using INHERITED = SkShaderBase;

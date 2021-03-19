@@ -145,7 +145,7 @@ sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
         return nullptr;
     }
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(*this, kIfMutable_SkCopyPixelsMode),
-                               tmx, tmy, &sampling, lm);
+                               tmx, tmy, sampling, lm);
 }
 
 bool SkShaderBase::appendStages(const SkStageRec& rec) const {
