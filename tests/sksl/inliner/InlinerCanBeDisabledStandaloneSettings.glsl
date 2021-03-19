@@ -47,8 +47,8 @@ vec4 blend_hue(vec4 src, vec4 dst) {
     return vec4((((_blend_set_color_luminance(_blend_set_color_saturation(sda, dsa), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
 void main() {
-    float _0_c = color.x * color.y + color.z;
-    sk_FragColor = vec4(_0_c);
+    float _1_c = color.x * color.y + color.z;
+    sk_FragColor = vec4(_1_c);
     sk_FragColor *= 1.25;
     sk_FragColor *= color.xxyy * color.w;
     sk_FragColor *= color.zzww * color.y;
