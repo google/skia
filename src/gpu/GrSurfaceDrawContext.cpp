@@ -49,6 +49,7 @@
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
@@ -612,6 +613,52 @@ void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
                                                       quad, ss));
     }
     // All other optimization levels were completely handled inside attempt(), so no extra op needed
+}
+
+void GrSurfaceDrawContext::drawTexture(const GrClip* clip,
+                                       GrSurfaceProxyView view,
+                                       SkAlphaType srcAlphaType,
+                                       GrSamplerState::Filter filter,
+                                       GrSamplerState::MipmapMode mm,
+                                       SkBlendMode blendMode,
+                                       const SkPMColor4f& color,
+                                       const SkRect& srcRect,
+                                       const SkRect& dstRect,
+                                       GrAA aa,
+                                       GrQuadAAFlags edgeAA,
+                                       SkCanvas::SrcRectConstraint constraint,
+                                       const SkMatrix& viewMatrix,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform) {
+    // If we are using dmsaa then go through GrFillRRectOp (via fillRectToRect).
+    if (fContext->priv().alwaysAntialias() && aa == GrAA::kYes) {
+        GrPaint paint;
+        paint.setColor4f(color);
+        std::unique_ptr<GrFragmentProcessor> fp;
+        if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+            fp = GrTextureEffect::MakeSubset(view, srcAlphaType, SkMatrix::I(),
+                                             GrSamplerState(filter, mm), srcRect,
+                                             *this->caps());
+        } else {
+            fp = GrTextureEffect::Make(view, srcAlphaType, SkMatrix::I(), filter, mm);
+        }
+        if (colorSpaceXform) {
+            fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
+        }
+        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
+        paint.setColorFragmentProcessor(std::move(fp));
+        if (blendMode != SkBlendMode::kSrcOver) {
+            paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
+        }
+        this->fillRectToRect(clip, std::move(paint), GrAA::kYes, viewMatrix, dstRect, srcRect);
+        return;
+    }
+
+    const SkRect* subset = constraint == SkCanvas::kStrict_SrcRectConstraint ?
+            &srcRect : nullptr;
+    DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
+
+    this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(colorSpaceXform), filter,
+                           mm, color, blendMode, aa, &quad, subset);
 }
 
 void GrSurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
