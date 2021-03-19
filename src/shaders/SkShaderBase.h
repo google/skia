@@ -90,7 +90,6 @@ public:
             , fLocalMatrix(localM)
             , fDstColorType(dstColorType)
             , fDstColorSpace(dstColorSpace) {
-                fPaintSampling = SkSamplingOptions(paint.getFilterQuality());
                 fPaintAlpha = paint.getAlpha();
                 fPaintDither = paint.isDither();
             }
@@ -99,7 +98,6 @@ public:
         const SkMatrix* fLocalMatrix;      // optional local matrix
         SkColorType     fDstColorType;     // the color type of the dest surface
         SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
-        SkSamplingOptions fPaintSampling;  // only used for legacy-built shaders (inherit sampling)
         SkAlpha           fPaintAlpha;
         bool              fPaintDither;
 
