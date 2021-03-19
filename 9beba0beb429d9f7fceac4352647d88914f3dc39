@@ -140,6 +140,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2207b6b0_788459ca",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-03-19T16:25:20Z",
+      "side": 1,
+      "message": "Ah, makes sense. We use this pattern in Flutter a lot: https://cs.opensource.google/search?q\u003dassert%5C(%20language:dart\u0026ss\u003dflutter\n\n`assert` is compiled out in profile/release builds. However, in debug mode it throws an exception forcing you to fix the error. I\u0027m used to that model, but I guess it can feel capricious sometimes. Feel free to continue using the established patterns here.",
+      "parentUuid": "f1d44478_6e23a1ed",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "648826aa_1a009f79",
@@ -188,6 +206,24 @@
       "side": 1,
       "message": "IIRC, RSXForm is documented elsewhere in types.d.ts",
       "parentUuid": "4726b5ed_5c5c0390",
+      "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b59dea81_14a9d803",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-03-19T16:25:20Z",
+      "side": 1,
+      "message": "SGTM then",
+      "parentUuid": "50cb2471_9d50bbad",
       "revId": "9beba0beb429d9f7fceac4352647d88914f3dc39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
