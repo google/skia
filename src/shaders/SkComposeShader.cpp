@@ -216,11 +216,25 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
     return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
 }
 
+#include "include/effects/SkRuntimeEffect.h"
 std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
         const GrFPArgs& orig_args) const {
     const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
-    return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
+
+    static constexpr char code[] = R"(
+        uniform shader a;
+        uniform shader b;
+        uniform half w;
+
+        half4 main() { return mix(sample(a), sample(b), w); }
+    )";
+
+    auto builder = SkRuntimeFPBuilder::Make<code>();
+    builder.uniform("w") = fWeight;
+    builder.child("a") = std::move(fpA);
+    builder.child("b") = std::move(fpB);
+    return builder.makeFP(args.fContext);
 }
 #endif

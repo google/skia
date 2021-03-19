@@ -800,6 +800,26 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrFragmentProcessor> SkRuntimeEffect::makeFP(GrRecordingContext* recordingContext,
+                                        sk_sp<SkData> uniforms,
+                                        std::unique_ptr<GrFragmentProcessor> children[],
+                                        size_t childCount) {
+    if (!uniforms) {
+        uniforms = SkData::MakeEmpty();
+    }
+    auto fp = GrSkSLFP::Make(recordingContext,
+                             sk_ref_sp(this),
+                             "make_fp",
+                             std::move(uniforms));
+    for (size_t i = 0; i < childCount; ++i) {
+        if (!children[i]) {
+            return nullptr;
+        }
+        fp->addChild(std::move(children[i]));
+    }
+    return fp;
+}
+
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                             sk_sp<SkShader> children[], size_t childCount,
                                             const SkMatrix* localMatrix, bool isOpaque) {
@@ -925,43 +945,31 @@ void SkRuntimeEffect::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkRTShader);
 }
 
-SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
-    : fEffect(std::move(effect))
-    , fUniforms(SkData::MakeUninitialized(fEffect->uniformSize()))
-    , fChildren(fEffect->children().count()) {}
+SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect) : INHERITED(std::move(effect)) {}
 
 SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
 
-void* SkRuntimeShaderBuilder::writableUniformData() {
-    if (!fUniforms->unique()) {
-        fUniforms = SkData::MakeWithCopy(fUniforms->data(), fUniforms->size());
-    }
-    return fUniforms->writable_data();
-}
-
 sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
-    return fEffect->makeShader(fUniforms, fChildren.data(), fChildren.size(), localMatrix, isOpaque);
+    return this->effect()->makeShader(this->uniforms(), this->children(), this->numChildren(), localMatrix, isOpaque);
 }
 
 sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingContext,
                                                  const SkMatrix* localMatrix,
                                                  SkImageInfo resultInfo,
                                                  bool mipmapped) {
-    return fEffect->makeImage(recordingContext,
-                              fUniforms,
-                              fChildren.data(),
-                              fChildren.size(),
-                              localMatrix,
-                              resultInfo,
-                              mipmapped);
+    return this->effect()->makeImage(recordingContext,
+                                     this->uniforms(),
+                                     this->children(),
+                                     this->numChildren(),
+                                     localMatrix,
+                                     resultInfo,
+                                     mipmapped);
 }
 
-SkRuntimeShaderBuilder::BuilderChild&
-SkRuntimeShaderBuilder::BuilderChild::operator=(const sk_sp<SkShader>& val) {
-    if (fIndex < 0) {
-        SkDEBUGFAIL("Assigning to missing child");
-    } else {
-        fOwner->fChildren[fIndex] = val;
-    }
-    return *this;
+SkRuntimeFPBuilder::SkRuntimeFPBuilder(sk_sp<SkRuntimeEffect> effect) : INHERITED(std::move(effect)) {}
+
+SkRuntimeFPBuilder::~SkRuntimeFPBuilder() = default;
+
+std::unique_ptr<GrFragmentProcessor> SkRuntimeFPBuilder::makeFP(GrRecordingContext* recordingContext) {
+    return this->effect()->makeFP(recordingContext, this->uniforms(), this->children(), this->numChildren());
 }

@@ -31,6 +31,8 @@ namespace skvm {
 class Program;
 }  // namespace skvm
 
+class GrFragmentProcessor;
+
 /*
  * SkRuntimeEffect supports creating custom SkShader and SkColorFilter objects using Skia's SkSL
  * shading language.
@@ -91,6 +93,11 @@ public:
     // We can't use a default argument for `options` due to a bug in Clang.
     // https://bugs.llvm.org/show_bug.cgi?id=36684
     static Result Make(SkString sksl) { return Make(std::move(sksl), Options{}); }
+
+    std::unique_ptr<GrFragmentProcessor> makeFP(GrRecordingContext*,
+                                    sk_sp<SkData> uniforms,
+                                    std::unique_ptr<GrFragmentProcessor> children[],
+                                    size_t childCount);
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
@@ -184,30 +191,14 @@ private:
     bool   fAllowColorFilter;
 };
 
-/**
- * SkRuntimeShaderBuilder is a utility to simplify creating SkShader objects from SkRuntimeEffects.
- *
- * NOTE: Like SkRuntimeEffect, this API is experimental and subject to change!
- *
- * Given an SkRuntimeEffect, the SkRuntimeShaderBuilder manages creating an input data block and
- * provides named access to the 'uniform' variables in that block, as well as named access
- * to a list of child shader slots. Usage:
- *
- *   sk_sp<SkRuntimeEffect> effect = ...;
- *   SkRuntimeShaderBuilder builder(effect);
- *   builder.uniform("some_uniform_float")  = 3.14f;
- *   builder.uniform("some_uniform_matrix") = SkM44::Rotate(...);
- *   builder.child("some_child_effect")     = mySkImage->makeShader(...);
- *   ...
- *   sk_sp<SkShader> shader = builder.makeShader(nullptr, false);
- *
- * Note that SkRuntimeShaderBuilder is built entirely on the public API of SkRuntimeEffect,
- * so can be used as-is or serve as inspiration for other interfaces or binding techniques.
- */
-class SkRuntimeShaderBuilder {
-public:
-    SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect>);
-    ~SkRuntimeShaderBuilder();
+template<typename Child> class SkRuntimeEffectBuilder_Base {
+protected:
+    explicit SkRuntimeEffectBuilder_Base(sk_sp<SkRuntimeEffect> effect)
+            : fEffect(std::move(effect))
+            , fUniforms(SkData::MakeUninitialized(fEffect->uniformSize()))
+            , fChildren(fEffect->children().count()) {}
+
+    SkRuntimeEffectBuilder_Base(SkRuntimeEffectBuilder_Base&& that) = default;
 
     struct BuilderUniform {
         // Copy 'val' to this variable. No type conversion is performed - 'val' must be same
@@ -259,21 +250,76 @@ public:
             return true;
         }
 
-        SkRuntimeShaderBuilder*         fOwner;
+        SkRuntimeEffectBuilder_Base*    fOwner;
         const SkRuntimeEffect::Uniform* fVar;    // nullptr if the variable was not found
     };
 
     struct BuilderChild {
-        BuilderChild& operator=(const sk_sp<SkShader>& val);
+        template<typename T> BuilderChild& operator=(T&& val) {
+            if (fIndex < 0) {
+                SkDEBUGFAIL("Assigning to missing child");
+            } else {
+                fOwner->fChildren[fIndex] = std::forward<T>(val);
+            }
+            return *this;
+        }
 
-        SkRuntimeShaderBuilder* fOwner;
-        int                     fIndex;  // -1 if the child was not found
+        SkRuntimeEffectBuilder_Base* fOwner;
+        int                          fIndex;  // -1 if the child was not found
     };
 
+    sk_sp<SkData> uniforms() { return fUniforms; }
+    Child* children() { return fChildren.data(); }
+    size_t numChildren() { return fChildren.size(); }
+    SkRuntimeEffect* effect() { return fEffect.get(); }
+
+public:
     const SkRuntimeEffect* effect() const { return fEffect.get(); }
 
-    BuilderUniform uniform(const char* name) { return { this, fEffect->findUniform(name) }; }
-    BuilderChild child(const char* name) { return { this, fEffect->findChild(name) }; }
+    BuilderUniform uniform(const char* name) {
+        return { this, fEffect->findUniform(name) };
+    }
+    BuilderChild child(const char* name) {
+        return { this, fEffect->findChild(name) };
+    }
+
+private:
+    void* writableUniformData() {
+        if (!fUniforms->unique()) {
+            fUniforms = SkData::MakeWithCopy(fUniforms->data(), fUniforms->size());
+        }
+        return fUniforms->writable_data();
+    }
+
+    sk_sp<SkRuntimeEffect>       fEffect;
+    sk_sp<SkData>                fUniforms;
+    std::vector<Child>           fChildren;
+};
+
+/**
+ * SkRuntimeShaderBuilder is a utility to simplify creating SkShader objects from SkRuntimeEffects.
+ *
+ * NOTE: Like SkRuntimeEffect, this API is experimental and subject to change!
+ *
+ * Given an SkRuntimeEffect, the SkRuntimeShaderBuilder manages creating an input data block and
+ * provides named access to the 'uniform' variables in that block, as well as named access
+ * to a list of child shader slots. Usage:
+ *
+ *   sk_sp<SkRuntimeEffect> effect = ...;
+ *   SkRuntimeShaderBuilder builder(effect);
+ *   builder.uniform("some_uniform_float")  = 3.14f;
+ *   builder.uniform("some_uniform_matrix") = SkM44::Rotate(...);
+ *   builder.child("some_child_effect")     = mySkImage->makeShader(...);
+ *   ...
+ *   sk_sp<SkShader> shader = builder.makeShader(nullptr, false);
+ *
+ * Note that SkRuntimeShaderBuilder is built entirely on the public API of SkRuntimeEffect,
+ * so can be used as-is or serve as inspiration for other interfaces or binding techniques.
+ */
+class SK_API SkRuntimeShaderBuilder : public SkRuntimeEffectBuilder_Base<sk_sp<SkShader>> {
+public:
+    explicit SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect>);
+    ~SkRuntimeShaderBuilder();
 
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix, bool isOpaque);
     sk_sp<SkImage> makeImage(GrRecordingContext*,
@@ -282,11 +328,30 @@ public:
                              bool mipmapped);
 
 private:
-    void* writableUniformData();
+    using INHERITED = SkRuntimeEffectBuilder_Base<sk_sp<SkShader>>;
+};
 
-    sk_sp<SkRuntimeEffect>       fEffect;
-    sk_sp<SkData>                fUniforms;
-    std::vector<sk_sp<SkShader>> fChildren;
+class SkRuntimeFPBuilder : public SkRuntimeEffectBuilder_Base<std::unique_ptr<GrFragmentProcessor>> {
+public:
+    ~SkRuntimeFPBuilder();
+
+    template<const char* code> static SkRuntimeFPBuilder Make() {
+        static const SkRuntimeEffect::Result gResult = SkRuntimeEffect::Make(SkString(code));
+#ifdef SK_DEBUG
+        if (!gResult.effect) {
+            SK_ABORT("Effect failed: %s", gResult.errorText.c_str());
+        }
+#endif
+        return SkRuntimeFPBuilder(gResult.effect);
+    }
+
+    std::unique_ptr<GrFragmentProcessor> makeFP(GrRecordingContext*);
+
+private:
+    explicit SkRuntimeFPBuilder(sk_sp<SkRuntimeEffect>);
+    SkRuntimeFPBuilder(SkRuntimeFPBuilder&& that) = default;
+
+    using INHERITED = SkRuntimeEffectBuilder_Base<std::unique_ptr<GrFragmentProcessor>>;
 };
 
 #endif
