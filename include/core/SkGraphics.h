@@ -98,11 +98,7 @@ public:
     static void PurgeFontCache();
 
     /**
-     *  Scaling bitmaps with the kHigh_SkFilterQuality setting is
-     *  expensive, so the result is saved in the global Scaled Image
-     *  Cache.
-     *
-     *  This function returns the memory usage of the Scaled Image Cache.
+     *  This function returns the memory used for temporary images and other resources.
      */
     static size_t GetResourceCacheTotalBytesUsed();
 
