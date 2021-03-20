@@ -224,11 +224,6 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingO
     asSB(this)->onDraw(canvas, x, y, sampling, paint);
 }
 
-void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkSamplingOptions sampling(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
-    this->draw(canvas, x, y, sampling, paint);
-}
-
 bool SkSurface::peekPixels(SkPixmap* pmap) {
     return this->getCanvas()->peekPixels(pmap);
 }
