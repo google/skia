@@ -37,10 +37,10 @@ void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
     }
 }
 
-const GrCCAtlas* GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
-                                                 GrOnFlushResourceProvider* onFlushRP) {
+std::unique_ptr<GrCCAtlas> GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
+                                                           GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(!fHasAtlas);
-    const GrCCAtlas* retiredAtlas = resources->renderDeviceSpacePathInAtlas(
+    auto retiredAtlas = resources->renderDeviceSpacePathInAtlas(
             onFlushRP, fAccessRect, fDeviceSpacePath, fPathDevIBounds,
             GrFillRuleForSkPath(fDeviceSpacePath), &fDevToAtlasOffset);
     SkDEBUGCODE(fHasAtlas = true);

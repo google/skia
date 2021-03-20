@@ -181,7 +181,7 @@ void GrCoverageCountingPathRenderer::preFlush(
     ClipMapsIter end(flushingPaths.end());
     ClipMapsIter nextPathToAssign = it;  // The next GrCCClipPath to call assignAtlasTexture on.
     for (; it != end; ++it) {
-        if (const GrCCAtlas* retiredAtlas = it->renderPathInAtlas(&perFlushResources, onFlushRP)) {
+        if (auto retiredAtlas = it->renderPathInAtlas(&perFlushResources, onFlushRP)) {
             assign_atlas_textures(retiredAtlas->textureProxy()->peekTexture(), nextPathToAssign,
                                   it);
             nextPathToAssign = it;
@@ -189,7 +189,7 @@ void GrCoverageCountingPathRenderer::preFlush(
     }
 
     // Allocate resources and then render the atlas(es).
-    const GrCCAtlas* atlas = perFlushResources.finalize(onFlushRP);
+    auto atlas = perFlushResources.finalize(onFlushRP);
     assign_atlas_textures(atlas->textureProxy()->peekTexture(), nextPathToAssign, end);
 }
 

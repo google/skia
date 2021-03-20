@@ -38,31 +38,3 @@ GrCCAtlas::GrCCAtlas(const Specs& specs, const GrCaps& caps)
 
 GrCCAtlas::~GrCCAtlas() {
 }
-
-void GrCCAtlas::setFillBatchID(int id) {
-    // This can't be called anymore once makeRenderTargetContext() has been called.
-    SkASSERT(!this->isInstantiated());
-    fFillBatchID = id;
-}
-
-void GrCCAtlas::setEndStencilResolveInstance(int idx) {
-    // This can't be called anymore once makeRenderTargetContext() has been called.
-    SkASSERT(!this->isInstantiated());
-    fEndStencilResolveInstance = idx;
-}
-
-GrCCAtlas* GrCCAtlasStack::addRect(const SkIRect& devIBounds, SkIVector* devToAtlasOffset) {
-    GrCCAtlas* retiredAtlas = nullptr;
-    SkIPoint16 location;
-    if (fAtlases.empty() ||
-        !fAtlases.back().addRect(devIBounds.width(), devIBounds.height(), &location)) {
-        // The retired atlas is out of room and can't grow any bigger.
-        retiredAtlas = !fAtlases.empty() ? &fAtlases.back() : nullptr;
-        fAtlases.emplace_back(fSpecs, *fCaps);
-        SkASSERT(devIBounds.width() <= fSpecs.fMinWidth);
-        SkASSERT(devIBounds.height() <= fSpecs.fMinHeight);
-        SkAssertResult(fAtlases.back().addRect(devIBounds.width(), devIBounds.height(), &location));
-    }
-    devToAtlasOffset->set(location.x() - devIBounds.left(), location.y() - devIBounds.top());
-    return retiredAtlas;
-}

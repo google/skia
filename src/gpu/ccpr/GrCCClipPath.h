@@ -41,7 +41,8 @@ public:
     // atlas, so it was retired and a new one was added to the stack. The return value is the
     // newly-retired atlas. (*NOT* the atlas this path will reside in.) The caller must call
     // assignAtlasTexture on all prior GrCCClipPaths that will use the retired atlas.
-    const GrCCAtlas* renderPathInAtlas(GrCCPerFlushResources*, GrOnFlushResourceProvider*);
+    std::unique_ptr<GrCCAtlas> renderPathInAtlas(GrCCPerFlushResources*,
+                                                 GrOnFlushResourceProvider*);
 
     const SkIVector& atlasTranslate() const {
         SkASSERT(fHasAtlas);
