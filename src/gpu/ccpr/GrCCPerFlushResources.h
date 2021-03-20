@@ -28,19 +28,19 @@ public:
     // atlas, so it was retired and a new one was added to the stack. The return value is the
     // newly-retired atlas. (*NOT* the atlas the path was just drawn into.) The caller must call
     // assignAtlasTexture on all GrCCClipPaths that will use the retired atlas.
-    const GrCCAtlas* renderDeviceSpacePathInAtlas(
+    std::unique_ptr<GrCCAtlas> renderDeviceSpacePathInAtlas(
             GrOnFlushResourceProvider*, const SkIRect& clipIBounds, const SkPath& devPath,
             const SkIRect& devPathIBounds, GrFillRule fillRule, SkIVector* devToAtlasOffset);
 
     // Finishes off the GPU buffers and renders the atlas(es).
-    const GrCCAtlas* finalize(GrOnFlushResourceProvider*);
+    std::unique_ptr<GrCCAtlas> finalize(GrOnFlushResourceProvider*);
 
 private:
     // If the return value is non-null, it means the given path did not fit in the then-current
     // atlas, so it was retired and a new one was added to the stack. The return value is the
     // newly-retired atlas. (*NOT* the atlas the path was just drawn into.) The caller must call
     // assignAtlasTexture on all GrCCClipPaths that will use the retired atlas.
-    const GrCCAtlas* placeRenderedPathInAtlas(
+    std::unique_ptr<GrCCAtlas> placeRenderedPathInAtlas(
             GrOnFlushResourceProvider*, const SkIRect& clippedPathIBounds, GrScissorTest,
             SkIVector* devToAtlasOffset);
 
@@ -50,9 +50,9 @@ private:
                              SkIVector devToAtlasOffset);
 
     // Renders all enqueued paths into the given atlas and clears our path queue.
-    void flushRenderedPaths(GrOnFlushResourceProvider*, GrCCAtlas*);
+    void flushRenderedPaths(GrOnFlushResourceProvider*);
 
-    GrCCAtlasStack fRenderedAtlasStack;
+    const GrCCAtlas::Specs fAtlasSpecs;
 
     // Paths to be rendered in the atlas we are currently building.
     struct AtlasPaths {
@@ -62,6 +62,8 @@ private:
     static_assert((int)GrFillRule::kNonzero == 0);
     static_assert((int)GrFillRule::kEvenOdd == 1);
     AtlasPaths fAtlasPaths[2];  // One for "nonzero" fill rule and one for "even-odd".
+
+    std::unique_ptr<GrCCAtlas> fAtlas;
 };
 
 #endif

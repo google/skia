@@ -43,51 +43,6 @@ public:
 
     GrCCAtlas(const Specs&, const GrCaps&);
     ~GrCCAtlas() override;
-
-    // This is an optional space for the caller to jot down user-defined instance data to use when
-    // rendering atlas content.
-    void setFillBatchID(int id);
-    int getFillBatchID() const { return fFillBatchID; }
-    void setEndStencilResolveInstance(int idx);
-    int getEndStencilResolveInstance() const { return fEndStencilResolveInstance; }
-
-private:
-    int fFillBatchID;
-    int fEndStencilResolveInstance;
-};
-
-/**
- * This class implements an unbounded stack of atlases. When the current atlas reaches the
- * implementation-dependent max texture size, a new one is pushed to the back and we continue on.
- */
-class GrCCAtlasStack {
-public:
-    using CCAtlasAllocator = GrTBlockList<GrCCAtlas, 4>;
-
-    GrCCAtlasStack(const GrCCAtlas::Specs& specs, const GrCaps* caps)
-            : fSpecs(specs), fCaps(caps) {}
-
-    bool empty() const { return fAtlases.empty(); }
-    const GrCCAtlas& front() const { SkASSERT(!this->empty()); return fAtlases.front(); }
-    GrCCAtlas& front() { SkASSERT(!this->empty()); return fAtlases.front(); }
-    GrCCAtlas& current() { SkASSERT(!this->empty()); return fAtlases.back(); }
-
-    CCAtlasAllocator::Iter atlases() { return fAtlases.items(); }
-    CCAtlasAllocator::CIter atlases() const { return fAtlases.items(); }
-
-    // Adds a rect to the current atlas and returns the offset from device space to atlas space.
-    // Call current() to get the atlas it was added to.
-    //
-    // If the return value is non-null, it means the given rect did not fit in the then-current
-    // atlas, so it was retired and a new one was added to the stack. The return value is the
-    // newly-retired atlas. The caller should call setUserBatchID() on the retired atlas before
-    // moving on.
-    GrCCAtlas* addRect(const SkIRect& devIBounds, SkIVector* devToAtlasOffset);
-
-private:
-    const GrCCAtlas::Specs fSpecs;
-    const GrCaps* const fCaps;
-    CCAtlasAllocator fAtlases;
 };
 
 inline void GrCCAtlas::Specs::accountForSpace(int width, int height) {
