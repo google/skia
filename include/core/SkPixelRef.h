@@ -9,7 +9,6 @@
 #define SkPixelRef_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"

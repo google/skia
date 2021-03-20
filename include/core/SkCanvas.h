@@ -1438,13 +1438,8 @@ public:
 
     /** \enum SkCanvas::SrcRectConstraint
         SrcRectConstraint controls the behavior at the edge of source SkRect,
-        provided to drawImageRect(), trading off speed for precision.
-
-        SkFilterQuality in SkPaint may sample multiple pixels in the image. Source SkRect
-        restricts the bounds of pixels that may be read. SkFilterQuality may slow down if
-        it cannot read outside the bounds, when sampling near the edge of source SkRect.
-        SrcRectConstraint specifies whether an SkImageFilter is allowed to read pixels
-        outside source SkRect.
+        provided to drawImageRect() when there is any filtering. If kStrict is set,
+        then extra code is used to ensure it nevers samples outside of the src-rect.
     */
     enum SrcRectConstraint {
         kStrict_SrcRectConstraint, //!< sample only inside bounds; slower
