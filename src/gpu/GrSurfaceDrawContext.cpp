@@ -47,6 +47,7 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
@@ -1758,8 +1759,7 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
-                                     GrOp::Owner op,
+void GrSurfaceDrawContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
                                      const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (fContext->abandoned()) {
@@ -1774,6 +1774,8 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
+    SkSTArray<4, SkPath> pathsForClipAtlas;
+    auto* ccpr = this->drawingManager()->getCoverageCountingPathRenderer();
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = drawOp->fixedFunctionFlags();
     bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
     bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
@@ -1791,8 +1793,9 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
         } else {
             aaType = op->hasAABloat() ? GrAAType::kCoverage : GrAAType::kNone;
         }
-        skipDraw = clip->apply(fContext, this, aaType, usesUserStencilBits,
-                               &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
+        auto clipEffect = clip->apply(fContext, this, aaType, usesUserStencilBits, &appliedClip,
+                                      &bounds, (ccpr) ? &pathsForClipAtlas : nullptr);
+        skipDraw = (clipEffect == GrClip::Effect::kClippedOut);
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions
         skipDraw = !bounds.intersect(this->asSurfaceProxy()->getBoundsRect());
@@ -1828,6 +1831,25 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     }
 
     auto opsTask = this->getOpsTask();
+
+    // Create atlas clip paths now that we know exactly which opsTask their atlas will come from.
+    if (!pathsForClipAtlas.empty()) {
+        std::unique_ptr<GrFragmentProcessor> clipFP;
+        if (appliedClip.hasCoverageFragmentProcessor()) {
+            clipFP = appliedClip.detachCoverageFragmentProcessor();
+        }
+        for (const SkPath& clipPath : pathsForClipAtlas) {
+            bool success;
+            std::tie(success, clipFP) = ccpr->makeClipProcessor(std::move(clipFP),
+                                                                opsTask->uniqueID(), clipPath,
+                                                                bounds.roundOut(), *this->caps());
+            if (!success) {
+                return;  // Clipped completely out.
+            }
+        }
+        appliedClip.addCoverageFP(std::move(clipFP));
+    }
+
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
