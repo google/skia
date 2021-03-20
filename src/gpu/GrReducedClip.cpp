@@ -927,7 +927,7 @@ GrFPResult GrReducedClip::finishAndDetachAnalyticElements(GrRecordingContext* co
     if (fShader != nullptr) {
         static const GrColorInfo kCoverageColorInfo{GrColorType::kUnknown, kPremul_SkAlphaType,
                                                     nullptr};
-        GrFPArgs args(context, matrixProvider, SkSamplingOptions(), &kCoverageColorInfo);
+        GrFPArgs args(context, matrixProvider, &kCoverageColorInfo);
         shaderFP = as_SB(fShader)->asFragmentProcessor(args);
         if (shaderFP != nullptr) {
             shaderFP = GrFragmentProcessor::MulInputByChildAlpha(std::move(shaderFP));

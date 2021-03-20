@@ -845,10 +845,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
                                  "runtime_image",
                                  std::move(uniforms));
         GrColorInfo colorInfo(resultInfo.colorInfo());
-        GrFPArgs args(recordingContext,
-                      matrixProvider,
-                      SkSamplingOptions{},
-                      &colorInfo);
+        GrFPArgs args(recordingContext, matrixProvider, &colorInfo);
         for (size_t i = 0; i < childCount; ++i) {
             if (!children[i]) {
                 return nullptr;

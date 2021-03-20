@@ -898,11 +898,8 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
         return;
     }
 
-    // Create a fragment processor for atlas image. Filter-quality reduction is disabled because the
-    // SkRSXform matrices might include scale or non-trivial rotation.
-    GrFPArgs fpArgs(fContext.get(), this->asMatrixProvider(), sampling,
-                    &fSurfaceDrawContext->colorInfo());
-    fpArgs.fAllowFilterQualityReduction = false;
+    // Create a fragment processor for atlas image.
+    GrFPArgs fpArgs(fContext.get(), this->asMatrixProvider(), &fSurfaceDrawContext->colorInfo());
 
     std::unique_ptr<GrFragmentProcessor> shaderFP = as_SB(shader)->asFragmentProcessor(fpArgs);
     if (shaderFP == nullptr) {

@@ -225,14 +225,10 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                            std::unique_ptr<GrFragmentProcessor>* shaderProcessor,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
-    // TODO: take sampling directly
-    SkSamplingOptions sampling(skPaint.getFilterQuality(),
-                               SkSamplingOptions::kMedium_asMipmapLinear);
-
     // Convert SkPaint color to 4f format in the destination color space
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), dstColorInfo);
 
-    GrFPArgs fpArgs(context, matrixProvider, sampling, &dstColorInfo);
+    GrFPArgs fpArgs(context, matrixProvider, &dstColorInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -433,15 +429,11 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
                                  std::unique_ptr<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint) {
-    // TODO: take sampling directly
-    SkSamplingOptions sampling(paint.getFilterQuality(),
-                               SkSamplingOptions::kMedium_asMipmapLinear);
-
     std::unique_ptr<GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(
-                    GrFPArgs(context, matrixProvider, sampling, &dstColorInfo));
+                    GrFPArgs(context, matrixProvider, &dstColorInfo));
             if (!shaderFP) {
                 return false;
             }
