@@ -77,12 +77,6 @@ private:
     // reside in fPendingPaths, then be moved to fFlushingPaths during preFlush().
     PendingPathsMap fPendingPaths;
 
-    // fFlushingPaths holds the GrCCPerOpsTaskPaths objects that are currently being flushed.
-    // (It will only contain elements when fFlushing is true.)
-    SkSTArray<4, sk_sp<GrCCPerOpsTaskPaths>> fFlushingPaths;
-
-    std::unique_ptr<GrCCPerFlushResources> fPerFlushResources;
-
     SkDEBUGCODE(bool fFlushing = false);
 };
 

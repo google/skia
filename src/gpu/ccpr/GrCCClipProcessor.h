@@ -19,8 +19,8 @@ public:
         kYes = true
     };
 
-    GrCCClipProcessor(std::unique_ptr<GrFragmentProcessor>, const GrCaps&, const GrCCClipPath*,
-                      MustCheckBounds);
+    GrCCClipProcessor(std::unique_ptr<GrFragmentProcessor>, const GrCaps&,
+                      sk_sp<const GrCCClipPath>, MustCheckBounds);
 
     const char* name() const override { return "GrCCClipProcessor"; }
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -31,7 +31,7 @@ public:
 private:
     explicit GrCCClipProcessor(const GrCCClipProcessor&);
 
-    const GrCCClipPath* const fClipPath;
+    const sk_sp<const GrCCClipPath> fClipPath;
     const bool fMustCheckBounds;
 
     class Impl;
