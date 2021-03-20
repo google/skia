@@ -19,12 +19,12 @@ static GrSurfaceProxyView make_view(const GrCaps& caps, GrSurfaceProxy* proxy) {
 
 GrCCClipProcessor::GrCCClipProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                      const GrCaps& caps,
-                                     const GrCCClipPath* clipPath,
+                                     sk_sp<const GrCCClipPath> clipPath,
                                      MustCheckBounds mustCheckBounds)
         : INHERITED(kGrCCClipProcessor_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-        , fClipPath(clipPath)
+        , fClipPath(std::move(clipPath))
         , fMustCheckBounds(MustCheckBounds::kYes == mustCheckBounds) {
-    auto view = make_view(caps, clipPath->atlasLazyProxy());
+    auto view = make_view(caps, fClipPath->atlasLazyProxy());
     auto texEffect = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
     this->registerChild(std::move(texEffect), SkSL::SampleUsage::Explicit());
     this->registerChild(std::move(inputFP));

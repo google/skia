@@ -13,27 +13,24 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
-void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect,
-                        const GrCaps& caps) {
+GrCCClipPath::GrCCClipPath(const SkPath& deviceSpacePath, const SkIRect& accessRect,
+                           const GrCaps& caps)
+        : fDeviceSpacePath(deviceSpacePath)
+        , fPathDevIBounds(fDeviceSpacePath.getBounds().roundOut())
+        , fAccessRect(accessRect)
+        , fAtlasLazyProxy(GrCCAtlas::MakeLazyAtlasProxy(
+                [](GrResourceProvider*, const GrCCAtlas::LazyAtlasDesc&) {
+                    // GrCCClipPaths get instantiated explicitly after the atlas is laid out. If
+                    // this callback gets invoked, it means atlas proxy itself failed to
+                    // instantiate.
+                    return GrSurfaceProxy::LazyCallbackResult();
+                }, caps, GrSurfaceProxy::UseAllocator::kYes)) {
     SkASSERT(!deviceSpacePath.isEmpty());
-    SkASSERT(!this->isInitialized());
-
-    fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
-            [](GrResourceProvider*, const GrCCAtlas::LazyAtlasDesc&) {
-                // GrCCClipPaths get instantiated explicitly after the atlas is laid out. If this
-                // callback gets invoked, it means atlas proxy itself failed to instantiate.
-                return GrSurfaceProxy::LazyCallbackResult();
-            }, caps, GrSurfaceProxy::UseAllocator::kYes);
-
-    fDeviceSpacePath = deviceSpacePath;
-    fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);
-    fAccessRect = accessRect;
     SkASSERT(SkIRect::Intersects(fAccessRect, fPathDevIBounds));
+
 }
 
 void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
-    SkASSERT(this->isInitialized());
-
     SkIRect ibounds;
     if (ibounds.intersect(fAccessRect, fPathDevIBounds)) {
         specs->accountForSpace(ibounds.width(), ibounds.height());
@@ -42,7 +39,6 @@ void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
 
 const GrCCAtlas* GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
                                                  GrOnFlushResourceProvider* onFlushRP) {
-    SkASSERT(this->isInitialized());
     SkASSERT(!fHasAtlas);
     const GrCCAtlas* retiredAtlas = resources->renderDeviceSpacePathInAtlas(
             onFlushRP, fAccessRect, fDeviceSpacePath, fPathDevIBounds,
