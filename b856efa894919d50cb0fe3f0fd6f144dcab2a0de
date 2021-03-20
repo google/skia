@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "74099c99_7fd7561d",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 717,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-20T15:27:19Z",
+      "side": 1,
+      "message": "Oh right, we should set finalClip to null inside the condition I just marked \u0027here\u0027 instead. If we use the original drawing geometry we definitely need to keep clip.",
+      "parentUuid": "1df517c9_0ca3661e",
+      "range": {
+        "startLine": 714,
+        "startChar": 8,
+        "endLine": 717,
+        "endChar": 9
+      },
+      "revId": "b856efa894919d50cb0fe3f0fd6f144dcab2a0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "efc8f324_63006ea8",
         "filename": "src/gpu/GrSurfaceDrawContext.cpp",
         "patchSetId": 7

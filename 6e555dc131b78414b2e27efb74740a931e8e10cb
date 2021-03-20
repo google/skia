@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43db39cc_20c5481a",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-20T15:27:19Z",
+      "side": 1,
+      "message": "in here, we can set finalClip to null since we\u0027re using the modified geometry (and we don\u0027t need to worry about modified edge flags since it\u0027s dmsaa and both clip and geom edges are always aa.",
+      "range": {
+        "startLine": 728,
+        "startChar": 12,
+        "endLine": 729,
+        "endChar": 42
+      },
+      "revId": "6e555dc131b78414b2e27efb74740a931e8e10cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
