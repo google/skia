@@ -87,6 +87,62 @@ GrFPResult GrCoverageCountingPathRenderer::makeClipProcessor(
                                                            mustCheckBounds));
 }
 
+namespace {
+
+// Iterates all GrCCClipPaths in an array of non-empty maps.
+class ClipMapsIter {
+public:
+    ClipMapsIter(sk_sp<GrCCPerOpsTaskPaths>* mapsList) : fMapsList(mapsList) {}
+
+    bool operator!=(const ClipMapsIter& that) {
+        if (fMapsList != that.fMapsList) {
+            return true;
+        }
+        // fPerOpsTaskClipPaths will be null when we are on the first element.
+        if (fPerOpsTaskClipPaths != that.fPerOpsTaskClipPaths) {
+            return true;
+        }
+        return fPerOpsTaskClipPaths && fClipPathsIter != that.fClipPathsIter;
+    }
+
+    void operator++() {
+        // fPerOpsTaskClipPaths is null when we are on the first element.
+        if (!fPerOpsTaskClipPaths) {
+            fPerOpsTaskClipPaths = &(*fMapsList)->fClipPaths;
+            SkASSERT(!fPerOpsTaskClipPaths->empty());  // We don't handle empty lists.
+            fClipPathsIter = fPerOpsTaskClipPaths->begin();
+        }
+        if ((++fClipPathsIter) == fPerOpsTaskClipPaths->end()) {
+            ++fMapsList;
+            fPerOpsTaskClipPaths = nullptr;
+        }
+    }
+
+    GrCCClipPath* operator->() {
+        // fPerOpsTaskClipPaths is null when we are on the first element.
+        const auto& it = (!fPerOpsTaskClipPaths) ? (*fMapsList)->fClipPaths.begin()
+                                                 : fClipPathsIter;
+        return &(it->second);
+    }
+
+private:
+    sk_sp<GrCCPerOpsTaskPaths>* fMapsList;
+    std::map<uint32_t, GrCCClipPath>* fPerOpsTaskClipPaths = nullptr;
+    std::map<uint32_t, GrCCClipPath>::iterator fClipPathsIter;
+};
+
+}  // namespace
+
+static void assign_atlas_textures(GrTexture* atlasTexture, ClipMapsIter nextPathToAssign,
+                                  const ClipMapsIter& end) {
+    if (!atlasTexture) {
+        return;
+    }
+    for (; nextPathToAssign != end; ++nextPathToAssign) {
+        nextPathToAssign->assignAtlasTexture(sk_ref_sp(atlasTexture));
+    }
+}
+
 void GrCoverageCountingPathRenderer::preFlush(
         GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t> taskIDs) {
     SkASSERT(!fFlushing);
@@ -122,14 +178,21 @@ void GrCoverageCountingPathRenderer::preFlush(
     fPerFlushResources = std::make_unique<GrCCPerFlushResources>(onFlushRP, specs);
 
     // Layout the atlas(es) and render paths.
-    for (const auto& flushingPaths : fFlushingPaths) {
-        for (auto& clipsIter : flushingPaths->fClipPaths) {
-            clipsIter.second.renderPathInAtlas(fPerFlushResources.get(), onFlushRP);
+    ClipMapsIter it(fFlushingPaths.begin());
+    ClipMapsIter end(fFlushingPaths.end());
+    ClipMapsIter nextPathToAssign = it;  // The next GrCCClipPath to call assignAtlasTexture on.
+    for (; it != end; ++it) {
+        if (const GrCCAtlas* retiredAtlas =
+                it->renderPathInAtlas(fPerFlushResources.get(), onFlushRP)) {
+            assign_atlas_textures(retiredAtlas->textureProxy()->peekTexture(), nextPathToAssign,
+                                  it);
+            nextPathToAssign = it;
         }
     }
 
     // Allocate resources and then render the atlas(es).
-    fPerFlushResources->finalize(onFlushRP);
+    const GrCCAtlas* atlas = fPerFlushResources->finalize(onFlushRP);
+    assign_atlas_textures(atlas->textureProxy()->peekTexture(), nextPathToAssign, end);
 }
 
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken,
