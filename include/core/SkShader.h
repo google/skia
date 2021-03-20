@@ -10,7 +10,6 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"

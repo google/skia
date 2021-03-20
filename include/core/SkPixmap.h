@@ -9,7 +9,6 @@
 #define SkPixmap_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSamplingOptions.h"
 
