@@ -95,10 +95,6 @@ DEFINE_REF_FOO(Shader)
 
 void SkPaint::reset() { *this = SkPaint(); }
 
-void SkPaint::setFilterQuality(SkFilterQuality quality) {
-    fBitfields.fFilterQuality = quality;
-}
-
 void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
         fBitfields.fStyle = style;
@@ -235,7 +231,9 @@ static uint32_t pack_v68(const SkPaint& paint, unsigned flatFlags) {
     packed |= shift_bits(paint.getStrokeCap(),     16, 2);
     packed |= shift_bits(paint.getStrokeJoin(),    18, 2);
     packed |= shift_bits(paint.getStyle(),         20, 2);
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
     packed |= shift_bits(paint.getFilterQuality(), 22, 2);
+#endif
     packed |= shift_bits(flatFlags,                24, 8);
     return packed;
 }

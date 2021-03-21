@@ -22,6 +22,14 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkPatchUtils.h"
 
+static SkFilterQuality get_filter_quality(const SkPaint& paint) {
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
+    return paint.getFilterQuality();
+#else
+    return kNone_SkFilterQuality;
+#endif
+}
+
 static const SkRect* get_rect_ptr(SkReadBuffer* reader, SkRect* storage) {
     if (reader->readBool()) {
         reader->readRect(storage);
@@ -288,7 +296,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (op == DRAW_EDGEAA_IMAGE_SET2) {
                 sampling = reader->readSampling();
             } else {
-                sampling = SkSamplingOptions(paint ? paint->getFilterQuality()
+                sampling = SkSamplingOptions(paint ? get_filter_quality(*paint)
                                                    : kNone_SkFilterQuality);
             }
 
@@ -357,7 +365,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             canvas->drawImage(image, loc.fX, loc.fY,
-                              SkSamplingOptions(paint ? paint->getFilterQuality()
+                              SkSamplingOptions(paint ? get_filter_quality(*paint)
                                                       : kNone_SkFilterQuality),
                               paint);
         } break;
@@ -380,7 +388,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             SkFilterMode filter = SkFilterMode::kNearest;
-            if (paint && paint->getFilterQuality() != kNone_SkFilterQuality) {
+            if (paint && get_filter_quality(*paint) != kNone_SkFilterQuality) {
                 filter = SkFilterMode::kLinear;
             }
             canvas->drawImageLattice(image, lattice, *dst, filter, paint);
@@ -406,7 +414,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             SkFilterMode filter = SkFilterMode::kNearest;
-            if (paint && paint->getFilterQuality() != kNone_SkFilterQuality) {
+            if (paint && get_filter_quality(*paint) != kNone_SkFilterQuality) {
                 filter = SkFilterMode::kLinear;
             }
             canvas->drawImageNine(image, center, dst, filter, paint);
@@ -427,7 +435,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
             BREAK_ON_READ_ERROR(reader);
 
-            auto sampling = SkSamplingOptions(paint ? paint->getFilterQuality()
+            auto sampling = SkSamplingOptions(paint ? get_filter_quality(*paint)
                                                     : kNone_SkFilterQuality);
             if (src) {
                 canvas->drawImageRect(image, *src, dst, sampling, paint, constraint);
