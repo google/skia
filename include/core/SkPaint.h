@@ -192,18 +192,16 @@ public:
     */
     void setDither(bool dither) { fBitfields.fDither = static_cast<unsigned>(dither); }
 
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
     // DEPRECATED -- this field is unused.
     SkFilterQuality getFilterQuality() const {
         return (SkFilterQuality)fBitfields.fFilterQuality;
     }
 
-#ifndef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-private:
-#endif
     // DEPRECATED -- this field is unused.
-    void setFilterQuality(SkFilterQuality);
-#ifndef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-public:
+    void setFilterQuality(SkFilterQuality fq) {
+        fBitfields.fFilterQuality = fq;
+    }
 #endif
 
     /** \enum SkPaint::Style
