@@ -263,12 +263,6 @@ public:
     static sk_sp<SkImageFilter> MatrixTransform(const SkMatrix& matrix,
                                                 const SkSamplingOptions& sampling,
                                                 sk_sp<SkImageFilter> input);
-#ifdef SK_SUPPORT_LEGACY_MATRIX_IMAGEFILTER
-    // DEPRECATED
-    static sk_sp<SkImageFilter> MatrixTransform(const SkMatrix& matrix,
-                                                SkFilterQuality filterQuality,
-                                                sk_sp<SkImageFilter> input);
-#endif
 
     /**
      *  Create a filter that merges the 'count' filters together by drawing their results in order
