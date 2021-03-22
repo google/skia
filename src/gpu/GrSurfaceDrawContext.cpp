@@ -327,7 +327,8 @@ GrMipmapped GrSurfaceDrawContext::mipmapped() const {
 
 void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
                                                    const SkMatrixProvider& viewMatrix,
-                                                   const SkGlyphRunList& glyphRunList) {
+                                                   const SkGlyphRunList& glyphRunList,
+                                                   const SkPaint& paint) {
     GrSDFTControl control =
             fContext->priv().getSDFTControl(fSurfaceProps.isUseDeviceIndependentFonts());
     const SkPoint drawOrigin = glyphRunList.origin();
@@ -336,12 +337,12 @@ void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
     GrSubRunAllocator* const alloc = this->recordingContext()->priv().recordTimeSubRunAllocator();
 
     for (auto& glyphRun : glyphRunList) {
-        GrSubRunNoCachePainter painter{this, alloc, clip, viewMatrix, glyphRunList};
+        GrSubRunNoCachePainter painter{this, alloc, clip, viewMatrix, glyphRunList, paint};
 
         // Make and add the text ops.
         fGlyphPainter.processGlyphRun(glyphRun,
                                       drawMatrix,
-                                      glyphRunList.paint(),
+                                      paint,
                                       control,
                                       &painter);
     }
@@ -349,7 +350,8 @@ void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
 
 void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
                                                      const SkMatrixProvider& viewMatrix,
-                                                     const SkGlyphRunList& glyphRunList) {
+                                                     const SkGlyphRunList& glyphRunList,
+                                                     const SkPaint& paint) {
     SkMatrix drawMatrix(viewMatrix.localToDevice());
     drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
@@ -358,6 +360,7 @@ void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
                     this->surfaceProps().isUseDeviceIndependentFonts());
 
     auto [canCache, key] = GrTextBlob::Key::Make(glyphRunList,
+                                                 paint,
                                                  fSurfaceProps,
                                                  this->colorInfo(),
                                                  drawMatrix,
@@ -369,7 +372,7 @@ void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
         blob = textBlobCache->find(key);
     }
 
-    if (blob == nullptr || !blob->canReuse(glyphRunList.paint(), drawMatrix)) {
+    if (blob == nullptr || !blob->canReuse(paint, drawMatrix)) {
         if (blob != nullptr) {
             SkASSERT(!drawMatrix.hasPerspective());
             // We have to remake the blob because changes may invalidate our masks.
@@ -378,7 +381,7 @@ void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
             textBlobCache->remove(blob.get());
         }
 
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix, control, &fGlyphPainter);
+        blob = GrTextBlob::Make(glyphRunList, paint, drawMatrix, control, &fGlyphPainter);
 
         if (canCache) {
             blob->addKey(key);
@@ -389,7 +392,7 @@ void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
     }
 
     for (const GrSubRun& subRun : blob->subRunList()) {
-        subRun.draw(clip, viewMatrix, glyphRunList, this);
+        subRun.draw(clip, viewMatrix, glyphRunList, paint, this);
     }
 }
 
@@ -397,7 +400,8 @@ void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
 bool gGrDrawTextNoCache = false;
 void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
                                             const SkMatrixProvider& viewMatrix,
-                                            const SkGlyphRunList& glyphRunList) {
+                                            const SkGlyphRunList& glyphRunList,
+                                            const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -412,9 +416,9 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
 
     if (gGrDrawTextNoCache) {
         // drawGlyphRunListNoCache lives in GrTextBlob.cpp to share sub run implementation code.
-        this->drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList);
+        this->drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList, paint);
     } else {
-        this->drawGlyphRunListWithCache(clip, viewMatrix, glyphRunList);
+        this->drawGlyphRunListWithCache(clip, viewMatrix, glyphRunList, paint);
     }
 }
 

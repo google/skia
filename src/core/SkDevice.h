@@ -277,7 +277,8 @@ protected:
     virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
-    virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList) = 0;
+    virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) = 0;
+
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
@@ -528,7 +529,7 @@ protected:
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
     void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
 
     void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,

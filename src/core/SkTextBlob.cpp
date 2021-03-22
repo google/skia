@@ -930,7 +930,7 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
     }
 
     SkGlyphRunBuilder builder;
-    builder.textBlobToGlyphRunListIgnoringRSXForm(*paint, *this, SkPoint{0, 0});
+    builder.textBlobToGlyphRunListIgnoringRSXForm(*this, SkPoint{0, 0});
     auto glyphRunList = builder.useGlyphRunList();
 
     int intervalCount = 0;

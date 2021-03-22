@@ -2284,6 +2284,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     }
 
     AutoLayerForImageFilter layer(this, paint, &bounds);
+    // We can't hoist building the glyph run list because some of the text blob runs may be RSXform.
     fScratchGlyphRunBuilder->drawTextBlob(layer.paint(), *blob, {x, y}, this->topDevice());
 }
 
