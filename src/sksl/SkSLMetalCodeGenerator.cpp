@@ -216,7 +216,8 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     AutoOutputStream outputToExtraFunctions(this, &fExtraFunctions, &fIndentation);
     const FunctionDeclaration& function = call.function();
 
-    String name = "_skOutParamHelper" + to_string(fSwizzleHelperCount++) + "_" + function.name();
+    String name = "_skOutParamHelper" + to_string(fSwizzleHelperCount++) +
+                  "_" + function.mangledName();
     const char* separator = "";
 
     // Emit a prototype for the function we'll be calling through to in our helper.
@@ -299,7 +300,7 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         this->write(" _skResult = ");
     }
 
-    this->writeName(function.name());
+    this->writeName(function.mangledName());
     this->write("(");
     separator = "";
     this->writeFunctionRequirementArgs(function, separator);
@@ -384,7 +385,7 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // array indices.)
         this->write(getOutParamHelper(c, arguments, outVars));
     } else {
-        this->write(function.name());
+        this->write(function.mangledName());
     }
 
     this->write("(");
@@ -1528,7 +1529,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
     } else {
         this->writeType(f.returnType());
         this->write(" ");
-        this->writeName(f.name());
+        this->writeName(f.mangledName());
         this->write("(");
         this->writeFunctionRequirementParams(f, separator);
     }
