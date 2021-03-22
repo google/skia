@@ -12,7 +12,6 @@
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrSamplePatternDictionary.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 
@@ -23,8 +22,8 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                GrAttachment* stencil)
         : INHERITED(gpu, dimensions, isProtected)
         , fStencilAttachment(stencil)
-        , fSampleCnt(sampleCount)
-        , fSamplePatternKey(GrSamplePatternDictionary::kInvalidSamplePatternKey) {}
+        , fSampleCnt(sampleCount) {
+}
 
 GrRenderTarget::~GrRenderTarget() = default;
 
@@ -42,13 +41,7 @@ void GrRenderTarget::onAbandon() {
 
 void GrRenderTarget::attachStencilAttachment(sk_sp<GrAttachment> stencil) {
 #ifdef SK_DEBUG
-    if (fSampleCnt == 1) {
-        // TODO: We don't expect a mixed sampled render target to ever change its stencil buffer
-        // right now. But if it does swap in a stencil buffer with a different number of samples,
-        // and if we have a valid fSamplePatternKey, we will need to invalidate fSamplePatternKey
-        // here and add tests to make sure we it properly.
-        SkASSERT(GrSamplePatternDictionary::kInvalidSamplePatternKey == fSamplePatternKey);
-    } else {
+    if (fSampleCnt > 1) {
         // Render targets with >1 color sample should never use mixed samples. (This would lead to
         // different sample patterns, depending on stencil state.)
         SkASSERT(!stencil || stencil->numSamples() == fSampleCnt);
@@ -72,27 +65,3 @@ int GrRenderTarget::numStencilBits() const {
     return GrBackendFormatStencilBits(this->getStencilAttachment()->backendFormat());
 }
 
-int GrRenderTarget::getSamplePatternKey() {
-#ifdef SK_DEBUG
-    if (fSampleCnt <= 1) {
-        // If the color buffer is not multisampled, the sample pattern better come from the stencil
-        // buffer (mixed samples).
-        SkASSERT(fStencilAttachment && fStencilAttachment->numSamples() > 1);
-    } else {
-        // The color sample count and stencil count cannot both be unequal and both greater than
-        // one. If this were the case, there would be more than one sample pattern associated with
-        // the render target.
-        SkASSERT(!fStencilAttachment || fStencilAttachment->numSamples() == fSampleCnt);
-    }
-#endif
-    if (GrSamplePatternDictionary::kInvalidSamplePatternKey == fSamplePatternKey) {
-        fSamplePatternKey = this->getGpu()->findOrAssignSamplePatternKey(this);
-    }
-    SkASSERT(fSamplePatternKey != GrSamplePatternDictionary::kInvalidSamplePatternKey);
-    return fSamplePatternKey;
-}
-
-const SkTArray<SkPoint>& GrRenderTarget::getSampleLocations() {
-    int samplePatternKey = this->getSamplePatternKey();
-    return this->getGpu()->retrieveSampleLocations(samplePatternKey);
-}
