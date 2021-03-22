@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb776f8a_adaf1a00",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-22T17:21:42Z",
+      "side": 1,
+      "message": "Unlike all other FPs, GrSkSLFP adds children after the constructor. So we adopt the pattern of setting ConstantOutputForConstantInput in the constructor, then restricting the flags based on children, as they\u0027re added.",
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
