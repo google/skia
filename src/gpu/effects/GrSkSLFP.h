@@ -50,6 +50,8 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
+
     ShaderErrorHandler*       fShaderErrorHandler;
 
     sk_sp<SkRuntimeEffect> fEffect;

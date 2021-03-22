@@ -383,6 +383,11 @@ protected:
         fFlags |= kUsesSampleCoordsDirectly_Flag;
     }
 
+    void mergeOptimizationFlags(OptimizationFlags flags) {
+        SkASSERT((flags & ~kAll_OptimizationFlags) == 0);
+        fFlags &= (flags | ~kAll_OptimizationFlags);
+    }
+
 private:
     virtual SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& /* inputColor */) const {
         SK_ABORT("Subclass must override this if advertising this optimization.");

@@ -9,6 +9,7 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/GrContext_Base.h"
+#include "src/core/SkVM.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrTexture.h"
@@ -173,9 +174,13 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntim
                                                   std::move(effect), name, std::move(uniforms)));
 }
 
-GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler, sk_sp<SkRuntimeEffect> effect,
-                   const char* name, sk_sp<SkData> uniforms)
-        : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
+GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler,
+                   sk_sp<SkRuntimeEffect> effect,
+                   const char* name,
+                   sk_sp<SkData> uniforms)
+        : INHERITED(kGrSkSLFP_ClassID,
+                    effect->fAllowColorFilter ? kConstantOutputForConstantInput_OptimizationFlag
+                                              : kNone_OptimizationFlags)
         , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
@@ -186,7 +191,7 @@ GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler, sk_sp<SkRuntimeEffect
 }
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
-        : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
+        : INHERITED(kGrSkSLFP_ClassID, other.optimizationFlags())
         , fShaderErrorHandler(other.fShaderErrorHandler)
         , fEffect(other.fEffect)
         , fName(other.fName)
@@ -205,6 +210,7 @@ const char* GrSkSLFP::name() const {
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
     int childIndex = this->numChildProcessors();
     SkASSERT((size_t)childIndex < fEffect->fSampleUsages.size());
+    this->mergeOptimizationFlags(ProcessorOptimizationFlags(child.get()));
     this->registerChild(std::move(child), fEffect->fSampleUsages[childIndex]);
 }
 
@@ -227,6 +233,20 @@ bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(*this));
+}
+
+SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputColor) const {
+    const skvm::Program* program = fEffect->getFilterColorProgram();
+    SkASSERT(program);
+
+    SkSTArray<2, SkPMColor4f, true> childColors;
+    for (int i = 0; i < this->numChildProcessors(); ++i) {
+        childColors.push_back(ConstantOutputForConstantInput(this->childProcessor(i), inputColor));
+    }
+
+    SkPMColor4f result;
+    program->eval(1, childColors.begin(), fUniforms->data(), result.vec());
+    return result;
 }
 
 /**************************************************************************************************/
