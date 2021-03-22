@@ -82,9 +82,9 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     fStencil = programInfo.nonGLStencilSettings();
 }
 
-void GrMtlPipelineState::setTextures(const GrPrimitiveProcessor& primProc,
+void GrMtlPipelineState::setTextures(const GrGeometryProcessor& geomProc,
                                      const GrPipeline& pipeline,
-                                     const GrSurfaceProxy* const primProcTextures[]) {
+                                     const GrSurfaceProxy* const geomProcTextures[]) {
     fSamplerBindings.reset();
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         SkASSERT(primProcTextures[i]->asTextureProxy());

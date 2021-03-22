@@ -11,7 +11,6 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrNativeRect.h"
-#include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
 
 class GrSurface;

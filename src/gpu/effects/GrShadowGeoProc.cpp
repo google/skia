@@ -19,7 +19,7 @@ public:
     GrGLSLRRectShadowGeoProc() {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const GrRRectShadowGeoProc& rsgp = args.fGP.cast<GrRRectShadowGeoProc>();
+        const GrRRectShadowGeoProc& rsgp = args.fGeomProc.cast<GrRRectShadowGeoProc>();
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -45,8 +45,7 @@ public:
         fragBuilder->codeAppendf("half4 %s = half4(factor);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
-    }
+    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override {}
 
 private:
     using INHERITED = GrGLSLGeometryProcessor;

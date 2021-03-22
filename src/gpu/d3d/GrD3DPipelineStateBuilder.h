@@ -23,12 +23,12 @@ class GrD3DPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
     /** Generates a pipeline state.
      *
-     * The GrD3DPipelineState implements what is specified in the GrPipeline and
-     * GrPrimitiveProcessor as input. After successful generation, the builder result objects are
-     * available to be used.
+     * The returned GrD3DPipelineState implements the supplied GrProgramInfo.
+     *
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
-    static sk_sp<GrD3DPipelineState> MakePipelineState(GrD3DGpu*, GrRenderTarget*,
+    static sk_sp<GrD3DPipelineState> MakePipelineState(GrD3DGpu*,
+                                                       GrRenderTarget*,
                                                        const GrProgramDesc&,
                                                        const GrProgramInfo&);
 
