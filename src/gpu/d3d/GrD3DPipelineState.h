@@ -55,9 +55,10 @@ public:
 
     void setAndBindConstants(GrD3DGpu*, const GrRenderTarget*, const GrProgramInfo&);
 
-    void setAndBindTextures(GrD3DGpu*, const GrPrimitiveProcessor& primProc,
-                            const GrSurfaceProxy* const primProcTextures[],
-                            const GrPipeline& pipeline);
+    void setAndBindTextures(GrD3DGpu*,
+                            const GrGeometryProcessor&,
+                            const GrSurfaceProxy* const geomProcTextures[],
+                            const GrPipeline&);
 
     void bindBuffers(GrD3DGpu*, sk_sp<const GrBuffer> indexBuffer,
                      sk_sp<const GrBuffer> instanceBuffer, sk_sp<const GrBuffer> vertexBuffer,

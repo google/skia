@@ -219,14 +219,14 @@ void update_resource_state(GrTexture* tex, GrRenderTarget* rt, GrD3DGpu* gpu) {
     d3dTex->setResourceState(gpu, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-bool GrD3DOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
-                                        const GrSurfaceProxy* const primProcTextures[],
+bool GrD3DOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,
+                                        const GrSurfaceProxy* const geomProcTextures[],
                                         const GrPipeline& pipeline) {
     SkASSERT(fCurrentPipelineState);
 
     // update textures to sampled resource state
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        update_resource_state(primProcTextures[i]->peekTexture(), fRenderTarget, fGpu);
+    for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
+        update_resource_state(geomProcTextures[i]->peekTexture(), fRenderTarget, fGpu);
     }
 
     pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
@@ -238,7 +238,7 @@ bool GrD3DOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     }
 
     // TODO: possibly check for success once we start binding properly
-    fCurrentPipelineState->setAndBindTextures(fGpu, primProc, primProcTextures, pipeline);
+    fCurrentPipelineState->setAndBindTextures(fGpu, geomProc, geomProcTextures, pipeline);
 
     return true;
 }

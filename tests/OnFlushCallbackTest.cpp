@@ -138,7 +138,7 @@ private:
             }
         }
 
-        size_t vertexStride =  fProgramInfo->primProc().vertexStride();
+        size_t vertexStride =  fProgramInfo->geomProc().vertexStride();
 
         sk_sp<const GrBuffer> indexBuffer;
         int firstIndex;
@@ -195,7 +195,7 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
 
