@@ -2,7 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-bool test_half() {
+bool test_half_b() {
     mat2x3 m23 = mat2x3(23.0);
     mat2x4 m24 = mat2x4(24.0);
     mat3x2 m32 = mat3x2(32.0);
@@ -30,5 +30,5 @@ vec4 main() {
     _7_m33 *= _7_m33;
     mat4 _8_m44 = _1_m24 * _4_m42;
     _8_m44 *= _8_m44;
-    return true && test_half() ? colorGreen : colorRed;
+    return true && test_half_b() ? colorGreen : colorRed;
 }
