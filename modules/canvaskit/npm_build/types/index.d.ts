@@ -1060,6 +1060,38 @@ export interface Canvas extends EmbindObject<Canvas> {
               blendMode?: BlendMode, colors?: ColorIntArray): void;
 
     /**
+     * Draws a set of sprites from atlas, using clip, Matrix, and optional Paint paint.
+     * @param atlas - Image containing sprites
+     * @param srcRects - Rect locations of sprites in atlas
+     * @param dstXforms - RSXform mappings for sprites in atlas
+     * @param paint
+     * @param filter - FilterMode when sampling atlas image
+     * @param mipmap - MipmapMode when sampling atlas image
+     * @param blendMode - BlendMode combining colors and sprites
+     * @param colors - If provided, will be blended with sprite using blendMode.
+     */
+    drawAtlasOptions(atlas: Image, srcRects: InputFlattenedRectangleArray,
+                     dstXforms: InputFlattenedRSXFormArray, paint: Paint,
+                     filter: FilterMode, mipmap: MipmapMode,
+                     blendMode?: BlendMode, colors?: ColorIntArray): void;
+
+    /**
+     * Draws a set of sprites from atlas, using clip, Matrix, and optional Paint paint.
+     * @param atlas - Image containing sprites
+     * @param srcRects - Rect locations of sprites in atlas
+     * @param dstXforms - RSXform mappings for sprites in atlas
+     * @param paint
+     * @param B - first cubic resampler coefficient
+     * @param C - second cubic resampler coefficient
+     * @param blendMode - BlendMode combining colors and sprites
+     * @param colors - If provided, will be blended with sprite using blendMode.
+     */
+    drawAtlasCubic(atlas: Image, srcRects: InputFlattenedRectangleArray,
+                   dstXforms: InputFlattenedRSXFormArray, paint: Paint,
+                   B: number, C: number,
+                   blendMode?: BlendMode, colors?: ColorIntArray): void;
+
+    /**
      * Draws a circle at (cx, cy) with the given radius.
      * @param cx
      * @param cy
