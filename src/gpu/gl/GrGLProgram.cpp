@@ -29,7 +29,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
         GrGLuint programID,
         const UniformInfoArray& uniforms,
         const UniformInfoArray& textureSamplers,
-        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+        std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
         std::unique_ptr<Attribute[]> attributes,
@@ -61,7 +61,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
                          const UniformInfoArray& textureSamplers,
-                         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                         std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
                          std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                          std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
                          std::unique_ptr<Attribute[]> attributes,
@@ -71,7 +71,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          int instanceStride)
         : fBuiltinUniformHandles(builtinUniforms)
         , fProgramID(programID)
-        , fPrimitiveProcessor(std::move(geometryProcessor))
+        , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
         , fFPImpls(std::move(fpImpls))
         , fAttributes(std::move(attributes))
@@ -106,7 +106,7 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     // We must bind to texture units in the same order in which we set the uniforms in
     // GrGLProgramDataManager. That is, we bind textures for processors in this order:
     // primProc, fragProcs, XP.
-    fPrimitiveProcessor->setData(fProgramDataManager, programInfo.geomProc());
+    fGeometryProcessor->setData(fProgramDataManager, programInfo.geomProc());
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& fp = programInfo.pipeline().getFragmentProcessor(i);

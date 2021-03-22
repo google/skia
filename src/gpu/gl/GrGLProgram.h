@@ -16,7 +16,7 @@
 #include <vector>
 
 class GrGLSLFragmentProcessor;
-class GrGLSLPrimitiveProcessor;
+class GrGLSLGeometryProcessor;
 class GrGLSLXferProcessor;
 class GrPipeline;
 class GrGeometryProcessor;
@@ -55,7 +55,7 @@ public:
                                    GrGLuint programID,
                                    const UniformInfoArray& uniforms,
                                    const UniformInfoArray& textureSamplers,
-                                   std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                                   std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
                                    std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                                    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fps,
                                    std::unique_ptr<Attribute[]>,
@@ -120,7 +120,7 @@ public:
     void updateUniforms(const GrRenderTarget*, const GrProgramInfo&);
 
     /**
-     * Binds all primitive processor and fragment processor textures.
+     * Binds all geometry processor and fragment processor textures.
      */
     void bindTextures(const GrGeometryProcessor&,
                       const GrSurfaceProxy* const geomProcTextures[],
@@ -147,7 +147,7 @@ private:
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& textureSamplers,
-                std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
                 std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                 std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
                 std::unique_ptr<Attribute[]>,
@@ -165,7 +165,7 @@ private:
     GrGLuint fProgramID;
 
     // the installed effects
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fPrimitiveProcessor;
+    std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
 

@@ -23,7 +23,7 @@ public:
     }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     static const GrPipeline* MakeFillPassPipeline(const GrPathShader::ProgramArgs& args,
                                                   GrAAType aaType, GrAppliedClip&& appliedClip,

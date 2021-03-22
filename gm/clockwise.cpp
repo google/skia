@@ -43,7 +43,6 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
-#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
@@ -88,7 +87,7 @@ public:
         b->add32(fReadSkFragCoord);
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     bool readSkFragCoord() const { return fReadSkFragCoord; }
 
@@ -124,8 +123,7 @@ class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
     }
 };
 
-GrGLSLPrimitiveProcessor* ClockwiseTestProcessor::createGLSLInstance(
-        const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* ClockwiseTestProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new GLSLClockwiseTestProcessor;
 }
 

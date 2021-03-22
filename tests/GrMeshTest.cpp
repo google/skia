@@ -462,7 +462,7 @@ public:
         b->add32(fVertexPosition.isInitialized());
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
     friend class GLSLMeshTestProcessor;
@@ -523,7 +523,7 @@ class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
     }
 };
 
-GrGLSLPrimitiveProcessor* GrMeshTestProcessor::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrMeshTestProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new GLSLMeshTestProcessor;
 }
 
