@@ -799,28 +799,9 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkRuntimeEffect::makeFP(
-        GrRecordingContext* recordingContext,
-        sk_sp<SkData> uniforms,
-        std::unique_ptr<GrFragmentProcessor> children[],
-        size_t childCount) const {
-    if (!uniforms) {
-        uniforms = SkData::MakeEmpty();
-    }
-    auto fp = GrSkSLFP::Make(recordingContext, sk_ref_sp(this), "make_fp", std::move(uniforms));
-    for (size_t i = 0; i < childCount; ++i) {
-        fp->addChild(std::move(children[i]));
-    }
-    return std::move(fp);
-}
-#endif
-
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
-                                            sk_sp<SkShader> children[],
-                                            size_t childCount,
-                                            const SkMatrix* localMatrix,
-                                            bool isOpaque) const {
+                                            sk_sp<SkShader> children[], size_t childCount,
+                                            const SkMatrix* localMatrix, bool isOpaque) {
     if (!uniforms) {
         uniforms = SkData::MakeEmpty();
     }
@@ -836,7 +817,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
                                           size_t childCount,
                                           const SkMatrix* localMatrix,
                                           SkImageInfo resultInfo,
-                                          bool mipmapped) const {
+                                          bool mipmapped) {
     if (recordingContext) {
 #if SK_SUPPORT_GPU
         if (!recordingContext->priv().caps()->mipmapSupport()) {
@@ -916,7 +897,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
                                                       sk_sp<SkColorFilter> children[],
-                                                      size_t childCount) const {
+                                                      size_t childCount) {
     if (!fAllowColorFilter) {
         return nullptr;
     }
@@ -929,7 +910,7 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
         : nullptr;
 }
 
-sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms) const {
+sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms) {
     return this->makeColorFilter(std::move(uniforms), nullptr, 0);
 }
 
@@ -941,27 +922,42 @@ void SkRuntimeEffect::RegisterFlattenables() {
 }
 
 SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
-        : INHERITED(std::move(effect)) {}
+    : fEffect(std::move(effect))
+    , fUniforms(SkData::MakeUninitialized(fEffect->uniformSize()))
+    , fChildren(fEffect->children().count()) {}
 
 SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
+
+void* SkRuntimeShaderBuilder::writableUniformData() {
+    if (!fUniforms->unique()) {
+        fUniforms = SkData::MakeWithCopy(fUniforms->data(), fUniforms->size());
+    }
+    return fUniforms->writable_data();
+}
+
+sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
+    return fEffect->makeShader(fUniforms, fChildren.data(), fChildren.size(), localMatrix, isOpaque);
+}
 
 sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingContext,
                                                  const SkMatrix* localMatrix,
                                                  SkImageInfo resultInfo,
                                                  bool mipmapped) {
-    return this->effect()->makeImage(recordingContext,
-                                     this->uniforms(),
-                                     this->children(),
-                                     this->numChildren(),
-                                     localMatrix,
-                                     resultInfo,
-                                     mipmapped);
+    return fEffect->makeImage(recordingContext,
+                              fUniforms,
+                              fChildren.data(),
+                              fChildren.size(),
+                              localMatrix,
+                              resultInfo,
+                              mipmapped);
 }
 
-sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
-    return this->effect()->makeShader(this->uniforms(),
-                                      this->children(),
-                                      this->numChildren(),
-                                      localMatrix,
-                                      isOpaque);
+SkRuntimeShaderBuilder::BuilderChild&
+SkRuntimeShaderBuilder::BuilderChild::operator=(const sk_sp<SkShader>& val) {
+    if (fIndex < 0) {
+        SkDEBUGFAIL("Assigning to missing child");
+    } else {
+        fOwner->fChildren[fIndex] = val;
+    }
+    return *this;
 }
