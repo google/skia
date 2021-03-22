@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f92f8ea_8a36fb7c",
+        "filename": "tests/sksl/intrinsics/CrossNoInline.asm.frag",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-22T16:07:09Z",
+      "side": 0,
+      "message": "(I don\u0027t see any validator warnings, and the disassembler is actually smart enough to assign unique names to each ID here.)",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 23
+      },
+      "revId": "ea83c7ffa8b563e7af78b7704f450c7fb054b216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
