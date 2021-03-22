@@ -47,12 +47,15 @@ def GrabDependentValues(js, name, value_type, list_to_extend, exclude):
 def CleanupCFlags(cflags):
   # Only use the generated flags related to warnings.
   cflags = {s for s in cflags if s.startswith('-W')}
-  # Add additional warning suppressions so we can build
-  # third_party/vulkanmemoryallocator
+  # Add additional warning suppressions
+  # Some for third_party/vulkanmemoryallocator
+  # Some for Android's '-Wall -Werror'
   cflags = cflags.union([
     "-Wno-implicit-fallthrough",
     "-Wno-missing-field-initializers",
+    "-Wno-sign-conversion",
     "-Wno-thread-safety-analysis",
+    "-Wno-unused-parameter",
     "-Wno-unused-variable",
   ])
   # Add the rest of the flags we want.
