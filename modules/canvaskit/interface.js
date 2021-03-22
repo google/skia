@@ -479,7 +479,8 @@ CanvasKit.onRuntimeInitialized = function() {
   // a Flat Float32Array of float colors or a 2d Array of Float32Array(4) (deprecated)
   // TODO(kjlubick) remove Builders - no longer needed now that Malloc is a thing.
   CanvasKit.Canvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
-                                       /*optional*/ blendMode, colors) {
+                                       /* optional */ blendMode, /* optional */ colors,
+                                       /* optional */ sampling) {
     if (!atlas || !paint || !srcRects || !dstXforms) {
       Debug('Doing nothing since missing a required input');
       return;
@@ -523,7 +524,23 @@ CanvasKit.onRuntimeInitialized = function() {
       }
     }
 
-    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, count, blendMode, paint);
+    if (sampling) {
+        if (sampling.B && sampling.C) {
+            this._drawAtlasCubic(atlas, dstXformPtr, srcRectPtr, colorPtr, count,
+                                 sampling.B, sampling.C, blendMode, paint);
+            sampling = null;
+        } else if (sampling.filter && sampling.mipmap) {
+            this._drawAtlasOptions(atlas, dstXformPtr, srcRectPtr, colorPtr, count,
+                                   sampling.filter, sampling.mipmap, blendMode, paint);
+            sampling = null;
+        } else {
+            Debug('Incomplete SamplingOptions');
+        }
+    }
+    if (!sampling) {
+        // Deprecated
+        this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, count, blendMode, paint);
+    }
 
     if (srcRectPtr && !srcRects.build) {
       freeArraysThatAreNotMallocedByUsers(srcRectPtr, srcRects);

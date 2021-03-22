@@ -839,7 +839,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawArc(*oval, startAngle, sweepAngle, useCenter, paint);
         }))
         // _drawAtlas takes an array of SkColor. There is no SkColor4f override.
-        // TODO: take sampling as an explicit parameter from the caller
+        // Deprecated, use ..Options or ..Cubic
         .function("_drawAtlas", optional_override([](SkCanvas& self,
                 const sk_sp<SkImage>& atlas, uintptr_t /* SkRSXform* */ xptr,
                 uintptr_t /* SkRect* */ rptr, uintptr_t /* SkColor* */ cptr, int count,
@@ -851,6 +851,35 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 colors = reinterpret_cast<const SkColor*>(cptr);
             }
             SkSamplingOptions sampling(SkFilterMode::kLinear);
+            self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
+                           nullptr, paint);
+        }), allow_raw_pointers())
+        .function("_drawAtlasOptions", optional_override([](SkCanvas& self,
+                const sk_sp<SkImage>& atlas, uintptr_t /* SkRSXform* */ xptr,
+                uintptr_t /* SkRect* */ rptr, uintptr_t /* SkColor* */ cptr, int count,
+                SkBlendMode mode, SkFilterMode filter, SkMipmapMode mipmap,
+                const SkPaint* paint)->void {
+            const SkRSXform* dstXforms = reinterpret_cast<const SkRSXform*>(xptr);
+            const SkRect* srcRects = reinterpret_cast<const SkRect*>(rptr);
+            const SkColor* colors = nullptr;
+            if (cptr) {
+                colors = reinterpret_cast<const SkColor*>(cptr);
+            }
+            SkSamplingOptions sampling(filter, mipmap);
+            self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
+                           nullptr, paint);
+        }), allow_raw_pointers())
+        .function("_drawAtlasCubic", optional_override([](SkCanvas& self,
+                const sk_sp<SkImage>& atlas, uintptr_t /* SkRSXform* */ xptr,
+                uintptr_t /* SkRect* */ rptr, uintptr_t /* SkColor* */ cptr, int count,
+                SkBlendMode mode, float B, float C, const SkPaint* paint)->void {
+            const SkRSXform* dstXforms = reinterpret_cast<const SkRSXform*>(xptr);
+            const SkRect* srcRects = reinterpret_cast<const SkRect*>(rptr);
+            const SkColor* colors = nullptr;
+            if (cptr) {
+                colors = reinterpret_cast<const SkColor*>(cptr);
+            }
+            SkSamplingOptions sampling({B, C});
             self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
                            nullptr, paint);
         }), allow_raw_pointers())
