@@ -1950,7 +1950,7 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
 
     GrThreadSafePipelineBuilder::Stats::ProgramCacheResult stat;
 
-    auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineState(
+    auto pipelineState = this->resourceProvider().findOrCreateCompatiblePipelineStatePre(
                                     desc,
                                     programInfo,
                                     renderPass->vkRenderPass(),

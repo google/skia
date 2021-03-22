@@ -370,7 +370,6 @@ private:
         struct Entry;
 
         sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
-                                               GrRenderTarget*,
                                                const GrProgramDesc&,
                                                const GrProgramInfo&,
                                                Stats::ProgramCacheResult*);

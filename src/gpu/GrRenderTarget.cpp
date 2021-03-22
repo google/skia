@@ -22,8 +22,7 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                GrAttachment* stencil)
         : INHERITED(gpu, dimensions, isProtected)
         , fStencilAttachment(stencil)
-        , fSampleCnt(sampleCount) {
-}
+        , fSampleCnt(sampleCount) {}
 
 GrRenderTarget::~GrRenderTarget() = default;
 
@@ -64,4 +63,3 @@ int GrRenderTarget::numStencilBits() const {
     SkASSERT(this->getStencilAttachment());
     return GrBackendFormatStencilBits(this->getStencilAttachment()->backendFormat());
 }
-

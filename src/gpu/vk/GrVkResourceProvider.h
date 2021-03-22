@@ -138,13 +138,12 @@ public:
     GrVkSamplerYcbcrConversion* findOrCreateCompatibleSamplerYcbcrConversion(
             const GrVkYcbcrConversionInfo& ycbcrInfo);
 
-    GrVkPipelineState* findOrCreateCompatiblePipelineState(
-            GrRenderTarget*,
+    GrVkPipelineState* findOrCreateCompatiblePipelineStateInline(
             const GrProgramInfo&,
             VkRenderPass compatibleRenderPass,
             bool overrideSubpassForResolveLoad);
 
-    GrVkPipelineState* findOrCreateCompatiblePipelineState(
+    GrVkPipelineState* findOrCreateCompatiblePipelineStatePre(
             const GrProgramDesc&,
             const GrProgramInfo&,
             VkRenderPass compatibleRenderPass,
@@ -225,23 +224,21 @@ private:
         ~PipelineStateCache() override;
 
         void release();
-        GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
-                                                     const GrProgramInfo&,
-                                                     VkRenderPass compatibleRenderPass,
-                                                     bool overrideSubpassForResolveLoad);
-        GrVkPipelineState* findOrCreatePipelineState(const GrProgramDesc& desc,
-                                                     const GrProgramInfo& programInfo,
-                                                     VkRenderPass compatibleRenderPass,
-                                                     Stats::ProgramCacheResult* stat) {
-            return this->findOrCreatePipelineState(nullptr, desc, programInfo,
+        GrVkPipelineState* findOrCreatePipelineStateInline(const GrProgramInfo&,
+                                                           VkRenderPass compatibleRenderPass,
+                                                           bool overrideSubpassForResolveLoad);
+        GrVkPipelineState* findOrCreatePipelineStatePre(const GrProgramDesc& desc,
+                                                        const GrProgramInfo& programInfo,
+                                                        VkRenderPass compatibleRenderPass,
+                                                        Stats::ProgramCacheResult* stat) {
+            return this->findOrCreatePipelineState(desc, programInfo,
                                                    compatibleRenderPass, false, stat);
         }
 
     private:
         struct Entry;
 
-        GrVkPipelineState* findOrCreatePipelineState(GrRenderTarget*,
-                                                     const GrProgramDesc&,
+        GrVkPipelineState* findOrCreatePipelineState(const GrProgramDesc&,
                                                      const GrProgramInfo&,
                                                      VkRenderPass compatibleRenderPass,
                                                      bool overrideSubpassForResolveLoad,
