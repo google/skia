@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b29d6360_b3337dd0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-22T15:40:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f33b4fb9_e1c95774",
+      "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "102422d4_29b40dd6",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -31,6 +49,24 @@
       "writtenOn": "2021-03-18T21:24:32Z",
       "side": 1,
       "message": "Can we also delete:\n\nGrCaps::sampleLocationsSupport\nGrShaderCaps::sampleMaskSupport\nGrShaderCaps::canOnlyUseSampleMaskWithStencil",
+      "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33278f73_5cc781b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-22T15:40:31Z",
+      "side": 1,
+      "message": "The first two are still held onto by CCPR. The third has been deleted.",
+      "parentUuid": "102422d4_29b40dd6",
       "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -48,6 +84,24 @@
       "writtenOn": "2021-03-19T12:31:08Z",
       "side": 1,
       "message": "I think this is unused now, too? (And it\u0027s the only code that references sk_SampleMask, so I\u0027ll feel safe removing that from SkSL when it\u0027s gone.",
+      "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c564211_9a92d7b3",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-22T15:40:31Z",
+      "side": 1,
+      "message": "Done - removed!",
+      "parentUuid": "7d5d9d8e_a8212331",
       "revId": "b07bbc7eeaef0c46ee3b7e090c335986d917b638",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
