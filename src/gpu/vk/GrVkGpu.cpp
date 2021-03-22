@@ -1924,8 +1924,6 @@ void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
 }
 
 bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) {
-    SkASSERT(!(GrProcessor::CustomFeatures::kSampleLocations & programInfo.requestedFeatures()));
-
     GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
     GrVkRenderPass::AttachmentFlags attachmentFlags;
     GrVkRenderTarget::ReconstructAttachmentsDescriptor(this->vkCaps(), programInfo,
