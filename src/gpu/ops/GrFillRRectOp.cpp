@@ -35,6 +35,7 @@ public:
                             GrPaint&&,
                             const SkMatrix& viewMatrix,
                             const SkRRect&,
+                            const SkRect& localRect,
                             GrAA);
 
     const char* name() const final { return "GrFillRRectOp"; }
@@ -79,6 +80,7 @@ private:
                 const SkPMColor4f& paintColor,
                 const SkMatrix& totalShapeMatrix,
                 const SkRRect&,
+                const SkRect& localRect,
                 ProcessorFlags,
                 const SkRect& devBounds);
 
@@ -142,12 +144,19 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
                               GrPaint&& paint,
                               const SkMatrix& viewMatrix,
                               const SkRRect& rrect,
+                              const SkRect& localRect,
                               GrAA aa) {
     using Helper = GrSimpleMeshDrawOpHelper;
 
     const GrCaps* caps = ctx->priv().caps();
 
     if (!caps->drawInstancedSupport()) {
+        return nullptr;
+    }
+
+    // We transform into a normalized -1..+1 space to draw the round rect. If the boundaries are too
+    // large, the math can overflow. The caller can fall back on path rendering if this is the case.
+    if (std::max(rrect.height(), rrect.width()) >= 1e6f) {
         return nullptr;
     }
 
@@ -183,13 +192,15 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
     devBounds.outset(SkScalarAbs(m.getScaleX()) + SkScalarAbs(m.getSkewX()),
                      SkScalarAbs(m.getSkewY()) + SkScalarAbs(m.getScaleY()));
 
-    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), m, rrect, flags, devBounds);
+    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), m, rrect, localRect, flags,
+                                              devBounds);
 }
 
 FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                          const SkPMColor4f& paintColor,
                          const SkMatrix& totalShapeMatrix,
                          const SkRRect& rrect,
+                         const SkRect& localRect,
                          ProcessorFlags processorFlags,
                          const SkRect& devBounds)
         : INHERITED(ClassID())
@@ -198,7 +209,7 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                           ? GrAAType::kNone
                           : GrAAType::kCoverage)  // Use analytic AA even if the RT is MSAA.
         , fColor(paintColor)
-        , fLocalRect(rrect.rect())
+        , fLocalRect(localRect)
         , fProcessorFlags(processorFlags & ~(ProcessorFlags::kHasLocalCoords |
                                              ProcessorFlags::kWideColor |
                                              ProcessorFlags::kMSAAEnabled)) {
@@ -766,9 +777,11 @@ GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
                                 GrPaint&& paint,
                                 const SkMatrix& viewMatrix,
                                 const SkRRect& rrect,
+                                const SkRect& localRect,
                                 GrAA aa) {
-    return FillRRectOp::Make(ctx, std::move(paint), viewMatrix, rrect, aa);
+    return FillRRectOp::Make(ctx, std::move(paint), viewMatrix, rrect, localRect, aa);
 }
+
 
 #if GR_TEST_UTILS
 
@@ -790,6 +803,7 @@ GR_DRAW_OP_TEST_DEFINE(FillRRectOp) {
                                std::move(paint),
                                viewMatrix,
                                rrect,
+                               rrect.rect(),
                                aa);
 }
 
