@@ -1096,7 +1096,7 @@ GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget* rt,
                                   ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;
-    GrProgramDesc::Build(&desc, rt, programInfo, *this);
+    GrProgramDesc::Build(&desc, programInfo, *this);
 
     GrProcessorKeyBuilder b(desc.key());
 
