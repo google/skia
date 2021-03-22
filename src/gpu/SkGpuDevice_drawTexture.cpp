@@ -689,6 +689,44 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
                           SkCanvas::kStrict_SrcRectConstraint, sampler, kInvalidCubicResampler);
 }
 
+static std::tuple<GrSamplerState::Filter,
+                  GrSamplerState::MipmapMode,
+                  SkCubicResampler>
+interpret_sampling_options(SkISize imageDims,
+                           const SkSamplingOptions& sampling,
+                           const SkMatrix& viewM,
+                           const SkMatrix& localM,
+                           bool sharpenMipmappedTextures) {
+    using Filter = GrSamplerState::Filter;
+    using MipmapMode = GrSamplerState::MipmapMode;
+
+    if (sampling.useCubic) {
+        SkASSERT(GrValidCubicResampler(sampling.cubic));
+        return {Filter::kNearest, MipmapMode::kNone, sampling.cubic};
+    }
+
+    Filter     f = sampling.filter;
+    MipmapMode m = sampling.mipmap;
+    if (m != MipmapMode::kNone) {
+        SkMatrix matrix;
+        matrix.setConcat(viewM, localM);
+        // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until
+        // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
+        // 0.5?
+        //
+        // Want:  0       = log2(1/s) - 0.5
+        //        0.5     = log2(1/s)
+        //        2^0.5   = 1/s
+        //        1/2^0.5 = s
+        //        2^0.5/2 = s
+        SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
+        if (matrix.getMinScale() >= mipScale) {
+            m = MipmapMode::kNone;
+        }
+    }
+    return {f, m, kInvalidCubicResampler};
+}
+
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
                                 const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
                                 const SkMatrix* preViewMatrix, const SkSamplingOptions& sampling,
@@ -716,9 +754,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     const SkMatrix& ctm(matrixProvider.localToDevice());
 
     bool sharpenMM = fContext->priv().options().fSharpenMipmappedTextures;
-    auto [fm, mm, cubic] = GrInterpretSamplingOptions(image->dimensions(), sampling,
-                                                      ctm, srcToDst, sharpenMM,
-                                                      /*allowFilterQualityReduction=*/true);
+    auto [fm, mm, cubic] = interpret_sampling_options(image->dimensions(), sampling,
+                                                      ctm, srcToDst, sharpenMM);
 
     auto clip = this->clip();
 

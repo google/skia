@@ -151,23 +151,6 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
 ////////////////////////////////////////////////////////////////////////////////
 // Misc Sk to Gr type conversions
 
-/**
- * Determines how to interpret SkFilterQuality given draw params and canvas state. If the returned
- * bool is true then bicubic filtering should be used (and the two other return values can be
- * ignored).
- */
-std::tuple<GrSamplerState::Filter,
-           GrSamplerState::MipmapMode,
-           SkCubicResampler>
-GrInterpretSamplingOptions(SkISize imageDims,
-                           const SkSamplingOptions&,
-                           const SkMatrix& viewM,
-                           const SkMatrix& localM,
-                           bool sharpenMipmappedTextures,
-                           bool allowFilterQualityReduction);
-
-//////////////////////////////////////////////////////////////////////////////
-
 static_assert((int)kZero_GrBlendCoeff == (int)SkBlendModeCoeff::kZero);
 static_assert((int)kOne_GrBlendCoeff == (int)SkBlendModeCoeff::kOne);
 static_assert((int)kSC_GrBlendCoeff == (int)SkBlendModeCoeff::kSC);
