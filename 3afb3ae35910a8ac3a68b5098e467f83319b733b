@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e224799_7de21c76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-22T04:42:12Z",
+      "side": 1,
+      "message": "cc\u003dvmiura@\n\nVictor- this makes the idea we discussed possible where we draw *every* stroke with 64 segments. When I experimented with drawing the \"paths\" benchmark this way, the GPU itself rendered the whole scene in 1.5ms (as compared to .7ms with tessellation). Since the CPU takes 5.2ms, non-tessellation looks like it will still be 4.5x faster than the frame rate bottleneck.",
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b41d2120_718f9ca0",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-22T04:42:12Z",
+      "side": 1,
+      "message": "This was just moved upward from below.",
+      "range": {
+        "startLine": 1141,
+        "startChar": 0,
+        "endLine": 1148,
+        "endChar": 9
+      },
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
