@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee99d2e9_92dd057d",
+        "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-22T14:53:58Z",
+      "side": 0,
+      "message": "Should this be merged with GrGLSLGeometryProcessor now?",
+      "range": {
+        "startLine": 24,
+        "startChar": 6,
+        "endLine": 24,
+        "endChar": 31
+      },
+      "revId": "79adde4046c16aafbec00c433792b8c158e1d4a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
