@@ -12,7 +12,7 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-float fn(float4 v) {
+float fn_hh4(float4 v) {
     for (int x = 1;x <= 2; ++x) {
         return v.x;
     }
@@ -27,12 +27,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     v = float4(v.zy, 1.0, 1.0);
     v = float4(v.xx, 1.0, 1.0);
     v = v.wzwz;
-    v = float3(fn(v), 123.0, 456.0).yyzz;
-    v = float3(fn(v), 123.0, 456.0).yyzz;
-    v = float4(123.0, 456.0, 456.0, fn(v));
-    v = float4(123.0, 456.0, 456.0, fn(v));
-    v = float3(fn(v), 123.0, 456.0).yxxz;
-    v = float3(fn(v), 123.0, 456.0).yxxz;
+    v = float3(fn_hh4(v), 123.0, 456.0).yyzz;
+    v = float3(fn_hh4(v), 123.0, 456.0).yyzz;
+    v = float4(123.0, 456.0, 456.0, fn_hh4(v));
+    v = float4(123.0, 456.0, 456.0, fn_hh4(v));
+    v = float3(fn_hh4(v), 123.0, 456.0).yxxz;
+    v = float3(fn_hh4(v), 123.0, 456.0).yxxz;
     v = float4(1.0, 1.0, 2.0, 3.0);
     v = float4(_uniforms.colorRed.xyz, 1.0);
     v = float4(_uniforms.colorRed.x, 1.0, _uniforms.colorRed.yz);

@@ -20,67 +20,67 @@ thread bool operator==(const float4x4 left, const float4x4 right) {
     return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]) && all(left[3] == right[3]);
 }
 
-float2 returns_float2() {
+float2 returns_float2_f2() {
     return float2(2.0);
 }
-float3 returns_float3() {
+float3 returns_float3_f3() {
     return float3(3.0);
 }
-float4 returns_float4() {
+float4 returns_float4_f4() {
     return float4(4.0);
 }
-float2x2 returns_float2x2() {
+float2x2 returns_float2x2_f22() {
     return float2x2(2.0);
 }
-float3x3 returns_float3x3() {
+float3x3 returns_float3x3_f33() {
     return float3x3(3.0);
 }
-float4x4 returns_float4x4() {
+float4x4 returns_float4x4_f44() {
     return float4x4(4.0);
 }
-float returns_half() {
+float returns_half_h() {
     return 1.0;
 }
-float2 returns_half2() {
+float2 returns_half2_h2() {
     return float2(2.0);
 }
-float3 returns_half3() {
+float3 returns_half3_h3() {
     return float3(3.0);
 }
-float4 returns_half4() {
+float4 returns_half4_h4() {
     return float4(4.0);
 }
-float2x2 returns_half2x2() {
+float2x2 returns_half2x2_h22() {
     return float2x2(2.0);
 }
-float3x3 returns_half3x3() {
+float3x3 returns_half3x3_h33() {
     return float3x3(3.0);
 }
-float4x4 returns_half4x4() {
+float4x4 returns_half4x4_h44() {
     return float4x4(4.0);
 }
-bool returns_bool() {
+bool returns_bool_b() {
     return true;
 }
-bool2 returns_bool2() {
+bool2 returns_bool2_b2() {
     return bool2(true);
 }
-bool3 returns_bool3() {
+bool3 returns_bool3_b3() {
     return bool3(true);
 }
-bool4 returns_bool4() {
+bool4 returns_bool4_b4() {
     return bool4(true);
 }
-int returns_int() {
+int returns_int_i() {
     return 1;
 }
-int2 returns_int2() {
+int2 returns_int2_i2() {
     return int2(2);
 }
-int3 returns_int3() {
+int3 returns_int3_i3() {
     return int3(3);
 }
-int4 returns_int4() {
+int4 returns_int4_i4() {
     return int4(4);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
@@ -108,6 +108,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     int2 x20 = int2(2);
     int3 x21 = int3(3);
     int4 x22 = int4(4);
-    _out.sk_FragColor = ((((((((((((((((((((x1 == 1.0 && all(x2 == returns_float2())) && all(x3 == returns_float3())) && all(x4 == returns_float4())) && x5 == returns_float2x2()) && x6 == returns_float3x3()) && x7 == returns_float4x4()) && x8 == returns_half()) && all(x9 == returns_half2())) && all(x10 == returns_half3())) && all(x11 == returns_half4())) && x12 == returns_half2x2()) && x13 == returns_half3x3()) && x14 == returns_half4x4()) && x15 == returns_bool()) && all(x16 == returns_bool2())) && all(x17 == returns_bool3())) && all(x18 == returns_bool4())) && x19 == returns_int()) && all(x20 == returns_int2())) && all(x21 == returns_int3())) && all(x22 == returns_int4()) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((((((((((((((((x1 == 1.0 && all(x2 == returns_float2_f2())) && all(x3 == returns_float3_f3())) && all(x4 == returns_float4_f4())) && x5 == returns_float2x2_f22()) && x6 == returns_float3x3_f33()) && x7 == returns_float4x4_f44()) && x8 == returns_half_h()) && all(x9 == returns_half2_h2())) && all(x10 == returns_half3_h3())) && all(x11 == returns_half4_h4())) && x12 == returns_half2x2_h22()) && x13 == returns_half3x3_h33()) && x14 == returns_half4x4_h44()) && x15 == returns_bool_b()) && all(x16 == returns_bool2_b2())) && all(x17 == returns_bool3_b3())) && all(x18 == returns_bool4_b4())) && x19 == returns_int_i()) && all(x20 == returns_int2_i2())) && all(x21 == returns_int3_i3())) && all(x22 == returns_int4_i4()) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
