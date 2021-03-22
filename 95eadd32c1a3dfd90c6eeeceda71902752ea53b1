@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01aec8ef_def1a7fb",
+        "filename": "gn/sksl_tests.gni",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-22T19:41:11Z",
+      "side": 0,
+      "message": "Remove these .sksl files, too.",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 50
+      },
+      "revId": "95eadd32c1a3dfd90c6eeeceda71902752ea53b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
