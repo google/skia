@@ -2868,15 +2868,10 @@ static bool is_dead(const Variable& var, const ProgramUsage* usage) {
     if (counts.fRead || counts.fWrite) {
         return false;
     }
-    // not entirely sure what the rules are for when it's safe to elide interface variables, but it
-    // causes various problems to elide some of them even when dead. But it also causes problems
-    // *not* to elide sk_SampleMask when it's not being used.
-    if (!(var.modifiers().fFlags & (Modifiers::kIn_Flag |
-                                    Modifiers::kOut_Flag |
-                                    Modifiers::kUniform_Flag))) {
-        return true;
-    }
-    return var.modifiers().fLayout.fBuiltin == SK_SAMPLEMASK_BUILTIN;
+    // It's not entirely clear what the rules are for eliding interface variables. Generally, it
+    // causes problems to elide them, even when they're dead.
+    return !(var.modifiers().fFlags &
+             (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag));
 }
 
 void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& varDecl) {
