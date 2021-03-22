@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8b4e378_d2da3191",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-22T17:44:25Z",
+      "side": 1,
+      "message": "I\u0027ll take out those other two when I remove them from ccpr",
+      "revId": "21ee99c99a058d41c8a578ae734aab9b9d64a7bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
