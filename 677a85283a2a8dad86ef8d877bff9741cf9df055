@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "111f312d_91f4d9d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-22T19:41:35Z",
+      "side": 1,
+      "message": "If we ever did want something like this, it would be better to put the setting on the surface somewhere rather than being a global.",
+      "revId": "677a85283a2a8dad86ef8d877bff9741cf9df055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
