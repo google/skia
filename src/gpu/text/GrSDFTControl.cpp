@@ -59,8 +59,7 @@ auto GrSDFTControl::drawingType(
 
     // If we can't use SDFT, then make a simple choice between direct or path.
     if (!fAbleToUseSDFT || paint.getMaskFilter() || paint.getStyle() != SkPaint::kFill_Style) {
-        const int kAboveIsPath = std::min(SkGraphics::GetFontCachePointSizeLimit(),
-                                          (int)SkStrikeCommon::kSkSideTooBigForAtlas);
+        constexpr int kAboveIsPath = SkStrikeCommon::kSkSideTooBigForAtlas;
         return scaledTextSize < kAboveIsPath ? kDirect : kPath;
     }
 
