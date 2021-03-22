@@ -1422,7 +1422,7 @@ skia_component("skia") {
 
 # DebugCanvas used in experimental/wasm-skp-debugger
 if (target_cpu == "wasm") {
-  static_library("debugcanvas") {
+  skia_static_library("debugcanvas") {
     public_configs = [ ":skia_public" ]
 
     sources = [
@@ -1436,10 +1436,10 @@ if (target_cpu == "wasm") {
   }
 }
 
-static_library("pathkit") {
+skia_static_library("pathkit") {
   check_includes = false
   public_configs = [ ":skia_public" ]
-  configs += skia_library_configs
+  configs = skia_library_configs
 
   deps = [
     ":arm64",
