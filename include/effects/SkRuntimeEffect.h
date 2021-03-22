@@ -159,6 +159,8 @@ private:
     uint32_t hash() const { return fHash; }
     bool usesSampleCoords() const { return fUsesSampleCoords; }
 
+    const skvm::Program* getFilterColorProgram();
+
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;      // fBaseProgram, fSampleUsages
     friend class GrGLSLSkSLFP;  //
