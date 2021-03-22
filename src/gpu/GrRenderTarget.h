@@ -79,7 +79,6 @@ private:
 
     sk_sp<GrAttachment> fStencilAttachment;
     int fSampleCnt;
-    int fSamplePatternKey;
 
     using INHERITED = GrSurface;
 };

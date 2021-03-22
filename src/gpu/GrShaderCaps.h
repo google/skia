@@ -165,11 +165,6 @@ public:
         return fNoDefaultPrecisionForExternalSamplers;
     }
 
-    // The sample mask round rect op draws nothing on several Adreno and Radeon bots. Other ops that
-    // use sample mask while rendering to stencil seem to work fine.
-    // http://skbug.com/8921
-    bool canOnlyUseSampleMaskWithStencil() const { return fCanOnlyUseSampleMaskWithStencil; }
-
     // ANGLE disallows do loops altogether, and we're seeing crashes on Tegra3 with do loops in at
     // least some cases.
     bool canUseDoLoops() const { return fCanUseDoLoops; }
@@ -306,7 +301,6 @@ private:
     bool fRemovePowWithConstantExponent               : 1;
     bool fMustWriteToFragColor                        : 1;
     bool fNoDefaultPrecisionForExternalSamplers       : 1;
-    bool fCanOnlyUseSampleMaskWithStencil             : 1;
     bool fColorSpaceMathNeedsFloat                    : 1;
     bool fCanUseDoLoops                               : 1;
     bool fCanUseFastMath                              : 1;

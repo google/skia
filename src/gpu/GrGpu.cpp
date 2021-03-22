@@ -577,17 +577,6 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     }
 }
 
-int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget) {
-    SkASSERT(this->caps()->sampleLocationsSupport());
-    SkASSERT(renderTarget->numSamples() > 1 ||
-             (renderTarget->getStencilAttachment() &&
-              renderTarget->getStencilAttachment()->numSamples() > 1));
-
-    SkSTArray<16, SkPoint> sampleLocations;
-    this->querySampleLocations(renderTarget, &sampleLocations);
-    return fSamplePatternDictionary.findOrAssignSamplePatternKey(sampleLocations);
-}
-
 void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
                              SkSurface::BackendSurfaceAccess access,
                              const GrFlushInfo& info,

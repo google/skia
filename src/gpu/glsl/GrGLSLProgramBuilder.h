@@ -51,16 +51,6 @@ public:
     bool hasPointSize() const { return fProgramInfo.primitiveType() == GrPrimitiveType::kPoints; }
     virtual SkSL::Compiler* shaderCompiler() const = 0;
 
-    // TODO: stop passing in the renderTarget for just the sampleLocations
-    int effectiveSampleCnt() {
-        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
-        return fRenderTarget->getSampleLocations().count();
-    }
-    const SkTArray<SkPoint>& getSampleLocations() {
-        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
-        return fRenderTarget->getSampleLocations();
-    }
-
     const GrProgramDesc& desc() const { return fDesc; }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;

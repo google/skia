@@ -4067,13 +4067,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTiledRenderingSupport = false;
     }
 
-    if (kQualcomm_GrGLVendor == ctxInfo.vendor() || kATI_GrGLVendor == ctxInfo.vendor()) {
-        // The sample mask round rect op draws nothing on several Adreno and Radeon bots. Other ops
-        // that use sample mask while rendering to stencil seem to work fine.
-        // http://skbug.com/8921
-        shaderCaps->fCanOnlyUseSampleMaskWithStencil = true;
-    }
-
     if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9) {
         formatWorkarounds->fDisallowBGRA8ReadPixels = true;
     }
@@ -4116,7 +4109,6 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fDetachStencilFromMSAABuffersBeforeReadPixels);
         SkASSERT(!fDontSetBaseOrMaxLevelForExternalTextures);
         SkASSERT(!fNeverDisableColorWrites);
-        SkASSERT(!fShaderCaps->fCanOnlyUseSampleMaskWithStencil);
     }
     if (options.fShaderCacheStrategy < GrContextOptions::ShaderCacheStrategy::kBackendBinary) {
         fProgramBinarySupport = false;

@@ -360,20 +360,10 @@ private:
         sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
                                                GrRenderTarget*,
                                                const GrProgramInfo&);
-        sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext* dContext,
-                                               const GrProgramDesc& desc,
-                                               const GrProgramInfo& programInfo,
-                                               Stats::ProgramCacheResult* stat) {
-            sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, nullptr, desc,
-                                                               programInfo, stat);
-            if (!tmp) {
-                fStats.incNumPreCompilationFailures();
-            } else {
-                fStats.incNumPreProgramCacheResult(*stat);
-            }
-
-            return tmp;
-        }
+        sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
+                                               const GrProgramDesc&,
+                                               const GrProgramInfo&,
+                                               Stats::ProgramCacheResult*);
         bool precompileShader(GrDirectContext*, const SkData& key, const SkData& data);
 
     private:

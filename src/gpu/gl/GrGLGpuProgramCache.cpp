@@ -72,6 +72,20 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* d
 }
 
 sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* dContext,
+                                                              const GrProgramDesc& desc,
+                                                              const GrProgramInfo& programInfo,
+                                                              Stats::ProgramCacheResult* stat) {
+    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, nullptr, desc, programInfo, stat);
+    if (!tmp) {
+        fStats.incNumPreCompilationFailures();
+    } else {
+        fStats.incNumPreProgramCacheResult(*stat);
+    }
+
+    return tmp;
+}
+
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* dContext,
                                                               GrRenderTarget* renderTarget,
                                                               const GrProgramDesc& desc,
                                                               const GrProgramInfo& programInfo,

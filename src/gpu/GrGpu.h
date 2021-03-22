@@ -18,7 +18,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPixmap.h"
-#include "src/gpu/GrSamplePatternDictionary.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
@@ -338,19 +337,6 @@ public:
     // then we don't need to preserve any data on the dst surface outside of the copy.
     bool copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
-
-    // Queries the per-pixel HW sample locations for the given render target, and then finds or
-    // assigns a key that uniquely identifies the sample pattern. The actual sample locations can be
-    // retrieved with retrieveSampleLocations().
-    int findOrAssignSamplePatternKey(GrRenderTarget*);
-
-    // Retrieves the per-pixel HW sample locations for the given sample pattern key, and, as a
-    // by-product, the actual number of samples in use. (This may differ from the number of samples
-    // requested by the render target.) Sample locations are returned as 0..1 offsets relative to
-    // the top-left corner of the pixel.
-    const SkTArray<SkPoint>& retrieveSampleLocations(int samplePatternKey) const {
-        return fSamplePatternDictionary.retrieveSampleLocations(samplePatternKey);
-    }
 
     // Returns a GrOpsRenderPass which GrOpsTasks send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
@@ -848,7 +834,6 @@ private:
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrDirectContext* fContext;
-    GrSamplePatternDictionary fSamplePatternDictionary;
 
     struct SubmittedProc {
         SubmittedProc(GrGpuSubmittedProc proc, GrGpuSubmittedContext context)

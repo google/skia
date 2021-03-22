@@ -102,12 +102,6 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     }
 
 #ifdef SK_DEBUG
-    GrProcessor::CustomFeatures processorFeatures = programInfo.requestedFeatures();
-    if (GrProcessor::CustomFeatures::kSampleLocations & processorFeatures) {
-        // Verify we always have the same sample pattern key, regardless of graphics state.
-        SkASSERT(this->gpu()->findOrAssignSamplePatternKey(fRenderTarget) ==
-                 fRenderTarget->getSamplePatternKey());
-    }
     fScissorStatus = (programInfo.pipeline().isScissorTestEnabled()) ?
             DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
     bool hasTextures = (programInfo.primProc().numTextureSamplers() > 0);

@@ -598,12 +598,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kImagination_VkVendor == properties.vendorID) {
         fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
     }
-
-    if (kQualcomm_VkVendor == properties.vendorID) {
-        // The sample mask round rect op draws nothing on Adreno for the srcmode gm.
-        // http://skbug.com/8921
-        fShaderCaps->fCanOnlyUseSampleMaskWithStencil = true;
-    }
 }
 
 void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
