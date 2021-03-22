@@ -394,7 +394,6 @@ sksl_shared_tests = [
   "/sksl/shared/ReturnsValueOnEveryPathES2.sksl",
   "/sksl/shared/ReturnsValueOnEveryPathES3.sksl",
   "/sksl/shared/SampleLocations.vert",
-  "/sksl/shared/SampleMask.sksl",
   "/sksl/shared/ScalarConversionConstructorsES2.sksl",
   "/sksl/shared/ScalarConversionConstructorsES3.sksl",
   "/sksl/shared/ScopedSymbol.sksl",
