@@ -329,7 +329,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-constexpr GrPrimitiveProcessor::Attribute FillRRectOp::Processor::kVertexAttribs[];
+constexpr GrGeometryProcessor::Attribute FillRRectOp::Processor::kVertexAttribs[];
 
 // Our coverage geometry consists of an inset octagon with solid coverage, surrounded by linear
 // coverage ramps on the horizontal and vertical edges, and "arc coverage" pieces on the diagonal
@@ -490,7 +490,7 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
         GrGLSLVertexBuilder* v = args.fVertBuilder;
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
-        const auto& proc = args.fGP.cast<Processor>();
+        const auto& proc = args.fGeomProc.cast<Processor>();
         bool useHWDerivatives = (proc.fFlags & ProcessorFlags::kUseHWDerivatives);
 
         SkASSERT(proc.vertexStride() == sizeof(CoverageVertex));
@@ -671,7 +671,7 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override {}
 };
 
 
@@ -705,7 +705,7 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, this->bounds());
-    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
     flushState->bindBuffers(std::move(fIndexBuffer), std::move(fInstanceBuffer),
                             std::move(fVertexBuffer));
     flushState->drawIndexedInstanced(SK_ARRAY_COUNT(kIndexData), 0, fInstanceCount, fBaseInstance,

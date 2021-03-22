@@ -98,7 +98,7 @@ public:
 
 private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGP.cast<GrStrokeTessellateShader>();
+        const auto& shader = args.fGeomProc.cast<GrStrokeTessellateShader>();
         auto* uniHandler = args.fUniformHandler;
         auto* v = args.fVertBuilder;
 
@@ -414,8 +414,8 @@ private:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
-        const auto& shader = primProc.cast<GrStrokeTessellateShader>();
+                 const GrGeometryProcessor& geomProc) override {
+        const auto& shader = geomProc.cast<GrStrokeTessellateShader>();
         const auto& stroke = shader.fStroke;
 
         if (!shader.hasDynamicStroke()) {
@@ -991,7 +991,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
 
 class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGP.cast<GrStrokeTessellateShader>();
+        const auto& shader = args.fGeomProc.cast<GrStrokeTessellateShader>();
         SkPaint::Join joinType = shader.fStroke.getJoin();
         args.fVaryingHandler->emitAttributes(shader);
 
@@ -1249,8 +1249,8 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
-        const auto& shader = primProc.cast<GrStrokeTessellateShader>();
+                 const GrGeometryProcessor& geomProc) override {
+        const auto& shader = geomProc.cast<GrStrokeTessellateShader>();
         const auto& stroke = shader.fStroke;
 
         if (!shader.hasDynamicStroke()) {
@@ -1299,7 +1299,7 @@ void GrStrokeTessellateShader::getGLSLProcessorKey(const GrShaderCaps&,
                                                    GrProcessorKeyBuilder* b) const {
     bool keyNeedsJoin = (fMode == Mode::kIndirect) && !(fShaderFlags & ShaderFlags::kDynamicStroke);
     SkASSERT(fStroke.getJoin() >> 2 == 0);
-    // Attribs get worked into the key automatically during GrPrimitiveProcessor::getAttributeKey().
+    // Attribs get worked into the key automatically during GrGeometryProcessor::getAttributeKey().
     // When color is in a uniform, it's always wide. kWideColor doesn't need to be considered here.
     uint32_t key = (uint32_t)(fShaderFlags & ~ShaderFlags::kWideColor);
     key = (key << 1) | (uint32_t)fMode;
