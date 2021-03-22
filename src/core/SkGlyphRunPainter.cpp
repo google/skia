@@ -79,7 +79,7 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrSurfaceDrawContext& rtc)
 #endif
 
 void SkGlyphRunListPainter::drawForBitmapDevice(
-        const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& deviceMatrix,
         const BitmapDevicePainter* bitmapDevice) {
     ScopedBuffers _ = this->ensureBuffers(glyphRunList);
 
@@ -87,10 +87,9 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     //  gpu build. Remove when SkGlyphRunListPainter is split into GPU and CPU version.
     (void)fStrikeCache;
 
-    const SkPaint& runPaint = glyphRunList.paint();
     // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
     // convert the lcd text into A8 text. The props communicates this to the scaler.
-    auto& props = (kN32_SkColorType == fColorType && runPaint.isSrcOver())
+    auto& props = (kN32_SkColorType == fColorType && paint.isSrcOver())
                   ? fDeviceProps
                   : fBitmapFallbackProps;
 
@@ -100,10 +99,10 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
         fRejects.setSource(glyphRun.source());
 
-        if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
+        if (SkStrikeSpec::ShouldDrawAsPath(paint, runFont, deviceMatrix)) {
 
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
-                    runFont, runPaint, props, fScalerContextFlags);
+                    runFont, paint, props, fScalerContextFlags);
 
             auto strike = strikeSpec.findOrCreateStrike();
 
@@ -113,7 +112,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             // The paint we draw paths with must have the same anti-aliasing state as the runFont
             // allowing the paths to have the same edging as the glyph masks.
-            SkPaint pathPaint = runPaint;
+            SkPaint pathPaint = paint;
             pathPaint.setAntiAlias(runFont.hasSomeAntiAliasing());
 
             bitmapDevice->paintPaths(
@@ -121,14 +120,14 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         }
         if (!fRejects.source().empty()) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
-                    runFont, runPaint, props, fScalerContextFlags, deviceMatrix);
+                    runFont, paint, props, fScalerContextFlags, deviceMatrix);
 
             auto strike = strikeSpec.findOrCreateStrike();
 
             fDrawable.startBitmapDevice(
                     fRejects.source(), drawOrigin, deviceMatrix, strike->roundingSpec());
             strike->prepareForDrawingMasksCPU(&fDrawable);
-            bitmapDevice->paintMasks(&fDrawable, runPaint);
+            bitmapDevice->paintMasks(&fDrawable, paint);
         }
 
         // TODO: have the mask stage above reject the glyphs that are too big, and handle the

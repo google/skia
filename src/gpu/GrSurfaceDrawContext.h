@@ -508,7 +508,8 @@ public:
      */
     void drawGlyphRunList(const GrClip*,
                           const SkMatrixProvider& viewMatrix,
-                          const SkGlyphRunList& glyphRunList);
+                          const SkGlyphRunList& glyphRunList,
+                          const SkPaint& paint);
 
     /**
      * Draw the text specified by the SkGlyphRunList.
@@ -518,7 +519,8 @@ public:
      */
     void drawGlyphRunListWithCache(const GrClip*,
                                    const SkMatrixProvider& viewMatrix,
-                                   const SkGlyphRunList& glyphRunList);
+                                   const SkGlyphRunList& glyphRunList,
+                                   const SkPaint& paint);
 
     /**
      * Draw the text specified by the SkGlyphRunList.
@@ -528,7 +530,8 @@ public:
      */
     void drawGlyphRunListNoCache(const GrClip*,
                                  const SkMatrixProvider& viewMatrix,
-                                 const SkGlyphRunList& glyphRunList);
+                                 const SkGlyphRunList& glyphRunList,
+                                 const SkPaint& paint);
 
     /**
      * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the

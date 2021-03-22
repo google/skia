@@ -467,7 +467,7 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
 
         this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToDevice));
 
-        this->drawGlyphRunList(SkGlyphRunList{glyphRun, transformingPaint});
+        this->drawGlyphRunList(SkGlyphRunList{glyphRun}, transformingPaint);
     }
     this->setLocalToDevice(originalLocalToDevice);
 }

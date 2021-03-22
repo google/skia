@@ -62,6 +62,7 @@ public:
                        const SkSamplingOptions&, const SkPaint&) const;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
+                             const SkPaint& paint,
                              SkGlyphRunListPainter* glyphPainter) const;
     void    drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) const;
     void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,

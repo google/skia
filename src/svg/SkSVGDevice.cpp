@@ -1060,9 +1060,9 @@ private:
              fHasConstY             = true;
 };
 
-void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
+void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint)  {
     const auto draw_as_path = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) ||
-                              glyphRunList.paint().getPathEffect();
+                               paint.getPathEffect();
 
     if (draw_as_path) {
         // Emit a single <path> element.
@@ -1071,14 +1071,14 @@ void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
             AddPath(glyphRun, glyphRunList.origin(), &path);
         }
 
-        this->drawPath(path, glyphRunList.paint());
+        this->drawPath(path, paint);
 
         return;
     }
 
     // Emit one <text> element for each run.
     for (auto& glyphRun : glyphRunList) {
-        AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), glyphRunList.paint());
+        AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), paint);
         elem.addTextAttributes(glyphRun.font());
 
         SVGTextBuilder builder(glyphRunList.origin(), glyphRun);

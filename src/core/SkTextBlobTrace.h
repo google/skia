@@ -32,7 +32,7 @@ class Capture {
 public:
     Capture();
     ~Capture();
-    void capture(const SkGlyphRunList&);
+    void capture(const SkGlyphRunList&, const SkPaint&);
     // If `dst` is nullptr, write to a file.
     void dump(SkWStream* dst = nullptr) const;
 

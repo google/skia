@@ -271,6 +271,7 @@ public:
             const GrClip* clip,
             const SkMatrixProvider& viewMatrix,
             const SkGlyphRunList& glyphRunList,
+            const SkPaint& paint,
             GrSurfaceDrawContext* rtc,
             GrAtlasSubRunOwner subRun) const = 0;
     virtual void fillVertexData(
@@ -305,6 +306,7 @@ public:
     virtual void draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
                       const SkGlyphRunList& glyphRunList,
+                      const SkPaint& paint,
                       GrSurfaceDrawContext* rtc) const = 0;
 
     // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
@@ -376,6 +378,7 @@ public:
     // list search using operator =().
     struct Key {
         static std::tuple<bool, Key> Make(const SkGlyphRunList& glyphRunList,
+                                          const SkPaint& paint,
                                           const SkSurfaceProps& surfaceProps,
                                           const GrColorInfo& colorInfo,
                                           const SkMatrix& drawMatrix,
@@ -405,6 +408,7 @@ public:
 
     // Make a GrTextBlob and its sub runs.
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
+                                  const SkPaint& paint,
                                   const SkMatrix& drawMatrix,
                                   const GrSDFTControl& control,
                                   SkGlyphRunListPainter* painter);
@@ -492,7 +496,8 @@ public:
                            GrSubRunAllocator* alloc,
                            const GrClip* clip,
                            const SkMatrixProvider& viewMatrix,
-                           const SkGlyphRunList& glyphRunList);
+                           const SkGlyphRunList& glyphRunList,
+                           const SkPaint& paint);
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -511,6 +516,7 @@ private:
     const GrClip* const fClip;
     const SkMatrixProvider& fViewMatrix;
     const SkGlyphRunList& fGlyphRunList;
+    const SkPaint& fPaint;
 };
 
 #endif  // GrTextBlob_DEFINED

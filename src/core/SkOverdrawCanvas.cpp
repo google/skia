@@ -62,8 +62,8 @@ public:
     }
 
 protected:
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
-        fPainter.drawForBitmapDevice(glyphRunList, fOverdrawCanvas->getTotalMatrix(), this);
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
+        fPainter.drawForBitmapDevice(glyphRunList, paint, fOverdrawCanvas->getTotalMatrix(), this);
     }
 
 private:
