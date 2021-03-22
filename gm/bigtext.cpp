@@ -53,7 +53,7 @@ protected:
         canvas->drawSimpleText("/", 1, SkTextEncoding::kUTF8, pos.fX, pos.fY, font, paint);
 
         paint.setColor(SK_ColorBLUE);
-        canvas->drawSimpleText("\\", 1, SkTextEncoding::kUTF8, pos.fX, pos.fY, font, paint);
+        canvas->drawSimpleText("PS4", 1, SkTextEncoding::kUTF8, pos.fX, pos.fY, font, paint);
     }
 
 private:
