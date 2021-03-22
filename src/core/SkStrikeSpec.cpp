@@ -129,7 +129,7 @@ bool SkStrikeSpec::ShouldDrawAsPath(
     textMatrix.postConcat(viewMatrix);
 
     // we have a self-imposed maximum, just to limit memory-usage
-    SkScalar limit = std::min(SkGraphics::GetFontCachePointSizeLimit(), 1024);
+    SkScalar limit = 1024;
     SkScalar maxSizeSquared = limit * limit;
 
     auto distance = [&textMatrix](int XIndex, int YIndex) {
