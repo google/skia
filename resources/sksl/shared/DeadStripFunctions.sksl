@@ -26,8 +26,8 @@ half4 main() {
         // A live built-in function.
         b = unpremul(half4(1));
     } else {
-        // Dead stripping a built-in function.
-        float4 unused = unpremul_float(float4(-1));
+        // Dead stripping a built-in function. (This is a separate overload of `unpremul`.)
+        float4 unused = unpremul(float4(-1));
     }
 
     return (a != half4(0) && b != half4(0)) ? colorGreen : colorRed;

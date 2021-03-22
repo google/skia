@@ -240,7 +240,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                 GrShaderVar("color", useFloat ? kFloat4_GrSLType : kHalf4_GrSLType)};
         SkString body;
         if (colorXformHelper->applyUnpremul()) {
-            body.appendf("color = %s(color);", useFloat ? "unpremul_float" : "unpremul");
+            body.append("color = unpremul(color);");
         }
         if (colorXformHelper->applySrcTF()) {
             body.appendf("color.r = %s(half(color.r));", srcTFFuncName.c_str());
