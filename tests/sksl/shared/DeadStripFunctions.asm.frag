@@ -1,16 +1,16 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
-OpExecutionMode %_entrypoint OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "colorGreen"
 OpMemberName %_UniformBuffer 1 "colorRed"
-OpName %_entrypoint "_entrypoint"
-OpName %unpremul "unpremul"
-OpName %live_fn "live_fn"
+OpName %_entrypoint_v "_entrypoint_v"
+OpName %unpremul_h4h4 "unpremul_h4h4"
+OpName %live_fn_h4h4h4 "live_fn_h4h4h4"
 OpName %main "main"
 OpName %a "a"
 OpName %b "b"
@@ -68,13 +68,13 @@ OpDecorate %86 RelaxedPrecision
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
-%_entrypoint = OpFunction %void None %17
+%_entrypoint_v = OpFunction %void None %17
 %18 = OpLabel
 %19 = OpFunctionCall %v4float %main
 OpStore %sk_FragColor %19
 OpReturn
 OpFunctionEnd
-%unpremul = OpFunction %v4float None %20
+%unpremul_h4h4 = OpFunction %v4float None %20
 %22 = OpFunctionParameter %_ptr_Function_v4float
 %23 = OpLabel
 %24 = OpLoad %v4float %22
@@ -92,7 +92,7 @@ OpFunctionEnd
 %39 = OpCompositeConstruct %v4float %34 %35 %36 %38
 OpReturnValue %39
 OpFunctionEnd
-%live_fn = OpFunction %v4float None %40
+%live_fn_h4h4h4 = OpFunction %v4float None %40
 %41 = OpFunctionParameter %_ptr_Function_v4float
 %42 = OpFunctionParameter %_ptr_Function_v4float
 %43 = OpLabel
@@ -111,10 +111,10 @@ OpFunctionEnd
 %74 = OpVariable %_ptr_Function_v4float Function
 OpStore %53 %52
 OpStore %56 %55
-%57 = OpFunctionCall %v4float %live_fn %53 %56
+%57 = OpFunctionCall %v4float %live_fn_h4h4h4 %53 %56
 OpStore %a %57
 OpStore %59 %58
-%60 = OpFunctionCall %v4float %unpremul %59
+%60 = OpFunctionCall %v4float %unpremul_h4h4 %59
 OpStore %b %60
 %62 = OpLoad %v4float %a
 %65 = OpFOrdNotEqual %v4bool %62 %64

@@ -1,11 +1,11 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
-OpExecutionMode %_entrypoint OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
-OpName %_entrypoint "_entrypoint"
+OpName %_entrypoint_v "_entrypoint_v"
 OpName %main "main"
 OpName %x "x"
 OpName %y "y"
@@ -40,7 +40,7 @@ OpDecorate %_arr_v2float_int_2 ArrayStride 16
 %float_n1 = OpConstant %float -1
 %float_2 = OpConstant %float 2
 %37 = OpConstantComposite %v2float %float_n1 %float_2
-%_entrypoint = OpFunction %void None %12
+%_entrypoint_v = OpFunction %void None %12
 %13 = OpLabel
 %14 = OpFunctionCall %v4float %main
 OpStore %sk_FragColor %14

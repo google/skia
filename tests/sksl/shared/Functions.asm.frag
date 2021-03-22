@@ -1,16 +1,16 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
-OpExecutionMode %_entrypoint OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "colorGreen"
 OpMemberName %_UniformBuffer 1 "colorRed"
-OpName %_entrypoint "_entrypoint"
-OpName %foo "foo"
-OpName %bar "bar"
+OpName %_entrypoint_v "_entrypoint_v"
+OpName %foo_ff2 "foo_ff2"
+OpName %bar_vf "bar_vf"
 OpName %y "y"
 OpName %main "main"
 OpName %x "x"
@@ -58,13 +58,13 @@ OpDecorate %72 RelaxedPrecision
 %float_200 = OpConstant %float 200
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
-%_entrypoint = OpFunction %void None %17
+%_entrypoint_v = OpFunction %void None %17
 %18 = OpLabel
 %19 = OpFunctionCall %v4float %main
 OpStore %sk_FragColor %19
 OpReturn
 OpFunctionEnd
-%foo = OpFunction %float None %21
+%foo_ff2 = OpFunction %float None %21
 %23 = OpFunctionParameter %_ptr_Function_v2float
 %24 = OpLabel
 %25 = OpLoad %v2float %23
@@ -74,7 +74,7 @@ OpFunctionEnd
 %29 = OpFMul %float %26 %28
 OpReturnValue %29
 OpFunctionEnd
-%bar = OpFunction %void None %30
+%bar_vf = OpFunction %void None %30
 %32 = OpFunctionParameter %_ptr_Function_float
 %33 = OpLabel
 %y = OpVariable %_ptr_Function__arr_float_int_2 Function
@@ -92,7 +92,7 @@ OpStore %46 %44
 %50 = OpLoad %float %49
 %51 = OpCompositeConstruct %v2float %48 %50
 OpStore %52 %51
-%53 = OpFunctionCall %float %foo %52
+%53 = OpFunctionCall %float %foo_ff2 %52
 OpStore %32 %53
 OpReturn
 OpFunctionEnd
@@ -101,7 +101,7 @@ OpFunctionEnd
 %x = OpVariable %_ptr_Function_float Function
 %62 = OpVariable %_ptr_Function_v4float Function
 OpStore %x %float_10
-%58 = OpFunctionCall %void %bar %x
+%58 = OpFunctionCall %void %bar_vf %x
 %59 = OpLoad %float %x
 %61 = OpFOrdEqual %bool %59 %float_200
 OpSelectionMerge %66 None

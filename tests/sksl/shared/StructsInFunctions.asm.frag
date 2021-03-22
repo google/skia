@@ -1,21 +1,21 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
-OpExecutionMode %_entrypoint OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "colorRed"
 OpMemberName %_UniformBuffer 1 "colorGreen"
-OpName %_entrypoint "_entrypoint"
+OpName %_entrypoint_v "_entrypoint_v"
 OpName %S "S"
 OpMemberName %S 0 "x"
 OpMemberName %S 1 "y"
-OpName %returns_a_struct "returns_a_struct"
+OpName %returns_a_struct_S "returns_a_struct_S"
 OpName %s "s"
-OpName %accepts_a_struct "accepts_a_struct"
-OpName %modifies_a_struct "modifies_a_struct"
+OpName %accepts_a_struct_fS "accepts_a_struct_fS"
+OpName %modifies_a_struct_vS "modifies_a_struct_vS"
 OpName %main "main"
 OpName %s_0 "s"
 OpName %x "x"
@@ -71,13 +71,13 @@ OpDecorate %94 RelaxedPrecision
 %int_3 = OpConstant %int 3
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
-%_entrypoint = OpFunction %void None %18
+%_entrypoint_v = OpFunction %void None %18
 %19 = OpLabel
 %20 = OpFunctionCall %v4float %main
 OpStore %sk_FragColor %20
 OpReturn
 OpFunctionEnd
-%returns_a_struct = OpFunction %S None %23
+%returns_a_struct_S = OpFunction %S None %23
 %24 = OpLabel
 %s = OpVariable %_ptr_Function_S Function
 %29 = OpAccessChain %_ptr_Function_float %s %int_0
@@ -87,7 +87,7 @@ OpStore %33 %int_2
 %35 = OpLoad %S %s
 OpReturnValue %35
 OpFunctionEnd
-%accepts_a_struct = OpFunction %float None %36
+%accepts_a_struct_fS = OpFunction %float None %36
 %37 = OpFunctionParameter %_ptr_Function_S
 %38 = OpLabel
 %39 = OpAccessChain %_ptr_Function_float %37 %int_0
@@ -98,7 +98,7 @@ OpFunctionEnd
 %44 = OpFAdd %float %40 %43
 OpReturnValue %44
 OpFunctionEnd
-%modifies_a_struct = OpFunction %void None %45
+%modifies_a_struct_vS = OpFunction %void None %45
 %46 = OpFunctionParameter %_ptr_Function_S
 %47 = OpLabel
 %48 = OpAccessChain %_ptr_Function_float %46 %int_0
@@ -118,13 +118,13 @@ OpFunctionEnd
 %60 = OpVariable %_ptr_Function_S Function
 %valid = OpVariable %_ptr_Function_bool Function
 %84 = OpVariable %_ptr_Function_v4float Function
-%57 = OpFunctionCall %S %returns_a_struct
+%57 = OpFunctionCall %S %returns_a_struct_S
 OpStore %s_0 %57
 %59 = OpLoad %S %s_0
 OpStore %60 %59
-%61 = OpFunctionCall %float %accepts_a_struct %60
+%61 = OpFunctionCall %float %accepts_a_struct_fS %60
 OpStore %x %61
-%62 = OpFunctionCall %void %modifies_a_struct %s_0
+%62 = OpFunctionCall %void %modifies_a_struct_vS %s_0
 %66 = OpLoad %float %x
 %68 = OpFOrdEqual %bool %66 %float_3
 OpSelectionMerge %70 None

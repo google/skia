@@ -1,16 +1,16 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
-OpExecutionMode %_entrypoint OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "colorRed"
 OpMemberName %_UniformBuffer 1 "colorGreen"
 OpMemberName %_UniformBuffer 2 "testInputs"
-OpName %_entrypoint "_entrypoint"
-OpName %fn "fn"
+OpName %_entrypoint_v "_entrypoint_v"
+OpName %fn_hh4 "fn_hh4"
 OpName %x "x"
 OpName %main "main"
 OpName %v "v"
@@ -86,13 +86,13 @@ OpDecorate %154 RelaxedPrecision
 %int_0 = OpConstant %int 0
 %142 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %v4bool = OpTypeVector %bool 4
-%_entrypoint = OpFunction %void None %16
+%_entrypoint_v = OpFunction %void None %16
 %17 = OpLabel
 %18 = OpFunctionCall %v4float %main
 OpStore %sk_FragColor %18
 OpReturn
 OpFunctionEnd
-%fn = OpFunction %float None %19
+%fn_hh4 = OpFunction %float None %19
 %21 = OpFunctionParameter %_ptr_Function_v4float
 %22 = OpLabel
 %x = OpVariable %_ptr_Function_int Function
@@ -166,35 +166,35 @@ OpStore %v %74
 OpStore %v %76
 %77 = OpLoad %v4float %v
 OpStore %78 %77
-%79 = OpFunctionCall %float %fn %78
+%79 = OpFunctionCall %float %fn_hh4 %78
 %82 = OpCompositeConstruct %v3float %79 %float_123 %float_456
 %83 = OpVectorShuffle %v4float %82 %82 1 1 2 2
 OpStore %v %83
 %84 = OpLoad %v4float %v
 OpStore %85 %84
-%86 = OpFunctionCall %float %fn %85
+%86 = OpFunctionCall %float %fn_hh4 %85
 %87 = OpCompositeConstruct %v3float %86 %float_123 %float_456
 %88 = OpVectorShuffle %v4float %87 %87 1 1 2 2
 OpStore %v %88
 %89 = OpLoad %v4float %v
 OpStore %90 %89
-%91 = OpFunctionCall %float %fn %90
+%91 = OpFunctionCall %float %fn_hh4 %90
 %92 = OpCompositeConstruct %v4float %float_123 %float_456 %float_456 %91
 OpStore %v %92
 %93 = OpLoad %v4float %v
 OpStore %94 %93
-%95 = OpFunctionCall %float %fn %94
+%95 = OpFunctionCall %float %fn_hh4 %94
 %96 = OpCompositeConstruct %v4float %float_123 %float_456 %float_456 %95
 OpStore %v %96
 %97 = OpLoad %v4float %v
 OpStore %98 %97
-%99 = OpFunctionCall %float %fn %98
+%99 = OpFunctionCall %float %fn_hh4 %98
 %100 = OpCompositeConstruct %v3float %99 %float_123 %float_456
 %101 = OpVectorShuffle %v4float %100 %100 1 0 0 2
 OpStore %v %101
 %102 = OpLoad %v4float %v
 OpStore %103 %102
-%104 = OpFunctionCall %float %fn %103
+%104 = OpFunctionCall %float %fn_hh4 %103
 %105 = OpCompositeConstruct %v3float %104 %float_123 %float_456
 %106 = OpVectorShuffle %v4float %105 %105 1 0 0 2
 OpStore %v %106
