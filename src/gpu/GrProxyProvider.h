@@ -8,6 +8,7 @@
 #ifndef GrProxyProvider_DEFINED
 #define GrProxyProvider_DEFINED
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrResourceKey.h"
 #include "src/core/SkTDynamicHash.h"
@@ -227,7 +228,7 @@ public:
     GrDDLProvider isDDLProvider() const;
 
     // TODO: remove these entry points - it is a bit sloppy to be getting context info from here
-    uint32_t contextID() const;
+    GrContextThreadSafeProxy::FamilyID familyID() const;
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 

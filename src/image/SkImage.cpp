@@ -189,7 +189,7 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset, GrDirectContext* direc
 #if SK_SUPPORT_GPU
     auto myContext = as_IB(this)->context();
     // This check is also performed in the subclass, but we do it here for the short-circuit below.
-    if (myContext && !myContext->priv().matches(direct)) {
+    if (myContext && !myContext->priv().inSameFamily(direct)) {
         return nullptr;
     }
 #endif
@@ -395,7 +395,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext, const SkIma
     sk_sp<SkSpecialImage> srcSpecialImage;
 #if SK_SUPPORT_GPU
     auto myContext = as_IB(this)->context();
-    if (myContext && !myContext->priv().matches(rContext)) {
+    if (myContext && !myContext->priv().inSameFamily(rContext)) {
         return nullptr;
     }
     srcSpecialImage = SkSpecialImage::MakeFromImage(rContext, subset,
@@ -467,7 +467,7 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
 #if SK_SUPPORT_GPU
     auto myContext = as_IB(this)->context();
     // This check is also performed in the subclass, but we do it here for the short-circuit below.
-    if (myContext && !myContext->priv().matches(dContext)) {
+    if (myContext && !myContext->priv().inSameFamily(dContext)) {
         return nullptr;
     }
 #endif

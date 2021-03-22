@@ -241,7 +241,8 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
  * to be deregistered if the key is destroyed (to prevent unbounded listener growth when resources
  * are purged before listeners trigger).
  */
-sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey*, uint32_t contextID);
+sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey*,
+                                                              GrContextThreadSafeProxy::FamilyID);
 
 constexpr SkCubicResampler kInvalidCubicResampler{-1.f, -1.f};
 

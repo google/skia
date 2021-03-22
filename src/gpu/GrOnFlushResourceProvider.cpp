@@ -128,8 +128,12 @@ sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
     return resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
 }
 
-uint32_t GrOnFlushResourceProvider::contextID() const {
-    return fDrawingMgr->getContext()->priv().contextID();
+//GrDirectContext::DirectContextID GrOnFlushResourceProvider::directContextID() const {
+//    return fDrawingMgr->getContext()->directContextID();
+//}
+
+GrContextThreadSafeProxy::FamilyID GrOnFlushResourceProvider::familyID() const {
+    return fDrawingMgr->getContext()->priv().familyID();
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {

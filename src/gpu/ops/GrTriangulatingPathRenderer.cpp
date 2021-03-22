@@ -423,7 +423,7 @@ private:
             // replaced a pre-existing one. A duplicated listener is unlikely and not that
             // expensive so we just roll with it.
             fShape.addGenIDChangeListener(
-                sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
+                sk_make_sp<UniqueKeyInvalidator>(key, target->familyID()));
         }
 
         fMesh = CreateMesh(target, fVertexData->refGpuBuffer(), 0, fVertexData->numVertices());
@@ -565,7 +565,7 @@ private:
             // replaced a pre-existing one. A duplicated listener is unlikely and not that
             // expensive so we just roll with it.
             fShape.addGenIDChangeListener(
-                    sk_make_sp<UniqueKeyInvalidator>(key, rContext->priv().contextID()));
+                    sk_make_sp<UniqueKeyInvalidator>(key, rContext->priv().familyID()));
         }
     }
 

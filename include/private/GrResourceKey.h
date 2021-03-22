@@ -355,8 +355,8 @@ private:
 };
 
 static inline bool SkShouldPostMessageToBus(const GrUniqueKeyInvalidatedMessage& msg,
-                                            uint32_t msgBusUniqueID) {
-    return msg.contextID() == msgBusUniqueID;
+                                            uint32_t potentialRecipient) {
+    return msg.contextID() == potentialRecipient;
 }
 
 #endif

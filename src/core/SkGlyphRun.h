@@ -15,6 +15,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkZip.h"
@@ -70,7 +71,7 @@ public:
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
     bool anyRunsSubpixelPositioned() const;
-    void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;
+    void temporaryShuntBlobNotifyAddedToCache(GrContextThreadSafeProxy::FamilyID) const;
 
     bool canCache() const { return fOriginalTextBlob != nullptr; }
     size_t runCount() const { return fGlyphRuns.size(); }

@@ -237,7 +237,10 @@ public:
 
     virtual GrThreadSafeCache* threadSafeCache() const = 0;
     virtual GrResourceProvider* resourceProvider() const = 0;
-    uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
+    GrContextThreadSafeProxy::FamilyID familyID() const { return this->resourceProvider()->familyID(); }
+
+    // This call is a bit dodgy here - get the ID directly from the resourceprovider?
+    GrDirectContext::DirectContextID directContextID() const { return this->resourceProvider()->owningContextID(); }
 
     virtual GrStrikeCache* strikeCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;

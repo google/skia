@@ -413,7 +413,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
     auto installKey = [&](const GrSurfaceProxyView& view) {
         SkASSERT(view && view.asTextureProxy());
         if (key.isValid()) {
-            auto listener = GrMakeUniqueKeyInvalidationListener(&key, rContext->priv().contextID());
+            auto listener = GrMakeUniqueKeyInvalidationListener(&key, rContext->priv().familyID());
             this->addUniqueIDListener(std::move(listener));
             proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
         }

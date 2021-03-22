@@ -287,7 +287,8 @@ public:
         fGpu = nullptr;
     }
 
-    uint32_t contextUniqueID() const { return fCache->contextUniqueID(); }
+    GrContextThreadSafeProxy::FamilyID familyID() const { return fCache->familyID(); }
+    GrDirectContext::DirectContextID owningContextID() const { return fCache->owningContextID(); }
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
 

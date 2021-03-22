@@ -10,12 +10,12 @@
 DECLARE_SKMESSAGEBUS_MESSAGE(GrTextBlobCache::PurgeBlobMessage, uint32_t, true)
 
 // This function is captured by the above macro using implementations from SkMessageBus.h
-static inline bool SkShouldPostMessageToBus(
-        const GrTextBlobCache::PurgeBlobMessage& msg, uint32_t msgBusUniqueID) {
-    return msg.fContextID == msgBusUniqueID;
+static inline bool SkShouldPostMessageToBus(const GrTextBlobCache::PurgeBlobMessage& msg,
+                                            GrContextThreadSafeProxy::FamilyID potentialRecipient) {
+    return msg.fIntendedRecipient == potentialRecipient;
 }
 
-GrTextBlobCache::GrTextBlobCache(uint32_t messageBusID)
+GrTextBlobCache::GrTextBlobCache(GrContextThreadSafeProxy::FamilyID messageBusID)
         : fSizeBudget(kDefaultBudget)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
@@ -73,9 +73,10 @@ void GrTextBlobCache::freeAll() {
     fCurrentSize = 0;
 }
 
-void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
+void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID,
+                                           GrContextThreadSafeProxy::FamilyID cacheID) {
     SkASSERT(blobID != SK_InvalidGenID);
-    SkMessageBus<PurgeBlobMessage, uint32_t>::Post(PurgeBlobMessage(blobID, cacheID));
+    SkMessageBus<PurgeBlobMessage, GrContextThreadSafeProxy::FamilyID>::Post(PurgeBlobMessage(blobID, cacheID));
 }
 
 void GrTextBlobCache::purgeStaleBlobs() {

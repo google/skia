@@ -86,9 +86,9 @@ bool SkGlyphRunList::allFontsFinite() const {
     return true;
 }
 
-void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
+void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(GrContextThreadSafeProxy::FamilyID familyID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
-    fOriginalTextBlob->notifyAddedToCache(cacheID);
+    fOriginalTextBlob->notifyAddedToCache(familyID);
 }
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------

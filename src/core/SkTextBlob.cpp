@@ -143,13 +143,14 @@ static int32_t next_id() {
 
 SkTextBlob::SkTextBlob(const SkRect& bounds)
     : fBounds(bounds)
-    , fUniqueID(next_id())
-    , fCacheID(SK_InvalidUniqueID) {}
+    , fUniqueID(next_id()) {}
+//    , fCacheID(SK_InvalidUniqueID) {}
 
 SkTextBlob::~SkTextBlob() {
 #if SK_SUPPORT_GPU
-    if (SK_InvalidUniqueID != fCacheID.load()) {
-        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID, fCacheID);
+    GrContextThreadSafeProxy::FamilyID cacheID = fCacheID.load();
+    if (cacheID.isValid()) {
+        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID, cacheID);
     }
 #endif
 

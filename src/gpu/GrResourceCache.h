@@ -60,7 +60,7 @@ class GrResourceCache {
 public:
     GrResourceCache(GrSingleOwner* owner,
                     GrDirectContext::DirectContextID owningContextID,
-                    uint32_t familyID);
+                    GrContextThreadSafeProxy::FamilyID);
     ~GrResourceCache();
 
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
@@ -70,8 +70,10 @@ public:
     class ResourceAccess;
     ResourceAccess resourceAccess();
 
-    /** Unique ID of the owning GrContext. */
-    uint32_t contextUniqueID() const { return fContextUniqueID; }
+    /** Unique ID of the owning GrDirectContext. */
+    GrDirectContext::DirectContextID owningContextID() const { return fOwningContextID; }
+
+    GrContextThreadSafeProxy::FamilyID familyID() const { return fFamilyID; }
 
     /** Sets the max gpu memory byte size of the cache. */
     void setLimit(size_t bytes);
@@ -326,7 +328,9 @@ private:
     using TextureFreedMessageBus = SkMessageBus<GrTextureFreedMessage,
                                                 GrDirectContext::DirectContextID>;
 
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage, uint32_t>::Inbox InvalidUniqueKeyInbox;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage,
+                         GrContextThreadSafeProxy::FamilyID>::Inbox InvalidUniqueKeyInbox;
+
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
@@ -369,9 +373,9 @@ private:
     TextureFreedMessageBus::Inbox       fFreedTextureInbox;
     TexturesAwaitingUnref               fTexturesAwaitingUnref;
 
-    GrDirectContext::DirectContextID    fOwningContextID;
-    uint32_t                            fContextUniqueID = SK_InvalidUniqueID;
-    GrSingleOwner*                      fSingleOwner = nullptr;
+    GrDirectContext::DirectContextID         fOwningContextID;
+    const GrContextThreadSafeProxy::FamilyID fFamilyID;
+    GrSingleOwner*                           fSingleOwner = nullptr;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because
     // we're in the midst of converting it to purgeable status.

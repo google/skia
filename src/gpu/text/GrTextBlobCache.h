@@ -14,13 +14,14 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkTextBlobPriv.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/text/GrTextBlob.h"
 
 #include <functional>
 
 class GrTextBlobCache {
 public:
-    GrTextBlobCache(uint32_t messageBusID);
+    GrTextBlobCache(GrContextThreadSafeProxy::FamilyID messageBusID);
 
     // If not already in the cache, then add it else, return the text blob from the cache.
     sk_sp<GrTextBlob> addOrReturnExisting(
@@ -33,14 +34,14 @@ public:
     void freeAll() SK_EXCLUDES(fSpinLock);
 
     struct PurgeBlobMessage {
-        PurgeBlobMessage(uint32_t blobID, uint32_t contextUniqueID)
-                : fBlobID(blobID), fContextID(contextUniqueID) {}
+        PurgeBlobMessage(uint32_t blobID, GrContextThreadSafeProxy::FamilyID familyID)
+                : fBlobID(blobID), fIntendedRecipient(familyID) {}
 
-        uint32_t fBlobID;
-        uint32_t fContextID;
+        uint32_t                            fBlobID;
+         GrContextThreadSafeProxy::FamilyID fIntendedRecipient;
     };
 
-    static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);
+    static void PostPurgeBlobMessage(uint32_t blobID, GrContextThreadSafeProxy::FamilyID);
 
     void purgeStaleBlobs() SK_EXCLUDES(fSpinLock);
 
@@ -87,9 +88,11 @@ private:
     size_t fSizeBudget SK_GUARDED_BY(fSpinLock);
     size_t fCurrentSize SK_GUARDED_BY(fSpinLock) {0};
 
-    // In practice 'messageBusID' is always the unique ID of the owning GrContext
-    const uint32_t fMessageBusID;
-    SkMessageBus<PurgeBlobMessage, uint32_t>::Inbox fPurgeBlobInbox SK_GUARDED_BY(fSpinLock);
+    using Foo = SkMessageBus<PurgeBlobMessage, GrContextThreadSafeProxy::FamilyID>;
+
+    // In practice 'messageBusID' is always the family ID
+    const GrContextThreadSafeProxy::FamilyID fMessageBusID;
+    Foo::Inbox fPurgeBlobInbox SK_GUARDED_BY(fSpinLock);
 };
 
 #endif

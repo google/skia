@@ -9,6 +9,7 @@
 #define GrOnFlushResourceProvider_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkSpan.h"
 #include "src/gpu/GrDeferredUpload.h"
@@ -84,7 +85,8 @@ public:
     sk_sp<const GrGpuBuffer> findOrMakeStaticBuffer(GrGpuBufferType, size_t, const void* data,
                                                     const GrUniqueKey&);
 
-    uint32_t contextID() const;
+    GrDirectContext::DirectContextID directContextID() const;
+    GrContextThreadSafeProxy::FamilyID familyID() const;
     const GrCaps* caps() const;
     GrRecordingContext* recordingContext() const;
 
