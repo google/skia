@@ -274,3 +274,18 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
 }
 
 #endif
+
+/**************************************************************************************************/
+
+GrRuntimeFPBuilder::GrRuntimeFPBuilder(sk_sp<SkRuntimeEffect> effect)
+        : INHERITED(std::move(effect)) {}
+
+GrRuntimeFPBuilder::~GrRuntimeFPBuilder() = default;
+
+std::unique_ptr<GrFragmentProcessor> GrRuntimeFPBuilder::makeFP(
+        GrRecordingContext* recordingContext) {
+    return this->effect()->makeFP(recordingContext,
+                                  this->uniforms(),
+                                  this->children(),
+                                  this->numChildren());
+}
