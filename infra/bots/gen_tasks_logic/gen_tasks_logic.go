@@ -1500,6 +1500,12 @@ func (b *jobBuilder) dm() {
 		if recipe == "test" {
 			b.dmFlags(iidStr)
 		}
+		// Stuff for uploading.
+		b.recipeProp("gs_bucket", b.cfg.GsBucketGm)
+		//b.recipeProps(EXTRA_PROPS)
+		//b.kitchenTask("upload_dm_results", OUTPUT_NONE)
+		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
+		b.cipd(specs.CIPD_PKGS_GSUTIL...)
 		b.kitchenTask(recipe, OUTPUT_TEST)
 		b.cas(cas)
 		b.swarmDimensions()
@@ -1543,7 +1549,7 @@ func (b *jobBuilder) dm() {
 	// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
 	// time as normal tests (which would be nice), cfg.json needs to have Coverage removed.
 	if b.doUpload() {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
+		/*uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
 		depName := b.Name
 		b.addTask(uploadName, func(b *taskBuilder) {
 			b.recipeProp("gs_bucket", b.cfg.GsBucketGm)
@@ -1558,7 +1564,7 @@ func (b *jobBuilder) dm() {
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 			b.cipd(specs.CIPD_PKGS_GSUTIL...)
 			b.dep(depName)
-		})
+		})*/
 	}
 }
 
