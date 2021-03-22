@@ -10,7 +10,7 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-float3 _blend_set_color_luminance(float3 hueSatColor, float alpha, float3 lumColor) {
+float3 _blend_set_color_luminance_h3h3hh3(float3 hueSatColor, float alpha, float3 lumColor) {
     float lum = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
     float3 result = (lum - dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
     float minComp = min(min(result.x, result.y), result.z);
@@ -24,29 +24,29 @@ float3 _blend_set_color_luminance(float3 hueSatColor, float alpha, float3 lumCol
         return result;
     }
 }
-float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
+float3 _blend_set_color_saturation_helper_h3h3h(float3 minMidMax, float sat) {
     if (minMidMax.x < minMidMax.z) {
         return float3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat);
     } else {
         return float3(0.0);
     }
 }
-float3 _blend_set_color_saturation(float3 hueLumColor, float3 satColor) {
+float3 _blend_set_color_saturation_h3h3h3(float3 hueLumColor, float3 satColor) {
     float sat = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
     if (hueLumColor.x <= hueLumColor.y) {
         if (hueLumColor.y <= hueLumColor.z) {
-            return _blend_set_color_saturation_helper(hueLumColor, sat);
+            return _blend_set_color_saturation_helper_h3h3h(hueLumColor, sat);
         } else if (hueLumColor.x <= hueLumColor.z) {
-            return _blend_set_color_saturation_helper(hueLumColor.xzy, sat).xzy;
+            return _blend_set_color_saturation_helper_h3h3h(hueLumColor.xzy, sat).xzy;
         } else {
-            return _blend_set_color_saturation_helper(hueLumColor.zxy, sat).yzx;
+            return _blend_set_color_saturation_helper_h3h3h(hueLumColor.zxy, sat).yzx;
         }
     } else if (hueLumColor.x <= hueLumColor.z) {
-        return _blend_set_color_saturation_helper(hueLumColor.yxz, sat).yxz;
+        return _blend_set_color_saturation_helper_h3h3h(hueLumColor.yxz, sat).yxz;
     } else if (hueLumColor.y <= hueLumColor.z) {
-        return _blend_set_color_saturation_helper(hueLumColor.yzx, sat).zxy;
+        return _blend_set_color_saturation_helper_h3h3h(hueLumColor.yzx, sat).zxy;
     } else {
-        return _blend_set_color_saturation_helper(hueLumColor.zyx, sat).zyx;
+        return _blend_set_color_saturation_helper_h3h3h(hueLumColor.zyx, sat).zyx;
     }
 }
 
@@ -56,6 +56,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float _0_alpha = _uniforms.dst.w * _uniforms.src.w;
     float3 _1_sda = _uniforms.src.xyz * _uniforms.dst.w;
     float3 _2_dsa = _uniforms.dst.xyz * _uniforms.src.w;
-    _out.sk_FragColor = float4((((_blend_set_color_luminance(_blend_set_color_saturation(_1_sda, _2_dsa), _0_alpha, _2_dsa) + _uniforms.dst.xyz) - _2_dsa) + _uniforms.src.xyz) - _1_sda, (_uniforms.src.w + _uniforms.dst.w) - _0_alpha);
+    _out.sk_FragColor = float4((((_blend_set_color_luminance_h3h3hh3(_blend_set_color_saturation_h3h3h3(_1_sda, _2_dsa), _0_alpha, _2_dsa) + _uniforms.dst.xyz) - _2_dsa) + _uniforms.src.xyz) - _1_sda, (_uniforms.src.w + _uniforms.dst.w) - _0_alpha);
     return _out;
 }
