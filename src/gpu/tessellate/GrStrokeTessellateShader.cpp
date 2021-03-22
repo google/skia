@@ -460,10 +460,10 @@ private:
 };
 
 SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
-        const GrGLSLPrimitiveProcessor* glslPrimProc, const char* versionAndExtensionDecls,
+        const GrGLSLGeometryProcessor* glslGeomProc, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler, const GrShaderCaps& shaderCaps) const {
     SkASSERT(fMode == Mode::kTessellation);
-    auto impl = static_cast<const GrStrokeTessellateShader::TessellationImpl*>(glslPrimProc);
+    auto impl = static_cast<const GrStrokeTessellateShader::TessellationImpl*>(glslGeomProc);
 
     SkString code(versionAndExtensionDecls);
     // Run 3 invocations: 1 for each section that the vertex shader chopped the curve into.
@@ -818,10 +818,10 @@ static void append_eval_stroke_edge_fn(SkString* code, bool hasConics) {
 }
 
 SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
-        const GrGLSLPrimitiveProcessor* glslPrimProc, const char* versionAndExtensionDecls,
+        const GrGLSLGeometryProcessor* glslGeomProc, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler, const GrShaderCaps& shaderCaps) const {
     SkASSERT(fMode == Mode::kTessellation);
-    auto impl = static_cast<const GrStrokeTessellateShader::TessellationImpl*>(glslPrimProc);
+    auto impl = static_cast<const GrStrokeTessellateShader::TessellationImpl*>(glslGeomProc);
 
     SkString code(versionAndExtensionDecls);
     code.append("layout(quads, equal_spacing, ccw) in;\n");
@@ -1309,8 +1309,8 @@ void GrStrokeTessellateShader::getGLSLProcessorKey(const GrShaderCaps&,
     b->add32(key);
 }
 
-GrGLSLPrimitiveProcessor* GrStrokeTessellateShader::createGLSLInstance(
+GrGLSLGeometryProcessor* GrStrokeTessellateShader::createGLSLInstance(
         const GrShaderCaps&) const {
     return (fMode == Mode::kTessellation) ?
-            (GrGLSLPrimitiveProcessor*)new TessellationImpl : new IndirectImpl;
+            (GrGLSLGeometryProcessor*)new TessellationImpl : new IndirectImpl;
 }

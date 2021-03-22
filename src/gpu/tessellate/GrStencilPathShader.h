@@ -88,7 +88,7 @@ protected:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(this->viewMatrix().isIdentity());
     }
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     class Impl;
 };
@@ -114,11 +114,11 @@ public:
     const char* name() const override { return "tessellate_GrCubicTessellateShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
                                       const char* versionAndExtensionDecls,
                                       const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
                                          const char* versionAndExtensionDecls,
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
@@ -137,11 +137,11 @@ public:
     const char* name() const override { return "tessellate_GrWedgeTessellateShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
                                       const char* versionAndExtensionDecls,
                                       const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
                                          const char* versionAndExtensionDecls,
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
@@ -203,7 +203,7 @@ public:
     const char* name() const override { return "tessellate_GrMiddleOutCubicShader"; }
 
 private:
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     class Impl;
 };

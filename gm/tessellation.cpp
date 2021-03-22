@@ -21,7 +21,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
-#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -87,15 +86,15 @@ private:
         GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
     };
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new Impl;
     }
 
-    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
                                       const char* versionAndExtensionDecls,
                                       const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
                                          const char* versionAndExtensionDecls,
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
@@ -104,7 +103,7 @@ private:
 };
 
 SkString TessellationTestTriShader::getTessControlShaderGLSL(
-        const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
+        const GrGLSLGeometryProcessor*, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler&, const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(R"(
@@ -123,7 +122,7 @@ SkString TessellationTestTriShader::getTessControlShaderGLSL(
 }
 
 SkString TessellationTestTriShader::getTessEvaluationShaderGLSL(
-        const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
+        const GrGLSLGeometryProcessor*, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler&, const GrShaderCaps&) const {
     SkString code(versionAndExtensionDecls);
     code.append(R"(
@@ -205,15 +204,15 @@ private:
         GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
     };
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new Impl;
     }
 
-    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
                                       const char* versionAndExtensionDecls,
                                       const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
                                          const char* versionAndExtensionDecls,
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
@@ -222,7 +221,7 @@ private:
 };
 
 SkString TessellationTestRectShader::getTessControlShaderGLSL(
-        const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
+        const GrGLSLGeometryProcessor*, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler&, const GrShaderCaps& caps) const {
     SkString code(versionAndExtensionDecls);
     code.append(R"(
@@ -245,7 +244,7 @@ SkString TessellationTestRectShader::getTessControlShaderGLSL(
 }
 
 SkString TessellationTestRectShader::getTessEvaluationShaderGLSL(
-        const GrGLSLPrimitiveProcessor*, const char* versionAndExtensionDecls,
+        const GrGLSLGeometryProcessor*, const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler&, const GrShaderCaps& caps) const {
     SkString code(versionAndExtensionDecls);
     code.appendf(R"(

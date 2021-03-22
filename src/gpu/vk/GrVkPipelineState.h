@@ -47,7 +47,7 @@ public:
             uint32_t uniformSize,
             bool usePushConstants,
             const UniformInfoArray& samplers,
-            std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+            std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
             std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls);
 
@@ -123,7 +123,7 @@ private:
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
 
     // Processors in the GrVkPipelineState
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
 
