@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "96dea67a_d256c29e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-22T17:18:00Z",
+      "side": 1,
+      "message": "Agreed. 1/4 pixel is a bit low for the rounded corners, but 1/4 seems fine for parametric segments. It would be easy to experiment with adding a few more radial segments.",
+      "parentUuid": "da6674c7_c15ed1d7",
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b41d2120_718f9ca0",
