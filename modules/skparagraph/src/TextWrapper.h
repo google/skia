@@ -98,7 +98,11 @@ class TextWrapper {
             fStart = ClusterPos(cluster, pos);
             fEnd = ClusterPos(cluster, pos);
             if (auto r = cluster->runOrNull()) {
-                fMetrics.add(r);
+                // In case of placeholder we should ignore the default text style -
+                // we will pick up the correct one from the placeholder
+                if (!r->isPlaceholder()) {
+                    fMetrics.add(r);
+                }
             }
             fWidth = 0;
         }

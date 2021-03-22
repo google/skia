@@ -3458,48 +3458,51 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextHeightBehavior(TextHeightBehavior::kDisableAll);
-
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
+        SkPaint paint;
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(32);
-        text_style.setHeight(5.0);
-        text_style.setHeightOverride(true);
-        text_style.setColor(SK_ColorBLACK);
-        SkPaint red;
-        red.setColor(SK_ColorRED);
-        text_style.setBackgroundColor(red);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        PlaceholderStyle placeholder_style;
+        placeholder_style.fHeight = 20;
+        placeholder_style.fWidth = 300;
+        placeholder_style.fBaseline = TextBaseline::kAlphabetic;
+        placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
+        paint.setColor(SK_ColorGREEN);
+        text_style.setBackgroundColor(paint);
         builder.pushStyle(text_style);
-        builder.addText("Item 1\nItem 2\n");
-
+        builder.addPlaceholder(placeholder_style);
+        placeholder_style.fHeight = 8;
+        paint.setColor(SK_ColorRED);
+        text_style.setBackgroundColor(paint);
+        builder.pushStyle(text_style);
+        builder.addPlaceholder(placeholder_style);
+        text_style.setFontSize(36);
+        text_style.setColor(SK_ColorBLACK);
+        paint.setColor(SK_ColorWHITE);
+        text_style.setBackgroundColor(paint);
+        builder.pushStyle(text_style);
+        builder.addText("Text");
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(300);
         paragraph->paint(canvas, 0, 0);
 
-        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
         if (this->isVerbose()) {
-            for (auto& run : impl->runs()) {
-                size_t index = 0;
-                for (auto glyph : run.glyphs()) {
-                    if (glyph == 0) {
-                        SkDebugf("Unresolved: %d\n", index);
-                    }
-                    ++index;
-                }
-            }
+            auto impl = static_cast<ParagraphImpl*>(paragraph.get());
             for (auto& line : impl->lines()) {
-                auto metric = line.getMetrics();
-                SkDebugf("Line: %f %f/%f %f %f\n", line.height(), metric.fAscent, metric.fUnscaledAscent, metric.fDescent, metric.fBaseline);
+                SkDebugf("@%f +%f\n", line.offset().fY, line.height());
             }
         }
-
-        SkDebugf("Height: %f\n", paragraph->getHeight());
     }
 
 private:
     using INHERITED = Sample;
 };
+
+/*
+ *             WidgetSpan(child: Container(width: 300.0, height: 20.0, color: Colors.red)),
+            WidgetSpan(child: Container(width: 300.0, height: 8.0, color: Colors.green)),
+            TextSpan(text: 'Text', style: TextStyle(fontSize: 36.0)),
+ */
 
 }  // namespace
 
