@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85c5119e_d7173fca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-22T17:54:12Z",
+      "side": 1,
+      "message": "Short term patch to get Android rolling again. Will see about splitting up adding warnings and subtracting warnings so that even in an official build Skia\u0027s build will suppress known warnings which would have been suppressed in our own builds anyway.",
+      "revId": "6d52027dc2746585b84dbe3a213be796fb90b509",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
