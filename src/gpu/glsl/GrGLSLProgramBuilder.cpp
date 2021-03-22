@@ -56,7 +56,7 @@ void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
 
 bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     // First we loop over all of the installed processors and collect coord transforms.  These will
-    // be sent to the GrGLSLPrimitiveProcessor in its emitCode function
+    // be sent to the GrGLSLGeometryProcessor in its emitCode function
     SkSL::dsl::Start(this->shaderCompiler());
     SkString inputColor;
     SkString inputCoverage;
@@ -106,8 +106,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
                                            name.c_str());
     }
 
-    GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(this->pipeline(),
-                                                                       &fTransformedCoordVars);
+    GrGLSLGeometryProcessor::FPCoordTransformHandler transformHandler(this->pipeline(),
+                                                                      &fTransformedCoordVars);
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
                                            geomProc.willUseGeoShader() ? &fGS : nullptr,
                                            &fFS,

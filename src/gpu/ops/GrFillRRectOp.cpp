@@ -292,7 +292,7 @@ public:
         b->addBits(kNumProcessorFlags, (uint32_t)fFlags,  "flags");
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
     Processor(GrAAType aaType, ProcessorFlags flags)
@@ -675,8 +675,7 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
 };
 
 
-GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
-        const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* FillRRectOp::Processor::createGLSLInstance(const GrShaderCaps&) const {
     return new Impl();
 }
 

@@ -517,8 +517,6 @@ skia_gpu_sources = [
   "$_src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
   "$_src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
   "$_src/gpu/glsl/GrGLSLGeometryProcessor.h",
-  "$_src/gpu/glsl/GrGLSLPrimitiveProcessor.cpp",
-  "$_src/gpu/glsl/GrGLSLPrimitiveProcessor.h",
   "$_src/gpu/glsl/GrGLSLProgramBuilder.cpp",
   "$_src/gpu/glsl/GrGLSLProgramBuilder.h",
   "$_src/gpu/glsl/GrGLSLProgramDataManager.cpp",

@@ -11,7 +11,6 @@
 #include "include/private/SkSLString.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
