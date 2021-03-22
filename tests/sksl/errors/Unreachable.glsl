@@ -1,5 +1,5 @@
 
-void call_after_return() {
+void call_after_return_v() {
     return;
-    call_after_return();
+    call_after_return_v();
 }

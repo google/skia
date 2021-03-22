@@ -1,5 +1,5 @@
 
-void tooBig(inout int x) {
+void tooBig_vi(inout int x) {
     ++x;
     ++x;
     ++x;
@@ -37,6 +37,6 @@ void tooBig(inout int x) {
 }
 void main() {
     int x = 0;
-    tooBig(x);
-    tooBig(x);
+    tooBig_vi(x);
+    tooBig_vi(x);
 }

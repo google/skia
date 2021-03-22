@@ -1,6 +1,6 @@
 
 out vec4 sk_FragColor;
-void fn6() {
+void fn6_v() {
     sk_FragColor.x = 0.0;
     sk_FragColor.x = 0.0;
     sk_FragColor.x = 0.0;
@@ -248,7 +248,7 @@ void fn6() {
     sk_FragColor.x = 0.0;
     false;
 }
-void fn7() {
+void fn7_v() {
     sk_FragColor.x = 0.0;
     sk_FragColor.x = 0.0;
     sk_FragColor.x = 0.0;
@@ -493,89 +493,89 @@ void fn7() {
     sk_FragColor.x = 0.0;
     sk_FragColor.x = 0.0;
     false;
-    fn6();
-    fn6();
+    fn6_v();
+    fn6_v();
 }
-void fn8() {
-    fn7();
-    fn7();
-    fn7();
+void fn8_v() {
+    fn7_v();
+    fn7_v();
+    fn7_v();
 }
-void fn9() {
-    fn8();
-    fn8();
-    fn8();
+void fn9_v() {
+    fn8_v();
+    fn8_v();
+    fn8_v();
 }
-void fnA() {
-    fn9();
-    fn9();
-    fn9();
+void fnA_v() {
+    fn9_v();
+    fn9_v();
+    fn9_v();
 }
-void fnB() {
-    fnA();
-    fnA();
-    fnA();
+void fnB_v() {
+    fnA_v();
+    fnA_v();
+    fnA_v();
 }
-void fnC() {
-    fnB();
-    fnB();
-    fnB();
+void fnC_v() {
+    fnB_v();
+    fnB_v();
+    fnB_v();
 }
-void fnD() {
-    fnC();
-    fnC();
-    fnC();
+void fnD_v() {
+    fnC_v();
+    fnC_v();
+    fnC_v();
 }
-void fnE() {
-    fnD();
-    fnD();
-    fnD();
+void fnE_v() {
+    fnD_v();
+    fnD_v();
+    fnD_v();
 }
-void fnF() {
-    fnE();
-    fnE();
-    fnE();
+void fnF_v() {
+    fnE_v();
+    fnE_v();
+    fnE_v();
 }
-void fnG() {
-    fnF();
-    fnF();
-    fnF();
+void fnG_v() {
+    fnF_v();
+    fnF_v();
+    fnF_v();
 }
-void fnH() {
-    fnG();
-    fnG();
-    fnG();
+void fnH_v() {
+    fnG_v();
+    fnG_v();
+    fnG_v();
 }
-void fnI() {
-    fnH();
-    fnH();
-    fnH();
+void fnI_v() {
+    fnH_v();
+    fnH_v();
+    fnH_v();
 }
-void fnJ() {
-    fnI();
-    fnI();
-    fnI();
+void fnJ_v() {
+    fnI_v();
+    fnI_v();
+    fnI_v();
 }
-void fnK() {
-    fnJ();
-    fnJ();
-    fnJ();
+void fnK_v() {
+    fnJ_v();
+    fnJ_v();
+    fnJ_v();
 }
-void fnL() {
-    fnK();
-    fnK();
-    fnK();
+void fnL_v() {
+    fnK_v();
+    fnK_v();
+    fnK_v();
 }
-void fnM() {
-    fnL();
-    fnL();
-    fnL();
+void fnM_v() {
+    fnL_v();
+    fnL_v();
+    fnL_v();
 }
-void fnN() {
-    fnM();
-    fnM();
-    fnM();
+void fnN_v() {
+    fnM_v();
+    fnM_v();
+    fnM_v();
 }
 void main() {
-    fnN();
+    fnN_v();
 }

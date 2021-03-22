@@ -257,6 +257,7 @@ sksl_shared_tests = [
   "/sksl/intrinsics/Cos.sksl",
   "/sksl/intrinsics/Cosh.sksl",
   "/sksl/intrinsics/Cross.sksl",
+  "/sksl/intrinsics/CrossNoInline.sksl",
   "/sksl/intrinsics/Degrees.sksl",
   "/sksl/intrinsics/Determinant.sksl",
   "/sksl/intrinsics/DFdx.sksl",

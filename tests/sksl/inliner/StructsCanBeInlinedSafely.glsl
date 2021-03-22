@@ -1,6 +1,6 @@
 
 out vec4 sk_FragColor;
-vec4 helper();
+vec4 helper_h4();
 struct Color {
     float red;
     float green;

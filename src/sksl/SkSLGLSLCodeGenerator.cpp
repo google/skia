@@ -703,7 +703,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
     }
     if (!nameWritten) {
-        this->write(function.name());
+        this->write(function.mangledName());
     }
     this->write("(");
     const char* separator = "";
@@ -997,7 +997,7 @@ void GLSLCodeGenerator::writeSetting(const Setting& s) {
 void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     this->writeTypePrecision(f.returnType());
     this->writeType(f.returnType());
-    this->write(" " + f.name() + "(");
+    this->write(" " + f.mangledName() + "(");
     const char* separator = "";
     for (const auto& param : f.parameters()) {
         this->write(separator);

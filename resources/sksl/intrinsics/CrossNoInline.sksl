@@ -1,3 +1,5 @@
+/*#pragma settings NoInline*/
+
 uniform half2  ah, bh;
 uniform float2 af, bf;
 void main() {

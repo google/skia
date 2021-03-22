@@ -1,10 +1,10 @@
 
 out vec4 sk_FragColor;
-vec4 helper();
+vec4 helper_h4();
 void main() {
-    sk_FragColor = helper();
+    sk_FragColor = helper_h4();
 }
-vec4 helper() {
+vec4 helper_h4() {
     int temp = 1;
     switch (temp) {
         case 0:
