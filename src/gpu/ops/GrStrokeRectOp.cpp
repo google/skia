@@ -201,7 +201,7 @@ private:
             this->createProgramInfo(target);
         }
 
-        size_t kVertexStride = fProgramInfo->primProc().vertexStride();
+        size_t kVertexStride = fProgramInfo->geomProc().vertexStride();
         int vertexCount = kVertsPerHairlineRect;
         if (fStrokeWidth > 0) {
             vertexCount = kVertsPerStrokeRect;
@@ -241,7 +241,7 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
 
@@ -568,7 +568,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
         return;
     }
     PatternHelper helper(target, GrPrimitiveType::kTriangles,
-                         fProgramInfo->primProc().vertexStride(), std::move(indexBuffer),
+                         fProgramInfo->geomProc().vertexStride(), std::move(indexBuffer),
                          verticesPerInstance, indicesPerInstance, instanceCount, maxQuads);
     GrVertexWriter vertices{ helper.vertices() };
     if (!vertices.fPtr) {
@@ -598,7 +598,7 @@ void AAStrokeRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }
 

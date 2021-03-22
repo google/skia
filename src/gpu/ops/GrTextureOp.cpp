@@ -928,7 +928,7 @@ private:
             for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
                 const int quadCnt = op.fViewCountPairs[p].fQuadCnt;
                 SkASSERT(numDraws < fDesc->fNumProxies);
-                flushState->bindTextures(fDesc->fProgramInfo->primProc(),
+                flushState->bindTextures(fDesc->fProgramInfo->geomProc(),
                                          *op.fViewCountPairs[p].fProxy,
                                          fDesc->fProgramInfo->pipeline());
                 GrQuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(),

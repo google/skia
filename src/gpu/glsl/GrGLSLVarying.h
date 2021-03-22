@@ -130,7 +130,7 @@ public:
     void addPassThroughAttribute(const GrGeometryProcessor::Attribute&, const char* output,
                                  Interpolation = Interpolation::kInterpolated);
 
-    void emitAttributes(const GrGeometryProcessor& gp);
+    void emitAttributes(const GrGeometryProcessor&);
 
     // This should be called once all attributes and varyings have been added to the
     // GrGLSLVaryingHanlder and before getting/adding any of the declarations to the shaders.

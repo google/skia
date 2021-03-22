@@ -27,7 +27,7 @@ public:
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
-                args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
+                args.fGeomProc.cast<GrDistanceFieldA8TextGeoProc>();
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -156,8 +156,9 @@ public:
         fragBuilder->codeAppendf("half4 %s = half4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
-        const GrDistanceFieldA8TextGeoProc& dfa8gp = proc.cast<GrDistanceFieldA8TextGeoProc>();
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrGeometryProcessor& geomProc) override {
+        const GrDistanceFieldA8TextGeoProc& dfa8gp = geomProc.cast<GrDistanceFieldA8TextGeoProc>();
 
 #ifdef SK_GAMMA_APPLY_TO_A8
         float distanceAdjust = dfa8gp.getDistanceAdjust();
@@ -319,7 +320,7 @@ public:
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldPathGeoProc& dfPathEffect =
-                args.fGP.cast<GrDistanceFieldPathGeoProc>();
+                args.fGeomProc.cast<GrDistanceFieldPathGeoProc>();
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
@@ -441,8 +442,9 @@ public:
         fragBuilder->codeAppendf("half4 %s = half4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
-        const GrDistanceFieldPathGeoProc& dfpgp = proc.cast<GrDistanceFieldPathGeoProc>();
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrGeometryProcessor& geomProc) override {
+        const GrDistanceFieldPathGeoProc& dfpgp = geomProc.cast<GrDistanceFieldPathGeoProc>();
 
         // We always set the matrix uniform; it's either used to transform from local to device
         // for the output position, or from device to local for the local coord variable.
@@ -587,7 +589,7 @@ public:
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect =
-                args.fGP.cast<GrDistanceFieldLCDTextGeoProc>();
+                args.fGeomProc.cast<GrDistanceFieldLCDTextGeoProc>();
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -749,10 +751,10 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& processor) override {
+                 const GrGeometryProcessor& geomProc) override {
         SkASSERT(fDistanceAdjustUni.isValid());
 
-        const GrDistanceFieldLCDTextGeoProc& dflcd = processor.cast<GrDistanceFieldLCDTextGeoProc>();
+        const GrDistanceFieldLCDTextGeoProc& dflcd = geomProc.cast<GrDistanceFieldLCDTextGeoProc>();
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust wa = dflcd.getDistanceAdjust();
         if (wa != fDistanceAdjust) {
             pdman.set3f(fDistanceAdjustUni,

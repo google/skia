@@ -9,8 +9,8 @@
 
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTo.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -53,12 +53,13 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
     return SkToU32(samplerTypeKey | swizzleKey << kSamplerOrImageTypeKeyBits);
 }
 
-static void add_pp_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,
-                                const GrCaps& caps) {
-    int numTextureSamplers = pp.numTextureSamplers();
+static void add_geomproc_sampler_keys(GrProcessorKeyBuilder* b,
+                                      const GrGeometryProcessor& geomProc,
+                                      const GrCaps& caps) {
+    int numTextureSamplers = geomProc.numTextureSamplers();
     b->add32(numTextureSamplers, "ppNumSamplers");
     for (int i = 0; i < numTextureSamplers; ++i) {
-        const GrPrimitiveProcessor::TextureSampler& sampler = pp.textureSampler(i);
+        const GrGeometryProcessor::TextureSampler& sampler = geomProc.textureSampler(i);
         const GrBackendFormat& backendFormat = sampler.backendFormat();
 
         uint32_t samplerKey = sampler_key(backendFormat.textureType(), sampler.swizzle(), caps);
@@ -78,16 +79,16 @@ static constexpr uint32_t kClassIDBits = 8;
  * Shader code may be dependent on properties of the effect not placed in the key by the effect
  * (e.g. pixel format of textures used).
  */
-static void gen_pp_key(const GrPrimitiveProcessor& pp,
-                       const GrCaps& caps,
-                       GrProcessorKeyBuilder* b) {
-    b->appendComment(pp.name());
-    b->addBits(kClassIDBits, pp.classID(), "ppClassID");
+static void gen_geomproc_key(const GrGeometryProcessor& geomProc,
+                             const GrCaps& caps,
+                             GrProcessorKeyBuilder* b) {
+    b->appendComment(geomProc.name());
+    b->addBits(kClassIDBits, geomProc.classID(), "geomProcClassID");
 
-    pp.getGLSLProcessorKey(*caps.shaderCaps(), b);
-    pp.getAttributeKey(b);
+    geomProc.getGLSLProcessorKey(*caps.shaderCaps(), b);
+    geomProc.getAttributeKey(b);
 
-    add_pp_sampler_keys(b, pp, caps);
+    add_geomproc_sampler_keys(b, geomProc, caps);
 }
 
 static void gen_xp_key(const GrXferProcessor& xp,
@@ -111,8 +112,8 @@ static void gen_fp_key(const GrFragmentProcessor& fp,
                        GrProcessorKeyBuilder* b) {
     b->appendComment(fp.name());
     b->addBits(kClassIDBits, fp.classID(), "fpClassID");
-    b->addBits(GrPrimitiveProcessor::kCoordTransformKeyBits,
-               GrPrimitiveProcessor::ComputeCoordTransformsKey(fp), "fpTransforms");
+    b->addBits(GrGeometryProcessor::kCoordTransformKeyBits,
+               GrGeometryProcessor::ComputeCoordTransformsKey(fp), "fpTransforms");
 
     if (auto* te = fp.asTextureEffect()) {
         const GrBackendFormat& backendFormat = te->view().proxy()->backendFormat();
@@ -139,7 +140,7 @@ static void gen_key(GrProcessorKeyBuilder* b,
                     GrRenderTarget* renderTarget,
                     const GrProgramInfo& programInfo,
                     const GrCaps& caps) {
-    gen_pp_key(programInfo.primProc(), caps, b);
+    gen_geomproc_key(programInfo.geomProc(), caps, b);
 
     const GrPipeline& pipeline = programInfo.pipeline();
     b->addBits(2, pipeline.numFragmentProcessors(),      "numFPs");

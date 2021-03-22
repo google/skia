@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrGeometryProcessor.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
 
@@ -25,14 +25,14 @@ enum SampleFlag {
     kPersp_Matrix_Flag           = 0b1000, // GrFP::sampleUsage()::fHasPerspective
 };
 
-GrPrimitiveProcessor::GrPrimitiveProcessor(ClassID classID) : GrProcessor(classID) {}
+GrGeometryProcessor::GrGeometryProcessor(ClassID classID) : GrProcessor(classID) {}
 
-const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler(int i) const {
+const GrGeometryProcessor::TextureSampler& GrGeometryProcessor::textureSampler(int i) const {
     SkASSERT(i >= 0 && i < this->numTextureSamplers());
     return this->onTextureSampler(i);
 }
 
-uint32_t GrPrimitiveProcessor::ComputeCoordTransformsKey(const GrFragmentProcessor& fp) {
+uint32_t GrGeometryProcessor::ComputeCoordTransformsKey(const GrFragmentProcessor& fp) {
     // This is highly coupled with the code in GrGLSLGeometryProcessor::collectTransforms().
 
     uint32_t key = 0;
@@ -68,15 +68,15 @@ static inline GrSamplerState::Filter clamp_filter(GrTextureType type,
     return requestedFilter;
 }
 
-GrPrimitiveProcessor::TextureSampler::TextureSampler(GrSamplerState samplerState,
-                                                     const GrBackendFormat& backendFormat,
-                                                     const GrSwizzle& swizzle) {
+GrGeometryProcessor::TextureSampler::TextureSampler(GrSamplerState samplerState,
+                                                    const GrBackendFormat& backendFormat,
+                                                    const GrSwizzle& swizzle) {
     this->reset(samplerState, backendFormat, swizzle);
 }
 
-void GrPrimitiveProcessor::TextureSampler::reset(GrSamplerState samplerState,
-                                                 const GrBackendFormat& backendFormat,
-                                                 const GrSwizzle& swizzle) {
+void GrGeometryProcessor::TextureSampler::reset(GrSamplerState samplerState,
+                                                const GrBackendFormat& backendFormat,
+                                                const GrSwizzle& swizzle) {
     fSamplerState = samplerState;
     fSamplerState.setFilterMode(clamp_filter(backendFormat.textureType(), samplerState.filter()));
     fBackendFormat = backendFormat;

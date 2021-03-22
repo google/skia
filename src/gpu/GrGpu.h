@@ -33,7 +33,7 @@ class GrPath;
 class GrPathRenderer;
 class GrPathRendererChain;
 class GrPipeline;
-class GrPrimitiveProcessor;
+class GrGeometryProcessor;
 class GrRenderTarget;
 class GrRingBuffer;
 class GrSemaphore;

@@ -277,7 +277,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                                         &shaders[kFragment_GrShaderType],
                                                         &inputs[kFragment_GrShaderType]);
 
-        if (this->primitiveProcessor().willUseGeoShader()) {
+        if (this->geometryProcessor().willUseGeoShader()) {
             success = success && this->createVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
                                                             *sksl[kGeometry_GrShaderType],
                                                             &shaderModules[kGeometry_GrShaderType],

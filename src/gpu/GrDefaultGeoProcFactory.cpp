@@ -64,7 +64,7 @@ public:
             , fCoverage(0xff) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-            const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
+            const DefaultGeoProc& gp = args.fGeomProc.cast<DefaultGeoProc>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -159,8 +159,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
-            const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
+                     const GrGeometryProcessor& geomProc) override {
+            const DefaultGeoProc& dgp = geomProc.cast<DefaultGeoProc>();
 
             this->setTransform(pdman, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrixPrev);
             this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fLocalMatrixPrev);

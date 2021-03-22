@@ -265,12 +265,12 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
 void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (fStencilProgram) {
         flushState->bindPipelineAndScissorClip(*fStencilProgram, chainBounds);
-        flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
+        flushState->bindTextures(fStencilProgram->geomProc(), nullptr, fStencilProgram->pipeline());
         fTessellator->draw(flushState);
     }
     if (fFillProgram) {
         flushState->bindPipelineAndScissorClip(*fFillProgram, chainBounds);
-        flushState->bindTextures(fFillProgram->primProc(), nullptr, fFillProgram->pipeline());
+        flushState->bindTextures(fFillProgram->geomProc(), nullptr, fFillProgram->pipeline());
         fTessellator->draw(flushState);
     }
 }

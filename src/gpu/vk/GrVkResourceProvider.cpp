@@ -293,8 +293,8 @@ sk_sp<const GrVkPipeline> GrVkResourceProvider::findOrCreateMSAALoadPipeline(
     if (!pipeline) {
         pipeline = GrVkPipeline::Make(
                 fGpu,
-                /*vertexAttribs=*/GrPrimitiveProcessor::AttributeSet(),
-                /*instanceAttribs=*/GrPrimitiveProcessor::AttributeSet(),
+                /*vertexAttribs=*/GrGeometryProcessor::AttributeSet(),
+                /*instanceAttribs=*/GrGeometryProcessor::AttributeSet(),
                 GrPrimitiveType::kTriangleStrip,
                 kTopLeft_GrSurfaceOrigin,
                 GrStencilSettings(),

@@ -9,11 +9,11 @@
 
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -66,7 +66,7 @@ private:
 
     class Impl : public GrGLSLGeometryProcessor {
         void onEmitCode(EmitArgs& args, GrGPArgs*) override {
-            args.fVaryingHandler->emitAttributes(args.fGP.cast<TessellationTestTriShader>());
+            args.fVaryingHandler->emitAttributes(args.fGeomProc.cast<TessellationTestTriShader>());
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
                     nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
@@ -80,9 +80,9 @@ private:
         }
         void writeFragmentShader(GrGLSLFPFragmentBuilder*, const char* color, const char* coverage);
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& proc) override {
+                     const GrGeometryProcessor& geomProc) override {
             pdman.setSkMatrix(fViewMatrixUniform,
-                              proc.cast<TessellationTestTriShader>().fViewMatrix);
+                              geomProc.cast<TessellationTestTriShader>().fViewMatrix);
         }
         GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
     };
@@ -198,9 +198,9 @@ private:
         }
         void writeFragmentShader(GrGLSLFPFragmentBuilder*, const char* color, const char* coverage);
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& proc) override {
+                     const GrGeometryProcessor& geomProc) override {
             pdman.setSkMatrix(fViewMatrixUniform,
-                              proc.cast<TessellationTestRectShader>().fViewMatrix);
+                              geomProc.cast<TessellationTestRectShader>().fViewMatrix);
         }
         GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
     };

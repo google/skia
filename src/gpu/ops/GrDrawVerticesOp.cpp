@@ -141,7 +141,7 @@ public:
             , fColor(SK_PMColor4fILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-            const VerticesGP& gp = args.fGP.cast<VerticesGP>();
+            const VerticesGP& gp = args.fGeomProc.cast<VerticesGP>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -318,8 +318,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
-            const VerticesGP& vgp = gp.cast<VerticesGP>();
+                     const GrGeometryProcessor& geomProc) override {
+            const VerticesGP& vgp = geomProc.cast<VerticesGP>();
 
             this->setTransform(pdman, fViewMatrixUniform, vgp.viewMatrix(), &fViewMatrix);
 
@@ -741,7 +741,7 @@ void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }
 

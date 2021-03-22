@@ -9,11 +9,11 @@
 #define GrGLSLPrimitiveProcessor_DEFINED
 
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-class GrPrimitiveProcessor;
+class GrGeometryProcessor;
 class GrGLSLFPFragmentBuilder;
 class GrGLSLGeometryBuilder;
 class GrGLSLGPBuilder;
@@ -67,7 +67,7 @@ public:
                  GrGLSLVaryingHandler* varyingHandler,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrShaderCaps* caps,
-                 const GrPrimitiveProcessor& gp,
+                 const GrGeometryProcessor& geomProc,
                  const char* outputColor,
                  const char* outputCoverage,
                  const SamplerHandle* texSamplers,
@@ -78,7 +78,7 @@ public:
             , fVaryingHandler(varyingHandler)
             , fUniformHandler(uniformHandler)
             , fShaderCaps(caps)
-            , fGP(gp)
+            , fGeomProc(geomProc)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
             , fTexSamplers(texSamplers)
@@ -89,7 +89,7 @@ public:
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
-        const GrPrimitiveProcessor& fGP;
+        const GrGeometryProcessor& fGeomProc;
         const char* fOutputColor;
         const char* fOutputCoverage;
         const SamplerHandle* fTexSamplers;
@@ -112,15 +112,15 @@ public:
      * A GrGLSLPrimitiveProcessor instance can be reused with any GrGLSLPrimitiveProcessor that
      * produces the same stage key; this function reads data from a GrGLSLPrimitiveProcessor and
      * uploads any uniform variables required  by the shaders created in emitCode(). The
-     * GrPrimitiveProcessor parameter is guaranteed to be of the same type and to have an
-     * identical processor key as the GrPrimitiveProcessor that created this
+     * GrGeometryProcessor parameter is guaranteed to be of the same type and to have an
+     * identical processor key as the GrGeometryProcessor that created this
      * GrGLSLPrimitiveProcessor.
      * The subclass should use the transform range to perform any setup required for the coord
      * transforms of the FPs that are part of the same program, such as updating matrix uniforms.
      * The range will iterate over the transforms in the same order as the TransformHandler passed
      * to emitCode.
      */
-    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) = 0;
+    virtual void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) = 0;
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,

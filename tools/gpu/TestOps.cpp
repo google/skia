@@ -46,8 +46,8 @@ private:
     class GLSLGP : public GrGLSLGeometryProcessor {
     public:
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& pp) override {
-            const auto& gp = pp.cast<GP>();
+                     const GrGeometryProcessor& geomProc) override {
+            const auto& gp = geomProc.cast<GP>();
             this->setTransform(pdman, fLocalMatrixUni, gp.fLocalMatrix);
         }
 
@@ -57,7 +57,7 @@ private:
 
     private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-            const auto& gp = args.fGP.cast<GP>();
+            const auto& gp = args.fGeomProc.cast<GP>();
             args.fVaryingHandler->emitAttributes(gp);
             GrGLSLVarying colorVarying(kHalf4_GrSLType);
             args.fVaryingHandler->addVarying("color", &colorVarying,
@@ -214,7 +214,7 @@ void TestRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }
 

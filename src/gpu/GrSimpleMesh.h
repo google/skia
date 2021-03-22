@@ -12,7 +12,7 @@
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrOpsRenderPass.h"
 
-class GrPrimitiveProcessor;
+class GrGeometryProcessor;
 
 /**
  * Used to communicate simple (non-instanced, direct) draws from GrOp to GrOpsRenderPass.

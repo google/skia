@@ -494,10 +494,10 @@ private:
 };
 
 class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
-        const GrMeshTestProcessor& mp = args.fGP.cast<GrMeshTestProcessor>();
+        const GrMeshTestProcessor& mp = args.fGeomProc.cast<GrMeshTestProcessor>();
         GrGLSLVertexBuilder* v = args.fVertBuilder;
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 

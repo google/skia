@@ -26,7 +26,7 @@ public:
             , fLocalMatrix(SkMatrix::InvalidMatrix()) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const GrBitmapTextGeoProc& btgp = args.fGP.cast<GrBitmapTextGeoProc>();
+        const GrBitmapTextGeoProc& btgp = args.fGeomProc.cast<GrBitmapTextGeoProc>();
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -71,8 +71,9 @@ public:
         }
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp) override {
-        const GrBitmapTextGeoProc& btgp = gp.cast<GrBitmapTextGeoProc>();
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrGeometryProcessor& geomProc) override {
+        const GrBitmapTextGeoProc& btgp = geomProc.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
             pdman.set4fv(fColorUniform, 1, btgp.color().vec());
             fColor = btgp.color();

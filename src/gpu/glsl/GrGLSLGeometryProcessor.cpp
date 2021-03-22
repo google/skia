@@ -28,14 +28,14 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
         SkASSERT(!*args.fFPCoordTransformHandler);
     }
 
-    if (args.fGP.willUseTessellationShaders()) {
+    if (args.fGeomProc.willUseTessellationShaders()) {
         // Tessellation shaders are temporarily responsible for integrating their own code strings
         // while we work out full support.
         return;
     }
 
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
-    if (!args.fGP.willUseGeoShader()) {
+    if (!args.fGeomProc.willUseGeoShader()) {
         // Emit the vertex position to the hardware in the normalized window coordinates it expects.
         SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
                  kFloat3_GrSLType == gpArgs.fPositionVar.getType());

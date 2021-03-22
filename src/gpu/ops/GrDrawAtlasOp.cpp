@@ -223,7 +223,7 @@ void DrawAtlasOp::onPrepareDraws(Target* target) {
     }
 
     int instanceCount = fGeoData.count();
-    size_t vertexStride = fProgramInfo->primProc().vertexStride();
+    size_t vertexStride = fProgramInfo->geomProc().vertexStride();
 
     int numQuads = this->quadCount();
     QuadHelper helper(target, vertexStride, numQuads);
@@ -251,7 +251,7 @@ void DrawAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-    flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+    flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }
 

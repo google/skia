@@ -78,7 +78,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                            GrVkCommandBuffer* commandBuffer) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
-    fGeometryProcessor->setData(fDataManager, programInfo.primProc());
+    fGeometryProcessor->setData(fDataManager, programInfo.geomProc());
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& fp = programInfo.pipeline().getFragmentProcessor(i);
         for (auto [fp, impl] : GrGLSLFragmentProcessor::ParallelRange(fp, *fFPImpls[i])) {
@@ -112,11 +112,11 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
 }
 
 bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
-                                           const GrPrimitiveProcessor& primProc,
+                                           const GrGeometryProcessor& geomProc,
                                            const GrPipeline& pipeline,
-                                           const GrSurfaceProxy* const primProcTextures[],
+                                           const GrSurfaceProxy* const geomProcTextures[],
                                            GrVkCommandBuffer* commandBuffer) {
-    SkASSERT(primProcTextures || !primProc.numTextureSamplers());
+    SkASSERT(geomProcTextures || !geomProc.numTextureSamplers());
     if (fNumSamplers) {
         struct SamplerBindings {
             GrSamplerState fState;
@@ -125,10 +125,10 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         SkAutoSTMalloc<8, SamplerBindings> samplerBindings(fNumSamplers);
         int currTextureBinding = 0;
 
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            SkASSERT(primProcTextures[i]->asTextureProxy());
-            const auto& sampler = primProc.textureSampler(i);
-            auto texture = static_cast<GrVkTexture*>(primProcTextures[i]->peekTexture());
+        for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
+            SkASSERT(geomProcTextures[i]->asTextureProxy());
+            const auto& sampler = geomProc.textureSampler(i);
+            auto texture = static_cast<GrVkTexture*>(geomProcTextures[i]->peekTexture());
             samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
         }
 

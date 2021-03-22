@@ -10,7 +10,7 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
@@ -27,8 +27,8 @@ struct SkIRect;
 class GrVkPipeline : public GrVkManagedResource {
 public:
     static sk_sp<GrVkPipeline> Make(GrVkGpu*,
-                                    const GrPrimitiveProcessor::AttributeSet& vertexAttribs,
-                                    const GrPrimitiveProcessor::AttributeSet& instanceAttribs,
+                                    const GrGeometryProcessor::AttributeSet& vertexAttribs,
+                                    const GrGeometryProcessor::AttributeSet& instanceAttribs,
                                     GrPrimitiveType,
                                     GrSurfaceOrigin,
                                     const GrStencilSettings&,

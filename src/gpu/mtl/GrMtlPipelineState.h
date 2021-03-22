@@ -47,7 +47,9 @@ public:
 
     void setData(const GrRenderTarget*, const GrProgramInfo&);
 
-    void setTextures(const GrPrimitiveProcessor&, const GrPipeline&, const GrSurfaceProxy* const[]);
+    void setTextures(const GrGeometryProcessor&,
+                     const GrPipeline&,
+                     const GrSurfaceProxy* const geomProcTextures[]);
     void bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder);
 
     void setDrawState(id<MTLRenderCommandEncoder>,

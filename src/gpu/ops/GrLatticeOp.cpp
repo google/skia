@@ -49,15 +49,15 @@ public:
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor& proc) override {
-                const auto& latticeGP = proc.cast<LatticeGP>();
+                         const GrGeometryProcessor& geomProc) override {
+                const auto& latticeGP = geomProc.cast<LatticeGP>();
                 fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());
             }
 
         private:
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
                 using Interpolation = GrGLSLVaryingHandler::Interpolation;
-                const auto& latticeGP = args.fGP.cast<LatticeGP>();
+                const auto& latticeGP = args.fGeomProc.cast<LatticeGP>();
                 fColorSpaceXformHelper.emitCode(args.fUniformHandler,
                                                 latticeGP.fColorSpaceXform.get());
 
@@ -236,7 +236,7 @@ private:
             return;
         }
 
-        const size_t kVertexStride = fProgramInfo->primProc().vertexStride();
+        const size_t kVertexStride = fProgramInfo->geomProc().vertexStride();
 
         QuadHelper helper(target, kVertexStride, numRects);
 
@@ -322,7 +322,8 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindTextures(fProgramInfo->primProc(), *fView.proxy(),
+        flushState->bindTextures(fProgramInfo->geomProc(),
+                                 *fView.proxy(),
                                  fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }

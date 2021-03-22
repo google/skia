@@ -98,7 +98,7 @@ void GrGLProgram::abandon() {
 
 void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
-    this->setRenderTargetState(renderTarget, programInfo.origin(), programInfo.primProc());
+    this->setRenderTargetState(renderTarget, programInfo.origin(), programInfo.geomProc());
 
     // we set the uniforms for installed processors in a generic way, but subclasses of GLProgram
     // determine how to set coord transforms
@@ -106,7 +106,7 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     // We must bind to texture units in the same order in which we set the uniforms in
     // GrGLProgramDataManager. That is, we bind textures for processors in this order:
     // primProc, fragProcs, XP.
-    fPrimitiveProcessor->setData(fProgramDataManager, programInfo.primProc());
+    fPrimitiveProcessor->setData(fProgramDataManager, programInfo.geomProc());
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& fp = programInfo.pipeline().getFragmentProcessor(i);
@@ -122,16 +122,16 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
 }
 
-void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc,
-                               const GrSurfaceProxy* const primProcTextures[],
+void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
+                               const GrSurfaceProxy* const geomProcTextures[],
                                const GrPipeline& pipeline) {
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        SkASSERT(primProcTextures[i]->asTextureProxy());
-        auto* overrideTexture = static_cast<GrGLTexture*>(primProcTextures[i]->peekTexture());
-        fGpu->bindTexture(i, primProc.textureSampler(i).samplerState(),
-                          primProc.textureSampler(i).swizzle(), overrideTexture);
+    for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
+        SkASSERT(geomProcTextures[i]->asTextureProxy());
+        auto* overrideTexture = static_cast<GrGLTexture*>(geomProcTextures[i]->peekTexture());
+        fGpu->bindTexture(i, geomProc.textureSampler(i).samplerState(),
+                          geomProc.textureSampler(i).swizzle(), overrideTexture);
     }
-    int nextTexSamplerIdx = primProc.numTextureSamplers();
+    int nextTexSamplerIdx = geomProc.numTextureSamplers();
 
     pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
         GrSamplerState samplerState = te.samplerState();
@@ -149,8 +149,9 @@ void GrGLProgram::bindTextures(const GrPrimitiveProcessor& primProc,
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
 }
 
-void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin,
-                                       const GrPrimitiveProcessor& primProc) {
+void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
+                                       GrSurfaceOrigin origin,
+                                       const GrGeometryProcessor& geomProc) {
     // Load the RT size uniforms if they are needed
     if (fBuiltinUniformHandles.fRTWidthUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fWidth != rt->width()) {

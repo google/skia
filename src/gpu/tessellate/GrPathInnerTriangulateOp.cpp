@@ -265,7 +265,7 @@ void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRec
     for (const GrProgramInfo* fanProgram : fFanPrograms) {
         SkASSERT(fFanBuffer);
         flushState->bindPipelineAndScissorClip(*fanProgram, this->bounds());
-        flushState->bindTextures(fanProgram->primProc(), nullptr, fanProgram->pipeline());
+        flushState->bindTextures(fanProgram->geomProc(), nullptr, fanProgram->pipeline());
         flushState->bindBuffers(nullptr, nullptr, fFanBuffer);
         flushState->draw(fFanVertexCount, fBaseFanVertex);
     }
@@ -273,7 +273,7 @@ void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRec
     if (fFillHullsProgram) {
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fFillHullsProgram, this->bounds());
-        flushState->bindTextures(fFillHullsProgram->primProc(), nullptr, *fPipelineForFills);
+        flushState->bindTextures(fFillHullsProgram->geomProc(), nullptr, *fPipelineForFills);
         fTessellator->drawHullInstances(flushState);
     }
 }

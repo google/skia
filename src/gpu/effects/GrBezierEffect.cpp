@@ -25,8 +25,8 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
-        const GrConicEffect& ce = primProc.cast<GrConicEffect>();
+                 const GrGeometryProcessor& geomProc) override {
+        const GrConicEffect& ce = geomProc.cast<GrConicEffect>();
 
         this->setTransform(pdman, fViewMatrixUniform, ce.viewMatrix(), &fViewMatrix);
         this->setTransform(pdman, fLocalMatrixUniform, ce.localMatrix(), &fLocalMatrix);
@@ -63,7 +63,7 @@ GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
 
 void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
-    const GrConicEffect& gp = args.fGP.cast<GrConicEffect>();
+    const GrConicEffect& gp = args.fGeomProc.cast<GrConicEffect>();
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
@@ -168,7 +168,7 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrConicEffect::kAttributes[];
+constexpr GrGeometryProcessor::Attribute GrConicEffect::kAttributes[];
 
 GrConicEffect::~GrConicEffect() {}
 
@@ -220,8 +220,8 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
-        const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
+                 const GrGeometryProcessor& geomProc) override {
+        const GrQuadEffect& qe = geomProc.cast<GrQuadEffect>();
 
         this->setTransform(pdman, fViewMatrixUniform, qe.viewMatrix(), &fViewMatrix);
         this->setTransform(pdman, fLocalMatrixUniform, qe.localMatrix(), &fLocalMatrix);
@@ -259,7 +259,7 @@ GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)
 
 void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
-    const GrQuadEffect& gp = args.fGP.cast<GrQuadEffect>();
+    const GrQuadEffect& gp = args.fGeomProc.cast<GrQuadEffect>();
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
@@ -329,7 +329,7 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
 
 //////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrQuadEffect::kAttributes[];
+constexpr GrGeometryProcessor::Attribute GrQuadEffect::kAttributes[];
 
 GrQuadEffect::~GrQuadEffect() {}
 

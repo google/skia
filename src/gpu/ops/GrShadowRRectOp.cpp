@@ -611,7 +611,7 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindTextures(fProgramInfo->primProc(), *fFalloffView.proxy(),
+        flushState->bindTextures(fProgramInfo->geomProc(), *fFalloffView.proxy(),
                                  fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }

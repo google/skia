@@ -176,16 +176,16 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
     SK_ABORT("Unknown vertex attribute type");
 }
 
-static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor& primProc,
+static MTLVertexDescriptor* create_vertex_descriptor(const GrGeometryProcessor& geomProc,
                                                      SkBinaryWriteBuffer* writer) {
     uint32_t vertexBinding = 0, instanceBinding = 0;
 
     int nextBinding = GrMtlUniformHandler::kLastUniformBinding + 1;
-    if (primProc.hasVertexAttributes()) {
+    if (geomProc.hasVertexAttributes()) {
         vertexBinding = nextBinding++;
     }
 
-    if (primProc.hasInstanceAttributes()) {
+    if (geomProc.hasInstanceAttributes()) {
         instanceBinding = nextBinding;
     }
     if (writer) {
@@ -196,12 +196,12 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
     auto vertexDescriptor = [[MTLVertexDescriptor alloc] init];
     int attributeIndex = 0;
 
-    int vertexAttributeCount = primProc.numVertexAttributes();
+    int vertexAttributeCount = geomProc.numVertexAttributes();
     if (writer) {
         writer->writeInt(vertexAttributeCount);
     }
     size_t vertexAttributeOffset = 0;
-    for (const auto& attribute : primProc.vertexAttributes()) {
+    for (const auto& attribute : geomProc.vertexAttributes()) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
@@ -217,7 +217,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
         vertexAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
-    SkASSERT(vertexAttributeOffset == primProc.vertexStride());
+    SkASSERT(vertexAttributeOffset == geomProc.vertexStride());
 
     if (vertexAttributeCount) {
         MTLVertexBufferLayoutDescriptor* vertexBufferLayout =
@@ -230,12 +230,12 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
         }
     }
 
-    int instanceAttributeCount = primProc.numInstanceAttributes();
+    int instanceAttributeCount = geomProc.numInstanceAttributes();
     if (writer) {
         writer->writeInt(instanceAttributeCount);
     }
     size_t instanceAttributeOffset = 0;
-    for (const auto& attribute : primProc.instanceAttributes()) {
+    for (const auto& attribute : geomProc.instanceAttributes()) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
@@ -251,7 +251,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
         instanceAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
-    SkASSERT(instanceAttributeOffset == primProc.instanceStride());
+    SkASSERT(instanceAttributeOffset == geomProc.instanceStride());
 
     if (instanceAttributeCount) {
         MTLVertexBufferLayoutDescriptor* instanceBufferLayout =
@@ -479,7 +479,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
     TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
     // Geometry shaders are not supported
-    SkASSERT(!this->primitiveProcessor().willUseGeoShader());
+    SkASSERT(!this->geometryProcessor().willUseGeoShader());
 
     if (precompiledLibs) {
         SkASSERT(precompiledLibs->fPipelineState);
@@ -515,7 +515,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
 
     // Ordering in how we set these matters. If it changes adjust read_pipeline_data, above.
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(programInfo.primProc(),
+    pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(programInfo.geomProc(),
                                                                    writer.get());
 
     MTLPixelFormat pixelFormat = GrBackendFormatAsMTLPixelFormat(programInfo.backendFormat());

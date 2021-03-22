@@ -66,7 +66,7 @@ float2 eval_rational_cubic(float4x3 P, float T) {
 class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
 protected:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGP.cast<GrStencilPathShader>();
+        const auto& shader = args.fGeomProc.cast<GrStencilPathShader>();
         args.fVaryingHandler->emitAttributes(shader);
         auto v = args.fVertBuilder;
 
@@ -94,8 +94,8 @@ protected:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
-        const auto& shader = primProc.cast<GrStencilPathShader>();
+                 const GrGeometryProcessor& geomProc) override {
+        const auto& shader = geomProc.cast<GrStencilPathShader>();
         if (!shader.viewMatrix().isIdentity()) {
             pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
         }
@@ -348,7 +348,7 @@ sk_sp<const GrGpuBuffer> GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
 
 class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGP.cast<GrMiddleOutCubicShader>();
+        const auto& shader = args.fGeomProc.cast<GrMiddleOutCubicShader>();
         args.fVaryingHandler->emitAttributes(shader);
         args.fVertBuilder->defineConstantf("int", "kMaxVertexID", "%i", 1 << kMaxResolveLevel);
         args.fVertBuilder->defineConstantf("float", "kInverseMaxVertexID",

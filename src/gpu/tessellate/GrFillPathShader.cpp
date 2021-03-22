@@ -15,7 +15,7 @@
 class GrFillPathShader::Impl : public GrGLSLGeometryProcessor {
 public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        auto& shader = args.fGP.cast<GrFillPathShader>();
+        auto& shader = args.fGeomProc.cast<GrFillPathShader>();
 
         const char* viewMatrix;
         fViewMatrixUniform = args.fUniformHandler->addUniform(
@@ -38,15 +38,15 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
-        const GrFillPathShader& shader = primProc.cast<GrFillPathShader>();
+                 const GrGeometryProcessor& geomProc) override {
+        const GrFillPathShader& shader = geomProc.cast<GrFillPathShader>();
         pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
 
         const SkPMColor4f& color = shader.fColor;
         pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
 
         if (fPathBoundsUniform.isValid()) {
-            const SkRect& b = primProc.cast<GrFillBoundingBoxShader>().pathBounds();
+            const SkRect& b = geomProc.cast<GrFillBoundingBoxShader>().pathBounds();
             pdman.set4f(fPathBoundsUniform, b.left(), b.top(), b.right(), b.bottom());
         }
     }

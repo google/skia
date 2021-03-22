@@ -566,7 +566,7 @@ public:
         GLSLProcessor() {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-            const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
+            const QuadEdgeEffect& qe = args.fGeomProc.cast<QuadEdgeEffect>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -623,8 +623,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
-            const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
+                     const GrGeometryProcessor& geomProc) override {
+            const QuadEdgeEffect& qe = geomProc.cast<QuadEdgeEffect>();
             this->setTransform(pdman, fLocalMatrixUniform, qe.fLocalMatrix, &fLocalMatrix);
         }
 
@@ -777,7 +777,7 @@ private:
             }
         }
 
-        const size_t kVertexStride = fProgramInfo->primProc().vertexStride();
+        const size_t kVertexStride = fProgramInfo->geomProc().vertexStride();
 
         fDraws.reserve(instanceCount);
 
@@ -859,7 +859,7 @@ private:
         }
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-        flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
+        flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
         for (int i = 0; i < fDraws.count(); ++i) {
             for (int j = 0; j < fDraws[i].fMeshCount; ++j) {
                 flushState->drawMesh(fDraws[i].fMeshes[j]);

@@ -41,7 +41,7 @@ public:
 
     GrSurfaceOrigin origin() const { return fProgramInfo.origin(); }
     const GrPipeline& pipeline() const { return fProgramInfo.pipeline(); }
-    const GrPrimitiveProcessor& primitiveProcessor() const { return fProgramInfo.primProc(); }
+    const GrGeometryProcessor& geometryProcessor() const { return fProgramInfo.geomProc(); }
     GrProcessor::CustomFeatures processorFeatures() const {
         return fProgramInfo.requestedFeatures();
     }
@@ -164,7 +164,7 @@ private:
     bool checkSamplerCounts();
 
 #ifdef SK_DEBUG
-    void verify(const GrPrimitiveProcessor&);
+    void verify(const GrGeometryProcessor&);
     void verify(const GrFragmentProcessor&);
     void verify(const GrXferProcessor&);
 #endif

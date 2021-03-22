@@ -119,10 +119,10 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::String& glsl,
 }
 
 void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
-                                                 const GrPrimitiveProcessor& primProc,
+                                                 const GrGeometryProcessor& geomProc,
                                                  bool bindAttribLocations) {
-    fVertexAttributeCnt = primProc.numVertexAttributes();
-    fInstanceAttributeCnt = primProc.numInstanceAttributes();
+    fVertexAttributeCnt = geomProc.numVertexAttributes();
+    fInstanceAttributeCnt = geomProc.numInstanceAttributes();
     fAttributes = std::make_unique<GrGLProgram::Attribute[]>(
             fVertexAttributeCnt + fInstanceAttributeCnt);
     auto addAttr = [&](int i, const auto& a, size_t* stride) {
@@ -137,15 +137,15 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
     };
     fVertexStride = 0;
     int i = 0;
-    for (const auto& attr : primProc.vertexAttributes()) {
+    for (const auto& attr : geomProc.vertexAttributes()) {
         addAttr(i++, attr, &fVertexStride);
     }
-    SkASSERT(fVertexStride == primProc.vertexStride());
+    SkASSERT(fVertexStride == geomProc.vertexStride());
     fInstanceStride = 0;
-    for (const auto& attr : primProc.instanceAttributes()) {
+    for (const auto& attr : geomProc.instanceAttributes()) {
         addAttr(i++, attr, &fInstanceStride);
     }
-    SkASSERT(fInstanceStride == primProc.instanceStride());
+    SkASSERT(fInstanceStride == geomProc.instanceStride());
 }
 
 void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
@@ -197,10 +197,10 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         meta.fSettings = settings;
         meta.fHasCustomColorOutput = fFS.hasCustomColorOutput();
         meta.fHasSecondaryColorOutput = fFS.hasSecondaryOutput();
-        for (const auto& attr : this->primitiveProcessor().vertexAttributes()) {
+        for (const auto& attr : this->geometryProcessor().vertexAttributes()) {
             meta.fAttributeNames.emplace_back(attr.name());
         }
-        for (const auto& attr : this->primitiveProcessor().instanceAttributes()) {
+        for (const auto& attr : this->geometryProcessor().instanceAttributes()) {
             meta.fAttributeNames.emplace_back(attr.name());
         }
 
@@ -235,7 +235,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
     // compile shaders and bind attributes / uniforms
     auto errorHandler = this->gpu()->getContext()->priv().getShaderErrorHandler();
-    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
+    const GrGeometryProcessor& geomProc = this->geometryProcessor();
     SkSL::Program::Settings settings;
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures =
@@ -260,7 +260,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         // This is very similar to when we get program binaries. We even set that flag, as it's
         // used to prevent other compile work later, and to force re-querying uniform locations.
         this->addInputVars(precompiledProgram->fInputs);
-        this->computeCountsAndStrides(programID, primProc, false);
+        this->computeCountsAndStrides(programID, geomProc, false);
         usedProgramBinaries = true;
     } else if (cached) {
         TRACE_EVENT0_ALWAYS("skia.shaders", "cache_hit");
@@ -292,7 +292,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                     }
                     if (cached) {
                         this->addInputVars(inputs);
-                        this->computeCountsAndStrides(programID, primProc, false);
+                        this->computeCountsAndStrides(programID, geomProc, false);
                     }
                 } else {
                     cached = false;
@@ -379,14 +379,14 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         }
 
         // This also binds vertex attribute locations.
-        this->computeCountsAndStrides(programID, primProc, true);
+        this->computeCountsAndStrides(programID, geomProc, true);
 
         /*
            Tessellation Shaders
         */
-        if (fProgramInfo.primProc().willUseTessellationShaders()) {
+        if (fProgramInfo.geomProc().willUseTessellationShaders()) {
             // Tessellation shaders are not currently supported by SkSL. So here, we temporarily
-            // generate GLSL strings directly using back door methods on GrPrimitiveProcessor, and
+            // generate GLSL strings directly using back door methods on GrGeometryProcessor, and
             // pass those raw strings on to the driver.
             SkString versionAndExtensionDecls;
             versionAndExtensionDecls.appendf("%s\n", this->shaderCaps()->versionDeclString());
@@ -394,7 +394,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 versionAndExtensionDecls.appendf("#extension %s : require\n", extensionString);
             }
 
-            SkString tessControlShader = primProc.getTessControlShaderGLSL(
+            SkString tessControlShader = geomProc.getTessControlShaderGLSL(
                     fGeometryProcessor.get(), versionAndExtensionDecls.c_str(), fUniformHandler,
                     *this->shaderCaps());
             if (!this->compileAndAttachShaders(tessControlShader.c_str(), programID,
@@ -404,7 +404,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 return nullptr;
             }
 
-            SkString tessEvaluationShader = primProc.getTessEvaluationShaderGLSL(
+            SkString tessEvaluationShader = geomProc.getTessEvaluationShaderGLSL(
                     fGeometryProcessor.get(), versionAndExtensionDecls.c_str(), fUniformHandler,
                     *this->shaderCaps());
             if (!this->compileAndAttachShaders(tessEvaluationShader.c_str(), programID,
@@ -418,7 +418,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         /*
            Geometry Shader
         */
-        if (primProc.willUseGeoShader()) {
+        if (geomProc.willUseGeoShader()) {
             if (glsl[kGeometry_GrShaderType].empty()) {
                 // Don't have cached GLSL, need to compile SkSL->GLSL
                 std::unique_ptr<SkSL::Program> gs;
@@ -461,10 +461,10 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     //
     // We also can't cache SkSL or GLSL if we were given a precompiled program, but there's not
     // much point in doing so.
-    if (!cached && !primProc.willUseTessellationShaders() && !precompiledProgram) {
+    if (!cached && !geomProc.willUseTessellationShaders() && !precompiledProgram) {
         // FIXME: Remove the check for tessellation shaders in the above 'if' once the back door
         // GLSL mechanism is removed.
-        (void)&GrPrimitiveProcessor::getTessControlShaderGLSL;
+        (void)&GrGeometryProcessor::getTessControlShaderGLSL;
         bool isSkSL = false;
         if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
                 GrContextOptions::ShaderCacheStrategy::kSkSL) {
