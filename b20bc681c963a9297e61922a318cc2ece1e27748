@@ -1,6 +1,121 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfb02ce3_10a507de",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-22T17:31:59Z",
+      "side": 1,
+      "message": "Should we mention varyings here?",
+      "range": {
+        "startLine": 155,
+        "startChar": 7,
+        "endLine": 156,
+        "endChar": 48
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4559dd7_c36c75cc",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-22T17:31:59Z",
+      "side": 1,
+      "message": "not necessary",
+      "range": {
+        "startLine": 375,
+        "startChar": 50,
+        "endLine": 375,
+        "endChar": 60
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67ab866c_b548030a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-22T17:31:59Z",
+      "side": 1,
+      "message": "uniformSize() isn\u0027t a trivial accessor; consider one of\n\n    for (int i \u003d (int)this-\u003euniformSize(); i \u003e\u003d 0; i -\u003d 4) {\n    for (int i \u003d (int)this-\u003euniformSize() / 4; i \u003e\u003d 0; i--) {\n    for (int i \u003d (int)this-\u003euniformSize() / 4; i--;) {",
+      "range": {
+        "startLine": 382,
+        "startChar": 8,
+        "endLine": 382,
+        "endChar": 64
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "366484e8_5f1bb60a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-22T17:31:59Z",
+      "side": 1,
+      "message": "nit: arg-comment?",
+      "range": {
+        "startLine": 400,
+        "startChar": 69,
+        "endLine": 400,
+        "endChar": 76
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ddaedeac_c9686571",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-22T17:31:59Z",
+      "side": 1,
+      "message": "nit: arg-comment?",
+      "range": {
+        "startLine": 573,
+        "startChar": 22,
+        "endLine": 573,
+        "endChar": 23
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "bb776f8a_adaf1a00",
