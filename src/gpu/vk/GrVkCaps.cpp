@@ -1771,11 +1771,10 @@ void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
  * each draw  and thus is not included in this descriptor. This includes the viewport, scissor,
  * and blend constant.
  */
-GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
-                                 const GrProgramInfo& programInfo,
+GrProgramDesc GrVkCaps::makeDesc(const GrProgramInfo& programInfo,
                                  ProgramDescOverrideFlags overrideFlags) const {
     GrProgramDesc desc;
-    GrProgramDesc::Build(&desc, rt, programInfo, *this);
+    GrProgramDesc::Build(&desc, programInfo, *this);
 
     GrProcessorKeyBuilder b(desc.key());
 
@@ -1806,6 +1805,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
         loadFromResolve = GrVkRenderPass::LoadFromResolve::kLoad;
     }
 
+#if 0
     if (rt) {
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
 
@@ -1832,7 +1832,9 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
                                       loadFromResolve));
         }
 #endif
-    } else {
+    } else
+#endif
+    {
         GrVkRenderPass::AttachmentsDescriptor attachmentsDescriptor;
         GrVkRenderPass::AttachmentFlags attachmentFlags;
         GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,

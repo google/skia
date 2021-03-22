@@ -23,7 +23,6 @@
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
-        GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
@@ -38,7 +37,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrVkPipelineStateBuilder builder(gpu, desc, programInfo);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -48,10 +47,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
-                                                   GrRenderTarget* renderTarget,
                                                    const GrProgramDesc& desc,
                                                    const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+        : INHERITED(desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -162,7 +160,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     // to the key right after the base key.
     sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(),
                                                 this->desc().initialKeyLength()+4);
-    SkString description = GrProgramDesc::Describe(fRenderTarget, fProgramInfo, *this->caps());
+    SkString description = GrProgramDesc::Describe(fProgramInfo, *this->caps());
 
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,

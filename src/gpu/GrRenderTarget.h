@@ -50,12 +50,6 @@ public:
     int numStencilBits() const;
 
     /**
-     * Returns a unique key that identifies this render target's sample pattern. (Must be
-     * multisampled.)
-     */
-    int getSamplePatternKey();
-
-    /**
      * Retrieves the per-pixel HW sample locations for this render target, and, as a by-product, the
      * actual number of samples in use. (This may differ from fSampleCnt.) Sample locations are
      * returned as 0..1 offsets relative to the top-left corner of the pixel.
@@ -79,7 +73,6 @@ private:
 
     sk_sp<GrAttachment> fStencilAttachment;
     int fSampleCnt;
-    int fSamplePatternKey;
 
     using INHERITED = GrSurface;
 };

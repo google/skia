@@ -169,7 +169,6 @@ public:
      */
     enum class CustomFeatures {
         kNone = 0,
-        kSampleLocations = 1 << 0,
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(CustomFeatures);

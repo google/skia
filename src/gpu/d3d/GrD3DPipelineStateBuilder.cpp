@@ -28,7 +28,6 @@
 
 sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
         GrD3DGpu* gpu,
-        GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo) {
     // ensure that we use "." as a decimal separator when creating SkSL code
@@ -36,7 +35,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrD3DPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrD3DPipelineStateBuilder builder(gpu, desc, programInfo);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -46,10 +45,9 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
 }
 
 GrD3DPipelineStateBuilder::GrD3DPipelineStateBuilder(GrD3DGpu* gpu,
-                                                     GrRenderTarget* renderTarget,
                                                      const GrProgramDesc& desc,
                                                      const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+        : INHERITED(desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -634,8 +632,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
             }
             sk_sp<SkData> key =
                     SkData::MakeWithoutCopy(this->desc().asKey(), this->desc().initialKeyLength());
-            SkString description =
-                    GrProgramDesc::Describe(fRenderTarget, fProgramInfo, *this->caps());
+            SkString description = GrProgramDesc::Describe(fProgramInfo, *this->caps());
             sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(
                     cacheSkSL ? kSKSL_Tag : kHLSL_Tag, hlsl, inputs, kGrShaderTypeCount);
             persistentCache->store(*key, *data, description);

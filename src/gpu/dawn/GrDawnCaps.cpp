@@ -169,7 +169,7 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
                                    ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;
-    GrProgramDesc::Build(&desc, rt, programInfo, *this);
+    GrProgramDesc::Build(&desc, programInfo, *this);
 
     wgpu::TextureFormat format;
     if (!programInfo.backendFormat().asDawnFormat(&format)) {
@@ -184,6 +184,7 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
 
     // TODO: remove this reliance on the renderTarget
     bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+//    bool hasDepthStencil = programInfo.isStencilEnabled();
 
     b.add32(static_cast<uint32_t>(format));
     b.add32(static_cast<int32_t>(hasDepthStencil));
