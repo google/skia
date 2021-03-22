@@ -2691,13 +2691,15 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
     SpvId functionTypeId = this->getFunctionType(f);
     this->writeInstruction(SpvOpFunction, returnTypeId, result,
                            SpvFunctionControlMaskNone, functionTypeId, out);
-    this->writeInstruction(SpvOpName, result, f.name(), fNameBuffer);
-    const std::vector<const Variable*>& parameters = f.parameters();
-    for (size_t i = 0; i < parameters.size(); i++) {
+    String mangledName = f.mangledName();
+    this->writeInstruction(SpvOpName,
+                           result,
+                           StringFragment(mangledName.c_str(), mangledName.size()),
+                           fNameBuffer);
+    for (const Variable* parameter : f.parameters()) {
         SpvId id = this->nextId(nullptr);
-        fVariableMap[parameters[i]] = id;
-        SpvId type;
-        type = this->getPointerType(parameters[i]->type(), SpvStorageClassFunction);
+        fVariableMap[parameter] = id;
+        SpvId type = this->getPointerType(parameter->type(), SpvStorageClassFunction);
         this->writeInstruction(SpvOpFunctionParameter, type, id, out);
     }
     return result;

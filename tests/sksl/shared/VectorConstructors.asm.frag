@@ -1,15 +1,15 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
-OpExecutionMode %_entrypoint OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "colorGreen"
 OpMemberName %_UniformBuffer 1 "colorRed"
-OpName %_entrypoint "_entrypoint"
-OpName %check "check"
+OpName %_entrypoint_v "_entrypoint_v"
+OpName %check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3 "check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3"
 OpName %main "main"
 OpName %v1 "v1"
 OpName %v2 "v2"
@@ -118,13 +118,13 @@ OpDecorate %238 RelaxedPrecision
 %192 = OpConstantComposite %v3bool %true %true %true
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int_0 = OpConstant %int 0
-%_entrypoint = OpFunction %void None %16
+%_entrypoint_v = OpFunction %void None %16
 %17 = OpLabel
 %18 = OpFunctionCall %v4float %main
 OpStore %sk_FragColor %18
 OpReturn
 OpFunctionEnd
-%check = OpFunction %bool None %26
+%check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3 = OpFunction %bool None %26
 %34 = OpFunctionParameter %_ptr_Function_v2float
 %35 = OpFunctionParameter %_ptr_Function_v2float
 %36 = OpFunctionParameter %_ptr_Function_v2float
@@ -333,7 +333,7 @@ OpStore %222 %221
 OpStore %224 %223
 %225 = OpLoad %v3bool %v17
 OpStore %226 %225
-%227 = OpFunctionCall %bool %check %194 %196 %198 %200 %202 %204 %206 %208 %210 %212 %214 %216 %218 %220 %222 %224 %226
+%227 = OpFunctionCall %bool %check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3 %194 %196 %198 %200 %202 %204 %206 %208 %210 %212 %214 %216 %218 %220 %222 %224 %226
 OpSelectionMerge %231 None
 OpBranchConditional %227 %229 %230
 %229 = OpLabel

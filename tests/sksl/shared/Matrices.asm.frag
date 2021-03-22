@@ -1,15 +1,15 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint "_entrypoint" %sk_FragColor %sk_Clockwise
-OpExecutionMode %_entrypoint OriginUpperLeft
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %sk_Clockwise
+OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "colorGreen"
 OpMemberName %_UniformBuffer 1 "colorRed"
-OpName %_entrypoint "_entrypoint"
-OpName %test_half "test_half"
+OpName %_entrypoint_v "_entrypoint_v"
+OpName %test_half_b "test_half_b"
 OpName %m1 "m1"
 OpName %m3 "m3"
 OpName %m4 "m4"
@@ -101,13 +101,13 @@ OpDecorate %173 RelaxedPrecision
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int_1 = OpConstant %int 1
-%_entrypoint = OpFunction %void None %16
+%_entrypoint_v = OpFunction %void None %16
 %17 = OpLabel
 %18 = OpFunctionCall %v4float %main
 OpStore %sk_FragColor %18
 OpReturn
 OpFunctionEnd
-%test_half = OpFunction %bool None %19
+%test_half_b = OpFunction %bool None %19
 %20 = OpLabel
 %m1 = OpVariable %_ptr_Function_mat2v2float Function
 %m3 = OpVariable %_ptr_Function_mat2v2float Function
@@ -257,7 +257,7 @@ OpStore %_11_m11 %156
 OpSelectionMerge %159 None
 OpBranchConditional %true %158 %159
 %158 = OpLabel
-%160 = OpFunctionCall %bool %test_half
+%160 = OpFunctionCall %bool %test_half_b
 OpBranch %159
 %159 = OpLabel
 %161 = OpPhi %bool %false %96 %160 %158

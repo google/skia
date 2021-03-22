@@ -8,27 +8,27 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "src"
 OpMemberName %_UniformBuffer 1 "dst"
-OpName %_blend_overlay_component "_blend_overlay_component"
-OpName %blend_overlay "blend_overlay"
+OpName %_blend_overlay_component_hh2h2 "_blend_overlay_component_hh2h2"
+OpName %blend_overlay_h4h4h4 "blend_overlay_h4h4h4"
 OpName %result "result"
-OpName %_color_dodge_component "_color_dodge_component"
+OpName %_color_dodge_component_hh2h2 "_color_dodge_component_hh2h2"
 OpName %delta "delta"
-OpName %_color_burn_component "_color_burn_component"
+OpName %_color_burn_component_hh2h2 "_color_burn_component_hh2h2"
 OpName %delta_0 "delta"
-OpName %_soft_light_component "_soft_light_component"
+OpName %_soft_light_component_hh2h2 "_soft_light_component_hh2h2"
 OpName %DSqd "DSqd"
 OpName %DCub "DCub"
 OpName %DaSqd "DaSqd"
 OpName %DaCub "DaCub"
-OpName %_blend_set_color_luminance "_blend_set_color_luminance"
+OpName %_blend_set_color_luminance_h3h3hh3 "_blend_set_color_luminance_h3h3hh3"
 OpName %lum "lum"
 OpName %result_0 "result"
 OpName %minComp "minComp"
 OpName %maxComp "maxComp"
-OpName %_blend_set_color_saturation_helper "_blend_set_color_saturation_helper"
-OpName %_blend_set_color_saturation "_blend_set_color_saturation"
+OpName %_blend_set_color_saturation_helper_h3h3h "_blend_set_color_saturation_helper_h3h3h"
+OpName %_blend_set_color_saturation_h3h3h3 "_blend_set_color_saturation_h3h3h3"
 OpName %sat "sat"
-OpName %blend "blend"
+OpName %blend_h4eh4h4 "blend_h4eh4h4"
 OpName %_0_result "_0_result"
 OpName %_1_result "_1_result"
 OpName %_2_alpha "_2_alpha"
@@ -673,7 +673,7 @@ OpDecorate %1226 RelaxedPrecision
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
-%_blend_overlay_component = OpFunction %float None %23
+%_blend_overlay_component_hh2h2 = OpFunction %float None %23
 %25 = OpFunctionParameter %_ptr_Function_v2float
 %26 = OpFunctionParameter %_ptr_Function_v2float
 %27 = OpLabel
@@ -720,7 +720,7 @@ OpBranch %39
 %64 = OpLoad %float %35
 OpReturnValue %64
 OpFunctionEnd
-%blend_overlay = OpFunction %v4float None %65
+%blend_overlay_h4h4h4 = OpFunction %v4float None %65
 %67 = OpFunctionParameter %_ptr_Function_v4float
 %68 = OpFunctionParameter %_ptr_Function_v4float
 %69 = OpLabel
@@ -737,21 +737,21 @@ OpStore %73 %72
 %74 = OpLoad %v4float %68
 %75 = OpVectorShuffle %v2float %74 %74 0 3
 OpStore %76 %75
-%77 = OpFunctionCall %float %_blend_overlay_component %73 %76
+%77 = OpFunctionCall %float %_blend_overlay_component_hh2h2 %73 %76
 %78 = OpLoad %v4float %67
 %79 = OpVectorShuffle %v2float %78 %78 1 3
 OpStore %80 %79
 %81 = OpLoad %v4float %68
 %82 = OpVectorShuffle %v2float %81 %81 1 3
 OpStore %83 %82
-%84 = OpFunctionCall %float %_blend_overlay_component %80 %83
+%84 = OpFunctionCall %float %_blend_overlay_component_hh2h2 %80 %83
 %85 = OpLoad %v4float %67
 %86 = OpVectorShuffle %v2float %85 %85 2 3
 OpStore %87 %86
 %88 = OpLoad %v4float %68
 %89 = OpVectorShuffle %v2float %88 %88 2 3
 OpStore %90 %89
-%91 = OpFunctionCall %float %_blend_overlay_component %87 %90
+%91 = OpFunctionCall %float %_blend_overlay_component_hh2h2 %87 %90
 %92 = OpLoad %v4float %67
 %93 = OpCompositeExtract %float %92 3
 %95 = OpLoad %v4float %67
@@ -785,7 +785,7 @@ OpStore %result %121
 %122 = OpLoad %v4float %result
 OpReturnValue %122
 OpFunctionEnd
-%_color_dodge_component = OpFunction %float None %23
+%_color_dodge_component_hh2h2 = OpFunction %float None %23
 %123 = OpFunctionParameter %_ptr_Function_v2float
 %124 = OpFunctionParameter %_ptr_Function_v2float
 %125 = OpLabel
@@ -871,7 +871,7 @@ OpBranch %132
 %132 = OpLabel
 OpUnreachable
 OpFunctionEnd
-%_color_burn_component = OpFunction %float None %23
+%_color_burn_component_hh2h2 = OpFunction %float None %23
 %197 = OpFunctionParameter %_ptr_Function_v2float
 %198 = OpFunctionParameter %_ptr_Function_v2float
 %199 = OpLabel
@@ -959,7 +959,7 @@ OpBranch %207
 %207 = OpLabel
 OpUnreachable
 OpFunctionEnd
-%_soft_light_component = OpFunction %float None %23
+%_soft_light_component_hh2h2 = OpFunction %float None %23
 %273 = OpFunctionParameter %_ptr_Function_v2float
 %274 = OpFunctionParameter %_ptr_Function_v2float
 %275 = OpLabel
@@ -1130,7 +1130,7 @@ OpBranch %284
 %284 = OpLabel
 OpUnreachable
 OpFunctionEnd
-%_blend_set_color_luminance = OpFunction %v3float None %434
+%_blend_set_color_luminance_h3h3hh3 = OpFunction %v3float None %434
 %436 = OpFunctionParameter %_ptr_Function_v3float
 %437 = OpFunctionParameter %_ptr_Function_float
 %438 = OpFunctionParameter %_ptr_Function_v3float
@@ -1236,7 +1236,7 @@ OpReturnValue %525
 %508 = OpLabel
 OpUnreachable
 OpFunctionEnd
-%_blend_set_color_saturation_helper = OpFunction %v3float None %526
+%_blend_set_color_saturation_helper_h3h3h = OpFunction %v3float None %526
 %527 = OpFunctionParameter %_ptr_Function_v3float
 %528 = OpFunctionParameter %_ptr_Function_float
 %529 = OpLabel
@@ -1269,7 +1269,7 @@ OpReturnValue %553
 %537 = OpLabel
 OpUnreachable
 OpFunctionEnd
-%_blend_set_color_saturation = OpFunction %v3float None %554
+%_blend_set_color_saturation_h3h3h3 = OpFunction %v3float None %554
 %555 = OpFunctionParameter %_ptr_Function_v3float
 %556 = OpFunctionParameter %_ptr_Function_v3float
 %557 = OpLabel
@@ -1324,7 +1324,7 @@ OpBranchConditional %588 %589 %590
 OpStore %593 %592
 %594 = OpLoad %float %sat
 OpStore %595 %594
-%596 = OpFunctionCall %v3float %_blend_set_color_saturation_helper %593 %595
+%596 = OpFunctionCall %v3float %_blend_set_color_saturation_helper_h3h3h %593 %595
 OpReturnValue %596
 %590 = OpLabel
 %597 = OpLoad %v3float %555
@@ -1340,7 +1340,7 @@ OpBranchConditional %601 %602 %603
 OpStore %607 %606
 %608 = OpLoad %float %sat
 OpStore %609 %608
-%610 = OpFunctionCall %v3float %_blend_set_color_saturation_helper %607 %609
+%610 = OpFunctionCall %v3float %_blend_set_color_saturation_helper_h3h3h %607 %609
 %611 = OpVectorShuffle %v3float %610 %610 0 2 1
 OpReturnValue %611
 %603 = OpLabel
@@ -1349,7 +1349,7 @@ OpReturnValue %611
 OpStore %614 %613
 %615 = OpLoad %float %sat
 OpStore %616 %615
-%617 = OpFunctionCall %v3float %_blend_set_color_saturation_helper %614 %616
+%617 = OpFunctionCall %v3float %_blend_set_color_saturation_helper_h3h3h %614 %616
 %618 = OpVectorShuffle %v3float %617 %617 1 2 0
 OpReturnValue %618
 %604 = OpLabel
@@ -1370,7 +1370,7 @@ OpBranchConditional %623 %624 %625
 OpStore %629 %628
 %630 = OpLoad %float %sat
 OpStore %631 %630
-%632 = OpFunctionCall %v3float %_blend_set_color_saturation_helper %629 %631
+%632 = OpFunctionCall %v3float %_blend_set_color_saturation_helper_h3h3h %629 %631
 %633 = OpVectorShuffle %v3float %632 %632 1 0 2
 OpReturnValue %633
 %625 = OpLabel
@@ -1387,7 +1387,7 @@ OpBranchConditional %638 %639 %640
 OpStore %644 %643
 %645 = OpLoad %float %sat
 OpStore %646 %645
-%647 = OpFunctionCall %v3float %_blend_set_color_saturation_helper %644 %646
+%647 = OpFunctionCall %v3float %_blend_set_color_saturation_helper_h3h3h %644 %646
 %648 = OpVectorShuffle %v3float %647 %647 2 0 1
 OpReturnValue %648
 %640 = OpLabel
@@ -1396,7 +1396,7 @@ OpReturnValue %648
 OpStore %651 %650
 %652 = OpLoad %float %sat
 OpStore %653 %652
-%654 = OpFunctionCall %v3float %_blend_set_color_saturation_helper %651 %653
+%654 = OpFunctionCall %v3float %_blend_set_color_saturation_helper_h3h3h %651 %653
 %655 = OpVectorShuffle %v3float %654 %654 2 1 0
 OpReturnValue %655
 %641 = OpLabel
@@ -1406,7 +1406,7 @@ OpBranch %583
 %583 = OpLabel
 OpUnreachable
 OpFunctionEnd
-%blend = OpFunction %v4float None %657
+%blend_h4eh4h4 = OpFunction %v4float None %657
 %659 = OpFunctionParameter %_ptr_Function_int
 %660 = OpFunctionParameter %_ptr_Function_v4float
 %661 = OpFunctionParameter %_ptr_Function_v4float
@@ -1582,7 +1582,7 @@ OpReturnValue %775
 OpStore %777 %776
 %778 = OpLoad %v4float %661
 OpStore %779 %778
-%780 = OpFunctionCall %v4float %blend_overlay %777 %779
+%780 = OpFunctionCall %v4float %blend_overlay_h4h4h4 %777 %779
 OpReturnValue %780
 %681 = OpLabel
 %782 = OpLoad %v4float %660
@@ -1643,21 +1643,21 @@ OpStore %829 %828
 %830 = OpLoad %v4float %661
 %831 = OpVectorShuffle %v2float %830 %830 0 3
 OpStore %832 %831
-%833 = OpFunctionCall %float %_color_dodge_component %829 %832
+%833 = OpFunctionCall %float %_color_dodge_component_hh2h2 %829 %832
 %834 = OpLoad %v4float %660
 %835 = OpVectorShuffle %v2float %834 %834 1 3
 OpStore %836 %835
 %837 = OpLoad %v4float %661
 %838 = OpVectorShuffle %v2float %837 %837 1 3
 OpStore %839 %838
-%840 = OpFunctionCall %float %_color_dodge_component %836 %839
+%840 = OpFunctionCall %float %_color_dodge_component_hh2h2 %836 %839
 %841 = OpLoad %v4float %660
 %842 = OpVectorShuffle %v2float %841 %841 2 3
 OpStore %843 %842
 %844 = OpLoad %v4float %661
 %845 = OpVectorShuffle %v2float %844 %844 2 3
 OpStore %846 %845
-%847 = OpFunctionCall %float %_color_dodge_component %843 %846
+%847 = OpFunctionCall %float %_color_dodge_component_hh2h2 %843 %846
 %848 = OpLoad %v4float %660
 %849 = OpCompositeExtract %float %848 3
 %850 = OpLoad %v4float %660
@@ -1676,21 +1676,21 @@ OpStore %860 %859
 %861 = OpLoad %v4float %661
 %862 = OpVectorShuffle %v2float %861 %861 0 3
 OpStore %863 %862
-%864 = OpFunctionCall %float %_color_burn_component %860 %863
+%864 = OpFunctionCall %float %_color_burn_component_hh2h2 %860 %863
 %865 = OpLoad %v4float %660
 %866 = OpVectorShuffle %v2float %865 %865 1 3
 OpStore %867 %866
 %868 = OpLoad %v4float %661
 %869 = OpVectorShuffle %v2float %868 %868 1 3
 OpStore %870 %869
-%871 = OpFunctionCall %float %_color_burn_component %867 %870
+%871 = OpFunctionCall %float %_color_burn_component_hh2h2 %867 %870
 %872 = OpLoad %v4float %660
 %873 = OpVectorShuffle %v2float %872 %872 2 3
 OpStore %874 %873
 %875 = OpLoad %v4float %661
 %876 = OpVectorShuffle %v2float %875 %875 2 3
 OpStore %877 %876
-%878 = OpFunctionCall %float %_color_burn_component %874 %877
+%878 = OpFunctionCall %float %_color_burn_component_hh2h2 %874 %877
 %879 = OpLoad %v4float %660
 %880 = OpCompositeExtract %float %879 3
 %881 = OpLoad %v4float %660
@@ -1707,7 +1707,7 @@ OpReturnValue %888
 OpStore %890 %889
 %891 = OpLoad %v4float %660
 OpStore %892 %891
-%893 = OpFunctionCall %v4float %blend_overlay %890 %892
+%893 = OpFunctionCall %v4float %blend_overlay_h4h4h4 %890 %892
 OpReturnValue %893
 %686 = OpLabel
 %894 = OpLoad %v4float %661
@@ -1726,21 +1726,21 @@ OpStore %904 %903
 %905 = OpLoad %v4float %661
 %906 = OpVectorShuffle %v2float %905 %905 0 3
 OpStore %907 %906
-%908 = OpFunctionCall %float %_soft_light_component %904 %907
+%908 = OpFunctionCall %float %_soft_light_component_hh2h2 %904 %907
 %909 = OpLoad %v4float %660
 %910 = OpVectorShuffle %v2float %909 %909 1 3
 OpStore %911 %910
 %912 = OpLoad %v4float %661
 %913 = OpVectorShuffle %v2float %912 %912 1 3
 OpStore %914 %913
-%915 = OpFunctionCall %float %_soft_light_component %911 %914
+%915 = OpFunctionCall %float %_soft_light_component_hh2h2 %911 %914
 %916 = OpLoad %v4float %660
 %917 = OpVectorShuffle %v2float %916 %916 2 3
 OpStore %918 %917
 %919 = OpLoad %v4float %661
 %920 = OpVectorShuffle %v2float %919 %919 2 3
 OpStore %921 %920
-%922 = OpFunctionCall %float %_soft_light_component %918 %921
+%922 = OpFunctionCall %float %_soft_light_component_hh2h2 %918 %921
 %923 = OpLoad %v4float %660
 %924 = OpCompositeExtract %float %923 3
 %925 = OpLoad %v4float %660
@@ -1873,13 +1873,13 @@ OpStore %_4_dsa %1039
 OpStore %1041 %1040
 %1042 = OpLoad %v3float %_4_dsa
 OpStore %1043 %1042
-%1044 = OpFunctionCall %v3float %_blend_set_color_saturation %1041 %1043
+%1044 = OpFunctionCall %v3float %_blend_set_color_saturation_h3h3h3 %1041 %1043
 OpStore %1045 %1044
 %1046 = OpLoad %float %_2_alpha
 OpStore %1047 %1046
 %1048 = OpLoad %v3float %_4_dsa
 OpStore %1049 %1048
-%1050 = OpFunctionCall %v3float %_blend_set_color_luminance %1045 %1047 %1049
+%1050 = OpFunctionCall %v3float %_blend_set_color_luminance_h3h3hh3 %1045 %1047 %1049
 %1051 = OpLoad %v4float %661
 %1052 = OpVectorShuffle %v3float %1051 %1051 0 1 2
 %1053 = OpFAdd %v3float %1050 %1052
@@ -1925,13 +1925,13 @@ OpStore %_7_dsa %1089
 OpStore %1091 %1090
 %1092 = OpLoad %v3float %_6_sda
 OpStore %1093 %1092
-%1094 = OpFunctionCall %v3float %_blend_set_color_saturation %1091 %1093
+%1094 = OpFunctionCall %v3float %_blend_set_color_saturation_h3h3h3 %1091 %1093
 OpStore %1095 %1094
 %1096 = OpLoad %float %_5_alpha
 OpStore %1097 %1096
 %1098 = OpLoad %v3float %_7_dsa
 OpStore %1099 %1098
-%1100 = OpFunctionCall %v3float %_blend_set_color_luminance %1095 %1097 %1099
+%1100 = OpFunctionCall %v3float %_blend_set_color_luminance_h3h3hh3 %1095 %1097 %1099
 %1101 = OpLoad %v4float %661
 %1102 = OpVectorShuffle %v3float %1101 %1101 0 1 2
 %1103 = OpFAdd %v3float %1100 %1102
@@ -1979,7 +1979,7 @@ OpStore %1141 %1140
 OpStore %1143 %1142
 %1144 = OpLoad %v3float %_10_dsa
 OpStore %1145 %1144
-%1146 = OpFunctionCall %v3float %_blend_set_color_luminance %1141 %1143 %1145
+%1146 = OpFunctionCall %v3float %_blend_set_color_luminance_h3h3hh3 %1141 %1143 %1145
 %1147 = OpLoad %v4float %661
 %1148 = OpVectorShuffle %v3float %1147 %1147 0 1 2
 %1149 = OpFAdd %v3float %1146 %1148
@@ -2027,7 +2027,7 @@ OpStore %1187 %1186
 OpStore %1189 %1188
 %1190 = OpLoad %v3float %_12_sda
 OpStore %1191 %1190
-%1192 = OpFunctionCall %v3float %_blend_set_color_luminance %1187 %1189 %1191
+%1192 = OpFunctionCall %v3float %_blend_set_color_luminance_h3h3hh3 %1187 %1189 %1191
 %1193 = OpLoad %v4float %661
 %1194 = OpVectorShuffle %v3float %1193 %1193 0 1 2
 %1195 = OpFAdd %v3float %1192 %1194
@@ -2067,7 +2067,7 @@ OpStore %1223 %1222
 %1224 = OpAccessChain %_ptr_Uniform_v4float %19 %int_1
 %1226 = OpLoad %v4float %1224
 OpStore %1227 %1226
-%1228 = OpFunctionCall %v4float %blend %1218 %1223 %1227
+%1228 = OpFunctionCall %v4float %blend_h4eh4h4 %1218 %1223 %1227
 OpStore %sk_FragColor %1228
 OpReturn
 OpFunctionEnd
