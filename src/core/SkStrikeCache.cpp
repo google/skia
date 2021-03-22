@@ -219,23 +219,6 @@ int SkStrikeCache::setCacheCountLimit(int newCount) {
     return prevCount;
 }
 
-int SkStrikeCache::getCachePointSizeLimit() const {
-    SkAutoSpinlock ac(fLock);
-    return fPointSizeLimit;
-}
-
-int SkStrikeCache::setCachePointSizeLimit(int newLimit) {
-    if (newLimit < 0) {
-        newLimit = 0;
-    }
-
-    SkAutoSpinlock ac(fLock);
-
-    int prevLimit = fPointSizeLimit;
-    fPointSizeLimit = newLimit;
-    return prevLimit;
-}
-
 void SkStrikeCache::forEachStrike(std::function<void(const Strike&)> visitor) const {
     SkAutoSpinlock ac(fLock);
 
