@@ -71,6 +71,42 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5dc10b9_efba7db9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-22T18:08:45Z",
+      "side": 1,
+      "message": "By a lot, yes! 13.5ms -\u003e 5.1. And those 5.1ms are actually higher up in the Ganesh stack where there are a lot of potential optimizations, not in tessellation.\n\nAt this point it looks like Skia won\u0027t become the bottleneck until JS is 2x faster (hopefully soon 🙃), and the GPU won\u0027t become the bottleneck until Skia is 4.5x faster and JS is 9x faster.",
+      "parentUuid": "12ebc268_3fd10ce4",
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6333d10b_543b9f52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-22T18:08:45Z",
+      "side": 1,
+      "message": "CC +\u003d tdenniston@\n\n\u003e\u003e There are some that seem preferable before this change, which makes me wonder if we might want to decrease error tolerance in the future.\n\nActually, which strokes were you looking at Brian? If they were conics then we may actually be looking at issues from using the wrong Wang\u0027s formula. We need to update strokes to use Tyler\u0027s new and improved Wang\u0027s formula for conics.",
+      "parentUuid": "96dea67a_d256c29e",
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b41d2120_718f9ca0",
