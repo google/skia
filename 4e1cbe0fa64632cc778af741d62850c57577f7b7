@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0095e65b_53e5e872",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-22T14:12:38Z",
+      "side": 1,
+      "message": "interpret_sampling_options?",
+      "range": {
+        "startLine": 695,
+        "startChar": 0,
+        "endLine": 695,
+        "endChar": 24
+      },
+      "revId": "4e1cbe0fa64632cc778af741d62850c57577f7b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
