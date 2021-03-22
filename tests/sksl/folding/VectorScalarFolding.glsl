@@ -3,7 +3,7 @@ out vec4 sk_FragColor;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
 uniform float unknownInput;
-bool test_int() {
+bool test_int_b() {
     bool ok = true;
     ivec4 x = ivec4(6, 6, 7, 8);
     ok = ok && x == ivec4(6, 6, 7, 8);
@@ -143,5 +143,5 @@ vec4 main() {
     _1_x = _1_x + 1.0;
     _1_x = _1_x - 1.0;
     _0_ok = _0_ok && _1_x == vec4(_2_unknown);
-    return _0_ok && test_int() ? colorGreen : colorRed;
+    return _0_ok && test_int_b() ? colorGreen : colorRed;
 }
