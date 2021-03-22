@@ -107,6 +107,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11f52752_5500990b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-22T18:44:03Z",
+      "side": 1,
+      "message": "Ah, sounds like it. It was conics on circles/rrects that appeared worse to me.",
+      "parentUuid": "6333d10b_543b9f52",
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b41d2120_718f9ca0",
