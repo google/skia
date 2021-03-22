@@ -15,6 +15,7 @@
 
 #include <vector>
 
+class GrGpu;
 class GrGLSLFragmentProcessor;
 class GrGLSLPrimitiveProcessor;
 class GrGLSLXferProcessor;
@@ -50,7 +51,8 @@ public:
      * The attribute array consists of vertexAttributeCnt + instanceAttributeCnt elements with
      * the vertex attributes preceding the instance attributes.
      */
-    static sk_sp<GrGLProgram> Make(GrGLGpu*,
+    static sk_sp<GrGLProgram> Make(//GrGLGpu*,
+                                   const GrGLInterface *,
                                    const GrGLSLBuiltinUniformHandles&,
                                    GrGLuint programID,
                                    const UniformInfoArray& uniforms,
@@ -117,12 +119,16 @@ public:
      *
      * It is the caller's responsibility to ensure the program is bound before calling.
      */
-    void updateUniforms(const GrRenderTarget*, const GrProgramInfo&);
+    void updateUniforms(const GrGLInterface*,
+                        const GrRenderTarget*,
+                        const GrProgramInfo&);
 
     /**
      * Binds all primitive processor and fragment processor textures.
      */
-    void bindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
+    void bindTextures(GrGLGpu*,
+                      const GrPrimitiveProcessor&,
+                      const GrSurfaceProxy* const primProcTextures[],
                       const GrPipeline&);
 
     int vertexStride() const { return fVertexStride; }
@@ -141,7 +147,7 @@ public:
     }
 
 private:
-    GrGLProgram(GrGLGpu*,
+    GrGLProgram(//GrGLGpu*,
                 const GrGLSLBuiltinUniformHandles&,
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
@@ -174,7 +180,7 @@ private:
     int fVertexStride;
     int fInstanceStride;
 
-    GrGLGpu* fGpu;
+    //GrGLGpu* fGpu;
     GrGLProgramDataManager fProgramDataManager;
 
     int fNumTextureSamplers;

@@ -21,6 +21,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrBackendUtils.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrCpuBuffer.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
@@ -313,8 +314,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContextOptions& options,
-                           GrDirectContext* direct) {
+sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, GrDirectContext* direct) {
     if (!interface) {
         interface = GrGLMakeNativeInterface();
         // For clients that have written their own GrGLCreateNativeInterface and haven't yet updated
@@ -329,7 +329,7 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
 #ifdef USE_NSIGHT
     const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
 #endif
-    auto glContext = GrGLContext::Make(std::move(interface), options);
+    auto glContext = GrGLContext::Make(std::move(interface), direct->priv().options());
     if (!glContext) {
         return nullptr;
     }
@@ -339,12 +339,18 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
 GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* dContext)
         : GrGpu(dContext)
         , fGLContext(std::move(ctx))
-        , fProgramCache(new ProgramCache(dContext->priv().options().fRuntimeProgramCacheSize))
         , fHWProgramID(0)
         , fTempSrcFBOID(0)
         , fTempDstFBOID(0)
         , fStencilClearFBOID(0)
         , fFinishCallbacks(this) {
+
+    if (dContext->threadSafeProxy()->priv().pipelineBuilder()) {
+        fProgramCache = sk_ref_sp((ProgramCache*)dContext->threadSafeProxy()->priv().pipelineBuilder());
+    } else {
+        fProgramCache.reset(new ProgramCache(dContext->priv().options().fRuntimeProgramCacheSize));
+    }
+
     SkASSERT(fGLContext);
     // Clear errors so we don't get confused whether we caused an error.
     this->clearErrorsAndCheckForOOM();
@@ -1820,7 +1826,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().writeSwizzle());
 
-    fHWProgram->updateUniforms(renderTarget, programInfo);
+    fHWProgram->updateUniforms(this->glInterface(), renderTarget, programInfo);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;

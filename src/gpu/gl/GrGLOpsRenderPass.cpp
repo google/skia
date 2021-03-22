@@ -54,7 +54,7 @@ bool GrGLOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                        const GrPipeline& pipeline) {
     GrGLProgram* program = fGpu->currentProgram();
     SkASSERT(program);
-    program->bindTextures(primProc, primProcTextures, pipeline);
+    program->bindTextures(fGpu, primProc, primProcTextures, pipeline);
     return true;
 }
 
