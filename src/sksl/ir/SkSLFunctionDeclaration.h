@@ -61,10 +61,23 @@ public:
         return fBuiltin;
     }
 
+    String mangledName() const {
+        if ((this->isBuiltin() && !this->definition()) || this->name() == "main") {
+            // Builtins without a definition (like `sin` or `sqrt`) must use their real names.
+            return this->name();
+        }
+        // Rename function to `funcname_returntypeparamtypes`.
+        String result = this->name() + "_" + this->returnType().abbreviatedName();
+        for (const Variable* p : this->parameters()) {
+            result += p->type().abbreviatedName();
+        }
+        return result;
+    }
+
     String description() const override {
         String result = this->returnType().displayName() + " " + this->name() + "(";
         String separator;
-        for (auto p : this->parameters()) {
+        for (const Variable* p : this->parameters()) {
             result += separator;
             separator = ", ";
             result += p->type().displayName();
