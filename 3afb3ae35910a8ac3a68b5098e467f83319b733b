@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da6674c7_c15ed1d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-22T13:12:55Z",
+      "side": 1,
+      "message": "Code seems fine. Most of the GM differences are neutral to me. There are some that seem preferable before this change, which makes me wonder if we might want to decrease error tolerance in the future.",
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b41d2120_718f9ca0",
@@ -31,6 +48,30 @@
       "writtenOn": "2021-03-22T04:42:12Z",
       "side": 1,
       "message": "This was just moved upward from below.",
+      "range": {
+        "startLine": 1141,
+        "startChar": 0,
+        "endLine": 1148,
+        "endChar": 9
+      },
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dce8f6ec_93147ea5",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-22T13:12:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b41d2120_718f9ca0",
       "range": {
         "startLine": 1141,
         "startChar": 0,
