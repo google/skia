@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-
-#include "include/core/SkMatrix.h"
-#include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include <stdio.h>
+#include "include/core/SkMatrix.h"
+#include "include/gpu/gl/GrGLConfig.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrDataUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

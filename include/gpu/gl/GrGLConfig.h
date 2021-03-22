@@ -53,11 +53,7 @@
  */
 
 #if !defined(GR_GL_LOG_CALLS)
-    #ifdef SK_DEBUG
-        #define GR_GL_LOG_CALLS 1
-    #else
-        #define GR_GL_LOG_CALLS 0
-    #endif
+#define GR_GL_LOG_CALLS 1
 #endif
 
 #if !defined(GR_GL_LOG_CALLS_START)
@@ -65,11 +61,7 @@
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR)
-    #ifdef SK_DEBUG
-        #define GR_GL_CHECK_ERROR 1
-    #else
-        #define GR_GL_CHECK_ERROR 0
-    #endif
+#define GR_GL_CHECK_ERROR 0
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR_START)
