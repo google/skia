@@ -1,1 +1,0 @@
-void array_index()      { int x[2]; int i; x[i] = 4; }
