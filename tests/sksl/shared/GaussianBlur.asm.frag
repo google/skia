@@ -15,7 +15,7 @@ OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %uTextureSampler_0_Stage1 "uTextureSampler_0_Stage1"
 OpName %vLocalCoord_Stage0 "vLocalCoord_Stage0"
-OpName %MatrixEffect_Stage1_c0_c0 "MatrixEffect_Stage1_c0_c0"
+OpName %MatrixEffect_Stage1_c0_c0_h4h4f2 "MatrixEffect_Stage1_c0_c0_h4h4f2"
 OpName %_1_inCoord "_1_inCoord"
 OpName %_2_subsetCoord "_2_subsetCoord"
 OpName %_3_clampedCoord "_3_clampedCoord"
@@ -235,7 +235,7 @@ OpDecorate %527 RelaxedPrecision
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
 %119 = OpConstantComposite %v2float %float_0 %float_0
 %int_2 = OpConstant %int 2
-%MatrixEffect_Stage1_c0_c0 = OpFunction %v4float None %26
+%MatrixEffect_Stage1_c0_c0_h4h4f2 = OpFunction %v4float None %26
 %29 = OpFunctionParameter %_ptr_Function_v4float
 %30 = OpFunctionParameter %_ptr_Function_v2float
 %31 = OpLabel
@@ -385,7 +385,7 @@ OpStore %_8_coordSampled %120
 OpStore %123 %122
 %124 = OpLoad %v2float %_8_coordSampled
 OpStore %125 %124
-%126 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %123 %125
+%126 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %123 %125
 %128 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_0
 %129 = OpLoad %v4float %128
 %130 = OpCompositeExtract %float %129 0
@@ -404,7 +404,7 @@ OpStore %_8_coordSampled %137
 OpStore %140 %139
 %141 = OpLoad %v2float %_8_coordSampled
 OpStore %142 %141
-%143 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %140 %142
+%143 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %140 %142
 %144 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_0
 %145 = OpLoad %v4float %144
 %146 = OpCompositeExtract %float %145 1
@@ -423,7 +423,7 @@ OpStore %_8_coordSampled %153
 OpStore %156 %155
 %157 = OpLoad %v2float %_8_coordSampled
 OpStore %158 %157
-%159 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %156 %158
+%159 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %156 %158
 %160 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_0
 %161 = OpLoad %v4float %160
 %162 = OpCompositeExtract %float %161 2
@@ -442,7 +442,7 @@ OpStore %_8_coordSampled %169
 OpStore %172 %171
 %173 = OpLoad %v2float %_8_coordSampled
 OpStore %174 %173
-%175 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %172 %174
+%175 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %172 %174
 %176 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_0
 %177 = OpLoad %v4float %176
 %178 = OpCompositeExtract %float %177 3
@@ -461,7 +461,7 @@ OpStore %_8_coordSampled %185
 OpStore %188 %187
 %189 = OpLoad %v2float %_8_coordSampled
 OpStore %190 %189
-%191 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %188 %190
+%191 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %188 %190
 %192 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_1
 %193 = OpLoad %v4float %192
 %194 = OpCompositeExtract %float %193 0
@@ -480,7 +480,7 @@ OpStore %_8_coordSampled %201
 OpStore %204 %203
 %205 = OpLoad %v2float %_8_coordSampled
 OpStore %206 %205
-%207 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %204 %206
+%207 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %204 %206
 %208 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_1
 %209 = OpLoad %v4float %208
 %210 = OpCompositeExtract %float %209 1
@@ -499,7 +499,7 @@ OpStore %_8_coordSampled %217
 OpStore %220 %219
 %221 = OpLoad %v2float %_8_coordSampled
 OpStore %222 %221
-%223 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %220 %222
+%223 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %220 %222
 %224 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_1
 %225 = OpLoad %v4float %224
 %226 = OpCompositeExtract %float %225 2
@@ -518,7 +518,7 @@ OpStore %_8_coordSampled %233
 OpStore %236 %235
 %237 = OpLoad %v2float %_8_coordSampled
 OpStore %238 %237
-%239 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %236 %238
+%239 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %236 %238
 %240 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_1
 %241 = OpLoad %v4float %240
 %242 = OpCompositeExtract %float %241 3
@@ -537,7 +537,7 @@ OpStore %_8_coordSampled %249
 OpStore %252 %251
 %253 = OpLoad %v2float %_8_coordSampled
 OpStore %254 %253
-%255 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %252 %254
+%255 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %252 %254
 %256 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_2
 %257 = OpLoad %v4float %256
 %258 = OpCompositeExtract %float %257 0
@@ -556,7 +556,7 @@ OpStore %_8_coordSampled %265
 OpStore %268 %267
 %269 = OpLoad %v2float %_8_coordSampled
 OpStore %270 %269
-%271 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %268 %270
+%271 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %268 %270
 %272 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_2
 %273 = OpLoad %v4float %272
 %274 = OpCompositeExtract %float %273 1
@@ -575,7 +575,7 @@ OpStore %_8_coordSampled %281
 OpStore %284 %283
 %285 = OpLoad %v2float %_8_coordSampled
 OpStore %286 %285
-%287 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %284 %286
+%287 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %284 %286
 %288 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_2
 %289 = OpLoad %v4float %288
 %290 = OpCompositeExtract %float %289 2
@@ -594,7 +594,7 @@ OpStore %_8_coordSampled %297
 OpStore %300 %299
 %301 = OpLoad %v2float %_8_coordSampled
 OpStore %302 %301
-%303 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %300 %302
+%303 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %300 %302
 %304 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_2
 %305 = OpLoad %v4float %304
 %306 = OpCompositeExtract %float %305 3
@@ -613,7 +613,7 @@ OpStore %_8_coordSampled %313
 OpStore %316 %315
 %317 = OpLoad %v2float %_8_coordSampled
 OpStore %318 %317
-%319 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %316 %318
+%319 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %316 %318
 %320 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_3
 %321 = OpLoad %v4float %320
 %322 = OpCompositeExtract %float %321 0
@@ -632,7 +632,7 @@ OpStore %_8_coordSampled %329
 OpStore %332 %331
 %333 = OpLoad %v2float %_8_coordSampled
 OpStore %334 %333
-%335 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %332 %334
+%335 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %332 %334
 %336 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_3
 %337 = OpLoad %v4float %336
 %338 = OpCompositeExtract %float %337 1
@@ -651,7 +651,7 @@ OpStore %_8_coordSampled %345
 OpStore %348 %347
 %349 = OpLoad %v2float %_8_coordSampled
 OpStore %350 %349
-%351 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %348 %350
+%351 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %348 %350
 %352 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_3
 %353 = OpLoad %v4float %352
 %354 = OpCompositeExtract %float %353 2
@@ -670,7 +670,7 @@ OpStore %_8_coordSampled %361
 OpStore %364 %363
 %365 = OpLoad %v2float %_8_coordSampled
 OpStore %366 %365
-%367 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %364 %366
+%367 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %364 %366
 %368 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_3
 %369 = OpLoad %v4float %368
 %370 = OpCompositeExtract %float %369 3
@@ -689,7 +689,7 @@ OpStore %_8_coordSampled %377
 OpStore %380 %379
 %381 = OpLoad %v2float %_8_coordSampled
 OpStore %382 %381
-%383 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %380 %382
+%383 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %380 %382
 %384 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_4
 %385 = OpLoad %v4float %384
 %386 = OpCompositeExtract %float %385 0
@@ -708,7 +708,7 @@ OpStore %_8_coordSampled %393
 OpStore %396 %395
 %397 = OpLoad %v2float %_8_coordSampled
 OpStore %398 %397
-%399 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %396 %398
+%399 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %396 %398
 %400 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_4
 %401 = OpLoad %v4float %400
 %402 = OpCompositeExtract %float %401 1
@@ -727,7 +727,7 @@ OpStore %_8_coordSampled %409
 OpStore %412 %411
 %413 = OpLoad %v2float %_8_coordSampled
 OpStore %414 %413
-%415 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %412 %414
+%415 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %412 %414
 %416 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_4
 %417 = OpLoad %v4float %416
 %418 = OpCompositeExtract %float %417 2
@@ -746,7 +746,7 @@ OpStore %_8_coordSampled %425
 OpStore %428 %427
 %429 = OpLoad %v2float %_8_coordSampled
 OpStore %430 %429
-%431 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %428 %430
+%431 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %428 %430
 %432 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_4
 %433 = OpLoad %v4float %432
 %434 = OpCompositeExtract %float %433 3
@@ -765,7 +765,7 @@ OpStore %_8_coordSampled %441
 OpStore %444 %443
 %445 = OpLoad %v2float %_8_coordSampled
 OpStore %446 %445
-%447 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %444 %446
+%447 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %444 %446
 %448 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_5
 %449 = OpLoad %v4float %448
 %450 = OpCompositeExtract %float %449 0
@@ -784,7 +784,7 @@ OpStore %_8_coordSampled %457
 OpStore %460 %459
 %461 = OpLoad %v2float %_8_coordSampled
 OpStore %462 %461
-%463 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %460 %462
+%463 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %460 %462
 %464 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_5
 %465 = OpLoad %v4float %464
 %466 = OpCompositeExtract %float %465 1
@@ -803,7 +803,7 @@ OpStore %_8_coordSampled %473
 OpStore %476 %475
 %477 = OpLoad %v2float %_8_coordSampled
 OpStore %478 %477
-%479 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %476 %478
+%479 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %476 %478
 %480 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_5
 %481 = OpLoad %v4float %480
 %482 = OpCompositeExtract %float %481 2
@@ -822,7 +822,7 @@ OpStore %_8_coordSampled %489
 OpStore %492 %491
 %493 = OpLoad %v2float %_8_coordSampled
 OpStore %494 %493
-%495 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %492 %494
+%495 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %492 %494
 %496 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_5
 %497 = OpLoad %v4float %496
 %498 = OpCompositeExtract %float %497 3
@@ -841,7 +841,7 @@ OpStore %_8_coordSampled %505
 OpStore %508 %507
 %509 = OpLoad %v2float %_8_coordSampled
 OpStore %510 %509
-%511 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0 %508 %510
+%511 = OpFunctionCall %v4float %MatrixEffect_Stage1_c0_c0_h4h4f2 %508 %510
 %512 = OpAccessChain %_ptr_Uniform_v4float %4 %int_2 %int_6
 %513 = OpLoad %v4float %512
 %514 = OpCompositeExtract %float %513 0
