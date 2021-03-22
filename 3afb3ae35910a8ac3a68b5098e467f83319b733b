@@ -125,6 +125,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf5837f7_44762fa8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-03-22T20:40:42Z",
+      "side": 1,
+      "message": "Oh ok great, I\u0027m available to revisit that.",
+      "parentUuid": "11f52752_5500990b",
+      "revId": "3afb3ae35910a8ac3a68b5098e467f83319b733b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b41d2120_718f9ca0",
