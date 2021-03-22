@@ -139,15 +139,16 @@ public:
     const std::unique_ptr<Type> fFragmentProcessor;
 
 private:
-    static std::unique_ptr<Type> MakeScalarType(const char* name, Type::NumberKind numberKind,
-                                                int priority, bool highPrecision = false);
+    static std::unique_ptr<Type> MakeScalarType(const char* name, const char* abbrev,
+                                                Type::NumberKind numberKind, int priority,
+                                                bool highPrecision = false);
     static std::unique_ptr<Type> MakeLiteralType(const char* name, const Type& scalarType,
                                                  int priority);
-    static std::unique_ptr<Type> MakeVectorType(const char* name, const Type& componentType,
-                                                int columns);
+    static std::unique_ptr<Type> MakeVectorType(const char* name, const char* abbrev,
+                                                const Type& componentType, int columns);
     static std::unique_ptr<Type> MakeGenericType(const char* name, std::vector<const Type*> types);
-    static std::unique_ptr<Type> MakeMatrixType(const char* name, const Type& componentType,
-                                                int columns, int rows);
+    static std::unique_ptr<Type> MakeMatrixType(const char* name, const char* abbrev,
+                                                const Type& componentType, int columns, int rows);
     static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions,
                                                  bool isDepth, bool isArrayedTexture,
                                                  bool isMultisampled, bool isSampled);
