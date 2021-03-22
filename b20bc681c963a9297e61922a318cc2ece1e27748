@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72766a54_9880a984",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-22T17:52:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfb02ce3_10a507de",
+      "range": {
+        "startLine": 155,
+        "startChar": 7,
+        "endLine": 156,
+        "endChar": 48
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4559dd7_c36c75cc",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-22T17:31:59Z",
       "side": 1,
       "message": "not necessary",
+      "range": {
+        "startLine": 375,
+        "startChar": 50,
+        "endLine": 375,
+        "endChar": 60
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1b9faa1_8d6087ca",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-22T17:52:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4559dd7_c36c75cc",
       "range": {
         "startLine": 375,
         "startChar": 50,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4aed1206_4edae178",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-22T17:52:20Z",
+      "side": 1,
+      "message": "Done. I actually went and fixed the other spots that were using this pattern. In those cases, I needed i to count up, so I hoisted the computation of uniformSize()/4 to a local const, and added a reserve call on the vector in each place.",
+      "parentUuid": "67ab866c_b548030a",
+      "range": {
+        "startLine": 382,
+        "startChar": 8,
+        "endLine": 382,
+        "endChar": 64
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "366484e8_5f1bb60a",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-03-22T17:31:59Z",
       "side": 1,
       "message": "nit: arg-comment?",
+      "range": {
+        "startLine": 400,
+        "startChar": 69,
+        "endLine": 400,
+        "endChar": 76
+      },
+      "revId": "b20bc681c963a9297e61922a318cc2ece1e27748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a8425ee_8267352f",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-22T17:52:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "366484e8_5f1bb60a",
       "range": {
         "startLine": 400,
         "startChar": 69,
