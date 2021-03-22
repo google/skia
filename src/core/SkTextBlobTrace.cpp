@@ -83,11 +83,11 @@ SkTextBlobTrace::Capture::Capture() : fTypefaceSet(new SkRefCntSet) {
 
 SkTextBlobTrace::Capture::~Capture() = default;
 
-void SkTextBlobTrace::Capture::capture(const SkGlyphRunList& glyphRunList) {
+void SkTextBlobTrace::Capture::capture(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     const SkTextBlob* blob = glyphRunList.blob();
     if (blob != nullptr) {
         fWriteBuffer.writeUInt(blob->uniqueID());
-        fWriteBuffer.writePaint(glyphRunList.paint());
+        fWriteBuffer.writePaint(paint);
         fWriteBuffer.writePoint(glyphRunList.origin());
         SkTextBlobPriv::Flatten(*blob, fWriteBuffer);
         fBlobCount++;

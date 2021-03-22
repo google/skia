@@ -829,7 +829,7 @@ public:
     }
 
 protected:
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
         #if SK_SUPPORT_GPU
         GrContextOptions ctxOptions;
         GrSDFTControl control =
@@ -843,7 +843,7 @@ protected:
         for (auto& glyphRun : glyphRunList) {
             fPainter.processGlyphRun(glyphRun,
                                      drawMatrix,
-                                     glyphRunList.paint(),
+                                     paint,
                                      control,
                                      nullptr,
                                      "Cache Diff");

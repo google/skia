@@ -502,7 +502,7 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
     drawMatrix.preTranslate(x, y);
     auto drawOrigin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
-    builder.drawTextUTF8(skPaint, font, text, textLen, drawOrigin);
+    builder.drawTextUTF8(font, text, textLen, drawOrigin);
 
     auto glyphRunList = builder.useGlyphRunList();
     if (glyphRunList.empty()) {
@@ -514,7 +514,7 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
             rContext->priv().getSDFTControl(rtc->surfaceProps().isUseDeviceIndependentFonts());
 
     SkGlyphRunListPainter* painter = rtc->glyphRunPainter();
-    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix, control, painter);
+    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, skPaint, drawMatrix, control, painter);
 
     if (blob->subRunList().isEmpty()) {
         return nullptr;
@@ -524,7 +524,7 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
     SkASSERT(subRun);
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
-            nullptr, mtxProvider, glyphRunList, rtc, nullptr);
+            nullptr, mtxProvider, glyphRunList, skPaint, rtc, nullptr);
     return op;
 }
 

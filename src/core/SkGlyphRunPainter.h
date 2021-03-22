@@ -77,7 +77,7 @@ public:
     };
 
     void drawForBitmapDevice(
-            const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
+            const SkGlyphRunList& glyphRunList, const SkPaint& paint, const SkMatrix& deviceMatrix,
             const BitmapDevicePainter* bitmapDevice);
 
 #if SK_SUPPORT_GPU

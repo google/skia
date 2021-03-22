@@ -94,7 +94,7 @@ protected:
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
 
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
                    SkBlendMode, const SkSamplingOptions&, const SkPaint&) override;
