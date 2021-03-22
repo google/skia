@@ -15,7 +15,7 @@ thread float2x2& operator*=(thread float2x2& left, thread const float2x2& right)
     return left;
 }
 
-bool test_half() {
+bool test_half_b() {
     float2x2 m1 = float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
     float2x2 m3 = m1;
     float2x2 m4 = float2x2(1.0);
@@ -41,6 +41,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float4x4 _10_m10 = float4x4(1.0);
     float4x4 _11_m11 = float4x4(2.0);
     _11_m11 -= _10_m10;
-    _out.sk_FragColor = true && test_half() ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = true && test_half_b() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

@@ -10,11 +10,11 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-float4 unpremul(float4 color) {
+float4 unpremul_h4h4(float4 color) {
     return float4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
 }
 
-float4 live_fn(float4 a, float4 b) {
+float4 live_fn_h4h4h4(float4 a, float4 b) {
     return a + b;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
@@ -23,10 +23,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float4 a;
     float4 b;
     {
-        a = live_fn(float4(3.0), float4(-5.0));
+        a = live_fn_h4h4h4(float4(3.0), float4(-5.0));
     }
     {
-        b = unpremul(float4(1.0));
+        b = unpremul_h4h4(float4(1.0));
     }
     _out.sk_FragColor = any(a != float4(0.0)) && any(b != float4(0.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;

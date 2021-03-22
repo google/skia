@@ -23,7 +23,7 @@ thread float4x4& operator*=(thread float4x4& left, thread const float4x4& right)
     return left;
 }
 
-bool test_half() {
+bool test_half_b() {
     float2x3 m23 = float2x3(23.0);
     float2x4 m24 = float2x4(24.0);
     float3x2 m32 = float3x2(32.0);
@@ -53,6 +53,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _7_m33 *= _7_m33;
     float4x4 _8_m44 = _1_m24 * _4_m42;
     _8_m44 *= _8_m44;
-    _out.sk_FragColor = true && test_half() ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = true && test_half_b() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
