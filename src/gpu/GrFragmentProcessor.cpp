@@ -307,7 +307,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         }
 
         SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
-            return fSwizzle.applyTo(input);
+            return fSwizzle.applyTo(ConstantOutputForConstantInput(this->childProcessor(0), input));
         }
 
         GrSwizzle fSwizzle;
