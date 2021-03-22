@@ -1,2 +1,4 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
+error: 3: static switch has non-static test
+1 error
