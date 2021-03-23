@@ -66,8 +66,9 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
                     fWords.extend(fClusters);
                 }
 
-                if (cluster->width() > maxWidth) {
-                    // Placeholder is longer than the line; it does not count in fMinIntrinsicWidth
+                if (cluster->width() > maxWidth && fWords.empty()) {
+                    // Placeholder is the only text and it's longer than the line;
+                    // it does not count in fMinIntrinsicWidth
                     fClusters.extend(cluster);
                     fTooLongCluster = true;
                     fTooLongWord = true;

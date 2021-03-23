@@ -3451,40 +3451,47 @@ protected:
     SkString name() override { return SkString("Paragraph59"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
+        canvas->drawColor(SK_ColorYELLOW);
 
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
 
+        SkPaint paint;
+        paint.setColor(SK_ColorBLUE);
+        canvas->drawRect(SkRect::MakeWH(300, 100), paint);
+
         ParagraphStyle paragraph_style;
         TextStyle text_style;
-        SkPaint paint;
         text_style.setFontFamilies({SkString("Roboto")});
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        PlaceholderStyle placeholder_style;
-        placeholder_style.fHeight = 20;
-        placeholder_style.fWidth = 300;
-        placeholder_style.fBaseline = TextBaseline::kAlphabetic;
-        placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
-        paint.setColor(SK_ColorGREEN);
-        text_style.setBackgroundColor(paint);
-        builder.pushStyle(text_style);
-        builder.addPlaceholder(placeholder_style);
-        placeholder_style.fHeight = 8;
-        paint.setColor(SK_ColorRED);
-        text_style.setBackgroundColor(paint);
-        builder.pushStyle(text_style);
-        builder.addPlaceholder(placeholder_style);
         text_style.setFontSize(36);
         text_style.setColor(SK_ColorBLACK);
         paint.setColor(SK_ColorWHITE);
         text_style.setBackgroundColor(paint);
         builder.pushStyle(text_style);
-        builder.addText("Text");
+        builder.addText("aaa bbb ");
+        PlaceholderStyle placeholder_style;
+        placeholder_style.fHeight = 8;
+        placeholder_style.fWidth = 300;
+        placeholder_style.fBaseline = TextBaseline::kAlphabetic;
+        placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
+        builder.pushStyle(text_style);
+        builder.addPlaceholder(placeholder_style);
+        placeholder_style.fHeight = 20;
+        builder.pushStyle(text_style);
+        builder.addPlaceholder(placeholder_style);
         auto paragraph = builder.Build();
-        paragraph->layout(300);
+        paragraph->layout(290);
         paragraph->paint(canvas, 0, 0);
+
+        auto placeholders = paragraph->getRectsForPlaceholders();
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(SK_ColorRED);
+        for (auto& p : placeholders) {
+            canvas->drawRect(p.rect, paint);
+            paint.setColor(SK_ColorGREEN);
+        }
 
         if (this->isVerbose()) {
             auto impl = static_cast<ParagraphImpl*>(paragraph.get());
