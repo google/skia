@@ -16,6 +16,24 @@
       "message": "LGTM, it\u0027s bummer about the Iris and multi-draw arrays. Checking status it looks like we\u0027ve already turned down the bots that used these nvpr CLI flags. That seem in line with you?",
       "revId": "b9385da486972bcea447ec009651dc055d4f1305",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a56f831_ccd4b29c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-23T19:11:57Z",
+      "side": 1,
+      "message": "Yep - I turned off the NVPR usage on the bots first.\n\nI suspect the Intel Iris Core Profile problem is a driver bug. AFAICT we aren\u0027t doing anything incorrect with the multi-draw arrays :(",
+      "parentUuid": "20e6e229_b2b37902",
+      "revId": "b9385da486972bcea447ec009651dc055d4f1305",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
