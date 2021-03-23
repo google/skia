@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "679b8c7f_d3e8b625",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-23T21:06:23Z",
+      "side": 1,
+      "message": "Want to add this to the spirv_tests as well, so we can demonstrate the RelaxedPrecision results in the golden output?",
+      "revId": "997d9da1ed5c9e0c749ec33a6a20c987256759f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
