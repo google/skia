@@ -510,9 +510,9 @@ static void draw_texture_producer(GrRecordingContext* context,
     fp = GrColorSpaceXformEffect::Make(std::move(fp), producer->colorSpace(), producer->alphaType(),
                                        rtc->colorInfo().colorSpace(), kPremul_SkAlphaType);
     if (producer->isAlphaOnly()) {
-        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
+        fp = GrBlendFragmentProcessor::Make(context, std::move(fp), nullptr, SkBlendMode::kDstIn);
     } else {
-        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kSrcIn);
+        fp = GrBlendFragmentProcessor::Make(context, std::move(fp), nullptr, SkBlendMode::kSrcIn);
     }
 
     GrPaint grPaint;

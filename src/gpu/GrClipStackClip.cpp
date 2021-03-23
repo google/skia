@@ -70,7 +70,8 @@ SkIRect GrClipStackClip::getConservativeBounds() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask.
-static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyView mask,
+static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrRecordingContext* rContext,
+                                                               GrSurfaceProxyView mask,
                                                                const SkIRect& devBound,
                                                                const GrCaps& caps) {
     GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
@@ -82,7 +83,7 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyVie
     auto domain = subset.makeInset(0.5, 0.5);
     auto fp = GrTextureEffect::MakeSubset(std::move(mask), kPremul_SkAlphaType, m, samplerState,
                                           subset, domain, caps);
-    fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
+    fp = GrBlendFragmentProcessor::Make(rContext, std::move(fp), nullptr, SkBlendMode::kDstIn);
     return GrDeviceSpaceEffect::Make(std::move(fp));
 }
 
@@ -218,7 +219,7 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     }
     auto* ccpr = context->priv().drawingManager()->getCoverageCountingPathRenderer();
 
-    GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(), maxWindowRectangles,
+    GrReducedClip reducedClip(context, *fStack, devBounds, maxWindowRectangles,
                               maxAnalyticElements, ccpr ? maxAnalyticElements : 0);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
@@ -248,10 +249,10 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
     // can cause a flush or otherwise change which opstask our draw is going into.
     uint32_t opsTaskID = surfaceDrawContext->getOpsTask()->uniqueID();
-    auto [success, clipFPs] = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider,
+    auto [success, clipFPs] = reducedClip.finishAndDetachAnalyticElements(*fMatrixProvider,
                                                                           ccpr, opsTaskID);
     if (success) {
-        out->addCoverageFP(std::move(clipFPs));
+        out->addCoverageFP(context, std::move(clipFPs));
         effect = Effect::kClipped;
     } else {
         effect = Effect::kClippedOut;
@@ -288,7 +289,7 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         if (result) {
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // the clip's device space bounds.
-            out->addCoverageFP(create_fp_for_mask(std::move(result), reducedClip.scissor(),
+            out->addCoverageFP(context, create_fp_for_mask(context, std::move(result), reducedClip.scissor(),
                                                   *context->priv().caps()));
             return true;
         }
@@ -303,7 +304,7 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
         }
     }
 
-    reducedClip.drawStencilClipMask(context, surfaceDrawContext);
+    reducedClip.drawStencilClipMask(surfaceDrawContext);
     out->hardClip().addStencilClip(reducedClip.maskGenID());
     return true;
 }

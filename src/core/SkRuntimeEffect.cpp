@@ -524,7 +524,7 @@ public:
         // We need to pass the input to the runtime filter using Compose. This ensures that it will
         // be invoked exactly once, and the result will be returned when null children are sampled,
         // or as the (default) input color for non-null children.
-        return GrFPSuccess(GrFragmentProcessor::Compose(std::move(fp), std::move(inputFP)));
+        return GrFPSuccess(GrFragmentProcessor::Compose(context, std::move(fp), std::move(inputFP)));
     }
 #endif
 

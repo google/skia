@@ -26,7 +26,7 @@ public:
     using Element = SkClipStack::Element;
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
-    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrCaps* caps,
+    GrReducedClip(GrRecordingContext* context, const SkClipStack&, const SkRect& queryBounds,
                   int maxWindowRectangles = 0, int maxAnalyticElements = 0,
                   int maxCCPRClipPaths = 0);
 
@@ -91,7 +91,7 @@ public:
     bool maskRequiresAA() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskRequiresAA; }
 
     bool drawAlphaClipMask(GrSurfaceDrawContext*) const;
-    bool drawStencilClipMask(GrRecordingContext*, GrSurfaceDrawContext*) const;
+    bool drawStencilClipMask(GrSurfaceDrawContext*) const;
 
     int numAnalyticElements() const;
 
@@ -104,7 +104,7 @@ public:
      * the render target context, surface allocations, and even switching render targets (pre MDB)
      * may cause flushes or otherwise change which opsTask the actual draw is going into.
      */
-    GrFPResult finishAndDetachAnalyticElements(GrRecordingContext*, const SkMatrixProvider&
+    GrFPResult finishAndDetachAnalyticElements(const SkMatrixProvider&
                                                matrixProvider, GrCoverageCountingPathRenderer*,
                                                uint32_t opsTaskID);
 
@@ -139,7 +139,7 @@ private:
 
     void makeEmpty();
 
-    const GrCaps* fCaps;
+    GrRecordingContext* fContext;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticElements;
     const int fMaxCCPRClipPaths;

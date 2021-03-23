@@ -107,7 +107,7 @@ protected:
                 path->transform(m, &p);
 
                 GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                auto [success, fp] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType, p);
+                auto [success, fp] = GrConvexPolyEffect::Make(context, /*inputFP=*/nullptr, edgeType, p);
                 if (!success) {
                     continue;
                 }

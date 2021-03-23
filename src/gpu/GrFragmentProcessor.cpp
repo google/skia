@@ -9,8 +9,8 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrOverrideInputFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -216,34 +216,51 @@ void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentPro
     }
 }
 
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeColor(GrRecordingContext* rContext,
+                                                                    SkPMColor4f color) {
+    static constexpr char kCode[] = R"(
+        uniform half4 color;
+        half4 main() { return color; }
+    )";
+    auto builder = GrRuntimeFPBuilder::Make<kCode>();
+    builder.uniform("color") = color;
+    return builder.makeFP(rContext);
+}
+
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
+        GrRecordingContext* rContext,
         std::unique_ptr<GrFragmentProcessor> fp) {
     if (!fp) {
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kDstIn);
+    return GrBlendFragmentProcessor::Make(rContext, /*src=*/nullptr, std::move(fp), SkBlendMode::kDstIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
+        GrRecordingContext* rContext,
         std::unique_ptr<GrFragmentProcessor> fp) {
     if (!fp) {
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kSrcIn);
+    return GrBlendFragmentProcessor::Make(rContext, /*src=*/nullptr, std::move(fp), SkBlendMode::kSrcIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateAlpha(
-        std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
-    auto colorFP = GrConstColorProcessor::Make(color);
+        GrRecordingContext* rContext,
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        const SkPMColor4f& color) {
+    auto colorFP = MakeColor(rContext, color);
     return GrBlendFragmentProcessor::Make(
-            std::move(colorFP), std::move(inputFP), SkBlendMode::kSrcIn,
+            rContext, std::move(colorFP), std::move(inputFP), SkBlendMode::kSrcIn,
             GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateRGBA(
-        std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
-    auto colorFP = GrConstColorProcessor::Make(color);
-    return GrBlendFragmentProcessor::Make(
+        GrRecordingContext* rContext,
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        const SkPMColor4f& color) {
+    auto colorFP = MakeColor(rContext, color);
+    return GrBlendFragmentProcessor::Make(rContext,
             std::move(colorFP), std::move(inputFP), SkBlendMode::kModulate,
             GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
 }
@@ -403,6 +420,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
 //////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
+        GrRecordingContext* rContext,
         std::unique_ptr<GrFragmentProcessor> f, std::unique_ptr<GrFragmentProcessor> g) {
     class ComposeProcessor : public GrFragmentProcessor {
     public:
@@ -486,10 +504,10 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
         case 1:
             // Replace the first processor with a constant color.
             return ComposeProcessor::Make(/*f=*/std::move(series[1]),
-                                          /*g=*/GrConstColorProcessor::Make(knownColor));
+                                          /*g=*/MakeColor(rContext, knownColor));
         case 2:
             // Replace the entire composition with a constant color.
-            return GrConstColorProcessor::Make(knownColor);
+            return MakeColor(rContext, knownColor);
     }
 }
 

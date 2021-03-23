@@ -86,8 +86,10 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCa
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                    GrClipEdgeType type, const SkPath& path) {
+GrFPResult GrConvexPolyEffect::Make(GrRecordingContext* rContext,
+                                    std::unique_ptr<GrFragmentProcessor> inputFP,
+                                    GrClipEdgeType type,
+                                    const SkPath& path) {
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask || !path.isConvex()) {
         return GrFPFailure(std::move(inputFP));
     }
@@ -99,14 +101,14 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     if (dir == SkPathFirstDirection::kUnknown) {
         if (GrProcessorEdgeTypeIsInverseFill(type)) {
             return GrFPSuccess(
-                    GrFragmentProcessor::ModulateRGBA(std::move(inputFP), SK_PMColor4fWHITE));
+                    GrFragmentProcessor::ModulateRGBA(rContext, std::move(inputFP), SK_PMColor4fWHITE));
         }
         // This could use ConstColor instead of ModulateRGBA but it would trigger a debug print
         // about a coverage processor not being compatible with the alpha-as-coverage optimization.
         // We don't really care about this unlikely case so we just use ModulateRGBA to suppress
         // the print.
         return GrFPSuccess(
-                GrFragmentProcessor::ModulateRGBA(std::move(inputFP), SK_PMColor4fTRANSPARENT));
+                GrFragmentProcessor::ModulateRGBA(rContext, std::move(inputFP), SK_PMColor4fTRANSPARENT));
     }
 
     SkScalar        edges[3 * kMaxEdges];
