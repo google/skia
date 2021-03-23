@@ -61,6 +61,8 @@ struct ProgramSettings {
     // (Requires fOptimize = true) When greater than zero, enables the inliner. The threshold value
     // sets an upper limit on the acceptable amount of code growth from inlining.
     int fInlineThreshold = SkSL::kDefaultInlineThreshold;
+    // If true, every function in the generated program will be given the `noinline` modifier.
+    bool fForceNoInline = false;
     // If true, implicit conversions to lower precision numeric types are allowed
     // (eg, float to half)
     bool fAllowNarrowingConversions = false;
