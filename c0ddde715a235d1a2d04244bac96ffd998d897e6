@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3d55ab3_10d910f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-23T00:29:11Z",
+      "side": 1,
+      "message": "This works now, but I am using sampling: any in the .ts file.\n\nI think this optional argument is far more ergonomic than having named variants, so I\u0027d like to see us consider that for drawImage, drawImageRect, image.makeShader, etc.\n\nTo that end, likely we should actually document SamplingOptions in .ts ...",
+      "revId": "c0ddde715a235d1a2d04244bac96ffd998d897e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
