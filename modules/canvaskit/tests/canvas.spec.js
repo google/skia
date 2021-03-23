@@ -30,7 +30,7 @@ describe('Canvas Behavior', () => {
     canvas.drawArc(CanvasKit.LTRBRect(55, 35, 95, 80), 15, 270, true, paint);
 
     const font = new CanvasKit.Font(null, 20);
-    canvas.drawText('this is PS5', 5, 100, paint, font);
+    canvas.drawText('this is PS2', 5, 100, paint, font);
 
     const blob = CanvasKit.TextBlob.MakeFromText('Unicode chars 💩 é É ص', font);
     canvas.drawTextBlob(blob, 5, 130, paint);
