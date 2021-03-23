@@ -13,11 +13,8 @@
  * overlap and create holes. There is not a really great algorithm for this
  * and several other 2D graphics engines have the same bug.
  *
- * If we run this using Nvidia Path Renderer with:
- * `path/to/dm --match OverStroke -w gm_out --gpu --config nvpr16`
- * then we get correct results, so that is a possible direction of attack -
- * use the GPU and a completely different algorithm to get correctness in
- * Skia.
+ * The old Nvidia Path Renderer used to yield correct results, so a possible
+ * direction of attack is to use the GPU and a completely different algorithm.
  *
  * See crbug.com/589769 skbug.com/5405 skbug.com/5406
  */
