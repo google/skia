@@ -333,10 +333,7 @@ GLXContext GLXGLTestContext::CreateBestContext(bool isES, Display* display, GLXF
             flags.push_back(GLX_CONTEXT_ES2_PROFILE_BIT_EXT);
         } else if (versions[i].first > 2) {
             flags.push_back(GLX_CONTEXT_PROFILE_MASK_ARB);
-            // TODO When Nvidia implements NVPR on Core profiles, we should start
-            // requesting core here - currently Nv Path rendering on Nvidia
-            // requires a compatibility profile.
-            flags.push_back(GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
+            flags.push_back(GLX_CONTEXT_CORE_PROFILE_BIT_ARB);
         }
         flags.push_back(0);
         context = glXCreateContextAttribsARB(display, bestFbc, glxShareContext, true,

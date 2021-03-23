@@ -27,7 +27,7 @@ static DEFINE_int(maxTessellationSegments, 0,
 
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
-              "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
+              "[~]none [~]dashline [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
               "[~]small [~]tri [~]tess [~]all");
 
 static DEFINE_int(internalSamples, 4,
