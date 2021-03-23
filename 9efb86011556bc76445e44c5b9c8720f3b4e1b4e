@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6d54c4c_588c64f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T13:49:32Z",
+      "side": 1,
+      "message": "See https://gold.skia.org/search?issue\u003d387636\u0026crs\u003dgerrit\u0026corpus\u003dcanvaskit for proof of functionality, where an earlier patchset included a change to a CanvasKit gm",
+      "revId": "9efb86011556bc76445e44c5b9c8720f3b4e1b4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
