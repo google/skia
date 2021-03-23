@@ -1027,7 +1027,9 @@ static bool usable_as_src(const skcms_ICCProfile* profile) {
        || (profile->has_trc && profile->has_toXYZD50);
 }
 
-bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
+bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
+                                const int priority[], const int priorities,
+                                skcms_ICCProfile* profile) {
     assert(SAFE_SIZEOF(header_Layout) == 132);
 
     if (!profile) {
@@ -1132,13 +1134,13 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
 
     skcms_ICCTag a2b_tag;
 
-    // For now, we're preferring A2B0, like Skia does and the ICC spec tells us to.
-    // TODO: prefer A2B1 (relative colormetric) over A2B0 (perceptual)?
-    // This breaks with the ICC spec, but we think it's a good idea, given that TRC curves
-    // and all our known users are thinking exclusively in terms of relative colormetric.
-    const uint32_t sigs[] = { skcms_Signature_A2B0, skcms_Signature_A2B1 };
-    for (int i = 0; i < ARRAY_COUNT(sigs); i++) {
-        if (skcms_GetTagBySignature(profile, sigs[i], &a2b_tag)) {
+    for (int i = 0; i < priorities; i++) {
+        // enum { perceptual, relative_colormetric, saturation }
+        if (priority[i] < 0 || priority[i] > 2) {
+            return false;
+        }
+        uint32_t sig = skcms_Signature_A2B0 + static_cast<uint32_t>(priority[i]);
+        if (skcms_GetTagBySignature(profile, sig, &a2b_tag)) {
             if (!read_a2b(&a2b_tag, &profile->A2B, pcs_is_xyz)) {
                 // Malformed A2B tag
                 return false;
