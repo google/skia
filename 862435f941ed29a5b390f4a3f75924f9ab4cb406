@@ -103,6 +103,24 @@
       "parentUuid": "7591d502_41fdf316",
       "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba7d9a41_c975ab04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-23T19:56:30Z",
+      "side": 1,
+      "message": "There is one wrinkle that may be of interest, which is that //gn/skia:warnings adds lots of warnings but also removed a number of warnings (lots of -Wno-*). As a result it is possible to run into the case where Skia targets may have warnings enabled which weren\u0027t enabled before (in particular unused-parameter can be one of these). We may end up changing things so that the \u0027-Wno-*\u0027 are always applied to make it easier for other projects to crank up their own warnings without needing to do anything special for the Skia targets. If it turns out you need this, let us know.",
+      "parentUuid": "9b6349f6_77a63ed1",
+      "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
