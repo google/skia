@@ -85,6 +85,24 @@
       "message": "With https://skia-review.googlesource.com/c/skia/+/385516 now landed and sticking, the goal of this CL should now be met. The //gn/skia:warnings are only applied to skia_* targets (and only in the Skia build), leaving the base target types like executable, source_set, shared_library, static_library, and component more generic. If there are any further issues where the base target types should be even more generic, let us know. Now that all the framework is in place it should be simple to shuffle configs around.",
       "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b6349f6_77a63ed1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-03-23T17:49:44Z",
+      "side": 1,
+      "message": "Thanks a ton Ben for looking at this! Your landed solution is much more comprehensive than this super early draft. I\u0027ll close it. I also removed a couple -Wno-foo in Dawn / Tint that were needed for Skia so we\u0027ll see if the roll works :)",
+      "parentUuid": "7591d502_41fdf316",
+      "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
