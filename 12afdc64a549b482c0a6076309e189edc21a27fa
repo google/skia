@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bae97408_93717b91",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T16:13:50Z",
+      "side": 1,
+      "message": "Evidence the upload works https://gold.skia.org/search?issue\u003d388137\u0026crs\u003dgerrit\u0026corpus\u003dgm",
+      "revId": "12afdc64a549b482c0a6076309e189edc21a27fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
