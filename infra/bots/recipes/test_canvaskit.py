@@ -4,16 +4,21 @@
 
 # Recipe which runs the Canvaskit tests using docker
 
+import calendar
+
 DEPS = [
   'checkout',
   'docker',
   'env',
   'infra',
   'recipe_engine/file',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
+  'recipe_engine/time',
+  'gsutil',
   'run',
   'vars',
 ]
@@ -21,7 +26,60 @@ DEPS = [
 
 DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:87.0.4280.88_v1'
 INNER_KARMA_SCRIPT = 'skia/infra/canvaskit/test_canvaskit.sh'
+DM_JSON = 'dm.json'
+VERBOSE_LOG = 'verbose.log'
 
+def upload(api):
+  revision = api.properties['revision']
+  results_dir = api.vars.swarming_out_dir
+
+  # Upload the images. It is *vital* that the images are uploaded first
+  # so they exist whenever the json is processed.
+  image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']
+  for ext in ['.png', '.pdf']:
+    files_to_upload = api.file.glob_paths(
+        'find %s images' % ext,
+        results_dir,
+        '*%s' % ext,
+        test_data=['someimage.png'])
+    # For some reason, glob returns results_dir when it should return nothing.
+    files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
+    if len(files_to_upload) > 0:
+      api.gsutil.cp('%s images' % ext, results_dir.join('*%s' % ext),
+                       image_dest_path, multithread=True)
+
+  # Compute the directory to upload results to
+  now = api.time.utcnow()
+  summary_dest_path = '/'.join([
+      'dm-json-v1',
+      str(now.year ).zfill(4),
+      str(now.month).zfill(2),
+      str(now.day  ).zfill(2),
+      str(now.hour ).zfill(2),
+      revision,
+      api.vars.builder_name,
+      str(int(calendar.timegm(now.utctimetuple())))])
+
+  # Trybot results are further siloed by issue/patchset.
+  if api.vars.is_trybot:
+    summary_dest_path = '/'.join(('trybot', summary_dest_path,
+                                  str(api.vars.issue), str(api.vars.patchset)))
+
+  summary_dest_path = 'gs://%s/%s' % (api.properties['gs_bucket'],
+                                      summary_dest_path)
+
+  # Directly upload dm.json and verbose.log if it exists
+  json_file = results_dir.join(DM_JSON)
+  log_file = results_dir.join(VERBOSE_LOG)
+
+  api.gsutil.cp('dm.json', json_file,
+                summary_dest_path + '/' + DM_JSON, extra_args=['-Z'])
+
+  files = api.file.listdir('check for optional verbose.log file',
+                           results_dir, test_data=['dm.json', 'verbose.log'])
+  if log_file in files:
+    api.gsutil.cp('verbose.log', log_file,
+                  summary_dest_path + '/' + VERBOSE_LOG, extra_args=['-Z'])
 
 def RunSteps(api):
   api.vars.setup()
@@ -69,6 +127,7 @@ def RunSteps(api):
       attempts=3,
   )
 
+  upload(api)
 
 def GenTests(api):
   yield (
@@ -77,6 +136,7 @@ def GenTests(api):
                                   '-wasm-Debug-All-CanvasKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
+                     gs_bucket='skia-infra-gm',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')
   )
@@ -87,6 +147,7 @@ def GenTests(api):
                                   '-wasm-Debug-All-CanvasKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
+                     gs_bucket='skia-infra-gm',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_ref='89/456789/12',
