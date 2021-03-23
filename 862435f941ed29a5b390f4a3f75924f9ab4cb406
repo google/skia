@@ -68,6 +68,23 @@
       "parentUuid": "0cde99f6_8f80c2f1",
       "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7591d502_41fdf316",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-23T17:47:50Z",
+      "side": 1,
+      "message": "With https://skia-review.googlesource.com/c/skia/+/385516 now landed and sticking, the goal of this CL should now be met. The //gn/skia:warnings are only applied to skia_* targets (and only in the Skia build), leaving the base target types like executable, source_set, shared_library, static_library, and component more generic. If there are any further issues where the base target types should be even more generic, let us know. Now that all the framework is in place it should be simple to shuffle configs around.",
+      "revId": "862435f941ed29a5b390f4a3f75924f9ab4cb406",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
