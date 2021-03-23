@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a8115dd_f5734037",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-23T12:51:05Z",
+      "side": 1,
+      "message": "Is this comment (wildly) out-of-date? I don\u0027t even recognize GrGLFullShaderBuilder.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 3
+      },
+      "revId": "d1824af4efd7d5dbad1b84e99b1269e856a3aafa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
