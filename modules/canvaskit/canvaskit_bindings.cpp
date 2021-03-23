@@ -91,7 +91,7 @@
 #endif
 
 #ifndef SK_NO_FONTS
-sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
+sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(sk_sp<SkData>* datas, int n);
 #endif
 
 struct OptionalMatrix : SkMatrix {
@@ -1162,7 +1162,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto datas = reinterpret_cast<const uint8_t**>(dPtr);
             auto sizes = reinterpret_cast<const size_t*>(sPtr);
 
-            return SkFontMgr_New_Custom_Data(datas, sizes, numFonts);
+            std::unique_ptr<sk_sp<SkData>[]> skdatas(new sk_sp<SkData>[numFonts]);
+            for (int i = 0; i < numFonts; ++i) {
+                skdatas[i] = SkData::MakeFromMalloc(datas[i], sizes[i]);
+            }
+
+            return SkFontMgr_New_Custom_Data(skdatas.get(), numFonts);
         }), allow_raw_pointers())
         .class_function("RefDefault", &SkFontMgr::RefDefault)
         .function("countFamilies", &SkFontMgr::countFamilies)
