@@ -3,6 +3,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8cdcf914_d60c9f78",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1459,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-23T15:13:23Z",
+      "side": 1,
+      "message": "These should probably be parameters to this function, or rename this to directUploadGM, since we also have nanobench and skpbench uploads.",
+      "range": {
+        "startLine": 1458,
+        "startChar": 0,
+        "endLine": 1459,
+        "endChar": 47
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ebe5d7c_57784c7d",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-23T15:13:23Z",
+      "side": 1,
+      "message": "This should only be added if b.doUpload() is true.  Should probably do this at line 1555:\n\nif b.doUpload() {\n  if directUpload {\n    b.directUpload()\n  } else {\n    // add the upload task\n  }\n}",
+      "range": {
+        "startLine": 1491,
+        "startChar": 0,
+        "endLine": 1491,
+        "endChar": 19
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fc55a401_8d310332",
         "filename": "infra/bots/recipes/test_canvaskit.py",
         "patchSetId": 9
