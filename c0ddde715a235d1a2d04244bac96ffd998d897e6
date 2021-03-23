@@ -16,6 +16,24 @@
       "message": "This works now, but I am using sampling: any in the .ts file.\n\nI think this optional argument is far more ergonomic than having named variants, so I\u0027d like to see us consider that for drawImage, drawImageRect, image.makeShader, etc.\n\nTo that end, likely we should actually document SamplingOptions in .ts ...",
       "revId": "c0ddde715a235d1a2d04244bac96ffd998d897e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b24a84d9_ae63b31a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T11:54:22Z",
+      "side": 1,
+      "message": "Sounds good to me. I think we had the two functions to avoid unnecessary arguments inspections. I\u0027m not sure if that\u0027s still a concern performance-wise.\n\nYegor, WDYT?",
+      "parentUuid": "a3d55ab3_10d910f2",
+      "revId": "c0ddde715a235d1a2d04244bac96ffd998d897e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

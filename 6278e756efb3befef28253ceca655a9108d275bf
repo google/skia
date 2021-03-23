@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55c5089f_04695caa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T11:54:22Z",
+      "side": 1,
+      "message": "Please also update CHANGELOG.md and add a line or two to canvaskit-wasm-tests.ts to make sure the typing works (`make typecheck`)",
+      "revId": "6278e756efb3befef28253ceca655a9108d275bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42488a33_9bc95dd1",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T11:54:22Z",
+      "side": 1,
+      "message": "else",
+      "range": {
+        "startLine": 538,
+        "startChar": 4,
+        "endLine": 538,
+        "endChar": 20
+      },
+      "revId": "6278e756efb3befef28253ceca655a9108d275bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af946fda_5950d1fe",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 1062,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T11:54:22Z",
+      "side": 1,
+      "message": "The way we would have this be typed would be to have:\n\n/**\n * Docs and things\n */\nexport interface CubicOptions {\n    B: number;\n    C: number;\n}\n\n/**\n * Docs and things\n */\nexport interface FilterOptions {\n    filter: FilterMode;\n    mipmap: MipmapMode;\n}\n\nThen this type could be sampling?: CubicOptions | FilterOptions",
+      "range": {
+        "startLine": 1062,
+        "startChar": 25,
+        "endLine": 1062,
+        "endChar": 28
+      },
+      "revId": "6278e756efb3befef28253ceca655a9108d275bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
