@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1faa40c_50558206",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2109,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-23T16:35:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b34a1d0b_59fe098f",
+      "range": {
+        "startLine": 2109,
+        "startChar": 35,
+        "endLine": 2109,
+        "endChar": 38
+      },
+      "revId": "0cd65518e82b3805858f5717d31f793a0dce0b9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2271b7a_b3aeeec6",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-23T13:34:28Z",
       "side": 1,
       "message": "I wonder if we should just null out fSymbolTable entirely. Is there any reason not to? (If end is called prematurely, e.g. if an error occurs mid-compile, is it possible that one pop might be insufficient?)\n\nThis wouldn\u0027t be a new issue per se; it just occurred to me now that we\u0027re managing the symbol table stack manually here.",
+      "range": {
+        "startLine": 2144,
+        "startChar": 4,
+        "endLine": 2144,
+        "endChar": 27
+      },
+      "revId": "0cd65518e82b3805858f5717d31f793a0dce0b9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96642050_3dc7afb3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2144,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-23T16:35:22Z",
+      "side": 1,
+      "message": "Good point, done.",
+      "parentUuid": "d2271b7a_b3aeeec6",
       "range": {
         "startLine": 2144,
         "startChar": 4,
