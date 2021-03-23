@@ -201,7 +201,7 @@ skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrComposeLerpEffect.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader* shader) {
@@ -221,6 +221,19 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
     const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
-    return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
+
+    static constexpr char kCode[] = R"(
+        uniform shader a;
+        uniform shader b;
+        uniform half w;
+
+        half4 main() { return mix(sample(a), sample(b), w); }
+    )";
+
+    auto builder = GrRuntimeFPBuilder::Make<kCode>();
+    builder.uniform("w") = fWeight;
+    builder.child("a") = std::move(fpA);
+    builder.child("b") = std::move(fpB);
+    return builder.makeFP(args.fContext);
 }
 #endif
