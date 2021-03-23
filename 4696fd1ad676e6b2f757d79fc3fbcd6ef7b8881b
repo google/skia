@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "240e9467_95e0aa90",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-23T15:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "461c95a7_788a8c02",
+      "range": {
+        "startLine": 390,
+        "startChar": 23,
+        "endLine": 391,
+        "endChar": 60
+      },
+      "revId": "4696fd1ad676e6b2f757d79fc3fbcd6ef7b8881b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17a588c0_801c5bf1",
@@ -88,6 +112,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "847c413d_8a9ddcf0",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-23T15:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17a588c0_801c5bf1",
+      "range": {
+        "startLine": 418,
+        "startChar": 18,
+        "endLine": 419,
+        "endChar": 39
+      },
+      "revId": "4696fd1ad676e6b2f757d79fc3fbcd6ef7b8881b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e263151_29a2fb4f",
@@ -101,6 +149,30 @@
       "writtenOn": "2021-03-23T14:48:24Z",
       "side": 1,
       "message": "Ditto.",
+      "range": {
+        "startLine": 443,
+        "startChar": 18,
+        "endLine": 444,
+        "endChar": 39
+      },
+      "revId": "4696fd1ad676e6b2f757d79fc3fbcd6ef7b8881b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b35c646_9e6ac642",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-23T15:51:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e263151_29a2fb4f",
       "range": {
         "startLine": 443,
         "startChar": 18,
