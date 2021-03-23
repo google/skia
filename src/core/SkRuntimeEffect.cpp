@@ -242,6 +242,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
                                                       std::move(program),
+                                                      options,
                                                       *main,
                                                       std::move(uniforms),
                                                       std::move(children),
@@ -312,6 +313,7 @@ size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
 
 SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
+                                 const Options& options,
                                  const SkSL::FunctionDefinition& main,
                                  std::vector<Uniform>&& uniforms,
                                  std::vector<SkString>&& children,
@@ -319,7 +321,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::vector<Varying>&& varyings,
                                  bool usesSampleCoords,
                                  bool allowColorFilter)
-        : fHash(SkGoodHash()(sksl))
+        : fHash(SkGoodHash()(sksl) ^ SkGoodHash()(options))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
         , fMain(main)
