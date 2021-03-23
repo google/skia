@@ -45,7 +45,7 @@ public:
 @if (%s) {
     color = half4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
 }
-color = %s * color + %s;
+color = (sk_Caps.rewriteMatrixVectorMultiply ? ((%s[0] * color.x + %s[1] * color.y) + %s[2] * color.z) + %s[3] * color.w : %s * color) + %s;
 @if (%s) {
     color = clamp(color, 0.0, 1.0);
 } else {
@@ -58,6 +58,10 @@ return color;
 )SkSL",
                 _sample0.c_str(),
                 (_outer.unpremulInput ? "true" : "false"),
+                args.fUniformHandler->getUniformCStr(mVar),
+                args.fUniformHandler->getUniformCStr(mVar),
+                args.fUniformHandler->getUniformCStr(mVar),
+                args.fUniformHandler->getUniformCStr(mVar),
                 args.fUniformHandler->getUniformCStr(mVar),
                 args.fUniformHandler->getUniformCStr(vVar),
                 (_outer.clampRGBOutput ? "true" : "false"),
