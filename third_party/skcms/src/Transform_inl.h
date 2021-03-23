@@ -63,15 +63,11 @@ using U8  = V<uint8_t>;
     #pragma clang diagnostic ignored "-Wvector-conversion"
 #endif
 
-// GCC & Clang warn us about returning U64 on x86 because it's larger than a register.
+// GCC & Clang (but not clang-cl) warn returning U64 on x86 is larger than a register.
 // You'd see warnings like, "using AVX even though AVX is not enabled".
-// We stifle these warnings... our helpers that return U64 are always inlined.
-#if defined(__SSE__)
-    #if defined(__clang__) && !defined(_MSC_VER)
-        #pragma clang diagnostic ignored "-Wpsabi"
-    #elif defined(__GNUC__)
-        #pragma GCC diagnostic ignored "-Wpsabi"
-    #endif
+// We stifle these warnings; our helpers that return U64 are always inlined.
+#if defined(__SSE__) && defined(__GNUC__)
+    #pragma GCC diagnostic ignored "-Wpsabi"
 #endif
 
 #if defined(__clang__)
