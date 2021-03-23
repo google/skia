@@ -26,9 +26,9 @@ SkM44 ComputeCameraMatrix(const SkV3& position,
     const auto cam_t = SkM44::Rotate({0, 0, 1}, SkDegreesToRadians(-rotation.z))
                      * SkM44::Rotate({0, 1, 0}, SkDegreesToRadians( rotation.y))
                      * SkM44::Rotate({1, 0, 0}, SkDegreesToRadians( rotation.x))
-                     * Sk3LookAt({ position.x, position.y, -position.z },
-                                 {      poi.x,      poi.y,       poi.z },
-                                 {          0,          1,           0 })
+                     * SkM44::LookAt({ position.x, position.y, -position.z },
+                                     {      poi.x,      poi.y,       poi.z },
+                                     {          0,          1,           0 })
                      * SkM44::Scale(1, 1, -1);
 
     // View parameters:
@@ -41,7 +41,7 @@ SkM44 ComputeCameraMatrix(const SkV3& position,
                view_angle    = std::atan(sk_ieee_float_divide(view_size * 0.5f, view_distance));
 
     const auto persp_t = SkM44::Scale(view_size * 0.5f, view_size * 0.5f, 1)
-                       * Sk3Perspective(0, view_distance, 2 * view_angle);
+                       * SkM44::Perspective(0, view_distance, 2 * view_angle);
 
     return SkM44::Translate(viewport_size.width()  * 0.5f,
                             viewport_size.height() * 0.5f,

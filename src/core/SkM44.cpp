@@ -271,7 +271,7 @@ static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
 
 static SkV4 v4(SkV3 v, SkScalar w) { return {v.x, v.y, v.z, w}; }
 
-SkM44 Sk3LookAt(const SkV3& eye, const SkV3& center, const SkV3& up) {
+SkM44 SkM44::LookAt(const SkV3& eye, const SkV3& center, const SkV3& up) {
     SkV3 f = normalize(center - eye);
     SkV3 u = normalize(up);
     SkV3 s = normalize(f.cross(u));
@@ -283,7 +283,7 @@ SkM44 Sk3LookAt(const SkV3& eye, const SkV3& center, const SkV3& up) {
     return m;
 }
 
-SkM44 Sk3Perspective(float near, float far, float angle) {
+SkM44 SkM44::Perspective(float near, float far, float angle) {
     SkASSERT(far > near);
 
     float denomInv = sk_ieee_float_divide(1, far - near);

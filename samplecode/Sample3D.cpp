@@ -86,8 +86,8 @@ protected:
 
 public:
     void concatCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
-        SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
-              perspective = Sk3Perspective(fNear, fFar, fAngle),
+        SkM44 camera = SkM44::LookAt(fEye, fCOA, fUp),
+              perspective = SkM44::Perspective(fNear, fFar, fAngle),
               viewport = SkM44::Translate(area.centerX(), area.centerY(), 0) *
                          SkM44::Scale(area.width()*0.5f, area.height()*0.5f, zscale);
 

@@ -456,8 +456,8 @@ public:
         SkScalar w = r.width();
         SkScalar h = r.height();
 
-        SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
-              perspective = Sk3Perspective(fNear, fFar, fAngle),
+        SkM44 camera = SkM44::LookAt(fEye, fCOA, fUp),
+              perspective = SkM44::Perspective(fNear, fFar, fAngle),
               translate = SkM44::Translate(fTrans.x, fTrans.y, fTrans.z),
               viewport = SkM44::Translate(r.centerX(), r.centerY(), 0) *
                          SkM44::Scale(w*0.5f, h*0.5f, 1);
