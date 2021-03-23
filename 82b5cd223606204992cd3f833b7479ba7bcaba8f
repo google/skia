@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc55a401_8d310332",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T14:10:01Z",
+      "side": 1,
+      "message": "This is now merely \"preferred\"",
+      "range": {
+        "startLine": 36,
+        "startChar": 29,
+        "endLine": 36,
+        "endChar": 36
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13a60ca4_5665e29d",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T14:10:01Z",
+      "side": 1,
+      "message": "Gold doesn\u0027t support ingesting PDFs",
+      "range": {
+        "startLine": 39,
+        "startChar": 22,
+        "endLine": 39,
+        "endChar": 28
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "468c58bb_e6cad9c2",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T14:10:01Z",
+      "side": 1,
+      "message": "Could you instead make this trybot/dm-json-v1/year/month/day/hour/issue_patchset/builder_name/timething/ ?\n\nThat is easier to debug.",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 21
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56658b68_9bd9fd35",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T14:10:01Z",
+      "side": 1,
+      "message": "The verbose log does nothing for Gold - let\u0027s not upload it any more (it still should be accessible via isolated outputs, right?)",
+      "range": {
+        "startLine": 73,
+        "startChar": 30,
+        "endLine": 73,
+        "endChar": 41
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9d2ec57_2f8bc5bf",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T14:10:01Z",
+      "side": 1,
+      "message": "Add a comment that the -Z compresses the json file at rest with gzip.",
+      "range": {
+        "startLine": 76,
+        "startChar": 65,
+        "endLine": 76,
+        "endChar": 66
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
