@@ -29,13 +29,15 @@ struct GrGLGpu::ProgramCache::Entry {
 };
 
 GrGLGpu::ProgramCache::ProgramCache(int runtimeProgramCacheSize)
-    : fMap(runtimeProgramCacheSize) {
+    : fMap1(runtimeProgramCacheSize) {
 }
 
 GrGLGpu::ProgramCache::~ProgramCache() {}
 
 void GrGLGpu::ProgramCache::abandon() {
-    fMap.foreach([](GrProgramDesc*, std::unique_ptr<Entry>* e) {
+    SkAutoMutexExclusive lock{fMutex};
+
+    fMap1.foreach([](GrProgramDesc*, std::unique_ptr<Entry>* e) {
         if ((*e)->fProgram) {
             (*e)->fProgram->abandon();
         }
@@ -45,7 +47,55 @@ void GrGLGpu::ProgramCache::abandon() {
 }
 
 void GrGLGpu::ProgramCache::reset() {
-    fMap.reset();
+    SkAutoMutexExclusive lock{fMutex};
+
+    fMap1.reset();
+}
+
+bool GrGLGpu::ProgramCache::entryExists(const GrProgramDesc& desc) SK_EXCLUDES(fMutex) {
+    SkAutoMutexExclusive lock{fMutex};
+
+    return SkToBool(fMap1.find(desc));
+}
+
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::find(const GrProgramDesc& desc) SK_EXCLUDES(fMutex) {
+    SkAutoMutexExclusive lock{fMutex};
+
+    auto tmp =  fMap1.find(desc);
+    if (!tmp) {
+        return nullptr;
+    }
+
+    return (*tmp)->fProgram;
+}
+
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::add(const GrProgramDesc& desc,
+                                              sk_sp<GrGLProgram> program) {
+    SkAutoMutexExclusive lock{fMutex};
+
+    auto tmp = fMap1.insert(desc, std::make_unique<Entry>(std::move(program)));
+    return (*tmp)->fProgram;
+}
+
+void GrGLGpu::ProgramCache::add(const GrProgramDesc& desc,
+                                const GrGLPrecompiledProgram& precompiledProgram) {
+    SkAutoMutexExclusive lock{fMutex};
+
+    fMap1.insert(desc, std::make_unique<Entry>(precompiledProgram));
+}
+
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::update(const GrProgramDesc& desc,
+                                                 sk_sp<GrGLProgram> program) {
+    SkAutoMutexExclusive lock{fMutex};
+
+    auto entry = fMap1.find(desc);
+    if (entry) {
+        (*entry)->fProgram = std::move(program);
+    } else {
+        entry = fMap1.insert(desc, std::make_unique<Entry>(std::move(program)));
+    }
+
+    return (*entry)->fProgram;
 }
 
 sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* dContext,
@@ -91,14 +141,21 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* d
                                                               const GrProgramInfo& programInfo,
                                                               Stats::ProgramCacheResult* stat) {
     *stat = Stats::ProgramCacheResult::kHit;
-    std::unique_ptr<Entry>* entry = fMap.find(desc);
+    sk_sp<GrGLProgram> program;
+
+    program = this->find(desc);
+    if (program) {
+        return program;
+    }
+
+#if 0
     if (entry && !(*entry)->fProgram) {
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
         const GrGLPrecompiledProgram* precompiledProgram = &((*entry)->fPrecompiledProgram);
         SkASSERT(precompiledProgram->fProgramID != 0);
-        (*entry)->fProgram = GrGLProgramBuilder::CreateProgram(dContext, renderTarget, desc,
-                                                               programInfo, precompiledProgram);
-        if (!(*entry)->fProgram) {
+        sk_sp<GrGLProgram> program = GrGLProgramBuilder::CreateProgram(dContext, renderTarget, desc,
+                                                                       programInfo, precompiledProgram);
+        if (!program) {
             // Should we purge the program ID from the cache at this point?
             SkDEBUGFAIL("Couldn't create program from precompiled program");
             fStats.incNumCompilationFailures();
@@ -106,20 +163,24 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* d
         }
         fStats.incNumPartialCompilationSuccesses();
         *stat = Stats::ProgramCacheResult::kPartial;
+        return this->update(desc, std::move(program));
     } else if (!entry) {
+#endif
+
         // We have a cache miss
-        sk_sp<GrGLProgram> program = GrGLProgramBuilder::CreateProgram(dContext, renderTarget,
-                                                                       desc, programInfo);
+        program = GrGLProgramBuilder::CreateProgram(dContext, renderTarget, desc, programInfo);
         if (!program) {
             fStats.incNumCompilationFailures();
             return nullptr;
         }
         fStats.incNumCompilationSuccesses();
-        entry = fMap.insert(desc, std::make_unique<Entry>(std::move(program)));
         *stat = Stats::ProgramCacheResult::kMiss;
+        return this->add(desc, std::move(program));
+#if 0
     }
+#endif
 
-    return (*entry)->fProgram;
+    return nullptr;
 }
 
 bool GrGLGpu::ProgramCache::precompileShader(GrDirectContext* dContext,
@@ -130,8 +191,7 @@ bool GrGLGpu::ProgramCache::precompileShader(GrDirectContext* dContext,
         return false;
     }
 
-    std::unique_ptr<Entry>* entry = fMap.find(desc);
-    if (entry) {
+    if (this->entryExists(desc)) {
         // We've already seen/compiled this shader
         return true;
     }
@@ -141,6 +201,6 @@ bool GrGLGpu::ProgramCache::precompileShader(GrDirectContext* dContext,
         return false;
     }
 
-    fMap.insert(desc, std::make_unique<Entry>(precompiledProgram));
+    this->add(desc, precompiledProgram);
     return true;
 }
