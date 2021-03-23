@@ -1010,6 +1010,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         return;
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
+
+    // Check function modifiers.
     this->checkModifiers(
             f.fOffset,
             funcData.fModifiers,
@@ -1020,6 +1022,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         this->errorReporter().error(f.fOffset, "functions cannot be both 'inline' and 'noinline'");
     }
 
+    // Check modifiers on each function parameter.
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
@@ -1071,6 +1074,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                parameters[idx]->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     };
 
+    // Check the function signature of `main`.
     if (funcData.fName == "main") {
         switch (this->programKind()) {
             case ProgramKind::kRuntimeEffect: {
@@ -1115,7 +1119,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
     }
 
-    // find existing declaration
+    // Find existing declarations and report conflicts.
     const FunctionDeclaration* decl = nullptr;
     const Symbol* entry = (*fSymbolTable)[funcData.fName];
     if (entry) {
@@ -1180,6 +1184,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         Modifiers declModifiers = funcData.fModifiers;
         if (!fIsBuiltinCode) {
             declModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
+        }
+
+        if (fContext.fConfig->fSettings.fForceNoInline) {
+            // Apply the `noinline` modifier to every function. This allows us to test Runtime
+            // Effects without any inlining, even when the code is later added to a paint.
+            declModifiers.fFlags &= ~Modifiers::kInline_Flag;
+            declModifiers.fFlags |= Modifiers::kNoInline_Flag;
         }
 
         // Create a new declaration.
