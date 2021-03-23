@@ -1054,10 +1054,12 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      * @param blendMode - BlendMode combining colors and sprites
      * @param colors - If provided, will be blended with sprite using blendMode.
+     * @param sampling - Either {B:float, C:float} for bicubic, or {filter:FilterMode, mipmap:MipmapMode}
      */
     drawAtlas(atlas: Image, srcRects: InputFlattenedRectangleArray,
               dstXforms: InputFlattenedRSXFormArray, paint: Paint,
-              blendMode?: BlendMode, colors?: ColorIntArray): void;
+              blendMode?: BlendMode, colors?: ColorIntArray,
+              sampling?: any): void;
 
     /**
      * Draws a circle at (cx, cy) with the given radius.
