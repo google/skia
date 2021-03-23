@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31a17574_5f690fd8",
+        "filename": "src/sksl/ir/SkSLBinaryExpression.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-23T22:43:23Z",
+      "side": 1,
+      "message": "Probably want to check that left is trivial too, just in case.",
+      "range": {
+        "startLine": 140,
+        "startChar": 18,
+        "endLine": 140,
+        "endChar": 37
+      },
+      "revId": "13002cbcd09917b5a7974431a06fef80f88a78f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
