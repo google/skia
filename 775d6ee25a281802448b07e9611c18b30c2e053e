@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4946cf2_43b0855d",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-23T16:41:47Z",
+      "side": 1,
+      "message": "Should probably refactor into a \"gold_upload\" recipe module or some such",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 0
+      },
+      "revId": "775d6ee25a281802448b07e9611c18b30c2e053e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
