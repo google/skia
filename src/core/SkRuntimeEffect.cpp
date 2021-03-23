@@ -131,7 +131,8 @@ static bool init_uniform_type(const SkSL::Context& ctx,
 SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
-    settings.fInlineThreshold = options.inlineThreshold;
+    settings.fInlineThreshold = 0;
+    settings.fForceNoInline = options.forceNoInline;
     settings.fAllowNarrowingConversions = true;
     auto program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
                                             SkSL::String(sksl.c_str(), sksl.size()),
