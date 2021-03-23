@@ -58,7 +58,7 @@ __argparse.add_argument('--fps',
   action='store_true', help="use fps instead of ms")
 __argparse.add_argument('--pr',
   help="comma- or space-separated list of GPU path renderers, including: "
-       "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
+       "[[~]all [~]default [~]dashline [~]msaa [~]aaconvex "
        "[~]aalinearizing [~]small [~]tess]")
 __argparse.add_argument('--cc',
   action='store_true', help="allow coverage counting shortcuts to render paths")
