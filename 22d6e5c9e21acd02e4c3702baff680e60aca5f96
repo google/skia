@@ -22,6 +22,30 @@
       },
       "revId": "22d6e5c9e21acd02e4c3702baff680e60aca5f96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7809de7f_869cc38d",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1167,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-23T23:52:33Z",
+      "side": 1,
+      "message": "Hmmm, I was going to suggest MakeWithProc() where we can pass whatever wasm has used to allocate each array (WASM_Free?)",
+      "parentUuid": "17b8703e_2e5b8cd3",
+      "range": {
+        "startLine": 1167,
+        "startChar": 29,
+        "endLine": 1167,
+        "endChar": 71
+      },
+      "revId": "22d6e5c9e21acd02e4c3702baff680e60aca5f96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
