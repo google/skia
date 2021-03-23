@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4dc49ce5_055b092b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-03-23T14:48:24Z",
+      "side": 1,
+      "message": "Thanks for doing that, LGTM with one question.\n",
+      "revId": "4696fd1ad676e6b2f757d79fc3fbcd6ef7b8881b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74d1f9f1_ee9f8051",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-03-23T14:48:24Z",
+      "side": 1,
+      "message": "I am afraid this sentence I don\u0027t fully understand - or at least it might be helpful to clarify whether the next call to allocX needs the cluster indices to be put into clusters to start at 0 again, or whether they should be kept increasing?",
+      "range": {
+        "startLine": 390,
+        "startChar": 23,
+        "endLine": 391,
+        "endChar": 60
+      },
+      "revId": "4696fd1ad676e6b2f757d79fc3fbcd6ef7b8881b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17a588c0_801c5bf1",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-03-23T14:48:24Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 418,
+        "startChar": 18,
+        "endLine": 419,
+        "endChar": 39
+      },
+      "revId": "4696fd1ad676e6b2f757d79fc3fbcd6ef7b8881b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e263151_29a2fb4f",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-03-23T14:48:24Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 443,
+        "startChar": 18,
+        "endLine": 444,
+        "endChar": 39
+      },
+      "revId": "4696fd1ad676e6b2f757d79fc3fbcd6ef7b8881b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
