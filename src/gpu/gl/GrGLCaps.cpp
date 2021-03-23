@@ -3601,7 +3601,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         if (ctxInfo.driverVersion() <= GR_GL_DRIVER_VER(219, 0, 0)) {
             fPerformStencilClearsAsDraws = true;
         }
-        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
+        // fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
     }
 
     if (fDriverBugWorkarounds.gl_clear_broken) {

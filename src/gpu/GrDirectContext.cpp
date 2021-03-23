@@ -9,7 +9,9 @@
 #include "include/gpu/GrDirectContext.h"
 
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/utils/SkBase64.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
@@ -27,6 +29,7 @@
 #include "src/gpu/ops/GrSmallPathAtlasMgr.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
+
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlBackendContext.h"
 #include "src/gpu/mtl/GrMtlTrampoline.h"
@@ -50,6 +53,41 @@
 #endif
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->singleOwner())
+
+bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
+    SkPixmap pm;
+    if (!bitmap.peekPixels(&pm)) {
+        dst->set("peekPixels failed");
+        return false;
+    }
+
+    // We're going to embed this PNG in a data URI, so make it as small as possible
+    SkPngEncoder::Options options;
+    options.fFilterFlags = SkPngEncoder::FilterFlag::kAll;
+    options.fZLibLevel = 9;
+
+    SkDynamicMemoryWStream wStream;
+    if (!SkPngEncoder::Encode(&wStream, pm, options)) {
+        dst->set("SkPngEncoder::Encode failed");
+        return false;
+    }
+
+    sk_sp<SkData> pngData = wStream.detachAsData();
+    size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+
+    // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs.
+    // Infra says these can be pretty big, as long as we're only outputting them on failure.
+    static const size_t kMaxBase64Length = 1024 * 1024;
+    if (len > kMaxBase64Length) {
+        dst->printf("Encoded image too large (%u bytes)", static_cast<uint32_t>(len));
+        return false;
+    }
+
+    dst->resize(len);
+    SkBase64::Encode(pngData->data(), pngData->size(), dst->writable_str());
+    dst->prepend("data:image/png;base64,");
+    return true;
+}
 
 GrDirectContext::DirectContextID GrDirectContext::DirectContextID::Next() {
     static std::atomic<uint32_t> nextID{1};
@@ -504,7 +542,6 @@ static bool update_texture_with_pixmaps(GrGpu* gpu,
                                         sk_sp<GrRefCntedCallback> finishedCallback) {
     bool flip = textureOrigin == kBottomLeft_GrSurfaceOrigin;
     bool mustBeTight = !gpu->caps()->writePixelsRowBytesSupport();
-
     size_t size = 0;
     for (int i = 0; i < numLevels; ++i) {
         size_t minRowBytes = srcData[i].info().minRowBytes();
@@ -519,18 +556,52 @@ static bool update_texture_with_pixmaps(GrGpu* gpu,
     }
     size = 0;
     SkAutoSTArray<15, GrPixmap> tempPixmaps(numLevels);
+    bool packedPixels = false;
     for (int i = 0; i < numLevels; ++i) {
         size_t minRowBytes = srcData[i].info().minRowBytes();
         if (flip || (mustBeTight && srcData[i].rowBytes() != minRowBytes)) {
             tempPixmaps[i] = {srcData[i].info(), tempStorage.get() + size, minRowBytes};
             SkAssertResult(GrConvertPixels(tempPixmaps[i], srcData[i], flip));
             size += minRowBytes*srcData[i].height();
+            packedPixels = true;
         } else {
             tempPixmaps[i] = srcData[i];
         }
     }
 
+    SkBitmap bitmap;
+    bitmap.installPixels(*srcData);
+    SkString encoded;
+    BipmapToBase64DataURI(bitmap, &encoded);
+
     GrGpu::BackendTextureData data(tempPixmaps.get());
+
+    SkImageInfo gpu_info =
+            SkImageInfo::Make(data.pixmap(0).info().width(),
+                              data.pixmap(0).info().height(),
+                              GrColorTypeToSkColorType(data.pixmap(0).info().colorType()),
+                              data.pixmap(0).info().alphaType());
+    SkPixmap gpu_pixmap(gpu_info, data.pixmap(0).addr(), data.pixmap(0).rowBytes());
+    SkBitmap gpu_bitmap;
+    gpu_bitmap.installPixels(gpu_pixmap);
+    SkString gpu_encoded;
+    BipmapToBase64DataURI(gpu_bitmap, &gpu_encoded);
+
+    SkDebugf(
+            "SKIA 1: Updating texture with src minRowBytes %d, src rowBytes %d, tmp minRowBytes "
+            "%d, "
+            "tmp rowBytes %d, flip %d, mustBeTight: %d, "
+            "packedPixels: %d, imageData: %s, gpu ImageData: %s",
+            srcData[0].info().minRowBytes(),
+            srcData[0].rowBytes(),
+            tempPixmaps[0].info().minRowBytes(),
+            tempPixmaps[0].rowBytes(),
+            flip,
+            mustBeTight,
+            packedPixels,
+            encoded.c_str(),
+            gpu_encoded.c_str());
+
     return gpu->updateBackendTexture(backendTexture, std::move(finishedCallback), &data);
 }
 

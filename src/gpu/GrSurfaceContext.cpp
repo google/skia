@@ -410,14 +410,15 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIP
     GrColorType dstColorType = this->colorInfo().colorType();
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
-    bool canvas2DFastPath = !caps->avoidWritePixelsFastPath() && premul && !needColorConversion &&
-                            (src.colorType() == GrColorType::kRGBA_8888 ||
-                             src.colorType() == GrColorType::kBGRA_8888) &&
-                            this->asFillContext() &&
-                            (dstColorType == GrColorType::kRGBA_8888 ||
-                             dstColorType == GrColorType::kBGRA_8888) &&
-                            rgbaDefaultFormat.isValid() &&
-                            dContext->priv().validPMUPMConversionExists();
+    bool canvas2DFastPath = false;
+    // !caps->avoidWritePixelsFastPath() && premul && !needColorConversion &&
+    //                         (src.colorType() == GrColorType::kRGBA_8888 ||
+    //                          src.colorType() == GrColorType::kBGRA_8888) &&
+    //                         this->asFillContext() &&
+    //                         (dstColorType == GrColorType::kRGBA_8888 ||
+    //                          dstColorType == GrColorType::kBGRA_8888) &&
+    //                         rgbaDefaultFormat.isValid() &&
+    //                         dContext->priv().validPMUPMConversionExists();
 
     if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
         GrColorInfo tempColorInfo;
