@@ -32,7 +32,7 @@ public:
 
     const char* name() const override { return "TestRectOp::GP"; }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
         return new GLSLGP();
     }
 

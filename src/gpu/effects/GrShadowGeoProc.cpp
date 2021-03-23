@@ -66,7 +66,7 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView)
     this->setTextureSamplerCnt(1);
 }
 
-GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLSLRRectShadowGeoProc();
 }
 

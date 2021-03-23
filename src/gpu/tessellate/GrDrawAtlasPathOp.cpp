@@ -45,7 +45,7 @@ private:
         b->add32(fUsesLocalCoords);
     }
     const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     const TextureSampler fAtlasAccess;
     const SkISize fAtlasDimensions;
@@ -107,7 +107,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
 };
 
-GrGLSLPrimitiveProcessor* DrawAtlasPathShader::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* DrawAtlasPathShader::createGLSLInstance(const GrShaderCaps&) const {
     return new Impl();
 }
 

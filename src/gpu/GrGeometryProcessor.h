@@ -14,9 +14,8 @@
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
 
-class GrGLSLPrimitiveProcessor;
+class GrGLSLGeometryProcessor;
 class GrGLSLUniformHandler;
-
 
 /**
  * The GrGeometryProcessor represents some kind of geometric primitive.  This includes the shape
@@ -217,17 +216,17 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const = 0;
+    virtual GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const = 0;
 
     // We use these methods as a temporary back door to inject OpenGL tessellation code. Once
     // tessellation is supported by SkSL we can remove these.
-    virtual SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    virtual SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
                                               const char* versionAndExtensionDecls,
                                               const GrGLSLUniformHandler&,
                                               const GrShaderCaps&) const {
         SK_ABORT("Not implemented.");
     }
-    virtual SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    virtual SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
                                                  const char* versionAndExtensionDecls,
                                                  const GrGLSLUniformHandler&,
                                                  const GrShaderCaps&) const {

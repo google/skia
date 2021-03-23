@@ -833,7 +833,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     friend class GLDashingCircleEffect;
@@ -979,7 +979,7 @@ void DashingCircleEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
     GLDashingCircleEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* DashingCircleEffect::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* DashingCircleEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GLDashingCircleEffect();
 }
 
@@ -1045,7 +1045,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     friend class GLDashingLineEffect;
@@ -1207,7 +1207,7 @@ void DashingLineEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
     GLDashingLineEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* DashingLineEffect::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* DashingLineEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GLDashingLineEffect();
 }
 
