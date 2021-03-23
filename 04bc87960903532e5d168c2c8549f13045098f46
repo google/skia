@@ -39,6 +39,30 @@
       },
       "revId": "04bc87960903532e5d168c2c8549f13045098f46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f63b4ad_d6208cb7",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-23T16:59:12Z",
+      "side": 1,
+      "message": "CanvasKit is unconditional",
+      "parentUuid": "dcf738bf_da67552d",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 13
+      },
+      "revId": "04bc87960903532e5d168c2c8549f13045098f46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
