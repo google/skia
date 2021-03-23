@@ -145,6 +145,14 @@ public:
     const Context& fContext;
 
 private:
+    void start(const ParsedModule& base,
+               bool isBuiltinCode,
+               const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions,
+               std::vector<std::unique_ptr<ProgramElement>>* elements,
+               std::vector<const ProgramElement*>* sharedElements);
+
+    IRGenerator::IRBundle finish();
+
     /**
      * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
      */
