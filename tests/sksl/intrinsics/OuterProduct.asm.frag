@@ -29,33 +29,48 @@ OpMemberDecorate %_UniformBuffer 5 Offset 80
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
+OpDecorate %127 RelaxedPrecision
 OpDecorate %130 RelaxedPrecision
 OpDecorate %132 RelaxedPrecision
 OpDecorate %134 RelaxedPrecision
+OpDecorate %135 RelaxedPrecision
+OpDecorate %137 RelaxedPrecision
 OpDecorate %139 RelaxedPrecision
 OpDecorate %141 RelaxedPrecision
 OpDecorate %143 RelaxedPrecision
+OpDecorate %144 RelaxedPrecision
+OpDecorate %146 RelaxedPrecision
 OpDecorate %148 RelaxedPrecision
 OpDecorate %150 RelaxedPrecision
 OpDecorate %152 RelaxedPrecision
+OpDecorate %154 RelaxedPrecision
 OpDecorate %156 RelaxedPrecision
 OpDecorate %158 RelaxedPrecision
 OpDecorate %160 RelaxedPrecision
+OpDecorate %161 RelaxedPrecision
+OpDecorate %163 RelaxedPrecision
 OpDecorate %165 RelaxedPrecision
 OpDecorate %167 RelaxedPrecision
 OpDecorate %169 RelaxedPrecision
+OpDecorate %170 RelaxedPrecision
+OpDecorate %172 RelaxedPrecision
 OpDecorate %174 RelaxedPrecision
 OpDecorate %176 RelaxedPrecision
 OpDecorate %178 RelaxedPrecision
+OpDecorate %180 RelaxedPrecision
 OpDecorate %182 RelaxedPrecision
 OpDecorate %184 RelaxedPrecision
 OpDecorate %186 RelaxedPrecision
+OpDecorate %187 RelaxedPrecision
+OpDecorate %189 RelaxedPrecision
 OpDecorate %191 RelaxedPrecision
 OpDecorate %193 RelaxedPrecision
 OpDecorate %195 RelaxedPrecision
+OpDecorate %197 RelaxedPrecision
 OpDecorate %199 RelaxedPrecision
 OpDecorate %201 RelaxedPrecision
 OpDecorate %203 RelaxedPrecision
+OpDecorate %204 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
