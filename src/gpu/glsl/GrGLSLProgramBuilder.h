@@ -11,7 +11,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -24,6 +23,7 @@
 #include <vector>
 
 class GrProgramDesc;
+class GrRenderTarget;
 class GrShaderVar;
 class GrGLSLVaryingHandler;
 class SkString;

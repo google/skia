@@ -1769,7 +1769,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
                                  const GrProgramInfo& programInfo,
                                  ProgramDescOverrideFlags overrideFlags) const {
     GrProgramDesc desc;
-    GrProgramDesc::Build(&desc, rt, programInfo, *this);
+    GrProgramDesc::Build(&desc, programInfo, *this);
 
     GrProcessorKeyBuilder b(desc.key());
 

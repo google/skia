@@ -137,7 +137,6 @@ static void gen_fp_key(const GrFragmentProcessor& fp,
 }
 
 static void gen_key(GrProcessorKeyBuilder* b,
-                    GrRenderTarget* renderTarget,
                     const GrProgramInfo& programInfo,
                     const GrCaps& caps) {
     gen_geomproc_key(programInfo.geomProc(), caps, b);
@@ -167,25 +166,19 @@ static void gen_key(GrProcessorKeyBuilder* b,
 }
 
 void GrProgramDesc::Build(GrProgramDesc* desc,
-                          GrRenderTarget* renderTarget,
                           const GrProgramInfo& programInfo,
                           const GrCaps& caps) {
-    SkASSERT(!renderTarget || programInfo.backendFormat() == renderTarget->backendFormat());
-
     desc->reset();
     GrProcessorKeyBuilder b(desc->key());
-    gen_key(&b, renderTarget, programInfo, caps);
+    gen_key(&b, programInfo, caps);
     desc->fInitialKeyLength = desc->keyLength();
 }
 
-SkString GrProgramDesc::Describe(GrRenderTarget* renderTarget,
-                                 const GrProgramInfo& programInfo,
+SkString GrProgramDesc::Describe(const GrProgramInfo& programInfo,
                                  const GrCaps& caps) {
-    SkASSERT(!renderTarget || programInfo.backendFormat() == renderTarget->backendFormat());
-
     GrProgramDesc desc;
     GrProcessorStringKeyBuilder b(desc.key());
-    gen_key(&b, renderTarget, programInfo, caps);
+    gen_key(&b, programInfo, caps);
     b.flush();
     return b.description();
 }

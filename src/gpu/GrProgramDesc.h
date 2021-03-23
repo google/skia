@@ -132,7 +132,7 @@ public:
 
     // TODO(skia:11372): Incorporate this into caps interface (part of makeDesc, or a parallel
     // function), so other backends can include their information in the description.
-    static SkString Describe(GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
+    static SkString Describe(const GrProgramInfo&, const GrCaps&);
 
 protected:
     friend class GrDawnCaps;
@@ -152,11 +152,10 @@ protected:
      * Builds a program descriptor.
      *
      * @param desc          The built descriptor
-     * @param renderTarget  The target of the draw
      * @param programInfo   Program information need to build the key
      * @param caps          the caps
      **/
-    static void Build(GrProgramDesc*, GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
+    static void Build(GrProgramDesc*, const GrProgramInfo&, const GrCaps&);
 
     // This is strictly an OpenGL call since the other backends have additional data in their keys.
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {

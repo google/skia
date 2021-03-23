@@ -634,8 +634,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
             }
             sk_sp<SkData> key =
                     SkData::MakeWithoutCopy(this->desc().asKey(), this->desc().initialKeyLength());
-            SkString description =
-                    GrProgramDesc::Describe(fRenderTarget, fProgramInfo, *this->caps());
+            SkString description = GrProgramDesc::Describe(fProgramInfo, *this->caps());
             sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(
                     cacheSkSL ? kSKSL_Tag : kHLSL_Tag, hlsl, inputs, kGrShaderTypeCount);
             persistentCache->store(*key, *data, description);
