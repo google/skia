@@ -96,11 +96,10 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
         this->destroyGLContext();
         return;
     }
-    // Requesting a Core profile would bar us from using NVPR. So we request
-    // compatibility profile or GL ES.
+
     SkWGLContextRequest contextType =
-        kGLES_GrGLStandard == forcedGpuAPI ?
-        kGLES_SkWGLContextRequest : kGLPreferCompatibilityProfile_SkWGLContextRequest;
+        kGLES_GrGLStandard == forcedGpuAPI ? kGLES_SkWGLContextRequest
+                                           : kGLPreferCoreProfile_SkWGLContextRequest;
 
     HGLRC winShareContext = nullptr;
     if (shareContext) {
