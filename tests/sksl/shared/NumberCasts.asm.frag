@@ -17,6 +17,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %55 RelaxedPrecision
 OpDecorate %59 RelaxedPrecision
 OpDecorate %64 RelaxedPrecision
+OpDecorate %67 RelaxedPrecision
+OpDecorate %76 RelaxedPrecision
+OpDecorate %77 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
