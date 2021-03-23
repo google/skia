@@ -158,6 +158,7 @@ public:
 private:
     SkRuntimeEffect(SkString sksl,
                     std::unique_ptr<SkSL::Program> baseProgram,
+                    const Options& options,
                     const SkSL::FunctionDefinition& main,
                     std::vector<Uniform>&& uniforms,
                     std::vector<SkString>&& children,
