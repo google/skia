@@ -131,7 +131,8 @@ static bool init_uniform_type(const SkSL::Context& ctx,
 SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
-    settings.fInlineThreshold = options.inlineThreshold;
+    settings.fInlineThreshold = 0;
+    settings.fForceNoInline = options.forceNoInline;
     settings.fAllowNarrowingConversions = true;
     auto program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
                                             SkSL::String(sksl.c_str(), sksl.size()),
@@ -339,9 +340,9 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
     // be accounted for in `fHash`. If you've added a new field to Options and caused the static-
     // assert below to trigger, please incorporate your field into `fHash` and update KnownOptions
     // to match the layout of Options.
-    struct KnownOptions { int i; };
+    struct KnownOptions { bool b; };
     static_assert(sizeof(Options) == sizeof(KnownOptions));
-    fHash = SkOpts::hash_fn(&options.inlineThreshold, sizeof(options.inlineThreshold), fHash);
+    fHash = SkOpts::hash_fn(&options.forceNoInline, sizeof(options.forceNoInline), fHash);
 }
 
 SkRuntimeEffect::~SkRuntimeEffect() = default;

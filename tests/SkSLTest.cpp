@@ -94,11 +94,11 @@ static void test_one_permutation(skiatest::Reporter* r,
 
 static void test_permutations(skiatest::Reporter* r, SkSurface* surface, const char* testFile) {
     SkRuntimeEffect::Options options;
-    options.inlineThreshold = 0;
-    test_one_permutation(r, surface, testFile, " (NoInline)", options);
-
-    options.inlineThreshold = SkSL::kDefaultInlineThreshold;
+    options.forceNoInline = false;
     test_one_permutation(r, surface, testFile, "", options);
+
+    options.forceNoInline = true;
+    test_one_permutation(r, surface, testFile, " (NoInline)", options);
 }
 
 static void test_cpu(skiatest::Reporter* r, const char* testFile) {
