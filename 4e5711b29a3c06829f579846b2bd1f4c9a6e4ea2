@@ -22,6 +22,30 @@
       },
       "revId": "4e5711b29a3c06829f579846b2bd1f4c9a6e4ea2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d69f706_0504b495",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-23T15:23:01Z",
+      "side": 1,
+      "message": "I found it easier to compare with the others when the non-transparent portion of the content was the same size.",
+      "parentUuid": "51baaa54_8990a77c",
+      "range": {
+        "startLine": 421,
+        "startChar": 40,
+        "endLine": 421,
+        "endChar": 46
+      },
+      "revId": "4e5711b29a3c06829f579846b2bd1f4c9a6e4ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
