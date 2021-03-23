@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc571fb2_7caaeddb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-23T16:39:34Z",
+      "side": 1,
+      "message": "LGTM for my part",
+      "revId": "04bc87960903532e5d168c2c8549f13045098f46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcf738bf_da67552d",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-23T16:39:34Z",
+      "side": 1,
+      "message": "Do we upload unconditionally for CanvasKit, or should this depend on a flag?",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 13
+      },
+      "revId": "04bc87960903532e5d168c2c8549f13045098f46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
