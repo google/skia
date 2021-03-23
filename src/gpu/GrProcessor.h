@@ -67,7 +67,6 @@ public:
         kGrClampFragmentProcessor_ClassID,
         kGrColorMatrixFragmentProcessor_ClassID,
         kGrColorSpaceXformEffect_ClassID,
-        kGrComposeLerpEffect_ClassID,
         kGrConfigConversionEffect_ClassID,
         kGrConicEffect_ClassID,
         kGrConstColorProcessor_ClassID,
