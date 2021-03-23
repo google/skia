@@ -27,6 +27,9 @@ inline void PrintLineByLine(const SkSL::String& text) {
     });
 }
 
+// Combines raw shader and error text into an easier-to-read error message with line numbers.
+SkSL::String BuildShaderErrorMessage(const char* shader, const char* errors);
+
 GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler();
 
 void PrintShaderBanner(SkSL::ProgramKind programKind);
