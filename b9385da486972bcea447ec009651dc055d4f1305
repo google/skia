@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20e6e229_b2b37902",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-23T19:05:33Z",
+      "side": 1,
+      "message": "LGTM, it\u0027s bummer about the Iris and multi-draw arrays. Checking status it looks like we\u0027ve already turned down the bots that used these nvpr CLI flags. That seem in line with you?",
+      "revId": "b9385da486972bcea447ec009651dc055d4f1305",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
