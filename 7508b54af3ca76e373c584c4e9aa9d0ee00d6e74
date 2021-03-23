@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a02e0917_36436d17",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-03-23T17:43:11Z",
+      "side": 1,
+      "message": "This looks to have broken the Android roll. See e.g. https://android-build.googleplex.com/builds/pending/P21016622/aosp_crosshatch-userdebug/latest/view/logs/build_error.log",
+      "revId": "7508b54af3ca76e373c584c4e9aa9d0ee00d6e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
