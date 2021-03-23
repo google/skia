@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "290ab0f6_c49da475",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-23T12:37:53Z",
+      "side": 1,
+      "message": "I was going to put a comment on the previous CL, but I\u0027ll add it here, I guess. Can we put a comment on Options now that indicates it needs to be dense? (for the hash). ASAN should keep us honest, but the breadcrumb won\u0027t hurt.",
+      "revId": "dffe03feb33c5436719620e3ae051b25340acac2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
