@@ -11,7 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 
-struct SkV2 {
+struct SK_API SkV2 {
     float x, y;
 
     bool operator==(const SkV2 v) const { return x == v.x && y == v.y; }
@@ -47,7 +47,7 @@ struct SkV2 {
     float* ptr() { return &x; }
 };
 
-struct SkV3 {
+struct SK_API SkV3 {
     float x, y, z;
 
     bool operator==(const SkV3& v) const {
@@ -89,7 +89,7 @@ struct SkV3 {
     float* ptr() { return &x; }
 };
 
-struct SkV4 {
+struct SK_API SkV4 {
     float x, y, z, w;
 
     bool operator==(const SkV4& v) const {
@@ -224,6 +224,9 @@ public:
         m.setRotate(axis, radians);
         return m;
     }
+
+    static SkM44 LookAt(const SkV3& eye, const SkV3& center, const SkV3& up);
+    static SkM44 Perspective(float near, float far, float angle);
 
     bool operator==(const SkM44& other) const;
     bool operator!=(const SkM44& other) const {
@@ -415,8 +418,5 @@ private:
 
     friend class SkMatrixPriv;
 };
-
-SkM44 Sk3LookAt(const SkV3& eye, const SkV3& center, const SkV3& up);
-SkM44 Sk3Perspective(float near, float far, float angle);
 
 #endif

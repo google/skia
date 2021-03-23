@@ -33,8 +33,8 @@ static SkM44 make_ctm(const Info& info, const SkM44& model, SkSize size) {
     SkScalar w = size.width();
     SkScalar h = size.height();
 
-    perspective = Sk3Perspective(info.fNear, info.fFar, info.fAngle);
-    camera = Sk3LookAt(info.fEye, info.fCOA, info.fUp);
+    perspective = SkM44::Perspective(info.fNear, info.fFar, info.fAngle);
+    camera = SkM44::LookAt(info.fEye, info.fCOA, info.fUp);
     viewport.setScale(w*0.5f, h*0.5f, 1);//.postTranslate(r.centerX(), r.centerY(), 0);
 
     return viewport * perspective * camera * model * inv(viewport);
