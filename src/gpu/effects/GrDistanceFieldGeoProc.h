@@ -104,7 +104,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrDistanceFieldA8TextGeoProc(const GrShaderCaps& caps,
@@ -171,7 +171,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
@@ -253,7 +253,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrDistanceFieldLCDTextGeoProc(const GrShaderCaps& caps, const GrSurfaceProxyView* views,

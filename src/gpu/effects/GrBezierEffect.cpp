@@ -177,7 +177,7 @@ void GrConicEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLConicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLConicEffect(*this);
 }
 
@@ -338,7 +338,7 @@ void GrQuadEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLQuadEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLQuadEffect(*this);
 }
 

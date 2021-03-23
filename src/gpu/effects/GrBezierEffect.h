@@ -91,7 +91,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrConicEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage,
@@ -158,7 +158,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrQuadEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage,

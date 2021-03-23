@@ -36,7 +36,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView);

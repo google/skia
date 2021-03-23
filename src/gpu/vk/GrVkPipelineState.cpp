@@ -27,17 +27,17 @@
 #include "src/gpu/vk/GrVkTexture.h"
 
 GrVkPipelineState::GrVkPipelineState(
-        GrVkGpu* gpu,
-        sk_sp<const GrVkPipeline> pipeline,
-        const GrVkDescriptorSetManager::Handle& samplerDSHandle,
-        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
-        const UniformInfoArray& uniforms,
-        uint32_t uniformSize,
-        bool usePushConstants,
-        const UniformInfoArray& samplers,
-        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-        std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls)
+            GrVkGpu* gpu,
+            sk_sp<const GrVkPipeline> pipeline,
+            const GrVkDescriptorSetManager::Handle& samplerDSHandle,
+            const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
+            const UniformInfoArray& uniforms,
+            uint32_t uniformSize,
+            bool usePushConstants,
+            const UniformInfoArray& samplers,
+            std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
+            std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+            std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls)
         : fPipeline(std::move(pipeline))
         , fSamplerDSHandle(samplerDSHandle)
         , fBuiltinUniformHandles(builtinUniformHandles)

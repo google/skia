@@ -24,7 +24,7 @@ GrD3DPipelineState::GrD3DPipelineState(
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms, uint32_t uniformSize,
         uint32_t numSamplers,
-        std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+        std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
         size_t vertexStride,

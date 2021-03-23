@@ -39,16 +39,16 @@ public:
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
 
     GrVkPipelineState(
-            GrVkGpu* gpu,
-            sk_sp<const GrVkPipeline> pipeline,
+            GrVkGpu*,
+            sk_sp<const GrVkPipeline>,
             const GrVkDescriptorSetManager::Handle& samplerDSHandle,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
             uint32_t uniformSize,
             bool usePushConstants,
             const UniformInfoArray& samplers,
-            std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
-            std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+            std::unique_ptr<GrGLSLGeometryProcessor>,
+            std::unique_ptr<GrGLSLXferProcessor>,
             std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls);
 
     ~GrVkPipelineState();
@@ -123,7 +123,7 @@ private:
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
 
     // Processors in the GrVkPipelineState
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
 

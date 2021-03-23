@@ -68,7 +68,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     const Attribute& inVertex() const { return kAttributes[0]; }
     const Attribute& inColor() const { return kAttributes[1]; }
@@ -109,7 +109,7 @@ class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
     }
 };
 
-GrGLSLPrimitiveProcessor*
+GrGLSLGeometryProcessor*
 GrPipelineDynamicStateTestProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new GLSLPipelineDynamicStateTestProcessor;
 }

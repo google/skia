@@ -45,7 +45,7 @@ public:
 
     const char* name() const override { return "VertexColorXformGP"; }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         class GLSLGP : public GrGLSLGeometryProcessor {
         public:
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {

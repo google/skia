@@ -56,7 +56,7 @@ public:
     GrGLSLUniformHandler::UniformHandle fPathBoundsUniform;
 };
 
-GrGLSLPrimitiveProcessor* GrFillPathShader::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrFillPathShader::createGLSLInstance(const GrShaderCaps&) const {
     return new Impl;
 }
 

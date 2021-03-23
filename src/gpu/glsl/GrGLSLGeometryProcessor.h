@@ -8,27 +8,132 @@
 #ifndef GrGLSLGeometryProcessor_DEFINED
 #define GrGLSLGeometryProcessor_DEFINED
 
-#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+class GrGeometryProcessor;
+class GrGLSLFPFragmentBuilder;
+class GrGLSLGeometryBuilder;
 class GrGLSLGPBuilder;
+class GrGLSLVaryingHandler;
+class GrGLSLVertexBuilder;
+class GrShaderCaps;
 
 /**
- * If a GL effect needs a GrGLFullShaderBuilder* object to emit vertex code, then it must inherit
- * from this class. Since paths don't have vertices, this class is only meant to be used internally
- * by skia, for special cases.
+ * GrGeometryProcessor-derived classes that need to emit GLSL vertex shader code should be paired
+ * with a sibling class derived from GrGLSLGeometryProcessor (and return an instance of it from
+ * createGLSLInstance).
  */
-class GrGLSLGeometryProcessor : public GrGLSLPrimitiveProcessor {
+class GrGLSLGeometryProcessor {
 public:
-    /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
-    void emitCode(EmitArgs&) final;
+    using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
+    using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
 
-    // Generate the final code for assigning transformed coordinates to the varyings recorded in
-    // the call to collectTransforms(). This must happen after FP code emission so that it has
-    // access to any uniforms the FPs registered for uniform sample matrix invocations.
+    virtual ~GrGLSLGeometryProcessor() {}
+
+    /**
+     * This class provides access to each GrFragmentProcessor in a GrPipeline that requires varying
+     * local coords to be produced by the primitive processor. It is also used by the primitive
+     * processor to specify the fragment shader variable that will hold the transformed coords for
+     * each of those GrFragmentProcessors. It is required that the primitive processor iterate over
+     * each fragment processor and insert a shader var result for each. The GrGLSLFragmentProcessors
+     * will reference these variables in their fragment code.
+     */
+    class FPCoordTransformHandler : public SkNoncopyable {
+    public:
+        FPCoordTransformHandler(const GrPipeline&, SkTArray<GrShaderVar>*);
+        ~FPCoordTransformHandler() { SkASSERT(!fIter); }
+
+        operator bool() const { return (bool)fIter; }
+
+        // Gets the current GrFragmentProcessor
+        const GrFragmentProcessor& get() const;
+
+        FPCoordTransformHandler& operator++();
+
+        void specifyCoordsForCurrCoordTransform(GrShaderVar varyingVar) {
+            SkASSERT(!fAddedCoord);
+            fTransformedCoordVars->push_back(varyingVar);
+            SkDEBUGCODE(fAddedCoord = true;)
+        }
+
+    private:
+        GrFragmentProcessor::CIter fIter;
+        SkDEBUGCODE(bool           fAddedCoord = false;)
+        SkTArray<GrShaderVar>*     fTransformedCoordVars;
+    };
+
+    struct EmitArgs {
+        EmitArgs(GrGLSLVertexBuilder* vertBuilder,
+                 GrGLSLGeometryBuilder* geomBuilder,
+                 GrGLSLFPFragmentBuilder* fragBuilder,
+                 GrGLSLVaryingHandler* varyingHandler,
+                 GrGLSLUniformHandler* uniformHandler,
+                 const GrShaderCaps* caps,
+                 const GrGeometryProcessor& geomProc,
+                 const char* outputColor,
+                 const char* outputCoverage,
+                 const SamplerHandle* texSamplers,
+                 FPCoordTransformHandler* transformHandler)
+            : fVertBuilder(vertBuilder)
+            , fGeomBuilder(geomBuilder)
+            , fFragBuilder(fragBuilder)
+            , fVaryingHandler(varyingHandler)
+            , fUniformHandler(uniformHandler)
+            , fShaderCaps(caps)
+            , fGeomProc(geomProc)
+            , fOutputColor(outputColor)
+            , fOutputCoverage(outputCoverage)
+            , fTexSamplers(texSamplers)
+            , fFPCoordTransformHandler(transformHandler) {}
+        GrGLSLVertexBuilder* fVertBuilder;
+        GrGLSLGeometryBuilder* fGeomBuilder;
+        GrGLSLFPFragmentBuilder* fFragBuilder;
+        GrGLSLVaryingHandler* fVaryingHandler;
+        GrGLSLUniformHandler* fUniformHandler;
+        const GrShaderCaps* fShaderCaps;
+        const GrGeometryProcessor& fGeomProc;
+        const char* fOutputColor;
+        const char* fOutputCoverage;
+        const SamplerHandle* fTexSamplers;
+        FPCoordTransformHandler* fFPCoordTransformHandler;
+    };
+
+    /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
+    void emitCode(EmitArgs&);
+
+    /**
+     * Called after all effect emitCode() functions, to give the processor a chance to write out
+     * additional transformation code now that all uniforms have been emitted.
+     * It generates the final code for assigning transformed coordinates to the varyings recorded
+     * in the call to collectTransforms(). This must happen after FP code emission so that it has
+     * access to any uniforms the FPs registered for uniform sample matrix invocations.
+     */
     void emitTransformCode(GrGLSLVertexBuilder* vb,
-                           GrGLSLUniformHandler* uniformHandler) override;
+                           GrGLSLUniformHandler* uniformHandler);
+
+    /**
+     * A GrGLSLGeometryProcessor instance can be reused with any GrGLSLGeometryProcessor that
+     * produces the same stage key; this function reads data from a GrGLSLGeometryProcessor and
+     * uploads any uniform variables required  by the shaders created in emitCode(). The
+     * GrGeometryProcessor parameter is guaranteed to be of the same type and to have an
+     * identical processor key as the GrGeometryProcessor that created this
+     * GrGLSLGeometryProcessor.
+     * The subclass should use the transform range to perform any setup required for the coord
+     * transforms of the FPs that are part of the same program, such as updating matrix uniforms.
+     * The range will iterate over the transforms in the same order as the TransformHandler passed
+     * to emitCode.
+     */
+    virtual void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) = 0;
 
 protected:
+    void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,
+                           GrGLSLUniformHandler* uniformHandler,
+                           const char* outputName,
+                           UniformHandle* colorUniform);
+
     // A helper for setting the matrix on a uniform handle initialized through
     // writeOutputPosition or writeLocalCoord. Automatically handles elided uniforms,
     // scale+translate matrices, and state tracking (if provided state pointer is non-null).
@@ -120,8 +225,6 @@ private:
         const GrFragmentProcessor* fFP;
     };
     SkTArray<TransformInfo> fTransformInfos;
-
-    using INHERITED = GrGLSLPrimitiveProcessor;
 };
 
 #endif

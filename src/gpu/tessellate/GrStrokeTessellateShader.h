@@ -255,13 +255,13 @@ public:
 private:
     const char* name() const override { return "GrStrokeTessellateShader"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
-    SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
                                       const char* versionAndExtensionDecls,
                                       const GrGLSLUniformHandler&,
                                       const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLPrimitiveProcessor*,
+    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
                                          const char* versionAndExtensionDecls,
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;

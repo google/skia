@@ -190,7 +190,7 @@ void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrShaderCaps& caps) const {
+GrGLSLGeometryProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrShaderCaps& caps) const {
     return new GrGLBitmapTextGeoProc();
 }
 

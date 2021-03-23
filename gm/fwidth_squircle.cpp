@@ -35,7 +35,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
-#include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -72,7 +71,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
     FwidthSquircleTestProcessor(const SkMatrix& viewMatrix)
@@ -135,7 +134,7 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
     UniformHandle fViewMatrixHandle;
 };
 
-GrGLSLPrimitiveProcessor* FwidthSquircleTestProcessor::createGLSLInstance(
+GrGLSLGeometryProcessor* FwidthSquircleTestProcessor::createGLSLInstance(
         const GrShaderCaps&) const {
     return new Impl();
 }
