@@ -243,6 +243,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
                                                       std::move(program),
+                                                      options,
                                                       *main,
                                                       std::move(uniforms),
                                                       std::move(children),
@@ -313,6 +314,7 @@ size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
 
 SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
+                                 const Options& options,
                                  const SkSL::FunctionDefinition& main,
                                  std::vector<Uniform>&& uniforms,
                                  std::vector<SkString>&& children,
@@ -332,6 +334,14 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         , fAllowColorFilter(allowColorFilter) {
     SkASSERT(fBaseProgram);
     SkASSERT(fChildren.size() == fSampleUsages.size());
+
+    // Everything from SkRuntimeEffect::Options which could influence the compiled result needs to
+    // be accounted for in `fHash`. If you've added a new field to Options and caused the static-
+    // assert below to trigger, please incorporate your field into `fHash` and update KnownOptions
+    // to match the layout of Options.
+    struct KnownOptions { int i; };
+    static_assert(sizeof(Options) == sizeof(KnownOptions));
+    fHash = SkOpts::hash_fn(&options.inlineThreshold, sizeof(options.inlineThreshold), fHash);
 }
 
 SkRuntimeEffect::~SkRuntimeEffect() = default;
