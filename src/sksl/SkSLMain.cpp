@@ -184,6 +184,10 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_rewriteLoopCaps = Factory::RewriteDoWhileLoops();
                     *caps = s_rewriteLoopCaps.get();
                 }
+                if (settingsText.consumeSuffix(" RewriteMatrixVectorMultiply")) {
+                    static auto s_rewriteMatVecMulCaps = Factory::RewriteMatrixVectorMultiply();
+                    *caps = s_rewriteMatVecMulCaps.get();
+                }
                 if (settingsText.consumeSuffix(" ShaderDerivativeExtensionString")) {
                     static auto s_derivativeCaps = Factory::ShaderDerivativeExtensionString();
                     *caps = s_derivativeCaps.get();

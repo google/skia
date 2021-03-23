@@ -271,6 +271,12 @@ public:
     const char* fbFetchColorName() const {
         return fFBFetchColorName;
     }
+
+    bool fRewriteMatrixVectorMultiply = false;
+    bool rewriteMatrixVectorMultiply() const {
+        return fRewriteMatrixVectorMultiply;
+    }
+
 };
 
 using ShaderCapsClass = StandaloneShaderCaps;
@@ -421,6 +427,13 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fRewriteDoWhileLoops = true;
+        return result;
+    }
+
+    static ShaderCapsPointer RewriteMatrixVectorMultiply() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fRewriteMatrixVectorMultiply = true;
         return result;
     }
 

@@ -94,6 +94,7 @@ static const CapsLookupTable& caps_lookup_table() {
         CAP(Bool, integerSupport),
         CAP(Bool, builtinFMASupport),
         CAP(Bool, builtinDeterminantSupport),
+        CAP(Bool, rewriteMatrixVectorMultiply),
     #undef CAP
     });
     return *sCapsLookupTable;

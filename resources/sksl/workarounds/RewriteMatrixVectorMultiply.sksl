@@ -1,0 +1,7 @@
+/*#pragma settings RewriteMatrixVectorMultiply*/
+
+half4 main() {
+    half4x4 m44 = half4x4(123);
+    half4   v4  = half4(0, 1, 2, 3);
+    return m44 * v4;
+}
