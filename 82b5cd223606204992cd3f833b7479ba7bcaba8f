@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14a495d7_87a26e1f",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1459,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T15:43:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cdcf914_d60c9f78",
+      "range": {
+        "startLine": 1458,
+        "startChar": 0,
+        "endLine": 1459,
+        "endChar": 47
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ebe5d7c_57784c7d",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-23T15:13:23Z",
       "side": 1,
       "message": "This should only be added if b.doUpload() is true.  Should probably do this at line 1555:\n\nif b.doUpload() {\n  if directUpload {\n    b.directUpload()\n  } else {\n    // add the upload task\n  }\n}",
+      "range": {
+        "startLine": 1491,
+        "startChar": 0,
+        "endLine": 1491,
+        "endChar": 19
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a432d91_483c45e3",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T15:43:16Z",
+      "side": 1,
+      "message": "Done, although this is on a taskBuilder, not a jobBuilder, so can\u0027t do it as late as line 1555, needs an earlier conditional.",
+      "parentUuid": "4ebe5d7c_57784c7d",
       "range": {
         "startLine": 1491,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "61e2ff07_a3576561",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T15:43:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc55a401_8d310332",
+      "range": {
+        "startLine": 36,
+        "startChar": 29,
+        "endLine": 36,
+        "endChar": 36
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13a60ca4_5665e29d",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-03-23T14:10:01Z",
       "side": 1,
       "message": "Gold doesn\u0027t support ingesting PDFs",
+      "range": {
+        "startLine": 39,
+        "startChar": 22,
+        "endLine": 39,
+        "endChar": 28
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4766f0ff_57883d7c",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T15:43:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13a60ca4_5665e29d",
       "range": {
         "startLine": 39,
         "startChar": 22,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "180f0623_917f281e",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T15:43:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "468c58bb_e6cad9c2",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 21
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "56658b68_9bd9fd35",
@@ -139,6 +259,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "850f1ee1_fe4deeda",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T15:43:16Z",
+      "side": 1,
+      "message": "Done, yeah, I\u0027m not touching the code that uploads to CAS, that\u0027s swarming.",
+      "parentUuid": "56658b68_9bd9fd35",
+      "range": {
+        "startLine": 73,
+        "startChar": 30,
+        "endLine": 73,
+        "endChar": 41
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9d2ec57_2f8bc5bf",
@@ -152,6 +296,30 @@
       "writtenOn": "2021-03-23T14:10:01Z",
       "side": 1,
       "message": "Add a comment that the -Z compresses the json file at rest with gzip.",
+      "range": {
+        "startLine": 76,
+        "startChar": 65,
+        "endLine": 76,
+        "endChar": 66
+      },
+      "revId": "82b5cd223606204992cd3f833b7479ba7bcaba8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a6974ca_60671f51",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-23T15:43:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9d2ec57_2f8bc5bf",
       "range": {
         "startLine": 76,
         "startChar": 65,
