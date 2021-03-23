@@ -344,7 +344,7 @@ DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_ref, ctx, sdc, canvas, 485, 730) {
 
 // Because of the way blur sigmas concat (sigTotal = sqrt(sig1^2 + sig2^2) generating these images
 // for very large sigmas is incredibly slow. This can be enabled while working on the blur code to
-// check results. Even while working you probably want to comment out the largest couple of sigmas.
+// check results.
 static bool constexpr kShowSlowRefImages = false;
 
 static void do_very_large_blur_gm(GrSurfaceDrawContext* sdc,
@@ -360,7 +360,7 @@ static void do_very_large_blur_gm(GrSurfaceDrawContext* sdc,
         for (int t = 0; t <= static_cast<int>(SkTileMode::kLastTileMode); ++t) {
             auto tm = static_cast<SkTileMode>(t);
             auto dstB = srcB.makeOutset(30, 30);
-            for (float sigma : {0.f, 10.f, 20.f, 40.f, 80.f, 160.f, 320.f}) {
+            for (float sigma : {0.f, 5.f, 25.f, 80.f}) {
                 std::vector<decltype(blur)*> blurs;
                 blurs.push_back(blur);
                 if (kShowSlowRefImages) {
@@ -400,14 +400,14 @@ static void do_very_large_blur_gm(GrSurfaceDrawContext* sdc,
     }
 }
 
-DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur, ctx, sdc, canvas, 780, 1330) {
-    auto src = make_src_image(ctx, {40, 40});
+DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur, ctx, sdc, canvas, 350, 1030) {
+    auto src = make_src_image(ctx, {15, 15});
     auto srcB = SkIRect::MakeSize(src.dimensions());
     do_very_large_blur_gm(sdc, ctx, std::move(src), srcB);
 }
 
-DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur_subset, ctx, sdc, canvas, 780, 1330) {
-    auto srcB = SkIRect::MakeXYWH(2, 2, 40, 40);
+DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur_subset, ctx, sdc, canvas, 350, 1030) {
+    auto srcB = SkIRect::MakeXYWH(2, 2, 15, 15);
     SkISize imageSize = SkISize{srcB.width() + 4, srcB.height() + 4};
     auto src = make_src_image(ctx, imageSize, &srcB);
     do_very_large_blur_gm(sdc, ctx, std::move(src), srcB);
@@ -417,8 +417,8 @@ DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur_subset_transparent_border,
                   ctx,
                   sdc,
                   canvas,
-                  780, 1330) {
-    auto srcB = SkIRect::MakeXYWH(3, 3, 38, 38);
+                  355, 1055) {
+    auto srcB = SkIRect::MakeXYWH(3, 3, 15, 15);
     SkISize imageSize = SkISize{srcB.width() + 4, srcB.height() + 4};
     auto src = make_src_image(ctx, imageSize, &srcB);
     do_very_large_blur_gm(sdc, ctx, std::move(src), srcB.makeOutset(1, 1));
