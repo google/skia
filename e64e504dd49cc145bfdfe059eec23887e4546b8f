@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81cd42f0_ec0c89bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-24T15:44:00Z",
+      "side": 1,
+      "message": "PTAL at https://skia-review.googlesource.com/c/skia/+/388458/1..4, restores copy-ability of SkRuntimeShaderFacotry.",
+      "revId": "e64e504dd49cc145bfdfe059eec23887e4546b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
