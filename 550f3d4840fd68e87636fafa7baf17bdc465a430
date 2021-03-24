@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55ce65f4_45a2dbe2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-24T14:09:34Z",
+      "side": 1,
+      "message": "Since this is expected to affect performance on ARM GPUs, will land after inliner experiment concludes. Don\u0027t want to bungle the metrics.",
+      "revId": "550f3d4840fd68e87636fafa7baf17bdc465a430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
