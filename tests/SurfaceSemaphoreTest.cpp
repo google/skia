@@ -216,7 +216,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
                         factory.getSharedContextInfo(ctxInfo.directContext(), 0);
                 sk_gpu_test::ContextInfo child2 =
                         factory.getSharedContextInfo(ctxInfo.directContext(), 1);
-                if (!child1.directContext() || !child2.directContext()) {
+                if (!child1.utilityContext() || !child2.utilityContext()) {
                     continue;
                 }
 

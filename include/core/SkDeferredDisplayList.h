@@ -20,6 +20,7 @@ class SkDeferredDisplayListPriv;
 #include <map>
 class GrRenderTask;
 class GrRenderTargetProxy;
+class GrUtilityContext;
 struct GrCCPerOpsTaskPaths;
 #else
 using GrRenderTargetProxy = SkRefCnt;
@@ -44,6 +45,7 @@ public:
     class SK_API ProgramIterator {
     public:
         ProgramIterator(GrDirectContext*, SkDeferredDisplayList*);
+        ProgramIterator(GrUtilityContext*, SkDeferredDisplayList*);
         ~ProgramIterator();
 
         // This returns true if any work was done. Getting a cache hit does not count as work.
@@ -52,7 +54,8 @@ public:
         void next();
 
     private:
-        GrDirectContext*                                 fDContext;
+        GrDirectContext*                                 fDContext1;
+        GrUtilityContext*                                fUContext;
         const SkTArray<GrRecordingContext::ProgramData>& fProgramData;
         int                                              fIndex;
     };

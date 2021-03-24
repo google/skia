@@ -7,6 +7,7 @@
 
 #include "tools/gpu/gl/GLTestContext.h"
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/GpuTimer.h"
@@ -249,6 +250,14 @@ void GLTestContext::overrideVersion(const char* version, const char* shadingLang
 sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& options) {
 #ifdef SK_GL
     return GrDirectContext::MakeGL(fGLInterface, options);
+#else
+    return nullptr;
+#endif
+}
+
+sk_sp<GrUtilityContext> GLTestContext::makeUtilityContext(GrDirectContext* dContext) {
+#ifdef SK_GL
+    return dContext->makeUtilityGL(fGLInterface);
 #else
     return nullptr;
 #endif

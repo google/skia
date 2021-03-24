@@ -149,16 +149,19 @@ private:
                                        GrDirectContext* shareContext, uint32_t shareIndex);
 
     struct Context {
-        ContextType       fType;
-        ContextOverrides  fOverrides;
-        GrContextOptions  fOptions;
-        GrBackendApi      fBackend;
-        TestContext*      fTestContext;
-        GrDirectContext*  fGrContext;
-        GrDirectContext*  fShareContext;
-        uint32_t          fShareIndex;
+        ContextType             fType;
+        ContextOverrides        fOverrides;
+        GrContextOptions        fOptions;
+        GrBackendApi            fBackend;
+        TestContext*            fTestContext;
+        sk_sp<GrDirectContext>  fDirectContext;
+        sk_sp<GrUtilityContext> fUtilityContext;
 
-        bool              fAbandoned;
+        // If 'fUtilityContext' isn't null then these two fields should be filled in
+        GrDirectContext*        fShareContext;
+        uint32_t                fShareIndex;
+
+        bool                    fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
@@ -173,7 +176,8 @@ public:
     GrContextFactory::ContextType type() const { return fType; }
     GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
 
-    GrDirectContext* directContext() const { return fContext; }
+    GrDirectContext* directContext() const { return fDirectContext; }
+    GrUtilityContext* utilityContext() const { return fUtilityContext; }
     TestContext* testContext() const { return fTestContext; }
 
 #ifdef SK_GL
@@ -188,14 +192,20 @@ public:
 private:
     ContextInfo(GrContextFactory::ContextType type,
                 TestContext* testContext,
-                GrDirectContext* context,
+                GrDirectContext* dContext,
+                GrUtilityContext* uContext,
                 const GrContextOptions& options)
-            : fType(type), fTestContext(testContext), fContext(context), fOptions(options) {}
+            : fType(type)
+            , fTestContext(testContext)
+            , fDirectContext(dContext)
+            , fUtilityContext(uContext)
+            , fOptions(options) {}
 
     GrContextFactory::ContextType fType = GrContextFactory::kGL_ContextType;
     // Valid until the factory destroys it via abandonContexts() or destroyContexts().
     TestContext* fTestContext = nullptr;
-    GrDirectContext* fContext = nullptr;
+    GrDirectContext* fDirectContext = nullptr;
+    GrUtilityContext* fUtilityContext = nullptr;
     GrContextOptions fOptions;
 
     friend class GrContextFactory;

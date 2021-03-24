@@ -881,7 +881,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 }
 
-static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
+static void test_cross_context_image(skiatest::Reporter* reporter,
+                                     const GrContextOptions& options,
                                      const char* testName,
                                      std::function<sk_sp<SkImage>(GrDirectContext*)> imageMaker) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
@@ -947,7 +948,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
 
         ContextInfo otherContextInfo = testFactory.getSharedContextInfo(dContext);
-        auto otherCtx = otherContextInfo.directContext();
+        auto otherCtx = otherContextInfo.utilityContext();
         sk_gpu_test::TestContext* otherTestContext = otherContextInfo.testContext();
 
         // Creating a context in a share group may fail
@@ -955,6 +956,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             continue;
         }
 
+#if 0
         surface = SkSurface::MakeRenderTarget(otherCtx, SkBudgeted::kNo, info);
         canvas = surface->getCanvas();
 
@@ -1034,6 +1036,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             otherView.reset();
             refImg.reset(nullptr);
         }
+#endif
     }
 }
 
