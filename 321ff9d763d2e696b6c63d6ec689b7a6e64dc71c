@@ -118,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "490fda0c_58418a44",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-24T21:23:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "185a0215_a9934a19",
+      "range": {
+        "startLine": 531,
+        "startChar": 43,
+        "endLine": 531,
+        "endChar": 49
+      },
+      "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0c2ded6_81c16e64",
@@ -131,6 +155,24 @@
       "writtenOn": "2021-03-24T21:14:12Z",
       "side": 1,
       "message": "If sampling is provided, but sampling[\u0027mipmap\u0027] doesn\u0027t exist, this would be undefined rather than None?",
+      "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c7c7d64_a828d859",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-24T21:23:27Z",
+      "side": 1,
+      "message": "Yes, I think for now that will be illegal -- favoring explicitness: either give me B and C, or give me filter and mipmap",
+      "parentUuid": "b0c2ded6_81c16e64",
       "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38685f07_55b9e9f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-24T21:23:27Z",
+      "side": 1,
+      "message": "Current take: hardline\n\nEither\n- sampling is null\n- or sampling has B,C (non-null)\n- or sampling must have filter,mipmap (non-null)\n",
+      "revId": "58e0edd10858d89758e70d11e9dfed08a43490d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
