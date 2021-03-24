@@ -14,7 +14,6 @@ from . import default
 from . import docker
 from . import ios
 from . import valgrind
-from . import win_ssh
 
 
 """Abstractions for running code on various platforms.
@@ -60,9 +59,6 @@ def is_test_skqp(vars_api):
 def is_valgrind(vars_api):
   return 'Valgrind' in vars_api.extra_tokens
 
-def is_win_ssh(vars_api):
-  return 'LenovoYogaC630' in vars_api.builder_cfg.get('model', '')
-
 
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, vars_api, app_name):
@@ -77,8 +73,6 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return ios.iOSFlavor(self, app_name)
     elif is_valgrind(vars_api):
       return valgrind.ValgrindFlavor(self, app_name)
-    elif is_win_ssh(vars_api):
-      return win_ssh.WinSSHFlavor(self, app_name)
     else:
       return default.DefaultFlavor(self, app_name)
 
