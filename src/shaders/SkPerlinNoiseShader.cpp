@@ -25,7 +25,6 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -968,12 +967,13 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             // TODO: Either treat the output of this shader as sRGB or allow client to specify a
             // color space of the noise. Either way, this case (and the GLSL) need to convert to
             // the destination.
-            auto inner = GrFragmentProcessor::ModulateRGBA(
-                    /*child=*/nullptr, SkPMColor4f::FromBytes_RGBA(0x80404040));
-            return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
+            auto inner = GrFragmentProcessor::ModulateRGBA(context,
+                                                           /*child=*/nullptr,
+                                                           SkPMColor4f::FromBytes_RGBA(0x80404040));
+            return GrFragmentProcessor::MulChildByInputAlpha(args.fContext, std::move(inner));
         }
         // Emit zero.
-        return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT);
+        return GrFragmentProcessor::MakeColor(context, SK_PMColor4fTRANSPARENT);
     }
 
     // Need to assert that the textures we'll create are power of 2 so that now copy is needed. We
@@ -996,7 +996,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                 std::move(noiseView),
                                                 m,
                                                 *context->priv().caps());
-        return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
+        return GrFragmentProcessor::MulChildByInputAlpha(args.fContext, std::move(inner));
     }
     return nullptr;
 }

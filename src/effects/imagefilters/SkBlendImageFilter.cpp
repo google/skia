@@ -23,7 +23,6 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #endif
 #include "src/core/SkClipOpPriv.h"
 
@@ -268,7 +267,7 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
                                            background->alphaType(), ctx.colorSpace(),
                                            kPremul_SkAlphaType);
     } else {
-        fp = GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT);
+        fp = GrFragmentProcessor::MakeColor(context, SK_PMColor4fTRANSPARENT);
     }
 
     if (foregroundView.asTextureProxy()) {
@@ -281,7 +280,7 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP), foreground->getColorSpace(),
                                              foreground->alphaType(), ctx.colorSpace(),
                                              kPremul_SkAlphaType);
-        fp = GrBlendFragmentProcessor::Make(std::move(fgFP), std::move(fp), fMode);
+        fp = GrBlendFragmentProcessor::Make(context, std::move(fgFP), std::move(fp), fMode);
     }
 
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());

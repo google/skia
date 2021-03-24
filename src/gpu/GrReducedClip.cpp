@@ -35,10 +35,13 @@
  * based on later intersect operations, and perhaps remove intersect-rects. We could optionally
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
-GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
-                             const GrCaps* caps, int maxWindowRectangles, int maxAnalyticElements,
+GrReducedClip::GrReducedClip(GrRecordingContext* context,
+                             const SkClipStack& stack,
+                             const SkRect& queryBounds,
+                             int maxWindowRectangles,
+                             int maxAnalyticElements,
                              int maxCCPRClipPaths)
-        : fCaps(caps)
+        : fContext(context)
         , fMaxWindowRectangles(maxWindowRectangles)
         , fMaxAnalyticElements(maxAnalyticElements)
         , fMaxCCPRClipPaths(maxCCPRClipPaths) {
@@ -668,7 +671,8 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticRRect(const SkRRect& deviceS
     bool success;
     std::tie(success, fAnalyticFP) = GrRRectEffect::Make(std::move(fAnalyticFP),
                                                          GetClipEdgeType(invert, aa),
-                                                         deviceSpaceRRect, *fCaps->shaderCaps());
+                                                         deviceSpaceRRect,
+                                                         *fContext->priv().caps()->shaderCaps());
     if (success) {
         ++fNumAnalyticElements;
         return ClipResult::kClipped;
@@ -688,7 +692,8 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticPath(const SkPath& deviceSpa
 
     // Combine this analytic effect with the previous effect in the stack.
     bool success;
-    std::tie(success, fAnalyticFP) = GrConvexPolyEffect::Make(std::move(fAnalyticFP),
+    std::tie(success, fAnalyticFP) = GrConvexPolyEffect::Make(fContext,
+                                                              std::move(fAnalyticFP),
                                                               GetClipEdgeType(invert, aa),
                                                               deviceSpacePath);
     if (success) {
@@ -867,9 +872,8 @@ bool GrReducedClip::drawAlphaClipMask(GrSurfaceDrawContext* rtc) const {
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer.
 
-bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
-                                        GrSurfaceDrawContext* surfaceDrawContext) const {
-    GrStencilMaskHelper helper(context, surfaceDrawContext);
+bool GrReducedClip::drawStencilClipMask(GrSurfaceDrawContext* surfaceDrawContext) const {
+    GrStencilMaskHelper helper(fContext, surfaceDrawContext);
     if (!helper.init(fScissor, this->maskGenID(), fWindowRects, this->numAnalyticElements())) {
         // The stencil mask doesn't need updating
         return true;
@@ -902,8 +906,7 @@ int GrReducedClip::numAnalyticElements() const {
     return fCCPRClipPaths.size() + fNumAnalyticElements;
 }
 
-GrFPResult GrReducedClip::finishAndDetachAnalyticElements(GrRecordingContext* context,
-                                                          const SkMatrixProvider& matrixProvider,
+GrFPResult GrReducedClip::finishAndDetachAnalyticElements(const SkMatrixProvider& matrixProvider,
                                                           GrCoverageCountingPathRenderer* ccpr,
                                                           uint32_t opsTaskID) {
     // Combine the analytic FP with any CCPR clip processors.
@@ -914,8 +917,11 @@ GrFPResult GrReducedClip::finishAndDetachAnalyticElements(GrRecordingContext* co
         SkASSERT(ccpr);
         SkASSERT(fHasScissor);
         bool success;
-        std::tie(success, clipFP) = ccpr->makeClipProcessor(std::move(clipFP), opsTaskID,
-                                                            ccprClipPath, fScissor, *fCaps);
+        std::tie(success, clipFP) = ccpr->makeClipProcessor(std::move(clipFP),
+                                                            opsTaskID,
+                                                            ccprClipPath,
+                                                            fScissor,
+                                                            *fContext->priv().caps());
         if (!success) {
             return GrFPFailure(nullptr);
         }
@@ -927,13 +933,15 @@ GrFPResult GrReducedClip::finishAndDetachAnalyticElements(GrRecordingContext* co
     if (fShader != nullptr) {
         static const GrColorInfo kCoverageColorInfo{GrColorType::kUnknown, kPremul_SkAlphaType,
                                                     nullptr};
-        GrFPArgs args(context, matrixProvider, &kCoverageColorInfo);
+        GrFPArgs args(fContext, matrixProvider, &kCoverageColorInfo);
         shaderFP = as_SB(fShader)->asFragmentProcessor(args);
         if (shaderFP != nullptr) {
-            shaderFP = GrFragmentProcessor::MulInputByChildAlpha(std::move(shaderFP));
+            shaderFP = GrFragmentProcessor::MulInputByChildAlpha(fContext, std::move(shaderFP));
         }
     }
 
     // Compose the clip and shader FPs.
-    return GrFPSuccess(GrFragmentProcessor::Compose(std::move(shaderFP), std::move(clipFP)));
+    return GrFPSuccess(GrFragmentProcessor::Compose(fContext,
+                                                    std::move(shaderFP),
+                                                    std::move(clipFP)));
 }
