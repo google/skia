@@ -22,6 +22,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_EXTERNALLY_RETAINED_BEGIN
+
 GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     : fGpu(gpu) {
     fPipelineStateCache.reset(new PipelineStateCache(gpu));
@@ -183,3 +185,5 @@ bool GrMtlResourceProvider::PipelineStateCache::precompileShader(const SkData& k
     return true;
 
 }
+
+GR_EXTERNALLY_RETAINED_END
