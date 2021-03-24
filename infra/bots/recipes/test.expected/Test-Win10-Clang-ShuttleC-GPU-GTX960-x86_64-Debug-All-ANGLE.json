@@ -263,6 +263,56 @@
     "name": "dm"
   },
   {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]\\[SWARM_OUT_DIR]",
+      "*.png"
+    ],
+    "infra_step": true,
+    "name": "find .png images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]\\[SWARM_OUT_DIR]\\someimage.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]\\cipd_bin_packages\\gsutil",
+      "-m",
+      "cp",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\*.png",
+      "gs://skia-infra-gm/dm-images-v1"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "upload .png images"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]\\cipd_bin_packages\\gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\dm.json",
+      "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/1234_7/Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE/1337000001/dm.json"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "name": "upload dm.json"
+  },
+  {
     "name": "$result"
   }
 ]
