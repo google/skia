@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0044e998_1ad4f300",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-24T17:02:01Z",
+      "side": 1,
+      "message": "sfc",
+      "range": {
+        "startLine": 60,
+        "startChar": 25,
+        "endLine": 60,
+        "endChar": 43
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a64bb545_9fcb8579",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-24T17:02:01Z",
+      "side": 1,
+      "message": "dstToSrcOffset",
+      "range": {
+        "startLine": 61,
+        "startChar": 27,
+        "endLine": 61,
+        "endChar": 41
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75b61909_47041bc2",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-24T17:02:01Z",
+      "side": 1,
+      "message": "While we\u0027re here and renaming, should we just have this be \u0027dstRect\u0027?",
+      "range": {
+        "startLine": 67,
+        "startChar": 48,
+        "endLine": 67,
+        "endChar": 55
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28767f82_5fd7bb7d",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-24T17:02:01Z",
+      "side": 1,
+      "message": "Add \u0027but clamp to 1 so we don\u0027t have end up with an empty texture\u0027?",
+      "range": {
+        "startLine": 548,
+        "startChar": 4,
+        "endLine": 551,
+        "endChar": 88
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14538050_35b0a956",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-24T17:02:01Z",
+      "side": 1,
+      "message": "delete?",
+      "range": {
+        "startLine": 572,
+        "startChar": 68,
+        "endLine": 572,
+        "endChar": 74
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
