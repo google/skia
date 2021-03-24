@@ -282,6 +282,12 @@ describe('Core canvas behavior', () => {
         colors.push(CanvasKit.ColorAsInt(256, 256, 256, 128));
 
         canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
+        canvas.translate(0, 300);
+        canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors,
+                         {B:0, C:0.5});
+        canvas.translate(0, 300);
+        canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors,
+                         {filter: CanvasKit.FilterMode.Nearest, mipmap: CanvasKit.MipmapMode.None});
 
         atlas.delete();
         paint.delete();
