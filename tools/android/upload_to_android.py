@@ -27,6 +27,8 @@ Example usage:
   $ python upload_to_android.py -w /repos/testing -c 44200
 """
 
+
+from __future__ import print_function
 import argparse
 import getpass
 import json
@@ -54,17 +56,17 @@ def get_change_details(change_num):
 
 def init_work_dir(work_dir):
   if not os.path.isdir(work_dir):
-    print 'Creating %s' % work_dir
+    print('Creating %s' % work_dir)
     os.makedirs(work_dir)
 
   # Ensure the repo tool exists in the work_dir.
   repo_dir = os.path.join(work_dir, 'bin')
   repo_binary = os.path.join(repo_dir, 'repo')
   if not os.path.isdir(repo_dir):
-    print 'Creating %s' % repo_dir
+    print('Creating %s' % repo_dir)
     os.makedirs(repo_dir)
   if not os.path.exists(repo_binary):
-    print 'Downloading %s from %s' % (repo_binary, REPO_TOOL_URL)
+    print('Downloading %s from %s' % (repo_binary, REPO_TOOL_URL))
     response = urllib2.urlopen(REPO_TOOL_URL, timeout=5)
     content = response.read()
     with open(repo_binary, 'w') as f:
@@ -76,24 +78,24 @@ def init_work_dir(work_dir):
   # Create android-repo directory in the work_dir.
   android_dir = os.path.join(work_dir, 'android-repo')
   if not os.path.isdir(android_dir):
-    print 'Creating %s' % android_dir
+    print('Creating %s' % android_dir)
     os.makedirs(android_dir)
 
-  print """
+  print("""
 
 About to run repo init. If it hangs asking you to run glogin then please:
 * Exit the script (ctrl-c).
 * Run 'glogin'.
 * Re-run the script.
 
-"""
+""")
   os.chdir(android_dir)
   subprocess.check_call(
       '%s init -u %s/a/platform/manifest -g "all,-notdefault,-darwin" '
       '-b master --depth=1'
           % (repo_binary, ANDROID_REPO_URL), shell=True)
 
-  print 'Syncing the Android checkout at %s' % android_dir
+  print('Syncing the Android checkout at %s' % android_dir)
   subprocess.check_call('%s sync %s tools/repohooks -j 32 -c' % (
                             repo_binary, SKIA_PATH_IN_ANDROID), shell=True)
 
@@ -214,7 +216,7 @@ def upload_to_android(work_dir, modifier):
     # Upload to Android Gerrit.
     subprocess.check_call('%s upload --verify' % repo_binary, shell=True)
 
-    print modifier.get_user_msg()
+    print(modifier.get_user_msg())
   finally:
     # Abandon repo branch.
     subprocess.call('%s abandon %s' % (repo_binary, REPO_BRANCH_NAME),

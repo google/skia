@@ -9,6 +9,7 @@
 """Create the SKP asset."""
 
 
+from __future__ import print_function
 import argparse
 import common
 import os
@@ -52,7 +53,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
     ]
     if upload_to_partner_bucket:
       webpages_playback_cmd.append('--upload_to_partner_bucket')
-    print 'Running webpages_playback command:\n$ %s' % (
+    print('Running webpages_playback command:\n$ %s' %
         ' '.join(webpages_playback_cmd))
     try:
       subprocess.check_call(webpages_playback_cmd)
@@ -68,9 +69,9 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
             try:
               subprocess.check_call(['kill', '-9', pid])
             except subprocess.CalledProcessError as e:
-              print e
+              print(e)
           else:
-            print 'Refusing to kill self.'
+            print('Refusing to kill self.')
     src = os.path.join(os.getcwd(), 'playback', 'skps')
     for f in os.listdir(src):
       if f.endswith('.skp'):

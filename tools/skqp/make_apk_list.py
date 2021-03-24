@@ -4,6 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from __future__ import print_function
 from subprocess import call, check_output, CalledProcessError
 import os
 import re
@@ -122,10 +123,10 @@ def main():
         table(o, origin,    'skqp/release', [(origin, 'master'), '09ab171c5c0'])
         table(o, aosp_skqp, 'pie-cts-dev',  ['f084c17322'])
         o.write(FOOTER)
-    print path
+    print(path)
     call([sys.executable, 'bin/sysopen', path])
     gscmd = 'gsutil -h "Content-Type:text/html" cp "%s" gs://skia-skqp/apklist'
-    print gscmd % path
+    print(gscmd % path)
 
 if __name__ == '__main__':
     main()
