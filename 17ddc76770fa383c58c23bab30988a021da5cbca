@@ -51,6 +51,24 @@
       "parentUuid": "cb628903_7de3bd5d",
       "revId": "17ddc76770fa383c58c23bab30988a021da5cbca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f49bb7a4_ff400fec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-24T15:27:43Z",
+      "side": 1,
+      "message": "Oh right, I remember discussing this now.",
+      "parentUuid": "2b971f60_2986c8fc",
+      "revId": "17ddc76770fa383c58c23bab30988a021da5cbca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
