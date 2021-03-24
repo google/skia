@@ -175,6 +175,24 @@
       "parentUuid": "b0c2ded6_81c16e64",
       "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "705d2eaa_9e5c7255",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 10380
+      },
+      "writtenOn": "2021-03-24T22:38:14Z",
+      "side": 1,
+      "message": "For reference, SkSamplingOptions constructs from just a FilterMode and assumes None for the MipmapMode.",
+      "parentUuid": "1c7c7d64_a828d859",
+      "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
