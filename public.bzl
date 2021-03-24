@@ -724,6 +724,7 @@ def base_defines(os_conditions):
         "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
         # Staging flags for API changes
         "SK_PARAGRAPH_GRAPHEME_EDGES",
+        "SK_PARAGRAPH_NEWLINE_METRICS_ON",
         # Should remove after we update golden images
         "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
         # Experiment to diagnose image diffs in Google3

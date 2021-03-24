@@ -81,7 +81,13 @@ class TextWrapper {
             fEnd = ClusterPos(cluster, cluster->endPos());
             // TODO: Make sure all the checks are correct and there are no unnecessary checks
             auto& r = cluster->run();
+            // Keep this change off Google3 for now (but in Flutter)
+#ifdef SK_PARAGRAPH_NEWLINE_METRICS_ON
             if (!r.isPlaceholder()) {
+#else
+            if (!cluster->isHardBreak() && !r.isPlaceholder()) {
+#endif
+                // We ignore metrics for \n as the Flutter does
                 fMetrics.add(&r);
             }
             fWidth += cluster->width();
