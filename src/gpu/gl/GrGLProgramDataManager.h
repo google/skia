@@ -19,6 +19,7 @@
 class GrGLGpu;
 class SkMatrix;
 class GrGLProgram;
+struct GrGLInterface;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the
@@ -41,9 +42,11 @@ public:
     typedef GrTBlockList<GLUniformInfo> UniformInfoArray;
     typedef GrTBlockList<VaryingInfo>   VaryingInfoArray;
 
-    GrGLProgramDataManager(GrGLGpu*, const UniformInfoArray&);
+    GrGLProgramDataManager(/*GrGLGpu*, */const UniformInfoArray&);
 
-    void setSamplerUniforms(const UniformInfoArray& samplers, int startUnit) const;
+    void setSamplerUniforms(const GrGLInterface *, const UniformInfoArray& samplers, int startUnit) const;
+
+    void set(const GrGLInterface* glInterface) { fInterface = glInterface; }
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
     *  array of uniforms. arrayCount must be <= the array count of the uniform.
@@ -90,7 +93,9 @@ private:
                                             const float matrices[]) const;
 
     SkTArray<Uniform, true> fUniforms;
+
     GrGLGpu* fGpu;
+    const GrGLInterface* fInterface = nullptr;
 
     using INHERITED = GrGLSLProgramDataManager;
 };
