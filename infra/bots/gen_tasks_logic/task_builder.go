@@ -287,7 +287,7 @@ func (b *taskBuilder) usesPython() {
 	if b.os("Mac10.15") && b.model("VMware7.1") {
 		b.cipd(pythonPkgs[0])
 	}
-	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
+	if b.matchOs("Win") || b.matchExtraConfig("Win") {
 		b.cipd(pythonPkgs[0])
 	}
 

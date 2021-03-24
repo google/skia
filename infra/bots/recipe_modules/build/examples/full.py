@@ -98,7 +98,7 @@ def GenTests(api):
       api.test(buildername) +
       api.properties(**defaultProps(buildername))
     )
-    if 'Win' in buildername and not 'LenovoYogaC630' in buildername:
+    if 'Win' in buildername:
       test += api.platform('win', 64)
     yield test
 

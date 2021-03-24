@@ -575,8 +575,6 @@
   "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All",
   "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D",
   "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
-  "Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All",
-  "Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE",
   "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All",
   "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All",
   "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SkVM",
