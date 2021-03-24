@@ -16,6 +16,23 @@
       "message": "To be submitted after the inlining experiment is rolled back later in the day.",
       "revId": "c8b9a8495da8ae4fd8eefc28b0d2e6a262ef24d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a724225_e99ab16b",
+        "filename": "bench/BlendmodeBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-24T14:03:28Z",
+      "side": 1,
+      "message": "Might be easier to follow with something like:\n  int N \u003d std::min(loops, 1000);\n  loops -\u003d N;\n  for (; N \u003e 0; --N) { ... }\n?",
+      "revId": "c8b9a8495da8ae4fd8eefc28b0d2e6a262ef24d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
