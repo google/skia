@@ -13,8 +13,6 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GR_EXTERNALLY_RETAINED_BEGIN
-
 static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
         GrSamplerState::WrapMode wrapMode, const GrCaps& caps) {
     switch (wrapMode) {
@@ -84,5 +82,3 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
 GrMtlSampler::Key GrMtlSampler::GenerateKey(GrSamplerState samplerState) {
     return samplerState.asIndex();
 }
-
-GR_EXTERNALLY_RETAINED_END
