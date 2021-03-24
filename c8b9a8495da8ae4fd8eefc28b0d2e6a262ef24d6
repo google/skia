@@ -33,6 +33,24 @@
       "message": "Might be easier to follow with something like:\n  int N \u003d std::min(loops, 1000);\n  loops -\u003d N;\n  for (; N \u003e 0; --N) { ... }\n?",
       "revId": "c8b9a8495da8ae4fd8eefc28b0d2e6a262ef24d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "524f0d82_dd8a210f",
+        "filename": "bench/BlendmodeBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-24T14:07:04Z",
+      "side": 1,
+      "message": "PTAL, see if you like this better",
+      "parentUuid": "9a724225_e99ab16b",
+      "revId": "c8b9a8495da8ae4fd8eefc28b0d2e6a262ef24d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
