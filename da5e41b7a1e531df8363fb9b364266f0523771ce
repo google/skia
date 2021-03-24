@@ -32,6 +32,32 @@
       "url": "https://android-build.googleplex.com/builds/treetop/skia-review/388743?revision\u003d1",
       "fixSuggestions": [],
       "key": {
+        "uuid": "38fbc566_17edced6",
+        "filename": "infra/bots/assets/skp/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-24T18:50:30Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 56,
+        "startChar": 54,
+        "endLine": 56,
+        "endChar": 55
+      },
+      "revId": "da5e41b7a1e531df8363fb9b364266f0523771ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009327986",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/388743?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
         "uuid": "6591bc37_07112ced",
         "filename": "tools/skp/webpages_playback.py",
         "patchSetId": 1
@@ -41,6 +67,32 @@
         "id": 13964
       },
       "writtenOn": "2021-03-24T18:50:18Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 391,
+        "startChar": 72,
+        "endLine": 391,
+        "endChar": 73
+      },
+      "revId": "da5e41b7a1e531df8363fb9b364266f0523771ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009327986",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/388743?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "73026e0c_a7f8f968",
+        "filename": "tools/skp/webpages_playback.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-24T18:50:30Z",
       "side": 1,
       "message": "Please remove the trailing whitespace.",
       "range": {
