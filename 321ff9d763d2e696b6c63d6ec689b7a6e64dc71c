@@ -69,6 +69,29 @@
       "message": "Oh yea, notice what I left in interface.js\n\nsampling.B, sampling.C, sampling.mipmap \u003c-- all of these trigger \"undefined\"\n\nsampling.filter \u003c-- this one is fine (???)\n\n(hence the [\u0027B\u0027] syntax)\n\nwhat am I doing wrong?",
       "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cae327a4_ac4e0fcd",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-24T18:49:07Z",
+      "side": 1,
+      "message": "You should probably have this as [\u0027filter\u0027] also. When we build canvaskit.js, we minify the heck out it. By putting a string in brackets, that\u0027s a hint to the minifer to not minify that field name. Sometimes, random things don\u0027t get minified (in this case, filter?) but that\u0027s prone to breakages later.",
+      "range": {
+        "startLine": 531,
+        "startChar": 43,
+        "endLine": 531,
+        "endChar": 49
+      },
+      "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
