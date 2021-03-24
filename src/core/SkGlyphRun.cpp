@@ -83,21 +83,37 @@ bool SkGlyphRunList::allFontsFinite() const {
     return true;
 }
 
+sk_sp<SkTextBlob> SkGlyphRunList::makeBlob() const {
+    SkTextBlobBuilder builder;
+
+    // TODO(herb): add text and clusters
+    for (auto& run : *this) {
+        auto buffer = builder.allocRunPos(run.font(), run.runSize(), nullptr);
+        auto glyphIDs = run.glyphsIDs();
+        memcpy(buffer.glyphs, glyphIDs.data(), glyphIDs.size_bytes());
+        auto positions = run.positions();
+        memcpy(buffer.points(), positions.data(), positions.size_bytes());
+    }
+    return builder.make();
+}
+
 void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
     fOriginalTextBlob->notifyAddedToCache(cacheID);
 }
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
-void SkGlyphRunBuilder::drawTextUTF8(const SkFont& font, const void* bytes,
-                                     size_t byteLength, SkPoint origin) {
-    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, SkTextEncoding::kUTF8);
+const SkGlyphRunList& SkGlyphRunBuilder::drawText(SkPoint origin, const SkFont& font,
+                                                  const void* bytes, size_t byteLength,
+                                                  SkTextEncoding encoding) {
+    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, encoding);
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
-        this->simplifyDrawText(font, glyphIDs, origin, fPositions);
+        this->simplifyDrawText(font, glyphIDs, {0, 0}, fPositions);
     }
 
-    this->makeGlyphRunList(nullptr, SkPoint::Make(0, 0));
+    this->makeGlyphRunList(nullptr, origin);
+    return this->useGlyphRunList();
 }
 
 void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin,
@@ -192,8 +208,8 @@ void SkGlyphRunBuilder::simplifyTextBlobIgnoringRSXForm(const SkTextBlobRunItera
     }
 }
 
-void SkGlyphRunBuilder::drawGlyphsWithPositions(const SkFont& font,
-                                            SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos) {
+void SkGlyphRunBuilder::drawGlyphsWithPositions(
+        const SkFont& font, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos) {
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
         this->simplifyDrawPosText(font, glyphIDs, pos);

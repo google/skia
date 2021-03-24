@@ -61,7 +61,6 @@ public:
         }
     }
 
-protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
         fPainter.drawForBitmapDevice(glyphRunList, paint, fOverdrawCanvas->getTotalMatrix(), this);
     }
@@ -80,6 +79,14 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
     TextDevice device{this, props};
 
     b.drawTextBlob(paint, *blob, {x, y}, &device);
+}
+
+void
+SkOverdrawCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    SkSurfaceProps props{0, kUnknown_SkPixelGeometry};
+    this->getProps(&props);
+    TextDevice device{this, props};
+    device.drawGlyphRunList(glyphRunList, paint);
 }
 
 void SkOverdrawCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
