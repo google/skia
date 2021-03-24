@@ -19,7 +19,7 @@ class XfermodeBench : public Benchmark {
 public:
     XfermodeBench(SkBlendMode mode, bool aa) : fBlendMode(mode) {
         fAA = aa;
-        fName.printf("blendmode_%s_%s", aa ? "mask" : "rect", SkBlendMode_Name(mode));
+        fName.printf("blendmicro_%s_%s", aa ? "mask" : "rect", SkBlendMode_Name(mode));
     }
 
 protected:
@@ -30,7 +30,7 @@ protected:
         size_t len = strlen(text);
         SkISize size = canvas->getBaseLayerSize();
         SkRandom random;
-        for (int i = 0; i < loops; ++i) {
+        while (loops > 0) {
             SkPaint paint;
             paint.setBlendMode(fBlendMode);
             paint.setColor(random.nextU());
@@ -41,7 +41,7 @@ protected:
                 SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
                          y = random.nextRangeScalar(0, (SkScalar)size.fHeight);
                 auto blob = SkTextBlob::MakeFromText(text, len, font, SkTextEncoding::kUTF8);
-                for (int j = 0; j < 1000; ++j) {
+                for (int j = 1000; j > 0 && loops > 0; --j, --loops) {
                     canvas->drawTextBlob(blob, x, y, paint);
                 }
             } else {
@@ -54,7 +54,7 @@ protected:
                     w,
                     h
                 );
-                for (int j = 0; j < 1000; ++j) {
+                for (int j = 1000; j > 0 && loops > 0; --j, --loops) {
                     canvas->drawRect(rect, paint);
                 }
             }
