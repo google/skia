@@ -2242,6 +2242,14 @@ static std::unique_ptr<Expression> create_literal_1(const Context& context, cons
     }
 }
 
+SpvId SPIRVCodeGenerator::writeReciprocal(const Type& type, SpvId value, OutputStream& out) {
+    SkASSERT(type.isFloat());
+    SpvId one = this->writeFloatLiteral({/*offset=*/-1, /*value=*/1, &type});
+    SpvId reciprocal = this->nextId(&type);
+    this->writeInstruction(SpvOpFDiv, this->getType(type), reciprocal, one, value, out);
+    return reciprocal;
+}
+
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs, Operator op,
                                                 const Type& rightType, SpvId rhs,
                                                 const Type& resultType, OutputStream& out) {
@@ -2255,18 +2263,21 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
     // handling in SPIR-V
     if (this->getActualType(leftType) != this->getActualType(rightType)) {
         if (leftType.isVector() && rightType.isNumber()) {
-            if (op.kind() == Token::Kind::TK_SLASH) {
-                SpvId one = this->writeExpression(*create_literal_1(fContext, rightType), out);
-                SpvId inverse = this->nextId(&rightType);
-                this->writeInstruction(SpvOpFDiv, this->getType(rightType), inverse, one, rhs, out);
-                rhs = inverse;
-                op = Token::Kind::TK_STAR;
-            }
-            if (op.kind() == Token::Kind::TK_STAR) {
-                SpvId result = this->nextId(&resultType);
-                this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
-                                       result, lhs, rhs, out);
-                return result;
+            if (resultType.componentType().isFloat()) {
+                switch (op.kind()) {
+                    case Token::Kind::TK_SLASH: {
+                        rhs = this->writeReciprocal(rightType, rhs, out);
+                        [[fallthrough]];
+                    }
+                    case Token::Kind::TK_STAR: {
+                        SpvId result = this->nextId(&resultType);
+                        this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
+                                               result, lhs, rhs, out);
+                        return result;
+                    }
+                    default:
+                        break;
+                }
             }
             // promote number to vector
             const Type& vecType = leftType;
@@ -2280,11 +2291,13 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             rhs = vec;
             operandType = &leftType;
         } else if (rightType.isVector() && leftType.isNumber()) {
-            if (op.kind() == Token::Kind::TK_STAR) {
-                SpvId result = this->nextId(&resultType);
-                this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
-                                       result, rhs, lhs, out);
-                return result;
+            if (resultType.componentType().isFloat()) {
+                if (op.kind() == Token::Kind::TK_STAR) {
+                    SpvId result = this->nextId(&resultType);
+                    this->writeInstruction(SpvOpVectorTimesScalar, this->getType(resultType),
+                                           result, rhs, lhs, out);
+                    return result;
+                }
             }
             // promote number to vector
             const Type& vecType = rightType;
