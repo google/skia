@@ -35,6 +35,7 @@ class GrStrikeCache;
 class GrSurfaceProxy;
 class GrSwizzle;
 class GrTextureProxy;
+class GrUtilityContext;
 struct GrVkBackendContext;
 
 class SkImage;
@@ -44,6 +45,7 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
+
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
 #ifdef SK_GL
@@ -51,10 +53,14 @@ public:
      * Creates a GrDirectContext for a backend context. If no GrGLInterface is provided then the
      * result of GrGLMakeNativeInterface() is used if it succeeds.
      */
+    static sk_sp<GrDirectContext> MakeGL1(sk_sp<const GrGLInterface>,
+                                         sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>);
     static sk_sp<GrDirectContext> MakeGL(const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeGL();
+
+    sk_sp<GrUtilityContext> makeUtilityGL(sk_sp<const GrGLInterface>);
 #endif
 
 #ifdef SK_VULKAN
@@ -65,6 +71,8 @@ public:
      * refs on the GrDirectContext. Once all these objects and the GrDirectContext are released,
      * then it is safe to delete the vulkan objects.
      */
+    static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&,
+                                             sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&);
 #endif
@@ -77,6 +85,8 @@ public:
      * Ganesh will take its own ref on the objects which will be released when the GrDirectContext
      * is destroyed.
      */
+    static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&,
+                                            sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&);
     /**
@@ -96,16 +106,19 @@ public:
      * Makes a GrDirectContext which uses Direct3D as the backend. The Direct3D context
      * must be kept alive until the returned GrDirectContext is first destroyed or abandoned.
      */
+    static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&,
+                                               sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&);
 #endif
 
 #ifdef SK_DAWN
-    static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&,
-                                           const GrContextOptions&);
+    static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&, sk_sp<GrContextThreadSafeProxy>);
+    static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeDawn(const wgpu::Device&);
 #endif
 
+    static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*, sk_sp<GrContextThreadSafeProxy>);
     static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*);
 
@@ -816,6 +829,7 @@ public:
 
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
+    GrDirectContext(sk_sp<GrContextThreadSafeProxy>);
 
     bool init() override;
 
@@ -866,5 +880,35 @@ private:
     using INHERITED = GrRecordingContext;
 };
 
+class SK_API GrUtilityContext : public GrContext_Base {
+public:
+    // Each backend derives its own version of this class. It is basically a stripped down
+    // GrGpu that can only compile/build pipelines.
+    class Compilenator : public SkRefCnt {
+    public:
+        virtual bool compile(const GrProgramDesc&, const GrProgramInfo&) = 0;
+    };
+
+    // Note: although the UtilityContext can query the abandonment status it does not get to
+    // abandon the context family - only the DirectContext has that power.
+    bool abandoned() const;
+
+    using GrContext_Base::defaultBackendFormat;
+
+    using GrContext_Base::compressedBackendFormat;
+
+    bool compile(const GrProgramDesc&, const GrProgramInfo&);
+
+protected:
+    friend class GrDirectContext; // for ctor
+
+    GrUtilityContext(sk_sp<Compilenator>, sk_sp<GrContextThreadSafeProxy>);
+
+private:
+    sk_sp<Compilenator>    fCompilenator;
+    sk_sp<GrDirectContext> fDirectContext; // TODO: a temporary hack
+
+    using INHERITED = GrContext_Base;
+};
 
 #endif

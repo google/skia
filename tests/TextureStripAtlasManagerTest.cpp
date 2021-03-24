@@ -49,7 +49,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest, reporte
 
 // The table color filter uses the texture strip atlas. Make sure abandoning the context works.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_128.png");
 
@@ -63,10 +63,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest, repo
     p.setColorFilter(SkTableColorFilter::Make(identity));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info));
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->drawImage(std::move(img), 0, 0, SkSamplingOptions(), &p);
 
-    context->abandonContext();
+    dContext->abandonContext();
 }

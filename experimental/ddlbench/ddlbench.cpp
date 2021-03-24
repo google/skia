@@ -53,10 +53,14 @@ static void exitf(const char* format, ...) {
 struct ThreadInfo {
     ThreadInfo() = default;
 
-    ThreadInfo(const SkString& name, GrDirectContext* directContext, TestContext* testContext)
+    ThreadInfo(const SkString& name,
+               GrDirectContext* directContext,
+               GrUtilityContext* utilityContext,
+               TestContext* testContext)
             : fName(name)
-            , fDirectContext(directContext)
-            , fTestContext(testContext) {
+            , fDirectContext1(directContext)
+            , fUtilityContext1(utilityContext)
+            , fTestContext1(testContext) {
     }
 
     double elapsedWorkSeconds() const {
@@ -77,9 +81,11 @@ struct ThreadInfo {
 
     SkString                fName;
 
-    // These two can be null on recording/utility threads
-    GrDirectContext*        fDirectContext = nullptr;
-    TestContext*            fTestContext = nullptr;
+    // These three can all be null on recording/utility threads. Note that only one of
+    // fDirectContext and fUtilityContext should ever be set at one time.
+    GrDirectContext*        fDirectContext1 = nullptr;
+    GrUtilityContext*       fUtilityContext1 = nullptr;
+    TestContext*            fTestContext1 = nullptr;
 
     int                     fWorkUnit = 0;
     duration                fWorkElapsed {0};
@@ -126,8 +132,8 @@ static void set_thread_local_info(ThreadInfo* threadInfo) {
 #endif
 
 static void set_up_context_on_thread(ThreadInfo* threadInfo) {
-    if (threadInfo->fDirectContext) {
-        threadInfo->fTestContext->makeCurrent();
+    if (threadInfo->fTestContext1) {
+        threadInfo->fTestContext1->makeCurrent();
     }
 
     threadInfo->fThreadStart = hires_clock::now();
@@ -252,7 +258,7 @@ static bool create_contexts(GrContextFactory* factory,
         exitf("Could not create primary direct context.");
     }
 
-    *gpuThread = { SkString("g0"), mainInfo.directContext(), mainInfo.testContext() };
+    *gpuThread = { SkString("g0"), mainInfo.directContext(), nullptr, mainInfo.testContext() };
 
     bool allSucceeded = true, allFailed = true;
     // Create the utility contexts in a share group with the primary one. This is allowed to fail
@@ -262,7 +268,7 @@ static bool create_contexts(GrContextFactory* factory,
 
         ContextInfo tmp = factory->getSharedContextInfo(mainInfo.directContext(), i);
 
-        utilityThreads[i] = { name, tmp.directContext(), tmp.testContext() };
+        utilityThreads[i] = { name, nullptr, tmp.utilityContext(), tmp.testContext() };
         allSucceeded &= SkToBool(tmp.directContext());
         allFailed &= !tmp.directContext();
     }
@@ -369,28 +375,28 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    mainContext->fTestContext->makeCurrent();
+    mainContext->fTestContext1->makeCurrent();
 
-    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADTypes(*mainContext->fDirectContext);
+    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADTypes(*mainContext->fDirectContext1);
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADTypes);
 
     sk_sp<SkPicture> skp = create_shared_skp(FLAGS_src[0],
-                                             mainContext->fDirectContext,
+                                             mainContext->fDirectContext1,
                                              &promiseImageHelper);
 
     int width = std::min(SkScalarCeilToInt(skp->cullRect().width()), 2048);
     int height = std::min(SkScalarCeilToInt(skp->cullRect().height()), 2048);
 
-    check_params(mainContext->fDirectContext, width, height, ct, at, FLAGS_numSamples);
+    check_params(mainContext->fDirectContext1, width, height, ct, at, FLAGS_numSamples);
 
-    promiseImageHelper.createCallbackContexts(mainContext->fDirectContext);
+    promiseImageHelper.createCallbackContexts(mainContext->fDirectContext1);
 
     // TODO: do this later on a utility thread!
-    promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext);
+    promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext1);
 
     SkImageInfo info = SkImageInfo::Make(width, height, ct, at, nullptr);
 
-    sk_sp<SkSurface> dstSurface = SkSurface::MakeRenderTarget(mainContext->fDirectContext,
+    sk_sp<SkSurface> dstSurface = SkSurface::MakeRenderTarget(mainContext->fDirectContext1,
                                                               SkBudgeted::kNo, info,
                                                               FLAGS_numSamples, nullptr);
     if (!dstSurface) {
@@ -407,7 +413,7 @@ int main(int argc, char** argv) {
         mainContext->fWorkElapsed = mainContext->fThreadStop - mainContext->fThreadStart;
         mainContext->fWorkUnit++;
     } else {
-        mainContext->fTestContext->makeNotCurrent();
+        mainContext->fTestContext1->makeNotCurrent();
 
         GrTaskGroup gpuTaskGroup(SkSpan<ThreadInfo>(mainContext.get(), 1));
         GrTaskGroup recordingTaskGroup(SkSpan<ThreadInfo>(utilityContexts.get(),
@@ -416,32 +422,41 @@ int main(int argc, char** argv) {
         for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
             recordingTaskGroup.add([] {
                                        ThreadInfo* threadLocal = get_thread_local_info();
-                                       printf("%s: dContext %p\n", threadLocal->fName.c_str(),
-                                                                   threadLocal->fDirectContext);
+                                       printf("%s: dContext %p uContext %p\n",
+                                                                   threadLocal->fName.c_str(),
+                                                                   threadLocal->fDirectContext1,
+                                                                   threadLocal->fUtilityContext1);
+
+//                                       SkDeferredDisplayList ddl;
+
+                                       threadLocal->fUtilityContext1;
+
                                        std::this_thread::sleep_for(std::chrono::seconds(1));
                                    });
         }
 
         gpuTaskGroup.add([] {
                              ThreadInfo* threadLocal = get_thread_local_info();
-                             printf("%s: dContext %p\n", threadLocal->fName.c_str(),
-                                                         threadLocal->fDirectContext);
+                             printf("%s: dContext %p uContext %p\n",
+                                                         threadLocal->fName.c_str(),
+                                                         threadLocal->fDirectContext1,
+                                                         threadLocal->fUtilityContext1);
                          });
 
         gpuTaskGroup.add([] {
                              ThreadInfo* threadLocal = get_thread_local_info();
-                             threadLocal->fTestContext->makeNotCurrent();
+                             threadLocal->fTestContext1->makeNotCurrent();
                          });
 
         recordingTaskGroup.wait();
         gpuTaskGroup.wait();
 
-        mainContext->fTestContext->makeCurrent();
+        mainContext->fTestContext1->makeCurrent();
     }
 
     maybe_save_file(dstSurface.get());
 
-    promiseImageHelper.deleteAllFromGPU(nullptr, mainContext->fDirectContext);
+    promiseImageHelper.deleteAllFromGPU(nullptr, mainContext->fDirectContext1);
 
     // Dump out the timing stats
     mainContext->dump();

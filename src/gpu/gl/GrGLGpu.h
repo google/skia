@@ -29,10 +29,11 @@ class GrGLBuffer;
 class GrGLOpsRenderPass;
 class GrPipeline;
 class GrSwizzle;
+struct GrGLPrecompiledProgram;
 
 class GrGLGpu final : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrDirectContext*);
+    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, GrDirectContext*);
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;
@@ -355,8 +356,9 @@ private:
         ProgramCache(int runtimeProgramCacheSize);
         ~ProgramCache() override;
 
-        void abandon();
-        void reset();
+        void abandon() SK_EXCLUDES(fMutex);
+        void reset() SK_EXCLUDES(fMutex);
+
         sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
                                                GrRenderTarget*,
                                                const GrProgramInfo&);
@@ -368,6 +370,13 @@ private:
 
     private:
         struct Entry;
+
+        bool entryExists(const GrProgramDesc&) SK_EXCLUDES(fMutex);
+        sk_sp<GrGLProgram> find(const GrProgramDesc&) SK_EXCLUDES(fMutex);
+        sk_sp<GrGLProgram> add(const GrProgramDesc&, sk_sp<GrGLProgram>) SK_EXCLUDES(fMutex);
+        void add(const GrProgramDesc&,
+                 const GrGLPrecompiledProgram& precompiledProgram) SK_EXCLUDES(fMutex);
+        sk_sp<GrGLProgram> update(const GrProgramDesc&, sk_sp<GrGLProgram>) SK_EXCLUDES(fMutex);
 
         sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
                                                GrRenderTarget*,
@@ -381,7 +390,9 @@ private:
             }
         };
 
-        SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
+        mutable SkMutex fMutex; // protects 'fMap'
+
+        SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap1;
     };
 
     void flushPatchVertexCount(uint8_t count);

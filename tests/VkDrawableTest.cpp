@@ -222,7 +222,7 @@ private:
 
 void draw_drawable_test(skiatest::Reporter* reporter,
                         GrDirectContext* dContext,
-                        GrDirectContext* childDContext) {
+                        GrUtilityContext* childUtilityContext) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
@@ -232,7 +232,8 @@ void draw_drawable_test(skiatest::Reporter* reporter,
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);
 
-    sk_sp<TestDrawable> drawable(new TestDrawable(gpu->vkInterface(), childDContext, DEV_W, DEV_H));
+#if 0
+    sk_sp<TestDrawable> drawable(new TestDrawable(gpu->vkInterface(), childUtilityContext, DEV_W, DEV_H));
     canvas->drawDrawable(drawable.get());
 
     SkPaint paint;
@@ -267,6 +268,7 @@ void draw_drawable_test(skiatest::Reporter* reporter,
             }
         }
     }
+#endif
 }
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo) {
@@ -287,11 +289,11 @@ DEF_GPUTEST(VkDrawableImportTest, reporter, options) {
         if (ctxInfo.directContext()) {
             sk_gpu_test::ContextInfo child =
                     factory.getSharedContextInfo(ctxInfo.directContext(), 0);
-            if (!child.directContext()) {
+            if (!child.utilityContext()) {
                 continue;
             }
 
-            draw_drawable_test(reporter, ctxInfo.directContext(), child.directContext());
+            draw_drawable_test(reporter, ctxInfo.directContext(), child.utilityContext());
         }
     }
 }

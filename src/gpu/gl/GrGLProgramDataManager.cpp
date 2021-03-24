@@ -14,8 +14,9 @@
          SkASSERT((COUNT) <= (UNI).fArrayCount || \
                   (1 == (COUNT) && GrShaderVar::kNonArray == (UNI).fArrayCount))
 
-GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, const UniformInfoArray& uniforms)
-        : fGpu(gpu) {
+GrGLProgramDataManager::GrGLProgramDataManager(/*GrGLGpu* gpu,*/ const UniformInfoArray& uniforms)
+//        : fGpu(gpu)
+{
     fUniforms.push_back_n(uniforms.count());
     int i = 0;
     for (const GLUniformInfo& builderUniform : uniforms.items()) {
@@ -30,13 +31,14 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, const UniformInfoAr
     }
 }
 
-void GrGLProgramDataManager::setSamplerUniforms(const UniformInfoArray& samplers,
+void GrGLProgramDataManager::setSamplerUniforms(const GrGLInterface *glInterface,
+                                                const UniformInfoArray& samplers,
                                                 int startUnit) const {
     int i = 0;
     for (const GLUniformInfo& sampler : samplers.items()) {
         SkASSERT(sampler.fVisibility);
         if (kUnusedUniform != sampler.fLocation) {
-            GR_GL_CALL(fGpu->glInterface(), Uniform1i(sampler.fLocation, i + startUnit));
+            GR_GL_CALL(glInterface, Uniform1i(sampler.fLocation, i + startUnit));
         }
         ++i;
     }
@@ -47,7 +49,7 @@ void GrGLProgramDataManager::set1i(UniformHandle u, int32_t i) const {
     SkASSERT(uni.fType == kInt_GrSLType || uni.fType == kShort_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform1i(uni.fLocation, i));
+        GR_GL_CALL(fInterface, Uniform1i(uni.fLocation, i));
     }
 }
 
@@ -59,7 +61,7 @@ void GrGLProgramDataManager::set1iv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform1iv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform1iv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -68,7 +70,7 @@ void GrGLProgramDataManager::set1f(UniformHandle u, float v0) const {
     SkASSERT(uni.fType == kFloat_GrSLType || uni.fType == kHalf_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform1f(uni.fLocation, v0));
+        GR_GL_CALL(fInterface, Uniform1f(uni.fLocation, v0));
     }
 }
 
@@ -84,7 +86,7 @@ void GrGLProgramDataManager::set1fv(UniformHandle u,
     // arrays in VS and FS driver bug workaround, this can be enabled.
     // this->printUni(uni);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform1fv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform1fv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -93,7 +95,7 @@ void GrGLProgramDataManager::set2i(UniformHandle u, int32_t i0, int32_t i1) cons
     SkASSERT(uni.fType == kInt2_GrSLType || uni.fType == kShort2_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform2i(uni.fLocation, i0, i1));
+        GR_GL_CALL(fInterface, Uniform2i(uni.fLocation, i0, i1));
     }
 }
 
@@ -105,7 +107,7 @@ void GrGLProgramDataManager::set2iv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform2iv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform2iv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -114,7 +116,7 @@ void GrGLProgramDataManager::set2f(UniformHandle u, float v0, float v1) const {
     SkASSERT(uni.fType == kFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform2f(uni.fLocation, v0, v1));
+        GR_GL_CALL(fInterface, Uniform2f(uni.fLocation, v0, v1));
     }
 }
 
@@ -126,7 +128,7 @@ void GrGLProgramDataManager::set2fv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform2fv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform2fv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -135,7 +137,7 @@ void GrGLProgramDataManager::set3i(UniformHandle u, int32_t i0, int32_t i1, int3
     SkASSERT(uni.fType == kInt3_GrSLType || uni.fType == kShort3_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform3i(uni.fLocation, i0, i1, i2));
+        GR_GL_CALL(fInterface, Uniform3i(uni.fLocation, i0, i1, i2));
     }
 }
 
@@ -147,7 +149,7 @@ void GrGLProgramDataManager::set3iv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform3iv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform3iv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -156,7 +158,7 @@ void GrGLProgramDataManager::set3f(UniformHandle u, float v0, float v1, float v2
     SkASSERT(uni.fType == kFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform3f(uni.fLocation, v0, v1, v2));
+        GR_GL_CALL(fInterface, Uniform3f(uni.fLocation, v0, v1, v2));
     }
 }
 
@@ -168,7 +170,7 @@ void GrGLProgramDataManager::set3fv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform3fv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform3fv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -181,7 +183,7 @@ void GrGLProgramDataManager::set4i(UniformHandle u,
     SkASSERT(uni.fType == kInt4_GrSLType || uni.fType == kShort4_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform4i(uni.fLocation, i0, i1, i2, i3));
+        GR_GL_CALL(fInterface, Uniform4i(uni.fLocation, i0, i1, i2, i3));
     }
 }
 
@@ -193,7 +195,7 @@ void GrGLProgramDataManager::set4iv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform4iv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform4iv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -206,7 +208,7 @@ void GrGLProgramDataManager::set4f(UniformHandle u,
     SkASSERT(uni.fType == kFloat4_GrSLType || uni.fType == kHalf4_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform4f(uni.fLocation, v0, v1, v2, v3));
+        GR_GL_CALL(fInterface, Uniform4f(uni.fLocation, v0, v1, v2, v3));
     }
 }
 
@@ -218,7 +220,7 @@ void GrGLProgramDataManager::set4fv(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        GR_GL_CALL(fGpu->glInterface(), Uniform4fv(uni.fLocation, arrayCount, v));
+        GR_GL_CALL(fInterface, Uniform4fv(uni.fLocation, arrayCount, v));
     }
 }
 
@@ -257,7 +259,7 @@ template<int N> inline void GrGLProgramDataManager::setMatrices(UniformHandle u,
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
     if (kUnusedUniform != uni.fLocation) {
-        set_uniform_matrix<N>::set(fGpu->glInterface(), uni.fLocation, arrayCount, matrices);
+        set_uniform_matrix<N>::set(fInterface, uni.fLocation, arrayCount, matrices);
     }
 }
 
