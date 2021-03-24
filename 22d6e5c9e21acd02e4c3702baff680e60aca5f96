@@ -87,6 +87,30 @@
       },
       "revId": "22d6e5c9e21acd02e4c3702baff680e60aca5f96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc52e920_04b403ae",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1167,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-24T15:01:45Z",
+      "side": 1,
+      "message": "So the data is passed to CanvasKit.FontMgr.FromData in font.js which converts the data to a \u0027new Uint8Array\u0027 and then that is copied into memory allocated with CanvasKit._malloc. The pointers from CanvasKit._malloc are the pointers passed to _fromData. This CanvasKit._malloc is just another name for the malloc provided by emmc, so it seems that just calling \u0027free\u0027 is the right thing to do.\n\nIf for any reason this isn\u0027t the case both this bit and the _makeTypefaceFromData bit below will need to be updated (and probably a bunch of other code as well).",
+      "parentUuid": "c3f7b7e6_21b8fb6c",
+      "range": {
+        "startLine": 1167,
+        "startChar": 29,
+        "endLine": 1167,
+        "endChar": 71
+      },
+      "revId": "22d6e5c9e21acd02e4c3702baff680e60aca5f96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
