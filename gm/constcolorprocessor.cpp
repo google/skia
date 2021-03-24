@@ -34,7 +34,6 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
@@ -44,7 +43,7 @@
 
 namespace skiagm {
 /**
- * This GM directly exercises GrConstColorProcessor, ModulateRGBA and ModulateAlpha.
+ * This GM directly exercises Color, ModulateRGBA and ModulateAlpha.
  */
 class ColorProcessor : public GpuGM {
 public:
@@ -114,26 +113,30 @@ protected:
                     GrFPArgs args(context, SkSimpleMatrixProvider(SkMatrix::I()), &colorInfo);
                     baseFP = as_SB(fShader)->asFragmentProcessor(args);
                 } else {
-                    baseFP = GrConstColorProcessor::Make(
-                            SkPMColor4f::FromBytes_RGBA(kPaintColors[paintType]));
+                    baseFP = GrFragmentProcessor::MakeColor(
+                            context, SkPMColor4f::FromBytes_RGBA(kPaintColors[paintType]));
                 }
 
                 // Layer a color/modulation FP on top of the base layer, using various colors.
                 std::unique_ptr<GrFragmentProcessor> colorFP;
                 switch (fMode) {
                     case TestMode::kConstColor:
-                        colorFP = GrConstColorProcessor::Make(
-                                SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                        colorFP = GrFragmentProcessor::MakeColor(
+                                context, SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
                         break;
 
                     case TestMode::kModulateRGBA:
                         colorFP = GrFragmentProcessor::ModulateRGBA(
-                                std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                                context,
+                                std::move(baseFP),
+                                SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
                         break;
 
                     case TestMode::kModulateAlpha:
                         colorFP = GrFragmentProcessor::ModulateAlpha(
-                                std::move(baseFP), SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
+                                context,
+                                std::move(baseFP),
+                                SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
                         break;
                 }
 

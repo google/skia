@@ -121,12 +121,14 @@ public:
     const GrAppliedHardClip& hardClip() const { return fHardClip; }
     GrAppliedHardClip& hardClip() { return fHardClip; }
 
-    void addCoverageFP(std::unique_ptr<GrFragmentProcessor> fp) {
+    void addCoverageFP(GrRecordingContext* rContext, std::unique_ptr<GrFragmentProcessor> fp) {
         if (fCoverageFP == nullptr) {
             fCoverageFP = std::move(fp);
         } else {
             // Compose this coverage FP with the previously-added coverage.
-            fCoverageFP = GrFragmentProcessor::Compose(std::move(fp), std::move(fCoverageFP));
+            fCoverageFP = GrFragmentProcessor::Compose(rContext,
+                                                       std::move(fp),
+                                                       std::move(fCoverageFP));
         }
     }
 

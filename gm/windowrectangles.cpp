@@ -179,7 +179,7 @@ private:
         auto fp = GrTextureEffect::MakeSubset(fMask, kPremul_SkAlphaType, m, samplerState, subset,
                                               domain, *ctx->priv().caps());
         fp = GrDeviceSpaceEffect::Make(std::move(fp));
-        out->addCoverageFP(std::move(fp));
+        out->addCoverageFP(ctx, std::move(fp));
         return Effect::kClipped;
     }
     GrSurfaceProxyView fMask;
@@ -209,7 +209,7 @@ DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, Sk
         return DrawResult::kSkip;
     }
 
-    const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), sdc->caps(), kNumWindows);
+    const GrReducedClip reducedClip(ctx, stack, SkRect::Make(kCoverRect), kNumWindows);
 
     GrPaint paint;
     if (sdc->numSamples() <= 1) {
@@ -268,7 +268,7 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrRecordingContext* ctx,
     // Draw a checker pattern into the stencil buffer so we can visualize the regions left untouched
     // by the clip mask generation.
     this->stencilCheckerboard(rtc, false);
-    reducedClip.drawStencilClipMask(ctx, rtc);
+    reducedClip.drawStencilClipMask(rtc);
 
     // Now visualize the stencil mask by covering the entire render target. The regions inside
     // window rectangles or outside the scissor should still have the initial checkerboard intact.

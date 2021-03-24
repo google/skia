@@ -84,12 +84,12 @@ skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrBlend.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                  GrRecordingContext*,
+                                                  GrRecordingContext* context,
                                                   const GrColorInfo& dstColorInfo) const {
     if (fMode == SkBlendMode::kDst) {
         // If the blend mode is "dest," the blend color won't factor into it at all.
@@ -99,9 +99,13 @@ GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProc
 
     SkDEBUGCODE(const bool fpHasConstIO = !inputFP || inputFP->hasConstantOutputForConstantInput();)
 
-    auto colorFP = GrConstColorProcessor::Make(SkColorToPMColor4f(fColor, dstColorInfo));
+    auto colorFP = GrFragmentProcessor::MakeColor(context,
+                                                  SkColorToPMColor4f(fColor, dstColorInfo));
     auto xferFP = GrBlendFragmentProcessor::Make(
-            std::move(colorFP), std::move(inputFP), fMode,
+            context,
+            std::move(colorFP),
+            std::move(inputFP),
+            fMode,
             GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
 
     if (xferFP == nullptr) {

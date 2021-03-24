@@ -207,7 +207,8 @@ static uint32_t next_gen_id() {
 //    in parallel.
 static constexpr GrSurfaceOrigin kMaskOrigin = kTopLeft_GrSurfaceOrigin;
 
-static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
+static GrFPResult analytic_clip_fp(GrRecordingContext* rContext,
+                                   const GrClipStack::Element& e,
                                    const GrShaderCaps& caps,
                                    std::unique_ptr<GrFragmentProcessor> fp) {
     // All analytic clip shape FPs need to be in device space
@@ -226,7 +227,7 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
         SkPath devicePath;
         e.fShape.asPath(&devicePath);
         devicePath.transform(e.fLocalToDevice);
-        return GrConvexPolyEffect::Make(std::move(fp), edgeType, devicePath);
+        return GrConvexPolyEffect::Make(rContext, std::move(fp), edgeType, devicePath);
     }
 
     return GrFPFailure(std::move(fp));
@@ -234,7 +235,8 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
 
 // TODO: Currently this only works with CCPR because CCPR owns and manages the clip atlas. The
 // high-level concept should be generalized to support any path renderer going into a shared atlas.
-static GrFPResult clip_atlas_fp(GrCoverageCountingPathRenderer* ccpr,
+static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
+                                GrCoverageCountingPathRenderer* ccpr,
                                 uint32_t opsTaskID,
                                 const SkIRect& bounds,
                                 const GrClipStack::Element& e,
@@ -267,7 +269,8 @@ static GrFPResult clip_atlas_fp(GrCoverageCountingPathRenderer* ccpr,
             // "Difference" draws that don't intersect the clip need to be drawn "wide open".
             return GrFPSuccess(nullptr);
         }
-        return GrFPSuccess(GrBlendFragmentProcessor::Make(std::move(atlasFP),  // src
+        return GrFPSuccess(GrBlendFragmentProcessor::Make(rContext,
+                                                          std::move(atlasFP),  // src
                                                           std::move(fp),       // dst
                                                           SkBlendMode::kDstOut));
     }
@@ -1298,7 +1301,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
         if (clipFP) {
             // The initial input is the coverage from the geometry processor, so this ensures it
             // is multiplied properly with the alpha of the clip shader.
-            clipFP = GrFragmentProcessor::MulInputByChildAlpha(std::move(clipFP));
+            clipFP = GrFragmentProcessor::MulInputByChildAlpha(context, std::move(clipFP));
         }
     }
 
@@ -1310,7 +1313,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
         case ClipGeometry::kBOnly:
             // Geometrically unclipped, but may need to add the shader as a coverage FP
             if (clipFP) {
-                out->addCoverageFP(std::move(clipFP));
+                out->addCoverageFP(context, std::move(clipFP));
                 return Effect::kClipped;
             } else {
                 return Effect::kUnclipped;
@@ -1415,7 +1418,8 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                 }
 
                 if (!fullyApplied && remainingAnalyticFPs > 0) {
-                    std::tie(fullyApplied, clipFP) = analytic_clip_fp(e.asElement(),
+                    std::tie(fullyApplied, clipFP) = analytic_clip_fp(context,
+                                                                      e.asElement(),
                                                                       *caps->shaderCaps(),
                                                                       std::move(clipFP));
                     if (fullyApplied) {
@@ -1500,9 +1504,13 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
         for (int i = 0; i < elementsForAtlas.count(); ++i) {
             SkASSERT(elementsForAtlas[i]->aa() == GrAA::kYes);
             bool success;
-            std::tie(success, clipFP) = clip_atlas_fp(ccpr, opsTaskID, scissorBounds,
+            std::tie(success, clipFP) = clip_atlas_fp(context,
+                                                      ccpr,
+                                                      opsTaskID,
+                                                      scissorBounds,
                                                       elementsForAtlas[i]->asElement(),
-                                                      elementsForAtlas[i]->devicePath(), *caps,
+                                                      elementsForAtlas[i]->devicePath(),
+                                                      *caps,
                                                       std::move(clipFP));
             if (!success) {
                 return Effect::kClippedOut;
@@ -1512,7 +1520,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
 
     if (clipFP) {
         // This will include all analytic FPs, all CCPR atlas FPs, and a SW mask FP.
-        out->addCoverageFP(std::move(clipFP));
+        out->addCoverageFP(context, std::move(clipFP));
     }
 
     SkASSERT(out->doesClip());
@@ -1662,6 +1670,9 @@ GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* ma
     fp = GrDeviceSpaceEffect::Make(std::move(fp));
 
     // Must combine the coverage sampled from the texture effect with the previous coverage
-    fp = GrBlendFragmentProcessor::Make(std::move(fp), std::move(clipFP), SkBlendMode::kDstIn);
+    fp = GrBlendFragmentProcessor::Make(context,
+                                        std::move(fp),
+                                        std::move(clipFP),
+                                        SkBlendMode::kDstIn);
     return GrFPSuccess(std::move(fp));
 }
