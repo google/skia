@@ -502,9 +502,8 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
     drawMatrix.preTranslate(x, y);
     auto drawOrigin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
-    builder.drawTextUTF8(font, text, textLen, drawOrigin);
-
-    auto glyphRunList = builder.useGlyphRunList();
+    auto glyphRunList = builder.drawText(drawOrigin, font, text, textLen,
+                                         SkTextEncoding::kUTF8);
     if (glyphRunList.empty()) {
         return nullptr;
     }

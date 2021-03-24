@@ -2288,13 +2288,20 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     fScratchGlyphRunBuilder->drawTextBlob(layer.paint(), *blob, {x, y}, this->topDevice());
 }
 
+void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    AutoLayerForImageFilter layer(this, paint, nullptr);
+    this->topDevice()->drawGlyphRunList(glyphRunList, layer.paint());
+}
+
 // These call the (virtual) onDraw... method
 void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                               SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
+        const SkGlyphRunList& glyphRunList =
+                fScratchGlyphRunBuilder->drawText({x, y}, font, text, byteLength, encoding);
+        this->onDrawGlyphRunList(glyphRunList, paint);
     }
 }
 
