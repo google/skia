@@ -81,7 +81,8 @@ class TextWrapper {
             fEnd = ClusterPos(cluster, cluster->endPos());
             // TODO: Make sure all the checks are correct and there are no unnecessary checks
             auto& r = cluster->run();
-            if (!r.isPlaceholder()) {
+            if (!cluster->isHardBreak() && !r.isPlaceholder()) {
+                // We ignore metrics for \n as the Flutter does
                 fMetrics.add(&r);
             }
             fWidth += cluster->width();

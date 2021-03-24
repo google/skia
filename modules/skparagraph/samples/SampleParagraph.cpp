@@ -3463,23 +3463,19 @@ protected:
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         text_style.setFontSize(14);
         builder.pushStyle(text_style);
-        //builder.addText( u"\u118ff\u1f1a9\u103a");
-        builder.addText("\U000118ff\U0001f1a9\u103A");
+        builder.addText("Hello");
+        builder.pop();
+        text_style.setFontSize(50);
+        builder.pushStyle(text_style);
+        builder.addText("\n");
         auto paragraph = builder.Build();
-        paragraph->layout(500);
+        paragraph->layout(320);
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     using INHERITED = Sample;
 };
-
-/*
- *             WidgetSpan(child: Container(width: 300.0, height: 20.0, color: Colors.red)),
-            WidgetSpan(child: Container(width: 300.0, height: 8.0, color: Colors.green)),
-            TextSpan(text: 'Text', style: TextStyle(fontSize: 36.0)),
- */
-
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
