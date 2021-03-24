@@ -40,7 +40,7 @@ private:
     GrMtlAttachment(GrMtlGpu* gpu,
                     SkISize dimensions,
                     UsageFlags supportedUsages,
-                    id<MTLTexture> view);
+                    const id<MTLTexture> View);
 
     GrMtlGpu* getMtlGpu() const;
 

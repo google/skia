@@ -14,12 +14,10 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GR_EXTERNALLY_RETAINED_BEGIN
-
 GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  SkISize dimensions,
                                  UsageFlags supportedUsages,
-                                 id<MTLTexture> view)
+                                 const id<MTLTexture> view)
         : GrAttachment(gpu, dimensions, supportedUsages, view.sampleCount, GrMipmapped::kNo,
                        GrProtected::kNo)
         , fView(view) {
@@ -66,5 +64,3 @@ GrMtlGpu* GrMtlAttachment::getMtlGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrMtlGpu*>(this->getGpu());
 }
-
-GR_EXTERNALLY_RETAINED_END

@@ -21,8 +21,6 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GR_EXTERNALLY_RETAINED_BEGIN
-
 GrMtlPipelineState::SamplerBindings::SamplerBindings(GrSamplerState state,
                                                      GrTexture* texture,
                                                      GrMtlGpu* gpu)
@@ -229,5 +227,3 @@ bool GrMtlPipelineState::doesntSampleAttachment(
     }
     return true;
 }
-
-GR_EXTERNALLY_RETAINED_END

@@ -20,8 +20,6 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GR_EXTERNALLY_RETAINED_BEGIN
-
 GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
                                        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
@@ -448,5 +446,3 @@ void GrMtlOpsRenderPass::resetBufferBindings() {
         fBufferBindings[i].fBuffer = nil;
     }
 }
-
-GR_EXTERNALLY_RETAINED_END

@@ -13,8 +13,6 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GR_EXTERNALLY_RETAINED_BEGIN
-
 std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];
@@ -51,5 +49,3 @@ GrBackendSemaphore GrMtlSemaphore::backendSemaphore() const {
     }
     return backendSemaphore;
 }
-
-GR_EXTERNALLY_RETAINED_END
