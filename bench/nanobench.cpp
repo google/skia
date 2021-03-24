@@ -81,6 +81,10 @@ extern bool gSkVMJITViaDylib;
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/GrContextFactory.h"
 
+namespace SkSL {
+extern bool gSkSLInliner;
+}
+
 using sk_gpu_test::ContextInfo;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
@@ -1256,6 +1260,7 @@ int main(int argc, char** argv) {
     gUseSkVMBlitter = FLAGS_skvm;
     gSkVMAllowJIT = FLAGS_jit;
     gSkVMJITViaDylib = FLAGS_dylib;
+    SkSL::gSkSLInliner = false;  // Temporary experiment
 
     int runs = 0;
     BenchmarkStream benchStream;
