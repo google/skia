@@ -34,6 +34,24 @@
       "parentUuid": "53b0eba4_41ef90f4",
       "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5919d1e4_c6234de3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-24T18:34:33Z",
+      "side": 1,
+      "message": "I\u0027d nominate going for cubic if all 4 params are specified, as that\u0027s the \"higher quality\" one, right?\n\nRegarding \u0027b\u0027 being \"null\", I would treat that as \"garbage in, garbage out\" - our API (the Typescript types) specifies what is allowed and deviating can cause crashing that we would not want to handle.",
+      "parentUuid": "6663efb2_ceb9fbb8",
+      "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
