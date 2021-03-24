@@ -515,7 +515,7 @@ static const char* glsltype_string(const Context& context, const Type& type) {
 }
 
 void CPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl) {
-    if (decl.isBuiltin() || decl.name() == "main") {
+    if (decl.isBuiltin() || decl.isMain()) {
         return;
     }
 
@@ -557,7 +557,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
-    if (decl.name() == "main") {
+    if (decl.isMain()) {
         fInMain = true;
         for (const std::unique_ptr<Statement>& s : f.body()->as<Block>().children()) {
             this->writeStatement(*s);

@@ -2713,7 +2713,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
     StringStream bodyBuffer;
     this->writeBlock(f.body()->as<Block>(), bodyBuffer);
     write_stringstream(fVariableBuffer, out);
-    if (f.declaration().name() == "main") {
+    if (f.declaration().isMain()) {
         write_stringstream(fGlobalInitializersBuffer, out);
     }
     write_stringstream(bodyBuffer, out);
@@ -3314,7 +3314,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             const FunctionDefinition& funcDef = e->as<FunctionDefinition>();
             const FunctionDeclaration& funcDecl = funcDef.declaration();
             fFunctionMap[&funcDecl] = this->nextId(nullptr);
-            if (funcDecl.name() == "main") {
+            if (funcDecl.isMain()) {
                 main = &funcDecl;
             }
         }

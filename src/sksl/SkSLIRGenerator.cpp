@@ -907,7 +907,7 @@ void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statemen
                     // will probably never actually be necessary.
                     SkASSERT(fIRGenerator->programKind() != ProgramKind::kVertex ||
                              !fIRGenerator->fRTAdjust ||
-                             fFunction->name() != "main");
+                             !fFunction->isMain());
 
                     // Verify that the return statement matches the function's return type.
                     ReturnStatement& returnStmt = stmt.as<ReturnStatement>();
@@ -1010,6 +1010,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         return;
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
+    bool isMain = (funcData.fName == "main");
 
     // Check function modifiers.
     this->checkModifiers(
@@ -1053,8 +1054,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         Modifiers m = pd.fModifiers;
-        if (funcData.fName == "main" && (this->programKind() == ProgramKind::kRuntimeEffect ||
-                                         this->programKind() == ProgramKind::kFragmentProcessor)) {
+        if (isMain && (this->programKind() == ProgramKind::kRuntimeEffect ||
+                       this->programKind() == ProgramKind::kFragmentProcessor)) {
             if (i == 0) {
                 // We verify that the type is correct later, for now, if there is a parameter to
                 // a .fp or runtime-effect main(), it's supposed to be the coords:
@@ -1075,7 +1076,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     };
 
     // Check the function signature of `main`.
-    if (funcData.fName == "main") {
+    if (isMain) {
         switch (this->programKind()) {
             case ProgramKind::kRuntimeEffect: {
                 // (half4|float4) main()  -or-  (half4|float4) main(float2)
@@ -1212,7 +1213,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         for (const Variable* param : decl->parameters()) {
             fSymbolTable->addWithoutOwnership(param);
         }
-        bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
+        bool needInvocationIDWorkaround = fInvocations != -1 && isMain &&
                                           !this->caps().gsInvocationsSupport();
         std::unique_ptr<Block> body = this->convertBlock(*iter);
         if (!body) {
@@ -1221,7 +1222,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (needInvocationIDWorkaround) {
             body = this->applyInvocationIDWorkaround(std::move(body));
         }
-        if (ProgramKind::kVertex == this->programKind() && funcData.fName == "main" && fRTAdjust) {
+        if (ProgramKind::kVertex == this->programKind() && isMain && fRTAdjust) {
             body->children().push_back(this->getNormalizeSkPositionCode());
         }
         this->finalizeFunction(*decl, body.get());
@@ -2023,7 +2024,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
                 const FunctionDefinition& funcDef = pe.as<FunctionDefinition>();
                 // We synthesize writes to sk_FragColor if main() returns a color, even if it's
                 // otherwise unreferenced. Check main's return type to see if it's half4.
-                if (funcDef.declaration().name() == "main" &&
+                if (funcDef.declaration().isMain() &&
                     funcDef.declaration().returnType() == *fGenerator->fContext.fTypes.fHalf4) {
                     fPreserveFragColor = true;
                 }
