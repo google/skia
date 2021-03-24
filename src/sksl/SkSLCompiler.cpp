@@ -541,7 +541,7 @@ bool Compiler::removeDeadFunctions(Program& program, ProgramUsage* usage) {
                 return false;
             }
             const FunctionDefinition& fn = element->as<FunctionDefinition>();
-            if (fn.declaration().name() == "main" || usage->get(fn.declaration()) > 0) {
+            if (fn.declaration().isMain() || usage->get(fn.declaration()) > 0) {
                 return false;
             }
             usage->remove(*element);
