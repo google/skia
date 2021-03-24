@@ -52,6 +52,23 @@
       "parentUuid": "6663efb2_ceb9fbb8",
       "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "557ce4d1_9c80ce2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-24T18:42:19Z",
+      "side": 1,
+      "message": "Oh yea, notice what I left in interface.js\n\nsampling.B, sampling.C, sampling.mipmap \u003c-- all of these trigger \"undefined\"\n\nsampling.filter \u003c-- this one is fine (???)\n\n(hence the [\u0027B\u0027] syntax)\n\nwhat am I doing wrong?",
+      "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
