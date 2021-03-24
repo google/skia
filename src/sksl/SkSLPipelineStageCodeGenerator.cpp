@@ -282,9 +282,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     // if the return type is float4 - injecting it unconditionally reduces the risk of an
     // obscure bug.
     const FunctionDeclaration& decl = f.declaration();
-    bool isMain = decl.name() == "main";
-
-    if (isMain) {
+    if (decl.isMain()) {
         fCastReturnsToHalf = true;
     }
 
@@ -293,11 +291,12 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->writeLine();
     }
 
-    if (isMain) {
+    if (decl.isMain()) {
         fCastReturnsToHalf = false;
     }
 
-    String fnName = isMain ? "main" : fCallbacks->getMangledName(String(decl.name()).c_str());
+    String fnName = decl.isMain() ? decl.name()
+                                  : fCallbacks->getMangledName(String(decl.name()).c_str());
 
     // This is similar to decl.description(), but substitutes a mangled name, and handles modifiers
     // on the function (e.g. `inline`) and its parameters (e.g. `inout`).
@@ -320,7 +319,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     declString.append(")");
 
     fFunctionNames.insert({&decl, std::move(fnName)});
-    fCallbacks->defineFunction(declString.c_str(), body.fBuffer.str().c_str(), isMain);
+    fCallbacks->defineFunction(declString.c_str(), body.fBuffer.str().c_str(), decl.isMain());
 }
 
 void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& g) {

@@ -35,7 +35,8 @@ public:
     , fModifiers(modifiers)
     , fParameters(std::move(parameters))
     , fReturnType(returnType)
-    , fBuiltin(builtin) {}
+    , fBuiltin(builtin)
+    , fIsMain(name == "main") {}
 
     const Modifiers& modifiers() const {
         return *fModifiers;
@@ -61,8 +62,12 @@ public:
         return fBuiltin;
     }
 
+    bool isMain() const {
+        return fIsMain;
+    }
+
     String mangledName() const {
-        if ((this->isBuiltin() && !this->definition()) || this->name() == "main") {
+        if ((this->isBuiltin() && !this->definition()) || this->isMain()) {
             // Builtins without a definition (like `sin` or `sqrt`) must use their real names.
             return this->name();
         }
@@ -175,6 +180,7 @@ private:
     std::vector<const Variable*> fParameters;
     const Type* fReturnType;
     bool fBuiltin;
+    bool fIsMain;
 
     using INHERITED = Symbol;
 };

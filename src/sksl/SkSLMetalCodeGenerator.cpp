@@ -1457,7 +1457,7 @@ int MetalCodeGenerator::getUniformSet(const Modifiers& m) {
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals._anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
-    if ("main" == f.name()) {
+    if (f.isMain()) {
         switch (fProgram.fConfig->fKind) {
             case ProgramKind::kFragment:
                 this->write("fragment Outputs fragmentMain");
@@ -1587,7 +1587,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     this->writeLine(" {");
 
-    if (f.declaration().name() == "main") {
+    if (f.declaration().isMain()) {
         this->writeGlobalInit();
         this->writeLine("    Outputs _out;");
         this->writeLine("    (void)_out;");
@@ -1604,7 +1604,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->finishLine();
             }
         }
-        if (f.declaration().name() == "main") {
+        if (f.declaration().isMain()) {
             // If the main function doesn't end with a return, we need to synthesize one here.
             if (!is_block_ending_with_return(f.body().get())) {
                 this->writeReturnStatementFromMain();
@@ -1891,7 +1891,7 @@ void MetalCodeGenerator::writeReturnStatementFromMain() {
 }
 
 void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
-    if (fCurrentFunction && fCurrentFunction->name() == "main") {
+    if (fCurrentFunction && fCurrentFunction->isMain()) {
         if (r.expression()) {
             if (r.expression()->type() == *fContext.fTypes.fHalf4) {
                 this->write("_out.sk_FragColor = ");
