@@ -301,13 +301,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount))
 			}
-			if b.model("LenovoYogaC630") {
-				// LenovoYogaC630 only supports D3D11, and to save time, we only test ES3
-				configs = []string{
-					"angle_d3d11_es3",
-					fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount),
-				}
-			}
 			if b.matchGpu("GTX", "Quadro") {
 				// See skia:7823 and chromium:693090.
 				configs = append(configs, "angle_gl_es3")
@@ -1004,15 +997,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("Vulkan") && b.model("GalaxyS20") {
 		// skia:10247
 		match = append(match, "~VkPrepareForExternalIOQueueTransitionTest")
-	}
-
-	if b.model("LenovoYogaC630") && b.extraConfig("ANGLE") {
-		// skia:9275
-		skip("_", "tests", "_", "Programs")
-		// skia:8976
-		skip("_", "tests", "_", "GrDefaultPathRendererTest")
-		// https://bugs.chromium.org/p/angleproject/issues/detail?id=3414
-		skip("_", "tests", "_", "PinnedImageTest")
 	}
 
 	if len(skipped) > 0 {
