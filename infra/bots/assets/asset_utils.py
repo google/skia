@@ -9,6 +9,7 @@
 """Utilities for managing assets."""
 
 
+from __future__ import print_function
 import argparse
 import json
 import os
@@ -333,12 +334,12 @@ class Asset(object):
     if os.path.isdir(asset._dir):
       raise Exception('Asset %s already exists!' % asset._name)
 
-    print 'Creating asset in %s' % asset._dir
+    print('Creating asset in %s' % asset._dir)
     os.mkdir(asset._dir)
     def copy_script(script):
       src = os.path.join(ASSETS_DIR, 'scripts', script)
       dst = os.path.join(asset._dir, script)
-      print 'Creating %s' % dst
+      print('Creating %s' % dst)
       shutil.copy(src, dst)
       subprocess.check_call([utils.GIT, 'add', dst])
 
@@ -348,8 +349,8 @@ class Asset(object):
     if resp == 'y':
       copy_script('create.py')
       copy_script('create_and_upload.py')
-      print 'You will need to add implementation to the creation script.'
-    print 'Successfully created asset %s.' % asset._name
+      print('You will need to add implementation to the creation script.')
+    print('Successfully created asset %s.' % asset._name)
     return asset
 
   def remove(self, remove_in_store=False):
