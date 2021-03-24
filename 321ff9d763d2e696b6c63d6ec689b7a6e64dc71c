@@ -16,6 +16,24 @@
       "message": "OK, so seems to work:\n\ndrawAtlas(..., {B, C})\ndrawAtlas(..., {filter, mpmap})\n// These give the default: filter:linear, mipmap:none\ndrawAtlas(..., null)  \ndrawAtlas(...)\n\nSince we are accepting a union, what should we do if the supplied parameter has all 4 known fields?\ne.g. {B, C, filter, mipmap}\n\nAs coded, since I search for \"cubic\" first, we will take that one. Should we just document this?\n\nRelated: what if a field is specified, but is null? I don\u0027t check for that today, since I just ask\n   if ([\u0027B\u0027] in sampling)\n\nOptions:\n- leave as is, and it will throw an exception if null\n- explicitly check for non-null, and treat null the same as not-present\n- other\n\nI know this is getting drawn out, but what we decide here can/should be applied to a slew of previous cases, so I want to really like this new pattern: (e.g. drawImage, drawImageRect, makeShader, etc.)\n",
       "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6663efb2_ceb9fbb8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10380
+      },
+      "writtenOn": "2021-03-24T18:23:38Z",
+      "side": 1,
+      "message": "Also, should it allow {filter} and assume mipmap\u003d\u003dNone?",
+      "parentUuid": "53b0eba4_41ef90f4",
+      "revId": "321ff9d763d2e696b6c63d6ec689b7a6e64dc71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
