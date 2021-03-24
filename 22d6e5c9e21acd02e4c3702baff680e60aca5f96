@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b015234f_83ace89f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-24T11:48:09Z",
+      "side": 1,
+      "message": "font.js looks like it\u0027s doing the right thing with this new code. lgtm.",
+      "revId": "22d6e5c9e21acd02e4c3702baff680e60aca5f96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17b8703e_2e5b8cd3",
@@ -38,6 +55,30 @@
       "side": 1,
       "message": "Hmmm, I was going to suggest MakeWithProc() where we can pass whatever wasm has used to allocate each array (WASM_Free?)",
       "parentUuid": "17b8703e_2e5b8cd3",
+      "range": {
+        "startLine": 1167,
+        "startChar": 29,
+        "endLine": 1167,
+        "endChar": 71
+      },
+      "revId": "22d6e5c9e21acd02e4c3702baff680e60aca5f96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3f7b7e6_21b8fb6c",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1167,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-24T11:48:09Z",
+      "side": 1,
+      "message": "I believe when we call Canvaskit._free on memory, it is the same as C++ calling free on it, so I would presume MakeFromMalloc works and is simpler.",
+      "parentUuid": "7809de7f_869cc38d",
       "range": {
         "startLine": 1167,
         "startChar": 29,
