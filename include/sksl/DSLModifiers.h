@@ -42,6 +42,7 @@ private:
 
     friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
     friend class DSLVar;
+    friend class DSLWriter;
 };
 
 } // namespace dsl

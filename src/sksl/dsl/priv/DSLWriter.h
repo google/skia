@@ -87,7 +87,12 @@ public:
     /**
      * Returns the SkSL variable corresponding to a DSLVar.
      */
-    static const SkSL::Variable& Var(const DSLVar& var);
+    static const SkSL::Variable& Var(DSLVar& var);
+
+    /**
+     * Returns the SkSL declaration corresponding to a DSLVar.
+     */
+    static std::unique_ptr<SkSL::Statement> Declaration(DSLVar& var);
 
     /**
      * For use in testing only: marks the variable as having been declared, so that it can be

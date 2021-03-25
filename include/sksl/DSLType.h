@@ -64,6 +64,7 @@ private:
     friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
     friend class DSLFunction;
     friend class DSLVar;
+    friend class DSLWriter;
 };
 
 #define TYPE(T)                                                                                    \

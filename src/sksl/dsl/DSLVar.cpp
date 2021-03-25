@@ -21,10 +21,10 @@ namespace SkSL {
 namespace dsl {
 
 DSLVar::DSLVar(const char* name)
-    : fDeclared(true)
-    , fVar(nullptr)
+    : fType(kVoid)
     , fRawName(name)
-    , fName(name) {
+    , fName(name)
+    , fDeclared(true) {
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     if (!strcmp(name, "sk_SampleCoord")) {
         fName = DSLWriter::CurrentEmitArgs()->fSampleCoord;
@@ -59,13 +59,16 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue)
     : DSLVar(modifiers, type, "var", std::move(initialValue)) {}
 
 DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpression initialValue)
-    : fDeclared(DSLWriter::Instance().fMarkVarsDeclared)
+    : fModifiers(std::move(modifiers))
+    , fType(std::move(type))
     , fRawName(name)
-    , fName(DSLWriter::Name(name)) {
-    Variable::Storage storage = Variable::Storage::kLocal;
+    , fName(DSLWriter::Name(name))
+    , fInitialValue(std::move(initialValue))
+    , fStorage(Variable::Storage::kLocal)
+    , fDeclared(DSLWriter::Instance().fMarkVarsDeclared) {
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
-    if (modifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
-        storage = Variable::Storage::kGlobal;
+    if (fModifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
+        fStorage = Variable::Storage::kGlobal;
         if (DSLWriter::InFragmentProcessor()) {
             const SkSL::Type& skslType = type.skslType();
             GrSLType grslType;
@@ -95,20 +98,6 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
         fDeclared = true;
     }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
-    DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, modifiers.fModifiers,
-                                                 &type.skslType(), storage);
-    std::unique_ptr<SkSL::Variable> var = DSLWriter::IRGenerator().convertVar(/*offset=*/-1,
-                                                                              modifiers.fModifiers,
-                                                                              &type.skslType(),
-                                                                              fName,
-                                                                              /*isArray=*/false,
-                                                                              /*arraySize=*/nullptr,
-                                                                              storage);
-    fVar = var.get();
-    // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
-    // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL.
-    fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(std::move(var),
-                                                                  initialValue.release());
 }
 
 DSLVar::~DSLVar() {

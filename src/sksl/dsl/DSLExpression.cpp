@@ -63,10 +63,16 @@ DSLExpression::DSLExpression(bool value)
                                           /*offset=*/-1,
                                           value)) {}
 
-DSLExpression::DSLExpression(const DSLVar& var)
+DSLExpression::DSLExpression(DSLVar& var)
     : fExpression(std::make_unique<SkSL::VariableReference>(
                                                         /*offset=*/-1,
-                                                        var.fVar,
+                                                        &DSLWriter::Var(var),
+                                                        SkSL::VariableReference::RefKind::kRead)) {}
+
+DSLExpression::DSLExpression(DSLVar&& var)
+    : fExpression(std::make_unique<SkSL::VariableReference>(
+                                                        /*offset=*/-1,
+                                                        &DSLWriter::Var(var),
                                                         SkSL::VariableReference::RefKind::kRead)) {}
 
 DSLExpression::DSLExpression(DSLPossibleExpression expr, PositionInfo pos) {
@@ -250,10 +256,6 @@ DSLExpression DSLPossibleExpression::a(PositionInfo pos) {
 
 DSLExpression DSLPossibleExpression::field(const char* name, PositionInfo pos) {
     return DSLExpression(this->release()).field(name, pos);
-}
-
-DSLPossibleExpression DSLPossibleExpression::operator=(const DSLVar& var) {
-    return this->operator=(DSLExpression(var));
 }
 
 DSLPossibleExpression DSLPossibleExpression::operator=(DSLExpression expr) {
