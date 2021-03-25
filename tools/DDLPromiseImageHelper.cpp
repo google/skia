@@ -94,7 +94,8 @@ void PromiseImageCallbackContext::destroyBackendTexture() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
+sk_sp<SkPicture> DDLPromiseImageHelper::recreateSKP(const SkPicture* inputPicture,
+                                                    GrDirectContext* dContext) {
     SkSerialProcs procs;
 
     procs.fImageCtx = this;
@@ -107,7 +108,14 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
         return SkData::MakeWithCopy(&id, sizeof(id));
     };
 
-    return inputPicture->serialize(&procs);
+    sk_sp<SkData> compressedPictureData = inputPicture->serialize(&procs);
+    if (!compressedPictureData) {
+        return nullptr;
+    }
+
+    this->createCallbackContexts(dContext);
+
+    return this->reinflateSKP(dContext->threadSafeProxy(), compressedPictureData.get());
 }
 
 static GrBackendTexture create_yuva_texture(GrDirectContext* direct,
@@ -294,7 +302,8 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
 // reconstitution is performed separately in each thread so we end up with multiple
 // promise images referring to the same GrBackendTexture.
 sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
-                                                          size_t length, void* ctxIn) {
+                                                          size_t length,
+                                                          void* ctxIn) {
     DeserialImageProcContext* procContext = static_cast<DeserialImageProcContext*>(ctxIn);
     const DDLPromiseImageHelper* helper = procContext->fHelper;
 
@@ -361,6 +370,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                                             (void*)curImage.refCallbackContext(0).release());
         curImage.callbackContext(0)->wasAddedToImage();
     }
+
     procContext->fPromiseImages->push_back(image);
     SkASSERT(image);
     return image;

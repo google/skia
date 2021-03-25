@@ -54,7 +54,7 @@ public:
 
     const GrCaps* caps() const override;
 
-    GrGLGpu* gpu() const { return fGpu; }
+    GrGLGpu* gpu1() const { return fGpu; }
 
     SkSL::Compiler* shaderCompiler() const override;
 
