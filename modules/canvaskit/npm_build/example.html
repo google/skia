@@ -1065,7 +1065,8 @@
       dsts.set(0, 0.5, 0, (2*i)%200, (5*Math.round(i/200)) % 200);
       dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
 
-      canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors);
+      canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors,
+                       {filter: CanvasKit.FilterMode.Nearest});
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);

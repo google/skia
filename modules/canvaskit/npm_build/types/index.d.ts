@@ -1054,10 +1054,12 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      * @param blendMode - BlendMode combining colors and sprites
      * @param colors - If provided, will be blended with sprite using blendMode.
+     * @param sampling - Specifies sampling options. If null, bilinear is used.
      */
     drawAtlas(atlas: Image, srcRects: InputFlattenedRectangleArray,
               dstXforms: InputFlattenedRSXFormArray, paint: Paint,
-              blendMode?: BlendMode, colors?: ColorIntArray): void;
+              blendMode?: BlendMode, colors?: ColorIntArray,
+              sampling?: CubicResampler | FilterOptions): void;
 
     /**
      * Draws a circle at (cx, cy) with the given radius.
@@ -1763,6 +1765,22 @@ export interface PartialImageInfo {
     colorType: ColorType;
     height: number;
     width: number;
+}
+
+/*
+ *  Specifies sampling with bicubic coefficients
+ */
+export interface CubicResampler {
+    B: number;  // 0..1
+    C: number;  // 0..1
+}
+/**
+
+ * Specifies sampling using filter and mipmap options
+ */
+export interface FilterOptions {
+    filter:  FilterMode;
+    mipmap?: MipmapMode;    // defaults to None if not specified
 }
 
 /**
