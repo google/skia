@@ -1893,67 +1893,86 @@ static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
 }
 
 void SkXPSDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
-    for (const auto& run : glyphRunList) {
-        const SkGlyphID* glyphIDs = run.glyphsIDs().data();
-        size_t glyphCount = run.glyphsIDs().size();
-        const SkFont& font = run.font();
+    // Check for valid input
+    if (!this->localToDevice().isFinite() || !glyphRunList.allFontsFinite()) {
+        return;
+    }
 
-        if (!glyphCount || !glyphIDs || font.getSize() <= 0) {
-            continue;
-        }
+    if (!glyphRunList.hasRSXForm()) {
+        for (const auto& run : glyphRunList) {
+            const SkGlyphID* glyphIDs = run.glyphsIDs().data();
+            size_t glyphCount = run.glyphsIDs().size();
+            const SkFont& font = run.font();
 
-        TypefaceUse* typeface;
-        if (FAILED(CreateTypefaceUse(font, &typeface)) ||
-            text_must_be_pathed(paint, this->localToDevice())) {
-            SkPath path;
-            //TODO: make this work, Draw currently does not handle as well.
-            //paint.getTextPath(text, byteLength, x, y, &path);
-            //this->drawPath(path, paint, nullptr, true);
-            //TODO: add automation "text"
-            continue;
-        }
-
-        //TODO: handle font scale and skew in x (text_scale_skew)
-
-        // Advance width and offsets for glyphs measured in hundredths of the font em size
-        // (XPS Spec 5.1.3).
-        FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(font.getSize());
-        SkAutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
-        size_t numGlyphs = typeface->glyphsUsed.size();
-        size_t actualGlyphCount = 0;
-
-        for (size_t i = 0; i < glyphCount; ++i) {
-            if (numGlyphs <= glyphIDs[i]) {
+            if (!glyphCount || !glyphIDs || font.getSize() <= 0) {
                 continue;
             }
-            const SkPoint& position = run.positions()[i];
-            XPS_GLYPH_INDEX& xpsGlyph = xpsGlyphs[actualGlyphCount++];
-            xpsGlyph.index = glyphIDs[i];
-            xpsGlyph.advanceWidth = 0.0f;
-            xpsGlyph.horizontalOffset = (SkScalarToFloat(position.fX) * centemPerUnit);
-            xpsGlyph.verticalOffset = (SkScalarToFloat(position.fY) * -centemPerUnit);
-            typeface->glyphsUsed.set(xpsGlyph.index);
+
+            TypefaceUse* typeface;
+            if (FAILED(CreateTypefaceUse(font, &typeface)) ||
+                text_must_be_pathed(paint, this->localToDevice())) {
+                SkPath path;
+                //TODO: make this work, Draw currently does not handle as well.
+                //paint.getTextPath(text, byteLength, x, y, &path);
+                //this->drawPath(path, paint, nullptr, true);
+                //TODO: add automation "text"
+                continue;
+            }
+
+            //TODO: handle font scale and skew in x (text_scale_skew)
+
+            // Advance width and offsets for glyphs measured in hundredths of the font em size
+            // (XPS Spec 5.1.3).
+            FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(font.getSize());
+            SkAutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
+            size_t numGlyphs = typeface->glyphsUsed.size();
+            size_t actualGlyphCount = 0;
+
+            for (size_t i = 0; i < glyphCount; ++i) {
+                if (numGlyphs <= glyphIDs[i]) {
+                    continue;
+                }
+                const SkPoint& position = run.positions()[i];
+                XPS_GLYPH_INDEX& xpsGlyph = xpsGlyphs[actualGlyphCount++];
+                xpsGlyph.index = glyphIDs[i];
+                xpsGlyph.advanceWidth = 0.0f;
+                xpsGlyph.horizontalOffset = (SkScalarToFloat(position.fX) * centemPerUnit);
+                xpsGlyph.verticalOffset = (SkScalarToFloat(position.fY) * -centemPerUnit);
+                typeface->glyphsUsed.set(xpsGlyph.index);
+            }
+
+            if (actualGlyphCount == 0) {
+                return;
+            }
+
+            XPS_POINT origin = {
+                glyphRunList.origin().x(),
+                glyphRunList.origin().y(),
+            };
+
+            HRV(AddGlyphs(this->fXpsFactory.get(),
+                          this->fCurrentXpsCanvas.get(),
+                          typeface,
+                          nullptr,
+                          xpsGlyphs.get(), actualGlyphCount,
+                          &origin,
+                          SkScalarToFLOAT(font.getSize()),
+                          XPS_STYLE_SIMULATION_NONE,
+                          this->localToDevice(),
+                          paint));
         }
-
-        if (actualGlyphCount == 0) {
-            return;
-        }
-
-        XPS_POINT origin = {
-            glyphRunList.origin().x(),
-            glyphRunList.origin().y(),
-        };
-
-        HRV(AddGlyphs(this->fXpsFactory.get(),
-                      this->fCurrentXpsCanvas.get(),
-                      typeface,
-                      nullptr,
-                      xpsGlyphs.get(), actualGlyphCount,
-                      &origin,
-                      SkScalarToFLOAT(font.getSize()),
-                      XPS_STYLE_SIMULATION_NONE,
-                      this->localToDevice(),
-                      paint));
+    } else {
+        const SkM44 originalLocalToDevice = this->localToDevice44();
+        SkGlyphRunList::DrawGlyphRunListWithTSXForm(
+            glyphRunList, paint,
+            [&](const SkGlyphRunList& simpleRunList,
+                const SkPaint& invertedPaint,
+                const SkMatrix& glyphToLocal)
+            {
+                this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToLocal));
+                this->drawGlyphRunList(simpleRunList, invertedPaint);
+            });
+        this->setLocalToDevice(originalLocalToDevice);
     }
 }
 

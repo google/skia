@@ -936,8 +936,22 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkP
         return;
     }
 
-    fSurfaceDrawContext->drawGlyphRunList(
-            this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+    if (!glyphRunList.hasRSXForm()) {
+        fSurfaceDrawContext->drawGlyphRunList(
+                this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+    } else {
+        const SkMatrixProvider& localToDevice = this->asMatrixProvider();
+        SkGlyphRunList::DrawGlyphRunListWithTSXForm(
+            glyphRunList, paint,
+            [&](const SkGlyphRunList& simpleRunList,
+                const SkPaint& invertedPaint,
+                const SkMatrix& glyphToLocal)
+            {
+                SkPreConcatMatrixProvider glyphToDevice{localToDevice, glyphToLocal};
+                fSurfaceDrawContext->drawGlyphRunList(
+                        this->clip(), glyphToDevice, simpleRunList, invertedPaint);
+            });
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

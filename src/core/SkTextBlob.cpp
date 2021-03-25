@@ -930,12 +930,15 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
     }
 
     SkGlyphRunBuilder builder;
-    builder.textBlobToGlyphRunListIgnoringRSXForm(*this, SkPoint{0, 0});
-    auto glyphRunList = builder.useGlyphRunList();
+    auto glyphRunList = builder.blobToGlyphRunList(*this, {0, 0});
 
     int intervalCount = 0;
     for (const SkGlyphRun& glyphRun : glyphRunList) {
-        intervalCount = get_glyph_run_intercepts(glyphRun, *paint, bounds, intervals, &intervalCount);
+        // Ignore RSXForm runs.
+        if (glyphRun.scaledRotations().empty()) {
+            intervalCount = get_glyph_run_intercepts(
+                glyphRun, *paint, bounds, intervals, &intervalCount);
+        }
     }
 
     return intervalCount;

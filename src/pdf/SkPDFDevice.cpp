@@ -951,8 +951,27 @@ void SkPDFDevice::internalDrawGlyphRun(
 }
 
 void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
-    for (const SkGlyphRun& glyphRun : glyphRunList) {
-        this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), paint);
+    // Check for valid input
+    if (!this->localToDevice().isFinite() || !glyphRunList.allFontsFinite()) {
+        return;
+    }
+
+    if (!glyphRunList.hasRSXForm()) {
+        for (const SkGlyphRun& glyphRun : glyphRunList) {
+            this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), paint);
+        }
+    } else {
+        const SkM44 originalLocalToDevice = this->localToDevice44();
+        SkGlyphRunList::DrawGlyphRunListWithTSXForm(
+            glyphRunList, paint,
+            [&](const SkGlyphRunList& simpleRunList,
+                const SkPaint& invertedPaint,
+                const SkMatrix& glyphToLocal)
+            {
+                this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToLocal));
+                this->drawGlyphRunList(simpleRunList, invertedPaint);
+            });
+        this->setLocalToDevice(originalLocalToDevice);
     }
 }
 
