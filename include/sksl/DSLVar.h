@@ -10,14 +10,14 @@
 
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
+#include "include/sksl/DSLType.h"
 
 namespace SkSL {
 
 class Variable;
+enum class VariableStorage : int8_t;
 
 namespace dsl {
-
-class DSLType;
 
 class DSLVar {
 public:
@@ -76,7 +76,7 @@ public:
         return DSLExpression(*this).field(name);
     }
 
-    DSLPossibleExpression operator=(const DSLVar& var) {
+    DSLPossibleExpression operator=(DSLVar& var) {
         return this->operator=(DSLExpression(var));
     }
 
@@ -119,12 +119,20 @@ private:
         return fName;
     }
 
+    DSLModifiers fModifiers;
+    // We only need to keep track of the type here so that we can create the SkSL::Variable. For
+    // predefined variables this field is unnecessary, so we don't bother tracking it and just set
+    // it to kVoid; in other words, you shouldn't generally be relying on this field to be correct.
+    // If you need to determine the variable's type, look at DSLWriter::Var(...).type() instead.
+    DSLType fType;
     int fUniformHandle;
     std::unique_ptr<SkSL::Statement> fDeclaration;
-    bool fDeclared = false;
-    const SkSL::Variable* fVar;
+    const SkSL::Variable* fVar = nullptr;
     const char* fRawName; // for error reporting
     const char* fName;
+    DSLExpression fInitialValue;
+    VariableStorage fStorage;
+    bool fDeclared = false;
 
     friend DSLVar sk_SampleCoord();
 

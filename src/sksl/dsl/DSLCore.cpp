@@ -78,7 +78,7 @@ public:
             DSLWriter::ReportError("error: variable has already been declared\n", &pos);
         }
         var.fDeclared = true;
-        return std::move(var.fDeclaration);
+        return DSLWriter::Declaration(var);
     }
 
     static DSLStatement Discard() {
