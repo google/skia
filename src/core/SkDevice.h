@@ -303,9 +303,6 @@ protected:
                                     const SkSamplingOptions&, const SkPaint&,
                                     SkCanvas::SrcRectConstraint);
 
-    void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
-                             SkPoint origin, const SkPaint& paint);
-
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
     /**
@@ -351,8 +348,6 @@ protected:
     virtual void setImmutable() {}
 
     bool readPixels(const SkPixmap&, int x, int y);
-
-    ///////////////////////////////////////////////////////////////////////////
 
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
     virtual bool onPeekPixels(SkPixmap*) { return false; }
@@ -413,6 +408,8 @@ protected:
     // SkCanvas uses NoPixelsDevice when onCreateDevice fails; but then it needs to be able to
     // inspect a layer's device to know if calling drawDevice() later is allowed.
     virtual bool isNoPixelsDevice() const { return false; }
+
+    void simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphRunList, const SkPaint& paint);
 
 private:
     friend class SkAndroidFrameworkUtils;
