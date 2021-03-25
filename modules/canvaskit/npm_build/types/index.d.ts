@@ -1054,10 +1054,12 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      * @param blendMode - BlendMode combining colors and sprites
      * @param colors - If provided, will be blended with sprite using blendMode.
+     * @param sampling - Specifies sampling options. If null, bilinear is used.
      */
     drawAtlas(atlas: Image, srcRects: InputFlattenedRectangleArray,
               dstXforms: InputFlattenedRSXFormArray, paint: Paint,
-              blendMode?: BlendMode, colors?: ColorIntArray): void;
+              blendMode?: BlendMode, colors?: ColorIntArray,
+              sampling?: CubicResampler | FilterOptions): void;
 
     /**
      * Draws a circle at (cx, cy) with the given radius.
@@ -1240,6 +1242,21 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      */
     drawPath(path: Path, paint: Paint): void;
+
+    /**
+     * Draws a cubic patch defined by 12 control points [top, right, bottom, left] with optional
+     * colors and/or texture-coordinates [4] specifed for each corner [top-left, top-right, bottom-right, bottom-left]
+     * @param cubics
+     * @param colors 
+     * @param texs 
+     * @param mode Specifies how textures and colors blend (if both are specified)
+     * @param paint 
+     */
+    drawPatch(cubics: InputFlattenedPointArray,
+              colors?: ColorIntArray,
+              texs?: InputFlattenedPointArray,
+              mode?: BlendMode,
+              paint: Paint): void;
 
     /**
      * Draws the given picture using the current clip, current matrix, and the provided paint.
@@ -1763,6 +1780,24 @@ export interface PartialImageInfo {
     colorType: ColorType;
     height: number;
     width: number;
+}
+
+/*
+ *  Specifies sampling with bicubic coefficients
+ */
+export interface CubicResampler {
+    B: number;  // 0..1
+    C: number;  // 0..1
+}
+type NewType = MipmapMode;
+
+/**
+
+ * Specifies sampling using filter and mipmap options
+ */
+export interface FilterOptions {
+    filter: FilterMode;
+    mipmap: NewType;
 }
 
 /**
