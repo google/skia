@@ -145,7 +145,7 @@ static float TFKind_marker(TFKind kind) {
 static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullptr
                                                        , TF_HLGish* hlg = nullptr) {
     if (tf.g < 0 && (int)tf.g == tf.g) {
-        // TODO: sanity checks for PQ/HLG like we do for sRGBish.
+        // TODO: soundness checks for PQ/HLG like we do for sRGBish?
         switch ((int)tf.g) {
             case -PQish:     if (pq ) { memcpy(pq , &tf.a, sizeof(*pq )); } return PQish;
             case -HLGish:    if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGish;
@@ -154,7 +154,7 @@ static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullpt
         return Bad;
     }
 
-    // Basic sanity checks for sRGBish transfer functions.
+    // Basic soundness checks for sRGBish transfer functions.
     if (isfinitef_(tf.a + tf.b + tf.c + tf.d + tf.e + tf.f + tf.g)
             // a,c,d,g should be non-negative to make any sense.
             && tf.a >= 0
