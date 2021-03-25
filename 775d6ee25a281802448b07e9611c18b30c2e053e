@@ -22,6 +22,30 @@
       },
       "revId": "775d6ee25a281802448b07e9611c18b30c2e053e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "134a20c5_314d4182",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2021-03-25T16:52:36Z",
+      "side": 1,
+      "message": "Yep, going to submit this CL now (already had a lot of churn) then my next CL before any additional recipes supporting direct upload will be a refactor into a module.",
+      "parentUuid": "b4946cf2_43b0855d",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 0
+      },
+      "revId": "775d6ee25a281802448b07e9611c18b30c2e053e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
