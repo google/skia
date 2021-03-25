@@ -94,6 +94,8 @@ public:
         return false;
     }
 
+    sk_sp<SkTextBlob> makeBlob() const;
+
     SkPoint origin() const { return fOrigin; }
     SkRect sourceBounds() const { return fSourceBounds; }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
