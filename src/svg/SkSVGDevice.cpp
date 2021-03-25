@@ -1061,31 +1061,41 @@ private:
 };
 
 void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint)  {
-    const auto draw_as_path = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) ||
-                               paint.getPathEffect();
-
-    if (draw_as_path) {
-        // Emit a single <path> element.
-        SkPath path;
-        for (auto& glyphRun : glyphRunList) {
-            AddPath(glyphRun, glyphRunList.origin(), &path);
-        }
-
-        this->drawPath(path, paint);
-
+    // Check for valid input
+    if (!this->localToDevice().isFinite()) {
         return;
     }
 
-    // Emit one <text> element for each run.
-    for (auto& glyphRun : glyphRunList) {
-        AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), paint);
-        elem.addTextAttributes(glyphRun.font());
+    if (!glyphRunList.hasRSXForm()) {
+        const auto draw_as_path = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) ||
+                                   paint.getPathEffect();
 
-        SVGTextBuilder builder(glyphRunList.origin(), glyphRun);
-        elem.addAttribute("x", builder.posX());
-        elem.addAttribute("y", builder.posY());
-        elem.addText(builder.text());
+        if (draw_as_path) {
+            // Emit a single <path> element.
+            SkPath path;
+            for (auto& glyphRun : glyphRunList) {
+                AddPath(glyphRun, glyphRunList.origin(), &path);
+            }
+
+            this->drawPath(path, paint);
+
+            return;
+        }
+
+        // Emit one <text> element for each run.
+        for (auto& glyphRun : glyphRunList) {
+            AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), paint);
+            elem.addTextAttributes(glyphRun.font());
+
+            SVGTextBuilder builder(glyphRunList.origin(), glyphRun);
+            elem.addAttribute("x", builder.posX());
+            elem.addAttribute("y", builder.posY());
+            elem.addText(builder.text());
+        }
+    } else {
+        this->simplifyGlyphRunRSXFormAndRedraw(glyphRunList, paint);
     }
+
 }
 
 void SkSVGDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {

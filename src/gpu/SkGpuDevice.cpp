@@ -936,8 +936,12 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkP
         return;
     }
 
-    fSurfaceDrawContext->drawGlyphRunList(
-            this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+    if (!glyphRunList.hasRSXForm()) {
+        fSurfaceDrawContext->drawGlyphRunList(
+                this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+    } else {
+        this->simplifyGlyphRunRSXFormAndRedraw(glyphRunList, paint);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

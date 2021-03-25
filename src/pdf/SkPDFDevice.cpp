@@ -951,8 +951,17 @@ void SkPDFDevice::internalDrawGlyphRun(
 }
 
 void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
-    for (const SkGlyphRun& glyphRun : glyphRunList) {
-        this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), paint);
+    // Check for valid input
+    if (!this->localToDevice().isFinite()) {
+        return;
+    }
+
+    if (!glyphRunList.hasRSXForm()) {
+        for (const SkGlyphRun& glyphRun : glyphRunList) {
+            this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), paint);
+        }
+    } else {
+        this->simplifyGlyphRunRSXFormAndRedraw(glyphRunList, paint);
     }
 }
 

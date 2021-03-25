@@ -544,7 +544,16 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
 }
 
 void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
-    LOOP_TILER( drawGlyphRunList(glyphRunList, paint, &fGlyphPainter), nullptr )
+    // Check for valid input
+    if (!this->localToDevice().isFinite()) {
+        return;
+    }
+
+    if (!glyphRunList.hasRSXForm()) {
+        LOOP_TILER(drawGlyphRunList(glyphRunList, paint, &fGlyphPainter), nullptr)
+    } else {
+        this->simplifyGlyphRunRSXFormAndRedraw(glyphRunList, paint);
+    }
 }
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
