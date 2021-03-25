@@ -1,0 +1,114 @@
+uniform half4 colorRed, colorGreen;
+uniform half  unknownInput;
+
+bool test_half() {
+    bool ok = true;
+    half4 inputRed   = colorRed;
+    half4 inputGreen = colorGreen;
+
+    // Vector op scalar
+    half4 x = inputRed + 2;
+    ok = ok && (x == half4(3, 2, 2, 3));
+    x = inputGreen.garb - 2;
+    ok = ok && (x == half4(-1, -1, -2, -2));
+    x = inputRed + inputGreen.g;
+    ok = ok && (x == half4(2, 1, 1, 2));
+    x.xyz = inputGreen.aga * 9;
+    ok = ok && (x == half4(9, 9, 9, 2));
+    x.xy = x.zw / 0.5;
+    ok = ok && (x == half4(18, 4, 9, 2));
+
+    // (Vector op scalar).swizzle
+    x = (inputRed * 5).yxwz;
+    ok = ok && (x == half4(0, 5, 5, 0));
+
+    // Scalar op vector
+    x = 2 + inputRed;
+    ok = ok && (x == half4(3, 2, 2, 3));
+    x = 10 - inputGreen.garb;
+    ok = ok && (x == half4(9, 9, 10, 10));
+    x = inputRed.r + inputGreen;
+    ok = ok && (x == half4(1, 2, 1, 2));
+    x.xyz = 9 * inputGreen.aga;
+    ok = ok && (x == half4(9, 9, 9, 2));
+    x.xy = 36 / x.zw;
+    ok = ok && (x == half4(4, 18, 9, 2));
+
+    // (Scalar op vector).swizzle
+    x = (36 / x).yxwz;
+    ok = ok && (x == half4(2, 9, 18, 4));
+
+    // X op= scalar.
+    x += 2;
+    x *= 2;
+    x -= 4;
+    x /= 2;
+    ok = ok && (x == half4(2, 9, 18, 4));
+
+    // X = X op scalar.
+    x  = x + 2;
+    x  = x * 2;
+    x  = x - 4;
+    x  = x / 2;
+    ok = ok && (x == half4(2, 9, 18, 4));
+
+    return ok;
+}
+
+bool test_int() {
+    bool ok = true;
+    int4 inputRed   = int4(colorRed);
+    int4 inputGreen = int4(colorGreen);
+
+    // Vector op scalar
+    int4 x = inputRed + 2;
+    ok = ok && (x == int4(3, 2, 2, 3));
+    x = inputGreen.garb - 2;
+    ok = ok && (x == int4(-1, -1, -2, -2));
+    x = inputRed + inputGreen.g;
+    ok = ok && (x == int4(2, 1, 1, 2));
+    x.xyz = inputGreen.aga * 9;
+    ok = ok && (x == int4(9, 9, 9, 2));
+    x.xy = x.zw / 3;
+    ok = ok && (x == int4(3, 0, 9, 2));
+
+    // (Vector op scalar).swizzle
+    x = (inputRed * 5).yxwz;
+    ok = ok && (x == int4(0, 5, 5, 0));
+
+    // Scalar op vector
+    x = 2 + inputRed;
+    ok = ok && (x == int4(3, 2, 2, 3));
+    x = 10 - inputGreen.garb;
+    ok = ok && (x == int4(9, 9, 10, 10));
+    x = inputRed.r + inputGreen;
+    ok = ok && (x == int4(1, 2, 1, 2));
+    x.xyz = 9 * inputGreen.aga;
+    ok = ok && (x == int4(9, 9, 9, 2));
+    x.xy = 36 / x.zw;
+    ok = ok && (x == int4(4, 18, 9, 2));
+
+    // (Scalar op vector).swizzle
+    x = (36 / x).yxwz;
+    ok = ok && (x == int4(2, 9, 18, 4));
+
+    // X op= scalar.
+    x += 2;
+    x *= 2;
+    x -= 4;
+    x /= 2;
+    ok = ok && (x == int4(2, 9, 18, 4));
+
+    // X = X op scalar.
+    x  = x + 2;
+    x  = x * 2;
+    x  = x - 4;
+    x  = x / 2;
+    ok = ok && (x == int4(2, 9, 18, 4));
+
+    return ok;
+}
+
+half4 main() {
+    return test_half() && test_int() ? colorGreen : colorRed;
+}
