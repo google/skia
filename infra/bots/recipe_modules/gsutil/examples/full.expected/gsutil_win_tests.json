@@ -1,0 +1,22 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cipd_bin_packages/gsutil",
+      "-m",
+      "cp",
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "upload test file"
+  },
+  {
+    "name": "$result"
+  }
+]

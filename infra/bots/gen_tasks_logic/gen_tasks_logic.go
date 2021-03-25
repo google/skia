@@ -1494,6 +1494,14 @@ func (b *jobBuilder) dm() {
 			// ToT.
 			cas = CAS_LOTTIE_CI
 			recipe = "test_lottie_web"
+		} else {
+			// Default recipe supports direct upload.
+			// TODO(http://skbug.com/11785): Windows jobs are unable to extract gsutil.
+			// https://bugs.chromium.org/p/chromium/issues/detail?id=1192611
+			if b.doUpload() && !b.matchOs("Win") {
+				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
+				directUpload = true
+			}
 		}
 		b.recipeProp("gold_hashes_url", b.cfg.GoldHashesURL)
 		b.recipeProps(EXTRA_PROPS)
