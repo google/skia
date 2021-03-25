@@ -829,7 +829,7 @@ public:
     }
 
 protected:
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
         #if SK_SUPPORT_GPU
         GrContextOptions ctxOptions;
         GrSDFTControl control =
