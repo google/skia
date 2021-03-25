@@ -435,6 +435,12 @@ var CanvasKit = {
     MakeBlur: function() {},
   },
 
+  MipmapMode: {
+    None: {},
+    Nearest: {},
+    Linear: {},
+  },
+
   Paint: {
     // public API (from C++ bindings)
     /** @return {CanvasKit.Paint} */
