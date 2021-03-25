@@ -9,6 +9,7 @@
 """Create the asset."""
 
 
+from __future__ import print_function
 import argparse
 import common
 import multiprocessing
@@ -16,6 +17,7 @@ import os
 import shutil
 import subprocess
 import utils
+
 
 def create_asset(target_dir):
   """Create the asset."""
@@ -27,7 +29,7 @@ def create_asset(target_dir):
                       'git', 'patch', 'zlib1g-dev', 'autoconf', 'xutils-dev',
                       'libtool', 'pkg-config', 'libpciaccess-dev']
     apt_get_cmd = ['sudo', 'apt-get', 'install'] + neo_build_deps
-    print 'Running "%s"' % ' '.join(apt_get_cmd)
+    print('Running "%s"' % ' '.join(apt_get_cmd))
     subprocess.check_call(apt_get_cmd)
     # Check out repos.
     for [repo, branch, local_name] in [

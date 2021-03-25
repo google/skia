@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+
 '''
 Copyright 2013 Google Inc.
 
@@ -16,10 +17,13 @@ by format differences).
 Should not modify the JSON contents in any meaningful way.
 '''
 
+
 # System-level imports
+from __future__ import print_function
 import argparse
 import os
 import sys
+
 
 # Imports from within Skia
 #
@@ -39,7 +43,7 @@ if GM_DIRECTORY not in sys.path:
 import gm_json
 
 def Reformat(filename):
-  print 'Reformatting file %s...' % filename
+  print('Reformatting file %s...' % filename)
   gm_json.WriteToFile(gm_json.LoadFromFile(filename), filename)
 
 def _Main():

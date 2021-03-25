@@ -4,11 +4,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
+from __future__ import print_function
 from subprocess import call, check_output, CalledProcessError
 import os
 import re
 import sys
 import tempfile
+
 
 HEADER = '''<!DOCTYPE html>
 <html lang="en">
@@ -38,6 +41,7 @@ BUCKET = 'skia-skqp'
 
 NAME_FMT = 'skqp-universal-%s.apk'
 
+
 def get_existing_files():
     cmd = ['gsutil', 'ls', 'gs://' + BUCKET]
     try:
@@ -53,6 +57,7 @@ def get_existing_files():
             result.add(m.group(1))
     return result
 
+
 def find(v, extant):
     l = min(16, len(v))
     while l > 8:
@@ -61,9 +66,11 @@ def find(v, extant):
         l -= 1
     return None
 
+
 def nowrap(s):
     return (s.replace(' ', u'\u00A0'.encode('utf-8'))
              .replace('-', u'\u2011'.encode('utf-8')))
+
 
 def rev_parse(arg):
     if isinstance(arg, tuple):
@@ -108,6 +115,7 @@ def table(o, remote, branch, excludes):
                 (url, nowrap(apk_name), nowrap(date), commit_url, subj))
     o.write('</table>\n')
 
+
 def main():
     origin    = 'https://skia.googlesource.com/skia'
     aosp_skqp = 'https://android.googlesource.com/platform/external/skqp'
@@ -122,10 +130,11 @@ def main():
         table(o, origin,    'skqp/release', [(origin, 'master'), '09ab171c5c0'])
         table(o, aosp_skqp, 'pie-cts-dev',  ['f084c17322'])
         o.write(FOOTER)
-    print path
+    print(path)
     call([sys.executable, 'bin/sysopen', path])
     gscmd = 'gsutil -h "Content-Type:text/html" cp "%s" gs://skia-skqp/apklist'
-    print gscmd % path
+    print(gscmd % path)
+
 
 if __name__ == '__main__':
     main()

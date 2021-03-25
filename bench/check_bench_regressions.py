@@ -1,8 +1,12 @@
-'''
-Created on May 16, 2011
+#!/usr/bin/env python
+#
+# Copyright 2011 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
-@author: bungeman
-'''
+
+from __future__ import print_function
 import bench_util
 import getopt
 import httplib
@@ -34,15 +38,15 @@ DASHBOARD_URL_PREFIX = 'http://go/skpdash/#15'
 def usage():
     """Prints simple usage information."""
 
-    print '-a <representation_alg> bench representation algorithm to use. '
-    print '   Defaults to "25th". See bench_util.py for details.'
-    print '-b <builder> name of the builder whose bench data we are checking.'
-    print '-d <dir> a directory containing bench_<revision>_<scalar> files.'
-    print '-e <file> file containing expected bench builder values/ranges.'
-    print '   Will raise exception if actual bench values are out of range.'
-    print '   See bench_expectations_<builder>.txt for data format / examples.'
-    print '-r <revision> the git commit hash or svn revision for checking '
-    print '   bench values.'
+    print('-a <representation_alg> bench representation algorithm to use. ')
+    print('   Defaults to "25th". See bench_util.py for details.')
+    print('-b <builder> name of the builder whose bench data we are checking.')
+    print('-d <dir> a directory containing bench_<revision>_<scalar> files.')
+    print('-e <file> file containing expected bench builder values/ranges.')
+    print('   Will raise exception if actual bench values are out of range.')
+    print('   See bench_expectations_<builder>.txt for data format / examples.')
+    print('-r <revision> the git commit hash or svn revision for checking ')
+    print('   bench values.')
 
 
 class Label:
@@ -196,8 +200,8 @@ def main():
         opts, _ = getopt.getopt(sys.argv[1:],
                                 "a:b:d:e:r:",
                                 "default-setting=")
-    except getopt.GetoptError, err:
-        print str(err)
+    except getopt.GetoptError as err:
+        print(str(err))
         usage()
         sys.exit(2)
 
