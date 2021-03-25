@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82be27f3_ef0fb324",
+        "filename": "bench/check_bench_regressions.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-25T13:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13ddb8ab_427a3159",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "f63b32adeca1555a13e2bbdcd5e506273790f4ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "81453640_a091e775",
@@ -41,6 +65,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c45a02ec_1e0ccc7a",
+        "filename": "tools/skqp/make_apk_list.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-25T13:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81453640_a091e775",
+      "revId": "f63b32adeca1555a13e2bbdcd5e506273790f4ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2deed71d_ff7b9994",
@@ -54,6 +96,24 @@
       "writtenOn": "2021-03-24T20:10:26Z",
       "side": 1,
       "message": "nit: add another newline (like in the other files)",
+      "revId": "f63b32adeca1555a13e2bbdcd5e506273790f4ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19a2d3e6_aa255e02",
+        "filename": "tools/test_all.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-03-25T13:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2deed71d_ff7b9994",
       "revId": "f63b32adeca1555a13e2bbdcd5e506273790f4ed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
