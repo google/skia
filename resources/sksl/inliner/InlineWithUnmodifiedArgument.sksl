@@ -1,9 +1,13 @@
-inline half basic(half x) {
-    return x * 2;
+inline half square(half x) {
+    return x * x;
 }
 
-void main() {
-    sk_FragColor.x = basic(1);
-    half y = 2;
-    sk_FragColor.y = basic(y);
+half4 main() {
+    half one = 1;
+    half4 result = half4(123);
+    result.r = square(0);
+    result.b = square(result.r);
+    result.g = square(1);
+    result.a = square(one);
+    return result;
 }

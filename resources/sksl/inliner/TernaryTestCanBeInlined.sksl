@@ -1,9 +1,9 @@
-uniform half4 color;
+uniform half4 colorGreen, colorRed;
 
 inline bool test(half4 v) {
-    return v.x <= 0.5;
+    return bool(v.g);
 }
 
-void main() {
-    sk_FragColor = test(color) ? half4(0.5) : half4(1.0);
+half4 main() {
+    return test(colorGreen) ? colorGreen : colorRed;
 }

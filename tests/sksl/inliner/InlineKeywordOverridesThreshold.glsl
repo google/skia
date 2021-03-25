@@ -1,5 +1,7 @@
 
-void main() {
+out vec4 sk_FragColor;
+uniform vec4 colorGreen;
+vec4 main() {
     int y = 0;
     int _0_x = y;
     ++_0_x;
@@ -73,4 +75,5 @@ void main() {
     ++_1_x;
     ++_1_x;
     y = _1_x;
+    return colorGreen;
 }

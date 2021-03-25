@@ -1,8 +1,12 @@
+uniform half4 colorGreen;
+
 inline half parameterWrite(half x) {
-    x *= 2;
+    x *= x;
     return x;
 }
 
-void main() {
-    sk_FragColor.x = parameterWrite(1);
+half4 main() {
+    half4 c = colorGreen;
+    c.g = parameterWrite(c.g);
+    return c;
 }

@@ -1,15 +1,15 @@
 /*#pragma settings Default*/
 
-uniform half4 color;
+uniform half4 colorWhite, colorGreen, colorRed;
 
 inline half4 MakeTempVar(half4 c) {
-    if (c.x < c.y) {
-        return c.xxxx;
+    if (c.rg == c.ba) {
+        return colorGreen;
     } else {
-        return c.yyyy;
+        return colorRed;
     }
 }
 
-void main() {
-    sk_FragColor = MakeTempVar(color);
+half4 main() {
+    return MakeTempVar(colorWhite);
 }

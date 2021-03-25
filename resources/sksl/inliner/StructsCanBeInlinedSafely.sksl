@@ -1,9 +1,3 @@
-half4 helper();
-
-void main() {
-    sk_FragColor = helper();
-}
-
 struct Color {
     half red;
     half green;
@@ -13,9 +7,13 @@ struct Color {
 
 half4 helper() {
     Color c;
-    c.red   = 0.25;
-    c.green = 0.5;
-    c.blue  = 0.75;
+    c.red   = 0.0;
+    c.green = 1.0;
+    c.blue  = 0.0;
     c.alpha = 1.0;
     return half4(c.red, c.green, c.blue, c.alpha);
+}
+
+half4 main() {
+    return helper();
 }

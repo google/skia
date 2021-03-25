@@ -1,8 +1,12 @@
 
 out vec4 sk_FragColor;
-void main() {
-    sk_FragColor = vec4(0.0);
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+vec4 main() {
+    vec4 result = colorRed;
     do {
-        sk_FragColor = sk_FragColor + vec4(0.125);
-    } while (sk_FragColor.x < 0.5);
+        vec4 _0_x = colorGreen;
+        result = _0_x;
+    } while (result != colorGreen);
+    return result;
 }

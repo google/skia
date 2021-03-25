@@ -1,10 +1,11 @@
 
 out vec4 sk_FragColor;
-void outParameter_vh(inout float x) {
-    x *= 2.0;
+uniform vec4 colorGreen;
+void outParameter_vh4(inout vec4 x) {
+    x *= x;
 }
-void main() {
-    float x = 1.0;
-    outParameter_vh(x);
-    sk_FragColor.x = x;
+vec4 main() {
+    vec4 c = colorGreen;
+    outParameter_vh4(c);
+    return c;
 }

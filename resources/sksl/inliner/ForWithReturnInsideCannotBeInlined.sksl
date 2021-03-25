@@ -1,12 +1,12 @@
-uniform int value;
+uniform half4 colorGreen, colorRed;
 
-inline half4 loopy(int v) {
-    for (int x=0; x<5; ++x) {
-        if (x == v) return half4(0.5);
+inline half4 loopy() {
+    for (int x=0; x<=4; ++x) {
+        return colorGreen;
     }
-    return half4(1.0);
+    return colorRed;
 }
 
-void main() {
-    sk_FragColor = loopy(value);
+half4 main() {
+    return loopy();
 }

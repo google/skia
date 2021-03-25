@@ -1,19 +1,20 @@
-uniform half4 color;
+uniform half4 colorWhite;
 
 inline bool testA(half4 v) {
-    return v.x <= 0.5;
+    return bool(v.r);
 }
 
 inline bool testB(half4 v) {
-    return v.x > 0.5;
+    return bool(v.g);
 }
 
-void main() {
-    sk_FragColor = half4(0);
-    if (testA(color) && testB(color)) {
-       sk_FragColor = half4(0.5);
+half4 main() {
+    half4 result = half4(0);
+    if (testA(colorWhite) && testB(colorWhite)) {
+       result.g = 1;
     }
-    if (testB(color) || testA(color)) {
-       sk_FragColor = half4(1.0);
+    if (testB(colorWhite) || testA(colorWhite)) {
+       result.a = 1;
     }
+    return result;
 }

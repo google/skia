@@ -1,11 +1,11 @@
 #version 400
 out vec4 sk_FragColor;
-uniform vec4 color;
-void main() {
+uniform vec4 colorWhite;
+vec4 main() {
     vec4 _0_MakeTempVar;
     {
-        vec4 _1_d = color * 0.75;
-        _0_MakeTempVar = _1_d.xxxx;
+        vec4 _1_d = colorWhite;
+        _0_MakeTempVar = vec4(0.0, _1_d.y, 0.0, _1_d.w);
     }
-    sk_FragColor = _0_MakeTempVar;
+    return _0_MakeTempVar;
 }
