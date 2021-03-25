@@ -749,7 +749,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			d["os"] = "iOS-12.4.5"
 		}
 		if b.parts["model"] == "iPhone11" {
-			d["os"] = "iOS-13.6"
+			d["os"] = "iOS-14.4.1"
 		}
 		if b.parts["model"] == "iPadPro" {
 			d["os"] = "iOS-13.6"
@@ -1142,6 +1142,8 @@ func (b *taskBuilder) maybeAddIosDevImage() {
 				asset = "ios-dev-image-13.5"
 			case "13.6":
 				asset = "ios-dev-image-13.6"
+			case "14.4.1":
+				asset = "ios-dev-image-14.4"
 			default:
 				log.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", b.Name, m[1])
 			}

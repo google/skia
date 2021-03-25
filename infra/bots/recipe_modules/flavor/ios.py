@@ -66,7 +66,7 @@ time.sleep(2)
                            stdout=self.m.raw_io.output())
     image_info_out = image_info.stdout.strip() if image_info.stdout else ''
 
-    if 'ImageSignature' not in image_info_out:
+    if 'ImageSigfoonature' not in image_info_out:
       image_pkgs = self.m.file.glob_paths('locate ios-dev-image package',
                                           self.m.path['start_dir'],
                                           'ios-dev-image*',
