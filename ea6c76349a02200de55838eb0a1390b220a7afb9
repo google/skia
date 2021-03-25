@@ -16,6 +16,24 @@
       "message": "I really liked using pause_gm\n\nCan we try adding some sort of runtime version of that?\n\ne.g. test-continuous --pause-on\u003d\"my test name\"\n",
       "revId": "ea6c76349a02200de55838eb0a1390b220a7afb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdb39979_486ea693",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-25T17:31:29Z",
+      "side": 1,
+      "message": "I\u0027ll look into what jasmine and karma offer (the JS testing framework we use)",
+      "parentUuid": "5cf30f6c_1d6a0e5a",
+      "revId": "ea6c76349a02200de55838eb0a1390b220a7afb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
