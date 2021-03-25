@@ -18,6 +18,7 @@ only -a (--android-dir) argument:
 
 """
 
+from __future__ import print_function
 import os, sys
 import argparse
 import subprocess
@@ -113,7 +114,7 @@ def toggle_google3(args):
 
 def main():
   if len(sys.argv) <= 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
-    print README
+    print(README)
 
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -131,12 +132,12 @@ def main():
   args = parser.parse_args()
 
   if not args.android_dir and not args.chromium_dir and not args.google3:
-    print """
+    print("""
 Nothing to do. Please give me at least one of these three arguments:
   -a (--android-dir)
   -c (--chromium-dir)
   -g (--google3)
-"""
+""")
     exit(1)
 
   end_message = "CLs generated. Now go review and land them:\n"
@@ -152,7 +153,7 @@ Nothing to do. Please give me at least one of these three arguments:
     toggle_android(args)
     end_message += " * http://goto.google.com/androidcl\n"
 
-  print end_message
+  print(end_message)
 
 
 if __name__ == '__main__':

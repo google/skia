@@ -9,6 +9,7 @@
 """Utilities for zipping and unzipping files."""
 
 
+from __future__ import print_function
 import fnmatch
 import ntpath
 import os
@@ -43,11 +44,11 @@ def zip(target_dir, zip_file, to_skip=None):  # pylint: disable=W0622
           perms = os.stat(filepath).st_mode
         except OSError:
           if os.path.islink(filepath):
-            print 'Skipping symlink %s' % filepath
+            print('Skipping symlink %s' % filepath)
             continue
           else:
             raise
-        zi.external_attr = perms << 16L
+        zi.external_attr = perms << 16
         zi.compress_type = zipfile.ZIP_DEFLATED
         with open(filepath, 'rb') as f:
           content = f.read()
@@ -73,5 +74,5 @@ def unzip(zip_file, target_dir):
       else:
         with open(dst_path, 'wb') as f:
           f.write(z.read(zi))
-      perms = zi.external_attr >> 16L
+      perms = zi.external_attr >> 16
       os.chmod(dst_path, perms)

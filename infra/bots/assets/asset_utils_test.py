@@ -39,13 +39,13 @@ def _write_stuff(target_dir):
   """Write some files and directories into target_dir."""
   fw = test_utils.FileWriter(target_dir)
   fw.mkdir('mydir')
-  fw.mkdir('anotherdir', 0666)
-  fw.mkdir('dir3', 0600)
+  fw.mkdir('anotherdir', 0o666)
+  fw.mkdir('dir3', 0o600)
   fw.mkdir('subdir')
-  fw.write('a.txt', 0777)
-  fw.write('b.txt', 0751)
-  fw.write('c.txt', 0640)
-  fw.write(os.path.join('subdir', 'd.txt'), 0640)
+  fw.write('a.txt', 0o777)
+  fw.write('b.txt', 0o751)
+  fw.write('c.txt', 0o640)
+  fw.write(os.path.join('subdir', 'd.txt'), 0o640)
 
 
 class _LocalStore(object):

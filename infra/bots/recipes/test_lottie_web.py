@@ -34,7 +34,7 @@ def RunSteps(api):
   lottie_build = checkout_root.join('lottie', 'build', 'player')
 
   # Make sure this exists, otherwise Docker will make it with root permissions.
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
+  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0o777)
   # When lottie files are brought in via isolate or CIPD, they are just
   # symlinks, which does not work well with Docker because we can't mount
   # the folder as a volume.

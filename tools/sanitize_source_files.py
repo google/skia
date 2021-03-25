@@ -3,9 +3,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
 """Module that sanitizes source files with specified modifiers."""
 
 
+from __future__ import print_function
 import commands
 import os
 import sys
@@ -72,7 +74,7 @@ def SanitizeFilesWithModifiers(directory, file_modifiers, line_modifiers):
             f.write(new_content)
           finally:
             f.close()
-          print 'Made changes to %s' % full_item_path
+          print('Made changes to %s' % full_item_path)
 
     elif item not in _SUBDIRS_TO_IGNORE:
       # Item is a directory recursively call the method.
@@ -86,21 +88,21 @@ def TrailingWhitespaceRemover(line, file_path, line_number):
   """Strips out trailing whitespaces from the specified line."""
   stripped_line = line.rstrip() + '\n'
   if line != stripped_line:
-    print 'Removing trailing whitespace in %s:%s' % (file_path, line_number)
+    print('Removing trailing whitespace in %s:%s' % (file_path, line_number))
   return stripped_line
 
 
 def CrlfReplacer(line, file_path, line_number):
   """Replaces CRLF with LF."""
   if '\r\n' in line:
-    print 'Replacing CRLF with LF in %s:%s' % (file_path, line_number)
+    print('Replacing CRLF with LF in %s:%s' % (file_path, line_number))
   return line.replace('\r\n', '\n')
 
 
 def TabReplacer(line, file_path, line_number):
   """Replaces Tabs with 4 whitespaces."""
   if '\t' in line:
-    print 'Replacing Tab with whitespace in %s:%s' % (file_path, line_number)
+    print('Replacing Tab with whitespace in %s:%s' % (file_path, line_number))
   return line.replace('\t', '    ')
 
 
@@ -119,7 +121,7 @@ def EOFOneAndOnlyOneNewlineAdder(file_content, file_path):
   if file_content and (file_content[-1] != '\n' or file_content[-2:-1] == '\n'):
     file_content = file_content.rstrip()
     file_content += '\n'
-    print 'Added exactly one newline to %s' % file_path
+    print('Added exactly one newline to %s' % file_path)
   return file_content
 
 
@@ -128,7 +130,7 @@ def SvnEOLChecker(file_content, file_path):
   output = commands.getoutput(
       'svn propget svn:eol-style %s' % file_path)
   if output != 'LF':
-    print 'Setting svn:eol-style property to LF in %s' % file_path
+    print('Setting svn:eol-style property to LF in %s' % file_path)
     os.system('svn ps svn:eol-style LF %s' % file_path)
   return file_content
 

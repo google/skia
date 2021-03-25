@@ -5,6 +5,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
+from __future__ import print_function
 import os
 import sys
 import subprocess
@@ -38,7 +40,7 @@ AB_SCRIPT = "ab.py"
 
 def parse_args():
   if len(sys.argv) <= 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
-    print README
+    print(README)
 
   parser = ArgumentParser(
     description='Noiselessly (hence calm) becnhmark a git branch against ' +
@@ -125,7 +127,7 @@ def nano_path(args, branch):
 
 
 def compile_branch(args, branch):
-  print "Compiling branch %s" % args.branch
+  print("Compiling branch %s" % args.branch)
 
   commands = [
     ['git', 'checkout', branch],
@@ -137,14 +139,14 @@ def compile_branch(args, branch):
 
 
 def compile_modified(args):
-  print "Compiling modified code"
+  print("Compiling modified code")
   subprocess.check_call(
       ['ninja', '-C', args.ninjadir, 'nanobench'], cwd=args.skiadir)
   subprocess.check_call(
       ['cp', args.ninjadir + '/nanobench', nano_path(args, args.branch)],
       cwd=args.skiadir)
 
-  print "Compiling stashed code"
+  print("Compiling stashed code")
   stash_output = subprocess.check_output(['git', 'stash'], cwd=args.skiadir)
   if 'No local changes to save' in stash_output:
     subprocess.check_call(['git', 'reset', 'HEAD^', '--soft'])
@@ -209,7 +211,7 @@ def main():
     try:
       p.terminate()
     except OSError as e:
-      print e
+      print(e)
 
 
 if __name__ == "__main__":

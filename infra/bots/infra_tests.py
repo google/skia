@@ -9,6 +9,7 @@
 """Run all infrastructure-related tests."""
 
 
+from __future__ import print_function
 import os
 import subprocess
 import sys
@@ -73,17 +74,17 @@ def main():
       errs.append(err)
 
   if len(errs) > 0:
-    print >> sys.stderr, 'Test failures:\n'
+    print('Test failures:\n', file=sys.stderr)
     for err in errs:
-      print >> sys.stderr, '=============================='
-      print >> sys.stderr, err
-      print >> sys.stderr, '=============================='
+      print('==============================', file=sys.stderr)
+      print(err, file=sys.stderr)
+      print('==============================', file=sys.stderr)
     sys.exit(1)
 
   if train:
-    print 'Trained tests successfully.'
+    print('Trained tests successfully.')
   else:
-    print 'All tests passed!'
+    print('All tests passed!')
 
 
 if __name__ == '__main__':

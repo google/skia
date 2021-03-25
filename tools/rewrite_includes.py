@@ -5,10 +5,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
+from __future__ import print_function
 import StringIO
 import argparse
 import os
 import sys
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--dry-run', action='store_true',
@@ -53,7 +56,7 @@ for root in roots:
       for file_name in files:
         if file_name.endswith('.h'):
           if file_name in headers:
-            print path, file_name, headers[file_name]
+            print(path, file_name, headers[file_name])
           assert file_name not in headers
           headers[file_name] = os.path.abspath(os.path.join(path, file_name))
 
@@ -109,9 +112,9 @@ for file_path in to_rewrite():
     output.close()
 
 if need_rewriting:
-  print 'Some files need rewritten #includes:'
+  print('Some files need rewritten #includes:')
   for path in need_rewriting:
-    print '\t' + path
-  print 'To do this automatically, run'
-  print 'python tools/rewrite_includes.py ' + ' '.join(need_rewriting)
+    print('\t' + path)
+  print('To do this automatically, run')
+  print('python tools/rewrite_includes.py ' + ' '.join(need_rewriting))
   sys.exit(1)

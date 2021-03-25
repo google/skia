@@ -21,7 +21,7 @@ def compile_fn(api, checkout_root, _ignore):
   # owned by root, which causes mysterious failures. To mitigate this risk
   # further, we don't use the same out_dir as everyone else (thus the _ignore)
   # param. Instead, we use a "cmake" subdirectory in the "docker" named_cache.
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
+  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0o777)
 
   # This uses the cmake docker image and says "run the
   # build_skia.sh helper script in there". Additionally, it binds two

@@ -5,6 +5,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
+from __future__ import print_function
 import optparse
 import re
 import subprocess
@@ -35,7 +37,7 @@ def main(interval):
     endframe = query_surfaceflinger_frame_count()
     endtime = time.time()
     fps = (endframe - startframe) / (endtime - starttime)
-    print "%.2f" % fps
+    print("%.2f" % fps)
 
     startframe = endframe
     starttime = endtime

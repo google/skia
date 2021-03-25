@@ -7,12 +7,16 @@ Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
 '''
 
+
+from __future__ import print_function
 import math
 import pprint
+
 
 def withinStdDev(n):
   """Returns the percent of samples within n std deviations of the normal."""
   return math.erf(n / math.sqrt(2))
+
 
 def withinStdDevRange(a, b):
   """Returns the percent of samples within the std deviation range a, b"""
@@ -98,7 +102,7 @@ for sample_offset, sample_align in sample_offsets:
     delta = 1
 
   if delta:
-    print "Initial sum is 0x%0.2X, adjusting." % (coeffs_rounded_sum,)
+    print("Initial sum is 0x%0.2X, adjusting." % (coeffs_rounded_sum,))
     coeff_diff = [(coeff_rounded - coeff) * delta
                   for coeff, coeff_rounded in zip(coeffs, coeffs_rounded)]
 
@@ -120,14 +124,14 @@ for sample_offset, sample_align in sample_offsets:
     # either is pretty bad, and probably means the results will not be useful.
     num_elements_to_force_round = abs(coeffs_rounded_sum - target_sum)
     for i in xrange(num_elements_to_force_round):
-      print "Adding %d to index %d to force round %f." % (
-          delta, coeff_pkg[i].index, coeffs[coeff_pkg[i].index])
+      print("Adding %d to index %d to force round %f." % (
+          delta, coeff_pkg[i].index, coeffs[coeff_pkg[i].index]))
       coeffs_rounded[coeff_pkg[i].index] += delta
 
-  print "Prepending %d 0x00 for allignment." % (sample_align,)
+  print("Prepending %d 0x00 for allignment." % (sample_align,))
   coeffs_rounded_aligned = ([0] * int(sample_align)) + coeffs_rounded
 
-  print ', '.join(["0x%0.2X" % coeff_rounded
-                   for coeff_rounded in coeffs_rounded_aligned])
-  print sum(coeffs), hex(sum(coeffs_rounded))
-  print
+  print(', '.join(["0x%0.2X" % coeff_rounded
+                   for coeff_rounded in coeffs_rounded_aligned]))
+  print(sum(coeffs), hex(sum(coeffs_rounded)))
+  print()

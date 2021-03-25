@@ -21,6 +21,8 @@
 # P.S. The current script is brute forcely translated from a ruby script. So it
 # may be ugly...
 
+
+from __future__ import print_function
 import re
 import os
 import sys
@@ -188,7 +190,7 @@ class ThreadRunner:
 
     if len(exceptions):
       for exc in exceptions:
-        print exc
+        print(exc)
       raise exceptions[0]
 
 
@@ -214,7 +216,7 @@ def run(args, threadRunner, name, nano, arg, i):
     if should_run:
       if i > 0:
         timesLock.acquire()
-        print "Init run %d for %s..." % (i, name)
+        print("Init run %d for %s..." % (i, name))
         timesLock.release()
       subprocess.check_call(["touch", file_i])
       with open(file_i, 'w') as f:
@@ -316,7 +318,7 @@ def test():
     if (len(suspects) == 0 or it - last_unchanged_iter >= TERM):
       break
 
-    print "Number of suspects at iteration %d: %d" % (it, len(suspects))
+    print("Number of suspects at iteration %d: %d" % (it, len(suspects)))
     threadRunner = ThreadRunner(args)
     for j in range(1, max(1, args.threads / 2) + 1):
       run(args, threadRunner, args.a, args.nano_a,
@@ -328,19 +330,17 @@ def test():
 
   suspects = get_suspects()
   if len(suspects) == 0:
-    print ("%s and %s does not seem to have significant " + \
-           "performance differences.") % (args.a, args.b)
+    print(("%s and %s does not seem to have significant " + \
+           "performance differences.") % (args.a, args.b))
   else:
     suspects.sort(key = regression)
-    print "%s (compared to %s) is likely" % (args.a, args.b)
+    print("%s (compared to %s) is likely" % (args.a, args.b))
     for suspect in suspects:
       r = regression(suspect)
       if r < 1:
-        print "\033[31m  %s slower in %s\033[0m" % \
-                (format_r(1/r), suspect)
+        print("\033[31m  %s slower in %s\033[0m" % (format_r(1/r), suspect))
       else:
-        print "\033[32m  %s faster in %s\033[0m" % \
-                (format_r(r), suspect)
+        print("\033[32m  %s faster in %s\033[0m" % (format_r(r), suspect))
 
   with open("%s/bench_%s_%s.json" % (args.outdir, args.a, args.b), 'w') as f:
     results = {}
@@ -371,7 +371,7 @@ def test():
         keys[args.keys[i * 2]] = args.keys[i * 2 + 1]
       output["key"] = keys
     f.write(json.dumps(output, indent=4))
-    print ("\033[36mJSON results available in %s\033[0m" % f.name)
+    print(("\033[36mJSON results available in %s\033[0m" % f.name))
 
   with open("%s/bench_%s_%s.csv" % (args.outdir, args.a, args.b), 'w') as out:
     out.write(("bench, significant?, raw regresion, " +
@@ -388,20 +388,19 @@ def test():
           ' '.join(map(str, get_lower_upper(tb))) + ", " +
           ("%s, %s\n" % (' '.join(map(str, ta)), ' '.join(map(str, tb))))
       )
-    print (("\033[36m" +
+    print(("\033[36m" +
            "Compared %d benches. " +
            "%d of them seem to be significantly differrent." +
            "\033[0m") %
            (len([x for x in timesA if x in timesB]), len(suspects)))
-    print ("\033[36mPlease see detailed bench results in %s\033[0m" %
-            out.name)
+    print("\033[36mPlease see detailed bench results in %s\033[0m" % out.name)
 
 
 if __name__ == "__main__":
   try:
     test()
   except Exception as e:
-    print e
-    print HELP
+    print(e)
+    print(HELP)
     traceback.print_exc()
     raise e

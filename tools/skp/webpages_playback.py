@@ -51,6 +51,8 @@ SKP(s). The tools are run after all SKPs are succesfully captured to make sure
 they can be added to the buildbots with no breakages.
 """
 
+
+from __future__ import print_function
 import datetime
 import glob
 import optparse
@@ -241,7 +243,7 @@ class SkPicturePlayback(object):
       page_set_dir = os.path.dirname(page_set)
 
       if self._IsChromiumPageSet(page_set):
-        print 'Using Chromium\'s captured archives for Chromium\'s page sets.'
+        print('Using Chromium\'s captured archives for Chromium\'s page sets.')
       elif self._record:
         # Create an archive of the specified webpages if '--record=True' is
         # specified.
@@ -306,12 +308,12 @@ class SkPicturePlayback(object):
 
       for _ in range(RETRY_RUN_MEASUREMENT_COUNT):
         try:
-          print '\n\n=======Capturing SKP of %s=======\n\n' % page_set
+          print('\n\n=======Capturing SKP of %s=======\n\n' % page_set)
           subprocess.check_call(' '.join(run_benchmark_cmd), shell=True)
         except subprocess.CalledProcessError:
           # There was a failure continue with the loop.
           traceback.print_exc()
-          print '\n\n=======Retrying %s=======\n\n' % page_set
+          print('\n\n=======Retrying %s=======\n\n' % page_set)
           time.sleep(10)
           continue
 
@@ -321,7 +323,7 @@ class SkPicturePlayback(object):
         except InvalidSKPException:
           # There was a failure continue with the loop.
           traceback.print_exc()
-          print '\n\n=======Retrying %s=======\n\n' % page_set
+          print('\n\n=======Retrying %s=======\n\n' % page_set)
           time.sleep(10)
           continue
 
@@ -332,8 +334,8 @@ class SkPicturePlayback(object):
         # break out of the loop.
         raise Exception('run_benchmark failed for page_set: %s' % page_set)
 
-    print '\n\n=======Capturing SKP files took %s seconds=======\n\n' % (
-        time.time() - start_time)
+    print('\n\n=======Capturing SKP files took %s seconds=======\n\n' % (
+          time.time() - start_time))
 
     if self._skia_tools:
       render_pictures_cmd = [
@@ -346,18 +348,18 @@ class SkPicturePlayback(object):
       ]
 
       for tools_cmd in (render_pictures_cmd, render_pdfs_cmd):
-        print '\n\n=======Running %s=======' % ' '.join(tools_cmd)
+        print('\n\n=======Running %s=======' % ' '.join(tools_cmd))
         subprocess.check_call(tools_cmd)
 
       if not self._non_interactive:
-        print '\n\n=======Running debugger======='
+        print('\n\n=======Running debugger=======')
         os.system('%s %s' % (os.path.join(self._skia_tools, 'debugger'),
                              self._local_skp_dir))
 
-    print '\n\n'
+    print('\n\n')
 
     if self._upload:
-      print '\n\n=======Uploading to %s=======\n\n' % self.gs.target_type()
+      print('\n\n=======Uploading to %s=======\n\n' % self.gs.target_type())
       # Copy the directory structure in the root directory into Google Storage.
       dest_dir_name = ROOT_PLAYBACK_DIR_NAME
       if self._alternate_upload_dir:
@@ -366,29 +368,28 @@ class SkPicturePlayback(object):
       self.gs.upload_dir_contents(
           self._local_skp_dir, dest_dir=dest_dir_name)
 
-      print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
-          posixpath.join(self.gs.target_name(), dest_dir_name,
-                         SKPICTURES_DIR_NAME))
+      print('\n\n=======New SKPs have been uploaded to %s =======\n\n' %
+            posixpath.join(self.gs.target_name(), dest_dir_name,
+                           SKPICTURES_DIR_NAME))
 
     else:
-      print '\n\n=======Not Uploading to %s=======\n\n' % self.gs.target_type()
-      print 'Generated resources are available in %s\n\n' % (
-          self._local_skp_dir)
+      print('\n\n=======Not Uploading to %s=======\n\n' % self.gs.target_type())
+      print('Generated resources are available in %s\n\n' % self._local_skp_dir)
 
     if self._upload_to_partner_bucket:
-      print '\n\n=======Uploading to Partner bucket %s =======\n\n' % (
-          PARTNERS_GS_BUCKET)
+      print('\n\n=======Uploading to Partner bucket %s =======\n\n' %
+            PARTNERS_GS_BUCKET)
       partner_gs = GoogleStorageDataStore(PARTNERS_GS_BUCKET)
       timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d')
       upload_dir = posixpath.join(SKPICTURES_DIR_NAME, timestamp)
       try:
         partner_gs.delete_path(upload_dir)
       except subprocess.CalledProcessError:
-        print 'Cannot delete %s because it does not exist yet.' % upload_dir
-      print 'Uploading %s to %s' % (self._local_skp_dir, upload_dir)
+        print('Cannot delete %s because it does not exist yet.' % upload_dir)
+      print('Uploading %s to %s' % (self._local_skp_dir, upload_dir))
       partner_gs.upload_dir_contents(self._local_skp_dir, upload_dir)
-      print '\n\n=======New SKPs have been uploaded to %s =======\n\n' % (
-          posixpath.join(partner_gs.target_name(), upload_dir))
+      print('\n\n=======New SKPs have been uploaded to %s =======\n\n' %
+            posixpath.join(partner_gs.target_name(), upload_dir))
 
     return 0
 
@@ -442,7 +443,7 @@ class SkPicturePlayback(object):
       largest_skp = max(glob.glob(os.path.join(site, '*.skp')),
                         key=lambda path: os.stat(path).st_size)
       dest = os.path.join(self._local_skp_dir, filename)
-      print 'Moving', largest_skp, 'to', dest
+      print('Moving', largest_skp, 'to', dest)
       shutil.move(largest_skp, dest)
       self._skp_files.append(filename)
       shutil.rmtree(site)

@@ -6,6 +6,7 @@
 # found in the LICENSE file.
 
 
+from __future__ import print_function
 from __future__ import with_statement
 
 # Imports the monkeyrunner modules used by this program
@@ -156,20 +157,20 @@ def main():
 
   for app_file in app_files:
     app = load_app(app_file)
-    print app.name
-    print '  Package %s' % app.package
+    print(app.name)
+    print('  Package %s' % app.package)
     app.launch(device)
-    print '  Launched activity %s' % app.activity
+    print('  Launched activity %s' % app.activity)
 
     for action in app.actions:
-      print '  %s' % action.__class__.__name__
+      print('  %s' % action.__class__.__name__)
       action.run(device)
 
     time.sleep(WAIT_FOR_SKP_CAPTURE)
-    print '  Capturing SKP.'
+    print('  Capturing SKP.')
     skp_file = '%s.skp' % app.name
     capture_skp(skp_file, app.package, device)
-    print '  Wrote SKP to %s' % skp_file
+    print('  Wrote SKP to %s' % skp_file)
     print
     app.kill()
 

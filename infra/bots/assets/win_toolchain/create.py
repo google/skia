@@ -19,6 +19,8 @@ That script produces a .zip file with a SHA filename. Unzip that file, then
 pass the unzipped directory as the src_dir to this script.
 """
 
+
+from __future__ import print_function
 import argparse
 import common
 import os
@@ -45,13 +47,13 @@ def filter_toolchain_files(dirname, files):
   split = dirname.split(os.path.sep)
   for ign in IGNORE_LIST:
     if ign in split:
-       print 'Ignoring dir %s' % dirname
+       print('Ignoring dir %s' % dirname)
        return files
   return []
 
 def main():
   if sys.platform != 'win32':
-    print >> sys.stderr, 'This script only runs on Windows.'
+    print('This script only runs on Windows.', file=sys.stderr)
     sys.exit(1)
 
   parser = argparse.ArgumentParser()
