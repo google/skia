@@ -234,6 +234,8 @@ var CanvasKit = {
       concat: function() {},
       drawArc: function() {},
       drawAtlas: function() {},
+      drawAtlasOptions: function() {},
+      drawAtlasCubic: function() {},
       drawColor: function() {},
       drawColorComponents: function() {},
       drawDRRect:  function() {},
@@ -262,6 +264,8 @@ var CanvasKit = {
     _concat: function() {},
     _drawArc: function() {},
     _drawAtlas: function() {},
+    _drawAtlasOptions: function() {},
+    _drawAtlasCubic: function() {},
     _drawColor: function() {},
     _drawDRRect:  function() {},
     _drawImageNine: function() {},
@@ -871,6 +875,12 @@ var CanvasKit = {
   ImageFormat: {
     PNG: {},
     JPEG: {},
+  },
+
+  MipmapMode: {
+    None: {},
+    Nearest: {},
+    Linear: {},
   },
 
   PaintStyle: {
