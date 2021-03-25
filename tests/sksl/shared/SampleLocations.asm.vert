@@ -55,7 +55,7 @@ OpDecorate %vcoord_Stage0 NoPerspective
 %int_0 = OpConstant %int 0
 %int_2 = OpConstant %int 2
 %bool = OpTypeBool
-%float_16 = OpConstant %float 16
+%float_0_0625 = OpConstant %float 0.0625
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %int_n1 = OpConstant %int -1
 %_ptr_Output_float = OpTypePointer Output %float
@@ -133,25 +133,25 @@ OpBranch %72
 OpStore %outset %76
 %78 = OpLoad %int %ileft
 %79 = OpConvertSToF %float %78
-%81 = OpFDiv %float %79 %float_16
+%81 = OpFMul %float %79 %float_0_0625
 %82 = OpLoad %float %outset
 %83 = OpFSub %float %81 %82
 OpStore %l %83
 %85 = OpLoad %int %iright
 %86 = OpConvertSToF %float %85
-%87 = OpFDiv %float %86 %float_16
+%87 = OpFMul %float %86 %float_0_0625
 %88 = OpLoad %float %outset
 %89 = OpFAdd %float %87 %88
 OpStore %r %89
 %91 = OpLoad %int %itop
 %92 = OpConvertSToF %float %91
-%93 = OpFDiv %float %92 %float_16
+%93 = OpFMul %float %92 %float_0_0625
 %94 = OpLoad %float %outset
 %95 = OpFSub %float %93 %94
 OpStore %t %95
 %97 = OpLoad %int %ibot
 %98 = OpConvertSToF %float %97
-%99 = OpFDiv %float %98 %float_16
+%99 = OpFMul %float %98 %float_0_0625
 %100 = OpLoad %float %outset
 %101 = OpFAdd %float %99 %100
 OpStore %b %101
