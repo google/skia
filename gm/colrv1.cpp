@@ -31,7 +31,7 @@ public:
 protected:
     struct EmojiFont {
         sk_sp<SkTypeface> fTypeface;
-        const uint16_t fGlyphs[9] = {19, 33, 34, 20, 21, 22, 23, 24, 25 };
+        const uint16_t fGlyphs[10] = { 19, 33, 34, 35, 20, 21, 22, 23, 24, 25 };
         const size_t fGlyphs_bytesize =
           SK_ARRAY_COUNT(fGlyphs) * sizeof(uint16_t);
     } fEmojiFont;
@@ -50,7 +50,7 @@ protected:
         return SkString("colrv1");
     }
 
-    SkISize onISize() override { return SkISize::Make(1200, 600); }
+    SkISize onISize() override { return SkISize::Make(1400, 600); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->drawColor(SK_ColorWHITE);

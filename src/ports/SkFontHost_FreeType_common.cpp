@@ -671,6 +671,14 @@ void colrv1_draw_paint(SkCanvas* canvas,
             canvas->concat(transform);
             break;
         }
+        case FT_COLR_PAINTFORMAT_TRANSLATE: {
+            SkMatrix translate = SkMatrix::Translate(
+                SkFixedToScalar(colrv1_paint.u.translate.dx),
+                -SkFixedToScalar(colrv1_paint.u.translate.dy));
+
+            canvas->concat(translate);
+            break;
+        }
         case FT_COLR_PAINTFORMAT_ROTATE: {
             SkMatrix rotation = SkMatrix::RotateDeg(
                     SkFixedToScalar(colrv1_paint.u.rotate.angle),
@@ -766,6 +774,14 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result =
                     colrv1_traverse_paint(canvas, palette, face, paint.u.transformed.paint);
+            canvas->restore();
+            break;
+      case FT_COLR_PAINTFORMAT_TRANSLATE:
+            canvas->saveLayer(nullptr, nullptr);
+            // Traverse / draw operation will apply transform.
+            colrv1_draw_paint(canvas, palette, face, paint);
+            traverse_result =
+                    colrv1_traverse_paint(canvas, palette, face, paint.u.translate.paint);
             canvas->restore();
             break;
       case FT_COLR_PAINTFORMAT_ROTATE:
