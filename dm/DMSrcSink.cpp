@@ -1813,12 +1813,12 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADataTypes(*dContext);
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADataTypes);
-    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
-    if (!compressedPictureData) {
+    sk_sp<SkPicture> newSKP = promiseImageHelper.recreateSKP(inputPicture.get(), dContext);
+    if (!newSKP) {
         return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
     }
 
-    promiseImageHelper.createCallbackContexts(dContext);
+//    promiseImageHelper.createCallbackContexts(dContext);
 
     // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
     // thread w/o a context.
@@ -1840,10 +1840,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     tiles.createBackendTextures(gpuTaskGroup, dContext);
 
-    // Reinflate the compressed picture.
-    tiles.createSKP(dContext->threadSafeProxy(), compressedPictureData.get(), promiseImageHelper);
-
-    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, dContext);
+    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, dContext, newSKP.get());
 
     // We have to wait for the recording threads to schedule all their work on the gpu thread
     // before we can schedule the composition draw and the flush. Note that the gpu thread
@@ -1862,15 +1859,15 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     // This should be the only explicit flush for the entire DDL draw.
     gpuTaskGroup->add([dContext]() {
-                                           // We need to ensure all the GPU work is finished so
-                                           // the following 'deleteAllFromGPU' call will work
-                                           // on Vulkan.
-                                           // TODO: switch over to using the promiseImage callbacks
-                                           // to free the backendTextures. This is complicated a
-                                           // bit by which thread possesses the direct context.
-                                           dContext->flush();
-                                           dContext->submit(true);
-                                       });
+                                        // We need to ensure all the GPU work is finished so
+                                        // the following 'deleteAllFromGPU' call will work
+                                        // on Vulkan.
+                                        // TODO: switch over to using the promiseImage callbacks
+                                        // to free the backendTextures. This is complicated a
+                                        // bit by which thread possesses the direct context.
+                                        dContext->flush();
+                                        dContext->submit(true);
+                                    });
 
     // The backend textures are created on the gpuThread by the 'uploadAllToGPU' call.
     // It is simpler to also delete them at this point on the gpuThread.
