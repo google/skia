@@ -57,9 +57,6 @@ public:
                                const SkSamplingOptions&,const SkPaint*, SrcRectConstraint) override;
 
 private:
-    void drawPosTextCommon(const SkGlyphID[], int, const SkScalar[], int, const SkPoint&,
-                           const SkFont&, const SkPaint&);
-
     inline SkPaint overdrawPaint(const SkPaint& paint);
 
     SkPaint   fPaint;

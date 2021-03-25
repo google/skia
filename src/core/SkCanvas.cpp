@@ -2283,9 +2283,22 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         return;
     }
 
-    AutoLayerForImageFilter layer(this, paint, &bounds);
-    // We can't hoist building the glyph run list because some of the text blob runs may be RSXform.
-    fScratchGlyphRunBuilder->drawTextBlob(layer.paint(), *blob, {x, y}, this->topDevice());
+    auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(*blob, {x, y});
+    this->onDrawGlyphRunList(glyphRunList, paint, {x, y});
+}
+
+void SkCanvas::onDrawGlyphRunList(
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint, SkPoint origin) {
+
+    SkRect* bounds = nullptr;
+    SkRect boundStorage;
+    if (glyphRunList.blob() != nullptr) {
+        boundStorage = glyphRunList.blob()->bounds().makeOffset(origin);
+        bounds = &boundStorage;
+    }
+
+    AutoLayerForImageFilter layer(this, paint, bounds);
+    this->topDevice()->drawGlyphRunList(glyphRunList, layer.paint());
 }
 
 // These call the (virtual) onDraw... method
