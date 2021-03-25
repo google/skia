@@ -2458,14 +2458,14 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
 }
 
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
-    const Expression& left = *b.left();
-    const Expression& right = *b.right();
+    const Expression* left = b.left().get();
+    const Expression* right = b.right().get();
     Operator op = b.getOperator();
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (op.kind()) {
         case Token::Kind::TK_EQ: {
-            SpvId rhs = this->writeExpression(right, out);
-            this->getLValue(left, out)->store(rhs, out);
+            SpvId rhs = this->writeExpression(*right, out);
+            this->getLValue(*left, out)->store(rhs, out);
             return rhs;
         }
         case Token::Kind::TK_LOGICALAND:
@@ -2479,15 +2479,32 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
     std::unique_ptr<LValue> lvalue;
     SpvId lhs;
     if (op.isAssignment()) {
-        lvalue = this->getLValue(left, out);
+        lvalue = this->getLValue(*left, out);
         lhs = lvalue->load(out);
     } else {
         lvalue = nullptr;
-        lhs = this->writeExpression(left, out);
+        lhs = this->writeExpression(*left, out);
     }
-    SpvId rhs = this->writeExpression(right, out);
-    SpvId result = this->writeBinaryExpression(left.type(), lhs, op.removeAssignment(),
-                                               right.type(), rhs, b.type(), out);
+
+    SpvId rhs = (SpvId)-1;
+    if (op.kind() == Token::Kind::TK_SLASH && right->is<FloatLiteral>()) {
+        float rhsValue = right->as<FloatLiteral>().value();
+        if (std::isfinite(rhsValue) && rhsValue != 0.0f) {
+            // Rewrite floating-point division by a literal into multiplication by the reciprocal.
+            // This converts `expr / 2` into `expr * 0.5`
+            // This improves codegen, especially for certain types of divides (e.g. vector/scalar).
+            op = Operator(Token::Kind::TK_STAR);
+            FloatLiteral reciprocal{right->fOffset, 1.0f / rhsValue, &right->type()};
+            rhs = this->writeExpression(reciprocal, out);
+        }
+    }
+
+    if (rhs == (SpvId)-1) {
+        rhs = this->writeExpression(*right, out);
+    }
+
+    SpvId result = this->writeBinaryExpression(left->type(), lhs, op.removeAssignment(),
+                                               right->type(), rhs, b.type(), out);
     if (lvalue) {
         lvalue->store(result, out);
     }
