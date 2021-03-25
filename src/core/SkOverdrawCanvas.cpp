@@ -76,6 +76,11 @@ void SkOverdrawCanvas::onDrawTextBlob(
         const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
     SkGlyphRunBuilder b;
     auto glyphRunList = b.blobToGlyphRunList(*blob, {x, y});
+    this->onDrawGlyphRunList(glyphRunList, paint);
+}
+
+void SkOverdrawCanvas::onDrawGlyphRunList(
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     SkSurfaceProps props{0, kUnknown_SkPixelGeometry};
     this->getProps(&props);
     TextDevice device{this, props};
@@ -242,3 +247,4 @@ inline SkPaint SkOverdrawCanvas::overdrawPaint(const SkPaint& paint) {
     newPaint.setStrokeWidth(paint.getStrokeWidth());
     return newPaint;
 }
+

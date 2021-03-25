@@ -106,6 +106,7 @@ SkRect SkGlyphRun::sourceBounds(const SkPaint& paint) const {
 
 // -- SkGlyphRunList -------------------------------------------------------------------------------
 SkGlyphRunList::SkGlyphRunList() = default;
+
 SkGlyphRunList::SkGlyphRunList(
         const SkTextBlob* blob,
         SkRect bounds,
@@ -116,7 +117,7 @@ SkGlyphRunList::SkGlyphRunList(
         , fSourceBounds{bounds}
         , fOrigin{origin} { }
 
-SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun, const SkRect& bounds)
+SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun,  const SkRect& bounds)
         : fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}}
         , fOriginalTextBlob{nullptr}
         , fSourceBounds{bounds}
@@ -139,6 +140,20 @@ bool SkGlyphRunList::anyRunsLCD() const {
 void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
     fOriginalTextBlob->notifyAddedToCache(cacheID);
+}
+
+sk_sp<SkTextBlob> SkGlyphRunList::makeBlob() const {
+    SkTextBlobBuilder builder;
+
+    // TODO(herb): add text and clusters
+    for (auto& run : *this) {
+        auto buffer = builder.allocRunPos(run.font(), run.runSize(), nullptr);
+        auto glyphIDs = run.glyphsIDs();
+        memcpy(buffer.glyphs, glyphIDs.data(), glyphIDs.size_bytes());
+        auto positions = run.positions();
+        memcpy(buffer.points(), positions.data(), positions.size_bytes());
+    }
+    return builder.make();
 }
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------

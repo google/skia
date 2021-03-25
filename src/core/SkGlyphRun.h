@@ -12,12 +12,17 @@
 #include <vector>
 
 #include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkZip.h"
+#include "src/shaders/SkLocalMatrixShader.h"
 
 class SkBaseDevice;
 class SkGlyph;
@@ -93,6 +98,8 @@ public:
         }
         return false;
     }
+
+    sk_sp<SkTextBlob> makeBlob() const;
 
     SkPoint origin() const { return fOrigin; }
     SkRect sourceBounds() const { return fSourceBounds; }
