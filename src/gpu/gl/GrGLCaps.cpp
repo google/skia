@@ -4095,11 +4095,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kAdreno530_GrGLRenderer == ctxInfo.renderer()) {
         shaderCaps->fUseNodePools = false;
     }
-
-    // skbug.com/11204. Avoid recursion issue in GrSurfaceContext::writePixels.
-    if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
-        fReuseScratchTextures = false;
-    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
