@@ -22,6 +22,30 @@
       },
       "revId": "6cce76f024b51814ff37d6ad17fe2a1df4d9bcfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d73b198_00ce7ab0",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-25T13:23:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5d68551_8482f7db",
+      "range": {
+        "startLine": 1059,
+        "startChar": 4,
+        "endLine": 1059,
+        "endChar": 13
+      },
+      "revId": "6cce76f024b51814ff37d6ad17fe2a1df4d9bcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
