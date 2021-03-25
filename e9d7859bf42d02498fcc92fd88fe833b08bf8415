@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40562f5b_67d5a42b",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-03-25T18:57:35Z",
+      "side": 1,
+      "message": "Why is this at the beginning rather than between the type and identifier, like other instances?",
+      "range": {
+        "startLine": 952,
+        "startChar": 4,
+        "endLine": 952,
+        "endChar": 15
+      },
+      "revId": "e9d7859bf42d02498fcc92fd88fe833b08bf8415",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
