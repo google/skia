@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9280d94c_259004ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-25T21:57:11Z",
+      "side": 1,
+      "message": "That\u0027s not the var in question. The tag is required on the parameter to main(), which is a user-created var. The SkSL side of things handles this in SkSLIRGenerator.cpp::convertFunction() - look for \"m.fLayout.fBuiltin \u003d SK_MAIN_COORDS_BUILTIN;\".",
+      "parentUuid": "20e07ff7_d38cbe35",
+      "revId": "9c4170e730ef12b46724922f0f6fe8a1033ca0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "244e3148_b9952f69",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-03-25T20:23:06Z",
       "side": 1,
       "message": "What happens after the Variable is created? It\u0027s released? Should someone then look at fVar-\u003etype()? The comment should probably talk about this.",
+      "range": {
+        "startLine": 123,
+        "startChar": 4,
+        "endLine": 123,
+        "endChar": 88
+      },
+      "revId": "9c4170e730ef12b46724922f0f6fe8a1033ca0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d1b5644_702c4a18",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-25T21:57:11Z",
+      "side": 1,
+      "message": "I\u0027ve clarified the comment.",
+      "parentUuid": "244e3148_b9952f69",
       "range": {
         "startLine": 123,
         "startChar": 4,
