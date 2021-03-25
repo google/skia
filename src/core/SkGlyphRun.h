@@ -71,7 +71,9 @@ public:
             SkPoint origin,
             SkSpan<const SkGlyphRun> glyphRunList);
 
-    SkGlyphRunList(const SkGlyphRun& glyphRun, const SkRect& bounds);
+    SkGlyphRunList(const SkGlyphRun& glyphRun, const SkRect& bounds, SkPoint origin);
+
+
 
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
@@ -93,6 +95,8 @@ public:
         }
         return false;
     }
+
+    sk_sp<SkTextBlob> makeBlob() const;
 
     SkPoint origin() const { return fOrigin; }
     SkRect sourceBounds() const { return fSourceBounds; }
