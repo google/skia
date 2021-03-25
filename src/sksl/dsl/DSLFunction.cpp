@@ -32,13 +32,13 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
             DSLWriter::ReportError("error: using an already-declared variable as a function "
                                    "parameter\n");
         }
-        if (param->fDeclaration && param->fDeclaration->as<VarDeclaration>().value()) {
+        if (param->fInitialValue.release()) {
             DSLWriter::ReportError("error: variables used as function parameters cannot have "
                                    "initial values\n");
         }
         param->fDeclared = true;
-        param->fDeclaration = nullptr;
         paramVars.push_back(&DSLWriter::Var(*param));
+        param->fDeclaration = nullptr;
     }
     SkSL::SymbolTable& symbols = *DSLWriter::SymbolTable();
     fDecl = symbols.add(std::make_unique<SkSL::FunctionDeclaration>(
