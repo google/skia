@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57d2caaf_6cf1583b",
+        "filename": "include/sksl/DSLExpression.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-03-25T20:00:29Z",
+      "side": 0,
+      "message": "When updating this to remove the const, I realized the overload is unnecessary because DSLVar can be implicitly converted to DSLExpression.",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 55
+      },
+      "revId": "c98b2afc7be9c0945d9a2bd73ae9e375d94312ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
