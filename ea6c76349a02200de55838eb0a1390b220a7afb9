@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cf30f6c_1d6a0e5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-25T17:25:24Z",
+      "side": 1,
+      "message": "I really liked using pause_gm\n\nCan we try adding some sort of runtime version of that?\n\ne.g. test-continuous --pause-on\u003d\"my test name\"\n",
+      "revId": "ea6c76349a02200de55838eb0a1390b220a7afb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
