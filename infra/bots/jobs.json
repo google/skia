@@ -315,6 +315,8 @@
   "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal",
   "Perf-iOS-Xcode11.4.1-iPhone11-GPU-AppleA13-arm64-Release-All",
   "Perf-iOS-Xcode11.4.1-iPhone11-GPU-AppleA13-arm64-Release-All-Metal",
+  "Perf-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All",
+  "Perf-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal",
   "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android",
   "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android",
   "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android",
@@ -615,5 +617,9 @@
   "Test-iOS-Xcode11.4.1-iPhone11-GPU-AppleA13-arm64-Debug-All",
   "Test-iOS-Xcode11.4.1-iPhone11-GPU-AppleA13-arm64-Debug-All-Metal",
   "Test-iOS-Xcode11.4.1-iPhone11-GPU-AppleA13-arm64-Release-All",
-  "Test-iOS-Xcode11.4.1-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
+  "Test-iOS-Xcode11.4.1-iPhone11-GPU-AppleA13-arm64-Release-All-Metal",
+  "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All",
+  "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All-Metal",
+  "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All",
+  "Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"
 ]
