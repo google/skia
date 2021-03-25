@@ -296,31 +296,51 @@ describe('Core canvas behavior', () => {
         paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
 
         const srcs = [
-              0,   0, 256, 256,
-            256,   0, 512, 256,
-              0, 256, 256, 512,
-            256, 256, 512, 512,
+            0, 0,  8,  8,
+            8, 0, 16,  8,
+            0, 8,  8, 16,
+            8, 8, 16, 16,
         ];
 
         const dsts = [
-            0.5, 0,  20,  20,
-            0.5, 0, 300,  20,
-            0.5, 0,  20, 300,
-            0.5, 0, 300, 300,
+            10, 0,   0,   0,
+            10, 0, 100,   0,
+            10, 0,   0, 100,
+            10, 0, 100, 100,
         ];
 
         const colors = Uint32Array.of(
             CanvasKit.ColorAsInt( 85, 170,  10, 128), // light green
             CanvasKit.ColorAsInt( 51,  51, 191, 128), // light blue
             CanvasKit.ColorAsInt(  0,   0,   0, 128),
-            CanvasKit.ColorAsInt(256, 256, 256, 128),
+            CanvasKit.ColorAsInt(255, 255, 255, 128),
         );
 
-        canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
+        // sampling for each of the 4 instances
+        const sampling = [
+            null,
+            {B: 0, C: 0.5},
+            {filter: CanvasKit.FilterMode.Nearest, mipmap: CanvasKit.MipmapMode.None},
+            {filter: CanvasKit.FilterMode.Linear,  mipmap: CanvasKit.MipmapMode.Nearest},
+        ];
+
+        // positioning for each of the 4 instances
+        const offset = [
+            [0, 0], [256, 0], [0, 256], [256, 256]
+        ];
+
+        canvas.translate(20, 20);
+        for (let i = 0; i < 4; ++i) {
+            canvas.save();
+            canvas.translate(offset[i][0], offset[i][1]);
+            canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.SrcOver, colors,
+                             sampling[i]);
+            canvas.restore();
+        }
 
         atlas.delete();
         paint.delete();
-    }, '/assets/mandrill_512.png');
+    }, '/assets/mandrill_16.png');
 
     gm('image_decoding_methods', async (canvas) => {
         canvas.clear(CanvasKit.WHITE);
