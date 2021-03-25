@@ -225,8 +225,7 @@ SKSL_TEST(SkSLTernaryExpression,               "shared/TernaryExpression.sksl")
 SKSL_TEST(SkSLUnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
 SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
-// TODO(skia:11267, skia:11788): Enable this test on GPU once SPIR-V vector/scalar int math is fixed
-SKSL_TEST_CPU(SkSLVectorScalarMath,            "shared/VectorScalarMath.sksl")
+SKSL_TEST(SkSLVectorScalarMath,                "shared/VectorScalarMath.sksl")
 
 /*
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.
