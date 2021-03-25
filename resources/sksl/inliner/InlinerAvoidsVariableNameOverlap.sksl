@@ -1,14 +1,12 @@
-in half2 x;
-
 inline half2 InlineB(half2 tmp)
 {
-    half2 reusedName = tmp + half2(3, 4);
+    half2 reusedName = tmp - 1;
     return reusedName;
 }
 
 inline half2 InlineA()
 {
-    half2 reusedName = x + half2(1, 2);
+    half2 reusedName = half2(1, 2);
     return InlineB(reusedName);
 }
 

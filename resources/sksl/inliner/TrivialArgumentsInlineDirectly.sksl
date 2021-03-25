@@ -1,7 +1,5 @@
-in half val;
-uniform int ui;
-uniform half4 uh4;
-uniform bool b;
+uniform half4 colorGreen;
+uniform half unknownInput;
 
 struct S {
     half4 ah4[1];
@@ -10,56 +8,62 @@ struct S {
     half h;
 };
 
+// Each helper function needs to reference the variable multiple times, because if it's only read
+// from once, it is inlined directly whether or not it is trivial.
 half4 funcb(bool b) {
-    return b ? sk_FragColor.xxxx : sk_FragColor.yyyy;
+    return half4(b, b, b, !b);
 }
 
 half4 func1(half h) {
-    return h.xxxx;
+    return h.xxxx * h.xxxx;
 }
 
 half4 func2(half2 h2) {
-    return h2.xyxy;
+    return h2.xyxy * h2.yxyx;
 }
 
 half4 func3(half3 h3) {
-    return h3.xyzx;
+    return h3.xyzx * h3.xyzx;
 }
 
 half4 func4(half4 h4) {
-    return h4;
+    return h4 * h4;
 }
 
-void main() {
+half4 main() {
     S s;
-    s.ah4[0] = half4(val);
-    s.ah[0] = val;
-    s.h4 = half4(val);
-    s.h = val;
+    s.ah4[0] = half4(unknownInput);
+    s.ah[0] = unknownInput;
+    s.h4 = half4(unknownInput);
+    s.h = unknownInput;
 
     S as[1];
-    as[0].ah4[0] = half4(val);
+    as[0].ah4[0] = half4(unknownInput);
+
+    bool b = bool(unknownInput);
+    int i = int(unknownInput);
 
     // These expressions are considered "trivial" and will be cloned directly into the inlined
     // function without a temporary variable.
-    sk_FragColor = funcb(sk_Caps.floatIs32Bits);
-    sk_FragColor = func1(+s.h);
-    sk_FragColor = funcb(b);
-    sk_FragColor = func2(s.ah4[0].yw);
-    sk_FragColor = func2(as[0].ah4[0].xy);
-    sk_FragColor = func3(s.h4.zzz);
-    sk_FragColor = func3(uh4.xyz);
-    sk_FragColor = func3(s.h.xxx);
-    sk_FragColor = func4(half4(s.h));
-    sk_FragColor = func4(s.ah4[0].xxxy);
-    sk_FragColor = func4(uh4);
+    half4 var;
+    var = func1(+s.h);
+    var = funcb(b);
+    var = func2(s.ah4[0].yw);
+    var = func2(as[0].ah4[0].xy);
+    var = func3(s.h4.zzz);
+    var = func3(colorGreen.xyz);
+    var = func3(s.h.xxx);
+    var = func4(half4(s.h));
+    var = func4(s.ah4[0].xxxy);
+    var = func4(colorGreen);
 
     // These expressions are considered "non-trivial" and will be placed in a temporary variable
     // when inlining occurs.
-    sk_FragColor = funcb(!sk_Caps.floatIs32Bits);
-    sk_FragColor = func1(-s.h);
-    sk_FragColor = funcb(!b);
-    sk_FragColor = func2(s.ah4[ui].yw);
-    sk_FragColor = func3(s.h4.yyy + s.h4.zzz);
-    sk_FragColor = func4(s.h4.y001);
+    var = func1(-s.h);
+    var = funcb(!b);
+//  var = func2(as[i].h4.yw);  // indexing by non-constant expressions disallowed in ES2
+    var = func3(s.h4.yyy + s.h4.zzz);
+    var = func4(s.h4.y001);
+
+    return colorGreen;
 }

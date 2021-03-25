@@ -1,14 +1,9 @@
-uniform half4 inColor;
+uniform half4 colorRed;
 
-half4 flip(half4 v) {
-    return v.wzyx;
+half4 switchRedAndGreen(half4 v) {
+    return v.grba;
 }
 
-void main() {
-    half4 color = inColor;
-
-    sk_FragColor = color.xyzy.wzyx;
-    sk_FragColor = flip(color.xyzy);
-
-    sk_FragColor = color;
+half4 main() {
+    return switchRedAndGreen(switchRedAndGreen(switchRedAndGreen(colorRed)));
 }

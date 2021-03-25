@@ -1,14 +1,14 @@
 /*#pragma settings Default*/
 
-uniform half4 color;
+uniform half4 colorWhite;
 
 inline half4 MakeTempVar(half4 c) {
     {
-        half4 d = c * 0.75;
-        return d.xxxx;
+        half4 d = c;
+        return d.0g0a;
     }
 }
 
-void main() {
-    sk_FragColor = MakeTempVar(color);
+half4 main() {
+    return MakeTempVar(colorWhite);
 }
