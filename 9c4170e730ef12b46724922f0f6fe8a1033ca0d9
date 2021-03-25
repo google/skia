@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20e07ff7_d38cbe35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-25T20:23:06Z",
+      "side": 1,
+      "message": "The changes LGTM; one thing I don\u0027t quite understand though is why we needed to restructure things at all. Couldn\u0027t we have just added the tag here and declared victory?\n\n    static DSLVar sk_FragCoord() {\n        return DSLVar(\"sk_FragCoord\");\n    }\n\n",
+      "revId": "9c4170e730ef12b46724922f0f6fe8a1033ca0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "244e3148_b9952f69",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-25T20:23:06Z",
+      "side": 1,
+      "message": "What happens after the Variable is created? It\u0027s released? Should someone then look at fVar-\u003etype()? The comment should probably talk about this.",
+      "range": {
+        "startLine": 123,
+        "startChar": 4,
+        "endLine": 123,
+        "endChar": 88
+      },
+      "revId": "9c4170e730ef12b46724922f0f6fe8a1033ca0d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
