@@ -24,6 +24,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_EXTERNALLY_RETAINED_BEGIN
+
 NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode) {
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:description
                                                          forKey:NSLocalizedDescriptionKey];
@@ -430,5 +432,4 @@ const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
 
 #endif
 
-
-
+GR_EXTERNALLY_RETAINED_END

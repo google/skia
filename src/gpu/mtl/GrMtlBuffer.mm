@@ -21,6 +21,8 @@
 #define VALIDATE() do {} while(false)
 #endif
 
+GR_EXTERNALLY_RETAINED_BEGIN
+
 sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern));
@@ -197,3 +199,5 @@ void GrMtlBuffer::validate() const {
              fMappedBuffer.length <= fMtlBuffer.length);
 }
 #endif
+
+GR_EXTERNALLY_RETAINED_END
