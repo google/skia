@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "609904bc_5619c0a0",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 14
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-25T17:13:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6583a386_ab042212",
+      "range": {
+        "startLine": 236,
+        "startChar": 6,
+        "endLine": 236,
+        "endChar": 15
+      },
+      "revId": "dbbc66b0180d7337a00addfa003f68eaf0286d0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5850cd17_7560ad52",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-25T13:31:26Z",
       "side": 1,
       "message": "If you say \"mipmap?: MipmapMode\", that will indicate that the mipmap field is optional.",
+      "range": {
+        "startLine": 1783,
+        "startChar": 4,
+        "endLine": 1783,
+        "endChar": 10
+      },
+      "revId": "dbbc66b0180d7337a00addfa003f68eaf0286d0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f562641a_2bde00cf",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 14
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-25T17:13:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5850cd17_7560ad52",
       "range": {
         "startLine": 1783,
         "startChar": 4,
