@@ -94,7 +94,6 @@ protected:
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
 
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
                    SkBlendMode, const SkSamplingOptions&, const SkPaint&) override;
@@ -112,6 +111,7 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
     bool onReadPixels(const SkPixmap&, int x, int y) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
     bool onPeekPixels(SkPixmap*) override;

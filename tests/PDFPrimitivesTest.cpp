@@ -393,7 +393,8 @@ static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
                       SkSpan<const SkPoint>{pos, len},
                       SkSpan<const SkGlyphID>{glyphs, len},
                       SkSpan<const char>{utf8Text, utf8TextByteLength},
-                      SkSpan<const uint32_t>{clusters, len});
+                      SkSpan<const uint32_t>{clusters, len},
+                      SkSpan<const SkVector>{});
 }
 
 DEF_TEST(SkPDF_Clusterator, reporter) {
