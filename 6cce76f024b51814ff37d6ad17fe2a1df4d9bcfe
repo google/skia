@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5d68551_8482f7db",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-25T11:41:46Z",
+      "side": 1,
+      "message": "Still looking for changes to npm_build/types/canvaskit-wasm-test.ts such that `make typecheck` passes and exercises this new typing.",
+      "range": {
+        "startLine": 1059,
+        "startChar": 4,
+        "endLine": 1059,
+        "endChar": 13
+      },
+      "revId": "6cce76f024b51814ff37d6ad17fe2a1df4d9bcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
