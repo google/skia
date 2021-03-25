@@ -38,7 +38,9 @@ public:
 Context::Context(ErrorReporter& errors, const ShaderCapsClass& caps)
         : fErrors(errors)
         , fCaps(caps)
-        , fDefined_Expression(std::make_unique<DefinedExpression>(fTypes.fInvalid.get())) {}
-
+        , fDefined_Expression(std::make_unique<DefinedExpression>(fTypes.fInvalid.get())) {
+            SkASSERT((intptr_t) &caps > 200);
+            SkASSERT(!Pool::IsAttached());
+        }
 }  // namespace SkSL
 

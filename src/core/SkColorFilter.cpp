@@ -323,6 +323,7 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
                                const skcms_TransferFunction* tf,
                                const skcms_Matrix3x3*        gamut,
                                const SkAlphaType*            at) {
+        SkASSERT(child);
         fChild = std::move(child);
         if (tf)    { fTF    = *tf;    fUseDstTF    = false; }
         if (gamut) { fGamut = *gamut; fUseDstGamut = false; }
@@ -437,6 +438,7 @@ sk_sp<SkColorFilter> SkColorFilters::WithWorkingFormat(sk_sp<SkColorFilter>     
                                                        const skcms_TransferFunction* tf,
                                                        const skcms_Matrix3x3*        gamut,
                                                        const SkAlphaType*            at) {
+    SkASSERT(child);
     return sk_make_sp<SkWorkingFormatColorFilter>(std::move(child), tf, gamut, at);
 }
 

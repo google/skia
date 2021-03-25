@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "src/sksl/SkSLMemoryPool.h"
+#include "include/private/SkSLMemoryPool.h"
 
 namespace SkSL {
 
@@ -47,7 +47,9 @@ public:
     // the pool can be destroyed.
     static void FreeMemory(void* ptr);
 
-private:
+    static bool IsAttached();
+
+//private:
     void checkForLeaks();
 
     Pool() = default;  // use Create to make a pool

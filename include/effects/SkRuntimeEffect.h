@@ -94,6 +94,11 @@ public:
     // https://bugs.llvm.org/show_bug.cgi?id=36684
     static Result Make(SkString sksl) { return Make(std::move(sksl), Options{}); }
 
+    static Result Make(std::unique_ptr<SkSL::Program> program);
+
+    static Result Make(SkString sksl, std::unique_ptr<SkSL::Program> program,
+                       const Options& options);
+
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
                                size_t childCount,

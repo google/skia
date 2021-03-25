@@ -43,7 +43,7 @@ class ErrorHandler;
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Compiler* compiler);
+    DSLWriter(SkSL::Compiler* compiler, ProgramKind kind);
 
     ~DSLWriter();
 
@@ -140,6 +140,10 @@ public:
     static void EndFragmentProcessor();
 
     static GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var);
+#else
+    static bool InFragmentProcessor() {
+        return false;
+    }
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
     static std::unique_ptr<SkSL::Expression> Call(const FunctionDeclaration& function,
@@ -195,6 +199,8 @@ public:
         return Instance().fMangle;
     }
 
+    static std::unique_ptr<SkSL::Program> ReleaseProgram();
+
     static DSLWriter& Instance();
 
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
@@ -203,9 +209,9 @@ private:
     SkSL::ProgramConfig fConfig;
     SkSL::Compiler* fCompiler;
     std::unique_ptr<Pool> fPool;
-    std::shared_ptr<SkSL::SymbolTable> fOldSymbolTable;
     SkSL::ProgramConfig* fOldConfig;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
+    std::vector<const SkSL::ProgramElement*> fSharedElements;
     ErrorHandler* fErrorHandler = nullptr;
     bool fMangle = true;
     bool fMarkVarsDeclared = false;

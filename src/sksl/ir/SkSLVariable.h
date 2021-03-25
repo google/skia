@@ -21,6 +21,7 @@ class VarDeclaration;
 
 namespace dsl {
 class DSLCore;
+class DSLFunction;
 } // namespace dsl
 
 enum class VariableStorage : int8_t {
@@ -80,6 +81,7 @@ private:
     using INHERITED = Symbol;
 
     friend class dsl::DSLCore;
+    friend class dsl::DSLFunction;
     friend class VariableReference;
 };
 

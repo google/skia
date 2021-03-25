@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "include/private/SkSLPool.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLUtil.h"
@@ -26,6 +27,10 @@ struct ProgramConfig;
 class Context {
 public:
     Context(ErrorReporter& errors, const ShaderCapsClass& caps);
+
+    ~Context() {
+        SkASSERT(!Pool::IsAttached());
+    }
 
     // The Context holds all of the built-in types.
     BuiltinTypes fTypes;

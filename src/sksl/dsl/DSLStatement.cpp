@@ -23,6 +23,9 @@ namespace dsl {
 
 DSLStatement::DSLStatement() {}
 
+DSLStatement::DSLStatement(DSLStatement&& other)
+    : fStatement(std::move(other.fStatement)) {}
+
 DSLStatement::DSLStatement(DSLBlock block)
     : fStatement(block.release()) {}
 

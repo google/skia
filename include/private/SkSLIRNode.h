@@ -8,12 +8,12 @@
 #ifndef SKSL_IRNODE
 #define SKSL_IRNODE
 
+#include "include/private/SkSLPool.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkTArray.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModifiersPool.h"
-#include "src/sksl/SkSLPool.h"
 
 #include <algorithm>
 #include <atomic>

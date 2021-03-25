@@ -636,7 +636,9 @@ public:
                 // This attribute will be uninitialized if earlier FP analysis determined no
                 // local coordinates are needed (and this will not include the inline texture
                 // fetch this GP does before invoking FPs).
+                SkString temp;
                 gpArgs->fLocalCoordVar = gp.fLocalCoord.asShaderVar();
+                gpArgs->fLocalCoordVar.appendDecl(nullptr, &temp);
 
                 // Solid color before any texturing gets modulated in
                 const char* blendDst;

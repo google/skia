@@ -25,9 +25,8 @@ namespace SkSL {
 
 namespace dsl {
 
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
-void Start(SkSL::Compiler* compiler) {
-    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler));
+void Start(SkSL::Compiler* compiler, ProgramKind kind) {
+    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind));
 }
 
 void End() {
@@ -35,7 +34,6 @@ void End() {
               "more calls to StartFragmentProcessor than to EndFragmentProcessor");
     DSLWriter::SetInstance(nullptr);
 }
-#endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 
 void SetErrorHandler(ErrorHandler* errorHandler) {
     DSLWriter::SetErrorHandler(errorHandler);

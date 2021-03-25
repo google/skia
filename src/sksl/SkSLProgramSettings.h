@@ -9,20 +9,9 @@
 #define SKSL_PROGRAMSETTINGS
 
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLProgramKind.h"
 
 namespace SkSL {
-
-/**
- * SkSL supports several different program kinds.
- */
-enum class ProgramKind : int8_t {
-    kFragment,
-    kVertex,
-    kGeometry,
-    kFragmentProcessor,
-    kRuntimeEffect,
-    kGeneric,
-};
 
 /**
  * Holds the compiler settings for a program.
