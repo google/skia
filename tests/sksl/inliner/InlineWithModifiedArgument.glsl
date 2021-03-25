@@ -1,7 +1,10 @@
 
 out vec4 sk_FragColor;
-void main() {
-    float _0_x = 1.0;
-    _0_x *= 2.0;
-    sk_FragColor.x = _0_x;
+uniform vec4 colorGreen;
+vec4 main() {
+    vec4 c = colorGreen;
+    float _0_x = c.y;
+    _0_x *= _0_x;
+    c.y = _0_x;
+    return c;
 }

@@ -1,10 +1,14 @@
-inline half4 adjust(half4 v) {
-    return v + half4(0.125);
+uniform half4 colorGreen, colorRed;
+
+inline half4 get() {
+    half4 x = colorGreen;
+    return x;
 }
 
-void main() {
-    sk_FragColor = half4(0);
+half4 main() {
+    half4 result = colorRed;
     do
-        sk_FragColor = adjust(sk_FragColor);
-    while (sk_FragColor.x < 0.5);
+        result = get();
+    while (result != colorGreen);
+    return result;
 }

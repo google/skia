@@ -1,10 +1,13 @@
-inline bool shouldLoop(half4 v) {
-    return v.x < 0.5;
+uniform half4 colorGreen, colorRed;
+
+inline bool shouldLoop(half4 value) {
+    return value != colorGreen;
 }
 
-void main() {
-    sk_FragColor = half4(0);
+half4 main() {
+    half4 result = colorRed;
     do {
-        sk_FragColor += half4(0.125);
-    } while (shouldLoop(sk_FragColor));
+        result = colorGreen;
+    } while (shouldLoop(result));
+    return result;
 }

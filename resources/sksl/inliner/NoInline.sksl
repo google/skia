@@ -1,7 +1,7 @@
-uniform half4 color;
+uniform half4 colorGreen;
 
-noinline half singleuse() {
-    return 1.25;
+noinline half4 multiplyByAlpha(half4 x) {
+    return x * x.aaaa;
 }
 
 noinline half add(half a, half b) {
@@ -17,9 +17,11 @@ noinline half fma(half a, half b, half c) {
     return add(mul(a, b), c);
 }
 
-void main() {
+half4 main() {
     // Functions used multiple times:
-    sk_FragColor = fma(color.x, color.y, color.z).xxxx;
+    half4 result = fma(colorGreen.a, colorGreen.g, colorGreen.r).0x0x;
     // Functions used only once:
-    sk_FragColor *= singleuse();
+    result = multiplyByAlpha(result);
+
+    return result;
 }

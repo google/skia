@@ -1,10 +1,12 @@
 
 out vec4 sk_FragColor;
-uniform vec4 color;
-void main() {
-    vec4 c = color;
-    if (c.x >= 0.5) {
-        c = color + vec4(0.125);
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+vec4 main() {
+    vec4 c = colorRed;
+    if (colorGreen.y == 1.0) {
+        vec4 _0_x = colorGreen;
+        c = _0_x;
     }
-    sk_FragColor = c;
+    return c;
 }

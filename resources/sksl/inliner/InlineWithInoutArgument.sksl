@@ -1,10 +1,12 @@
+uniform half4 colorGreen;
+
 // We don't inline functions with out parameters. (skia:11326)
-inline void outParameter(inout half x) {
-    x *= 2;
+inline void outParameter(inout half4 x) {
+    x *= x;
 }
 
-void main() {
-    half x = 1;
-    outParameter(x);
-    sk_FragColor.x = x;
+half4 main() {
+    half4 c = colorGreen;
+    outParameter(c);
+    return c;
 }

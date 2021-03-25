@@ -1,11 +1,14 @@
 
 out vec4 sk_FragColor;
-bool shouldLoop_bh4(vec4 v) {
-    return v.x < 0.5;
+uniform vec4 colorGreen;
+uniform vec4 colorRed;
+bool shouldLoop_bh4(vec4 value) {
+    return value != colorGreen;
 }
-void main() {
-    sk_FragColor = vec4(0.0);
+vec4 main() {
+    vec4 result = colorRed;
     do {
-        sk_FragColor += vec4(0.125);
-    } while (shouldLoop_bh4(sk_FragColor));
+        result = colorGreen;
+    } while (shouldLoop_bh4(result));
+    return result;
 }
