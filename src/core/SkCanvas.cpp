@@ -2278,13 +2278,15 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst,
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
-    const SkRect blobBounds = blob->bounds().makeOffset(x, y);
-    if (this->internalQuickReject(blobBounds, paint)) {
+    auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(*blob, {x, y});
+    this->onDrawGlyphRunList(glyphRunList, paint);
+}
+
+void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    SkRect bounds = glyphRunList.sourceBounds();
+    if (this->internalQuickReject(bounds, paint)) {
         return;
     }
-
-    auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(*blob, {x, y});
-    SkRect bounds = glyphRunList.sourceBounds();
     AutoLayerForImageFilter layer(this, paint, &bounds);
     this->topDevice()->drawGlyphRunList(glyphRunList, layer.paint());
 }
@@ -2295,31 +2297,52 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
+        const SkGlyphRunList& glyphRunList =
+            fScratchGlyphRunBuilder->textToGlyphRunList(
+                    font, paint, text, byteLength, {x, y}, encoding);
+        this->onDrawGlyphRunList(glyphRunList, paint);
     }
 }
 
 void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint positions[],
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
     if (count <= 0) { return; }
-    SkTextBlobBuilder builder;
-    auto buffer = builder.allocRunPos(font, count);
-    memcpy(buffer.glyphs, glyphs, count * sizeof(SkGlyphID));
-    memcpy(buffer.points(), positions, count * sizeof(SkPoint));
-    this->drawTextBlob(builder.make(), origin.x(), origin.y(), paint);
+
+    SkGlyphRun glyphRun {
+        font,
+        SkSpan(positions, count),
+        SkSpan(glyphs, count),
+        SkSpan<const char>(),
+        SkSpan<const uint32_t>(),
+        SkSpan<SkVector>()
+    };
+    SkGlyphRunList glyphRunList {
+        glyphRun,
+        glyphRun.sourceBounds(paint),
+        origin
+    };
+    this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
 void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* positions,
                           const uint32_t* clusters, int textByteCount, const char* utf8text,
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
     if (count <= 0) { return; }
-    SkTextBlobBuilder builder;
-    auto buffer = builder.allocRunTextPos(font, count, textByteCount);
-    memcpy(buffer.glyphs, glyphs, count * sizeof(SkGlyphID));
-    memcpy(buffer.points(), positions, count * sizeof(SkPoint));
-    memcpy(buffer.clusters, clusters, count * sizeof(uint32_t));
-    memcpy(buffer.utf8text, utf8text, textByteCount);
-    this->drawTextBlob(builder.make(), origin.x(), origin.y(), paint);
+
+    SkGlyphRun glyphRun {
+        font,
+        SkSpan(positions, count),
+        SkSpan(glyphs, count),
+        SkSpan(utf8text, textByteCount),
+        SkSpan(clusters, count),
+        SkSpan<SkVector>()
+    };
+    SkGlyphRunList glyphRunList {
+        glyphRun,
+        glyphRun.sourceBounds(paint),
+        origin
+    };
+    this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
