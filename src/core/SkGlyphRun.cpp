@@ -73,6 +73,20 @@ void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) cons
     fOriginalTextBlob->notifyAddedToCache(cacheID);
 }
 
+sk_sp<SkTextBlob> SkGlyphRunList::makeBlob() const {
+    SkTextBlobBuilder builder;
+
+    // TODO(herb): add text and clusters
+    for (auto& run : *this) {
+        auto buffer = builder.allocRunPos(run.font(), run.runSize(), nullptr);
+        auto glyphIDs = run.glyphsIDs();
+        memcpy(buffer.glyphs, glyphIDs.data(), glyphIDs.size_bytes());
+        auto positions = run.positions();
+        memcpy(buffer.points(), positions.data(), positions.size_bytes());
+    }
+    return builder.make();
+}
+
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
 static SkSpan<const SkPoint> draw_text_positions(
         const SkFont& font, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin, SkPoint* buffer) {
