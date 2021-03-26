@@ -1065,9 +1065,21 @@
       dsts.set(0, 0.5, 0, (2*i)%200, (5*Math.round(i/200)) % 200);
       dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
 
+                                                   if (false)
       canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors,
                        {filter: CanvasKit.FilterMode.Nearest});
-      surface.requestAnimationFrame(drawFrame);
+
+       const paint = new CanvasKit.Paint();
+       const cubics = [0,0, 100,50, 200,50,
+                       300,0, 250,100, 250,200,
+                       300,300, 200,200, 100,300,
+                       0,300, 50,200, 0,100];
+        const colors = [CanvasKit.RED, CanvasKit.BLUE, CanvasKit.YELLOW, CanvasKit.CYAN];
+        const texs = null;
+
+        canvas.drawPatch(cubics, colors, texs, null, paint);
+
+       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
 
