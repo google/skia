@@ -457,13 +457,13 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                 arraySize = this->convertExpression(*iter++);
             } else {
                 this->errorReporter().error(decls.fOffset, "array must have a size");
-                return {};
+                continue;
             }
         }
         if (iter != varDecl.end()) {
             value = this->convertExpression(*iter);
             if (!value) {
-                return {};
+                continue;
             }
         }
         std::unique_ptr<Statement> varDeclStmt = this->convertVarDeclaration(varDecl.fOffset,
