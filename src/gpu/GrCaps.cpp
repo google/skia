@@ -104,8 +104,11 @@ void GrCaps::finishInitialization(const GrContextOptions& options) {
         fUseClientSideIndirectBuffers = true;
     }
 
-    // Overrides happen last.
     this->applyOptionsOverrides(options);
+
+    // Our render targets are always created with textures as the color attachment, hence this min:
+    fMaxRenderTargetSize = std::min(fMaxRenderTargetSize, fMaxTextureSize);
+    fMaxPreferredRenderTargetSize = std::min(fMaxPreferredRenderTargetSize, fMaxRenderTargetSize);
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {

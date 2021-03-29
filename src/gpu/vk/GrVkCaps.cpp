@@ -645,9 +645,6 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     if (fDriverBugWorkarounds.max_texture_size_limit_4096) {
         fMaxTextureSize = std::min(fMaxTextureSize, 4096);
     }
-    // Our render targets are always created with textures as the color
-    // attachment, hence this min:
-    fMaxRenderTargetSize = std::min(fMaxTextureSize, fMaxRenderTargetSize);
 
     // TODO: check if RT's larger than 4k incur a performance cost on ARM.
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;

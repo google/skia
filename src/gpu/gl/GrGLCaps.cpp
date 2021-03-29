@@ -563,9 +563,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
-    // Our render targets are always created with textures as the color
-    // attachment, hence this min:
-    fMaxRenderTargetSize = std::min(fMaxTextureSize, fMaxRenderTargetSize);
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
 
     if (kARM_GrGLVendor == ctxInfo.vendor()) {
