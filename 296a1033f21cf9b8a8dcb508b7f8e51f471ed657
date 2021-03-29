@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009403593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/388837?revision\u003d8",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "7c86abf2_7b71ec2a",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 8
+      },
+      "lineNbr": 1250,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-29T00:59:37Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 1250,
+        "startChar": 20,
+        "endLine": 1250,
+        "endChar": 21
+      },
+      "revId": "296a1033f21cf9b8a8dcb508b7f8e51f471ed657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009403593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/388837?revision\u003d8",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "05006d3e_b511b898",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 8
+      },
+      "lineNbr": 1251,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-29T00:59:37Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 1251,
+        "startChar": 18,
+        "endLine": 1251,
+        "endChar": 19
+      },
+      "revId": "296a1033f21cf9b8a8dcb508b7f8e51f471ed657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009403593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/388837?revision\u003d8",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "34da5dc8_77b42f88",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 8
+      },
+      "lineNbr": 1253,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-03-29T00:59:37Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 1253,
+        "startChar": 19,
+        "endLine": 1253,
+        "endChar": 20
+      },
+      "revId": "296a1033f21cf9b8a8dcb508b7f8e51f471ed657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
