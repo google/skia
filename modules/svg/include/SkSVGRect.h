@@ -21,8 +21,9 @@ public:
     SVG_ATTR(Y     , SkSVGLength, SkSVGLength(0))
     SVG_ATTR(Width , SkSVGLength, SkSVGLength(0))
     SVG_ATTR(Height, SkSVGLength, SkSVGLength(0))
-    SVG_ATTR(Rx    , SkSVGLength, SkSVGLength(0))
-    SVG_ATTR(Ry    , SkSVGLength, SkSVGLength(0))
+
+    SVG_OPTIONAL_ATTR(Rx, SkSVGLength)
+    SVG_OPTIONAL_ATTR(Ry, SkSVGLength)
 
 protected:
     bool parseAndSetAttribute(const char*, const char*) override;
