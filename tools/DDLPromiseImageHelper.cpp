@@ -94,7 +94,8 @@ void PromiseImageCallbackContext::destroyBackendTexture() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
+sk_sp<SkPicture> DDLPromiseImageHelper::recreateSKP(GrDirectContext* dContext,
+                                                    SkPicture* inputPicture) {
     SkSerialProcs procs;
 
     procs.fImageCtx = this;
@@ -107,7 +108,14 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
         return SkData::MakeWithCopy(&id, sizeof(id));
     };
 
-    return inputPicture->serialize(&procs);
+    sk_sp<SkData> compressedPictureData = inputPicture->serialize(&procs);
+    if (!compressedPictureData) {
+        return nullptr;
+    }
+
+    this->createCallbackContexts1(dContext);
+
+    return nullptr;
 }
 
 static GrBackendTexture create_yuva_texture(GrDirectContext* direct,
@@ -205,7 +213,7 @@ void DDLPromiseImageHelper::DeleteBETexturesForPromiseImage(PromiseImageInfo* in
     }
 }
 
-void DDLPromiseImageHelper::createCallbackContexts(GrDirectContext* direct) {
+void DDLPromiseImageHelper::createCallbackContexts1(GrDirectContext* direct) {
     const GrCaps* caps = direct->priv().caps();
     const int maxDimension = caps->maxTextureSize();
 
