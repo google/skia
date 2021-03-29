@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "485e849f_d875836b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-29T17:44:43Z",
+      "side": 1,
+      "message": "On a side note it kind of surprised me all our RT create functions only checked maxRTSize and not maxTexSize as well.",
+      "revId": "2040a21986a6c9106b3f95512b1360231122df5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
