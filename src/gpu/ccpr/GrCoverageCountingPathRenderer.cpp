@@ -6,13 +6,14 @@
  */
 
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
-#include <memory>
 
 #include "include/pathops/SkPathOps.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ccpr/GrCCClipProcessor.h"
+#include "src/gpu/ops/GrFillRectOp.h"
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
@@ -130,6 +131,200 @@ private:
     std::map<uint32_t, sk_sp<GrCCClipPath>>::iterator fClipPathsIter;
 };
 
+// Transfers MSAA stencil winding counts to A8 coverage values in the color buffer.
+static void transfer_stencil_to_coverage(GrOnFlushResourceProvider* onFlushRP,
+                                         GrSurfaceDrawContext* surfaceDrawContext, SkISize extent) {
+    SkRect rect = SkRect::MakeSize(SkSize::Make(extent));
+    GrAAType aaType = GrAAType::kMSAA;
+    auto fillRectFlags = GrSimpleMeshDrawOpHelper::InputFlags::kNone;
+
+    // This will be the final op in the surfaceDrawContext. So if Ganesh is planning to discard the
+    // stencil values anyway, then we might not actually need to reset the stencil values back to 0.
+    bool mustResetStencil = !onFlushRP->caps()->discardStencilValuesAfterRenderPass();
+
+    if (surfaceDrawContext->numSamples() == 1) {
+        // We are mixed sampled. We need to either enable conservative raster (preferred) or disable
+        // MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for the cover
+        // geometry, the stencil test is still multisampled and will still produce smooth results.)
+        if (onFlushRP->caps()->conservativeRasterSupport()) {
+            fillRectFlags |= GrSimpleMeshDrawOpHelper::InputFlags::kConservativeRaster;
+        } else {
+            aaType = GrAAType::kNone;
+        }
+        mustResetStencil = true;
+    }
+
+    const GrUserStencilSettings* stencil;
+    if (mustResetStencil) {
+        constexpr static GrUserStencilSettings kTestAndResetStencil(
+            GrUserStencilSettings::StaticInit<
+                0x0000,
+                GrUserStencilTest::kNotEqual,
+                0xffff,
+                GrUserStencilOp::kZero,
+                GrUserStencilOp::kKeep,
+                0xffff>());
+
+        // Outset the cover rect in case there are T-junctions in the path bounds.
+        rect.outset(1, 1);
+        stencil = &kTestAndResetStencil;
+    } else {
+        constexpr static GrUserStencilSettings kTestStencil(
+            GrUserStencilSettings::StaticInit<
+                0x0000,
+                GrUserStencilTest::kNotEqual,
+                0xffff,
+                GrUserStencilOp::kKeep,
+                GrUserStencilOp::kKeep,
+                0xffff>());
+
+        stencil = &kTestStencil;
+    }
+
+    GrPaint paint;
+    paint.setColor4f(SK_PMColor4fWHITE);
+    GrQuad coverQuad(rect);
+    DrawQuad drawQuad{coverQuad, coverQuad, GrQuadAAFlags::kAll};
+    auto coverOp = GrFillRectOp::Make(surfaceDrawContext->recordingContext(), std::move(paint),
+                                      aaType, &drawQuad, stencil, fillRectFlags);
+    surfaceDrawContext->addDrawOp(nullptr, std::move(coverOp));
+}
+
+class AtlasBuilder {
+public:
+    AtlasBuilder(const GrCCAtlas::Specs& specs) : fAtlasSpecs(specs) {}
+
+    // Renders a path into an atlas.
+    //
+    // If the return value is non-null, it means the given path did not fit in the then-current
+    // atlas, so it was retired and a new one was added to the stack. The return value is the
+    // newly-retired atlas. (*NOT* the atlas the path was just drawn into.) The caller must call
+    // assignAtlasTexture on all GrCCClipPaths that will use the retired atlas.
+    std::unique_ptr<GrCCAtlas> addPath(GrOnFlushResourceProvider* onFlushRP,
+                                       const SkIRect& clipIBounds, const SkPath& devPath,
+                                       const SkIRect& devPathIBounds, GrFillRule fillRule,
+                                       SkIVector* devToAtlasOffset) {
+        // Intersect the path and access rect.
+        SkASSERT(!devPath.isEmpty());
+        GrScissorTest enableScissorInAtlas;
+        SkIRect clippedPathIBounds;
+        if (clipIBounds.contains(devPathIBounds)) {
+            clippedPathIBounds = devPathIBounds;
+            enableScissorInAtlas = GrScissorTest::kDisabled;
+        } else {
+            SkAssertResult(clippedPathIBounds.intersect(clipIBounds, devPathIBounds));
+            enableScissorInAtlas = GrScissorTest::kEnabled;
+        }
+
+        // Allocate a rect in the atlas for the path mask.
+        std::unique_ptr<GrCCAtlas> retiredAtlas;
+        SkIPoint16 location;
+        if (!fAtlas ||
+            !fAtlas->addRect(clippedPathIBounds.width(), clippedPathIBounds.height(), &location)) {
+            // The current atlas is out of room and can't grow any bigger.
+            if (fAtlas) {
+                this->renderAtlas(onFlushRP);
+                retiredAtlas = std::move(fAtlas);
+            }
+            fAtlas = std::make_unique<GrCCAtlas>(fAtlasSpecs, *onFlushRP->caps());
+            SkASSERT(clippedPathIBounds.width() <= fAtlasSpecs.fMinWidth);
+            SkASSERT(clippedPathIBounds.height() <= fAtlasSpecs.fMinHeight);
+            SkAssertResult(fAtlas->addRect(clippedPathIBounds.width(), clippedPathIBounds.height(),
+                                           &location));
+        }
+        devToAtlasOffset->set(location.x() - clippedPathIBounds.left(),
+                              location.y() - clippedPathIBounds.top());
+
+        // Add the path to our atlas layout.
+        SkMatrix atlasMatrix = SkMatrix::Translate(devToAtlasOffset->fX, devToAtlasOffset->fY);
+        SkPath* atlasPath;
+        if (enableScissorInAtlas == GrScissorTest::kDisabled) {
+            atlasPath = &fAtlasPaths[(int)fillRule].fUberPath;
+        } else {
+            auto& [scissoredPath, scissor] = fAtlasPaths[(int)fillRule].fScissoredPaths.push_back();
+            scissor = clippedPathIBounds.makeOffset(*devToAtlasOffset);
+            atlasPath = &scissoredPath;
+        }
+        auto origin = clippedPathIBounds.topLeft() + *devToAtlasOffset;
+        atlasPath->moveTo(origin.fX, origin.fY);  // Implicit moveTo(0,0).
+        atlasPath->addPath(devPath, atlasMatrix);
+
+        return retiredAtlas;
+    }
+
+    // Finishes off the GPU buffers and renders the atlas(es).
+    std::unique_ptr<GrCCAtlas> finalize(GrOnFlushResourceProvider* onFlushRP) {
+        if (fAtlas) {
+            this->renderAtlas(onFlushRP);
+        }
+#ifdef SK_DEBUG
+        // These paths should have been rendered and reset to empty by this point.
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fAtlasPaths); ++i) {
+            SkASSERT(fAtlasPaths[i].fUberPath.isEmpty());
+            SkASSERT(fAtlasPaths[i].fScissoredPaths.empty());
+        }
+#endif
+        return std::move(fAtlas);
+    }
+
+private:
+    // Renders all enqueued paths into the given atlas and clears our path queue.
+    void renderAtlas(GrOnFlushResourceProvider* onFlushRP) {
+        SkASSERT(fAtlas);
+        auto surfaceDrawContext = fAtlas->instantiate(onFlushRP);
+        if (!surfaceDrawContext) {
+            for (int i = 0; i < (int)SK_ARRAY_COUNT(fAtlasPaths); ++i) {
+                fAtlasPaths[i].fUberPath.reset();
+                fAtlasPaths[i].fScissoredPaths.reset();
+            }
+            return;
+        }
+
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(fAtlasPaths); ++i) {
+            SkPathFillType fillType = (i == (int)GrFillRule::kNonzero) ? SkPathFillType::kWinding
+                                                                       : SkPathFillType::kEvenOdd;
+            SkPath& uberPath = fAtlasPaths[i].fUberPath;
+            if (!uberPath.isEmpty()) {
+                uberPath.setIsVolatile(true);
+                uberPath.setFillType(fillType);
+                surfaceDrawContext->stencilPath(nullptr, GrAA::kYes, SkMatrix::I(), uberPath);
+                uberPath.reset();
+            }
+            for (auto& [scissoredPath, scissor] : fAtlasPaths[i].fScissoredPaths) {
+                GrFixedClip fixedClip(
+                        surfaceDrawContext->asRenderTargetProxy()->backingStoreDimensions(),
+                        scissor);
+                scissoredPath.setIsVolatile(true);
+                scissoredPath.setFillType(fillType);
+                surfaceDrawContext->stencilPath(&fixedClip, GrAA::kYes, SkMatrix::I(),
+                                                scissoredPath);
+            }
+            fAtlasPaths[i].fScissoredPaths.reset();
+        }
+
+        transfer_stencil_to_coverage(onFlushRP, surfaceDrawContext.get(), fAtlas->drawBounds());
+
+        if (surfaceDrawContext->asSurfaceProxy()->requiresManualMSAAResolve()) {
+            onFlushRP->addTextureResolveTask(sk_ref_sp(surfaceDrawContext->asTextureProxy()),
+                                             GrSurfaceProxy::ResolveFlags::kMSAA);
+        }
+    }
+
+    const GrCCAtlas::Specs fAtlasSpecs;
+
+    // Atlas we are currently building.
+    std::unique_ptr<GrCCAtlas> fAtlas;
+
+    // Paths to be rendered in the atlas we are currently building.
+    struct AtlasPaths {
+        SkPath fUberPath;  // Contains all contours from all non-scissored paths.
+        SkSTArray<32, std::tuple<SkPath, SkIRect>> fScissoredPaths;
+    };
+    static_assert((int)GrFillRule::kNonzero == 0);
+    static_assert((int)GrFillRule::kEvenOdd == 1);
+    AtlasPaths fAtlasPaths[2];  // One for "nonzero" fill rule and one for "even-odd".
+};
+
 }  // namespace
 
 static void assign_atlas_textures(GrTexture* atlasTexture, ClipMapsIter nextPathToAssign,
@@ -174,22 +369,26 @@ void GrCoverageCountingPathRenderer::preFlush(
         }
     }
 
-    GrCCPerFlushResources perFlushResources(onFlushRP, specs);
+    AtlasBuilder atlasBuilder(specs);
 
     // Layout the atlas(es) and render paths.
     ClipMapsIter it(flushingPaths.begin());
     ClipMapsIter end(flushingPaths.end());
     ClipMapsIter nextPathToAssign = it;  // The next GrCCClipPath to call assignAtlasTexture on.
     for (; it != end; ++it) {
-        if (auto retiredAtlas = it->renderPathInAtlas(&perFlushResources, onFlushRP)) {
+        SkIVector devToAtlasOffset;
+        if (auto retiredAtlas = atlasBuilder.addPath(onFlushRP, it->accessRect(),
+                                                     it->deviceSpacePath(), it->pathDevIBounds(),
+                                                     it->fillRule(), &devToAtlasOffset)) {
             assign_atlas_textures(retiredAtlas->textureProxy()->peekTexture(), nextPathToAssign,
                                   it);
             nextPathToAssign = it;
         }
+        it->setAtlasTranslate(devToAtlasOffset.fX, devToAtlasOffset.fY);
     }
 
     // Allocate resources and then render the atlas(es).
-    auto atlas = perFlushResources.finalize(onFlushRP);
+    auto atlas = atlasBuilder.finalize(onFlushRP);
     assign_atlas_textures(atlas->textureProxy()->peekTexture(), nextPathToAssign, end);
 }
 

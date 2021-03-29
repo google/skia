@@ -32,22 +32,13 @@ public:
     GrTextureProxy* atlasLazyProxy() const { return fAtlasLazyProxy.get(); }
     const SkPath& deviceSpacePath() const { return fDeviceSpacePath; }
     const SkIRect& pathDevIBounds() const { return fPathDevIBounds; }
+    GrFillRule fillRule() const { return GrFillRuleForSkPath(fDeviceSpacePath); }
+    const SkIRect& accessRect() const { return fAccessRect; }
+    const SkIVector& atlasTranslate() const { return fDevToAtlasOffset; }
 
     void accountForOwnPath(GrCCAtlas::Specs*) const;
 
-    // Allocates our clip path in an atlas and records the offset.
-    //
-    // If the return value is non-null, it means the given path did not fit in the then-current
-    // atlas, so it was retired and a new one was added to the stack. The return value is the
-    // newly-retired atlas. (*NOT* the atlas this path will reside in.) The caller must call
-    // assignAtlasTexture on all prior GrCCClipPaths that will use the retired atlas.
-    std::unique_ptr<GrCCAtlas> renderPathInAtlas(GrCCPerFlushResources*,
-                                                 GrOnFlushResourceProvider*);
-
-    const SkIVector& atlasTranslate() const {
-        SkASSERT(fHasAtlas);
-        return fDevToAtlasOffset;
-    }
+    void setAtlasTranslate(int x, int y) { fDevToAtlasOffset.set(x, y); }
 
     void assignAtlasTexture(sk_sp<GrTexture> atlasTexture) {
         fAtlasLazyProxy->priv().assign(std::move(atlasTexture));
@@ -58,9 +49,7 @@ private:
     SkIRect fPathDevIBounds;
     SkIRect fAccessRect;
     sk_sp<GrTextureProxy> fAtlasLazyProxy;
-
     SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
-    SkDEBUGCODE(bool fHasAtlas = false;)
 };
 
 #endif

@@ -11,7 +11,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 GrCCClipPath::GrCCClipPath(const SkPath& deviceSpacePath, const SkIRect& accessRect,
                            const GrCaps& caps)
@@ -35,14 +34,4 @@ void GrCCClipPath::accountForOwnPath(GrCCAtlas::Specs* specs) const {
     if (ibounds.intersect(fAccessRect, fPathDevIBounds)) {
         specs->accountForSpace(ibounds.width(), ibounds.height());
     }
-}
-
-std::unique_ptr<GrCCAtlas> GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
-                                                           GrOnFlushResourceProvider* onFlushRP) {
-    SkASSERT(!fHasAtlas);
-    auto retiredAtlas = resources->renderDeviceSpacePathInAtlas(
-            onFlushRP, fAccessRect, fDeviceSpacePath, fPathDevIBounds,
-            GrFillRuleForSkPath(fDeviceSpacePath), &fDevToAtlasOffset);
-    SkDEBUGCODE(fHasAtlas = true);
-    return retiredAtlas;
 }

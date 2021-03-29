@@ -12,7 +12,6 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPathRenderer.h"
-#include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/ccpr/GrCCPerOpsTaskPaths.h"
 
 /**

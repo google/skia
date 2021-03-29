@@ -625,8 +625,6 @@ skia_ccpr_sources = [
   "$_src/gpu/ccpr/GrCCClipPath.h",
   "$_src/gpu/ccpr/GrCCClipProcessor.cpp",
   "$_src/gpu/ccpr/GrCCClipProcessor.h",
-  "$_src/gpu/ccpr/GrCCPerFlushResources.cpp",
-  "$_src/gpu/ccpr/GrCCPerFlushResources.h",
   "$_src/gpu/ccpr/GrCCPerOpsTaskPaths.h",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
