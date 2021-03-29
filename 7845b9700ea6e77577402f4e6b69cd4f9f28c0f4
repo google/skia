@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4810ec60_f9ef5662",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-29T17:59:08Z",
+      "side": 0,
+      "message": "I liked using kDstOut better too, but I switched back to using inverse path fill type again just because it made the array easier. Do you have any preference here?",
+      "range": {
+        "startLine": 257,
+        "startChar": 11,
+        "endLine": 258,
+        "endChar": 49
+      },
+      "revId": "7845b9700ea6e77577402f4e6b69cd4f9f28c0f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
