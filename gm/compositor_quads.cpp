@@ -46,11 +46,13 @@
 #include <memory>
 #include <utility>
 
+class ClipTileRenderer;
+using ClipTileRendererArray = SkTArray<sk_sp<ClipTileRenderer>>;
+
 // This GM mimics the draw calls used by complex compositors that focus on drawing rectangles
 // and quadrilaterals with per-edge AA, with complex images, effects, and seamless tiling.
 // It will be updated to reflect the patterns seen in Chromium's SkiaRenderer. It is currently
 // restricted to adding draw ops directly in Ganesh since there is no fully-specified public API.
-
 static constexpr SkScalar kTileWidth = 40;
 static constexpr SkScalar kTileHeight = 30;
 
@@ -416,16 +418,15 @@ static constexpr int kMatrixCount = 5;
 
 class CompositorGM : public skiagm::GM {
 public:
-    CompositorGM(const char* name, sk_sp<ClipTileRenderer> renderer)
-            : fName(name) {
-        fRenderers.push_back(std::move(renderer));
-    }
-    CompositorGM(const char* name, const SkTArray<sk_sp<ClipTileRenderer>> renderers)
-            : fRenderers(renderers)
+    CompositorGM(const char* name, std::function<ClipTileRendererArray()> makeRendererFn)
+            : fMakeRendererFn(std::move(makeRendererFn))
             , fName(name) {}
 
 protected:
     SkISize onISize() override {
+        // Initialize the array of renderers.
+        this->onceBeforeDraw();
+
         // The GM draws a grid of renderers (rows) x transforms (col). Within each cell, the
         // renderer draws the transformed tile grid, which is approximately
         // (kColCount*kTileWidth, kRowCount*kTileHeight), although it has additional line
@@ -444,6 +445,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
+        fRenderers = fMakeRendererFn();
         this->configureMatrices();
     }
 
@@ -494,7 +496,8 @@ protected:
     }
 
 private:
-    SkTArray<sk_sp<ClipTileRenderer>> fRenderers;
+    std::function<ClipTileRendererArray()> fMakeRendererFn;
+    ClipTileRendererArray fRenderers;
     SkTArray<SkMatrix> fMatrices;
     SkTArray<SkString> fMatrixNames;
 
@@ -986,15 +989,17 @@ private:
     using INHERITED = ClipTileRenderer;
 };
 
-static SkTArray<sk_sp<ClipTileRenderer>> make_debug_renderers() {
-    SkTArray<sk_sp<ClipTileRenderer>> renderers;
-    renderers.push_back(DebugTileRenderer::Make());
-    renderers.push_back(DebugTileRenderer::MakeAA());
-    renderers.push_back(DebugTileRenderer::MakeNonAA());
-    return renderers;
+static ClipTileRendererArray make_debug_renderers() {
+    return ClipTileRendererArray{DebugTileRenderer::Make(),
+                                 DebugTileRenderer::MakeAA(),
+                                 DebugTileRenderer::MakeNonAA()};
 }
 
-static SkTArray<sk_sp<ClipTileRenderer>> make_shader_renderers() {
+static ClipTileRendererArray make_solid_color_renderers() {
+    return ClipTileRendererArray{SolidColorRenderer::Make({.2f, .8f, .3f, 1.f})};
+}
+
+static ClipTileRendererArray make_shader_renderers() {
     static constexpr SkPoint kPts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
     static constexpr SkColor kColors[] = { SK_ColorBLUE, SK_ColorWHITE };
     auto gradient = SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2,
@@ -1006,24 +1011,21 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_shader_renderers() {
     bm.eraseColor(SK_ColorWHITE);
     sk_sp<SkImage> image = bm.asImage();
 
-    SkTArray<sk_sp<ClipTileRenderer>> renderers;
-    renderers.push_back(TextureSetRenderer::MakeShader("Gradient", image, gradient, false));
-    renderers.push_back(TextureSetRenderer::MakeShader("Local Gradient", image, gradient, true));
-    return renderers;
+    return ClipTileRendererArray{
+               TextureSetRenderer::MakeShader("Gradient", image, gradient, false),
+               TextureSetRenderer::MakeShader("Local Gradient", image, gradient, true)};
 }
 
-static SkTArray<sk_sp<ClipTileRenderer>> make_image_renderers() {
+static ClipTileRendererArray make_image_renderers() {
     sk_sp<SkImage> mandrill = GetResourceAsImage("images/mandrill_512.png");
-    SkTArray<sk_sp<ClipTileRenderer>> renderers;
-    renderers.push_back(TextureSetRenderer::MakeUnbatched(mandrill));
-    renderers.push_back(TextureSetRenderer::MakeBatched(mandrill, 0));
-    renderers.push_back(TextureSetRenderer::MakeBatched(mandrill, kMatrixCount));
-    renderers.push_back(YUVTextureSetRenderer::MakeFromJPEG(
-            GetResourceAsData("images/mandrill_h1v1.jpg")));
-    return renderers;
+    sk_sp<SkData> mandrillJpeg = GetResourceAsData("images/mandrill_h1v1.jpg");
+    return ClipTileRendererArray{TextureSetRenderer::MakeUnbatched(mandrill),
+                                 TextureSetRenderer::MakeBatched(mandrill, 0),
+                                 TextureSetRenderer::MakeBatched(mandrill, kMatrixCount),
+                                 YUVTextureSetRenderer::MakeFromJPEG(mandrillJpeg)};
 }
 
-static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
+static ClipTileRendererArray make_filtered_renderers() {
     sk_sp<SkImage> mandrill = GetResourceAsImage("images/mandrill_512.png");
 
     SkColorMatrix cm;
@@ -1037,23 +1039,20 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
             0.25f * kTileWidth * kColCount, kAlphas, nullptr, 2, SkTileMode::kClamp);
     sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(std::move(alphaGradient));
 
-    SkTArray<sk_sp<ClipTileRenderer>> renderers;
-    renderers.push_back(TextureSetRenderer::MakeAlpha(mandrill, 0.5f));
-    renderers.push_back(TextureSetRenderer::MakeColorFilter("Saturation", mandrill,
-                                                            std::move(colorFilter)));
-    // NOTE: won't draw correctly until SkCanvas' AutoLoopers are used to handle image filters
-    renderers.push_back(TextureSetRenderer::MakeImageFilter("Dilate", mandrill,
-                                                            std::move(imageFilter)));
+    return ClipTileRendererArray{
+               TextureSetRenderer::MakeAlpha(mandrill, 0.5f),
+               TextureSetRenderer::MakeColorFilter("Saturation", mandrill, std::move(colorFilter)),
 
-    renderers.push_back(TextureSetRenderer::MakeMaskFilter("Shader", mandrill,
-                                                           std::move(maskFilter)));
+    // NOTE: won't draw correctly until SkCanvas' AutoLoopers are used to handle image filters
+               TextureSetRenderer::MakeImageFilter("Dilate", mandrill, std::move(imageFilter)),
+
     // NOTE: blur mask filters do work (tested locally), but visually they don't make much
     // sense, since each quad is blurred independently
-    return renderers;
+               TextureSetRenderer::MakeMaskFilter("Shader", mandrill, std::move(maskFilter))};
 }
 
-DEF_GM(return new CompositorGM("debug", make_debug_renderers());)
-DEF_GM(return new CompositorGM("color", SolidColorRenderer::Make({.2f, .8f, .3f, 1.f}));)
-DEF_GM(return new CompositorGM("shader", make_shader_renderers());)
-DEF_GM(return new CompositorGM("image", make_image_renderers());)
-DEF_GM(return new CompositorGM("filter", make_filtered_renderers());)
+DEF_GM(return new CompositorGM("debug",  make_debug_renderers);)
+DEF_GM(return new CompositorGM("color",  make_solid_color_renderers);)
+DEF_GM(return new CompositorGM("shader", make_shader_renderers);)
+DEF_GM(return new CompositorGM("image",  make_image_renderers);)
+DEF_GM(return new CompositorGM("filter", make_filtered_renderers);)
