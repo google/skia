@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6f47c3a_e159dab6",
+        "filename": "resources/sksl/errors/Ossfuzz32587.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-29T13:39:14Z",
+      "side": 1,
+      "message": "What a beautiful reproducer. The fuzzer has outdone itself this time. Minimal, reasonable code that even uses well-named variables.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 11
+      },
+      "revId": "402097d0e8af3dc7562c6f1692429b459277f755",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
