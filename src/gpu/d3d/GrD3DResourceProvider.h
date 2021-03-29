@@ -53,7 +53,8 @@ public:
                                                             size_t offset,
                                                             size_t size);
     GrD3DDescriptorHeap::CPUHandle createShaderResourceView(ID3D12Resource* resource);
-    void recycleConstantOrShaderView(const GrD3DDescriptorHeap::CPUHandle&);
+    GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(ID3D12Resource* resource);
+    void recycleCBVSRVUAV(const GrD3DDescriptorHeap::CPUHandle&);
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
 
