@@ -19,6 +19,8 @@ class GrMtlGpu;
 class GrMtlPipelineState;
 class GrMtlOpsRenderPass;
 
+GR_NORETAIN_BEGIN
+
 class GrMtlCommandBuffer : public SkRefCnt {
 public:
     static sk_sp<GrMtlCommandBuffer> Make(id<MTLCommandQueue> queue);
@@ -78,5 +80,7 @@ private:
 
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGrBuffers;
 };
+
+GR_NORETAIN_END
 
 #endif

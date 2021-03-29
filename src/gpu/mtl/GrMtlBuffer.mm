@@ -21,6 +21,8 @@
 #define VALIDATE() do {} while(false)
 #endif
 
+GR_NORETAIN_BEGIN
+
 sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern));
@@ -166,7 +168,7 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
 #endif
     } else {
         GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
-        id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+        id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
         [blitCmdEncoder copyFromBuffer: fMappedBuffer
                           sourceOffset: 0
                               toBuffer: fMtlBuffer
@@ -197,3 +199,5 @@ void GrMtlBuffer::validate() const {
              fMappedBuffer.length <= fMtlBuffer.length);
 }
 #endif
+
+GR_NORETAIN_END

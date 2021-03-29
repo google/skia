@@ -31,6 +31,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_NORETAIN_BEGIN
+
 static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     // Mac OSX
 #ifdef SK_BUILD_FOR_MAC
@@ -118,8 +120,8 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
 #endif
     }
 
-    id<MTLDevice> device = (__bridge id<MTLDevice>)(context.fDevice.get());
-    id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)(context.fQueue.get());
+    id<MTLDevice> GR_NORETAIN device = (__bridge id<MTLDevice>)(context.fDevice.get());
+    id<MTLCommandQueue> GR_NORETAIN queue = (__bridge id<MTLCommandQueue>)(context.fQueue.get());
 
 
     MTLFeatureSet featureSet;
@@ -359,7 +361,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     SkASSERT(this->mtlCaps().surfaceSupportsWritePixels(tex));
     SkASSERT(this->mtlCaps().areColorTypeAndFormatCompatible(dataColorType, tex->backendFormat()));
 
-    id<MTLTexture> mtlTexture = tex->mtlTexture();
+    id<MTLTexture> GR_NORETAIN mtlTexture = tex->mtlTexture();
     SkASSERT(mtlTexture);
     // Either upload only the first miplevel or all miplevels
     SkASSERT(1 == mipLevelCount || mipLevelCount == (int)mtlTexture.mipmapLevelCount);
@@ -403,7 +405,8 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     int layerHeight = tex->height();
     MTLOrigin origin = MTLOriginMake(left, top, 0);
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texels[currentMipLevel].fPixels) {
             SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
@@ -447,7 +450,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
         return true;
     }
 
-    id<MTLTexture> mtlTexture = tex->mtlTexture();
+    id<MTLTexture> GR_NORETAIN mtlTexture = tex->mtlTexture();
     SkASSERT(mtlTexture);
     // Either upload only the first miplevel or all miplevels
     int mipLevelCount = (int)mtlTexture.mipmapLevelCount;
@@ -489,7 +492,8 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
         return false;
     }
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     // clear the buffer to transparent black
     NSRange clearRange;
     clearRange.location = 0;
@@ -656,7 +660,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     }
 
     // Upload to texture
-    id<MTLTexture> mtlTexture = tex->mtlTexture();
+    id<MTLTexture> GR_NORETAIN mtlTexture = tex->mtlTexture();
     SkASSERT(mtlTexture);
 
     auto compressionType = GrBackendFormatToCompressionType(format);
@@ -682,7 +686,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
 
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
 
     // copy data into the buffer, skipping any trailing bytes
     memcpy(bufferData, data, dataSize);
@@ -714,6 +719,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     return std::move(tex);
 }
 
+// TODO: Extra retain/release can't be avoided here because of getMtlTextureInfo copying the
+// sk_cfp. It would be useful to have a (possibly-internal-only?) API to get the raw pointer.
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex) {
     GrMtlTextureInfo textureInfo;
     if (!backendTex.getMtlTextureInfo(&textureInfo)) {
@@ -814,7 +821,7 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
 
 bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     GrMtlTexture* grMtlTexture = static_cast<GrMtlTexture*>(texture);
-    id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
+    id<MTLTexture> GR_NORETAIN mtlTexture = grMtlTexture->mtlTexture();
 
     // Automatic mipmap generation is only supported by color-renderable formats
     if (!fMtlCaps->isFormatRenderable(mtlTexture.pixelFormat, 1) &&
@@ -823,7 +830,8 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
         return false;
     }
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     [blitCmdEncoder generateMipmapsForTexture: mtlTexture];
 
     return true;
@@ -943,7 +951,7 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     GrMtlTextureInfo info;
     SkAssertResult(backendTexture.getMtlTextureInfo(&info));
 
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture.get());
+    id<MTLTexture> GR_NORETAIN mtlTexture = GrGetMTLTexture(info.fTexture.get());
 
     const MTLPixelFormat mtlFormat = mtlTexture.pixelFormat;
 
@@ -1021,7 +1029,7 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
 
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
-    id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
     SkISize levelDimensions(backendTexture.dimensions());
@@ -1184,10 +1192,11 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& 
 #ifdef SK_DEBUG
     SkASSERT(this->mtlCaps().canCopyAsBlit(dst, src, srcRect, dstPoint));
 #endif
-    id<MTLTexture> dstTex = GrGetMTLTextureFromSurface(dst);
-    id<MTLTexture> srcTex = GrGetMTLTextureFromSurface(src);
+    id<MTLTexture> GR_NORETAIN dstTex = GrGetMTLTextureFromSurface(dst);
+    id<MTLTexture> GR_NORETAIN srcTex = GrGetMTLTextureFromSurface(src);
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     [blitCmdEncoder copyFromTexture: srcTex
                         sourceSlice: 0
                         sourceLevel: 0
@@ -1292,11 +1301,11 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
     }
 
     GrMtlTexture* grMtlTexture = static_cast<GrMtlTexture*>(texture);
-    id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
+    id<MTLTexture> GR_NORETAIN mtlTexture = grMtlTexture->mtlTexture();
     SkASSERT(mtlTexture);
 
     GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer.get());
-    id<MTLBuffer> mtlBuffer = grMtlBuffer->mtlBuffer();
+    id<MTLBuffer> GR_NORETAIN mtlBuffer = grMtlBuffer->mtlBuffer();
     SkASSERT(mtlBuffer);
 
     size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
@@ -1309,7 +1318,8 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
 
     MTLOrigin origin = MTLOriginMake(left, top, 0);
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     [blitCmdEncoder copyFromBuffer: mtlBuffer
                       sourceOffset: offset + grMtlBuffer->offset()
                  sourceBytesPerRow: rowBytes
@@ -1375,7 +1385,8 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int w
         return false;
     }
 
-    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    auto cmdBuffer = this->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     [blitCmdEncoder copyFromTexture: mtlTexture
                         sourceSlice: 0
                         sourceLevel: 0
@@ -1465,7 +1476,7 @@ void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colo
     colorAttachment.loadAction = MTLLoadActionLoad;
     colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
 
-    id<MTLRenderCommandEncoder> cmdEncoder =
+    id<MTLRenderCommandEncoder> GR_NORETAIN cmdEncoder =
             this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr, nullptr);
     SkASSERT(nil != cmdEncoder);
     cmdEncoder.label = @"resolveTexture";
@@ -1629,3 +1640,5 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
     writer->endObject();
 }
 #endif
+
+GR_NORETAIN_END

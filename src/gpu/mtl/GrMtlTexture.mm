@@ -15,6 +15,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_NORETAIN_BEGIN
+
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
                            SkISize dimensions,
@@ -120,3 +122,4 @@ GrBackendFormat GrMtlTexture::backendFormat() const {
     return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
 }
 
+GR_NORETAIN_END

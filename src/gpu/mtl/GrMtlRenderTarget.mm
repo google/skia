@@ -14,6 +14,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_NORETAIN_BEGIN
+
 // Called for wrapped non-texture render targets.
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      SkISize dimensions,
@@ -147,3 +149,4 @@ bool GrMtlRenderTarget::completeStencilAttachment() {
     return true;
 }
 
+GR_NORETAIN_END

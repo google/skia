@@ -11,31 +11,26 @@
 #import <Metal/Metal.h>
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/private/GrMtlTypesPriv.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
-
-#if defined(SK_BUILD_FOR_MAC)
-#if __MAC_OS_X_VERSION_MAX_ALLOWED < 101400
-#error Must use at least 10.14 SDK to build Metal backend for MacOS
-#endif
-#else
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < 120000 && __TV_OS_VERSION_MAX_ALLOWED < 120000
-#error Must use at least 12.00 SDK to build Metal backend for iOS
-#endif
-#endif
 
 class GrMtlGpu;
 class GrSurface;
 
+GR_NORETAIN_BEGIN
+
 /**
  * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*.
+ *
+ * TODO: Remove this and the other bridging functions? It's better to cast on the calling
+ * side so ARC has more context, and they don't add much value.
  */
-SK_ALWAYS_INLINE id<MTLTexture> GrGetMTLTexture(const void* mtlTexture)  {
+SK_ALWAYS_INLINE id<MTLTexture> GrGetMTLTexture(const void* mtlTexture) {
 #if __has_feature(objc_arc)
     return (__bridge id<MTLTexture>)mtlTexture;
 #else
-    // ARC will retain when bridging from a CoreFoundation to an ObjC object
-    return (id<MTLTexture>) CFRetain(mtlTexture);
+    return (id<MTLTexture>)mtlTexture;
 #endif
 }
 
@@ -54,7 +49,7 @@ SK_ALWAYS_INLINE const void* GrGetPtrFromId(id idObject) {
  * Returns a const void* to whatever the id object is pointing to.
  * Will call CFRetain on the object.
  */
-SK_ALWAYS_INLINE const void* GrRetainPtrFromId(id idObject) {
+SK_ALWAYS_INLINE CF_RETURNS_RETAINED const void* GrRetainPtrFromId(id idObject) {
     return CFBridgingRetain(idObject);
 }
 
@@ -129,5 +124,7 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat);
 size_t GrMtlFormatBytesPerBlock(MTLPixelFormat);
 
 int GrMtlFormatStencilBits(MTLPixelFormat);
+
+GR_NORETAIN_END
 
 #endif
