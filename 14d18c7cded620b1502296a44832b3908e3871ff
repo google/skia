@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a73342d_7d3e82aa",
+        "filename": "src/sksl/SkSLConstantFolder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-29T13:50:27Z",
+      "side": 1,
+      "message": "Turning this null-check into a proper check prevents oss-fuzz:32587 from crashing even if the (better) fix from http://review.skia.org/389636 isn\u0027t applied. It still shouldn\u0027t actually happen, of course, so I left a SkDEBUGFAIL.",
+      "range": {
+        "startLine": 221,
+        "startChar": 8,
+        "endLine": 225,
+        "endChar": 9
+      },
+      "revId": "14d18c7cded620b1502296a44832b3908e3871ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96954e3f_d8f68440",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-29T13:50:27Z",
+      "side": 1,
+      "message": "Noticed this while reviewing call sites to initialValue().",
+      "range": {
+        "startLine": 498,
+        "startChar": 16,
+        "endLine": 498,
+        "endChar": 54
+      },
+      "revId": "14d18c7cded620b1502296a44832b3908e3871ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
