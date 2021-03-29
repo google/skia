@@ -133,6 +133,11 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     }
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
+    // Our render targets are always created with textures as the color attachment, so they can't be
+    // larger than the max texture size override either.
+    fMaxRenderTargetSize = std::min(fMaxRenderTargetSize, options.fMaxTextureSizeOverride);
+    fMaxPreferredRenderTargetSize = std::min(fMaxPreferredRenderTargetSize,
+                                             options.fMaxTextureSizeOverride);
 #if GR_TEST_UTILS
     if (options.fSuppressDualSourceBlending) {
         // GrShaderCaps::applyOptionsOverrides already handled the rest; here we just need to make
