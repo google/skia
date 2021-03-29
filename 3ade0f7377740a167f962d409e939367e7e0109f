@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "33f0696a_c95401e0",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-29T16:27:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "65f08e85_428652a7",
+      "range": {
+        "startLine": 973,
+        "startChar": 50,
+        "endLine": 973,
+        "endChar": 57
+      },
+      "revId": "3ade0f7377740a167f962d409e939367e7e0109f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d80ea0e3_fed409dd",
@@ -196,6 +220,30 @@
       "side": 1,
       "message": "This is how we pass colors to gradients...",
       "parentUuid": "2174b48e_f8860144",
+      "range": {
+        "startLine": 358,
+        "startChar": 35,
+        "endLine": 358,
+        "endChar": 38
+      },
+      "revId": "3ade0f7377740a167f962d409e939367e7e0109f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5b12e4f_7a914026",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-29T16:27:10Z",
+      "side": 1,
+      "message": "Ah, I forgot that you had assureIntColors to convert to int colors if necessary.",
+      "parentUuid": "a64d96f6_5306c63f",
       "range": {
         "startLine": 358,
         "startChar": 35,
