@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97a6eeab_cbc63efb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-29T19:51:31Z",
+      "side": 1,
+      "message": "Please also add a typecheck test to npm_build/canvaskit-wasm-tests.ts",
+      "revId": "a04ab738f539ffbc6417c96a930f5fd61244d292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
