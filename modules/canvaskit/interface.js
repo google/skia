@@ -582,6 +582,20 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawDRRect(oPtr, iPtr, paint);
   };
 
+  CanvasKit.Canvas.prototype.drawGlyphRun = function(glyphs, pos, font, paint) {
+    const count = glyphs.length;
+    if (count == 0 || pos.length != count * 2) {
+        return;
+    }
+    const glyphPtr = copy1dArray(glyphs, 'HEAPU16');
+    const posPtr   = copy1dArray(pos,    'HEAPF32');
+
+    this._drawGlyphRun(count, glyphPtr, posPtr, font, paint);
+
+    freeArraysThatAreNotMallocedByUsers(posPtr,   pos);
+    freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);
+  };
+
   CanvasKit.Canvas.prototype.drawImageNine = function(img, center, dest, filter, paint) {
     var cPtr = copyIRectToWasm(center);
     var dPtr = copyRectToWasm(dest);

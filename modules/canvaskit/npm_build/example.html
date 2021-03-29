@@ -946,7 +946,21 @@
     const textBlob = CanvasKit.TextBlob.MakeOnPath(str, arc, font);
 
     canvas.drawPath(arc, paint);
-    canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+//    canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+
+    {
+        const glyphs = font.getGlyphIDs("GlyphRun");
+        const widths = font.getGlyphWidths(glyphs);
+        const pos = [];
+        let x = 20;
+        for (i in glyphs) {
+            pos.push(x);
+            pos.push(100);
+            x += widths[i]
+        }
+        paint.setColor(CanvasKit.RED);
+        canvas.drawGlyphRun(glyphs, pos, font, fontPaint);
+    }
 
     surface.flush();
 

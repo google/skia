@@ -1010,6 +1010,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
         }))
         .function("drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
+        .function("_drawGlyphRun", optional_override([](SkCanvas& self, size_t count,
+                                                        uintptr_t /* uint16_t* */ glyphs,
+                                                        uintptr_t /* float* */ pos,
+                                                        const SkFont& font,
+                                                        const SkPaint& paint) {
+            auto blob = SkTextBlob::MakeFromPosText(reinterpret_cast<const void*>(glyphs),
+                                                    count * sizeof(uint16_t),
+                                                    reinterpret_cast<const SkPoint*>(pos),
+                                                    font, SkTextEncoding::kGlyphID);
+            if (blob) {
+                self.drawTextBlob(std::move(blob), 0, 0, paint);
+            }
+       }))
 #endif
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("_findMarkedCTM", optional_override([](SkCanvas& self, std::string marker, uintptr_t /* SkScalar* */ mPtr) -> bool {
