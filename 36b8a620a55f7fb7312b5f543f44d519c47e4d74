@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93e724eb_e3f0d461",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-03-29T15:02:30Z",
+      "side": 1,
+      "message": "Fixes a couple of W3C tests locally, but they don\u0027t seem to be included in the Gold corpus:\npservers-pattern-03-f.svg\npservers-pattern-09-f.svg",
+      "revId": "36b8a620a55f7fb7312b5f543f44d519c47e4d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
