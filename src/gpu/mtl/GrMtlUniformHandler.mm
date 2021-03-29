@@ -5,13 +5,17 @@
 * found in the LICENSE file.
 */
 
+#include "src/gpu/mtl/GrMtlUniformHandler.h"
+
+#include "include/private/GrMtlTypesPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
-#include "src/gpu/mtl/GrMtlUniformHandler.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
+
+GR_NORETAIN_BEGIN
 
 // TODO: this class is basically copy and pasted from GrVklUniformHandler so that we can have
 // some shaders working. The SkSL Metal code generator was written to work with GLSL generated for
@@ -316,3 +320,5 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
+
+GR_NORETAIN_END

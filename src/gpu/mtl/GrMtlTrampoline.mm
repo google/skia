@@ -13,8 +13,12 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_NORETAIN_BEGIN
+
 sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(const GrMtlBackendContext& backendContext,
                                       const GrContextOptions& options,
                                       GrDirectContext* direct) {
     return GrMtlGpu::Make(backendContext, options, direct);
 }
+
+GR_NORETAIN_END
