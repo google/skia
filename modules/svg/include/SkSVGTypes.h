@@ -194,8 +194,8 @@ public:
     SkSVGPaint() : fType(Type::kNone), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(const SkSVGColor& c) : fType(Type::kColor), fColor(c) {}
-    explicit SkSVGPaint(const SkSVGIRI& iri)
-        : fType(Type::kIRI), fColor(SK_ColorBLACK), fIRI(iri) {}
+    SkSVGPaint(const SkSVGIRI& iri, const SkSVGColor& fallback_color)
+        : fType(Type::kIRI), fColor(fallback_color), fIRI(iri) {}
 
     SkSVGPaint(const SkSVGPaint&)            = default;
     SkSVGPaint& operator=(const SkSVGPaint&) = default;
@@ -206,7 +206,10 @@ public:
     bool operator!=(const SkSVGPaint& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
-    const SkSVGColor& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+    const SkSVGColor& color() const {
+        SkASSERT(fType == Type::kColor || fType == Type::kIRI);
+        return fColor;
+    }
     const SkSVGIRI& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
 
 private:

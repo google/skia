@@ -407,7 +407,8 @@ SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selecto
 
         const auto node = this->findNodeById(paint_selector.iri());
         if (!node || !node->asPaint(local_ctx, p.get())) {
-            return SkTLazy<SkPaint>();
+            // Use the fallback color.
+            p->setColor(this->resolveSvgColor(paint_selector.color()));
         }
     } break;
     default:
