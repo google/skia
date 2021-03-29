@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8832aa0_7e00f8f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-29T21:38:07Z",
+      "side": 1,
+      "message": "Realized after talking with you that my previous failed approach here was still viable if I nulled out the cross-reference in both directions.",
+      "revId": "6ce0e0f3982d9cdfc68e9957315575381ffb407d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
