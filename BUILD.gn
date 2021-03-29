@@ -3040,6 +3040,14 @@ if (skia_enable_tools) {
       ]
     }
 
+    libfuzzer_app("api_regionop") {
+      sources = [
+        "fuzz/FuzzRegionOp.cpp",
+        "fuzz/oss_fuzz/FuzzRegionOp.cpp",
+      ]
+      deps = []
+    }
+
     if (skia_use_gl) {
       libfuzzer_app("api_mock_gpu_canvas") {
         include_dirs = [

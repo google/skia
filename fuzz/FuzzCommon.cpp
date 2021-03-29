@@ -324,13 +324,13 @@ void FuzzNiceRegion(Fuzz* fuzz, SkRegion* region, int maxN) {
     for (uint8_t i = 0; i < N; ++i) {
         SkIRect r;
         SkRegion::Op op;
-        // Avoid the sentinal value used by Region.
+        // Avoid the sentinel value used by Region.
         fuzz->nextRange(&r.fLeft,   -2147483646, 2147483646);
         fuzz->nextRange(&r.fTop,    -2147483646, 2147483646);
         fuzz->nextRange(&r.fRight,  -2147483646, 2147483646);
         fuzz->nextRange(&r.fBottom, -2147483646, 2147483646);
         r.sort();
-        fuzz->nextRange(&op, 0, SkRegion::kLastOp);
+        fuzz->nextEnum(&op, SkRegion::kLastOp);
         if (!region->op(r, op)) {
             return;
         }
