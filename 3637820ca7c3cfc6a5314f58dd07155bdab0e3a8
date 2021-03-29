@@ -16,6 +16,23 @@
       "message": "Part of the API update of WebGPU",
       "revId": "3637820ca7c3cfc6a5314f58dd07155bdab0e3a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37e1babf_2ea35255",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2021-03-29T13:23:50Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "3637820ca7c3cfc6a5314f58dd07155bdab0e3a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
