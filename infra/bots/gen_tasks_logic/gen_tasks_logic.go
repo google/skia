@@ -1498,6 +1498,10 @@ func (b *jobBuilder) dm() {
 			// ToT.
 			cas = CAS_LOTTIE_CI
 			recipe = "test_lottie_web"
+			if b.doUpload() {
+				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
+				directUpload = true
+			}
 		} else {
 			// Default recipe supports direct upload.
 			// TODO(http://skbug.com/11785): Windows jobs are unable to extract gsutil.

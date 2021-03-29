@@ -8,6 +8,8 @@ DEPS = [
   'checkout',
   'docker',
   'env',
+  'flavor',
+  'gold_upload',
   'infra',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -24,6 +26,7 @@ LOTTIECAP_SCRIPT = 'skia/infra/lottiecap/docker/lottiecap_gold.sh'
 
 def RunSteps(api):
   api.vars.setup()
+  api.flavor.setup("dm")
   checkout_root = api.path['start_dir']
   out_dir = api.vars.swarming_out_dir
   lottie_files_src = api.vars.workdir.join('lottie-samples')
@@ -83,6 +86,8 @@ def RunSteps(api):
       attempts=3,
   )
 
+  api.gold_upload.upload()
+
 
 def GenTests(api):
   yield (
@@ -91,6 +96,7 @@ def GenTests(api):
                                   '-x86_64-Debug-All-LottieWeb'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
+                     gs_bucket='skia-infra-gm',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')
   )
@@ -101,6 +107,7 @@ def GenTests(api):
                                   '-x86_64-Debug-All-LottieWeb'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
+                     gs_bucket='skia-infra-gm',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_ref='89/456789/12',
