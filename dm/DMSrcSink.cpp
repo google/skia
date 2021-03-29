@@ -1813,12 +1813,10 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADataTypes(*dContext);
     DDLPromiseImageHelper promiseImageHelper(supportedYUVADataTypes);
-    sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
-    if (!compressedPictureData) {
-        return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
+    sk_sp<SkPicture> newSKP = promiseImageHelper.recreateSKP(dContext, inputPicture.get());
+    if (!newSKP) {
+        return Result::Fatal("GPUDDLSink: Couldn't recreate the SKP");
     }
-
-    promiseImageHelper.createCallbackContexts(dContext);
 
     // 'gpuTestCtx/gpuThreadCtx' is being shifted to the gpuThread. Leave the main (this)
     // thread w/o a context.
@@ -1840,10 +1838,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
 
     tiles.createBackendTextures(gpuTaskGroup, dContext);
 
-    // Reinflate the compressed picture.
-    tiles.createSKP(dContext->threadSafeProxy(), compressedPictureData.get(), promiseImageHelper);
-
-    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, dContext);
+    tiles.kickOffThreadedWork(recordingTaskGroup, gpuTaskGroup, dContext, newSKP.get());
 
     // We have to wait for the recording threads to schedule all their work on the gpu thread
     // before we can schedule the composition draw and the flush. Note that the gpu thread

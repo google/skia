@@ -87,14 +87,13 @@ private:
 //
 // The way this works is:
 //    the original skp is converted to SkData and all its image info is extracted into this
-//       class and only indices into this class are left in the SkData (via deflateSKP)
+//       class and only indices into this class are left in the SkData
+//    the PromiseImageCallbackContexts are created for each image
+//    the SkData is then reinflated into an SkPicture with promise images replacing all the indices
+//       (all in recreateSKP)
 //
-//    Prior to replaying in threads, all the images stored in this class are uploaded to the
-//       gpu and PromiseImageCallbackContexts are created for them (via uploadAllToGPU)
-//
-//    Each thread reinflates the SkData into an SkPicture replacing all the indices w/
-//       promise images (all using the same GrBackendTexture and getting a ref to the
-//       appropriate PromiseImageCallbackContext) (via reinflateSKP).
+//    Prior to replaying in threads, all the images are uploaded to the gpu
+//       (in uploadAllToGPU)
 //
 //    This class is then reset - dropping all of its refs on the PromiseImageCallbackContexts
 //
@@ -110,23 +109,24 @@ public:
             : fSupportedYUVADataTypes(supportedYUVADataTypes) {}
     ~DDLPromiseImageHelper() = default;
 
-    // Convert the SkPicture into SkData replacing all the SkImages with an index.
-    sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
-
-    void createCallbackContexts(GrDirectContext*);
+    // Convert the input SkPicture into a new one which has promise images rather than live
+    // images.
+    sk_sp<SkPicture> recreateSKP(GrDirectContext*, SkPicture*);
 
     void uploadAllToGPU(SkTaskGroup*, GrDirectContext*);
     void deleteAllFromGPU(SkTaskGroup*, GrDirectContext*);
 
-    // reinflate a deflated SKP, replacing all the indices with promise images.
-    sk_sp<SkPicture> reinflateSKP(sk_sp<GrContextThreadSafeProxy>,
-                                  SkData* compressedPicture,
-                                  SkTArray<sk_sp<SkImage>>* promiseImages) const;
-
-    // Remove this class' refs on the PromiseImageCallbackContexts
-    void reset() { fImageInfo.reset(); }
+    // Remove this class' refs on the promise images and the PromiseImageCallbackContexts
+    void reset() {
+        fImageInfo.reset();
+        fPromiseImages.reset();
+    }
 
 private:
+    void createCallbackContexts(GrDirectContext*);
+    // reinflate a deflated SKP, replacing all the indices with promise images.
+    sk_sp<SkPicture> reinflateSKP(sk_sp<GrContextThreadSafeProxy>, SkData* deflatedSKP);
+
     // This is the information extracted into this class from the parsing of the skp file.
     // Once it has all been uploaded to the GPU and distributed to the promise images, it
     // is all dropped via "reset".
@@ -213,8 +213,7 @@ private:
 
     struct DeserialImageProcContext {
         sk_sp<GrContextThreadSafeProxy> fThreadSafeProxy;
-        const DDLPromiseImageHelper*    fHelper;
-        SkTArray<sk_sp<SkImage>>*       fPromiseImages;
+        DDLPromiseImageHelper*          fHelper;
     };
 
     static void CreateBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
@@ -236,7 +235,11 @@ private:
     int findOrDefineImage(SkImage* image);
 
     SkYUVAPixmapInfo::SupportedDataTypes fSupportedYUVADataTypes;
-    SkTArray<PromiseImageInfo> fImageInfo;
+    SkTArray<PromiseImageInfo>           fImageInfo;
+
+    // TODO: review the use of 'fPromiseImages' - it doesn't seem useful/necessary
+    SkTArray<sk_sp<SkImage>>             fPromiseImages;    // All the promise images in the
+                                                            // reconstituted picture
 };
 
 #endif
