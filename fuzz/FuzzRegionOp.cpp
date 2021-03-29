@@ -9,10 +9,14 @@
 #include "fuzz/FuzzCommon.h"
 
 DEF_FUZZ(RegionOp, fuzz) {  // `fuzz -t api -n RegionOp`
-    SkRegion regionA, regionB, regionC;
-    FuzzNiceRegion(fuzz, &regionA, 2000);
-    FuzzNiceRegion(fuzz, &regionB, 2000);
-    SkRegion::Op op;
-    fuzz->nextRange(&op, 0, SkRegion::kLastOp);
-    regionC.op(regionA, regionB, op);
+    SkRegion regionA;
+    int8_t numOps;
+    fuzz->next(&numOps);
+    for (int8_t i = 0; i < numOps; i++) {
+        SkRegion regionB;
+        FuzzNiceRegion(fuzz, &regionB, 100);
+        SkRegion::Op op;
+        fuzz->nextEnum(&op, SkRegion::kLastOp);
+        regionA.op(regionB, op);
+    }
 }
