@@ -33,6 +33,23 @@
       "message": "LGTM",
       "revId": "3637820ca7c3cfc6a5314f58dd07155bdab0e3a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29d09e9c_282ae11e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11104
+      },
+      "writtenOn": "2021-03-29T16:47:15Z",
+      "side": 1,
+      "message": "Thanks for the review! Can you help me submit when ready (I don\u0027t have permission)",
+      "revId": "3637820ca7c3cfc6a5314f58dd07155bdab0e3a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
