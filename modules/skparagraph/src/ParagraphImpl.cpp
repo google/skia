@@ -494,6 +494,13 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
     auto result = oneLineShaper.shape();
     fUnresolvedGlyphs = oneLineShaper.unresolvedGlyphs();
 
+    // It's possible that one grapheme includes few runs; we cannot handle it
+    // so we break graphemes by the runs instead
+    // It's not the ideal solution and has to be revisited later
+    for (auto& run : fRuns) {
+        fCodeUnitProperties[run.fTextRange.start] |= CodeUnitFlags::kGraphemeStart;
+    }
+
     if (!result) {
         return false;
     } else {

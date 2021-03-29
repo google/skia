@@ -3451,15 +3451,10 @@ protected:
     SkString name() override { return SkString("Paragraph59"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorYELLOW);
 
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
-
-        SkPaint paint;
-        paint.setColor(SK_ColorBLUE);
-        canvas->drawRect(SkRect::MakeWH(300, 100), paint);
 
         ParagraphStyle paragraph_style;
         TextStyle text_style;
@@ -3468,13 +3463,10 @@ protected:
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         text_style.setFontSize(14);
         builder.pushStyle(text_style);
-        builder.addText("Hello");
-        builder.pop();
-        text_style.setFontSize(50);
-        builder.pushStyle(text_style);
-        builder.addText("\n");
+        //builder.addText( u"\u118ff\u1f1a9\u103a");
+        builder.addText("\U000118ff\U0001f1a9\u103A");
         auto paragraph = builder.Build();
-        paragraph->layout(320);
+        paragraph->layout(500);
         paragraph->paint(canvas, 0, 0);
     }
 
