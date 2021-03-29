@@ -342,6 +342,38 @@ describe('Core canvas behavior', () => {
         paint.delete();
     }, '/assets/mandrill_16.png');
 
+    gm('draw_patch', (canvas, fetchedByteBuffers) => {
+        const image = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(image).toBeTruthy();
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.Paint();
+        const shader = image.makeShaderCubic(CanvasKit.TileMode.Clamp,
+                                             CanvasKit.TileMode.Clamp,
+                                             0, 0.5);
+        const cubics = [0,0, 80,50, 160,50,
+                        240,0, 200,80, 200,160,
+                        240,240, 160,160, 80,240,
+                        0,240, 50,160, 0,80];
+         const colors = [CanvasKit.RED, CanvasKit.BLUE, CanvasKit.YELLOW, CanvasKit.CYAN];
+         const texs = [0,0, 16,0, 16,16, 0,16];
+
+         const params = [
+             [  0,   0, colors, null, null,   null],
+             [256,   0, null,   texs, shader, null],
+             [  0, 256, colors, texs, shader, null],
+             [256, 256, colors, texs, shader, CanvasKit.BlendMode.Screen],
+         ];
+         for (const p of params) {
+             paint.setShader(p[4]);
+             canvas.save();
+             canvas.translate(p[0], p[1]);
+             canvas.drawPatch(cubics, p[2], p[3], p[5], paint);
+             canvas.restore();
+         }
+        paint.delete();
+    }, '/assets/mandrill_16.png');
+
     gm('image_decoding_methods', async (canvas) => {
         canvas.clear(CanvasKit.WHITE);
 

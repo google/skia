@@ -963,6 +963,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers())
 #endif
         .function("drawPath", &SkCanvas::drawPath)
+        .function("_drawPatch", optional_override([](SkCanvas& self,
+                                                     uintptr_t /* SkPoint* */ cubics,
+                                                     uintptr_t /* SkColor* */ colors,
+                                                     uintptr_t /* SkPoint* */ texs,
+                                                     SkBlendMode mode,
+                                                     const SkPaint& paint)->void {
+            self.drawPatch(reinterpret_cast<const SkPoint*>(cubics),
+                           reinterpret_cast<const SkColor*>(colors),
+                           reinterpret_cast<const SkPoint*>(texs),
+                           mode, paint);
+        }))
         // Of note, picture is *not* what is colloquially thought of as a "picture", what we call
         // a bitmap. An SkPicture is a series of draw commands.
         .function("drawPicture", select_overload<void (const sk_sp<SkPicture>&)>(&SkCanvas::drawPicture))

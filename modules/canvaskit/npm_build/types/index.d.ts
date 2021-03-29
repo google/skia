@@ -1244,6 +1244,21 @@ export interface Canvas extends EmbindObject<Canvas> {
     drawPath(path: Path, paint: Paint): void;
 
     /**
+     * Draws a cubic patch defined by 12 control points [top, right, bottom, left] with optional
+     * colors and shader-coordinates [4] specifed for each corner [top-left, top-right, bottom-right, bottom-left]
+     * @param cubics 12 points : 4 connected cubics specifying the boundary of the patch
+     * @param colors optional colors interpolated across the patch
+     * @param texs optional shader coordinates interpolated across the patch
+     * @param mode Specifies how shader and colors blend (if both are specified)
+     * @param paint
+     */
+    drawPatch(cubics: InputFlattenedPointArray,
+              colors?: ColorIntArray,
+              texs?: InputFlattenedPointArray,
+              mode?: BlendMode,
+              paint: Paint): void;
+
+    /**
      * Draws the given picture using the current clip, current matrix, and the provided paint.
      * @param skp
      */
@@ -1774,8 +1789,8 @@ export interface CubicResampler {
     B: number;  // 0..1
     C: number;  // 0..1
 }
-/**
 
+/**
  * Specifies sampling using filter and mipmap options
  */
 export interface FilterOptions {
