@@ -13,6 +13,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_NORETAIN_BEGIN
+
 MTLStencilOperation skia_stencil_op_to_mtl(GrStencilOp op) {
     switch (op) {
         case GrStencilOp::kKeep:
@@ -124,3 +126,5 @@ GrMtlDepthStencil::Key GrMtlDepthStencil::GenerateKey(const GrStencilSettings& s
 
     return depthStencilKey;
 }
+
+GR_NORETAIN_END

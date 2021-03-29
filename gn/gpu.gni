@@ -25,6 +25,7 @@ skia_gpu_sources = [
   "$_include/private/GrContext_Base.h",
   "$_include/private/GrGLTypesPriv.h",
   "$_include/private/GrImageContext.h",
+  "$_include/private/GrMtlTypesPriv.h",
   "$_include/private/GrResourceKey.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrTypesPriv.h",
