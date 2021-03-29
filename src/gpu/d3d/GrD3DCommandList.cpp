@@ -12,7 +12,7 @@
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandSignature.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
-#include "src/gpu/d3d/GrD3DPipelineState.h"
+#include "src/gpu/d3d/GrD3DPipeline.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
@@ -216,7 +216,7 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
 GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                                gr_cp<ID3D12GraphicsCommandList> commandList)
     : GrD3DCommandList(std::move(allocator), std::move(commandList))
-    , fCurrentPipelineState(nullptr)
+    , fCurrentPipeline(nullptr)
     , fCurrentRootSignature(nullptr)
     , fCurrentVertexBuffer(nullptr)
     , fCurrentVertexStride(0)
@@ -230,7 +230,7 @@ GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> all
 }
 
 void GrD3DDirectCommandList::onReset() {
-    fCurrentPipelineState = nullptr;
+    fCurrentPipeline = nullptr;
     fCurrentRootSignature = nullptr;
     fCurrentVertexBuffer = nullptr;
     fCurrentVertexStride = 0;
@@ -243,12 +243,12 @@ void GrD3DDirectCommandList::onReset() {
     fCurrentSamplerDescriptorHeap = nullptr;
 }
 
-void GrD3DDirectCommandList::setPipelineState(sk_sp<GrD3DPipelineState> pipelineState) {
+void GrD3DDirectCommandList::setPipelineState(const sk_sp<GrD3DPipeline>& pipeline) {
     SkASSERT(fIsActive);
-    if (pipelineState.get() != fCurrentPipelineState) {
-        fCommandList->SetPipelineState(pipelineState->pipelineState());
-        this->addResource(std::move(pipelineState));
-        fCurrentPipelineState = pipelineState.get();
+    if (pipeline.get() != fCurrentPipeline) {
+        fCommandList->SetPipelineState(pipeline->d3dPipelineState());
+        this->addResource(std::move(pipeline));
+        fCurrentPipeline = pipeline.get();
         this->setDefaultSamplePositions();
     }
 }
