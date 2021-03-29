@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5421bbb9_66048016",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-29T14:00:12Z",
+      "side": 1,
+      "message": "Thanks! I\u0027m guessing the big perf improvement is we don\u0027t load the image until we visit the slide now.",
+      "revId": "463a383130c559b37ca6cc7d1c088a5d5494de46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
