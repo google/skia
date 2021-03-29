@@ -127,7 +127,7 @@ void Parser::InitLayoutMap() {
 }
 
 Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
-: fText(text)
+: fText(text, length)
 , fPushback(Token::Kind::TK_NONE, -1, -1)
 , fSymbols(symbols)
 , fErrors(errors) {
@@ -157,6 +157,7 @@ void Parser::createEmptyChild(ASTNode::ID target) {
 /* (directive | section | declaration)* END_OF_FILE */
 std::unique_ptr<ASTFile> Parser::compilationUnit() {
     fFile = std::make_unique<ASTFile>();
+    fFile->fNodes.reserve(fText.size() / 10);  // a typical program is approx 10:1 for chars:nodes
     ASTNode::ID result = this->createNode(/*offset=*/0, ASTNode::Kind::kFile);
     fFile->fRoot = result;
     for (;;) {
@@ -275,7 +276,7 @@ bool Parser::expectIdentifier(Token* result) {
 }
 
 StringFragment Parser::text(Token token) {
-    return StringFragment(fText + token.fOffset, token.fLength);
+    return StringFragment(fText.begin() + token.fOffset, token.fLength);
 }
 
 void Parser::error(Token token, String msg) {
@@ -350,7 +351,7 @@ ASTNode::ID Parser::section() {
     Token codeStart = this->nextRawToken();
     size_t startOffset = codeStart.fOffset;
     this->pushback(codeStart);
-    text.fChars = fText + startOffset;
+    text.fChars = fText.begin() + startOffset;
     int level = 1;
     for (;;) {
         Token next = this->nextRawToken();
@@ -800,7 +801,7 @@ StringFragment Parser::layoutCode() {
     Token start = this->nextRawToken();
     this->pushback(start);
     StringFragment code;
-    code.fChars = fText + start.fOffset;
+    code.fChars = fText.begin() + start.fOffset;
     int level = 1;
     bool done = false;
     while (!done) {
