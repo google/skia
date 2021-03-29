@@ -117,8 +117,6 @@ public:
     // alive.
     const GrVkDescriptorSet* inputDescSet(GrVkGpu*, bool forResolve);
 
-    void addResources(GrVkCommandBuffer& commandBuffer, const GrVkRenderPass& renderPass);
-
     void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
         fGrSecondaryCommandBuffers.push_back(std::move(cmdBuffer));
     }

@@ -12,6 +12,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
+class GrVkAttachment;
 class GrVkGpu;
 class GrVkImageView;
 class GrVkRenderPass;
@@ -21,9 +22,9 @@ public:
     static GrVkFramebuffer* Create(GrVkGpu* gpu,
                                    int width, int height,
                                    const GrVkRenderPass* renderPass,
-                                   const GrVkImageView* colorAttachment,
-                                   const GrVkImageView* resolveAttachment,
-                                   const GrVkImageView* stencilAttachment);
+                                   const GrVkAttachment* colorAttachment,
+                                   const GrVkAttachment* resolveAttachment,
+                                   const GrVkAttachment* stencilAttachment);
 
     VkFramebuffer framebuffer() const { return fFramebuffer; }
 
@@ -34,15 +35,26 @@ public:
 #endif
 
 private:
-    GrVkFramebuffer(const GrVkGpu* gpu, VkFramebuffer framebuffer)
-        : INHERITED(gpu), fFramebuffer(framebuffer) {}
+    GrVkFramebuffer(const GrVkGpu* gpu,
+                    VkFramebuffer framebuffer,
+                    sk_sp<GrVkAttachment> colorAttachment,
+                    sk_sp<GrVkAttachment> resolveAttachment,
+                    sk_sp<GrVkAttachment> stencilAttachment)
+        : INHERITED(gpu)
+        , fFramebuffer(framebuffer)
+        , fColorAttachment(std::move(colorAttachment))
+        , fResolveAttachment(std::move(resolveAttachment))
+        , fStencilAttachment(std::move(stencilAttachment)) {}
 
-    GrVkFramebuffer(const GrVkFramebuffer&);
-    GrVkFramebuffer& operator=(const GrVkFramebuffer&);
+    ~GrVkFramebuffer() override;
 
     void freeGPUData() const override;
 
     VkFramebuffer  fFramebuffer;
+
+    sk_sp<const GrVkAttachment> fColorAttachment;
+    sk_sp<const GrVkAttachment> fResolveAttachment;
+    sk_sp<const GrVkAttachment> fStencilAttachment;
 
     using INHERITED = GrVkManagedResource;
 };
