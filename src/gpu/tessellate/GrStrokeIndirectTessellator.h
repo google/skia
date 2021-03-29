@@ -29,7 +29,7 @@ public:
     // indirect draw list during prepare().
     void addToChain(GrStrokeIndirectTessellator*);
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, int totalCombinedVerbCnt) override;
 
     void draw(GrOpFlushState*) const override;
 
