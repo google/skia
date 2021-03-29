@@ -92,7 +92,7 @@ namespace {
 // Iterates all GrCCClipPaths in an array of non-empty maps.
 class ClipMapsIter {
 public:
-    ClipMapsIter(sk_sp<GrCCPerOpsTaskPaths>* mapsList) : fMapsList(mapsList) {}
+    ClipMapsIter(const sk_sp<GrCCPerOpsTaskPaths>* mapsList) : fMapsList(mapsList) {}
 
     bool operator!=(const ClipMapsIter& that) {
         if (fMapsList != that.fMapsList) {
@@ -118,15 +118,19 @@ public:
         }
     }
 
-    GrCCClipPath* operator->() {
+    GrCCClipPath* get() {
         // fPerOpsTaskClipPaths is null when we are on the first element.
         const auto& it = (!fPerOpsTaskClipPaths) ? (*fMapsList)->fClipPaths.begin()
                                                  : fClipPathsIter;
         return it->second.get();
     }
 
+    GrCCClipPath* operator->() {
+        return this->get();
+    }
+
 private:
-    sk_sp<GrCCPerOpsTaskPaths>* fMapsList;
+    const sk_sp<GrCCPerOpsTaskPaths>* fMapsList;
     std::map<uint32_t, sk_sp<GrCCClipPath>>* fPerOpsTaskClipPaths = nullptr;
     std::map<uint32_t, sk_sp<GrCCClipPath>>::iterator fClipPathsIter;
 };
@@ -192,84 +196,83 @@ static void transfer_stencil_to_coverage(GrOnFlushResourceProvider* onFlushRP,
 
 class AtlasBuilder {
 public:
-    AtlasBuilder(const GrCCAtlas::Specs& specs) : fAtlasSpecs(specs) {}
-
-    // Renders a path into an atlas.
-    //
-    // If the return value is non-null, it means the given path did not fit in the then-current
-    // atlas, so it was retired and a new one was added to the stack. The return value is the
-    // newly-retired atlas. (*NOT* the atlas the path was just drawn into.) The caller must call
-    // assignAtlasTexture on all GrCCClipPaths that will use the retired atlas.
-    std::unique_ptr<GrCCAtlas> addPath(GrOnFlushResourceProvider* onFlushRP,
-                                       const SkIRect& clipIBounds, const SkPath& devPath,
-                                       const SkIRect& devPathIBounds, GrFillRule fillRule,
-                                       SkIVector* devToAtlasOffset) {
-        // Intersect the path and access rect.
-        SkASSERT(!devPath.isEmpty());
-        GrScissorTest enableScissorInAtlas;
-        SkIRect clippedPathIBounds;
-        if (clipIBounds.contains(devPathIBounds)) {
-            clippedPathIBounds = devPathIBounds;
-            enableScissorInAtlas = GrScissorTest::kDisabled;
-        } else {
-            SkAssertResult(clippedPathIBounds.intersect(clipIBounds, devPathIBounds));
-            enableScissorInAtlas = GrScissorTest::kEnabled;
-        }
-
-        // Allocate a rect in the atlas for the path mask.
-        std::unique_ptr<GrCCAtlas> retiredAtlas;
-        SkIPoint16 location;
-        if (!fAtlas ||
-            !fAtlas->addRect(clippedPathIBounds.width(), clippedPathIBounds.height(), &location)) {
-            // The current atlas is out of room and can't grow any bigger.
-            if (fAtlas) {
-                this->renderAtlas(onFlushRP);
-                retiredAtlas = std::move(fAtlas);
-            }
-            fAtlas = std::make_unique<GrCCAtlas>(fAtlasSpecs, *onFlushRP->caps());
-            SkASSERT(clippedPathIBounds.width() <= fAtlasSpecs.fMinWidth);
-            SkASSERT(clippedPathIBounds.height() <= fAtlasSpecs.fMinHeight);
-            SkAssertResult(fAtlas->addRect(clippedPathIBounds.width(), clippedPathIBounds.height(),
-                                           &location));
-        }
-        devToAtlasOffset->set(location.x() - clippedPathIBounds.left(),
-                              location.y() - clippedPathIBounds.top());
-
-        // Add the path to our atlas layout.
-        SkMatrix atlasMatrix = SkMatrix::Translate(devToAtlasOffset->fX, devToAtlasOffset->fY);
-        SkPath* atlasPath;
-        if (enableScissorInAtlas == GrScissorTest::kDisabled) {
-            atlasPath = &fAtlasPaths[(int)fillRule].fUberPath;
-        } else {
-            auto& [scissoredPath, scissor] = fAtlasPaths[(int)fillRule].fScissoredPaths.push_back();
-            scissor = clippedPathIBounds.makeOffset(*devToAtlasOffset);
-            atlasPath = &scissoredPath;
-        }
-        auto origin = clippedPathIBounds.topLeft() + *devToAtlasOffset;
-        atlasPath->moveTo(origin.fX, origin.fY);  // Implicit moveTo(0,0).
-        atlasPath->addPath(devPath, atlasMatrix);
-
-        return retiredAtlas;
+    AtlasBuilder(const GrCCAtlas::Specs& specs,
+                 const SkTArray<sk_sp<GrCCPerOpsTaskPaths>>& flushingPaths)
+            : fAtlasSpecs(specs)
+            , fClipPathIter(flushingPaths.begin())
+            , fEnd(flushingPaths.end())
+            , fFirstUnassignedAtlas(fClipPathIter) {
     }
 
-    // Finishes off the GPU buffers and renders the atlas(es).
-    std::unique_ptr<GrCCAtlas> finalize(GrOnFlushResourceProvider* onFlushRP) {
-        if (fAtlas) {
-            this->renderAtlas(onFlushRP);
+    void makeAtlases(GrOnFlushResourceProvider* onFlushRP) {
+        for (; fClipPathIter != fEnd; ++fClipPathIter) {
+            GrCCClipPath* clipPath = fClipPathIter.get();
+
+            // Intersect the path and access rect.
+            SkASSERT(!clipPath->deviceSpacePath().isEmpty());
+            GrScissorTest enableScissorInAtlas;
+            SkIRect clippedPathIBounds;
+            if (clipPath->accessRect().contains(clipPath->pathDevIBounds())) {
+                clippedPathIBounds = clipPath->pathDevIBounds();
+                enableScissorInAtlas = GrScissorTest::kDisabled;
+            } else {
+                SkAssertResult(clippedPathIBounds.intersect(clipPath->accessRect(),
+                                                            clipPath->pathDevIBounds()));
+                enableScissorInAtlas = GrScissorTest::kEnabled;
+            }
+
+            // Allocate a spot in the atlas for the path mask.
+            SkIPoint16 location;
+            if (!fAtlas ||
+                !fAtlas->addRect(clippedPathIBounds.width(), clippedPathIBounds.height(),
+                                 &location)) {
+                // The current atlas is out of room and can't grow any bigger.
+                if (fAtlas) {
+                    this->renderAtlasAndInstantiateProxies(onFlushRP);
+                }
+                fAtlas = std::make_unique<GrCCAtlas>(fAtlasSpecs, *onFlushRP->caps());
+                SkASSERT(clippedPathIBounds.width() <= fAtlasSpecs.fMinWidth);
+                SkASSERT(clippedPathIBounds.height() <= fAtlasSpecs.fMinHeight);
+                SkAssertResult(fAtlas->addRect(clippedPathIBounds.width(),
+                                               clippedPathIBounds.height(), &location));
+            }
+            clipPath->setAtlasTranslate(location.x() - clippedPathIBounds.left(),
+                                        location.y() - clippedPathIBounds.top());
+
+            // Add the path to our atlas layout.
+            SkMatrix atlasMatrix = SkMatrix::Translate(clipPath->atlasTranslate().fX,
+                                                       clipPath->atlasTranslate().fY);
+            SkPath* atlasPath;
+            if (enableScissorInAtlas == GrScissorTest::kDisabled) {
+                atlasPath = &fAtlasPaths[(int)clipPath->fillRule()].fUberPath;
+            } else {
+                auto& [scissoredPath, scissor] =
+                        fAtlasPaths[(int)clipPath->fillRule()].fScissoredPaths.push_back();
+                scissor = clippedPathIBounds.makeOffset(clipPath->atlasTranslate());
+                atlasPath = &scissoredPath;
+            }
+            auto origin = clippedPathIBounds.topLeft() + clipPath->atlasTranslate();
+            atlasPath->moveTo(origin.fX, origin.fY);  // Implicit moveTo(0,0).
+            atlasPath->addPath(clipPath->deviceSpacePath(), atlasMatrix);
         }
+
+        if (fAtlas) {
+            this->renderAtlasAndInstantiateProxies(onFlushRP);
+        }
+
 #ifdef SK_DEBUG
         // These paths should have been rendered and reset to empty by this point.
         for (size_t i = 0; i < SK_ARRAY_COUNT(fAtlasPaths); ++i) {
             SkASSERT(fAtlasPaths[i].fUberPath.isEmpty());
             SkASSERT(fAtlasPaths[i].fScissoredPaths.empty());
         }
+        SkASSERT(!(fEnd != fClipPathIter));
 #endif
-        return std::move(fAtlas);
     }
 
 private:
     // Renders all enqueued paths into the given atlas and clears our path queue.
-    void renderAtlas(GrOnFlushResourceProvider* onFlushRP) {
+    void renderAtlasAndInstantiateProxies(GrOnFlushResourceProvider* onFlushRP) {
         SkASSERT(fAtlas);
         auto surfaceDrawContext = fAtlas->instantiate(onFlushRP);
         if (!surfaceDrawContext) {
@@ -308,9 +311,19 @@ private:
             onFlushRP->addTextureResolveTask(sk_ref_sp(surfaceDrawContext->asTextureProxy()),
                                              GrSurfaceProxy::ResolveFlags::kMSAA);
         }
+
+        // Assign the texture we just rendered to all pending atlas proxies.
+        if (GrTexture* texture = surfaceDrawContext->asTextureProxy()->peekTexture()) {
+            for (; fFirstUnassignedAtlas != fClipPathIter; ++fFirstUnassignedAtlas) {
+                fFirstUnassignedAtlas->assignAtlasTexture(sk_ref_sp(texture));
+            }
+        }
     }
 
     const GrCCAtlas::Specs fAtlasSpecs;
+    ClipMapsIter fClipPathIter;
+    ClipMapsIter fEnd;
+    ClipMapsIter fFirstUnassignedAtlas;
 
     // Atlas we are currently building.
     std::unique_ptr<GrCCAtlas> fAtlas;
@@ -326,16 +339,6 @@ private:
 };
 
 }  // namespace
-
-static void assign_atlas_textures(GrTexture* atlasTexture, ClipMapsIter nextPathToAssign,
-                                  const ClipMapsIter& end) {
-    if (!atlasTexture) {
-        return;
-    }
-    for (; nextPathToAssign != end; ++nextPathToAssign) {
-        nextPathToAssign->assignAtlasTexture(sk_ref_sp(atlasTexture));
-    }
-}
 
 void GrCoverageCountingPathRenderer::preFlush(
         GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t> taskIDs) {
@@ -369,27 +372,8 @@ void GrCoverageCountingPathRenderer::preFlush(
         }
     }
 
-    AtlasBuilder atlasBuilder(specs);
-
-    // Layout the atlas(es) and render paths.
-    ClipMapsIter it(flushingPaths.begin());
-    ClipMapsIter end(flushingPaths.end());
-    ClipMapsIter nextPathToAssign = it;  // The next GrCCClipPath to call assignAtlasTexture on.
-    for (; it != end; ++it) {
-        SkIVector devToAtlasOffset;
-        if (auto retiredAtlas = atlasBuilder.addPath(onFlushRP, it->accessRect(),
-                                                     it->deviceSpacePath(), it->pathDevIBounds(),
-                                                     it->fillRule(), &devToAtlasOffset)) {
-            assign_atlas_textures(retiredAtlas->textureProxy()->peekTexture(), nextPathToAssign,
-                                  it);
-            nextPathToAssign = it;
-        }
-        it->setAtlasTranslate(devToAtlasOffset.fX, devToAtlasOffset.fY);
-    }
-
-    // Allocate resources and then render the atlas(es).
-    auto atlas = atlasBuilder.finalize(onFlushRP);
-    assign_atlas_textures(atlas->textureProxy()->peekTexture(), nextPathToAssign, end);
+    AtlasBuilder atlasBuilder(specs, flushingPaths);
+    atlasBuilder.makeAtlases(onFlushRP);
 }
 
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken,
