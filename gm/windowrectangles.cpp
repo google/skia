@@ -170,7 +170,8 @@ private:
         return SkIRect::MakeXYWH(fX, fY, fMask.width(), fMask.height());
     }
     Effect apply(GrRecordingContext* ctx, GrSurfaceDrawContext*, GrAAType, bool,
-                     GrAppliedClip* out, SkRect* bounds) const override {
+                     GrAppliedClip* out, SkRect* bounds,
+                     SkTArray<SkPath>* /*pathsForClipAtlas*/) const override {
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                     GrSamplerState::Filter::kNearest);
         auto m = SkMatrix::Translate(-fX, -fY);
