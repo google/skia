@@ -16,6 +16,24 @@
       "message": "Thanks! I\u0027m guessing the big perf improvement is we don\u0027t load the image until we visit the slide now.",
       "revId": "463a383130c559b37ca6cc7d1c088a5d5494de46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a463b04_9f40075a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-29T14:03:57Z",
+      "side": 1,
+      "message": "I don\u0027t actually know if there\u0027s a measurable perf improvement, but it\u0027s certainly possible. (I wasn\u0027t measuring.) I was attempting to debug some unrelated SkSL things and I was hitting breakpoints inside SkSL at startup time related to these GMs, since they were compiling shaders. So in addition to loading data, they were also spinning up a compiler.",
+      "parentUuid": "5421bbb9_66048016",
+      "revId": "463a383130c559b37ca6cc7d1c088a5d5494de46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
