@@ -94,7 +94,8 @@ void PromiseImageCallbackContext::destroyBackendTexture() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
+sk_sp<SkPicture> DDLPromiseImageHelper::recreateSKP(GrDirectContext* dContext,
+                                                    SkPicture* inputPicture) {
     SkSerialProcs procs;
 
     procs.fImageCtx = this;
@@ -107,7 +108,14 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
         return SkData::MakeWithCopy(&id, sizeof(id));
     };
 
-    return inputPicture->serialize(&procs);
+    sk_sp<SkData> compressedPictureData = inputPicture->serialize(&procs);
+    if (!compressedPictureData) {
+        return nullptr;
+    }
+
+    this->createCallbackContexts(dContext);
+
+    return this->reinflateSKP(dContext->threadSafeProxy(), compressedPictureData.get());
 }
 
 static GrBackendTexture create_yuva_texture(GrDirectContext* direct,
@@ -279,9 +287,8 @@ void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrDirectCon
 
 sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
                                                    sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
-                                                   SkData* compressedPictureData,
-                                                   SkTArray<sk_sp<SkImage>>* promiseImages) const {
-    DeserialImageProcContext procContext { std::move(threadSafeProxy), this, promiseImages };
+                                                   SkData* compressedPictureData) {
+    DeserialImageProcContext procContext { std::move(threadSafeProxy), this };
 
     SkDeserialProcs procs;
     procs.fImageCtx = (void*) &procContext;
@@ -290,13 +297,12 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
     return SkPicture::MakeFromData(compressedPictureData, &procs);
 }
 
-// This generates promise images to replace the indices in the compressed picture. This
-// reconstitution is performed separately in each thread so we end up with multiple
-// promise images referring to the same GrBackendTexture.
+// This generates promise images to replace the indices in the compressed picture.
 sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
-                                                          size_t length, void* ctxIn) {
+                                                          size_t length,
+                                                          void* ctxIn) {
     DeserialImageProcContext* procContext = static_cast<DeserialImageProcContext*>(ctxIn);
-    const DDLPromiseImageHelper* helper = procContext->fHelper;
+    DDLPromiseImageHelper* helper = procContext->fHelper;
 
     SkASSERT(length == sizeof(int));
 
@@ -308,7 +314,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
     const DDLPromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
 
     // If there is no callback context that means 'createCallbackContexts' determined the
-    // texture wouldn't fit on the GPU. Create a separate bitmap-backed image for each thread.
+    // texture wouldn't fit on the GPU. Create a bitmap-backed image.
     if (!curImage.isYUV() && !curImage.callbackContext(0)) {
         SkASSERT(curImage.baseLevel().isImmutable());
         return curImage.baseLevel().asImage();
@@ -361,7 +367,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                                             (void*)curImage.refCallbackContext(0).release());
         curImage.callbackContext(0)->wasAddedToImage();
     }
-    procContext->fPromiseImages->push_back(image);
+    helper->fPromiseImages.push_back(image);
     SkASSERT(image);
     return image;
 }
