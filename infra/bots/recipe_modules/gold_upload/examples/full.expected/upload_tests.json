@@ -1,0 +1,56 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/[SWARM_OUT_DIR]",
+      "*.png"
+    ],
+    "infra_step": true,
+    "name": "find .png images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/[SWARM_OUT_DIR]/someimage.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "-m",
+      "cp",
+      "[START_DIR]/[SWARM_OUT_DIR]/*.png",
+      "gs://skia-infra-gm/dm-images-v1"
+    ],
+    "name": "upload .png images"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/[SWARM_OUT_DIR]/dm.json",
+      "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/1234_7/Test-Android-Clang-Pixel2XL-Some-GPU-arm64-Debug-All/1337000001/dm.json"
+    ],
+    "name": "upload dm.json"
+  },
+  {
+    "name": "$result"
+  }
+]
