@@ -21,7 +21,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.Wait(30)
+    action_runner.Wait(120)
 
 
 class SkiaIntelwikiDesktopPageSet(story.StorySet):
@@ -34,7 +34,7 @@ class SkiaIntelwikiDesktopPageSet(story.StorySet):
 
     urls_list = [
       # go/skia-skps-3-19
-      'https://en.wikipedia.org/wiki/Intel_Graphics_Technology#Capabilities_(GPU_hardware)',
+      'https://en.wikipedia.org/wiki/Intel_Graphics_Technology',
     ]
 
     for url in urls_list:
