@@ -303,7 +303,7 @@ private:
 
     static std::unordered_map<String, LayoutToken>* layoutTokens;
 
-    const char* fText;
+    StringFragment fText;
     Lexer fLexer;
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs
