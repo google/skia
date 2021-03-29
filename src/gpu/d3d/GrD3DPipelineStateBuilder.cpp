@@ -19,6 +19,7 @@
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
+#include "src/gpu/d3d/GrD3DPipeline.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
@@ -26,7 +27,7 @@
 
 #include <d3dcompiler.h>
 
-sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
+std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
         GrD3DGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
@@ -545,7 +546,7 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
 static constexpr SkFourByteTag kHLSL_Tag = SkSetFourByteTag('H', 'L', 'S', 'L');
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
-sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
+std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     TRACE_EVENT0("skia.shaders", TRACE_FUNC);
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
@@ -652,8 +653,10 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
             fGpu, fProgramInfo, rootSig, std::move(shaders[kVertex_GrShaderType]),
             std::move(shaders[kGeometry_GrShaderType]), std::move(shaders[kFragment_GrShaderType]),
             rt->dxgiFormat(), rt->stencilDxgiFormat(), rt->sampleQualityPattern());
+    sk_sp<GrD3DPipeline> pipeline = GrD3DPipeline::Make(std::move(pipelineState));
 
-    return sk_sp<GrD3DPipelineState>(new GrD3DPipelineState(std::move(pipelineState),
+    return std::unique_ptr<GrD3DPipelineState>(
+                                     new GrD3DPipelineState(std::move(pipeline),
                                                             std::move(rootSig),
                                                             fUniformHandles,
                                                             fUniformHandler.fUniforms,
