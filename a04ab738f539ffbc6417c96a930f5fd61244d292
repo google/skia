@@ -16,6 +16,24 @@
       "message": "Please also add a typecheck test to npm_build/canvaskit-wasm-tests.ts",
       "revId": "a04ab738f539ffbc6417c96a930f5fd61244d292",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3a8f459_6ec6ce33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-29T20:43:30Z",
+      "side": 1,
+      "message": "Done.\n\nCan we make our gms or examples be in TS? Trying to see why we have a separate test file (canvaskit-wasm-tests.ts)",
+      "parentUuid": "97a6eeab_cbc63efb",
+      "revId": "a04ab738f539ffbc6417c96a930f5fd61244d292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
