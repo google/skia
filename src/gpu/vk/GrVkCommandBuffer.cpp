@@ -494,7 +494,8 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
     GR_VK_CALL(gpu->vkInterface(), CmdBeginRenderPass(fCmdBuffer, &beginInfo, contents));
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);
-    target->addResources(*this, *renderPass);
+    this->addResource(framebuffer);
+    this->addGrSurface(sk_ref_sp(target));
     return true;
 }
 

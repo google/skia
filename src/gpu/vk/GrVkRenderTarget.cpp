@@ -288,13 +288,15 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
             renderpass_features_to_index(withResolve, withStencil, selfDepFlags, loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
 
-    const GrVkImageView* resolveView = withResolve ? this->resolveAttachmentView() : nullptr;
+    const GrVkAttachment* resolve = withResolve ? this->resolveAttachment() : nullptr;
 
     // Stencil attachment view is stored in the base RT stencil attachment
-    const GrVkImageView* stencilView = withStencil ? this->stencilAttachmentView() : nullptr;
+    const GrVkAttachment* stencil =
+            withStencil ? static_cast<const GrVkAttachment*>(this->getStencilAttachment())
+                        : nullptr;
     fCachedFramebuffers[cacheIndex] =
             GrVkFramebuffer::Create(gpu, this->width(), this->height(), renderPass,
-                                    this->colorAttachmentView(), resolveView, stencilView);
+                                    this->colorAttachment(), resolve, stencil);
 
     return fCachedFramebuffers[cacheIndex];
 }
@@ -423,24 +425,6 @@ GrVkRenderTarget::~GrVkRenderTarget() {
     }
 
     SkASSERT(!fCachedInputDescriptorSet);
-}
-
-void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer,
-                                    const GrVkRenderPass& renderPass) {
-    commandBuffer.addGrSurface(sk_ref_sp<const GrSurface>(this));
-    commandBuffer.addResource(this->getFramebuffer(renderPass));
-    commandBuffer.addResource(this->colorAttachmentView());
-    commandBuffer.addResource(fColorAttachment->resource());
-
-    if (this->stencilImageResource()) {
-        commandBuffer.addResource(this->stencilImageResource());
-        commandBuffer.addResource(this->stencilAttachmentView());
-    }
-    if (renderPass.hasResolveAttachment()) {
-        SkASSERT(fResolveAttachment);
-        commandBuffer.addResource(fResolveAttachment->resource());
-        commandBuffer.addResource(this->resolveAttachmentView());
-    }
 }
 
 void GrVkRenderTarget::releaseInternalObjects() {
