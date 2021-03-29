@@ -2289,6 +2289,17 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 }
 
 // These call the (virtual) onDraw... method
+
+void SkCanvas::drawGlyphRun(int count, const uint16_t glyphs[], const SkPoint pos[],
+                            const SkFont& font, const SkPaint& paint) {
+    if (count > 0) {
+        // TODO: natively pass this down to virtuals as glyphrunlist...
+        this->drawTextBlob(SkTextBlob::MakeFromPosText(glyphs, (size_t)count * sizeof(uint16_t),
+                                                       pos, font, SkTextEncoding::kGlyphID),
+                           0, 0, paint);
+    }
+}
+
 void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                               SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);

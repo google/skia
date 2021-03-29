@@ -1649,6 +1649,12 @@ public:
                                          const SkSamplingOptions&, const SkPaint* paint = nullptr,
                                          SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
+    /**
+     *  Draw a run of positioned glyphs.
+     */
+    void drawGlyphRun(int count, const uint16_t glyphs[], const SkPoint pos[],
+                      const SkFont&, const SkPaint&);
+
     /** Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
 
