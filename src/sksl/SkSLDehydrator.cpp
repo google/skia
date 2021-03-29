@@ -495,8 +495,7 @@ void Dehydrator::write(const ProgramElement& e) {
             this->write(en.typeName());
             AutoDehydratorSymbolTable symbols(this, en.symbols());
             for (const std::unique_ptr<const Symbol>& s : en.symbols()->fOwnedSymbols) {
-                SkASSERT(s->kind() == Symbol::Kind::kVariable);
-                Variable& v = (Variable&) *s;
+                const Variable& v = s->as<Variable>();
                 SkASSERT(v.initialValue());
                 const IntLiteral& i = v.initialValue()->as<IntLiteral>();
                 this->writeS32(i.value());
