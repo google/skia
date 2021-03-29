@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4681858b_54c31364",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-29T20:06:41Z",
+      "side": 1,
+      "message": "This is basically just a copy paste. Step 1 of 2 in deleting those awkward \"retiredAtlas\" semantics.",
+      "revId": "17ae3b23e97bf2e0bd7bbdcbe0b429bedc575f31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
