@@ -1478,6 +1478,10 @@ func (b *jobBuilder) dm() {
 		} else if b.extraConfig("PathKit") {
 			cas = CAS_PATHKIT
 			recipe = "test_pathkit"
+			if b.doUpload() {
+				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
+				directUpload = true
+			}
 		} else if b.extraConfig("CanvasKit") {
 			cas = CAS_CANVASKIT
 			recipe = "test_canvaskit"
