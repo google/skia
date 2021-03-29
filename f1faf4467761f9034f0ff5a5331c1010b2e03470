@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "394e49d8_82a31351",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-29T16:07:22Z",
+      "side": 1,
+      "message": "I see PathKit stuff still uploaded to Gold, so we should be in business",
+      "revId": "f1faf4467761f9034f0ff5a5331c1010b2e03470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
