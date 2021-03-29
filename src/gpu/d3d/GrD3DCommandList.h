@@ -20,7 +20,7 @@ class GrD3DGpu;
 class GrD3DBuffer;
 class GrD3DCommandSignature;
 class GrD3DConstantRingBuffer;
-class GrD3DPipelineState;
+class GrD3DPipeline;
 class GrD3DRenderTarget;
 class GrD3DRootSignature;
 class GrD3DAttachment;
@@ -149,7 +149,7 @@ public:
 
     ~GrD3DDirectCommandList() override = default;
 
-    void setPipelineState(sk_sp<GrD3DPipelineState> pipelineState);
+    void setPipelineState(const sk_sp<GrD3DPipeline>& pipeline);
 
     void setStencilRef(unsigned int stencilRef);
     void setBlendFactor(const float blendFactor[4]);
@@ -200,7 +200,7 @@ private:
 
     void onReset() override;
 
-    const GrD3DPipelineState* fCurrentPipelineState;
+    const GrD3DPipeline* fCurrentPipeline;
     const GrD3DRootSignature* fCurrentRootSignature;
     const GrBuffer* fCurrentVertexBuffer;
     size_t fCurrentVertexStride;

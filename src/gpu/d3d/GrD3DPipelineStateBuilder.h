@@ -27,10 +27,10 @@ public:
      *
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
-    static sk_sp<GrD3DPipelineState> MakePipelineState(GrD3DGpu*,
-                                                       GrRenderTarget*,
-                                                       const GrProgramDesc&,
-                                                       const GrProgramInfo&);
+    static std::unique_ptr<GrD3DPipelineState> MakePipelineState(GrD3DGpu*,
+                                                                 GrRenderTarget*,
+                                                                 const GrProgramDesc&,
+                                                                 const GrProgramInfo&);
 
     const GrCaps* caps() const override;
 
@@ -45,7 +45,7 @@ private:
     GrD3DPipelineStateBuilder(GrD3DGpu*, GrRenderTarget*, const GrProgramDesc&,
                               const GrProgramInfo&);
 
-    sk_sp<GrD3DPipelineState> finalize();
+    std::unique_ptr<GrD3DPipelineState> finalize();
 
     bool loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID3DBlob> shaders[]);
 

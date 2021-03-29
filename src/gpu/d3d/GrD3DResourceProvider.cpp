@@ -193,7 +193,7 @@ sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateSamplerTable(
     return fShaderResourceDescriptorTableCache.findOrCreateDescTable(samplers, createFunc);
 }
 
-sk_sp<GrD3DPipelineState> GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
+GrD3DPipelineState* GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
 }
@@ -230,11 +230,11 @@ static const bool c_DisplayMtlPipelineCache{false};
 #endif
 
 struct GrD3DResourceProvider::PipelineStateCache::Entry {
-    Entry(GrD3DGpu* gpu, sk_sp<GrD3DPipelineState> pipelineState)
+    Entry(GrD3DGpu* gpu, std::unique_ptr<GrD3DPipelineState> pipelineState)
             : fGpu(gpu), fPipelineState(std::move(pipelineState)) {}
 
     GrD3DGpu* fGpu;
-    sk_sp<GrD3DPipelineState> fPipelineState;
+    std::unique_ptr<GrD3DPipelineState> fPipelineState;
 };
 
 GrD3DResourceProvider::PipelineStateCache::PipelineStateCache(GrD3DGpu* gpu)
@@ -265,7 +265,7 @@ void GrD3DResourceProvider::PipelineStateCache::release() {
     fMap.reset();
 }
 
-sk_sp<GrD3DPipelineState> GrD3DResourceProvider::PipelineStateCache::refPipelineState(
+GrD3DPipelineState* GrD3DResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
@@ -284,16 +284,16 @@ sk_sp<GrD3DPipelineState> GrD3DResourceProvider::PipelineStateCache::refPipeline
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
-        sk_sp<GrD3DPipelineState> pipelineState = GrD3DPipelineStateBuilder::MakePipelineState(
-                fGpu, renderTarget, desc, programInfo);
+        std::unique_ptr<GrD3DPipelineState> pipelineState =
+                GrD3DPipelineStateBuilder::MakePipelineState(fGpu, renderTarget, desc, programInfo);
         if (!pipelineState) {
             return nullptr;
         }
         entry = fMap.insert(desc, std::unique_ptr<Entry>(
                 new Entry(fGpu, std::move(pipelineState))));
-        return (*entry)->fPipelineState;
+        return ((*entry)->fPipelineState).get();
     }
-    return (*entry)->fPipelineState;
+    return ((*entry)->fPipelineState).get();
 }
 
 void GrD3DResourceProvider::PipelineStateCache::markPipelineStateUniformsDirty() {

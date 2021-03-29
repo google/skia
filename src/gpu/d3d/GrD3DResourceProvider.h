@@ -17,6 +17,7 @@
 #include "src/gpu/d3d/GrD3DCommandSignature.h"
 #include "src/gpu/d3d/GrD3DCpuDescriptorManager.h"
 #include "src/gpu/d3d/GrD3DDescriptorTableManager.h"
+#include "src/gpu/d3d/GrD3DPipeline.h"
 #include "src/gpu/d3d/GrD3DRootSignature.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
 
@@ -66,8 +67,8 @@ public:
         return &fDescriptorTableManager;
     }
 
-    sk_sp<GrD3DPipelineState> findOrCreateCompatiblePipelineState(GrRenderTarget*,
-                                                                 const GrProgramInfo&);
+    GrD3DPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
+                                                            const GrProgramInfo&);
 
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
     void prepForSubmit();
@@ -89,7 +90,7 @@ private:
         ~PipelineStateCache();
 
         void release();
-        sk_sp<GrD3DPipelineState> refPipelineState(GrRenderTarget*, const GrProgramInfo&);
+        GrD3DPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&);
 
         void markPipelineStateUniformsDirty();
 
