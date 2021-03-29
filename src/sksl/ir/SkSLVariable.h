@@ -67,6 +67,12 @@ public:
         fDeclaration = declaration;
     }
 
+    void detachDeadVarDeclaration() const {
+        // The VarDeclaration is being deleted, so our reference to it has become stale.
+        // This variable is now dead, so it shouldn't matter that we are modifying its symbol.
+        const_cast<Variable*>(this)->fDeclaration = nullptr;
+    }
+
     String description() const override {
         return this->modifiers().description() + this->type().name() + " " + this->name();
     }
