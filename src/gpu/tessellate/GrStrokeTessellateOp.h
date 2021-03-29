@@ -11,40 +11,9 @@
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrPathShader.h"
-#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
+#include "src/gpu/tessellate/GrStrokeTessellator.h"
 
 class GrRecordingContext;
-
-// Prepares GPU data for, and then draws a stroke's tessellated geometry.
-class GrStrokeTessellator {
-public:
-    using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
-
-    struct PathStrokeList {
-        PathStrokeList(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)
-                : fPath(path), fStroke(stroke), fColor(color) {}
-        SkPath fPath;
-        SkStrokeRec fStroke;
-        SkPMColor4f fColor;
-        PathStrokeList* fNext = nullptr;
-    };
-
-    GrStrokeTessellator(ShaderFlags shaderFlags, PathStrokeList* pathStrokeList)
-            : fShaderFlags(shaderFlags), fPathStrokeList(pathStrokeList) {}
-
-    // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix&) = 0;
-
-    // Issues draw calls for the tessellated stroke. The caller is responsible for binding its
-    // desired pipeline ahead of time.
-    virtual void draw(GrOpFlushState*) const = 0;
-
-    virtual ~GrStrokeTessellator() {}
-
-protected:
-    const ShaderFlags fShaderFlags;
-    PathStrokeList* fPathStrokeList;
-};
 
 // Renders strokes by linearizing them into sorted "parametric" and "radial" edges. See
 // GrStrokeTessellateShader.
