@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f03e441_4cd3bc87",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-29T15:29:16Z",
+      "side": 1,
+      "message": "I wanna call out this difference \u0026 the comment above. Nobody was calling this function from non-ARC as far as I could see, but I definitely think we should move away from these things so that memory management is super clear on the caller side – and so ARC can figure out what\u0027s going on and be smarter.",
+      "revId": "49d24e7c63d266e31977c6f6baa43619604f0e9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
