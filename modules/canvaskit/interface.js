@@ -613,6 +613,28 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawOval(oPtr, paint);
   };
 
+  CanvasKit.Canvas.prototype.drawPatch = function(cubics, colors, texs, mode, paint) {
+    if (cubics.length < 24 ||               // 12 cubic points
+        (colors && colors.length < 4) ||    // 4 color ints
+        (texs && texs.length < 8)) {        // 4 texture points
+        return; // not enough input
+    }
+
+    const cubics_ptr =          copy1dArray(cubics, 'HEAPF32');
+    const colors_ptr = colors ? copy1dArray(assureIntColors(colors), 'HEAPU32') : nullptr;
+    const texs_ptr   = texs   ? copy1dArray(texs,   'HEAPF32') : nullptr;
+    if (!mode) {
+        mode = CanvasKit.BlendMode.Modulate;
+    }
+
+    this._drawPatch(cubics_ptr, colors_ptr, texs_ptr, mode, paint);
+
+    freeArraysThatAreNotMallocedByUsers(texs_ptr,   texs);
+    freeArraysThatAreNotMallocedByUsers(colors_ptr, colors);
+    freeArraysThatAreNotMallocedByUsers(cubics_ptr, cubics);
+  };
+
+
   // points is a 1d array of length 2n representing n points where the even indices
   // will be treated as x coordinates and the odd indices will be treated as y coordinates.
   // Like other APIs, this accepts a malloced type array or malloc obj.
