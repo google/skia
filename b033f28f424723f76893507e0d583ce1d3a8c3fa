@@ -46,6 +46,30 @@
       },
       "revId": "b033f28f424723f76893507e0d583ce1d3a8c3fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22dde5d9_c5e123c3",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-29T17:30:50Z",
+      "side": 1,
+      "message": "Right but these specifically aren\u0027t dependent on the options. Like we want to enforce this all the time, even if we hypothetically decide not to apply any context options for a given run.\n\nSo why not put them in GrCaps::finishInitialization after we apply the overrides?",
+      "parentUuid": "efbc5b79_3bec3bd7",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 98
+      },
+      "revId": "b033f28f424723f76893507e0d583ce1d3a8c3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
