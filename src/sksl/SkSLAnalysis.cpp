@@ -783,26 +783,26 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
     }
 }
 
+static bool get_constant_value(const Expression& expr, double* val) {
+    if (!expr.isCompileTimeConstant()) {
+        return false;
+    }
+    if (!expr.type().isNumber()) {
+        SkDEBUGFAILF("unexpected constant type (%s)", expr.type().description().c_str());
+        return false;
+    }
+
+    *val = expr.type().isInteger() ? static_cast<double>(expr.getConstantInt())
+                                   : static_cast<double>(expr.getConstantFloat());
+    return true;
+}
+
 static const char* invalid_for_ES2(int offset,
                                    const Statement* loopInitializer,
                                    const Expression* loopTest,
                                    const Expression* loopNext,
                                    const Statement* loopStatement,
                                    Analysis::UnrollableLoopInfo& loopInfo) {
-    auto getConstant = [&](const std::unique_ptr<Expression>& expr, double* val) {
-        if (!expr->isCompileTimeConstant()) {
-            return false;
-        }
-        if (!expr->type().isNumber()) {
-            SkDEBUGFAIL("unexpected constant type");
-            return false;
-        }
-
-        *val = expr->type().isInteger() ? static_cast<double>(expr->getConstantInt())
-                                        : static_cast<double>(expr->getConstantFloat());
-        return true;
-    };
-
     //
     // init_declaration has the form: type_specifier identifier = constant_expression
     //
@@ -822,7 +822,7 @@ static const char* invalid_for_ES2(int offset,
     if (!initDecl.value()) {
         return "missing loop index initializer";
     }
-    if (!getConstant(initDecl.value(), &loopInfo.fStart)) {
+    if (!get_constant_value(*initDecl.value(), &loopInfo.fStart)) {
         return "loop index initializer must be a constant expression";
     }
 
@@ -859,7 +859,7 @@ static const char* invalid_for_ES2(int offset,
             return "invalid relational operator";
     }
     double loopEnd = 0;
-    if (!getConstant(cond.right(), &loopEnd)) {
+    if (!get_constant_value(*cond.right(), &loopEnd)) {
         return "loop index must be compared with a constant expression";
     }
 
@@ -881,7 +881,7 @@ static const char* invalid_for_ES2(int offset,
             if (!is_loop_index(next.left())) {
                 return "expected loop index in loop expression";
             }
-            if (!getConstant(next.right(), &loopInfo.fDelta)) {
+            if (!get_constant_value(*next.right(), &loopInfo.fDelta)) {
                 return "loop index must be modified by a constant expression";
             }
             switch (next.getOperator().kind()) {
