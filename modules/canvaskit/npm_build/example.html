@@ -7,8 +7,6 @@
 <style>
   canvas, img {
     border: 1px dashed #AAA;
-    width: 300px;
-    height: 300px;
   }
 
 </style>
@@ -45,6 +43,9 @@
 <h2> CanvasKit can allow for text measurement/placement (e.g. breaking, kerning)</h2>
 <canvas id=textonpath width=300 height=300></canvas>
 
+<h2> Interactive drawPatch</h2>
+<canvas id=interdrawpatch width=512 height=512></canvas>
+
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
@@ -76,6 +77,7 @@
     CanvasAPI6(CanvasKit);
     CanvasAPI7(CanvasKit);
     CanvasAPI8(CanvasKit);
+    InteractivePatch(CanvasKit);
   });
 
   // Examples requiring external resources
@@ -150,6 +152,119 @@
     // textPaint.delete();
     // textFont.delete();
   }
+
+   function InteractivePatch(CanvasKit) {
+     const ELEM = 'interdrawpatch';
+     const surface = CanvasKit.MakeCanvasSurface(ELEM);
+     if (!surface) {
+       console.error('Could not make surface');
+       return;
+     }
+
+     let live_corner, live_index;
+
+     const paint = new CanvasKit.Paint();
+     const pts_paint = new CanvasKit.Paint();
+     pts_paint.setStyle(CanvasKit.PaintStyle.Stroke);
+     pts_paint.setStrokeWidth(9);
+     pts_paint.setStrokeCap(CanvasKit.StrokeCap.Round);
+
+     const line_paint = new CanvasKit.Paint();
+     line_paint.setStyle(CanvasKit.PaintStyle.Stroke);
+     line_paint.setStrokeWidth(2);
+
+     const colors = [CanvasKit.RED, CanvasKit.BLUE, CanvasKit.YELLOW, CanvasKit.CYAN];
+
+     const patch = [
+          [ 10,170,   10, 10,  170, 10],  // prev_vector, point, next_vector
+          [340, 10,  500, 10,  500,170],
+          [500,340,  500,500,  340,500],
+          [170,500,   10,500,   10,340],
+      ];
+
+      function get_corner(corner, index) {
+          return [corner[index*2+0], corner[index*2+1]];
+      }
+
+      function push_xy(array, xy) {
+          array.push(xy[0], xy[1]);
+      }
+
+      function patch_to_cubics(patch) {
+          const array = [];
+          push_xy(array, get_corner(patch[0],1));
+          push_xy(array, get_corner(patch[0],2));
+          for (let i = 1; i < 4; ++i) {
+              push_xy(array, get_corner(patch[i],0));
+              push_xy(array, get_corner(patch[i],1));
+              push_xy(array, get_corner(patch[i],2));
+          }
+          push_xy(array, get_corner(patch[0],0));
+
+          return array;
+      }
+
+     function drawFrame(canvas) {
+         const cubics = patch_to_cubics(patch);
+
+         canvas.drawColor(CanvasKit.WHITE);
+         canvas.drawPatch(cubics, colors, null, null, paint);
+         if (live_corner) {
+             canvas.drawPoints(CanvasKit.PointMode.Polygon, live_corner, line_paint);
+         }
+         canvas.drawPoints(CanvasKit.PointMode.Points, cubics, pts_paint);
+
+         surface.requestAnimationFrame(drawFrame);
+     }
+
+     surface.requestAnimationFrame(drawFrame);
+
+     function length2(x, y) {
+         return x*x + y*y;
+     }
+     function hit_test(x,y, x1,y1) {
+         return length2(x-x1, y-y1) <= 10*10;
+     }
+     function pointer_up(e) {
+         live_corner = null;
+         live_index = null;
+      }
+
+     function pointer_down(e) {
+         live_corner = null;
+         live_index = null;
+         for (p of patch) {
+             for (let i = 0; i < 6; i += 2) {
+                 if (hit_test(p[i], p[i+1], e.offsetX, e.offsetY)) {
+                     live_corner = p;
+                     live_index = i;
+                 }
+             }
+         }
+      }
+
+     function pointer_move(e) {
+       if (e.pressure && live_corner) {
+           if (live_index == 2) {
+               // corner
+               const dx = e.offsetX - live_corner[2];
+               const dy = e.offsetY - live_corner[3];
+               for  (let i = 0; i < 3; ++i) {
+                   live_corner[i*2+0] += dx;
+                   live_corner[i*2+1] += dy;
+               }
+           } else {
+               // control-point
+               live_corner[live_index+0] = e.offsetX;
+               live_corner[live_index+1] = e.offsetY;
+            }
+        }
+     }
+     document.getElementById(ELEM).addEventListener('pointermove', pointer_move);
+     document.getElementById(ELEM).addEventListener('pointerdown', pointer_down);
+     document.getElementById(ELEM).addEventListener('pointerup', pointer_up);
+     preventScrolling(document.getElementById(ELEM));
+   }
 
   function PathPersonExample(CanvasKit) {
     const surface = CanvasKit.MakeSWCanvasSurface('pathperson');
