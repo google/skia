@@ -679,7 +679,7 @@ void GrOpsTask::reset() {
     fClipAllocators.reset();
     fClippedContentBounds = SkIRect::MakeEmpty();
     fTotalBounds = SkRect::MakeEmpty();
-    fOpChains.reset();
+    this->deleteOps();
     fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
 }
 
