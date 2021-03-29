@@ -110,10 +110,9 @@ public:
             : fSupportedYUVADataTypes(supportedYUVADataTypes) {}
     ~DDLPromiseImageHelper() = default;
 
-    // Convert the SkPicture into SkData replacing all the SkImages with an index.
-    sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
-
-    void createCallbackContexts(GrDirectContext*);
+    // Convert the input SkPicture into a new one which has promise images rather than live
+    // images.
+    sk_sp<SkPicture> recreateSKP(GrDirectContext*, SkPicture*);
 
     void uploadAllToGPU(SkTaskGroup*, GrDirectContext*);
     void deleteAllFromGPU(SkTaskGroup*, GrDirectContext*);
@@ -127,6 +126,8 @@ public:
     void reset() { fImageInfo.reset(); }
 
 private:
+    void createCallbackContexts1(GrDirectContext*);
+
     // This is the information extracted into this class from the parsing of the skp file.
     // Once it has all been uploaded to the GPU and distributed to the promise images, it
     // is all dropped via "reset".
