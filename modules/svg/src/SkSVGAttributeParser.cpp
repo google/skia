@@ -550,7 +550,9 @@ bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kNone);
         parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
-        *paint = SkSVGPaint(iri.iri());
+        // optional fallback color
+        this->parse(&c);
+        *paint = SkSVGPaint(iri.iri(), c);
         parsedValue = true;
     }
     return parsedValue && this->parseEOSToken();
