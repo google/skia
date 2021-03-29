@@ -13,6 +13,8 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+GR_NORETAIN_BEGIN
+
 GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    SkBudgeted budgeted,
                                                    SkISize dimensions,
@@ -144,3 +146,5 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
                 new GrMtlTextureRenderTarget(gpu, dimensions, texture, mipmapStatus, cacheable));
     }
 }
+
+GR_NORETAIN_END
