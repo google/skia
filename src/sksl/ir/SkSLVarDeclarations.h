@@ -38,6 +38,14 @@ public:
             , fArraySize(arraySize)
             , fValue(std::move(value)) {}
 
+    ~VarDeclaration() override {
+        // Variables and VarDeclarations each hold a pointer to one another. VarDeclarations can be
+        // eliminated during program creation or optimization, but the associated Variable will
+        // continue to exist in its SymbolTable for the lifetime of the Program. We don't want the
+        // Variable to hold a stale reference to this deleted VarDeclaration, so we clear it out.
+        var().clearStaleDeclaration();
+    }
+
     // Does proper error checking and type coercion; reports errors via ErrorReporter.
     static std::unique_ptr<Statement> Convert(const Context& context,
                                               Variable* var,

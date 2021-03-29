@@ -67,12 +67,18 @@ public:
         fDeclaration = declaration;
     }
 
+    void clearStaleDeclaration() const {
+        // The VarDeclaration is being deleted, so our reference to it has become stale.
+        // This variable is now dead, so it shouldn't matter that we are modifying its symbol.
+        fDeclaration = nullptr;
+    }
+
     String description() const override {
         return this->modifiers().description() + this->type().name() + " " + this->name();
     }
 
 private:
-    VarDeclaration* fDeclaration = nullptr;
+    mutable VarDeclaration* fDeclaration = nullptr;
     const Modifiers* fModifiers;
     VariableStorage fStorage;
     bool fBuiltin;
