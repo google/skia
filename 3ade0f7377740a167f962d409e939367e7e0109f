@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "65f08e85_428652a7",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-29T16:21:29Z",
+      "side": 1,
+      "message": "In general yes -- I think *everywhere* we take an array in Skia for colors, we should allow the array to be SkColor or SkColor4f.\n\nLikely I will propose a C++ CL first, making those available...",
+      "parentUuid": "1b40c21c_f4db05dd",
+      "range": {
+        "startLine": 973,
+        "startChar": 50,
+        "endLine": 973,
+        "endChar": 57
+      },
+      "revId": "3ade0f7377740a167f962d409e939367e7e0109f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d80ea0e3_fed409dd",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 9
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-29T16:13:16Z",
       "side": 1,
       "message": "Do we want to add a Debug() error message?",
+      "range": {
+        "startLine": 620,
+        "startChar": 8,
+        "endLine": 620,
+        "endChar": 14
+      },
+      "revId": "3ade0f7377740a167f962d409e939367e7e0109f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db2e9934_b5512143",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-29T16:21:29Z",
+      "side": 1,
+      "message": "... or throw an exception...",
+      "parentUuid": "d80ea0e3_fed409dd",
       "range": {
         "startLine": 620,
         "startChar": 8,
@@ -89,6 +137,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "52dc4553_97ecc9ed",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-29T16:21:29Z",
+      "side": 1,
+      "message": "Doh",
+      "parentUuid": "8d9ca12b_4f037322",
+      "range": {
+        "startLine": 345,
+        "startChar": 4,
+        "endLine": 345,
+        "endChar": 10
+      },
+      "revId": "3ade0f7377740a167f962d409e939367e7e0109f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2174b48e_f8860144",
         "filename": "modules/canvaskit/tests/core.spec.js",
         "patchSetId": 9
@@ -100,6 +172,30 @@
       "writtenOn": "2021-03-29T16:13:16Z",
       "side": 1,
       "message": "I\u0027m surprised this works because CanvasKit.RED returns a Float4 array, doesn\u0027t it? Aren\u0027t the inputs supposed to be int colors?",
+      "range": {
+        "startLine": 358,
+        "startChar": 35,
+        "endLine": 358,
+        "endChar": 38
+      },
+      "revId": "3ade0f7377740a167f962d409e939367e7e0109f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a64d96f6_5306c63f",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-29T16:21:29Z",
+      "side": 1,
+      "message": "This is how we pass colors to gradients...",
+      "parentUuid": "2174b48e_f8860144",
       "range": {
         "startLine": 358,
         "startChar": 35,
