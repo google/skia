@@ -3451,54 +3451,23 @@ protected:
     SkString name() override { return SkString("Paragraph59"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorYELLOW);
 
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
 
-        SkPaint paint;
-        paint.setColor(SK_ColorBLUE);
-        canvas->drawRect(SkRect::MakeWH(300, 100), paint);
-
         ParagraphStyle paragraph_style;
         TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        text_style.setFontSize(36);
-        text_style.setColor(SK_ColorBLACK);
-        paint.setColor(SK_ColorWHITE);
-        text_style.setBackgroundColor(paint);
+        text_style.setFontSize(14);
         builder.pushStyle(text_style);
-        builder.addText("aaa bbb ");
-        PlaceholderStyle placeholder_style;
-        placeholder_style.fHeight = 8;
-        placeholder_style.fWidth = 300;
-        placeholder_style.fBaseline = TextBaseline::kAlphabetic;
-        placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
-        builder.pushStyle(text_style);
-        builder.addPlaceholder(placeholder_style);
-        placeholder_style.fHeight = 20;
-        builder.pushStyle(text_style);
-        builder.addPlaceholder(placeholder_style);
+        //builder.addText( u"\u118ff\u1f1a9\u103a");
+        builder.addText("\U000118ff\U0001f1a9\u103A");
         auto paragraph = builder.Build();
-        paragraph->layout(290);
+        paragraph->layout(500);
         paragraph->paint(canvas, 0, 0);
-
-        auto placeholders = paragraph->getRectsForPlaceholders();
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorRED);
-        for (auto& p : placeholders) {
-            canvas->drawRect(p.rect, paint);
-            paint.setColor(SK_ColorGREEN);
-        }
-
-        if (this->isVerbose()) {
-            auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-            for (auto& line : impl->lines()) {
-                SkDebugf("@%f +%f\n", line.offset().fY, line.height());
-            }
-        }
     }
 
 private:
