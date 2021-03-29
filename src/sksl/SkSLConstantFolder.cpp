@@ -218,7 +218,11 @@ const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& 
             break;
         }
         expr = var.initialValue();
-        SkASSERT(expr);
+        if (!expr) {
+            SkDEBUGFAILF("found a const variable without an initial value (%s)",
+                         var.description().c_str());
+            break;
+        }
         if (expr->isCompileTimeConstant()) {
             return expr;
         }

@@ -48,6 +48,8 @@ public:
     , fStorage(storage)
     , fBuiltin(builtin) {}
 
+    ~Variable() override;
+
     const Modifiers& modifiers() const {
         return *fModifiers;
     }
@@ -65,6 +67,12 @@ public:
     void setDeclaration(VarDeclaration* declaration) {
         SkASSERT(!fDeclaration);
         fDeclaration = declaration;
+    }
+
+    void detachDeadVarDeclaration() const {
+        // The VarDeclaration is being deleted, so our reference to it has become stale.
+        // This variable is now dead, so it shouldn't matter that we are modifying its symbol.
+        const_cast<Variable*>(this)->fDeclaration = nullptr;
     }
 
     String description() const override {

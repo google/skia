@@ -38,6 +38,13 @@ public:
             , fArraySize(arraySize)
             , fValue(std::move(value)) {}
 
+    ~VarDeclaration() override {
+        // Unhook this VarDeclaration from its associated Variable, since we're being deleted.
+        if (fVar) {
+            fVar->detachDeadVarDeclaration();
+        }
+    }
+
     // Does proper error checking and type coercion; reports errors via ErrorReporter.
     static std::unique_ptr<Statement> Convert(const Context& context,
                                               Variable* var,
@@ -54,6 +61,8 @@ public:
     }
 
     const Variable& var() const {
+        // This should never be called after the Variable has been deleted.
+        SkASSERT(fVar);
         return *fVar;
     }
 

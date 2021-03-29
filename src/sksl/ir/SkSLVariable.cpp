@@ -11,6 +11,13 @@
 
 namespace SkSL {
 
+Variable::~Variable() {
+    // Unhook this Variable from its associated VarDeclaration, since we're being deleted.
+    if (fDeclaration) {
+        fDeclaration->setVar(nullptr);
+    }
+}
+
 const Expression* Variable::initialValue() const {
     return fDeclaration ? fDeclaration->value().get() : nullptr;
 }
