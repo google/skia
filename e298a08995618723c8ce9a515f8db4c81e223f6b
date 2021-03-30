@@ -106,6 +106,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dd630465_50f3e192",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1920,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-30T16:35:17Z",
+      "side": 1,
+      "message": "Is it a different ops task i.e. would the assert on the next line also fail? You could put a breakpoint at the top of this method, hit it, then put a breakpoint in `makeClosed` and see how it\u0027s getting closed.",
+      "parentUuid": "4e37cf7e_830f9ba4",
+      "range": {
+        "startLine": 1920,
+        "startChar": 23,
+        "endLine": 1920,
+        "endChar": 31
+      },
+      "revId": "e298a08995618723c8ce9a515f8db4c81e223f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "005b4a5d_1c13a48c",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 3
