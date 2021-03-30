@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b80950d7_304bdc8a",
+        "filename": "experimental/ddlbench/ddlbench.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-30T20:13:43Z",
+      "side": 0,
+      "message": "kind of surprised this isn\u0027t needed, or more so that you found it wasn\u0027t needed in this file given the change.",
+      "range": {
+        "startLine": 18,
+        "startChar": 9,
+        "endLine": 18,
+        "endChar": 32
+      },
+      "revId": "3079266f926003f7f6d4f251300ae81cdb39f0c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
