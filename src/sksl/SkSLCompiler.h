@@ -98,6 +98,18 @@ public:
     Compiler& operator=(const Compiler&) = delete;
 
     /**
+     * Allows optimization settings to be unilaterally overridden. This is meant to allow tools like
+     * Viewer or Nanobench to override the compiler's ProgramSettings and ShaderCaps for debugging.
+     */
+    enum class OverrideFlag {
+        kDefault,
+        kOff,
+        kOn,
+    };
+    static void EnableOptimizer(OverrideFlag flag) { sOptimizer = flag; }
+    static void EnableInliner(OverrideFlag flag) { sInliner = flag; }
+
+    /**
      * If externalFunctions is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
@@ -223,6 +235,9 @@ private:
     int fErrorCount;
     String fErrorText;
     std::vector<size_t> fErrorTextLength;
+
+    static OverrideFlag sOptimizer;
+    static OverrideFlag sInliner;
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;
