@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb96308e_17f33988",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-03-30T14:56:02Z",
+      "side": 1,
+      "message": "I see, graphemes can span runs of glyphs and the current code assumes that they won\u0027t. This change is fine for now. Another example of how properties of code points and properties of glyphs don\u0027t always line up.",
+      "revId": "8daad36c520a988281e56058b72bdb87667b0adb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
