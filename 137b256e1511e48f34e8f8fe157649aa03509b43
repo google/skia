@@ -62,6 +62,52 @@
       },
       "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5f594e5_874beb90",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-30T14:43:58Z",
+      "side": 1,
+      "message": "and maybe \u0027kMaxPathLinearizationDeviation\u0027 ?",
+      "range": {
+        "startLine": 53,
+        "startChar": 60,
+        "endLine": 53,
+        "endChar": 85
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e797150a_71324299",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-30T14:43:58Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 58,
+        "startChar": 54,
+        "endLine": 58,
+        "endChar": 75
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
