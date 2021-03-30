@@ -16,6 +16,40 @@
       "message": "Reland of https://skia-review.googlesource.com/c/skia/+/348886\n\nOnly change from original (other than minor rebasing on intervening changes) is all iOS/Metal excluded instead of just one bot. Other issue that caused revert was fixed here: https://skia-review.googlesource.com/c/skia/+/390058",
       "revId": "6c64125fb195b5cd84175ae71abcb9cc10043eec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efe5f4c4_a4d7568a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-30T14:49:04Z",
+      "side": 1,
+      "message": "1 little nit",
+      "revId": "6c64125fb195b5cd84175ae71abcb9cc10043eec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b02530d1_1aeb6bb7",
+        "filename": "tests/ReadWritePixelsGpuTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-30T14:49:04Z",
+      "side": 1,
+      "message": "can we early out if result !\u003d Result::kSuccess || !check.interset()? Would allow us to avoid the large indented block",
+      "revId": "6c64125fb195b5cd84175ae71abcb9cc10043eec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
