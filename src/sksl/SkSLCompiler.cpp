@@ -72,11 +72,9 @@
 
 namespace SkSL {
 
-// Set these flags to `false` to disable optimization passes unilaterally.
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
-bool gSkSLOptimizer = true;
-bool gSkSLInliner = true;
-bool gSkSLDeadCodeElimination = true;
+Compiler::OverrideFlag Compiler::sOptimizer = OverrideFlag::kDefault;
+Compiler::OverrideFlag Compiler::sInliner = OverrideFlag::kDefault;
 
 using RefKind = VariableReference::RefKind;
 
@@ -405,11 +403,30 @@ std::unique_ptr<Program> Compiler::convertProgram(
     auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
     AutoProgramConfig autoConfig(fContext, config.get());
 
-    // Honor our global optimization-disable flags.
-    config->fSettings.fOptimize &= gSkSLOptimizer;
-    config->fSettings.fInlineThreshold *= (int)gSkSLInliner;
-    config->fSettings.fRemoveDeadVariables &= gSkSLDeadCodeElimination;
-    config->fSettings.fRemoveDeadFunctions &= gSkSLDeadCodeElimination;
+    // Honor our optimization-override flags.
+    switch (sOptimizer) {
+        case OverrideFlag::kDefault:
+            break;
+        case OverrideFlag::kOff:
+            config->fSettings.fOptimize = false;
+            break;
+        case OverrideFlag::kOn:
+            config->fSettings.fOptimize = true;
+            break;
+    }
+
+    switch (sInliner) {
+        case OverrideFlag::kDefault:
+            break;
+        case OverrideFlag::kOff:
+            config->fSettings.fInlineThreshold = 0;
+            break;
+        case OverrideFlag::kOn:
+            if (config->fSettings.fInlineThreshold == 0) {
+                config->fSettings.fInlineThreshold = kDefaultInlineThreshold;
+            }
+            break;
+    }
 
     // Disable optimization settings that depend on a parent setting which has been disabled.
     config->fSettings.fInlineThreshold *= (int)config->fSettings.fOptimize;
