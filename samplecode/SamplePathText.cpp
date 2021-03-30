@@ -170,7 +170,7 @@ public:
         // Get valid front data.
         fBackgroundAnimationTask.wait();
         this->runAnimationTask(0, 0, screenWidth, screenHeight);
-        memcpy(fFrontMatrices, fBackMatrices, kNumPaths * sizeof(SkMatrix));
+        std::copy_n(fBackMatrices.get(), kNumPaths, fFrontMatrices.get());
         fLastTick = 0;
     }
 
@@ -241,8 +241,8 @@ protected:
     };
 
     Velocity fVelocities[kNumPaths];
-    SkAutoTMalloc<SkMatrix> fFrontMatrices;
-    SkAutoTMalloc<SkMatrix> fBackMatrices;
+    SkAutoTArray<SkMatrix> fFrontMatrices;
+    SkAutoTArray<SkMatrix> fBackMatrices;
     SkTaskGroup fBackgroundAnimationTask;
     double fLastTick;
 };
