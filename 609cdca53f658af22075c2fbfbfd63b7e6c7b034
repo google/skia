@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48fe179f_20dea678",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-30T13:32:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0044e998_1ad4f300",
+      "range": {
+        "startLine": 60,
+        "startChar": 25,
+        "endLine": 60,
+        "endChar": 43
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a64bb545_9fcb8579",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-24T17:02:01Z",
       "side": 1,
       "message": "dstToSrcOffset",
+      "range": {
+        "startLine": 61,
+        "startChar": 27,
+        "endLine": 61,
+        "endChar": 41
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1cd7348_5904f1a7",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-30T13:32:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a64bb545_9fcb8579",
       "range": {
         "startLine": 61,
         "startChar": 27,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f433bd66_1b953397",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-30T13:32:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75b61909_47041bc2",
+      "range": {
+        "startLine": 67,
+        "startChar": 48,
+        "endLine": 67,
+        "endChar": 55
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28767f82_5fd7bb7d",
@@ -93,6 +165,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bb11335_bd295c66",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-30T13:32:35Z",
+      "side": 1,
+      "message": "Done. Also MAX_BLUR_SIGMA-\u003ekMaxSigma.",
+      "parentUuid": "28767f82_5fd7bb7d",
+      "range": {
+        "startLine": 548,
+        "startChar": 4,
+        "endLine": 551,
+        "endChar": 88
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14538050_35b0a956",
@@ -106,6 +202,30 @@
       "writtenOn": "2021-03-24T17:02:01Z",
       "side": 1,
       "message": "delete?",
+      "range": {
+        "startLine": 572,
+        "startChar": 68,
+        "endLine": 572,
+        "endChar": 74
+      },
+      "revId": "609cdca53f658af22075c2fbfbfd63b7e6c7b034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e62053d6_726651f8",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-30T13:32:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14538050_35b0a956",
       "range": {
         "startLine": 572,
         "startChar": 68,
