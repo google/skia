@@ -983,8 +983,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     shaderCaps->fBuiltinDeterminantSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
 
     if (GR_IS_GR_WEBGL(standard)) {
-      // WebGL 1.0 doesn't support do-while loops.
-      shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);
+        // WebGL 1.0 doesn't support do-while loops.
+        shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);
+    }
+
+    if (GR_IS_GR_GL_ES(standard)) {
+        // The inliner has given us some draw-performance wins in ES (esp. on Mali/Adreno).
+        shaderCaps->fEnableSkSLInliner = true;
     }
 }
 
