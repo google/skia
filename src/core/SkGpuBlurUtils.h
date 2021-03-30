@@ -78,6 +78,8 @@ int CreateIntegralTable(float sixSigma, SkBitmap* table);
 
 void Compute1DGaussianKernel(float* kernel, float sigma, int radius);
 
+void Compute1DLinearGaussianKernel(float* kernel, float* offset, float sigma, int radius);
+
 // Any sigmas smaller than this are effectively an identity blur so can skip convolution at a higher
 // level. The value was chosen because it corresponds roughly to a radius of 1/10px, and is slightly
 // greater than sqrt(1/2*sigma^2) for SK_ScalarNearlyZero.
@@ -88,6 +90,8 @@ inline int SigmaRadius(float sigma) {
 }
 
 inline int KernelWidth(int radius) { return 2 * radius + 1; }
+
+inline int LinearKernelWidth(int radius) { return radius + 1; }
 
 }  // namespace SkGpuBlurUtils
 
