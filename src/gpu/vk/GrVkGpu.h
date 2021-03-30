@@ -43,6 +43,10 @@ public:
     void disconnect(DisconnectType) override;
     bool disconnected() const { return fDisconnected; }
 
+    void releaseUnlockedBackendObjects() override {
+        fResourceProvider.releaseUnlockedBackendObjects();
+    }
+
     GrThreadSafePipelineBuilder* pipelineBuilder() override;
     sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder() override;
 

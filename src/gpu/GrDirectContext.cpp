@@ -306,6 +306,8 @@ void GrDirectContext::purgeUnlockedResources(bool scratchResourcesOnly) {
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs
     this->getTextBlobCache()->purgeStaleBlobs();
+
+    fGpu->releaseUnlockedBackendObjects();
 }
 
 void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {

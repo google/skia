@@ -488,7 +488,7 @@ void GrVkResourceProvider::destroyResources() {
     }
     fExternalRenderPasses.reset();
 
-    // Iterate through all store GrVkSamplers and unref them before resetting the hash.
+    // Iterate through all store GrVkSamplers and unref them before resetting the hash table.
     fSamplers.foreach([&](auto* elt) { elt->unref(); });
     fSamplers.reset();
 
@@ -520,6 +520,14 @@ void GrVkResourceProvider::destroyResources() {
     }
     fDescriptorSetManagers.reset();
 
+}
+
+void GrVkResourceProvider::releaseUnlockedBackendObjects() {
+    for (GrVkCommandPool* pool : fAvailableCommandPools) {
+        SkASSERT(pool->unique());
+        pool->unref();
+    }
+    fAvailableCommandPools.reset();
 }
 
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {

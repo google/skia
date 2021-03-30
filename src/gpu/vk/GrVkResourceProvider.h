@@ -209,6 +209,14 @@ public:
     // resource usages.
     void destroyResources();
 
+    // Currently we just release available command pools (which also releases their buffers). The
+    // command buffers and pools take up the most memory. Other objects (e.g. samples,
+    // ycbcr conversions, etc.) tend to be fairly light weight and not worth the effort to remove
+    // them and then possibly remake them. Additionally many of those objects have refs/handles that
+    // are held by other objects that aren't deleted here. Thus the memory wins for removing these
+    // objects from the cache are probably not worth the complexity of safely releasing them.
+    void releaseUnlockedBackendObjects();
+
     void backgroundReset(GrVkCommandPool* pool);
 
     void reset(GrVkCommandPool* pool);
@@ -218,7 +226,6 @@ public:
 #endif
 
 private:
-
     class PipelineStateCache : public GrThreadSafePipelineBuilder {
     public:
         PipelineStateCache(GrVkGpu* gpu);
