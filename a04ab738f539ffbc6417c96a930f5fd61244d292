@@ -34,6 +34,24 @@
       "parentUuid": "97a6eeab_cbc63efb",
       "revId": "a04ab738f539ffbc6417c96a930f5fd61244d292",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "465c1151_e66ee4fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-30T11:58:24Z",
+      "side": 1,
+      "message": "I can add gms/examples be in TS to the list. However, I believe it\u0027s common practice to have non-functional (but valid typed code) be able to more easily validate the type configurations. That\u0027s what canvaskit-wasm-tests.ts is for: to make sure we don\u0027t regress our type definitions (unintentionally).",
+      "parentUuid": "b3a8f459_6ec6ce33",
+      "revId": "a04ab738f539ffbc6417c96a930f5fd61244d292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
