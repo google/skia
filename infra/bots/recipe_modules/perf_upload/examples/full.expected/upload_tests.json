@@ -1,0 +1,48 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/perf",
+      "*.json"
+    ],
+    "cwd": "[START_DIR]/perf",
+    "infra_step": true,
+    "name": "find results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/nanobench_abc123.json@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-z",
+      "json",
+      "[START_DIR]/perf/nanobench_abc123.json",
+      "gs://skia-infra-gm/trybot/nano-json-v1/2012/05/14/12/Test-Android-Clang-Pixel2XL-Some-GPU-arm64-Debug-All/1234/7/nanobench_abc123.json"
+    ],
+    "name": "upload upload"
+  },
+  {
+    "name": "$result"
+  }
+]

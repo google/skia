@@ -14,6 +14,7 @@ import os
 DEPS = [
   'env',
   'flavor',
+  'perf_upload',
   'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
@@ -98,6 +99,7 @@ def perf_steps(api):
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.perf_data_dir,
         api.flavor.host_dirs.perf_data_dir)
+    api.perf_upload.uploadNanoResults()
 
 
 def RunSteps(api):

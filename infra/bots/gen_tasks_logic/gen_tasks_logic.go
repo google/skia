@@ -1820,6 +1820,7 @@ func (b *jobBuilder) perf() {
 		b.recipeProps(EXTRA_PROPS)
 		if recipe == "perf" {
 			b.nanobenchFlags(doUpload)
+			// If windows: do the thing (add assets that upload job would, set directUpload to skip upload task, all just like 'test')
 		} else if recipe == "skpbench" {
 			b.skpbenchFlags()
 		}

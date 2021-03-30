@@ -13,6 +13,7 @@
   * [git](#recipe_modules-git)
   * [gsutil](#recipe_modules-gsutil)
   * [infra](#recipe_modules-infra)
+  * [perf_upload](#recipe_modules-perf_upload)
   * [run](#recipe_modules-run)
   * [vars](#recipe_modules-vars)
 
@@ -37,6 +38,7 @@
   * [perf_pathkit](#recipes-perf_pathkit)
   * [perf_skottietrace](#recipes-perf_skottietrace)
   * [perf_skottiewasm_lottieweb](#recipes-perf_skottiewasm_lottieweb)
+  * [perf_upload:examples/full](#recipes-perf_upload_examples_full)
   * [recreate_skps](#recipes-recreate_skps) &mdash; Recipe for the Skia RecreateSKPs Bot.
   * [run:examples/full](#recipes-run_examples_full)
   * [skpbench](#recipes-skpbench)
@@ -211,6 +213,13 @@ If the operation fails, it will be retried multiple times.
 &emsp; **@property**<br>&mdash; **def [gopath](/infra/bots/recipe_modules/infra/api.py#33)(self):**
 
 &emsp; **@property**<br>&mdash; **def [goroot](/infra/bots/recipe_modules/infra/api.py#15)(self):**
+### *recipe_modules* / [perf\_upload](/infra/bots/recipe_modules/perf_upload)
+
+[DEPS](/infra/bots/recipe_modules/perf_upload/__init__.py#5): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [gsutil](#recipe_modules-gsutil), [vars](#recipe_modules-vars)
+
+#### **class [PerfUploadApi](/infra/bots/recipe_modules/perf_upload/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+&mdash; **def [uploadNanoResults](/infra/bots/recipe_modules/perf_upload/api.py#10)(self):**
 ### *recipe_modules* / [run](/infra/bots/recipe_modules/run)
 
 [DEPS](/infra/bots/recipe_modules/run/__init__.py#5): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [vars](#recipe_modules-vars)
@@ -428,6 +437,11 @@ A dictionary is returned that has the following structure:
   'frame_min_us': 90,
   'frame_avg_us': 95,
 }
+### *recipes* / [perf\_upload:examples/full](/infra/bots/recipe_modules/perf_upload/examples/full.py)
+
+[DEPS](/infra/bots/recipe_modules/perf_upload/examples/full.py#9): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [flavor](#recipe_modules-flavor), [perf\_upload](#recipe_modules-perf_upload), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+
+&mdash; **def [RunSteps](/infra/bots/recipe_modules/perf_upload/examples/full.py#21)(api):**
 ### *recipes* / [recreate\_skps](/infra/bots/recipes/recreate_skps.py)
 
 [DEPS](/infra/bots/recipes/recreate_skps.py#9): [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
