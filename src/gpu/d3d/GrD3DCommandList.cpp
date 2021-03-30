@@ -215,30 +215,24 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
 
 GrD3DDirectCommandList::GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
                                                gr_cp<ID3D12GraphicsCommandList> commandList)
-    : GrD3DCommandList(std::move(allocator), std::move(commandList))
-    , fCurrentPipeline(nullptr)
-    , fCurrentRootSignature(nullptr)
-    , fCurrentVertexBuffer(nullptr)
-    , fCurrentVertexStride(0)
-    , fCurrentInstanceBuffer(nullptr)
-    , fCurrentInstanceStride(0)
-    , fCurrentIndexBuffer(nullptr)
-    , fCurrentConstantBufferAddress(0)
-    , fCurrentSRVCRVDescriptorHeap(nullptr)
-    , fCurrentSamplerDescriptorHeap(nullptr) {
-    sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
+    : GrD3DCommandList(std::move(allocator), std::move(commandList)) {
+    sk_bzero(fCurrentGraphicsRootDescTable, sizeof(fCurrentGraphicsRootDescTable));
+    sk_bzero(fCurrentComputeRootDescTable, sizeof(fCurrentComputeRootDescTable));
 }
 
 void GrD3DDirectCommandList::onReset() {
     fCurrentPipeline = nullptr;
-    fCurrentRootSignature = nullptr;
+    fCurrentGraphicsRootSignature = nullptr;
+    fCurrentComputeRootSignature = nullptr;
     fCurrentVertexBuffer = nullptr;
     fCurrentVertexStride = 0;
     fCurrentInstanceBuffer = nullptr;
     fCurrentInstanceStride = 0;
     fCurrentIndexBuffer = nullptr;
-    fCurrentConstantBufferAddress = 0;
-    sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
+    fCurrentGraphicsConstantBufferAddress = 0;
+    fCurrentComputeConstantBufferAddress = 0;
+    sk_bzero(fCurrentGraphicsRootDescTable, sizeof(fCurrentGraphicsRootDescTable));
+    sk_bzero(fCurrentComputeRootDescTable, sizeof(fCurrentComputeRootDescTable));
     fCurrentSRVCRVDescriptorHeap = nullptr;
     fCurrentSamplerDescriptorHeap = nullptr;
 }
@@ -300,12 +294,23 @@ void GrD3DDirectCommandList::setDefaultSamplePositions() {
 
 void GrD3DDirectCommandList::setGraphicsRootSignature(const sk_sp<GrD3DRootSignature>& rootSig) {
     SkASSERT(fIsActive);
-    if (fCurrentRootSignature != rootSig.get()) {
+    if (fCurrentGraphicsRootSignature != rootSig.get()) {
         fCommandList->SetGraphicsRootSignature(rootSig->rootSignature());
         this->addResource(rootSig);
-        fCurrentRootSignature = rootSig.get();
+        fCurrentGraphicsRootSignature = rootSig.get();
         // need to reset the current descriptor tables as well
-        sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
+        sk_bzero(fCurrentGraphicsRootDescTable, sizeof(fCurrentGraphicsRootDescTable));
+    }
+}
+
+void GrD3DDirectCommandList::setComputeRootSignature(const sk_sp<GrD3DRootSignature>& rootSig) {
+    SkASSERT(fIsActive);
+    if (fCurrentComputeRootSignature != rootSig.get()) {
+        fCommandList->SetComputeRootSignature(rootSig->rootSignature());
+        this->addResource(rootSig);
+        fCurrentComputeRootSignature = rootSig.get();
+        // need to reset the current descriptor tables as well
+        sk_bzero(fCurrentComputeRootDescTable, sizeof(fCurrentComputeRootDescTable));
     }
 }
 
@@ -390,6 +395,15 @@ void GrD3DDirectCommandList::executeIndirect(const sk_sp<GrD3DCommandSignature> 
     this->addGrBuffer(sk_ref_sp<const GrBuffer>(argumentBuffer));
 }
 
+
+void GrD3DDirectCommandList::dispatch(unsigned int threadGroupCountX,
+                                      unsigned int threadGroupCountY,
+                                      unsigned int threadGroupCountZ) {
+    SkASSERT(fIsActive);
+    this->addingWork();
+    fCommandList->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+}
+
 void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
                                                    std::array<float, 4> color,
                                                    const D3D12_RECT* rect) {
@@ -463,9 +477,19 @@ void GrD3DDirectCommandList::setGraphicsRootConstantBufferView(
         unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
     SkASSERT(rootParameterIndex ==
                 (unsigned int) GrD3DRootSignature::ParamIndex::kConstantBufferView);
-    if (bufferLocation != fCurrentConstantBufferAddress) {
+    if (bufferLocation != fCurrentGraphicsConstantBufferAddress) {
         fCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, bufferLocation);
-        fCurrentConstantBufferAddress = bufferLocation;
+        fCurrentGraphicsConstantBufferAddress = bufferLocation;
+    }
+}
+
+void GrD3DDirectCommandList::setComputeRootConstantBufferView(
+    unsigned int rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
+    SkASSERT(rootParameterIndex ==
+             (unsigned int)GrD3DRootSignature::ParamIndex::kConstantBufferView);
+    if (bufferLocation != fCurrentComputeConstantBufferAddress) {
+        fCommandList->SetComputeRootConstantBufferView(rootParameterIndex, bufferLocation);
+        fCurrentComputeConstantBufferAddress = bufferLocation;
     }
 }
 
@@ -475,9 +499,21 @@ void GrD3DDirectCommandList::setGraphicsRootDescriptorTable(
                     (unsigned int)GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable ||
              rootParameterIndex ==
                     (unsigned int)GrD3DRootSignature::ParamIndex::kTextureDescriptorTable);
-    if (fCurrentRootDescriptorTable[rootParameterIndex].ptr != baseDescriptor.ptr) {
+    if (fCurrentGraphicsRootDescTable[rootParameterIndex].ptr != baseDescriptor.ptr) {
         fCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
-        fCurrentRootDescriptorTable[rootParameterIndex] = baseDescriptor;
+        fCurrentGraphicsRootDescTable[rootParameterIndex] = baseDescriptor;
+    }
+}
+
+void GrD3DDirectCommandList::setComputeRootDescriptorTable(
+    unsigned int rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor) {
+    SkASSERT(rootParameterIndex ==
+             (unsigned int)GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable ||
+             rootParameterIndex ==
+             (unsigned int)GrD3DRootSignature::ParamIndex::kTextureDescriptorTable);
+    if (fCurrentComputeRootDescTable[rootParameterIndex].ptr != baseDescriptor.ptr) {
+        fCommandList->SetComputeRootDescriptorTable(rootParameterIndex, baseDescriptor);
+        fCurrentComputeRootDescTable[rootParameterIndex] = baseDescriptor;
     }
 }
 
