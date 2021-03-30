@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7ad52c8_f2f1a8b4",
+        "filename": "src/gpu/GrVertexChunkArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-30T03:42:58Z",
+      "side": 1,
+      "message": "Probably time to make this its own class instead of nested inside GrMeshDrawOp. Do you agree?",
+      "range": {
+        "startLine": 36,
+        "startChar": 25,
+        "endLine": 36,
+        "endChar": 45
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
