@@ -103,7 +103,7 @@ public:
 
     /** Reallocates given a new count. Reallocation occurs even if new count equals old count.
      */
-    void reset(int count) { *this = SkAutoTArray(count);  }
+    void reset(int count = 0) { *this = SkAutoTArray(count);  }
 
     /** Return the array of T elements. Will be NULL if count == 0
      */
@@ -235,7 +235,10 @@ private:
 /** Manages an array of T elements, freeing the array in the destructor.
  *  Does NOT call any constructors/destructors on T (T must be POD).
  */
-template <typename T> class SkAutoTMalloc  {
+template <typename T,
+          typename = std::enable_if_t<std::is_trivially_constructible_v<T> &&
+                                      std::is_trivially_destructible_v <T>>>
+class SkAutoTMalloc  {
 public:
     /** Takes ownership of the ptr. The ptr must be a value which can be passed to sk_free. */
     explicit SkAutoTMalloc(T* ptr = nullptr) : fPtr(ptr) {}
@@ -280,10 +283,18 @@ public:
     T* release() { return fPtr.release(); }
 
 private:
+    static constexpr bool kAllowed = std::is_trivially_constructible_v<T> &&
+                                     std::is_trivially_destructible_v <T>;
+    using Type = std::enable_if_t<kAllowed, T>;
+
     std::unique_ptr<T, SkFunctionWrapper<void(void*), sk_free>> fPtr;
 };
 
-template <size_t kCountRequested, typename T> class SkAutoSTMalloc {
+template <size_t kCountRequested,
+          typename T,
+          typename = std::enable_if_t<std::is_trivially_constructible_v<T> &&
+                                      std::is_trivially_destructible_v <T>>>
+class SkAutoSTMalloc {
 public:
     SkAutoSTMalloc() : fPtr(fTStorage) {}
 
@@ -364,6 +375,10 @@ public:
     }
 
 private:
+    static constexpr bool kAllowed = std::is_trivially_constructible_v<T> &&
+                                     std::is_trivially_destructible_v <T>;
+    using Type = std::enable_if_t<kAllowed, T>;
+
     // Since we use uint32_t storage, we might be able to get more elements for free.
     static const size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
 #if defined(SK_BUILD_FOR_GOOGLE3)
