@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14419c89_4ad5d2d9",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-30T17:00:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b35f368e_a5d75af7",
+      "range": {
+        "startLine": 32,
+        "startChar": 63,
+        "endLine": 32,
+        "endChar": 64
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b2dd78f2_c64f30c5",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-30T14:06:46Z",
       "side": 1,
       "message": "Could this be \u0027CalcParametricPathLimit\u0027 or \u0027CalcMaxParametricPathDeviation\u0027 ?",
+      "range": {
+        "startLine": 52,
+        "startChar": 27,
+        "endLine": 52,
+        "endChar": 52
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d005b22_6ed5d9ed",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-30T17:00:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2dd78f2_c64f30c5",
       "range": {
         "startLine": 52,
         "startChar": 27,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9a733bf_acfa650a",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-30T17:00:33Z",
+      "side": 1,
+      "message": "As discussed offline, will rename in a followup CL",
+      "parentUuid": "f5f594e5_874beb90",
+      "range": {
+        "startLine": 53,
+        "startChar": 60,
+        "endLine": 53,
+        "endChar": 85
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e797150a_71324299",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-03-30T14:43:58Z",
       "side": 1,
       "message": "?",
+      "range": {
+        "startLine": 58,
+        "startChar": 54,
+        "endLine": 58,
+        "endChar": 75
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0670f15e_f4f6fe3a",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-30T17:00:33Z",
+      "side": 1,
+      "message": "From the function above. I\u0027ll clarify in the comment after the renames.",
+      "parentUuid": "e797150a_71324299",
       "range": {
         "startLine": 58,
         "startChar": 54,
