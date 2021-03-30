@@ -8,7 +8,7 @@
 #ifndef GrStrokeIndirectTessellator_DEFINED
 #define GrStrokeIndirectTessellator_DEFINED
 
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellator.h"
 
 struct GrVertexWriter;
 struct SkPoint;
