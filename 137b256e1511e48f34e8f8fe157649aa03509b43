@@ -16,6 +16,52 @@
       "message": "It\u0027s probably time we moved GrMeshDrawOp::Target out of GrMeshDrawOp",
       "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b35f368e_a5d75af7",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-30T14:06:46Z",
+      "side": 1,
+      "message": "viewMatrix ? add a name ?",
+      "range": {
+        "startLine": 32,
+        "startChar": 63,
+        "endLine": 32,
+        "endChar": 64
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2dd78f2_c64f30c5",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-30T14:06:46Z",
+      "side": 1,
+      "message": "Could this be \u0027CalcParametricPathLimit\u0027 or \u0027CalcMaxParametricPathDeviation\u0027 ?",
+      "range": {
+        "startLine": 52,
+        "startChar": 27,
+        "endLine": 52,
+        "endChar": 52
+      },
+      "revId": "137b256e1511e48f34e8f8fe157649aa03509b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
