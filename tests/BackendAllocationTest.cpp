@@ -227,7 +227,8 @@ static SkColor4f get_expected_color(SkColor4f orig, GrColorType ct) {
     // Read back to SkColor4f.
     SkColor4f result;
     GrImageInfo resultII(GrColorType::kRGBA_F32, kUnpremul_SkAlphaType, nullptr, {1, 1});
-    GrConvertPixels(resultII, &result.fR, sizeof(result), ii, data.get(), ii.minRowBytes());
+    GrConvertPixels(GrPixmap(resultII,  &result.fR,   sizeof(result)),
+                    GrPixmap(      ii,  data.get(), ii.minRowBytes()));
     return result;
 }
 

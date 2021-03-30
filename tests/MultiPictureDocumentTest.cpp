@@ -9,6 +9,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkFont.h"
