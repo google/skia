@@ -74,15 +74,6 @@ bool SkGlyphRunList::anyRunsSubpixelPositioned() const {
     return false;
 }
 
-bool SkGlyphRunList::allFontsFinite() const {
-    for (const auto& r : fGlyphRuns) {
-        if (!SkFontPriv::IsFinite(r.font())) {
-            return false;
-        }
-    }
-    return true;
-}
-
 void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
     fOriginalTextBlob->notifyAddedToCache(cacheID);
@@ -114,6 +105,10 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
     SkPoint* positions = fPositions;
 
     for (SkTextBlobRunIterator it(&blob); !it.done(); it.next()) {
+        if (!SkFontPriv::IsFinite(it.font())) {
+            // If the font is not finite don't add the run.
+            continue;
+        }
         if (it.positioning() != SkTextBlobRunIterator::kRSXform_Positioning) {
             simplifyTextBlobIgnoringRSXForm(it, positions);
         } else {
