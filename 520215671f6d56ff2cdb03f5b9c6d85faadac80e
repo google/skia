@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d695b7d_75b026fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-03-30T14:43:01Z",
+      "side": 1,
+      "message": "Removed Chromium canary from CQ because failures are not relevant to this change.",
+      "revId": "520215671f6d56ff2cdb03f5b9c6d85faadac80e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
