@@ -213,11 +213,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	} else if b.gpu() {
 		args = append(args, "--nocpu")
 
+        // Use 4x MSAA for all our testing. It's more consistent and 8x MSAA is nondeterministic (by
+        // design) on NVIDIA hardware. The problem is especially bad on ANGLE.  skia:6813 skia:6545
+		sampleCount = 4
 		// Add in either gles or gl configs to the canonical set based on OS
-		sampleCount = 8
 		glPrefix = "gl"
 		if b.os("Android", "iOS") {
-			sampleCount = 4
 			// We want to test the OpenGL config not the GLES config on the Shield
 			if !b.model("NVIDIA_Shield") {
 				glPrefix = "gles"
@@ -230,9 +231,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
 			sampleCount = 0
 		} else if b.matchGpu("GTX", "Quadro") && b.extraConfig("ANGLE") {
-			// 8x MSAA is nondeterministic (by design) on NVIDIA hardware.
-			// The problem is especially bad on ANGLE, so use 4x instead.
-			// skia:6813 skia:6545
 			sampleCount = 4
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
