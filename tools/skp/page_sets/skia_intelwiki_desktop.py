@@ -21,11 +21,14 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
+    action_runner.WaitForElement(text='(G/P)6000 and U5000')
+   # action_runner.ClickElement(text='Capabilities (GPU hardware)')
     action_runner.Wait(20)
 
   def RunPageInteractions(self, action_runner):
     with action_runner.CreateGestureInteraction('ScrollAction'):
-      action_runner.ScrollPage()
+      action_runner.ScrollElement(
+          text='(G/P)6000 and U5000')
 
 
 class SkiaIntelwikiDesktopPageSet(story.StorySet):

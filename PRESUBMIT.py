@@ -37,7 +37,7 @@ PUBLIC_API_OWNERS = (
 AUTHORS_FILE_NAME = 'AUTHORS'
 RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
 
-DOCS_PREVIEW_URL = 'https://skia.org/?cl={issue}'
+DOCS_PREVIEW_URL_TMPL = 'https://skia.org/{path}?cl={issue}'
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
 SERVICE_ACCOUNT_SUFFIX = [
@@ -470,13 +470,17 @@ def PostUploadHook(gerrit, change, output_api):
       return []
 
   results = []
+  # Remove this and look at docs_previous_links len instead.
   at_least_one_docs_change = False
   all_docs_changes = True
+  docs_preview_links = []
   for affected_file in change.AffectedFiles():
     affected_file_path = affected_file.LocalPath()
     file_path, _ = os.path.splitext(affected_file_path)
     if 'site' == file_path.split(os.path.sep)[0]:
       at_least_one_docs_change = True
+      docs_preview_link = DOCS_PREVIEW_URL.format(path=file_path.split(os.path.sep)[1:].rstrip('.md').rstrip('index'), issue=change.issue)
+      docs_preview_links.push()
     else:
       all_docs_changes = False
     if at_least_one_docs_change and not all_docs_changes:
@@ -497,7 +501,7 @@ def PostUploadHook(gerrit, change, output_api):
 
   # If there is at least one docs change then add preview link in the CL's
   # description if it does not already exist there.
-  docs_preview_link = DOCS_PREVIEW_URL.format(issue=change.issue)
+  docs_preview_link = DOCS_PREVIEW_URL.format(path=something, issue=change.issue)
   if (at_least_one_docs_change
       and docs_preview_link not in footers.get('Docs-Preview', [])):
     # Automatically add a link to where the docs can be previewed.
