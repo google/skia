@@ -16,6 +16,24 @@
       "message": "Should we have some SK_GUARDED_BYs to prevent this in the future?",
       "revId": "7bdeebab15d6a16022fe2e374b5d15c95d9df9c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3fc4436_d94f1a70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-03-30T21:44:53Z",
+      "side": 1,
+      "message": "Yeah I can look into it. I know its a little bit more than just adding the guard because on tear down we just wait for the whole task group to finish before destroying things (so we don\u0027t use the mutex). But obviously we can change that.",
+      "parentUuid": "ebf5d5b0_6be13f06",
+      "revId": "7bdeebab15d6a16022fe2e374b5d15c95d9df9c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
