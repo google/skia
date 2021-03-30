@@ -30,6 +30,7 @@ public:
         kBoolLiteral,
         kCodeString,
         kConstructor,
+        kConstructorDiagonalMatrix,
         kDefined,
         kExternalFunctionCall,
         kExternalFunctionReference,

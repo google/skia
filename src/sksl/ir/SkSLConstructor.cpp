@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 
 #include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -84,6 +85,7 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
         castArgs.push_back(Constructor::Convert(context, offset, type.componentType(),
                                                 std::move(args)));
         SkASSERT(castArgs.front());
+        // TODO if matrix, make ConstructorDiagonalMatrix.
         return std::make_unique<Constructor>(offset, type, std::move(castArgs));
     }
 
@@ -249,6 +251,9 @@ std::unique_ptr<Expression> Constructor::SimplifyConversion(const Type& construc
 }
 
 Expression::ComparisonResult Constructor::compareConstant(const Expression& other) const {
+    if (other.is<ConstructorDiagonalMatrix>()) {
+        return other.compareConstant(*this);
+    }
     if (!other.is<Constructor>()) {
         return ComparisonResult::kUnknown;
     }
