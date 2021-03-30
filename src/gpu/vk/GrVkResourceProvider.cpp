@@ -523,6 +523,7 @@ void GrVkResourceProvider::destroyResources() {
 }
 
 void GrVkResourceProvider::releaseUnlockedBackendObjects() {
+    std::unique_lock<std::recursive_mutex> lock(fBackgroundMutex);
     for (GrVkCommandPool* pool : fAvailableCommandPools) {
         SkASSERT(pool->unique());
         pool->unref();
