@@ -21,7 +21,11 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.Wait(120)
+    action_runner.Wait(20)
+
+  def RunPageInteractions(self, action_runner):
+    with action_runner.CreateGestureInteraction('ScrollAction'):
+      action_runner.ScrollPage()
 
 
 class SkiaIntelwikiDesktopPageSet(story.StorySet):
