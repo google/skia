@@ -30,6 +30,7 @@
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/image/SkImage_Base.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
@@ -65,11 +66,6 @@
     #include "tools/viewer/SkRiveSlide.h"
 #endif
 
-namespace SkSL {
-extern bool gSkSLOptimizer;
-extern bool gSkSLInliner;
-}
-
 class CapturingShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
 public:
     void compileError(const char* shader, const char* errors) override {
@@ -91,6 +87,8 @@ static CapturingShaderErrorHandler gShaderErrorHandler;
 GrContextOptions::ShaderErrorHandler* Viewer::ShaderErrorHandler() { return &gShaderErrorHandler; }
 
 using namespace sk_app;
+using SkSL::Compiler;
+using OverrideFlag = SkSL::Compiler::OverrideFlag;
 
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 
@@ -375,7 +373,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
     displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
     displayParams.fGrContextOptions.fShaderCacheStrategy =
-            GrContextOptions::ShaderCacheStrategy::kBackendSource;
+            GrContextOptions::ShaderCacheStrategy::kSkSL;
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
     displayParams.fGrContextOptions.fAlwaysAntialias = FLAGS_dmsaa;
@@ -2342,11 +2340,6 @@ void Viewer::drawImGui() {
                 bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
                             GrContextOptions::ShaderCacheStrategy::kSkSL;
 
-                int optLevel =                           sksl ? kShaderOptLevel_Source :
-                                           SkSL::gSkSLInliner ? kShaderOptLevel_Inline :
-                                         SkSL::gSkSLOptimizer ? kShaderOptLevel_Optimize :
-                                                                kShaderOptLevel_Compile;
-
 #if defined(SK_VULKAN)
                 const bool isVulkan = fBackendType == sk_app::Window::kVulkan_BackendType;
 #else
@@ -2401,7 +2394,7 @@ void Viewer::drawImGui() {
                 bool doApply     = ImGui::Button("Apply Changes"); ImGui::SameLine();
                 bool doDump      = ImGui::Button("Dump SkSL to resources/sksl/");
 
-                int newOptLevel = optLevel;
+                int newOptLevel = fOptLevel;
                 ImGui::RadioButton("SkSL", &newOptLevel, kShaderOptLevel_Source);
                 ImGui::SameLine();
                 ImGui::RadioButton("Compile", &newOptLevel, kShaderOptLevel_Compile);
@@ -2412,10 +2405,27 @@ void Viewer::drawImGui() {
 
                 // If we are changing the compile mode, we want to reset the cache and redo
                 // everything.
-                if (doDump || newOptLevel != optLevel) {
+                if (doDump || newOptLevel != fOptLevel) {
                     sksl = doDump || (newOptLevel == kShaderOptLevel_Source);
-                    SkSL::gSkSLOptimizer           = (newOptLevel >= kShaderOptLevel_Optimize);
-                    SkSL::gSkSLInliner             = (newOptLevel >= kShaderOptLevel_Inline);
+                    fOptLevel = (ShaderOptLevel)newOptLevel;
+                    switch (fOptLevel) {
+                        case kShaderOptLevel_Source:
+                            Compiler::EnableOptimizer(OverrideFlag::kDefault);
+                            Compiler::EnableInliner(OverrideFlag::kDefault);
+                            break;
+                        case kShaderOptLevel_Compile:
+                            Compiler::EnableOptimizer(OverrideFlag::kOff);
+                            Compiler::EnableInliner(OverrideFlag::kOff);
+                            break;
+                        case kShaderOptLevel_Optimize:
+                            Compiler::EnableOptimizer(OverrideFlag::kOn);
+                            Compiler::EnableInliner(OverrideFlag::kOff);
+                            break;
+                        case kShaderOptLevel_Inline:
+                            Compiler::EnableOptimizer(OverrideFlag::kOn);
+                            Compiler::EnableInliner(OverrideFlag::kOn);
+                            break;
+                    }
 
                     params.fGrContextOptions.fShaderCacheStrategy =
                             sksl ? GrContextOptions::ShaderCacheStrategy::kSkSL
