@@ -890,6 +890,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				d["gpu"] = gpu
 			} else if b.matchOs("Mac") {
 				gpu, ok := map[string]string{
+					"AppleM1":       "", // We have no GPU information for the M1 bots yet.
 					"IntelHD6000":   "8086:1626",
 					"IntelHD615":    "8086:591e",
 					"IntelIris5100": "8086:0a2e",
@@ -898,7 +899,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				if !ok {
 					log.Fatalf("Entry %q not found in Mac GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
-				d["gpu"] = gpu
+				if gpu != "" {
+					d["gpu"] = gpu
+				}
 				// Yuck. We have two different types of MacMini7,1 with the same GPU but different CPUs.
 				if b.gpu("IntelIris5100") {
 					// Run all tasks on Golo machines for now.
