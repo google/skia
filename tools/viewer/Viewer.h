@@ -237,6 +237,7 @@ private:
         kShaderOptLevel_Optimize,
         kShaderOptLevel_Inline,
     };
+    ShaderOptLevel fOptLevel = kShaderOptLevel_Source;
 };
 
 #endif
