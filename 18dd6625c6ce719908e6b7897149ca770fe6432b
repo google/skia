@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abc8dd65_3c141995",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17669
+      },
+      "writtenOn": "2021-03-30T22:39:23Z",
+      "side": 1,
+      "message": "So this is working and at least visually indistinguishable, however I\u0027ve run into a problem of the shader cache needing to be deleted or Bad Things Happen\n\nI\u0027m going to guess that has something to do with the layout \u0026 size changing",
+      "revId": "18dd6625c6ce719908e6b7897149ca770fe6432b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
