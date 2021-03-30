@@ -3,21 +3,17 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSLDefines.h"
-
 #include "src/core/SkOSFile.h"
-
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
-
 #include "src/utils/SkOSPath.h"
-
 #include "tools/DDLPromiseImageHelper.h"
-#include "tools/DDLTileHelper.h"
 #include "tools/ToolUtils.h"
-
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/TestContext.h"
