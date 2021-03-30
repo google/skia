@@ -22,6 +22,30 @@
       },
       "revId": "7845b9700ea6e77577402f4e6b69cd4f9f28c0f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e335860c_4373bd62",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-30T15:46:39Z",
+      "side": 0,
+      "message": "No that makes sense. kDstOut meant we could just track the atlas elements as FPs w/o knowing about inverse fill type. Now that we are tracking things as an array of paths again, it makes sense to use that state.",
+      "parentUuid": "4810ec60_f9ef5662",
+      "range": {
+        "startLine": 257,
+        "startChar": 11,
+        "endLine": 258,
+        "endChar": 49
+      },
+      "revId": "7845b9700ea6e77577402f4e6b69cd4f9f28c0f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
