@@ -10,8 +10,12 @@
 
 #include "include/core/SkColor.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrPixmap.h"
-#include "src/gpu/GrSwizzle.h"
+#include "include/private/SkTArray.h"
+
+class GrImageInfo;
+class GrCPixmap;
+class GrPixmap;
+class SkPixmap;
 
 size_t GrNumBlocks(SkImage::CompressionType, SkISize baseDimensions);
 
@@ -32,17 +36,7 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimens
 void GrFillInCompressedData(SkImage::CompressionType, SkISize dimensions, GrMipmapped, char* dest,
                             const SkColor4f& color);
 
-// Swizzle param is applied after loading and before converting from srcInfo to dstInfo.
-bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
-                     const GrImageInfo& srcInfo, const void* src, size_t srcRB,
-                     bool flipY = false);
-
-// Convenience version for src/dst pixmaps.
-inline bool GrConvertPixels(const GrPixmap& dst, const GrPixmap& src, bool flipY = false) {
-    return GrConvertPixels(dst.info(), dst.addr(), dst.rowBytes(),
-                           src.info(), src.addr(), src.rowBytes(),
-                           flipY);
-}
+bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY = false);
 
 /** Clears the dst image to a constant color. */
 bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f color);

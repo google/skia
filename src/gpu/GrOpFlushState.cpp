@@ -114,12 +114,12 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
         if (supportedWrite.fColorType != colorType ||
             (!fGpu->caps()->writePixelsRowBytesSupport() && rowBytes != tightRB)) {
             tmpPixels.reset(new char[height * tightRB]);
-            // Use kUnpremul to ensure no alpha type conversions or clamping occur.
-            static constexpr auto kAT = kUnpremul_SkAlphaType;
-            GrImageInfo srcInfo(colorType, kAT, nullptr, width, height);
-            GrImageInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, width,
-                                height);
-            if (!GrConvertPixels(tmpInfo, tmpPixels.get(), tightRB, srcInfo, buffer, rowBytes)) {
+            // Use kUnknown to ensure no alpha type conversions or clamping occur.
+            static constexpr auto kAT = kUnknown_SkAlphaType;
+            GrImageInfo srcInfo(colorType,                 kAT, nullptr, width, height);
+            GrImageInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, width, height);
+            if (!GrConvertPixels( GrPixmap(tmpInfo, tmpPixels.get(), tightRB ),
+                                 GrCPixmap(srcInfo,          buffer, rowBytes))) {
                 return false;
             }
             rowBytes = tightRB;
