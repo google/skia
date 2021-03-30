@@ -16,6 +16,29 @@
       "message": "This fixes the issue we were talking about earlier where the opsTaskId might have been wrong.",
       "revId": "e298a08995618723c8ce9a515f8db4c81e223f6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e37cf7e_830f9ba4",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1920,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-30T15:13:14Z",
+      "side": 1,
+      "message": "This assert is getting triggered. Was I wrong to think it couldn\u0027t have closed?",
+      "range": {
+        "startLine": 1920,
+        "startChar": 23,
+        "endLine": 1920,
+        "endChar": 31
+      },
+      "revId": "e298a08995618723c8ce9a515f8db4c81e223f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
