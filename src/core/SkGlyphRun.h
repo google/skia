@@ -68,7 +68,6 @@ public:
 
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
-    bool anyRunsSubpixelPositioned() const;
     void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;
 
     bool canCache() const { return fOriginalTextBlob != nullptr; }
@@ -103,8 +102,6 @@ private:
 class SkGlyphRunBuilder {
 public:
     void drawTextUTF8(const SkFont&, const void* bytes, size_t byteLength, SkPoint origin);
-    void drawGlyphsWithPositions(
-            const SkFont&, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
     void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
 
     void textBlobToGlyphRunListIgnoringRSXForm(const SkTextBlob& blob, SkPoint origin);

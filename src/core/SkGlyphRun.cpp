@@ -65,15 +65,6 @@ bool SkGlyphRunList::anyRunsLCD() const {
     return false;
 }
 
-bool SkGlyphRunList::anyRunsSubpixelPositioned() const {
-    for (const auto& r : fGlyphRuns) {
-        if (r.font().isSubpixel()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
     fOriginalTextBlob->notifyAddedToCache(cacheID);
@@ -184,15 +175,6 @@ void SkGlyphRunBuilder::simplifyTextBlobIgnoringRSXForm(const SkTextBlobRunItera
             break;
         }
         case SkTextBlobRunIterator::kRSXform_Positioning: break;
-    }
-}
-
-void SkGlyphRunBuilder::drawGlyphsWithPositions(const SkFont& font,
-                                            SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos) {
-    if (!glyphIDs.empty()) {
-        this->initialize(glyphIDs.size());
-        this->simplifyDrawPosText(font, glyphIDs, pos);
-        this->makeGlyphRunList(nullptr, SkPoint::Make(0, 0));
     }
 }
 
