@@ -95,6 +95,7 @@ def skpbench_steps(api):
         '--allPathsVolatile',
         '--suffix', "_volatile",
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),
+        api.path.join(api.flavor.device_dirs.skp_dir, 'desk_motionmark*.skp'),
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
   else:
     skpbench_args += [api.flavor.device_dirs.skp_dir]
