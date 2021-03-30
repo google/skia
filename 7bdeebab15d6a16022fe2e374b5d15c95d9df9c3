@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebf5d5b0_6be13f06",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-30T21:32:55Z",
+      "side": 1,
+      "message": "Should we have some SK_GUARDED_BYs to prevent this in the future?",
+      "revId": "7bdeebab15d6a16022fe2e374b5d15c95d9df9c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
