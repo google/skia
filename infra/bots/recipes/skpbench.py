@@ -42,6 +42,7 @@ def skpbench_steps(api):
   """benchmark Skia using skpbench."""
   is_vulkan = 'Vulkan' in api.vars.builder_name
   is_android = 'Android' in api.vars.builder_name
+  is_apple_m1 = 'AppleM1' in api.vars.builder_name
   is_all_paths_volatile = 'AllPathsVolatile' in api.vars.builder_name
   is_mskp = 'Mskp' in api.vars.builder_name
   is_ddl = 'DDL' in api.vars.builder_name
@@ -58,7 +59,7 @@ def skpbench_steps(api):
   table = api.path.join(api.vars.swarming_out_dir, 'table')
 
   config = 'vk' if is_vulkan else 'gles' if is_android else 'gl'
-  internal_samples = 4 if is_android else 8
+  internal_samples = 4 if is_android or is_apple_m1 else 8
 
   if is_all_paths_volatile:
     config = "%smsaa%i" % (config, internal_samples)
