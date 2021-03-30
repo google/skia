@@ -82,6 +82,7 @@
       "--suffix",
       "_volatile",
       "[START_DIR]\\skp\\desk_*svg.skp",
+      "[START_DIR]\\skp\\desk_motionmark*.skp",
       "[START_DIR]\\skp\\desk_chalkboard.skp"
     ],
     "env": {

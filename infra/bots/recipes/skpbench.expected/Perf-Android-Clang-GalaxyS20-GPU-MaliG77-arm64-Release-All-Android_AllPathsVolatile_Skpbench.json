@@ -320,6 +320,7 @@
       "--suffix",
       "_volatile",
       "/sdcard/revenge_of_the_skiabot/skps/desk_*svg.skp",
+      "/sdcard/revenge_of_the_skiabot/skps/desk_motionmark*.skp",
       "/sdcard/revenge_of_the_skiabot/skps/desk_chalkboard.skp"
     ],
     "env": {
