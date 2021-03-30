@@ -6,9 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.1] - 2021-03-30
+
 ### Added
  - Skottie accessors for dynamic text properties (text string, font size).
  - Optional sampling parameter to drawAtlas (paint filter-quality is ignored/deprecated)
+
+### Fixed
+ - Fonts should not be leaked https://bugs.chromium.org/p/skia/issues/detail?id=11778
 
 ## [0.25.0] - 2021-03-02
 
