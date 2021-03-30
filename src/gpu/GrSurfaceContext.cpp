@@ -354,7 +354,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
     return true;
 }
 
-bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrPixmap src, SkIPoint pt) {
+bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrCPixmap src, SkIPoint pt) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1323,9 +1323,8 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
                 void* dst, const void* src) {
             GrImageInfo srcInfo(supportedRead.fColorType, at, nullptr, w, h);
             GrImageInfo dstInfo(dstCT,                    at, nullptr, w, h);
-              GrConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
-                              srcInfo, src, srcInfo.minRowBytes(),
-                              /* flipY = */ false);
+            GrConvertPixels( GrPixmap(dstInfo, dst, dstInfo.minRowBytes()),
+                            GrCPixmap(srcInfo, src, srcInfo.minRowBytes()));
         };
     }
     return result;

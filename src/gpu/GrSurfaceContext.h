@@ -134,7 +134,7 @@ public:
      * @param src           source for the write
      * @param dstPt         offset w/in the surface context at which to write
      */
-    bool writePixels(GrDirectContext* dContext, GrPixmap src, SkIPoint dstPt);
+    bool writePixels(GrDirectContext* dContext, GrCPixmap src, SkIPoint dstPt);
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }

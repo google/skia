@@ -15,7 +15,7 @@
 
 class GrDirectContext;
 class GrProgramInfo;
-class GrPixmap;
+class GrCPixmap;
 
 namespace sk_gpu_test {
 
@@ -26,7 +26,7 @@ GrTextureProxy* GetTextureImageProxy(SkImage*, GrRecordingContext*);
 GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext*,
                                                 GrRenderable,
                                                 GrSurfaceOrigin,
-                                                GrPixmap pixmap);
+                                                GrCPixmap pixmap);
 
 GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                  SkArenaAlloc*,

@@ -18,6 +18,7 @@
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrPixmap.h"
 
 struct ETC1Block {
     uint32_t fHigh;
@@ -507,43 +508,36 @@ static inline void append_clamp_gamut(SkRasterPipeline* pipeline) {
     pipeline->append_gamut_clamp_if_normalized(fakeII);
 }
 
-bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
-                     const GrImageInfo& srcInfo, const void* src, size_t srcRB,
-                     bool flipY) {
+bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    if (srcInfo.colorType() == GrColorType::kRGB_888) {
+    if (src.colorType() == GrColorType::kRGB_888) {
         // We don't expect to have to convert from this format.
         return false;
     }
-    if (srcInfo.dimensions().isEmpty() || dstInfo.dimensions().isEmpty()) {
+    if (src.dimensions().isEmpty() || dst.dimensions().isEmpty()) {
         return false;
     }
-    if (srcInfo.colorType() == GrColorType::kUnknown ||
-        dstInfo.colorType() == GrColorType::kUnknown) {
+    if (src.colorType() == GrColorType::kUnknown || dst.colorType() == GrColorType::kUnknown) {
         return false;
     }
-    if (!src || !dst) {
+    if (!src.hasPixels() || !dst.hasPixels()) {
         return false;
     }
-    if (dstInfo.dimensions() != srcInfo.dimensions()) {
+    if (dst.dimensions() != src.dimensions()) {
         return false;
     }
-    if (dstRB < dstInfo.minRowBytes() || srcRB < srcInfo.minRowBytes()) {
-        return false;
-    }
-    if (dstInfo.colorType() == GrColorType::kRGB_888) {
+    if (dst.colorType() == GrColorType::kRGB_888) {
         // SkRasterPipeline doesn't handle writing to RGB_888. So we have it write to RGB_888x and
-        // then do another conversion that does the 24bit packing.
-        auto tempDstInfo = dstInfo.makeColorType(GrColorType::kRGB_888x);
-        auto tempRB = tempDstInfo.minRowBytes();
-        std::unique_ptr<char[]> tempDst(new char[tempRB * tempDstInfo.height()]);
-        if (!GrConvertPixels(tempDstInfo, tempDst.get(), tempRB, srcInfo, src, srcRB, flipY)) {
+        // then do another conversion that does the 24bit packing. We could be cleverer and skip the
+        // temp pixmap if this is the only conversion but this is rare so keeping it simple.
+        GrPixmap temp = GrPixmap::Allocate(dst.info().makeColorType(GrColorType::kRGB_888x));
+        if (!GrConvertPixels(temp, src, flipY)) {
             return false;
         }
-        auto* tRow = reinterpret_cast<const char*>(tempDst.get());
-        auto* dRow = reinterpret_cast<char*>(dst);
-        for (int y = 0; y < dstInfo.height(); ++y, tRow += tempRB, dRow += dstRB) {
-            for (int x = 0; x < dstInfo.width(); ++x) {
+        auto* tRow = reinterpret_cast<const char*>(temp.addr());
+        auto* dRow = reinterpret_cast<char*>(dst.addr());
+        for (int y = 0; y < dst.height(); ++y, tRow += temp.rowBytes(), dRow += dst.rowBytes()) {
+            for (int x = 0; x < dst.width(); ++x) {
                 auto t = reinterpret_cast<const uint32_t*>(tRow + x * sizeof(uint32_t));
                 auto d = reinterpret_cast<uint32_t*>(dRow + x * 3);
                 memcpy(d, t, 3);
@@ -552,31 +546,32 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         return true;
     }
 
-    size_t srcBpp = srcInfo.bpp();
-    size_t dstBpp = dstInfo.bpp();
+    size_t srcBpp = src.info().bpp();
+    size_t dstBpp = dst.info().bpp();
 
     // SkRasterPipeline operates on row-pixels not row-bytes.
-    SkASSERT(dstRB % dstBpp == 0);
-    SkASSERT(srcRB % srcBpp == 0);
+    SkASSERT(dst.rowBytes() % dstBpp == 0);
+    SkASSERT(src.rowBytes() % srcBpp == 0);
 
-    bool premul   = srcInfo.alphaType() == kUnpremul_SkAlphaType &&
-                    dstInfo.alphaType() == kPremul_SkAlphaType;
-    bool unpremul = srcInfo.alphaType() == kPremul_SkAlphaType &&
-                    dstInfo.alphaType() == kUnpremul_SkAlphaType;
+    bool premul   = src.alphaType() == kUnpremul_SkAlphaType &&
+                    dst.alphaType() == kPremul_SkAlphaType;
+    bool unpremul = src.alphaType() == kPremul_SkAlphaType &&
+                    dst.alphaType() == kUnpremul_SkAlphaType;
     bool alphaOrCSConversion =
-            premul || unpremul || !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
+            premul || unpremul || !SkColorSpace::Equals(src.colorSpace(), dst.colorSpace());
 
-    if (srcInfo.colorType() == dstInfo.colorType() && !alphaOrCSConversion) {
-        size_t tightRB = dstBpp * dstInfo.width();
+    if (src.colorType() == dst.colorType() && !alphaOrCSConversion) {
+        size_t tightRB = dstBpp * dst.width();
         if (flipY) {
-            dst = static_cast<char*>(dst) + dstRB * (dstInfo.height() - 1);
-            for (int y = 0; y < dstInfo.height(); ++y) {
-                memcpy(dst, src, tightRB);
-                src = static_cast<const char*>(src) + srcRB;
-                dst = static_cast<      char*>(dst) - dstRB;
+            auto s = static_cast<const char*>(src.addr());
+            auto d = SkTAddOffset<char>(dst.addr(), dst.rowBytes()*(dst.height() - 1));
+            for (int y = 0; y < dst.height(); ++y, d -= dst.rowBytes(), s += src.rowBytes()) {
+                memcpy(d, s, tightRB);
             }
         } else {
-            SkRectMemcpy(dst, dstRB, src, srcRB, tightRB, srcInfo.height());
+            SkRectMemcpy(dst.addr(), dst.rowBytes(),
+                         src.addr(), src.rowBytes(),
+                         tightRB, src.height());
         }
         return true;
     }
@@ -584,34 +579,38 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
     SkRasterPipeline::StockStage load;
     bool srcIsNormalized;
     bool srcIsSRGB;
-    auto loadSwizzle =
-            get_load_and_src_swizzle(srcInfo.colorType(), &load, &srcIsNormalized, &srcIsSRGB);
+    auto loadSwizzle = get_load_and_src_swizzle(src.colorType(),
+                                                &load,
+                                                &srcIsNormalized,
+                                                &srcIsSRGB);
 
     SkRasterPipeline::StockStage store;
     LumMode lumMode;
     bool dstIsNormalized;
     bool dstIsSRGB;
-    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &lumMode,
-                                                  &dstIsNormalized, &dstIsSRGB);
+    auto storeSwizzle = get_dst_swizzle_and_store(dst.colorType(),
+                                                  &store,
+                                                  &lumMode,
+                                                  &dstIsNormalized,
+                                                  &dstIsSRGB);
 
     bool clampGamut;
     SkTLazy<SkColorSpaceXformSteps> steps;
     GrSwizzle loadStoreSwizzle;
     if (alphaOrCSConversion) {
-        steps.init(srcInfo.colorSpace(), srcInfo.alphaType(),
-                   dstInfo.colorSpace(), dstInfo.alphaType());
-        clampGamut = dstIsNormalized && dstInfo.alphaType() == kPremul_SkAlphaType;
+        steps.init(src.colorSpace(), src.alphaType(), dst.colorSpace(), dst.alphaType());
+        clampGamut = dstIsNormalized && dst.alphaType() == kPremul_SkAlphaType;
     } else {
-        clampGamut =
-                dstIsNormalized && !srcIsNormalized && dstInfo.alphaType() == kPremul_SkAlphaType;
+        clampGamut = dstIsNormalized && !srcIsNormalized && dst.alphaType() == kPremul_SkAlphaType;
         if (!clampGamut) {
             loadStoreSwizzle = GrSwizzle::Concat(loadSwizzle, storeSwizzle);
         }
     }
     int cnt = 1;
-    int height = srcInfo.height();
-    SkRasterPipeline_MemoryCtx srcCtx{const_cast<void*>(src), SkToInt(srcRB / srcBpp)},
-                               dstCtx{                  dst , SkToInt(dstRB / dstBpp)};
+    int height = src.height();
+    SkRasterPipeline_MemoryCtx
+            srcCtx{const_cast<void*>(src.addr()), SkToInt(src.rowBytes()/srcBpp)},
+            dstCtx{                   dst.addr(), SkToInt(dst.rowBytes()/dstBpp)};
 
     if (flipY) {
         // It *almost* works to point the src at the last row and negate the stride and run the
@@ -619,7 +618,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         // variables so it winds up relying on unsigned overflow math. It works out in practice
         // but UBSAN says "no!" as it's technically undefined and in theory a compiler could emit
         // code that didn't do what is intended. So we go one row at a time. :(
-        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) + srcRB * (height - 1);
+        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) + src.rowBytes()*(height - 1);
         std::swap(cnt, height);
     }
 
@@ -669,9 +668,9 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
             loadStoreSwizzle.apply(&pipeline);
         }
         pipeline.append(store, &dstCtx);
-        pipeline.run(0, 0, srcInfo.width(), height);
-        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) - srcRB;
-        dstCtx.pixels = static_cast<char*>(dstCtx.pixels) + dstRB;
+        pipeline.run(0, 0, src.width(), height);
+        srcCtx.pixels = static_cast<char*>(srcCtx.pixels) - src.rowBytes();
+        dstCtx.pixels = static_cast<char*>(dstCtx.pixels) + dst.rowBytes();
     }
     return true;
 }

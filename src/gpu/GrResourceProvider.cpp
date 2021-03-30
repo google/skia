@@ -620,9 +620,10 @@ static bool prepare_level(const GrMipLevel& inLevel,
     data->reset(new char[tempRB * dimensions.fHeight]);
     outLevel->fPixels = data->get();
     outLevel->fRowBytes = tempRB;
-    GrImageInfo srcInfo(origColorType, kUnpremul_SkAlphaType, nullptr, dimensions);
+    GrImageInfo srcInfo(   origColorType, kUnpremul_SkAlphaType, nullptr, dimensions);
     GrImageInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, dimensions);
-    return GrConvertPixels(dstInfo, data->get(), tempRB, srcInfo, inLevel.fPixels, actualRB);
+    return GrConvertPixels( GrPixmap(dstInfo,     data->get(),   tempRB),
+                           GrCPixmap(srcInfo, inLevel.fPixels, actualRB));
 }
 
 GrColorType GrResourceProvider::prepareLevels(const GrBackendFormat& format,

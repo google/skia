@@ -6,8 +6,11 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkHalf.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "src/core/SkMathPriv.h"

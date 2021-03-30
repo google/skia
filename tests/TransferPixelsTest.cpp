@@ -42,7 +42,8 @@ void fill_transfer_data(int left, int top, int width, int height, int bufferWidt
             uint32_t srcPixel = GrColorPackRGBA(r, g, 0xff - r, 0xff - g);
             GrImageInfo srcInfo(GrColorType::kRGBA_8888, kUnpremul_SkAlphaType, nullptr, 1, 1);
             GrImageInfo dstInfo(dstType, kUnpremul_SkAlphaType, nullptr, 1, 1);
-            GrConvertPixels(dstInfo, dstLocation(i, j), dstBpp, srcInfo, &srcPixel, 4);
+            GrConvertPixels(GrPixmap(dstInfo, dstLocation(i, j), dstBpp),
+                            GrPixmap(srcInfo,         &srcPixel,      4));
         }
     }
 }
@@ -88,8 +89,8 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType colorType, char* d
         GrImageInfo tmpInfo(supportedRead.fColorType, kUnpremul_SkAlphaType, nullptr, w, h);
         GrImageInfo dstInfo(colorType,                kUnpremul_SkAlphaType, nullptr, w, h);
         determine_tolerances(tmpInfo.colorType(), dstInfo.colorType(), tolerances);
-        return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, tmpPixels.get(), tmpRowBytes,
-                               false);
+        return GrConvertPixels(GrPixmap(dstInfo,             dst,    rowBytes),
+                               GrPixmap(tmpInfo, tmpPixels.get(), tmpRowBytes));
     }
     return gpu->readPixels(texture, 0, 0, w, h, colorType, supportedRead.fColorType, dst, rowBytes);
 }

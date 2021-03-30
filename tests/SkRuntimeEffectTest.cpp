@@ -13,6 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "tests/Test.h"
