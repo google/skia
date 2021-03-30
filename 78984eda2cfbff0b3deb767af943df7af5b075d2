@@ -16,6 +16,24 @@
       "message": "Any reason to start this at -1? If kDefault is 0, then the static variables will be zero-initialized, which actually makes them cheaper (as far as executable size is concerned - .bss rather than .data)",
       "revId": "78984eda2cfbff0b3deb767af943df7af5b075d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39442df4_910abd47",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-30T13:59:46Z",
+      "side": 1,
+      "message": "Not an important reason, no; I liked that \"off\" and \"on\" were equivalent to \"false\" and \"true\" but that\u0027s aesthetic.",
+      "parentUuid": "0dfc103a_65738ae4",
+      "revId": "78984eda2cfbff0b3deb767af943df7af5b075d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
