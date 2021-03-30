@@ -44,6 +44,10 @@ public:
         return {this->colorType(), at, this->refColorSpace(), this->width(), this->height()};
     }
 
+    GrImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const {
+        return {this->colorType(), this->alphaType(), std::move(cs), this->width(), this->height()};
+    }
+
     GrImageInfo makeDimensions(SkISize dimensions) const {
         return {this->colorType(), this->alphaType(), this->refColorSpace(), dimensions};
     }

@@ -6,6 +6,8 @@
  */
 
 #include "src/gpu/gl/GrGLContext.h"
+
+#include "include/gpu/GrContextOptions.h"
 #include "src/gpu/gl/GrGLGLSL.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
