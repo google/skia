@@ -10,8 +10,7 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrVertexWriter.h"
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
-#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
+#include "src/gpu/tessellate/GrStrokeTessellator.h"
 
 // Renders opaque, constant-color strokes by decomposing them into standalone tessellation patches.
 // Each patch is either a "cubic" (single stroked bezier curve with butt caps) or a "join". Requires

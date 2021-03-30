@@ -13,8 +13,6 @@
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-using Tolerances = GrStrokeTessellateShader::Tolerances;
-
 namespace {
 
 static float num_combined_segments(float numParametricSegments, float numRadialSegments) {
@@ -62,7 +60,8 @@ public:
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
             , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments() - 2)
-            , fParametricIntolerance(Tolerances::CalcParametricIntolerance(matrixMaxScale)) {
+            , fParametricIntolerance(GrStrokeTolerances::CalcParametricIntolerance(
+                    matrixMaxScale)) {
         // Pre-allocate at least enough vertex space for 1 in 4 strokes to chop, and for 8 caps.
         int strokePreallocCount = totalCombinedVerbCnt * 5/4;
         int capPreallocCount = 8;
@@ -690,43 +689,6 @@ private:
     GrVertexColor fDynamicColor;
 };
 
-// Calculates and buffers up future values for "numRadialSegmentsPerRadian" using SIMD.
-class alignas(sizeof(grvx::float4)) RadialSegmentsPerRadianBuffer {
-public:
-    using PathStrokeList = GrStrokeTessellator::PathStrokeList;
-
-    RadialSegmentsPerRadianBuffer(float parametricIntolerance)
-            : fParametricIntolerance(parametricIntolerance) {
-    }
-
-    float fetchNext(PathStrokeList* head) {
-        // GrStrokeTessellateOp::onCombineIfPossible does not allow hairlines to become dynamic. If
-        // this changes, we will need to call Tolerances::GetLocalStrokeWidth() for each stroke.
-        SkASSERT(!head->fStroke.isHairlineStyle());
-        if (fBufferIdx == 4) {
-            // We ran out of values. Peek ahead and buffer up 4 more.
-            PathStrokeList* peekAhead = head;
-            int i = 0;
-            do {
-                fStrokeWidths[i++] = peekAhead->fStroke.getWidth();
-            } while ((peekAhead = peekAhead->fNext) && i < 4);
-            Tolerances::ApproxNumRadialSegmentsPerRadian(fParametricIntolerance,
-                                                         fStrokeWidths).store(
-                    fNumRadialSegmentsPerRadian);
-            fBufferIdx = 0;
-        }
-        SkASSERT(0 <= fBufferIdx && fBufferIdx < 4);
-        SkASSERT(fStrokeWidths[fBufferIdx] == head->fStroke.getWidth());
-        return fNumRadialSegmentsPerRadian[fBufferIdx++];
-    }
-
-private:
-    grvx::float4 fStrokeWidths{};  // Must be first for alignment purposes.
-    float fNumRadialSegmentsPerRadian[4];
-    const float fParametricIntolerance;
-    int fBufferIdx = 4;  // Initialize the buffer as "empty";
-};
-
 SK_ALWAYS_INLINE static bool conic_has_cusp(const SkPoint p[3]) {
     SkVector a = p[1] - p[0];
     SkVector b = p[2] - p[1];
@@ -786,23 +748,22 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
     if (!(fShaderFlags & ShaderFlags::kDynamicStroke)) {
         // Strokes are static. Calculate tolerances once.
         const SkStrokeRec& stroke = fPathStrokeList->fStroke;
-        float localStrokeWidth = Tolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
-                                                                 stroke.getWidth());
-        float numRadialSegmentsPerRadian = Tolerances::CalcNumRadialSegmentsPerRadian(
+        float localStrokeWidth = GrStrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
+                                                                         stroke.getWidth());
+        float numRadialSegmentsPerRadian = GrStrokeTolerances::CalcNumRadialSegmentsPerRadian(
                 patchWriter.parametricIntolerance(), localStrokeWidth);
         patchWriter.updateTolerances(numRadialSegmentsPerRadian, stroke.getJoin());
     }
 
     // Fast SIMD queue that buffers up values for "numRadialSegmentsPerRadian". Only used when we
     // have dynamic strokes.
-    RadialSegmentsPerRadianBuffer radialSegmentsPerRadianBuffer(
-            patchWriter.parametricIntolerance());
+    GrStrokeToleranceBuffer toleranceBuffer(patchWriter.parametricIntolerance());
 
     for (PathStrokeList* pathStroke = fPathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             // Strokes are dynamic. Update tolerances with every new stroke.
-            patchWriter.updateTolerances(radialSegmentsPerRadianBuffer.fetchNext(pathStroke),
+            patchWriter.updateTolerances(toleranceBuffer.fetchRadialSegmentsPerRadian(pathStroke),
                                          stroke.getJoin());
             patchWriter.updateDynamicStroke(stroke);
         }
