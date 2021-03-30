@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b0d505b_d43f89c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-30T13:20:43Z",
+      "side": 1,
+      "message": "Reland of https://skia-review.googlesource.com/c/skia/+/348886\n\nOnly change from original (other than minor rebasing on intervening changes) is all iOS/Metal excluded instead of just one bot. Other issue that caused revert was fixed here: https://skia-review.googlesource.com/c/skia/+/390058",
+      "revId": "6c64125fb195b5cd84175ae71abcb9cc10043eec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
