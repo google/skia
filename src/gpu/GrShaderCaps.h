@@ -84,6 +84,8 @@ public:
 
     bool hasLowFragmentPrecision() const { return fHasLowFragmentPrecision; }
 
+    bool enableSkSLInliner() const { return fEnableSkSLInliner; }
+
     // SkSL only.
     bool builtinFMASupport() const { return fBuiltinFMASupport; }
 
@@ -282,6 +284,11 @@ private:
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
     bool fHasLowFragmentPrecision           : 1;
+
+    // Enables the SkSL inliner, which can help performance on some platforms (particularly ES on
+    // low-end devices). Inlining requires optimization to be enabled in the program settings, and a
+    // non-zero inline threshold must be set.
+    bool fEnableSkSLInliner                 : 1;
 
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport : 1;
