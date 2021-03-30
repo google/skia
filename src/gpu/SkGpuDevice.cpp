@@ -932,7 +932,7 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkP
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
 
     // Check for valid input
-    if (!this->localToDevice().isFinite() || !glyphRunList.allFontsFinite()) {
+    if (!this->localToDevice().isFinite()) {
         return;
     }
 
