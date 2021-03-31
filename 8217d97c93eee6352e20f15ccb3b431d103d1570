@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d7de987_e89a6f99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-31T13:15:21Z",
+      "side": 1,
+      "message": "I wonder if we should try two other things before giving up on GPU blur:\n\n1) The 1D kernel effect currently unrolls its loop. We could try rerolling it.\n\n2) Reducing kMaxSigma (making it a runtime rather than compile time value).",
+      "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
