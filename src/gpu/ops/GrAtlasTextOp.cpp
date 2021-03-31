@@ -81,6 +81,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
 }
 
+<<<<<<< HEAD   (adbb69 Fix GrGpuBuffer::onRelease() crash problem.)
 auto GrAtlasTextOp::Geometry::Make(GrRecordingContext* rc,
                                    const GrAtlasSubRun& subRun,
                                    const SkMatrix& drawMatrix,
@@ -98,6 +99,21 @@ auto GrAtlasTextOp::Geometry::Make(GrRecordingContext* rc,
                               clipRect,
                               std::move(blob),
                               color};
+=======
+auto GrAtlasTextOp::Geometry::MakeForBlob(const GrAtlasSubRun& subRun,
+                                          const SkMatrix& drawMatrix,
+                                          SkPoint drawOrigin,
+                                          SkIRect clipRect,
+                                          sk_sp<GrTextBlob> blob,
+                                          const SkPMColor4f& color) -> Geometry* {
+    return new Geometry{subRun,
+                        drawMatrix,
+                        drawOrigin,
+                        clipRect,
+                        std::move(blob),
+                        nullptr,
+                        color};
+>>>>>>> CHANGE (bba188 allocate GrAtlasTextOp::Geometry on heap)
 }
 
 

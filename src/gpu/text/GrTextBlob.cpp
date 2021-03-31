@@ -687,9 +687,13 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
     const SkPMColor4f drawingColor =
             calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
 
+<<<<<<< HEAD   (adbb69 Fix GrGpuBuffer::onRelease() crash problem.)
     GrRecordingContext* const context = rtc->recordingContext();
     GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::Make(
             context,
+=======
+    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
+>>>>>>> CHANGE (bba188 allocate GrAtlasTextOp::Geometry on heap)
             *this,
             drawMatrix,
             drawOrigin,
@@ -697,7 +701,12 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
             sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
+<<<<<<< HEAD   (adbb69 Fix GrGpuBuffer::onRelease() crash problem.)
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(context,
+=======
+    GrRecordingContext* const rContext = sdc->recordingContext();
+    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(rContext,
+>>>>>>> CHANGE (bba188 allocate GrAtlasTextOp::Geometry on heap)
                                                op_mask_type(fMaskFormat),
                                                false,
                                                this->glyphCount(),
@@ -975,9 +984,13 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
 
+<<<<<<< HEAD   (adbb69 Fix GrGpuBuffer::onRelease() crash problem.)
     GrRecordingContext* const context = rtc->recordingContext();
     GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::Make(
             context,
+=======
+    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
+>>>>>>> CHANGE (bba188 allocate GrAtlasTextOp::Geometry on heap)
             *this,
             drawMatrix,
             drawOrigin,
@@ -985,6 +998,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
             sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
+    GrRecordingContext* const rContext = sdc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             op_mask_type(fMaskFormat),
@@ -1256,9 +1270,13 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
     auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
         calculate_sdf_parameters(*rtc, drawMatrix, fUseLCDText, fAntiAliased);
 
+<<<<<<< HEAD   (adbb69 Fix GrGpuBuffer::onRelease() crash problem.)
     GrRecordingContext* const context = rtc->recordingContext();
     GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::Make(
             context,
+=======
+    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
+>>>>>>> CHANGE (bba188 allocate GrAtlasTextOp::Geometry on heap)
             *this,
             drawMatrix,
             drawOrigin,
@@ -1266,6 +1284,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
             sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
+    GrRecordingContext* const rContext = sdc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             maskType,

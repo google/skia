@@ -20,8 +20,10 @@ public:
     DEFINE_OP_CLASS_ID
 
     ~GrAtlasTextOp() override {
-        for (const Geometry* g = fHead; g != nullptr; g = g->fNext) {
-            g->~Geometry();
+        for (const Geometry* g = fHead; g != nullptr;) {
+            const Geometry* next = g->fNext;
+            delete g;
+            g = next;
         }
     }
 
@@ -42,6 +44,7 @@ public:
             , fBlob{std::move(blob)}
             , fColor{color} {}
 
+<<<<<<< HEAD   (adbb69 Fix GrGpuBuffer::onRelease() crash problem.)
         static Geometry* Make(GrRecordingContext* rc,
                               const GrAtlasSubRun& subRun,
                               const SkMatrix& drawMatrix,
@@ -49,6 +52,15 @@ public:
                               SkIRect clipRect,
                               sk_sp<GrTextBlob> blob,
                               const SkPMColor4f& color);
+=======
+        static Geometry* MakeForBlob(const GrAtlasSubRun& subRun,
+                                     const SkMatrix& drawMatrix,
+                                     SkPoint drawOrigin,
+                                     SkIRect clipRect,
+                                     sk_sp<GrTextBlob> blob,
+                                     const SkPMColor4f& color);
+
+>>>>>>> CHANGE (bba188 allocate GrAtlasTextOp::Geometry on heap)
         void fillVertexData(void* dst, int offset, int count) const;
 
         const GrAtlasSubRun& fSubRun;
