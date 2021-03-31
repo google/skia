@@ -172,7 +172,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorDiagonalMatrix:
-            this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(),
+            this->writeSingleArgumentConstructor(expr.as<ConstructorDiagonalMatrix>(),
                                                  parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:
@@ -1108,7 +1108,7 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
     this->write(constructorType.isArray() ? "}" : ")");
 }
 
-void MetalCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+void MetalCodeGenerator::writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
                                                         Precedence parentPrecedence) {
     this->writeType(c.type());
     this->write("(");

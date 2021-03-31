@@ -10,6 +10,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 #include <memory>
@@ -21,50 +22,21 @@ namespace SkSL {
  *
  * These always contain exactly 1 scalar.
  */
-class ConstructorDiagonalMatrix final : public Expression {
+class ConstructorDiagonalMatrix final : public SingleArgumentConstructor {
 public:
     static constexpr Kind kExpressionKind = Kind::kConstructorDiagonalMatrix;
 
     ConstructorDiagonalMatrix(int offset, const Type& type, std::unique_ptr<Expression> arg)
-        : INHERITED(offset, kExpressionKind, &type)
-        , fArgument(std::move(arg)) {}
+        : INHERITED(offset, kExpressionKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int offset,
                                             const Type& type,
                                             std::unique_ptr<Expression> arg);
 
-    std::unique_ptr<Expression>& argument() {
-        return fArgument;
-    }
-
-    const std::unique_ptr<Expression>& argument() const {
-        return fArgument;
-    }
-
-    bool hasProperty(Property property) const override {
-        return argument()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<ConstructorDiagonalMatrix>(fOffset, this->type(),
                                                            argument()->clone());
-    }
-
-    String description() const override {
-        return this->type().description() + "(" + argument()->description() + ")";
-    }
-
-    const Type& componentType() const {
-        return this->argument()->type();
-    }
-
-    bool isCompileTimeConstant() const override {
-        return argument()->isCompileTimeConstant();
-    }
-
-    bool isConstantOrUniform() const override {
-        return argument()->isConstantOrUniform();
     }
 
     ComparisonResult compareConstant(const Expression& other) const override;
@@ -72,9 +44,7 @@ public:
     SKSL_FLOAT getMatComponent(int col, int row) const override;
 
 private:
-    std::unique_ptr<Expression> fArgument;
-
-    using INHERITED = Expression;
+    using INHERITED = SingleArgumentConstructor;
 };
 
 }  // namespace SkSL
