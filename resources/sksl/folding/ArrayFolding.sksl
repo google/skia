@@ -1,0 +1,14 @@
+uniform half4 colorRed, colorGreen;
+
+bool test() {
+    const int x [3] = int[3](1, 2, 3);
+    const int xx[3] = int[3](1, 2, 3);
+    const int y [3] = int[3](1, 2, 4);
+
+    return (x == xx) && !(x != xx) && (x != y) && !(x == y);
+}
+
+half4 main() {
+    return test() ? colorGreen : colorRed;
+}
+
