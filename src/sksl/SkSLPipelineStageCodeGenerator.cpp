@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
@@ -74,6 +75,8 @@ private:
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
     void writeFunctionCall(const FunctionCall& c);
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
+    void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                        Precedence parentPrecedence);
     void writeFieldAccess(const FieldAccess& f);
     void writeSwizzle(const Swizzle& swizzle);
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
@@ -411,6 +414,10 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
         case Expression::Kind::kConstructor:
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(),
+                                                 parentPrecedence);
+            break;
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(expr.as<FieldAccess>());
             break;
@@ -452,6 +459,14 @@ void PipelineStageCodeGenerator::writeConstructor(const Constructor& c,
         separator = ", ";
         this->writeExpression(*arg, Precedence::kSequence);
     }
+    this->write(")");
+}
+
+void PipelineStageCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                                                Precedence parentPrecedence) {
+    this->writeType(c.type());
+    this->write("(");
+    this->writeExpression(*c.argument(), Precedence::kSequence);
     this->write(")");
 }
 

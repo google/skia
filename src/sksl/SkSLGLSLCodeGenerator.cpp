@@ -199,6 +199,10 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
         case Expression::Kind::kConstructor:
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(),
+                                                 parentPrecedence);
+            break;
         case Expression::Kind::kIntLiteral:
             this->writeIntLiteral(expr.as<IntLiteral>());
             break;
@@ -737,6 +741,14 @@ void GLSLCodeGenerator::writeConstructor(const Constructor& c, Precedence parent
         separator = ", ";
         this->writeExpression(*arg, Precedence::kSequence);
     }
+    this->write(")");
+}
+
+void GLSLCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                                       Precedence parentPrecedence) {
+    this->writeType(c.type());
+    this->write("(");
+    this->writeExpression(*c.argument(), Precedence::kSequence);
     this->write(")");
 }
 

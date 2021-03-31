@@ -711,6 +711,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeBoolLiteral(expr.as<BoolLiteral>());
         case Expression::Kind::kConstructor:
             return this->writeConstructor(expr.as<Constructor>(), out);
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
         case Expression::Kind::kIntLiteral:
             return this->writeIntLiteral(expr.as<IntLiteral>());
         case Expression::Kind::kFieldAccess:
@@ -1686,6 +1688,21 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
             fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
             return -1;
     }
+}
+
+SpvId SPIRVCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                                         OutputStream& out) {
+    const Type& type = c.type();
+    SkASSERT(type.isMatrix());
+    SkASSERT(c.argument()->type().isScalar());
+
+    // Write out the scalar argument.
+    SpvId argument = this->writeExpression(*c.argument(), out);
+
+    // Build the diagonal matrix.
+    SpvId result = this->nextId(&type);
+    this->writeUniformScaleMatrix(result, argument, type, out);
+    return result;
 }
 
 static SpvStorageClass_ get_storage_class(const Variable& var,
