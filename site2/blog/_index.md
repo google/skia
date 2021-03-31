@@ -1,4 +1,0 @@
----
-title: 'News'
-linkTitle: 'News'
----
