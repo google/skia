@@ -5717,7 +5717,7 @@ DEF_TEST(SkParagraph_PositionInsideEmoji, reporter) {
         auto Y = rects[0].rect.fTop;
         auto res = paragraph->getGlyphPositionAtCoordinate(X, Y);
         //SkDebugf("[%d:%d) @%f,%f: %d %s\n", j, i, X, Y, res.position, res.affinity == Affinity::kDownstream ? "D" : "U");
-        REPORTER_ASSERT(reporter, i == res.position + (res.affinity == Affinity::kDownstream ? 0 : 1));
+        REPORTER_ASSERT(reporter, i == res.position);
         j = i;
     }
 }

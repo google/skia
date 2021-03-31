@@ -14,6 +14,9 @@ flutter_defines = [
   # Things we do for Flutter but don't want in general text layout
   "SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION",
 
+  # Staging changes for Google3 (want to test it first)
+  "SK_PARAGRAPH_ROUND_POSITION",
+
   # Staging
 
   # Fast low-precision software rendering isn't a priority for Flutter.
