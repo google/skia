@@ -719,7 +719,7 @@ public:
 #ifdef SK_DEBUG
     ~BinningInstanceWriter() {
         for (int i = 0; i < kNumBins; ++i) {
-            if (fInstanceWriters[i].isValid()) {
+            if (fInstanceWriters[i]) {
                 SkASSERT(fInstanceWriters[i] == fEndWriters[i]);
             }
         }
@@ -749,7 +749,8 @@ private:
 }  // namespace
 
 void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target,
-                                          const SkMatrix& viewMatrix) {
+                                          const SkMatrix& viewMatrix,
+                                          int /*totalCombinedVerbCnt*/) {
     SkASSERT(fResolveLevels);
     SkASSERT(!fDrawIndirectBuffer);
     SkASSERT(!fInstanceBuffer);
@@ -775,7 +776,7 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target,
     size_t instanceStride = GrStrokeTessellateShader::IndirectInstanceStride(fShaderFlags);
     GrVertexWriter instanceWriter = {target->makeVertexSpace(instanceStride, fChainedInstanceCount,
                                                              &fInstanceBuffer, &baseInstance)};
-    if (!instanceWriter.isValid()) {
+    if (!instanceWriter) {
         SkASSERT(!fInstanceBuffer);
         fDrawIndirectBuffer.reset();
         return;

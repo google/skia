@@ -22,14 +22,15 @@ public:
     // become an issue if we try to draw a stroke with an astronomically wide width.
     constexpr static int8_t kMaxResolveLevel = 15;
 
-    GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix&, PathStrokeList*,
+    GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix& viewMatrix, PathStrokeList*,
                                 int totalCombinedVerbCnt, SkArenaAlloc*);
 
     // Adds the given tessellator to our chain. The chained tessellators all append to a shared
     // indirect draw list during prepare().
     void addToChain(GrStrokeIndirectTessellator*);
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&) override;
+    void prepare(GrMeshDrawOp::Target*, const SkMatrix& viewMatrix,
+                 int totalCombinedVerbCnt) override;
 
     void draw(GrOpFlushState*) const override;
 

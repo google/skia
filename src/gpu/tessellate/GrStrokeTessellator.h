@@ -29,7 +29,8 @@ public:
             : fShaderFlags(shaderFlags), fPathStrokeList(pathStrokeList) {}
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix& viewMatrix) = 0;
+    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix& viewMatrix,
+                         int totalCombinedVerbCnt) = 0;
 
     // Issues draw calls for the tessellated stroke. The caller is responsible for binding its
     // desired pipeline ahead of time.
