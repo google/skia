@@ -671,9 +671,7 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
     const SkPMColor4f drawingColor =
             calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
 
-    GrRecordingContext* const rContext = sdc->recordingContext();
     GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
-            rContext,
             *this,
             drawMatrix,
             drawOrigin,
@@ -681,6 +679,7 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
             sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
+    GrRecordingContext* const rContext = sdc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(rContext,
                                                op_mask_type(fMaskFormat),
                                                false,
@@ -965,9 +964,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(sdc, paint, viewMatrix, fMaskFormat, &grPaint);
 
-    GrRecordingContext* const rContext = sdc->recordingContext();
     GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
-            rContext,
             *this,
             drawMatrix,
             drawOrigin,
@@ -975,6 +972,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
             sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
+    GrRecordingContext* const rContext = sdc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             rContext,
             op_mask_type(fMaskFormat),
@@ -1248,9 +1246,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
     auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
         calculate_sdf_parameters(*sdc, drawMatrix, fUseLCDText, fAntiAliased);
 
-    GrRecordingContext* const rContext = sdc->recordingContext();
     GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::MakeForBlob(
-            rContext,
             *this,
             drawMatrix,
             drawOrigin,
@@ -1258,6 +1254,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
             sk_ref_sp<GrTextBlob>(fBlob),
             drawingColor);
 
+    GrRecordingContext* const rContext = sdc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             rContext,
             maskType,
