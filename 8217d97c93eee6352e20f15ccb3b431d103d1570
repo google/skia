@@ -70,6 +70,24 @@
       "parentUuid": "c6123464_919f6a80",
       "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfa69812_0f4625c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-31T17:13:54Z",
+      "side": 1,
+      "message": "I suppose I should have read the bug first 😂.\n\nI could see reducing kMaxSigma being effective, and I could also see added benefit for higher end systems letting us increase the max sigma potentially (although there\u0027d be more follow up work to take advantage of it in the gaussian FP since it has a fixed uniform limit, unlike the matrix convolution FP that knows how to fallback to a buffer).\n\nI couldn\u0027t get access to the JIRA bug, but presumably it\u0027s a fairly high radius blur so even with multiple downscales, we\u0027re going to be using two separable passes instead of the 2d blur. I\u0027d expect the 1d pass would be fewer shader instructions than the 2d kernel blur. If we are somehow hitting the 2d blur after downscaling, maybe we should disable that and force it into the 1d case?",
+      "parentUuid": "dbe7d651_04e62840",
+      "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
