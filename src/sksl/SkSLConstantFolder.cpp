@@ -517,8 +517,9 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
         return nullptr;
     }
 
-    // Perform constant folding on pairs of matrices.
-    if (leftType.isMatrix() && rightType.isMatrix()) {
+    // Perform constant folding on pairs of matrices or arrays.
+    if ((leftType.isMatrix() && rightType.isMatrix()) ||
+        (leftType.isArray() && rightType.isArray())) {
         bool equality;
         switch (op.kind()) {
             case Token::Kind::TK_EQEQ:
