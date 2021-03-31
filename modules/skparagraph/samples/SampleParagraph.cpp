@@ -3453,21 +3453,22 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        fontCollection->enableFontFallback();
+        //fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        //fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontFamilies({SkString("Ahem")});
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         text_style.setFontSize(14);
         builder.pushStyle(text_style);
-        //builder.addText( u"\u118ff\u1f1a9\u103a");
-        builder.addText("\U000118ff\U0001f1a9\u103A");
+        builder.addText("foo\u2060");
         auto paragraph = builder.Build();
         paragraph->layout(500);
         paragraph->paint(canvas, 0, 0);
+        auto result = paragraph->getGlyphPositionAtCoordinate(paragraph->getMaxIntrinsicWidth(), 0.0f);
+        SkDebugf("position = %d (%s)\n", result.position, result.affinity == Affinity::kDownstream ? "Down" :"Up");
     }
 
 private:
