@@ -16,6 +16,24 @@
       "message": "I wish we had a more precise check here. This may be okay, but it\u0027s definitely imperfect:\n  - There are (very few) mobile devices that actually have GL drivers. I think the NVIDIA shield is the only one we\u0027ve ever tested, so not a problem.\n  - Many/most desktop devices support ES in addition to GL, but we can assume the driver is similar/identical in that case. In the context of Chrome on Windows, we\u0027re usually running against ES (ANGLE), too.\n\nIt feels like what we really want is some proxy for \"is the driver going to do a good job of optimizing if we don\u0027t inline\". As long as we\u0027re conservative - and I think this check is conservative - that\u0027s okay. So I guess I\u0027d just suggest a longer comment?",
       "revId": "d04bf3dc6228bf3c18e10c56e94e8788265c94f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3ab26cf_e69f5282",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-31T13:46:27Z",
+      "side": 1,
+      "message": "Hmm... seems like a shame to have Chrome on Windows still inline, actually, if we think it\u0027s not going to benefit (because it\u0027s only in ES mode as a wrapper around the real driver). That wasn\u0027t my intent.\n\nIs there a better check for this case? Or should I just add more comments?",
+      "parentUuid": "ea0013cd_af41d089",
+      "revId": "d04bf3dc6228bf3c18e10c56e94e8788265c94f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
