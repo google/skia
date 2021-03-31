@@ -190,11 +190,12 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
                        x, y, GrColorTypeToStr(colorType),
                        diffs[0], diffs[1], diffs[2], diffs[3]);
             });
-    GrImageInfo srcInfo(allowedSrc.fColorType, kUnpremul_SkAlphaType, nullptr, tex->width(),
-                        tex->height());
-    GrImageInfo dstInfo(colorType, kUnpremul_SkAlphaType, nullptr, tex->width(), tex->height());
-    ComparePixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes,
-                  compareTolerances, error);
+    GrImageInfo srcInfo(allowedSrc.fColorType, kUnpremul_SkAlphaType, nullptr, tex->dimensions());
+    GrImageInfo dstInfo(            colorType, kUnpremul_SkAlphaType, nullptr, tex->dimensions());
+    ComparePixels(GrCPixmap(srcInfo,   srcData.get(), srcRowBytes),
+                  GrCPixmap(dstInfo, dstBuffer.get(), dstRowBytes),
+                  compareTolerances,
+                  error);
 
     //////////////////////////
     // transfer partial data
@@ -243,8 +244,10 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
                static_cast<int>(colorType));
         return;
     }
-    ComparePixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes,
-                  compareTolerances, error);
+    ComparePixels(GrCPixmap(srcInfo,   srcData.get(), srcRowBytes),
+                  GrCPixmap(dstInfo, dstBuffer.get(), dstRowBytes),
+                  compareTolerances,
+                  error);
 }
 
 void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo,
@@ -362,8 +365,10 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                        diffs[0], diffs[1], diffs[2], diffs[3]);
             });
     GrImageInfo textureDataInfo(colorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
-    ComparePixels(textureDataInfo, textureData.get(), textureDataRowBytes, transferInfo,
-                  transferData.get(), fullBufferRowBytes, tol, error);
+    ComparePixels(GrCPixmap(textureDataInfo,  textureData.get(), textureDataRowBytes),
+                  GrCPixmap(   transferInfo, transferData.get(),  fullBufferRowBytes),
+                  tol,
+                  error);
 
     ///////////////////////
     // Now test a partial read at an offset into the buffer.
@@ -394,8 +399,10 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     const char* textureDataStart =
             textureData.get() + textureDataRowBytes * kPartialTop + textureDataBpp * kPartialLeft;
     textureDataInfo = textureDataInfo.makeWH(kPartialWidth, kPartialHeight);
-    ComparePixels(textureDataInfo, textureDataStart, textureDataRowBytes, transferInfo,
-                  transferData.get(), partialBufferRowBytes, tol, error);
+    ComparePixels(GrCPixmap(textureDataInfo,   textureDataStart,   textureDataRowBytes),
+                  GrCPixmap(transferInfo   , transferData.get(), partialBufferRowBytes),
+                  tol,
+                  error);
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->transfersFromSurface() == expectedTransferCnt);
 #else
