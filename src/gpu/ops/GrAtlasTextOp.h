@@ -25,8 +25,10 @@ public:
     DEFINE_OP_CLASS_ID
 
     ~GrAtlasTextOp() override {
-        for (const Geometry* g = fHead; g != nullptr; g = g->fNext) {
-            g->~Geometry();
+        for (const Geometry* g = fHead; g != nullptr;) {
+            const Geometry* next = g->fNext;
+            delete g;
+            g = next;
         }
     }
 
@@ -60,8 +62,7 @@ public:
                 SkASSERT(SkToBool(fSubRunDtor) != SkToBool(fBlob));
         }
 
-        static Geometry* MakeForBlob(GrRecordingContext* rc,
-                                     const GrAtlasSubRun& subRun,
+        static Geometry* MakeForBlob(const GrAtlasSubRun& subRun,
                                      const SkMatrix& drawMatrix,
                                      SkPoint drawOrigin,
                                      SkIRect clipRect,
