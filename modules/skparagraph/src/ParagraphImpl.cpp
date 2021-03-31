@@ -195,6 +195,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     // TODO: This rounding is done to match Flutter tests. Must be removed...
     fMinIntrinsicWidth = littleRound(fMinIntrinsicWidth);
     fMaxIntrinsicWidth = littleRound(fMaxIntrinsicWidth);
+    fLongestLine = littleRound(fLongestLine);
 
     // TODO: This is strictly Flutter thing. Must be factored out into some flutter code
     if (fParagraphStyle.getMaxLines() == 1 ||
