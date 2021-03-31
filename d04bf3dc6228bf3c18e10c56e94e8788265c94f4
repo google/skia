@@ -70,6 +70,24 @@
       "parentUuid": "457be627_4e5d988c",
       "revId": "d04bf3dc6228bf3c18e10c56e94e8788265c94f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2aa5c2a0_fb1ed4d8",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-31T14:08:39Z",
+      "side": 1,
+      "message": "That part is surprising, but maybe it suggests an alternate check, so we keep our conservative initial approach, and then explicitly opt-out of inlining for ANGLE/Chromium.\n\n  if (isES \u0026\u0026 (driver !\u003d kChromium) \u0026\u0026 (driver !\u003d kANGLE))\n\nIt\u0027s possible we never encounter kChromium any more - I think that may only happen with the old command buffer. In any case, I think that set of checks gets us close enough to optimal.",
+      "parentUuid": "0ba4a0d5_479d5ef1",
+      "revId": "d04bf3dc6228bf3c18e10c56e94e8788265c94f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
