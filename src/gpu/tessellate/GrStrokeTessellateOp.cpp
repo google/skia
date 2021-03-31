@@ -73,8 +73,7 @@ GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
     return analysis;
 }
 
-GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* alloc,
-                                                              const GrCaps& caps) {
+GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, const GrCaps& caps) {
     SkASSERT(grOp->classID() == this->classID());
     auto* op = static_cast<GrStrokeTessellateOp*>(grOp);
 
@@ -127,7 +126,7 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkAren
 
     // Concat the op's PathStrokeList. Since the head element is allocated inside the op, we need to
     // copy it.
-    auto* headCopy = alloc->make<PathStrokeList>(std::move(op->fPathStrokeList));
+    auto* headCopy = new PathStrokeList(std::move(op->fPathStrokeList));
     *fPathStrokeTail = headCopy;
     fPathStrokeTail = (op->fPathStrokeTail == &op->fPathStrokeList.fNext) ? &headCopy->fNext
                                                                           : op->fPathStrokeTail;
