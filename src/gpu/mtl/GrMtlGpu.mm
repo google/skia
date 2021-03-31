@@ -13,6 +13,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
@@ -1274,16 +1275,24 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 #endif
     }
 
-    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
-                                                        options: options];
+    GrResourceProvider* resourceProvider = this->getContext()->priv().resourceProvider();
+    sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
+            transBufferImageBytes, GrGpuBufferType::kXferGpuToCpu,
+            kDynamic_GrAccessPattern);
 
-    if (!this->readOrTransferPixels(surface, left, top, width, height, dstColorType, transferBuffer,
+    if (!transferBuffer) {
+        return false;
+    }
+
+    GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer.get());
+    if (!this->readOrTransferPixels(surface, left, top, width, height, dstColorType,
+                                    grMtlBuffer->mtlBuffer(),
                                     0, transBufferImageBytes, transBufferRowBytes)) {
         return false;
     }
     this->submitCommandBuffer(kForce_SyncQueue);
 
-    const void* mappedMemory = transferBuffer.contents;
+    const void* mappedMemory = grMtlBuffer->mtlBuffer().contents;
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
 
