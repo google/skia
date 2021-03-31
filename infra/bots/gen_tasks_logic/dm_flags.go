@@ -429,6 +429,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("mtltestprecompile svg _ Ghostscript_Tiger.svg")
 		}
 
+		if b.gpu("AppleM1") && !b.extraConfig("Metal") {
+			skip("_ test _ TransferPixelsFromTextureTest")  // skia:11814
+		}
+
 		if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 			args = append(args, "--reduceOpsTaskSplitting", "true")
 		}
