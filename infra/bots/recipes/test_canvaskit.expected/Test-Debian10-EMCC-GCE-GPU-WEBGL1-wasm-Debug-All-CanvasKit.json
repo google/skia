@@ -15,32 +15,6 @@
     "name": "mkdirs copy_dest"
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
-    ],
-    "name": "get swarming bot id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
-    ],
-    "name": "get swarming task id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
     "cmd": [],
     "name": "Docker setup"
   },
@@ -231,17 +205,13 @@
       "type=bind,source=[START_DIR],target=/SRC",
       "--mount",
       "type=bind,source=[START_DIR]/[SWARM_OUT_DIR],target=/OUT",
-      "gcr.io/skia-public/gold-karma-chrome-tests:87.0.4280.88_v1",
+      "gcr.io/skia-public/gold-karma-chrome-tests:87.0.4280.88_v2",
       "/SRC/skia/infra/canvaskit/test_canvaskit.sh",
       "--builder",
       "Test-Debian10-EMCC-GCE-GPU-WEBGL1-wasm-Debug-All-CanvasKit",
       "--git_hash",
       "abc123",
       "--buildbucket_build_id",
-      "",
-      "--bot_id",
-      "",
-      "--task_id",
       "",
       "--browser",
       "Chrome",
