@@ -34,6 +34,24 @@
       "parentUuid": "7c2eeeec_3ecd143f",
       "revId": "445b685f8172af958def8a665742046ec03a1cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2ca9fe7_f488d11f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-31T18:19:26Z",
+      "side": 1,
+      "message": "I think this is fine. I suspect that Intel+GL is the weak link, and ANGLE_gl is more-or-less a passthrough in that situation. ANGLE-D3D is probably good on all vendors - D3D drivers tend to be much more robust on Windows.",
+      "parentUuid": "66b9c899_d5247f9e",
+      "revId": "445b685f8172af958def8a665742046ec03a1cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
