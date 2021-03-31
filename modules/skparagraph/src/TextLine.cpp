@@ -1149,9 +1149,16 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
             run, runOffsetInLine, textRange, StyleType::kNone,
             [this, run, dx, &result, &keepLooking]
-            (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+            (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context0) {
 
                 SkScalar offsetX = this->offset().fX;
+                ClipContext context = context0;
+#ifndef SK_PARAGRAPH_ROUND_POSITION
+                // This patch will help us to avoid a floating point error
+                if (SkScalarNearlyEqual(context.clip.fRight, dx - offsetX, 0.01f)) {
+                    context.clip.fRight = dx - offsetX;
+                }
+#endif
                 if (dx < context.clip.fLeft + offsetX) {
                     // All the other runs are placed right of this one
                     auto utf16Index = fOwner->getUTF16Index(context.run->globalClusterIndex(context.pos));
