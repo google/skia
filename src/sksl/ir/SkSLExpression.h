@@ -26,10 +26,11 @@ class Variable;
 class Expression : public IRNode {
 public:
     enum class Kind {
-        kBinary = (int) Statement::Kind::kLast + 1,
+        kBinary = (int)Statement::Kind::kLast + 1,
         kBoolLiteral,
         kCodeString,
         kConstructor,
+        kConstructorDiagonalMatrix,
         kDefined,
         kExternalFunctionCall,
         kExternalFunctionReference,
@@ -48,7 +49,8 @@ public:
         kVariableReference,
 
         kFirst = kBinary,
-        kLast = kVariableReference
+        kLast = kVariableReference,
+
     };
 
     enum class Property {
