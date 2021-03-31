@@ -104,8 +104,12 @@ typedef union skcms_Curve {
     };
 } skcms_Curve;
 
+// Complex transforms between device space (A) and profile connection space (B):
+//   A2B:  device -> [ "A" curves -> CLUT ] -> [ "M" curves -> matrix ] -> "B" curves -> PCS
+//   B2A:  device <- [ "A" curves <- CLUT ] <- [ "M" curves <- matrix ] <- "B" curves <- PCS
+
 typedef struct skcms_A2B {
-    // Optional: N 1D curves, followed by an N-dimensional CLUT.
+    // Optional: N 1D "A" curves, followed by an N-dimensional CLUT.
     // If input_channels == 0, these curves and CLUT are skipped,
     // Otherwise, input_channels must be in [1, 4].
     uint32_t        input_channels;
@@ -114,17 +118,40 @@ typedef struct skcms_A2B {
     const uint8_t*  grid_8;
     const uint8_t*  grid_16;
 
-    // Optional: 3 1D curves, followed by a color matrix.
+    // Optional: 3 1D "M" curves, followed by a color matrix.
     // If matrix_channels == 0, these curves and matrix are skipped,
     // Otherwise, matrix_channels must be 3.
     uint32_t        matrix_channels;
     skcms_Curve     matrix_curves[3];
     skcms_Matrix3x4 matrix;
 
-    // Required: 3 1D curves. Always present, and output_channels must be 3.
+    // Required: 3 1D "B" curves. Always present, and output_channels must be 3.
     uint32_t        output_channels;
     skcms_Curve     output_curves[3];
 } skcms_A2B;
+
+typedef struct skcms_B2A {
+    // Required: 3 1D "B" curves. Always present, and input_channels must be 3.
+    uint32_t        input_channels;
+    skcms_Curve     input_curves[3];
+
+    // Optional: a color matrix, followed by 3 1D "M" curves.
+    // If matrix_channels == 0, this matrix and these curves are skipped,
+    // Otherwise, matrix_channels must be 3.
+    uint32_t        matrix_channels;
+    skcms_Matrix3x4 matrix;
+    skcms_Curve     matrix_curves[3];
+
+    // Optional: an N-dimensional CLUT, followed by N 1D "A" curves.
+    // If output_channels == 0, this CLUT and these curves are skipped,
+    // Otherwise, output_channels must be in [1, 4].
+    uint32_t        output_channels;
+    uint8_t         grid_points[4];
+    const uint8_t*  grid_8;
+    const uint8_t*  grid_16;
+    skcms_Curve     output_curves[4];
+} skcms_B2A;
+
 
 typedef struct skcms_ICCProfile {
     const uint8_t* buffer;
@@ -151,6 +178,13 @@ typedef struct skcms_ICCProfile {
     // same following any user-provided prioritization of A2B0, A2B1, or A2B2.
     bool                   has_A2B;
     skcms_A2B              A2B;
+
+    // If the profile has a valid B2A0 or B2A1 tag, skcms_Parse() sets B2A to
+    // that data, and has_B2A to true.  skcms_ParseWithA2BPriority() does the
+    // same following any user-provided prioritization of B2A0, B2A1, or B2A2.
+    bool                   has_B2A;
+    skcms_B2A              B2A;
+
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
