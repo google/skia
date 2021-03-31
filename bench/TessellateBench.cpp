@@ -195,9 +195,10 @@ DEF_PATH_TESS_BENCH(wangs_formula_conic_log2, make_conic_path(), SkMatrix::I()) 
 DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     ToolUtils::make_star(SkRect::MakeWH(500, 500), kNumCubicsInChalkboard),
                     SkMatrix::I()) {
+    sk_sp<const GrBuffer> buffer;
     int baseVertex;
     auto vertexData = static_cast<SkPoint*>(fTarget->makeVertexSpace(
-            sizeof(SkPoint), kNumCubicsInChalkboard, nullptr, &baseVertex));
+            sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
     GrMiddleOutPolygonTriangulator::WritePathInnerFan(vertexData, 3, fPath);
 }
 
@@ -303,8 +304,8 @@ private:
         SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
         for (int i = 0; i < loops; ++i) {
             GrStrokeHardwareTessellator tessellator(fShaderFlags, fPathStrokes.data(),
-                                                    fTotalVerbCount, *fTarget->caps().shaderCaps());
-            tessellator.prepare(fTarget.get(), matrix);
+                                                    *fTarget->caps().shaderCaps());
+            tessellator.prepare(fTarget.get(), matrix, fTotalVerbCount);
             fTarget->resetAllocator();
         }
     }
@@ -364,7 +365,7 @@ private:
                 GrStrokeIndirectTessellator tessellator(ShaderFlags::kNone, SkMatrix::I(),
                                                         &pathStroke, path.countVerbs(),
                                                         fTarget->allocator());
-                tessellator.prepare(fTarget.get(), SkMatrix::I());
+                tessellator.prepare(fTarget.get(), SkMatrix::I(), path.countVerbs());
             }
             fTarget->resetAllocator();
         }
