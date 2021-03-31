@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57fa7edb_35dd8168",
+        "filename": "bench/TessellateBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "It\u0027s gives us a non-null pointer to hand off to makeVertexSpace.",
+      "parentUuid": "aecedd8f_f75eb7d5",
+      "range": {
+        "startLine": 198,
+        "startChar": 26,
+        "endLine": 198,
+        "endChar": 32
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "12c60782_1af93c08",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-31T13:56:38Z",
       "side": 1,
       "message": "Isn\u0027t this supposed to be LLC nowadays?",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c6a59a1_1b08e5e8",
+        "filename": "src/gpu/GrVertexChunkArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "I\u0027m sure. I always forget and end up with whatever version I got from the .h file I copied. Done.",
+      "parentUuid": "12c60782_1af93c08",
       "range": {
         "startLine": 2,
         "startChar": 25,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e226ef96_3251a29b",
+        "filename": "src/gpu/GrVertexChunkArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "Discussed offline",
+      "parentUuid": "c7ad52c8_f2f1a8b4",
+      "range": {
+        "startLine": 36,
+        "startChar": 25,
+        "endLine": 36,
+        "endChar": 45
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c38cc40f_715122fc",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-03-31T14:33:06Z",
       "side": 1,
       "message": "Maybe move this up a line to match the order in the dtor ?",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 64
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d561896_10845478",
+        "filename": "src/gpu/GrVertexChunkArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c38cc40f_715122fc",
       "range": {
         "startLine": 71,
         "startChar": 12,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c47352eb_436fde7a",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "I might prefer \"1 in 4\" if you don\u0027t have a strong preference",
+      "parentUuid": "90239af8_66ad70c5",
+      "range": {
+        "startLine": 693,
+        "startChar": 39,
+        "endLine": 693,
+        "endChar": 46
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0a21f55d_d9cedb0f",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-03-31T14:02:56Z",
       "side": 1,
       "message": "/* */ ?",
+      "range": {
+        "startLine": 20,
+        "startChar": 52,
+        "endLine": 20,
+        "endChar": 62
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9046aff3_a6e1b046",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a21f55d_d9cedb0f",
       "range": {
         "startLine": 20,
         "startChar": 52,
@@ -162,6 +306,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0f03ba0_4455b45c",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6670213_6205aa91",
+      "range": {
+        "startLine": 24,
+        "startChar": 55,
+        "endLine": 24,
+        "endChar": 56
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6fa2ee19_81be50c5",
@@ -185,6 +353,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a25a934_84a0623e",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fa2ee19_81be50c5",
+      "range": {
+        "startLine": 32,
+        "startChar": 55,
+        "endLine": 32,
+        "endChar": 56
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "56ead5e3_fe68d193",
@@ -198,6 +390,30 @@
       "writtenOn": "2021-03-31T14:33:06Z",
       "side": 1,
       "message": "here too ?",
+      "range": {
+        "startLine": 32,
+        "startChar": 63,
+        "endLine": 32,
+        "endChar": 64
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41b9befe_f63e90ec",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T16:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56ead5e3_fe68d193",
       "range": {
         "startLine": 32,
         "startChar": 63,
