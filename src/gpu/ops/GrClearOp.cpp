@@ -46,7 +46,7 @@ GrClearOp::GrClearOp(Buffer buffer,
     this->setBounds(SkRect::Make(scissor.rect()), HasAABloat::kNo, IsHairline::kNo);
 }
 
-GrOp::CombineResult GrClearOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
+GrOp::CombineResult GrClearOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrClearOp* other = t->cast<GrClearOp>();
 
     if (other->fBuffer == fBuffer) {
