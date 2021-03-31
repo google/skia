@@ -102,6 +102,7 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
     fIndirectIndexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
             target->resourceProvider());
     if (!fIndirectIndexBuffer) {
+        vertexAlloc.unlock(0);
         return;
     }
 
@@ -111,8 +112,9 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
     int indirectLockCnt = kMaxResolveLevel + 1;
     GrDrawIndexedIndirectWriter indirectWriter = target->makeDrawIndexedIndirectSpace(
             indirectLockCnt, &fIndirectDrawBuffer, &fIndirectDrawOffset);
-    if (!indirectWriter.isValid()) {
+    if (!indirectWriter) {
         SkASSERT(!fIndirectDrawBuffer);
+        vertexAlloc.unlock(0);
         return;
     }
 

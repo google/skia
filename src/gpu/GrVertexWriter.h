@@ -37,11 +37,8 @@ struct GrVertexWriter {
         return *this;
     }
 
-    bool operator==(const GrVertexWriter& that) {
-        return fPtr == that.fPtr;
-    }
-
-    bool isValid() const { return fPtr != nullptr; }
+    bool operator==(const GrVertexWriter& that) const { return fPtr == that.fPtr; }
+    operator bool() const { return fPtr != nullptr; }
 
     GrVertexWriter makeOffset(size_t offsetInBytes) const {
         return {SkTAddOffset<void>(fPtr, offsetInBytes)};
