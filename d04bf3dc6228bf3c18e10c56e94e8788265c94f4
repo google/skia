@@ -34,6 +34,24 @@
       "parentUuid": "ea0013cd_af41d089",
       "revId": "d04bf3dc6228bf3c18e10c56e94e8788265c94f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "457be627_4e5d988c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-31T13:59:05Z",
+      "side": 1,
+      "message": "I was trying to think of a better check, but anything else is going to be somewhat more tedious. Perhaps just checking ctxInfo.vendor(), or ctxInfo.driver(). We don\u0027t seem to have driver() values for ARM, so the vendor check might be the best? Enablethe inliner if it\u0027s ARM, Qualcomm, or Imagination?",
+      "parentUuid": "a3ab26cf_e69f5282",
+      "revId": "d04bf3dc6228bf3c18e10c56e94e8788265c94f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
