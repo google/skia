@@ -21,7 +21,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:87.0.4280.88_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:87.0.4280.88_v2'
 INNER_KARMA_SCRIPT = 'skia/infra/pathkit/test_pathkit.sh'
 
 
@@ -64,8 +64,6 @@ def RunSteps(api):
     '--builder',              api.vars.builder_name,
     '--git_hash',             api.properties['revision'],
     '--buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
-    '--bot_id',               api.vars.swarming_bot_id,
-    '--task_id',              api.vars.swarming_task_id,
     '--browser',              'Chrome',
     '--config',               api.vars.configuration,
     '--source_type',          'pathkit',
