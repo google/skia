@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e2f3062_8af19c65",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-31T13:06:33Z",
+      "side": 1,
+      "message": "delete this too while you\u0027re in here?",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 4
+      },
+      "revId": "40f302d2946147d412c1617a7dbbec7797a956b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
