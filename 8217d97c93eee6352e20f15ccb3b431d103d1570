@@ -52,6 +52,24 @@
       "parentUuid": "5d01bc7a_a6d31575",
       "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbe7d651_04e62840",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-31T14:30:30Z",
+      "side": 1,
+      "message": "Yeah, that was what was motivating my suggestions. 1) May or may not help depending on whether the driver shader compiler unrolls the loop but 2) should reduce the instruction count (but will trigger downscaling of the source image at a smaller sigma).",
+      "parentUuid": "c6123464_919f6a80",
+      "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
