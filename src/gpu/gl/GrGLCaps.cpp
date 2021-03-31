@@ -995,6 +995,17 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         // ANGLE under the hood, so we make an exception for that case.
         shaderCaps->fEnableSkSLInliner = true;
     }
+
+#ifdef SK_BUILD_FOR_WIN
+    if (ctxInfo.driver() == kIntel_GrGLDriver ||
+        (ctxInfo.driver() == kANGLE_GrGLDriver &&
+         ctxInfo.angleVendor() == GrGLANGLEVendor::kIntel &&
+         ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL)) {
+        // The Intel driver on Windows produces incorrect results on clip_shader test slides when
+        // the inliner is off. (Example: http://screen/5dpPVnJukBAcyKb)
+        shaderCaps->fEnableSkSLInliner = true;
+    }
+#endif
 }
 
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
