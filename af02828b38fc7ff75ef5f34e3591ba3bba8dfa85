@@ -34,6 +34,24 @@
       "parentUuid": "d12097a9_f84c2a6c",
       "revId": "af02828b38fc7ff75ef5f34e3591ba3bba8dfa85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "207a4365_16043eab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-31T13:14:49Z",
+      "side": 1,
+      "message": "Yeah, was thinking of just going over to Array.\n\n\u003e Other than constructors/destructors, Auto[S]TArray is a little different in that it stores a count while Auto[S]TMalloc does not.\n\nLooks weirder than that... non-S Array only holds the size in debug builds for asserts.\n\nI always wonder about this.  Clearly delete[] must have the size of the array stashed away somewhere so it can call the proper number of destructors.  Seems like a shame that count is not available in-language.",
+      "parentUuid": "12b04d36_2c6fb168",
+      "revId": "af02828b38fc7ff75ef5f34e3591ba3bba8dfa85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
