@@ -230,7 +230,7 @@ private:
 
     MaskType maskType() const { return static_cast<MaskType>(fMaskType); }
 
-    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
     GrGeometryProcessor* setupDfProcessor(SkArenaAlloc*,
                                           const GrShaderCaps&,

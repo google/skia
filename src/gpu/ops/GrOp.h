@@ -118,7 +118,7 @@ public:
     };
 
     // The arenas are the same as what was available when the op was created.
-    CombineResult combineIfPossible(GrOp* that, SkArenaAlloc* alloc, const GrCaps& caps);
+    CombineResult combineIfPossible(GrOp* that, const GrCaps&);
 
     const SkRect& bounds() const {
         SkASSERT(kUninitialized_BoundsFlag != fBoundsFlags);
@@ -303,7 +303,7 @@ private:
         return fBounds.joinPossiblyEmptyRect(that.fBounds);
     }
 
-    virtual CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) {
+    virtual CombineResult onCombineIfPossible(GrOp*, const GrCaps&) {
         return CombineResult::kCannotCombine;
     }
 
