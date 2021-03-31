@@ -95,7 +95,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor.reset(geomProc.createGLSLInstance(*this->shaderCaps()));
 
-    SkAutoSTMalloc<4, SamplerHandle> texSamplers(geomProc.numTextureSamplers());
+    SkAutoSTArray<4, SamplerHandle> texSamplers(geomProc.numTextureSamplers());
     for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
         SkString name;
         name.printf("TextureSampler_%d", i);

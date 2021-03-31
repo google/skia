@@ -122,7 +122,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
             GrSamplerState fState;
             GrVkTexture* fTexture;
         };
-        SkAutoSTMalloc<8, SamplerBindings> samplerBindings(fNumSamplers);
+        SkAutoSTArray<8, SamplerBindings> samplerBindings(fNumSamplers);
         int currTextureBinding = 0;
 
         for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {

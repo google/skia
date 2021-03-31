@@ -831,7 +831,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkAttachment* texAttachment, int left, int 
     // texels is const.
     // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
     // Because of this we need to make a non-const shallow copy of texels.
-    SkAutoTMalloc<GrMipLevel> texelsShallowCopy;
+    SkAutoTArray<GrMipLevel> texelsShallowCopy;
 
     texelsShallowCopy.reset(mipLevelCount);
     memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
