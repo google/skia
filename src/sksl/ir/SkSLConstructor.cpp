@@ -294,6 +294,17 @@ Expression::ComparisonResult Constructor::compareConstant(const Expression& othe
         return ComparisonResult::kEqual;
     }
 
+    if (myType.isArray()) {
+        SkASSERT(myType.columns() == c.type().columns());
+        for (int col = 0; col < myType.columns(); col++) {
+            ComparisonResult check = this->arguments()[col]->compareConstant(*c.arguments()[col]);
+            if (check != ComparisonResult::kEqual) {
+                return check;
+            }
+        }
+        return ComparisonResult::kEqual;
+    }
+
     SkDEBUGFAILF("compareConstant unexpected type: %s", myType.description().c_str());
     return ComparisonResult::kUnknown;
 }
