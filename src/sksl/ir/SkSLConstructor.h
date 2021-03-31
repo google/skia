@@ -177,6 +177,50 @@ private:
     using INHERITED = Expression;
 };
 
+/**
+ * Base class representing a constructor that takes a single argument.
+ */
+class SingleArgumentConstructor : public Expression {
+public:
+    SingleArgumentConstructor(int offset, Kind kind, const Type* type,
+                              std::unique_ptr<Expression> argument)
+            : INHERITED(offset, kind, type)
+            , fArgument(std::move(argument)) {}
+
+    std::unique_ptr<Expression>& argument() {
+        return fArgument;
+    }
+
+    const std::unique_ptr<Expression>& argument() const {
+        return fArgument;
+    }
+
+    bool hasProperty(Property property) const override {
+        return argument()->hasProperty(property);
+    }
+
+    String description() const override {
+        return this->type().description() + "(" + argument()->description() + ")";
+    }
+
+    const Type& componentType() const {
+        return this->argument()->type();
+    }
+
+    bool isCompileTimeConstant() const override {
+        return argument()->isCompileTimeConstant();
+    }
+
+    bool isConstantOrUniform() const override {
+        return argument()->isConstantOrUniform();
+    }
+
+private:
+    std::unique_ptr<Expression> fArgument;
+
+    using INHERITED = Expression;
+};
+
 }  // namespace SkSL
 
 #endif
