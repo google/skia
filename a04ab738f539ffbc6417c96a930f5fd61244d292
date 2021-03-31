@@ -70,6 +70,24 @@
       "parentUuid": "465c1151_e66ee4fb",
       "revId": "a04ab738f539ffbc6417c96a930f5fd61244d292",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a400dfa0_4b30d062",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-03-31T15:09:54Z",
+      "side": 1,
+      "message": "If we change the canvaskit bindings to be in TS, I don\u0027t yet know if we need tests in just TS, just JS, or some of each.",
+      "parentUuid": "a75236e4_71cbb7e4",
+      "revId": "a04ab738f539ffbc6417c96a930f5fd61244d292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
