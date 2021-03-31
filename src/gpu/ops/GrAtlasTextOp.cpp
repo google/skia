@@ -393,7 +393,7 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
     ++flushInfo->fNumDraws;
 }
 
-GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
+GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
 
     if (fDFGPFlags != that->fDFGPFlags ||
