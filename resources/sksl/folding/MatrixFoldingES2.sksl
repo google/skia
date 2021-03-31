@@ -7,8 +7,12 @@ bool test() {
     ok = ok && !(float2x2(float2(1.0, 0.0), float2(1.0, 1.0)) ==
                  float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
 
-    ok = ok &&  (float2x2(1) == float2x2(1));
-    ok = ok && !(float2x2(1) == float2x2(0));
+    ok = ok &&  ( float2x2(1)  == float2x2(1));
+    ok = ok && !( float2x2(1)  == float2x2(0));
+    ok = ok &&  ( float2x2(-1) == -float2x2(1));
+    ok = ok &&  ( float2x2(0)  == -float2x2(0));
+    ok = ok &&  (-float2x2(-1) ==  float2x2(1));
+    ok = ok &&  (-float2x2(0)  == -float2x2(-0));
 
     ok = ok &&  (float2x2(1) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
     ok = ok && !(float2x2(2) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));

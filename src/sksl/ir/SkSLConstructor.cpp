@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 
 #include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -80,11 +81,19 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
         // A constructor containing a single scalar is a splat (for vectors) or diagonal matrix (for
         // matrices). In either event, it's legal regardless of the scalar's type. Synthesize an
         // explicit conversion to the proper type (this is a no-op if it's unnecessary).
-        ExpressionArray castArgs;
-        castArgs.push_back(Constructor::Convert(context, offset, type.componentType(),
-                                                std::move(args)));
-        SkASSERT(castArgs.front());
-        return std::make_unique<Constructor>(offset, type, std::move(castArgs));
+        std::unique_ptr<Expression> typecast = Constructor::Convert(context, offset,
+                                                                    type.componentType(),
+                                                                    std::move(args));
+        SkASSERT(typecast);
+
+        if (type.isMatrix()) {
+            // Matrix-from-scalar creates a diagonal matrix.
+            return ConstructorDiagonalMatrix::Make(context, offset, type, std::move(typecast));
+        }
+
+        ExpressionArray typecastArgs;
+        typecastArgs.push_back(std::move(typecast));
+        return std::make_unique<Constructor>(offset, type, std::move(typecastArgs));
     }
 
     int expected = type.rows() * type.columns();
@@ -249,6 +258,9 @@ std::unique_ptr<Expression> Constructor::SimplifyConversion(const Type& construc
 }
 
 Expression::ComparisonResult Constructor::compareConstant(const Expression& other) const {
+    if (other.is<ConstructorDiagonalMatrix>()) {
+        return other.compareConstant(*this);
+    }
     if (!other.is<Constructor>()) {
         return ComparisonResult::kUnknown;
     }
@@ -404,11 +416,12 @@ SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
             return col == row ? this->getConstantValue<SKSL_FLOAT>(*this->arguments()[0]) : 0.0;
         }
         if (argType.isMatrix()) {
-            SkASSERT(this->arguments()[0]->is<Constructor>());
+            SkASSERT(this->arguments()[0]->is<Constructor>() ||
+                     this->arguments()[0]->is<ConstructorDiagonalMatrix>());
             // single matrix argument. make sure we're within the argument's bounds.
             if (col < argType.columns() && row < argType.rows()) {
                 // within bounds, defer to argument
-                return this->arguments()[0]->as<Constructor>().getMatComponent(col, row);
+                return this->arguments()[0]->getMatComponent(col, row);
             }
             // out of bounds
             return 0.0;

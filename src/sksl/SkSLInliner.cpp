@@ -17,6 +17,7 @@
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -311,6 +312,12 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
                     argList(constructor.arguments()));
             SkASSERT(inlinedCtor);
             return inlinedCtor;
+        }
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            const ConstructorDiagonalMatrix& ctor = expression.as<ConstructorDiagonalMatrix>();
+            return ConstructorDiagonalMatrix::Make(*fContext, offset,
+                                                   *ctor.type().clone(symbolTableForExpression),
+                                                   expr(ctor.argument()));
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
@@ -911,6 +918,11 @@ public:
                 for (std::unique_ptr<Expression>& arg : constructorExpr.arguments()) {
                     this->visitExpression(&arg);
                 }
+                break;
+            }
+            case Expression::Kind::kConstructorDiagonalMatrix: {
+                ConstructorDiagonalMatrix& ctorExpr = (*expr)->as<ConstructorDiagonalMatrix>();
+                this->visitExpression(&ctorExpr.argument());
                 break;
             }
             case Expression::Kind::kExternalFunctionCall: {

@@ -10,6 +10,7 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 
@@ -38,6 +39,16 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
                 if (prefix.getOperator().kind() == Token::Kind::TK_MINUS) {
                     return std::move(prefix.operand());
                 }
+            }
+            break;
+
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            // Convert `-matrix(literal)` into `matrix(-literal)`.
+            if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
+                ConstructorDiagonalMatrix& ctor = operand->as<ConstructorDiagonalMatrix>();
+                return ConstructorDiagonalMatrix::Make(
+                        context, ctor.fOffset, ctor.type(),
+                        negate_operand(context, std::move(ctor.argument())));
             }
             break;
 
@@ -166,11 +177,10 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
             break;
 
         default:
-            SK_ABORT("unsupported prefix operator\n");
+            SK_ABORT("unsupported prefix operator");
     }
 
     return PrefixExpression::Make(context, op, std::move(base));
-
 }
 
 std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Operator op,

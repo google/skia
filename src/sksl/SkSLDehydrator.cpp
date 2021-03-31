@@ -16,6 +16,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -281,6 +282,13 @@ void Dehydrator::write(const Expression* e) {
                 for (const auto& a : c.arguments()) {
                     this->write(a.get());
                 }
+                break;
+            }
+            case Expression::Kind::kConstructorDiagonalMatrix: {
+                const ConstructorDiagonalMatrix& c = e->as<ConstructorDiagonalMatrix>();
+                this->writeCommand(Rehydrator::kConstructorDiagonalMatrix_Command);
+                this->write(c.type());
+                this->write(c.argument().get());
                 break;
             }
             case Expression::Kind::kExternalFunctionCall:

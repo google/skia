@@ -41,6 +41,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -99,8 +100,9 @@ protected:
                 } else if (lastArg->type() == *fContext.fTypes.fFloat3x3) {
                     // Determine the type of matrix for this call site
                     if (lastArg->isConstantOrUniform()) {
-                        if (lastArg->kind() == Expression::Kind::kVariableReference ||
-                            lastArg->kind() == Expression::Kind::kConstructor) {
+                        if (lastArg->is<VariableReference>() ||
+                            lastArg->is<Constructor>() ||
+                            lastArg->is<ConstructorDiagonalMatrix>()) {
                             // FIXME if this is a constant, we should parse the float3x3 constructor
                             // and determine if the resulting matrix introduces perspective.
                             fUsage.merge(SampleUsage::UniformMatrix(lastArg->description()));
@@ -759,6 +761,11 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
             }
             return true;
         }
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            const ConstructorDiagonalMatrix& leftCtor = left.as<ConstructorDiagonalMatrix>();
+            const ConstructorDiagonalMatrix& rightCtor = right.as<ConstructorDiagonalMatrix>();
+            return IsSameExpressionTree(*leftCtor.argument(), *rightCtor.argument());
+        }
         case Expression::Kind::kFieldAccess:
             return left.as<FieldAccess>().fieldIndex() == right.as<FieldAccess>().fieldIndex() &&
                    IsSameExpressionTree(*left.as<FieldAccess>().base(),
@@ -1012,6 +1019,7 @@ public:
             // ... expressions composed of both of the above
             case Expression::Kind::kBinary:
             case Expression::Kind::kConstructor:
+            case Expression::Kind::kConstructorDiagonalMatrix:
             case Expression::Kind::kFieldAccess:
             case Expression::Kind::kIndex:
             case Expression::Kind::kPrefix:
@@ -1139,6 +1147,9 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
                 if (this->visitExpressionPtr(arg)) { return true; }
             }
             return false;
+        }
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            return this->visitExpressionPtr(e.template as<ConstructorDiagonalMatrix>().argument());
         }
         case Expression::Kind::kExternalFunctionCall: {
             auto& c = e.template as<ExternalFunctionCall>();

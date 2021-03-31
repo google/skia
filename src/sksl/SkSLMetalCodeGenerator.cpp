@@ -171,6 +171,10 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
         case Expression::Kind::kConstructor:
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(),
+                                                 parentPrecedence);
+            break;
         case Expression::Kind::kIntLiteral:
             this->writeIntLiteral(expr.as<IntLiteral>());
             break;
@@ -1102,6 +1106,14 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
         }
     }
     this->write(constructorType.isArray() ? "}" : ")");
+}
+
+void MetalCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                                        Precedence parentPrecedence) {
+    this->writeType(c.type());
+    this->write("(");
+    this->writeExpression(*c.argument(), Precedence::kSequence);
+    this->write(")");
 }
 
 void MetalCodeGenerator::writeFragCoord() {
@@ -2233,6 +2245,9 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
                 result |= this->requirements(arg.get());
             }
             return result;
+        }
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            return this->requirements(e->as<ConstructorDiagonalMatrix>().argument().get());
         }
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = e->as<FieldAccess>();
