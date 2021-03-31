@@ -26,6 +26,7 @@ public:
             , fProcessors(std::move(paint)) {
         this->setBounds(SkRect::Make(devIBounds), HasAABloat::kYes, IsHairline::kNo);
     }
+    ~GrDrawAtlasPathOp() override;
 
     const char* name() const override { return "GrDrawAtlasPathOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override {
@@ -37,7 +38,7 @@ public:
     }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) override;
-    CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
     void onPrepare(GrOpFlushState*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 

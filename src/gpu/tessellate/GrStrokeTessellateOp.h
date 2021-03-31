@@ -20,6 +20,7 @@ class GrRecordingContext;
 class GrStrokeTessellateOp : public GrDrawOp {
 public:
     GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
+    ~GrStrokeTessellateOp() override;
 
 private:
     using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
@@ -56,7 +57,7 @@ private:
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) override;
-    CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
 
     // Creates the tessellator and the stencil/fill program(s) we will use with it.
     void prePrepareTessellator(GrPathShader::ProgramArgs&&, GrAppliedClip&&);

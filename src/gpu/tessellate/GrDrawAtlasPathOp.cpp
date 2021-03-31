@@ -113,6 +113,14 @@ GrGLSLGeometryProcessor* DrawAtlasPathShader::createGLSLInstance(const GrShaderC
 
 }  // namespace
 
+GrDrawAtlasPathOp::~GrDrawAtlasPathOp() {
+    for (auto cur = fInstanceList.fNext; cur; ) {
+        auto next = cur->fNext;
+        delete cur;
+        cur = next;
+    }
+}
+
 GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                                      bool hasMixedSampledCoverage,
                                                      GrClampType clampType) {
@@ -124,8 +132,7 @@ GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const G
     return analysis;
 }
 
-GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
-        GrOp* op, SkArenaAlloc* alloc, const GrCaps&) {
+GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
     auto* that = op->cast<GrDrawAtlasPathOp>();
     SkASSERT(fAtlasProxy == that->fAtlasProxy);
     SkASSERT(fEnableHWAA == that->fEnableHWAA);
@@ -135,7 +142,7 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
     }
 
     SkASSERT(fUsesLocalCoords == that->fUsesLocalCoords);
-    auto* copy = alloc->make<InstanceList>(that->fInstanceList);
+    auto* copy = new InstanceList(that->fInstanceList);
     *fInstanceTail = copy;
     fInstanceTail = (!copy->fNext) ? &copy->fNext : that->fInstanceTail;
     fInstanceCount += that->fInstanceCount;

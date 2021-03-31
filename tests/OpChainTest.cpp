@@ -139,10 +139,7 @@ private:
         }
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc* arenas, const GrCaps&) override {
-        // This op doesn't use the arenas, but make sure the GrOpsTask is sending it
-        SkASSERT(arenas);
-        (void) arenas;
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override {
         auto that = t->cast<TestOp>();
         int v0 = fValueRanges[0].fValue;
         int v1 = that->fValueRanges[0].fValue;
@@ -220,7 +217,6 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                           dContext->priv().resourceProvider(),
                                           &tracker);
                 GrOpsTask opsTask(drawingMgr,
-                                  dContext->priv().arenas(),
                                   GrSurfaceProxyView(proxy, kOrigin, writeSwizzle),
                                   dContext->priv().auditTrail());
                 // This assumes the particular values of kRanges.
