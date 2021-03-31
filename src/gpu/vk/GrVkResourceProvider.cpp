@@ -398,7 +398,7 @@ void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet
 }
 
 GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
-    std::unique_lock<std::recursive_mutex> lock(fBackgroundMutex);
+    SkAutoMutexExclusive lock(fBackgroundMutex);
     GrVkCommandPool* result;
     if (fAvailableCommandPools.count()) {
         result = fAvailableCommandPools.back();
@@ -506,11 +506,14 @@ void GrVkResourceProvider::destroyResources() {
     }
     fActiveCommandPools.reset();
 
-    for (GrVkCommandPool* pool : fAvailableCommandPools) {
-        SkASSERT(pool->unique());
-        pool->unref();
+    {
+        SkAutoMutexExclusive lock(fBackgroundMutex);
+        for (GrVkCommandPool* pool : fAvailableCommandPools) {
+            SkASSERT(pool->unique());
+            pool->unref();
+        }
+        fAvailableCommandPools.reset();
     }
-    fAvailableCommandPools.reset();
 
     // We must release/destroy all command buffers and pipeline states before releasing the
     // GrVkDescriptorSetManagers. Additionally, we must release all uniform buffers since they hold
@@ -523,7 +526,7 @@ void GrVkResourceProvider::destroyResources() {
 }
 
 void GrVkResourceProvider::releaseUnlockedBackendObjects() {
-    std::unique_lock<std::recursive_mutex> lock(fBackgroundMutex);
+    SkAutoMutexExclusive lock(fBackgroundMutex);
     for (GrVkCommandPool* pool : fAvailableCommandPools) {
         SkASSERT(pool->unique());
         pool->unref();
@@ -556,7 +559,7 @@ void GrVkResourceProvider::reset(GrVkCommandPool* pool) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(pool->unique());
     pool->reset(fGpu);
-    std::unique_lock<std::recursive_mutex> providerLock(fBackgroundMutex);
+    SkAutoMutexExclusive lock(fBackgroundMutex);
     fAvailableCommandPools.push_back(pool);
 }
 
