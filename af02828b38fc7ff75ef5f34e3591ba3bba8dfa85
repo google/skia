@@ -52,6 +52,24 @@
       "parentUuid": "12b04d36_2c6fb168",
       "revId": "af02828b38fc7ff75ef5f34e3591ba3bba8dfa85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1a9dbd3_86a1c170",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-31T13:20:49Z",
+      "side": 1,
+      "message": "Oh weird that is extra weird. Yeah, I have that same thought before about accessing the size. Though maybe it is not super effecient to get at given the existence of sized delete.",
+      "parentUuid": "207a4365_16043eab",
+      "revId": "af02828b38fc7ff75ef5f34e3591ba3bba8dfa85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
