@@ -16,6 +16,24 @@
       "message": "I wonder if we should try two other things before giving up on GPU blur:\n\n1) The 1D kernel effect currently unrolls its loop. We could try rerolling it.\n\n2) Reducing kMaxSigma (making it a runtime rather than compile time value).",
       "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d01bc7a_a6d31575",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-03-31T14:14:58Z",
+      "side": 1,
+      "message": "I agree that we should try other options before disabling GPU blur entirely. Right now, image filtering has the guarantee that if you start with a GPU image, all filtering occurs on the GPU. It would be nice to preserve that.\n\nDo we know if this is specific to backdrop filtering + blurs? Or is it any blur? If it\u0027s the backdrop blur and the original content was drawn to the main framebuffer, it may be an issue with reading it back as a texture to evaluate the blur.",
+      "parentUuid": "1d7de987_e89a6f99",
+      "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
