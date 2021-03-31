@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53b47332_acf266c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-03-31T19:01:38Z",
+      "side": 1,
+      "message": "I think it would read even better if we had Type::isFragmentProcessor instead of needing to check typeKind()\u003d\u003dkFragmentProcessor, but that\u0027s totally up to you. ",
+      "revId": "0dfc75c918c81b896a3b558e4053d5ee479f8011",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
