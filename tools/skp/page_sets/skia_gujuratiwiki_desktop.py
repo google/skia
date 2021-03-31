@@ -1,4 +1,4 @@
-# Copyright 2014 The Chromium Authors. All rights reserved.
+# Copyright 2021 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 # pylint: disable=W0401,W0614
@@ -17,7 +17,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         name=url,
         page_set=page_set,
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
-    self.archive_data_file = 'data/skia_intelwiki_desktop.json'
+    self.archive_data_file = 'data/skia_gujuratiwiki_desktop.json'
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
@@ -28,17 +28,17 @@ class SkiaBuildbotDesktopPage(page_module.Page):
       action_runner.ScrollPage()
 
 
-class SkiaIntelwikiDesktopPageSet(story.StorySet):
+class SkiaGujuratiwikiDesktopPageSet(story.StorySet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaIntelwikiDesktopPageSet, self).__init__(
-      archive_data_file='data/skia_intelwiki_desktop.json')
+    super(SkiaGujuratiwikiDesktopPageSet, self).__init__(
+      archive_data_file='data/skia_gujuratiwiki_desktop.json')
 
     urls_list = [
-      # go/skia-skps-3-19
-      'https://en.wikipedia.org/wiki/Intel_Graphics_Technology',
+      # skbug.com/11819
+      'https://en.wikipedia.org/wiki/Gujarati_phonology',
     ]
 
     for url in urls_list:
