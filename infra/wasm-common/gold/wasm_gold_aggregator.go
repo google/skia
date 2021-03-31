@@ -25,6 +25,7 @@ import (
 	"strings"
 	"sync"
 
+	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/golden/go/jsonio"
 	"go.skia.org/infra/golden/go/types"
 )
@@ -36,7 +37,6 @@ var (
 	outDir = flag.String("out_dir", "/OUT/", "location to dump the Gold JSON and pngs")
 	port   = flag.String("port", "8081", "Port to listen on.")
 
-	botId            = flag.String("bot_id", "", "swarming bot id (deprecated/unused)")
 	browser          = flag.String("browser", "Chrome", "Browser Key")
 	buildBucketID    = flag.String("buildbucket_build_id", "", "Buildbucket build id key")
 	builder          = flag.String("builder", "", "Builder, like 'Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit'")
@@ -46,7 +46,6 @@ var (
 	hostOS           = flag.String("host_os", "Debian9", "OS Key")
 	issue            = flag.String("issue", "", "ChangelistID (if tryjob)")
 	patchset         = flag.Int("patchset", 0, "patchset (if tryjob)")
-	taskId           = flag.String("task_id", "", "swarming task id")
 	sourceType       = flag.String("source_type", "pathkit", "Gold Source type, like pathkit,canvaskit")
 )
 
@@ -104,7 +103,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only POST accepted", 400)
 		return
 	}
-	defer r.Body.Close()
+	defer util.Close(r.Body)
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -168,25 +167,27 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 
 	p := path.Join(*outDir, JSON_FILENAME)
 	outputFile, err := createOutputFile(p)
-	defer outputFile.Close()
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Could not open json file on disk", 500)
 		return
 	}
+	defer util.Close(outputFile)
 
 	dmresults := jsonio.GoldResults{
-		Builder:                     *builder,
-		ChangelistID:                *issue,
-		CodeReviewSystem:            "gerrit",
-		ContinuousIntegrationSystem: "buildbucket",
-		GitHash:                     *gitHash,
-		Key:                         defaultKeys,
-		PatchsetOrder:               *patchset,
-		Results:                     results,
-		TaskID:                      *taskId,
-		TryJobID:                    *buildBucketID,
+		GitHash: *gitHash,
+		Key:     defaultKeys,
+		Results: results,
 	}
+
+	if *patchset > 0 {
+		dmresults.ChangelistID = *issue
+		dmresults.PatchsetOrder = *patchset
+		dmresults.CodeReviewSystem = "gerrit"
+		dmresults.ContinuousIntegrationSystem = "buildbucket"
+		dmresults.TryJobID = *buildBucketID
+	}
+
 	enc := json.NewEncoder(outputFile)
 	enc.SetIndent("", "  ") // Make it human readable.
 	if err := enc.Encode(&dmresults); err != nil {
@@ -234,12 +235,12 @@ func writeBase64EncodedPNG(data string) (string, error) {
 
 	p := path.Join(*outDir, hash+".png")
 	outputFile, err := createOutputFile(p)
-	defer outputFile.Close()
 	if err != nil {
 		return "", fmt.Errorf("Could not create png file %s: %s", p, err)
 	}
 	if _, err = outputFile.Write(pngBytes); err != nil {
+		util.Close(outputFile)
 		return "", fmt.Errorf("Could not write to file %s: %s", p, err)
 	}
-	return hash, nil
+	return hash, outputFile.Close()
 }
