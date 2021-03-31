@@ -48,7 +48,7 @@ private:
               std::array<float, 4> color,
               bool stencil);
 
-    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView& writeView, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,

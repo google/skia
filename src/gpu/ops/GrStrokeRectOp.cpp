@@ -482,7 +482,7 @@ private:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
 
-    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     void generateAAStrokeRectGeometry(GrVertexWriter& vertices,
                                       const SkPMColor4f& color,
@@ -696,7 +696,7 @@ sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* reso
     }
 }
 
-GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps)
+GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps)
 {
     AAStrokeRectOp* that = t->cast<AAStrokeRectOp>();
 
