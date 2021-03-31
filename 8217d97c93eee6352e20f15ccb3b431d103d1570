@@ -34,6 +34,24 @@
       "parentUuid": "1d7de987_e89a6f99",
       "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6123464_919f6a80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-31T14:27:01Z",
+      "side": 1,
+      "message": "The linked bug mentions the failure is due to exceeding the shader instruction limit.",
+      "parentUuid": "5d01bc7a_a6d31575",
+      "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
