@@ -76,6 +76,7 @@ public:
     enum class TypeKind {
         kArray,
         kEnum,
+        kFragmentProcessor,
         kGeneric,
         kMatrix,
         kOther,
@@ -216,11 +217,12 @@ public:
      */
     bool isOpaque() const {
         switch (fTypeKind) {
+            case TypeKind::kFragmentProcessor:
             case TypeKind::kOther:
-            case TypeKind::kVoid:
             case TypeKind::kSampler:
             case TypeKind::kSeparateSampler:
             case TypeKind::kTexture:
+            case TypeKind::kVoid:
                 return true;
             default:
                 return false;
@@ -354,6 +356,10 @@ public:
         return fTypeKind == TypeKind::kEnum;
     }
 
+    bool isFragmentProcessor() const {
+        return fTypeKind == TypeKind::kFragmentProcessor;
+    }
+
     bool isMultisampled() const {
         SkASSERT(TypeKind::kSampler == fTypeKind || TypeKind::kTexture == fTypeKind);
         return fIsMultisampled;
@@ -395,14 +401,15 @@ private:
 
     using INHERITED = Symbol;
 
-    // Constructor for MakeOtherType.
-    Type(const char* name)
+    // Constructor for MakeFragmentProcessorType, MakeOtherType, MakeSeparateSamplerType,
+    // and MakeVoidType.
+    Type(const char* name, const char* abbrev, TypeKind kind)
             : INHERITED(-1, kSymbolKind, name)
-            , fAbbreviatedName("O")
-            , fTypeKind(TypeKind::kOther)
+            , fAbbreviatedName(abbrev)
+            , fTypeKind(kind)
             , fNumberKind(NumberKind::kNonnumeric) {}
 
-    // Constructor for MakeVoidType, MakeEnumType and MakeSeparateSamplerType.
+    // Constructor for MakeEnumType.
     Type(String name, const char* abbrev, TypeKind kind)
             : INHERITED(-1, kSymbolKind, "")
             , fAbbreviatedName(abbrev)

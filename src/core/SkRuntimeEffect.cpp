@@ -183,7 +183,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
                                             : 1});
             }
             // Fragment Processors (aka 'shader'): These are child effects
-            else if (&varType == ctx.fTypes.fFragmentProcessor.get()) {
+            else if (varType.isFragmentProcessor()) {
                 children.push_back(var.name());
                 sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
             }
