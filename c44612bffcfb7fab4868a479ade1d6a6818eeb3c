@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92bfd4a5_80569240",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-31T19:46:20Z",
+      "side": 1,
+      "message": "Hey we had a bad merge here, with SKPs updating between when you wrote this and landed it.\nCan you sync and run `make -C infra/bots train` again to pick up the newest .skps?",
+      "revId": "c44612bffcfb7fab4868a479ade1d6a6818eeb3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
