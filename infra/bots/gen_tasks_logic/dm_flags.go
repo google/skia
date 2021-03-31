@@ -214,14 +214,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		args = append(args, "--nocpu")
 
 		// Add in either gles or gl configs to the canonical set based on OS
-		sampleCount = 8
 		glPrefix = "gl"
+		// Use 4x MSAA for all our testing. It's more consistent and 8x MSAA is nondeterministic (by
+		// design) on NVIDIA hardware. The problem is especially bad on ANGLE.  skia:6813 skia:6545
+		sampleCount = 4
 		if b.os("Android", "iOS") {
-			sampleCount = 4
-			// We want to test the OpenGL config not the GLES config on the Shield
-			if !b.model("NVIDIA_Shield") {
-				glPrefix = "gles"
-			}
+			glPrefix = "gles"
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
 			if b.model("Pixel3a") {
 				sampleCount = 0
@@ -229,11 +227,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		} else if b.matchGpu("Intel") {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
 			sampleCount = 0
-		} else if b.matchGpu("GTX", "Quadro") && b.extraConfig("ANGLE") {
-			// 8x MSAA is nondeterministic (by design) on NVIDIA hardware.
-			// The problem is especially bad on ANGLE, so use 4x instead.
-			// skia:6813 skia:6545
-			sampleCount = 4
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
 		}
@@ -361,24 +354,16 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
-			if b.os("Android") {
+			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
+			if !b.matchGpu("Intel") {
 				configs = append(configs, "vkmsaa4")
-			} else {
-				// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
-				if !b.matchGpu("Intel") {
-					configs = append(configs, "vkmsaa8")
-				}
 			}
 		}
 		if b.extraConfig("Metal") {
 			configs = []string{"mtl"}
-			if b.os("iOS") {
+			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
+			if !b.matchGpu("Intel") {
 				configs = append(configs, "mtlmsaa4")
-			} else {
-				// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
-				if !b.matchGpu("Intel") {
-					configs = append(configs, "mtlmsaa8")
-				}
 			}
 		}
 		if b.extraConfig("Direct3D") {
