@@ -24,6 +24,7 @@ SkDeferredDisplayList::SkDeferredDisplayList(const SkSurfaceCharacterization& ch
                                              sk_sp<LazyProxyData> lazyProxyData)
         : fCharacterization(characterization)
 #if SK_SUPPORT_GPU
+        , fArenas(true)
         , fTargetProxy(std::move(targetProxy))
         , fLazyProxyData(std::move(lazyProxyData))
 #endif
