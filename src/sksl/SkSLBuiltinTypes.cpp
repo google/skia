@@ -83,12 +83,17 @@ std::unique_ptr<Type> BuiltinTypes::MakeVoidType(const char* name) {
     return std::unique_ptr<Type>(new Type(name, "v", Type::TypeKind::kVoid));
 }
 
+/** Create a fragment processor type. */
+std::unique_ptr<Type> BuiltinTypes::MakeFragmentProcessorType(const char* name) {
+    return std::unique_ptr<Type>(new Type(name, "fp", Type::TypeKind::kFragmentProcessor));
+}
+
 /**
  * Create an "other" (special) type with the given name. These types cannot be directly
  * referenced from user code.
  */
 std::unique_ptr<Type> BuiltinTypes::MakeOtherType(const char* name) {
-    return std::unique_ptr<Type>(new Type(name));
+    return std::unique_ptr<Type>(new Type(name, "O", Type::TypeKind::kOther));
 }
 
 /**
@@ -261,6 +266,6 @@ BuiltinTypes::BuiltinTypes()
         , fBVec(MakeGenericType("$bvec",
                                 {fInvalid.get(), fBool2.get(), fBool3.get(), fBool4.get()}))
         , fSkCaps(MakeOtherType("$sk_Caps"))
-        , fFragmentProcessor(MakeOtherType("fragmentProcessor")) {}
+        , fFragmentProcessor(MakeFragmentProcessorType("fragmentProcessor")) {}
 
 }  // namespace SkSL

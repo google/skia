@@ -47,7 +47,7 @@ public:
                 if (var.type().isOpaque()) {
                     // Nothing to do. The only opaque type we should see is fragmentProcessor, and
                     // those (children) are handled specially, above.
-                    SkASSERT(var.type() == *fContext.fTypes.fFragmentProcessor);
+                    SkASSERT(var.type().isFragmentProcessor());
                     return String(var.name());
                 }
 
