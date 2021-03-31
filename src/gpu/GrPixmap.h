@@ -30,6 +30,7 @@ public:
     GrColorType colorType() const { return fInfo.colorType(); }
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fInfo.refColorSpace(); }
 
     /**
      * Map this pixmap to a rect in a surface of indicated dimensions at offset surfacePt. Clip the

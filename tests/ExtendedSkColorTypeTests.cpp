@@ -10,6 +10,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/gpu/GrPixmap.h"
 
 #include "tests/Test.h"
 #include "tests/TestUtils.h"

@@ -155,38 +155,37 @@ static bool compare_colors(int x, int y,
     return true;
 }
 
-bool ComparePixels(const GrImageInfo& infoA, const char* a, size_t rowBytesA,
-                   const GrImageInfo& infoB, const char* b, size_t rowBytesB,
-                   const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
-    if (infoA.dimensions() != infoB.dimensions()) {
+bool ComparePixels(const GrCPixmap& a,
+                   const GrCPixmap& b,
+                   const float tolRGBA[4],
+                   std::function<ComparePixmapsErrorReporter>& error) {
+    if (a.dimensions() != b.dimensions()) {
         static constexpr float kDummyDiffs[4] = {};
         error(-1, -1, kDummyDiffs);
         return false;
     }
 
-    SkAlphaType floatAlphaType = infoA.alphaType();
+    SkAlphaType floatAlphaType = a.alphaType();
     // If one is premul and the other is unpremul we do the comparison in premul space.
-    if ((infoA.alphaType() == kPremul_SkAlphaType ||
-         infoB.alphaType() == kPremul_SkAlphaType) &&
-        (infoA.alphaType() == kUnpremul_SkAlphaType ||
-         infoB.alphaType() == kUnpremul_SkAlphaType)) {
+    if ((a.alphaType() == kPremul_SkAlphaType   || b.alphaType() == kPremul_SkAlphaType) &&
+        (a.alphaType() == kUnpremul_SkAlphaType || b.alphaType() == kUnpremul_SkAlphaType)) {
         floatAlphaType = kPremul_SkAlphaType;
     }
     sk_sp<SkColorSpace> floatCS;
-    if (SkColorSpace::Equals(infoA.colorSpace(), infoB.colorSpace())) {
-        floatCS = infoA.refColorSpace();
+    if (SkColorSpace::Equals(a.colorSpace(), b.colorSpace())) {
+        floatCS = a.refColorSpace();
     } else {
         floatCS = SkColorSpace::MakeSRGBLinear();
     }
     GrImageInfo floatInfo(GrColorType::kRGBA_F32,
                           floatAlphaType,
                           std::move(floatCS),
-                          infoA.dimensions());
+                          a.dimensions());
 
     GrPixmap floatA = GrPixmap::Allocate(floatInfo);
     GrPixmap floatB = GrPixmap::Allocate(floatInfo);
-    SkAssertResult(GrConvertPixels(floatA, GrCPixmap(infoA, a, rowBytesA)));
-    SkAssertResult(GrConvertPixels(floatB, GrCPixmap(infoB, b, rowBytesB)));
+    SkAssertResult(GrConvertPixels(floatA, a));
+    SkAssertResult(GrConvertPixels(floatB, b));
 
     SkASSERT(floatA.rowBytes() == floatB.rowBytes());
     auto at = [rb = floatA.rowBytes()](const void* base, int x, int y) {
@@ -203,13 +202,6 @@ bool ComparePixels(const GrImageInfo& infoA, const char* a, size_t rowBytesA,
         }
     }
     return true;
-}
-
-bool ComparePixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
-                   std::function<ComparePixmapsErrorReporter>& error) {
-    return ComparePixels(a.info(), static_cast<const char*>(a.addr()), a.rowBytes(),
-                         b.info(), static_cast<const char*>(b.addr()), b.rowBytes(),
-                         tolRGBA, error);
 }
 
 bool CheckSolidPixels(const SkColor4f& col,
