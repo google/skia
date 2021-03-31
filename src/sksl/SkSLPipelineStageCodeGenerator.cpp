@@ -142,7 +142,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const ExpressionArray& arguments = c.arguments();
     if (function.isBuiltin() && function.name() == "sample") {
         SkASSERT(arguments.size() <= 2);
-        SkASSERT("fragmentProcessor" == arguments[0]->type().name());
+        SkASSERT(arguments[0]->type().typeKind() == Type::TypeKind::kFragmentProcessor);
         SkASSERT(arguments[0]->is<VariableReference>());
         int index = 0;
         bool found = false;
@@ -152,7 +152,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
                 if (&decl.var() == arguments[0]->as<VariableReference>().variable()) {
                     found = true;
-                } else if (decl.var().type() == *fProgram.fContext->fTypes.fFragmentProcessor) {
+                } else if (decl.var().type().typeKind() == Type::TypeKind::kFragmentProcessor) {
                     ++index;
                 }
             }
@@ -222,7 +222,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 // Skip over fragmentProcessors (shaders).
                 // These are indexed separately from other globals.
                 if (var.modifiers().fFlags & flag &&
-                    var.type() != *fProgram.fContext->fTypes.fFragmentProcessor) {
+                    var.type().typeKind() != Type::TypeKind::kFragmentProcessor) {
                     ++index;
                 }
             }

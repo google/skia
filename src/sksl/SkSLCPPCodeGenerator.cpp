@@ -353,7 +353,7 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
                                   p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
             if (&decl.var() == &var) {
                 return index;
-            } else if (decl.var().type() == *fContext.fTypes.fFragmentProcessor) {
+            } else if (decl.var().type().typeKind() == Type::TypeKind::kFragmentProcessor) {
                 ++index;
             }
         }
@@ -375,7 +375,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         // Validity checks that are detected by function definition in sksl_fp.inc
         SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
-        SkASSERT("fragmentProcessor"  == arguments[0]->type().name());
+        SkASSERT(arguments[0]->type().typeKind() == Type::TypeKind::kFragmentProcessor);
 
         // Actually fail during compilation if arguments with valid types are
         // provided that are not variable references, since sample() is a
@@ -669,7 +669,7 @@ void CPPCodeGenerator::writePrivateVars() {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
             const Variable& var = global.declaration()->as<VarDeclaration>().var();
             if (is_private(var)) {
-                if (var.type() == *fContext.fTypes.fFragmentProcessor) {
+                if (var.type().typeKind() == Type::TypeKind::kFragmentProcessor) {
                     fErrors.error(global.fOffset,
                                   "fragmentProcessor variables must be declared 'in'");
                     return;
@@ -719,7 +719,8 @@ void CPPCodeGenerator::writePrivateVarValues() {
 
 static bool is_accessible(const Variable& var) {
     const Type& type = var.type();
-    return Type::TypeKind::kSampler != type.typeKind() &&
+    return Type::TypeKind::kFragmentProcessor != type.typeKind() &&
+           Type::TypeKind::kSampler != type.typeKind() &&
            Type::TypeKind::kOther != type.typeKind();
 }
 
@@ -1089,14 +1090,14 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                                     "        (void) %s;\n",
                                     name, HCodeGenerator::FieldName(name).c_str(), name);
                 } else if (SectionAndParameterHelper::IsParameter(variable) &&
-                            variable.type() != *fContext.fTypes.fFragmentProcessor) {
+                           variable.type().typeKind() != Type::TypeKind::kFragmentProcessor) {
                     if (!wroteProcessor) {
                         this->writef("        const %s& _outer = _proc.cast<%s>();\n", fullName,
                                      fullName);
                         wroteProcessor = true;
                     }
 
-                    if (variable.type() != *fContext.fTypes.fFragmentProcessor) {
+                    if (variable.type().typeKind() != Type::TypeKind::kFragmentProcessor) {
                         this->writef("        auto %s = _outer.%s;\n"
                                         "        (void) %s;\n",
                                         name, name, name);
@@ -1143,7 +1144,7 @@ void CPPCodeGenerator::writeClone() {
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->name()).c_str());
-            if (param->type() != *fContext.fTypes.fFragmentProcessor) {
+            if (param->type().typeKind() != Type::TypeKind::kFragmentProcessor) {
                 this->writef("\n, %s(src.%s)",
                              fieldName.c_str(),
                              fieldName.c_str());
@@ -1187,7 +1188,7 @@ void CPPCodeGenerator::writeDumpInfo() {
 
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             // dumpInfo() doesn't need to log child FPs.
-            if (param->type() == *fContext.fTypes.fFragmentProcessor) {
+            if (param->type().typeKind() == Type::TypeKind::kFragmentProcessor) {
                 continue;
             }
 
@@ -1424,7 +1425,7 @@ bool CPPCodeGenerator::generateCode() {
                  "    (void) that;\n",
                  fullName, fullName, fullName);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->type() == *fContext.fTypes.fFragmentProcessor) {
+        if (param->type().typeKind() == Type::TypeKind::kFragmentProcessor) {
             continue;
         }
         String nameString(param->name());
