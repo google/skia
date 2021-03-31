@@ -12,7 +12,7 @@ SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity
       : fCount(count), fData(count)
 {
     SkASSERT(data);
-    *data = fData;
+    *data = fData.get();
 }
 
 SkRemotableFontIdentitySet* SkRemotableFontIdentitySet::NewEmpty() {
