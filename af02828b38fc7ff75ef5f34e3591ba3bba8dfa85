@@ -16,6 +16,24 @@
       "message": "No reason for me to not do the obvious next thing as a follow-up right?",
       "revId": "af02828b38fc7ff75ef5f34e3591ba3bba8dfa85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12b04d36_2c6fb168",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-03-31T13:09:59Z",
+      "side": 1,
+      "message": "I can think of two 1) Replace all remaining instances with the Auto[S]TArray and delete AutoS[T]Malloc or 2) make Auto[S]TMalloc call destructors/constructors using and use new/delete instead of malloc/free. I\u0027d be fine with either.\n\nI forgot to add when I first sent out for review:\nOther than constructors/destructors, Auto[S]TArray is a little different in that it stores a count while Auto[S]TMalloc does not.",
+      "parentUuid": "d12097a9_f84c2a6c",
+      "revId": "af02828b38fc7ff75ef5f34e3591ba3bba8dfa85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
