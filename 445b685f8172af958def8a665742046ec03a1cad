@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c2eeeec_3ecd143f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-31T18:05:33Z",
+      "side": 1,
+      "message": "Ah, I had missed that it was angle_gl (not angle_d3d), but that makes sense.",
+      "revId": "445b685f8172af958def8a665742046ec03a1cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
