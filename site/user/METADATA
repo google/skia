@@ -1,4 +1,0 @@
-{
-  "dirOrder": ["sample", "release", "modules", "quick", "api", "special"],
-  "fileOrder": ["download", "build"]
-}
