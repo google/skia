@@ -532,6 +532,7 @@ static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
 sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
                                                        SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
+    auto context = ctx.getContext();
 
     sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
@@ -564,7 +565,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const Context& ctx,
 
     sk_sp<SkSpecialImage> result;
 #if SK_SUPPORT_GPU
-    if (ctx.gpuBacked()) {
+    if (ctx.gpuBacked() && !context->priv().caps()->disableGpuBlur()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());

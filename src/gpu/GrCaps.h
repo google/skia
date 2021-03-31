@@ -117,6 +117,8 @@ public:
     // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
     bool nativeDrawIndexedIndirectIsBroken() const { return fNativeDrawIndexedIndirectIsBroken; }
 
+    bool disableGpuBlur() const { return fDisableGpuBlur; }
+
     /**
      * Indicates the capabilities of the fixed function blend unit.
      */
@@ -531,6 +533,9 @@ protected:
     bool fAvoidWritePixelsFastPath                   : 1;
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
+
+    // Disable GPU blur on older chipsets that break it
+    bool fDisableGpuBlur                             : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

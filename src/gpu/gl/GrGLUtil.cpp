@@ -498,6 +498,10 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         if (is_renderer_angle(rendererString)) {
             return kANGLE_GrGLRenderer;
         }
+
+        if (strstr(rendererString, "i915")) {
+          return kIntel915_GrGLRenderer;
+        }
     }
     return kOther_GrGLRenderer;
 }

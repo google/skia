@@ -138,6 +138,10 @@ enum GrGLRenderer {
     kAMDRadeonPro5xxx_GrGLRenderer,   // AMD Radeon Pro 5000 Series
     kAMDRadeonProVegaxx_GrGLRenderer, // AMD Radeon Pro Vega
 
+    // i915 Pentium 4 Grantsdale chipset (released 2004-2005)
+    // Not to be confused with Intel i915 graphics driver
+    kIntel915_GrGLRenderer,
+
     kOther_GrGLRenderer
 };
 
