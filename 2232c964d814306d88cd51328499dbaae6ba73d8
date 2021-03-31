@@ -16,6 +16,24 @@
       "message": "lgtm but I notice the drawPatch on Gold has something quite different for the CPU backend than the GPU backend. Is that expected? https://gold.skia.org/search?issue\u003d388837\u0026crs\u003dgerrit\u0026corpus\u003dcanvaskit",
       "revId": "2232c964d814306d88cd51328499dbaae6ba73d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a00cf9c2_9232f4c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-03-31T14:50:01Z",
+      "side": 1,
+      "message": "Not expected at all -- don\u0027t know if the image load failed on CPU, or there is a bug in skia...",
+      "parentUuid": "3b3c789c_801f36c7",
+      "revId": "2232c964d814306d88cd51328499dbaae6ba73d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
