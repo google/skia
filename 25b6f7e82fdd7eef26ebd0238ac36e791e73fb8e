@@ -72,6 +72,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c38cc40f_715122fc",
+        "filename": "src/gpu/GrVertexChunkArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-31T14:33:06Z",
+      "side": 1,
+      "message": "Maybe move this up a line to match the order in the dtor ?",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 64
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90239af8_66ad70c5",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-31T14:33:06Z",
+      "side": 1,
+      "message": "a quarter of the ?",
+      "range": {
+        "startLine": 693,
+        "startChar": 39,
+        "endLine": 693,
+        "endChar": 46
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0a21f55d_d9cedb0f",
         "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.h",
         "patchSetId": 2
@@ -134,6 +180,29 @@
         "startChar": 55,
         "endLine": 32,
         "endChar": 56
+      },
+      "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56ead5e3_fe68d193",
+        "filename": "src/gpu/tessellate/GrStrokeTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-03-31T14:33:06Z",
+      "side": 1,
+      "message": "here too ?",
+      "range": {
+        "startLine": 32,
+        "startChar": 63,
+        "endLine": 32,
+        "endChar": 64
       },
       "revId": "25b6f7e82fdd7eef26ebd0238ac36e791e73fb8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
