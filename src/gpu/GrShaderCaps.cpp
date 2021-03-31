@@ -54,6 +54,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFloatIs32Bits = true;
     fHalfIs32Bits = false;
     fHasLowFragmentPrecision = false;
+    fEnableSkSLInliner = false;
     fColorSpaceMathNeedsFloat = false;
     fBuiltinFMASupport = false;
     fBuiltinDeterminantSupport = false;
@@ -135,6 +136,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("float == fp32", fFloatIs32Bits);
     writer->appendBool("half == fp32", fHalfIs32Bits);
     writer->appendBool("Has poor fragment precision", fHasLowFragmentPrecision);
+    writer->appendBool("Inlines helper functions in compiled SkSL", fEnableSkSLInliner);
     writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
     writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
     writer->appendBool("Builtin determinant() support", fBuiltinDeterminantSupport);
