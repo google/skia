@@ -9,6 +9,7 @@
 #define GrVkResourceProvider_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/SkMutex.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
@@ -25,9 +26,6 @@
 #include "src/gpu/vk/GrVkSampler.h"
 #include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
 #include "src/gpu/vk/GrVkUtil.h"
-
-#include <mutex>
-#include <thread>
 
 class GrVkCommandPool;
 class GrVkGpu;
@@ -318,8 +316,10 @@ private:
     // Array of command pools that we are waiting on
     SkSTArray<4, GrVkCommandPool*, true> fActiveCommandPools;
 
+    SkMutex fBackgroundMutex;
+
     // Array of available command pools that are not in flight
-    SkSTArray<4, GrVkCommandPool*, true> fAvailableCommandPools;
+    SkSTArray<4, GrVkCommandPool*, true> fAvailableCommandPools SK_GUARDED_BY(fBackgroundMutex);
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates
@@ -335,8 +335,6 @@ private:
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
     GrVkDescriptorSetManager::Handle fInputDSHandle;
-
-    std::recursive_mutex fBackgroundMutex;
 };
 
 #endif
