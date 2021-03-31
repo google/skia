@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d279018d_e7bcd2b0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T19:50:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7515e340_c7867354",
+      "range": {
+        "startLine": 1391,
+        "startChar": 28,
+        "endLine": 1395,
+        "endChar": 29
+      },
+      "revId": "e298a08995618723c8ce9a515f8db4c81e223f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dba05035_1e5a2596",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-03-30T15:46:39Z",
       "side": 1,
       "message": "Just SkASSERT?",
+      "range": {
+        "startLine": 1474,
+        "startChar": 4,
+        "endLine": 1474,
+        "endChar": 18
+      },
+      "revId": "e298a08995618723c8ce9a515f8db4c81e223f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46b360ac_ac3e26e2",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1474,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T19:50:24Z",
+      "side": 1,
+      "message": "Derp",
+      "parentUuid": "dba05035_1e5a2596",
       "range": {
         "startLine": 1474,
         "startChar": 4,
@@ -141,6 +189,30 @@
       "writtenOn": "2021-03-30T15:46:39Z",
       "side": 1,
       "message": "Can we add a test case here that adds a path to the \u0027pathsForClipAtlas\u0027 argument. Now that the paths are exported out of apply(), it\u0027s a lot easier to confirm that the clip stack is doing what we\u0027d expect it to.\n\nThe test case should be very similar to the above, except we use a path that won\u0027t get simplified to one of the rect/rrect/convex poly cases, and we assert the paths array is non-empty after apply.",
+      "range": {
+        "startLine": 1963,
+        "startChar": 4,
+        "endLine": 1964,
+        "endChar": 1
+      },
+      "revId": "e298a08995618723c8ce9a515f8db4c81e223f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e43a211_bf3b627f",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1964,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-03-31T19:50:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "005b4a5d_1c13a48c",
       "range": {
         "startLine": 1963,
         "startChar": 4,
