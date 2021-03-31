@@ -75,7 +75,7 @@ private:
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
     void writeFunctionCall(const FunctionCall& c);
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
-    void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+    void writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
                                         Precedence parentPrecedence);
     void writeFieldAccess(const FieldAccess& f);
     void writeSwizzle(const Swizzle& swizzle);
@@ -414,7 +414,7 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorDiagonalMatrix:
-            this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(),
+            this->writeSingleArgumentConstructor(expr.as<ConstructorDiagonalMatrix>(),
                                                  parentPrecedence);
             break;
         case Expression::Kind::kFieldAccess:
@@ -461,7 +461,7 @@ void PipelineStageCodeGenerator::writeConstructor(const Constructor& c,
     this->write(")");
 }
 
-void PipelineStageCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+void PipelineStageCodeGenerator::writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
                                                                 Precedence parentPrecedence) {
     this->writeType(c.type());
     this->write("(");

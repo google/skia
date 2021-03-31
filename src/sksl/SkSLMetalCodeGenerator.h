@@ -230,7 +230,7 @@ protected:
 
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
 
-    void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+    void writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
                                         Precedence parentPrecedence);
 
     void writeFieldAccess(const FieldAccess& f);
