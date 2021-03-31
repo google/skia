@@ -21,7 +21,7 @@
 class GrDDLContext final : public GrRecordingContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
-        : INHERITED(std::move(proxy)) {
+        : INHERITED(std::move(proxy), true) {
     }
 
     ~GrDDLContext() override {}

@@ -117,7 +117,7 @@ protected:
     // Like Arenas, but preserves ownership of the underlying pools.
     class OwnedArenas {
     public:
-        OwnedArenas();
+        OwnedArenas(bool ddlRecording);
         ~OwnedArenas();
 
         Arenas get();
@@ -125,11 +125,12 @@ protected:
         OwnedArenas& operator=(OwnedArenas&&);
 
     private:
+        bool fDDLRecording;
         std::unique_ptr<SkArenaAlloc> fRecordTimeAllocator;
         std::unique_ptr<GrSubRunAllocator> fRecordTimeSubRunAllocator;
     };
 
-    GrRecordingContext(sk_sp<GrContextThreadSafeProxy>);
+    GrRecordingContext(sk_sp<GrContextThreadSafeProxy>, bool ddlRecording);
 
     bool init() override;
 

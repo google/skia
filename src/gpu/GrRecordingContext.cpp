@@ -38,9 +38,10 @@ GrRecordingContext::ProgramData::ProgramData(ProgramData&& other)
 
 GrRecordingContext::ProgramData::~ProgramData() = default;
 
-GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy)
+GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bool ddlRecording)
         : INHERITED(std::move(proxy))
-        , fAuditTrail(new GrAuditTrail()) {
+        , fAuditTrail(new GrAuditTrail())
+        , fArenas(ddlRecording) {
     fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }
 
@@ -101,23 +102,23 @@ GrRecordingContext::Arenas::Arenas(SkArenaAlloc* recordTimeAllocator,
         : fRecordTimeAllocator(recordTimeAllocator)
         , fRecordTimeSubRunAllocator(subRunAllocator) {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
-    SkASSERT(recordTimeAllocator);
     SkASSERT(subRunAllocator);
 }
 
 // Must be defined here so that std::unique_ptr can see the sizes of the various pools, otherwise
 // it can't generate a default destructor for them.
-GrRecordingContext::OwnedArenas::OwnedArenas() {}
+GrRecordingContext::OwnedArenas::OwnedArenas(bool ddlRecording) : fDDLRecording(ddlRecording) {}
 GrRecordingContext::OwnedArenas::~OwnedArenas() {}
 
 GrRecordingContext::OwnedArenas& GrRecordingContext::OwnedArenas::operator=(OwnedArenas&& a) {
+    fDDLRecording = a.fDDLRecording;
     fRecordTimeAllocator = std::move(a.fRecordTimeAllocator);
     fRecordTimeSubRunAllocator = std::move(a.fRecordTimeSubRunAllocator);
     return *this;
 }
 
 GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
-    if (!fRecordTimeAllocator) {
+    if (!fRecordTimeAllocator && fDDLRecording) {
         // TODO: empirically determine a better number for SkArenaAlloc's firstHeapAllocation param
         fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(1024);
     }
