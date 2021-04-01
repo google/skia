@@ -46,6 +46,31 @@ Docsy supports both
 [Font-Awesome](https://fontawesome.com/). Check out their documentation for what
 they offer.
 
+## Diagrams
+
+[Mermaid](https://mermaid-js.github.io/mermaid/#/) diagrams are enabled, so
+this:
+
+````
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+````
+
+Gets rendered as:
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
 ## Configuration
 
 The Hugo configuration file is [config.toml](../../../config.toml) in the site
