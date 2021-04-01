@@ -9,6 +9,7 @@
 #define SKSL_CONSTRUCTOR
 
 #include "include/private/SkTArray.h"
+#include "src/core/SkSpan.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
@@ -17,9 +18,69 @@
 namespace SkSL {
 
 /**
+ * Base class representing a constructor with unknown arguments.
+ */
+class AnyConstructor : public Expression {
+public:
+    AnyConstructor(int offset, Kind kind, const Type* type)
+            : INHERITED(offset, kind, type) {}
+
+    virtual SkSpan<std::unique_ptr<Expression>> argumentSpan() = 0;
+    virtual SkSpan<const std::unique_ptr<Expression>> argumentSpan() const = 0;
+
+    bool hasProperty(Property property) const override {
+        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
+            if (arg->hasProperty(property)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    String description() const override {
+        String result = this->type().description() + "(";
+        const char* separator = "";
+        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
+            result += separator;
+            result += arg->description();
+            separator = ", ";
+        }
+        result += ")";
+        return result;
+    }
+
+    const Type& componentType() const {
+        return this->type().componentType();
+    }
+
+    bool isCompileTimeConstant() const override {
+        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
+            if (!arg->isCompileTimeConstant()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool isConstantOrUniform() const override {
+        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
+            if (!arg->isConstantOrUniform()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+private:
+    std::unique_ptr<Expression> fArgument;
+
+    using INHERITED = Expression;
+};
+
+/**
  * Base class representing a constructor that takes a single argument.
  */
-class SingleArgumentConstructor : public Expression {
+class SingleArgumentConstructor : public AnyConstructor {
 public:
     SingleArgumentConstructor(int offset, Kind kind, const Type* type,
                               std::unique_ptr<Expression> argument)
@@ -34,36 +95,24 @@ public:
         return fArgument;
     }
 
-    bool hasProperty(Property property) const override {
-        return argument()->hasProperty(property);
+    SkSpan<std::unique_ptr<Expression>> argumentSpan() final {
+        return {&fArgument, 1};
     }
 
-    String description() const override {
-        return this->type().description() + "(" + argument()->description() + ")";
-    }
-
-    const Type& componentType() const {
-        return this->argument()->type();
-    }
-
-    bool isCompileTimeConstant() const override {
-        return argument()->isCompileTimeConstant();
-    }
-
-    bool isConstantOrUniform() const override {
-        return argument()->isConstantOrUniform();
+    SkSpan<const std::unique_ptr<Expression>> argumentSpan() const final {
+        return {&fArgument, 1};
     }
 
 private:
     std::unique_ptr<Expression> fArgument;
 
-    using INHERITED = Expression;
+    using INHERITED = AnyConstructor;
 };
 
 /**
  * Base class representing a constructor that takes an array of arguments.
  */
-class MultiArgumentConstructor : public Expression {
+class MultiArgumentConstructor : public AnyConstructor {
 public:
     MultiArgumentConstructor(int offset, Kind kind, const Type* type, ExpressionArray arguments)
             : INHERITED(offset, kind, type)
@@ -77,14 +126,6 @@ public:
         return fArguments;
     }
 
-    bool hasProperty(Property property) const override {
-        return std::any_of(this->arguments().begin(),
-                           this->arguments().end(),
-                           [&](const std::unique_ptr<Expression>& arg) {
-                               return arg->hasProperty(property);
-                           });
-    }
-
     ExpressionArray cloneArguments() const {
         ExpressionArray clonedArgs;
         clonedArgs.reserve_back(this->arguments().size());
@@ -94,42 +135,18 @@ public:
         return clonedArgs;
     }
 
-    String description() const override {
-        String result = this->type().description() + "(";
-        const char* separator = "";
-        for (const std::unique_ptr<Expression>& arg: this->arguments()) {
-            result += separator;
-            result += arg->description();
-            separator = ", ";
-        }
-        result += ")";
-        return result;
+    SkSpan<std::unique_ptr<Expression>> argumentSpan() final {
+        return {&fArguments.front(), fArguments.size()};
     }
 
-    const Type& componentType() const {
-        return this->type().componentType();
-    }
-
-    bool isCompileTimeConstant() const override {
-        return std::all_of(this->arguments().begin(),
-                           this->arguments().end(),
-                           [](const std::unique_ptr<Expression>& arg) {
-                               return arg->isCompileTimeConstant();
-                           });
-    }
-
-    bool isConstantOrUniform() const override {
-        return std::all_of(this->arguments().begin(),
-                           this->arguments().end(),
-                           [](const std::unique_ptr<Expression>& arg) {
-                               return arg->isConstantOrUniform();
-                           });
+    SkSpan<const std::unique_ptr<Expression>> argumentSpan() const final {
+        return {&fArguments.front(), fArguments.size()};
     }
 
 private:
     ExpressionArray fArguments;
 
-    using INHERITED = Expression;
+    using INHERITED = AnyConstructor;
 };
 
 /**

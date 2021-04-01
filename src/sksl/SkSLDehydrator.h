@@ -22,10 +22,9 @@
 
 namespace SkSL {
 
+class AnyConstructor;
 class Expression;
-class MultiArgumentConstructor;
 class ProgramElement;
-class SingleArgumentConstructor;
 class Statement;
 class Symbol;
 class SymbolTable;
@@ -120,9 +119,7 @@ private:
 
     void write(const Symbol& s);
 
-    void writeSingleArgumentConstructor(const SingleArgumentConstructor& c);
-
-    void writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
+    void writeAnyConstructor(const AnyConstructor& c);
 
     uint16_t fNextId = 1;
 

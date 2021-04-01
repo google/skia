@@ -137,11 +137,7 @@ protected:
 
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
 
-    void writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
-                                        Precedence parentPrecedence);
-
-    void writeMultiArgumentConstructor(const MultiArgumentConstructor& c,
-                                       Precedence parentPrecedence);
+    void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
     virtual void writeFieldAccess(const FieldAccess& f);
 

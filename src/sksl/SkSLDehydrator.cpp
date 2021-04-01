@@ -254,15 +254,10 @@ void Dehydrator::write(const SymbolTable& symbols) {
     }
 }
 
-void Dehydrator::writeSingleArgumentConstructor(const SingleArgumentConstructor& c) {
+void Dehydrator::writeAnyConstructor(const AnyConstructor& c) {
     this->write(c.type());
-    this->write(c.argument().get());
-}
-
-void Dehydrator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c) {
-    this->write(c.type());
-    this->writeU8(c.arguments().size());
-    for (const auto& arg : c.arguments()) {
+    this->writeU8(c.argumentSpan().size());
+    for (const auto& arg : c.argumentSpan()) {
         this->write(arg.get());
     }
 }
@@ -290,12 +285,12 @@ void Dehydrator::write(const Expression* e) {
 
             case Expression::Kind::kConstructor:
                 this->writeCommand(Rehydrator::kConstructor_Command);
-                this->writeMultiArgumentConstructor(e->as<Constructor>());
+                this->writeAnyConstructor(e->as<Constructor>());
                 break;
 
             case Expression::Kind::kConstructorDiagonalMatrix:
                 this->writeCommand(Rehydrator::kConstructorDiagonalMatrix_Command);
-                this->writeSingleArgumentConstructor(e->as<ConstructorDiagonalMatrix>());
+                this->writeAnyConstructor(e->as<ConstructorDiagonalMatrix>());
                 break;
 
             case Expression::Kind::kExternalFunctionCall:
