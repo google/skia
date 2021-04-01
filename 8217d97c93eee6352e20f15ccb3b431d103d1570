@@ -88,6 +88,23 @@
       "parentUuid": "dbe7d651_04e62840",
       "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34ed632f_e1dbd3c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17674
+      },
+      "writtenOn": "2021-04-01T14:01:39Z",
+      "side": 1,
+      "message": "I see that you are discussing alternative solutions in the comment thread below.\nIn the meantime, I gathered a bunch of info from the jira bug (not sure if it\u0027s helpful), but it has a picture of the black screen that was problematic. (See link below)\n\nhttps://docs.google.com/document/d/1DjkylfWlZp81HqQkzwEZwl_DizxNO6FbfNxpN2ozJu8/edit?usp\u003dsharing\u0026resourcekey\u003d0-0_Ais8jVc4x_dTDziZYTKA\n\n I\u0027m ordering a laptop with that GPU so that I could test the solutions you mention (like changing the value kMaxSigma).\nI\u0027m unclear on who you would assign the TODO of implementing one of these solutions. I\u0027m happy to help out in any way I can to speed up the completion of this ticket.",
+      "revId": "8217d97c93eee6352e20f15ccb3b431d103d1570",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
