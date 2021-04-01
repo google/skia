@@ -203,6 +203,7 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
             break;
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorSplat:
             this->writeAnyConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:

@@ -718,10 +718,10 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
             IsTrivialExpression(*expr.as<Swizzle>().base())) ||
            (expr.is<FieldAccess>() &&
             IsTrivialExpression(*expr.as<FieldAccess>().base())) ||
-           (expr.is<Constructor>() &&
-            expr.as<Constructor>().arguments().size() == 1 &&
-            IsTrivialExpression(*expr.as<Constructor>().arguments().front())) ||
-           (expr.is<Constructor>() &&
+           (expr.isAnyConstructor() &&
+            expr.asAnyConstructor().argumentSpan().size() == 1 &&
+            IsTrivialExpression(*expr.asAnyConstructor().argumentSpan().front())) ||
+           (expr.isAnyConstructor() &&
             expr.isConstantOrUniform()) ||
            (expr.is<IndexExpression>() &&
             expr.as<IndexExpression>().index()->is<IntLiteral>() &&
@@ -749,7 +749,8 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
 
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorDiagonalMatrix: {
+        case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorSplat: {
             const AnyConstructor& leftCtor = left.asAnyConstructor();
             const AnyConstructor& rightCtor = right.asAnyConstructor();
             const auto leftSpan = leftCtor.argumentSpan();
@@ -1019,6 +1020,7 @@ public:
             case Expression::Kind::kConstructor:
             case Expression::Kind::kConstructorArray:
             case Expression::Kind::kConstructorDiagonalMatrix:
+            case Expression::Kind::kConstructorSplat:
             case Expression::Kind::kFieldAccess:
             case Expression::Kind::kIndex:
             case Expression::Kind::kPrefix:
@@ -1142,7 +1144,8 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
         }
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorDiagonalMatrix: {
+        case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorSplat: {
             auto& c = e.asAnyConstructor();
             for (auto& arg : c.argumentSpan()) {
                 if (this->visitExpressionPtr(arg)) { return true; }
