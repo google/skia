@@ -128,33 +128,29 @@ public:
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
+        using Type = SkRuntimeEffect::Uniform::Type;
         size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         const uint8_t* uniformData = outer.fUniforms->bytes();
         for (const auto& v : outer.fEffect->uniforms()) {
-            const float* data = reinterpret_cast<const float*>(uniformData + v.offset);
+            const UniformHandle handle = fUniformHandles[uniIndex++];
+            auto floatData = [=] { return SkTAddOffset<const float>(uniformData, v.offset); };
+            auto intData = [=] { return SkTAddOffset<const int>(uniformData, v.offset); };
             switch (v.type) {
-                case SkRuntimeEffect::Uniform::Type::kFloat:
-                    pdman.set1fv(fUniformHandles[uniIndex++], v.count, data);
-                    break;
-                case SkRuntimeEffect::Uniform::Type::kFloat2:
-                    pdman.set2fv(fUniformHandles[uniIndex++], v.count, data);
-                    break;
-                case SkRuntimeEffect::Uniform::Type::kFloat3:
-                    pdman.set3fv(fUniformHandles[uniIndex++], v.count, data);
-                    break;
-                case SkRuntimeEffect::Uniform::Type::kFloat4:
-                    pdman.set4fv(fUniformHandles[uniIndex++], v.count, data);
-                    break;
-                case SkRuntimeEffect::Uniform::Type::kFloat2x2:
-                    pdman.setMatrix2fv(fUniformHandles[uniIndex++], v.count, data);
-                    break;
-                case SkRuntimeEffect::Uniform::Type::kFloat3x3:
-                    pdman.setMatrix3fv(fUniformHandles[uniIndex++], v.count, data);
-                    break;
-                case SkRuntimeEffect::Uniform::Type::kFloat4x4:
-                    pdman.setMatrix4fv(fUniformHandles[uniIndex++], v.count, data);
-                    break;
+                case Type::kFloat:  pdman.set1fv(handle, v.count, floatData()); break;
+                case Type::kFloat2: pdman.set2fv(handle, v.count, floatData()); break;
+                case Type::kFloat3: pdman.set3fv(handle, v.count, floatData()); break;
+                case Type::kFloat4: pdman.set4fv(handle, v.count, floatData()); break;
+
+                case Type::kFloat2x2: pdman.setMatrix2fv(handle, v.count, floatData()); break;
+                case Type::kFloat3x3: pdman.setMatrix3fv(handle, v.count, floatData()); break;
+                case Type::kFloat4x4: pdman.setMatrix4fv(handle, v.count, floatData()); break;
+
+                case Type::kInt:  pdman.set1iv(handle, v.count, intData()); break;
+                case Type::kInt2: pdman.set2iv(handle, v.count, intData()); break;
+                case Type::kInt3: pdman.set3iv(handle, v.count, intData()); break;
+                case Type::kInt4: pdman.set4iv(handle, v.count, intData()); break;
+
                 default:
                     SkDEBUGFAIL("Unsupported uniform type");
                     break;
