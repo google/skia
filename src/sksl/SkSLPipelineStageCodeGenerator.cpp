@@ -74,11 +74,7 @@ private:
 
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
     void writeFunctionCall(const FunctionCall& c);
-    void writeConstructor(const Constructor& c, Precedence parentPrecedence);
-    void writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
-                                        Precedence parentPrecedence);
-    void writeMultiArgumentConstructor(const MultiArgumentConstructor& c,
-                                       Precedence parentPrecedence);
+    void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
     void writeFieldAccess(const FieldAccess& f);
     void writeSwizzle(const Swizzle& swizzle);
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
@@ -413,11 +409,10 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
             this->write(expr.description());
             break;
         case Expression::Kind::kConstructor:
-            this->writeMultiArgumentConstructor(expr.as<Constructor>(), parentPrecedence);
+            this->writeAnyConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorDiagonalMatrix:
-            this->writeSingleArgumentConstructor(expr.as<ConstructorDiagonalMatrix>(),
-                                                 parentPrecedence);
+            this->writeAnyConstructor(expr.as<ConstructorDiagonalMatrix>(), parentPrecedence);
             break;
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(expr.as<FieldAccess>());
@@ -450,24 +445,16 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
     }
 }
 
-void PipelineStageCodeGenerator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c,
-                                                               Precedence parentPrecedence) {
+void PipelineStageCodeGenerator::writeAnyConstructor(const AnyConstructor& c,
+                                                     Precedence parentPrecedence) {
     this->writeType(c.type());
     this->write("(");
     const char* separator = "";
-    for (const auto& arg : c.arguments()) {
+    for (const auto& arg : c.argumentSpan()) {
         this->write(separator);
         separator = ", ";
         this->writeExpression(*arg, Precedence::kSequence);
     }
-    this->write(")");
-}
-
-void PipelineStageCodeGenerator::writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
-                                                                Precedence parentPrecedence) {
-    this->writeType(c.type());
-    this->write("(");
-    this->writeExpression(*c.argument(), Precedence::kSequence);
     this->write(")");
 }
 
