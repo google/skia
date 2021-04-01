@@ -348,9 +348,10 @@ describe('Core canvas behavior', () => {
         canvas.clear(CanvasKit.WHITE);
 
         const paint = new CanvasKit.Paint();
-        const shader = image.makeShaderCubic(CanvasKit.TileMode.Clamp,
-                                             CanvasKit.TileMode.Clamp,
-                                             0, 0.5);
+        const shader = image.makeShaderOptions(CanvasKit.TileMode.Clamp,
+                                               CanvasKit.TileMode.Clamp,
+                                               CanvasKit.FilterMode.Linear,
+                                               CanvasKit.MipmapMode.None);
         const cubics = [0,0, 80,50, 160,50,
                         240,0, 200,80, 200,160,
                         240,240, 160,160, 80,240,
