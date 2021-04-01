@@ -43,9 +43,8 @@ OpDecorate %24 RelaxedPrecision
 %void = OpTypeVoid
 %19 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%v2float = OpTypeVector %float 2
 %float_1 = OpConstant %float 1
-%27 = OpConstantComposite %v2float %float_1 %float_1
+%v2float = OpTypeVector %float 2
 %_ptr_Uniform_mat4v4float = OpTypePointer Uniform %mat4v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
@@ -57,7 +56,8 @@ OpDecorate %24 RelaxedPrecision
 %tmpColor = OpVariable %_ptr_Function_v4float Function
 %59 = OpVariable %_ptr_Function_v4float Function
 %24 = OpLoad %12 %s
-%23 = OpImageSampleImplicitLod %v4float %24 %27
+%26 = OpCompositeConstruct %v2float %float_1 %float_1
+%23 = OpImageSampleImplicitLod %v4float %24 %26
 OpStore %tmpColor %23
 %28 = OpAccessChain %_ptr_Uniform_mat4v4float %14 %int_0
 %32 = OpLoad %mat4v4float %28
