@@ -49,12 +49,11 @@ public:
         kBreak_Command,
         // int16 builtin
         kBuiltinLayout_Command,
-        // Type type, uint8 argCount, Expression[] arguments
+        // (All constructors) Type type, uint8 argCount, Expression[] arguments
         kConstructor_Command,
-        // Type type, uint8 argCount, Expression[] arguments
         kConstructorArray_Command,
-        // Type type, Expression argument
         kConstructorDiagonalMatrix_Command,
+        kConstructorSplat_Command,
         kContinue_Command,
         kDefaultLayout_Command,
         kDefaultModifiers_Command,
