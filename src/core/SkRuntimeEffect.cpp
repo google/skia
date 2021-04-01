@@ -125,6 +125,11 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     if (type == ctx.fTypes.fFloat4x4.get()) { v->type = Type::kFloat4x4; return true; }
     if (type == ctx.fTypes.fHalf4x4.get())  { v->type = Type::kFloat4x4; return true; }
 
+    if (type == ctx.fTypes.fInt.get())  { v->type = Type::kInt;  return true; }
+    if (type == ctx.fTypes.fInt2.get()) { v->type = Type::kInt2; return true; }
+    if (type == ctx.fTypes.fInt3.get()) { v->type = Type::kInt3; return true; }
+    if (type == ctx.fTypes.fInt4.get()) { v->type = Type::kInt4; return true; }
+
     return false;
 }
 
@@ -297,6 +302,7 @@ sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString sksl) {
 }
 
 size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
+    static_assert(sizeof(int) == sizeof(float));
     auto element_size = [](Type type) -> size_t {
         switch (type) {
             case Type::kFloat:  return sizeof(float);
@@ -307,6 +313,11 @@ size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
             case Type::kFloat2x2: return sizeof(float) * 4;
             case Type::kFloat3x3: return sizeof(float) * 9;
             case Type::kFloat4x4: return sizeof(float) * 16;
+
+            case Type::kInt:  return sizeof(int);
+            case Type::kInt2: return sizeof(int) * 2;
+            case Type::kInt3: return sizeof(int) * 3;
+            case Type::kInt4: return sizeof(int) * 4;
             default: SkUNREACHABLE;
         }
     };
