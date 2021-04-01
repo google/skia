@@ -154,11 +154,6 @@ public:
         return fNoDefaultPrecisionForExternalSamplers;
     }
 
-    bool fEnableSkSLInliner = true;
-    bool enableSkSLInliner() const {
-        return fEnableSkSLInliner;
-    }
-
     bool fFloatIs32Bits = true;
     bool floatIs32Bits() const {
         return fFloatIs32Bits;

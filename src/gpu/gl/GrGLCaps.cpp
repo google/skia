@@ -983,17 +983,8 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     shaderCaps->fBuiltinDeterminantSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
 
     if (GR_IS_GR_WEBGL(standard)) {
-        // WebGL 1.0 doesn't support do-while loops.
-        shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);
-    }
-
-    if (GR_IS_GR_GL_ES(standard) &&
-        (ctxInfo.driver() != kChromium_GrGLDriver) &&
-        (ctxInfo.driver() != kANGLE_GrGLDriver)) {
-        // Inlining SkSL helper functions improves draw performance on many GLES drivers (e.g.
-        // Mali/Adreno). Chromium on Windows also identifies itself to us as GLES, but is actually
-        // ANGLE under the hood, so we make an exception for that case.
-        shaderCaps->fEnableSkSLInliner = true;
+      // WebGL 1.0 doesn't support do-while loops.
+      shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);
     }
 }
 
