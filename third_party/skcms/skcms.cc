@@ -606,17 +606,8 @@ static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_A2B* a2b) {
     // matrix in skcms_A2B is applied later in the pipe, so supporting this would require another
     // field/flag.
     a2b->matrix_channels = 0;
-
     a2b-> input_channels = mftTag-> input_channels[0];
     a2b->output_channels = mftTag->output_channels[0];
-
-    for (uint32_t i = 0; i < a2b->input_channels; ++i) {
-        a2b->grid_points[i] = mftTag->grid_points[0];
-    }
-    // The grid only makes sense with at least two points along each axis
-    if (a2b->grid_points[0] < 2) {
-        return false;
-    }
 
     // We require exactly three (ie XYZ/Lab/RGB) output channels
     if (a2b->output_channels != ARRAY_COUNT(a2b->output_curves)) {
@@ -627,25 +618,25 @@ static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_A2B* a2b) {
         return false;
     }
 
+    for (uint32_t i = 0; i < a2b->input_channels; ++i) {
+        a2b->grid_points[i] = mftTag->grid_points[0];
+    }
+    // The grid only makes sense with at least two points along each axis
+    if (a2b->grid_points[0] < 2) {
+        return false;
+    }
     return true;
 }
 
 // All as the A2B version above, except where noted.
 static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_B2A* b2a) {
-    // All the same as A2B until the next comment...
+    // Same as A2B.
     b2a->matrix_channels = 0;
-
     b2a-> input_channels = mftTag-> input_channels[0];
     b2a->output_channels = mftTag->output_channels[0];
 
-    for (uint32_t i = 0; i < b2a->input_channels; ++i) {
-        b2a->grid_points[i] = mftTag->grid_points[0];
-    }
-    if (b2a->grid_points[0] < 2) {
-        return false;
-    }
 
-    // ...for B2A, exactly 3 *input* channels and 1-4 *output* channels.
+    // For B2A, exactly 3 *input* channels and 1-4 *output* channels.
     if (b2a->input_channels != ARRAY_COUNT(b2a->input_curves)) {
         return false;
     }
@@ -653,6 +644,13 @@ static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_B2A* b2a) {
         return false;
     }
 
+    // Same as A2B.
+    for (uint32_t i = 0; i < b2a->input_channels; ++i) {
+        b2a->grid_points[i] = mftTag->grid_points[0];
+    }
+    if (b2a->grid_points[0] < 2) {
+        return false;
+    }
     return true;
 }
 
