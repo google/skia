@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84d4c638_78c48df1",
+        "filename": "modules/skparagraph/src/TextWrapper.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-01T17:51:28Z",
+      "side": 1,
+      "message": "I suppose this is fine for now, but in general the entire process needs to switch to breaking up the input text into runs based on any inline \u0027formatting\u0027 codepoints like \u0027\\n\u0027, shape each of those runs separately, then apply the formatting between runs however paragraph wants to. We\u0027re still seeing a \u0027\\n\u0027 here, doing the work of trying to shape it, and maybe still trying to draw it. It\u0027s just being ignored for purposes of line metrics here.",
+      "revId": "141b0aec134c99eae2dd6b6118d03e9710b42296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
