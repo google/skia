@@ -30,7 +30,6 @@ OpDecorate %71 RelaxedPrecision
 %15 = OpTypeFunction %v4float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %float_0 = OpConstant %float 0
-%20 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
 %int_0 = OpConstant %int 0
@@ -52,6 +51,7 @@ OpFunctionEnd
 %counter = OpVariable %_ptr_Function_int Function
 %counter_0 = OpVariable %_ptr_Function_int Function
 %counter_1 = OpVariable %_ptr_Function_int Function
+%20 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
 OpStore %color %20
 OpStore %counter %int_0
 OpBranch %25

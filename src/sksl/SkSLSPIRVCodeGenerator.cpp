@@ -715,6 +715,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
+        case Expression::Kind::kConstructorSplat:
+            return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
         case Expression::Kind::kIntLiteral:
             return this->writeIntLiteral(expr.as<IntLiteral>());
         case Expression::Kind::kFieldAccess:
@@ -1627,23 +1629,33 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     }
     SpvId result = this->nextId(&type);
     if (arguments.size() == 1 && c.arguments()[0]->type().isScalar()) {
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
-        this->writeWord(this->getType(type), out);
-        this->writeWord(result, out);
-        for (int i = 0; i < type.columns(); i++) {
-            this->writeWord(arguments[0], out);
-        }
-    } else {
-        SkASSERT(arguments.size() > 1);
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
-        this->writeWord(this->getType(type), out);
-        this->writeWord(result, out);
-        for (SpvId id : arguments) {
-            this->writeWord(id, out);
-        }
+        SkDEBUGFAIL("should have reached writeConstructorSplat instead");
+    }
+
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
+    this->writeWord(this->getType(type), out);
+    this->writeWord(result, out);
+    for (SpvId id : arguments) {
+        this->writeWord(id, out);
     }
     return result;
 }
+
+SpvId SPIRVCodeGenerator::writeConstructorSplat(const ConstructorSplat& c, OutputStream& out) {
+    // Write the splat argument first.
+    SpvId argument = this->writeExpression(*c.argument(), out);
+
+    // Generate a CompositeConstruct with that argument repeated N times.
+    SpvId result = this->nextId(&c.type());
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + c.type().columns(), out);
+    this->writeWord(this->getType(c.type()), out);
+    this->writeWord(result, out);
+    for (int i = 0; i < c.type().columns(); i++) {
+        this->writeWord(argument, out);
+    }
+    return result;
+}
+
 
 SpvId SPIRVCodeGenerator::writeArrayConstructor(const ConstructorArray& c, OutputStream& out) {
     const Type& type = c.type();

@@ -138,7 +138,6 @@ OpDecorate %154 RelaxedPrecision
 %float_3 = OpConstant %float 3
 %109 = OpConstantComposite %v4float %float_1 %float_1 %float_2 %float_3
 %int_0 = OpConstant %int 0
-%142 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %v4bool = OpTypeVector %bool 4
 %_entrypoint_v = OpFunction %void None %16
 %17 = OpLabel
@@ -289,6 +288,7 @@ OpStore %v %133
 %140 = OpVectorShuffle %v4float %139 %138 6 5 4 3
 OpStore %v %140
 %141 = OpLoad %v4float %v
+%142 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
 %143 = OpFOrdEqual %v4bool %141 %142
 %145 = OpAll %bool %143
 OpSelectionMerge %149 None

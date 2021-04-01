@@ -161,8 +161,8 @@ static bool is_constant_scalar_value(const Expression& inExpr, float match) {
 }
 
 static bool contains_constant_zero(const Expression& expr) {
-    if (expr.is<Constructor>()) {
-        for (const auto& arg : expr.as<Constructor>().arguments()) {
+    if (expr.isAnyConstructor()) {
+        for (const auto& arg : expr.asAnyConstructor().argumentSpan()) {
             if (contains_constant_zero(*arg)) {
                 return true;
             }
@@ -176,8 +176,8 @@ static bool is_constant_value(const Expression& expr, float value) {
     // This check only supports scalars and vectors (and in particular, not matrices).
     SkASSERT(expr.type().isScalar() || expr.type().isVector());
 
-    if (expr.is<Constructor>()) {
-        for (const auto& arg : expr.as<Constructor>().arguments()) {
+    if (expr.isAnyConstructor()) {
+        for (const auto& arg : expr.asAnyConstructor().argumentSpan()) {
             if (!is_constant_value(*arg, value)) {
                 return false;
             }
