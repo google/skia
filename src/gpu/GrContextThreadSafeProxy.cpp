@@ -40,10 +40,23 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
                                     sk_sp<GrThreadSafePipelineBuilder> pipelineBuilder) {
-    fCaps = std::move(caps);
-    fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
-    fThreadSafeCache = std::make_unique<GrThreadSafeCache>();
-    fPipelineBuilder = std::move(pipelineBuilder);
+    if (!fCaps) {
+        fCaps = std::move(caps);
+    } else {
+        // These should be compatible!
+        //SkASSERT(fCaps == caps);
+    }
+    if (!fTextBlobCache) {
+        fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
+    }
+    if (!fThreadSafeCache) {
+        fThreadSafeCache = std::make_unique<GrThreadSafeCache>();
+    }
+    if (!fPipelineBuilder) {
+        fPipelineBuilder = std::move(pipelineBuilder);
+    } else {
+        SkASSERT(fPipelineBuilder == pipelineBuilder);
+    }
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
@@ -164,6 +177,13 @@ bool GrContextThreadSafeProxy::abandoned() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+GrContextThreadSafeProxyPriv::GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy* proxy)
+    : fProxy(proxy) {
+}
+
+GrContextThreadSafeProxyPriv::~GrContextThreadSafeProxyPriv() = default;
+
 sk_sp<GrContextThreadSafeProxy> GrContextThreadSafeProxyPriv::Make(
                              GrBackendApi backend,
                              const GrContextOptions& options) {
@@ -175,3 +195,6 @@ void GrContextThreadSafeProxyPriv::init(sk_sp<const GrCaps> caps,
     fProxy->init(std::move(caps), std::move(builder));
 }
 
+sk_sp<GrThreadSafePipelineBuilder> GrContextThreadSafeProxyPriv::refPipelineBuilder() {
+    return fProxy->fPipelineBuilder;
+}

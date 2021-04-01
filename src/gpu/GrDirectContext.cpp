@@ -65,6 +65,11 @@ GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& o
         , fDirectContextID(DirectContextID::Next()) {
 }
 
+GrDirectContext::GrDirectContext(sk_sp<GrContextThreadSafeProxy> threadSafeProxy)
+        : INHERITED(std::move(threadSafeProxy))
+        , fDirectContextID(DirectContextID::Next()) {
+}
+
 GrDirectContext::~GrDirectContext() {
     ASSERT_SINGLE_OWNER
     // this if-test protects against the case where the context is being destroyed
@@ -967,11 +972,42 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 }
 #endif
 
-sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
-                                               const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kOpenGL, options));
+class GrGLCompilenator : public GrCompilenator {
+public:
+    GrGLCompilenator(sk_sp<const GrGLInterface> intf) : fIntf(std::move(intf)) {}
+
+    bool compile(const GrProgramDesc&, const GrProgramInfo&) override { return false; }
+
+private:
+    sk_sp<const GrGLInterface> fIntf;
+
+    using INHERITED = GrCompilenator;
+};
+
+sk_sp<GrUtilityContext> GrDirectContext::makeUtilityGL(sk_sp<const GrGLInterface> glInterface) {
+    sk_sp<GrContextThreadSafeProxy> threadSafeProxy = this->threadSafeProxy();
+
+    if (threadSafeProxy->priv().backend() != GrBackendApi::kOpenGL) {
+        // Interesting ...
+        return nullptr;
+    }
+
+    sk_sp<GrCompilenator> compilenator(new GrGLCompilenator(glInterface));
+
+    sk_sp<GrUtilityContext> tmp(new GrUtilityContext(std::move(compilenator), threadSafeProxy));
+
+    // Temporarily create a hidden direct context
+    tmp->fDirectContext = MakeGL1(std::move(glInterface), std::move(threadSafeProxy));
+    return tmp;
+}
+
+
+sk_sp<GrDirectContext> GrDirectContext::MakeGL1(sk_sp<const GrGLInterface> glInterface,
+                                               sk_sp<GrContextThreadSafeProxy> threadSafeProxy) {
+    SkASSERT(threadSafeProxy->priv().backend() == GrBackendApi::kOpenGL);
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(threadSafeProxy)));
 #if GR_TEST_UTILS
-    if (options.fRandomGLOOM) {
+    if (dContext->options().fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
         copy->fFunctions.fGetError =
                 make_get_error_with_random_oom(glInterface->fFunctions.fGetError);
@@ -982,12 +1018,21 @@ sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInte
         glInterface = std::move(copy);
     }
 #endif
-    direct->fGpu = GrGLGpu::Make(std::move(glInterface), options, direct.get());
-    if (!direct->init()) {
+
+    dContext->fGpu = GrGLGpu::Make(std::move(glInterface), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
-    return direct;
+
+    return dContext;
 }
+
+sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
+                                               const GrContextOptions& options) {
+    return MakeGL1(std::move(glInterface),
+                  GrContextThreadSafeProxyPriv::Make(GrBackendApi::kOpenGL, options));
+}
+
 #endif
 
 /*************************************************************************************************/
@@ -997,15 +1042,22 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOption
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOptions,
-                                                 const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMock, options));
+                                                 sk_sp<GrContextThreadSafeProxy> threadSafeProxy) {
+    SkASSERT(threadSafeProxy->priv().backend() == GrBackendApi::kMock);
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(threadSafeProxy)));
 
-    direct->fGpu = GrMockGpu::Make(mockOptions, options, direct.get());
-    if (!direct->init()) {
+    dContext->fGpu = GrMockGpu::Make(mockOptions, dContext->options(), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
 
-    return direct;
+    return dContext;
+}
+
+sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOptions,
+                                                 const GrContextOptions& options) {
+    return MakeMock(mockOptions,
+                    GrContextThreadSafeProxyPriv::Make(GrBackendApi::kMock, options));
 }
 
 #ifdef SK_VULKAN
@@ -1016,16 +1068,24 @@ sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& bac
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
-                                                   const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kVulkan, options));
+                                                   sk_sp<GrContextThreadSafeProxy> proxy) {
+    SkASSERT(proxy->priv().backend() == GrBackendApi::kVulkan);
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(proxy)));
 
-    direct->fGpu = GrVkGpu::Make(backendContext, options, direct.get());
-    if (!direct->init()) {
+    dContext->fGpu = GrVkGpu::Make(backendContext, dContext->options(), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
 
-    return direct;
+    return dContext;
 }
+
+sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
+                                                   const GrContextOptions& options) {
+    return MakeVulkan(backendContext,
+                      GrContextThreadSafeProxyPriv::Make(GrBackendApi::kVulkan, options));
+}
+
 #endif
 
 #ifdef SK_METAL
@@ -1036,15 +1096,22 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& bac
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext,
-                                                     const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMetal, options));
+                                                  sk_sp<GrContextThreadSafeProxy> threadSafeProxy) {
+    SkASSERT(threadSafeProxy->priv().backend() == GrBackendApi::kMetal);
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(threadSafeProxy)));
 
-    direct->fGpu = GrMtlTrampoline::MakeGpu(backendContext, options, direct.get());
-    if (!direct->init()) {
+    dContext->fGpu = GrMtlTrampoline::MakeGpu(backendContext, dContext->options(), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
 
-    return direct;
+    return dContext;
+}
+
+sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext,
+                                                  const GrContextOptions& options) {
+    return MakeMetal(backendContext,
+                     GrContextThreadSafeProxyPriv::Make(GrBackendApi::kMetal, options));
 }
 
 // deprecated
@@ -1074,16 +1141,24 @@ sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& 
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
-                                                     const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kDirect3D, options));
+                                                     sk_sp<GrContextThreadSafeProxy> proxy) {
+    SkASSERT(proxy->priv().backend() == GrBackendApi::kDirect3D);
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(proxy)));
 
-    direct->fGpu = GrD3DGpu::Make(backendContext, options, direct.get());
-    if (!direct->init()) {
+    dContext->fGpu = GrD3DGpu::Make(backendContext, dContext->options(), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
 
-    return direct;
+    return dContext;
 }
+
+sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
+                                                     const GrContextOptions& options) {
+    return MakeDirect3D(backendContext,
+                        GrContextThreadSafeProxyPriv::Make(GrBackendApi::kDirect3D, options));
+}
+
 #endif
 
 #ifdef SK_DAWN
@@ -1094,15 +1169,58 @@ sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device) {
 }
 
 sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device,
-                                                 const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kDawn, options));
+                                                 sk_sp<GrContextThreadSafeProxy> threadSafeProxy) {
+    SkASSERT(threadSafeProxy->priv().backend() == GrBackendApi::kDawn);
+    sk_sp<GrDirectContext> dContext(new GrDirectContext(std::move(threadSafeProxy)));
 
-    direct->fGpu = GrDawnGpu::Make(device, options, direct.get());
-    if (!direct->init()) {
+    dContext->fGpu = GrDawnGpu::Make(device, dContext->options(), dContext.get());
+    if (!dContext->init()) {
         return nullptr;
     }
 
-    return direct;
+    return dContext;
+}
+
+sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device,
+                                                 const GrContextOptions& options) {
+    return MakeDawn(device,
+                    GrContextThreadSafeProxyPriv::Make(GrBackendApi::kDawn, options));
 }
 
 #endif
+
+//-------------------------------------------------------------------------------------------------
+GrUtilityContext::GrUtilityContext(sk_sp<GrCompilenator> compilenator,
+                                   sk_sp<GrContextThreadSafeProxy> threadSafeProxy)
+    : INHERITED(std::move(threadSafeProxy))
+    , fCompilenator(std::move(compilenator)) {
+}
+
+bool GrUtilityContext::abandoned() const {
+    return fThreadSafeProxy->priv().abandoned();
+}
+
+bool GrUtilityContext::submit(bool syncCpu) {
+    return false;
+}
+
+void GrUtilityContext::checkAsyncWorkCompletion() {
+
+}
+
+bool GrUtilityContext::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
+    return fCompilenator->compile(desc, info);
+}
+
+//-------------------------------------------------------------------------------------------------
+bool GrUtilityContextPriv::matches(GrContext_Base* candidate) const {
+    return fContext->threadSafeProxy()->priv().matches(candidate);
+}
+
+const GrCaps* GrUtilityContextPriv::caps() const {
+    return fContext->threadSafeProxy()->priv().caps();
+}
+
+sk_sp<const GrCaps> GrUtilityContextPriv::refCaps() const {
+    return fContext->threadSafeProxy()->priv().refCaps();
+}

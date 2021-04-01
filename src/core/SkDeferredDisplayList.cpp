@@ -46,7 +46,14 @@ SkDeferredDisplayList::~SkDeferredDisplayList() {
 
 SkDeferredDisplayList::ProgramIterator::ProgramIterator(GrDirectContext* dContext,
                                                         SkDeferredDisplayList* ddl)
-    : fDContext(dContext)
+    : fDContext1(dContext)
+    , fProgramData(ddl->programData())
+    , fIndex(0) {
+}
+
+SkDeferredDisplayList::ProgramIterator::ProgramIterator(GrUtilityContext* uContext,
+                                                        SkDeferredDisplayList* ddl)
+    : fUContext(uContext)
     , fProgramData(ddl->programData())
     , fIndex(0) {
 }
@@ -54,11 +61,15 @@ SkDeferredDisplayList::ProgramIterator::ProgramIterator(GrDirectContext* dContex
 SkDeferredDisplayList::ProgramIterator::~ProgramIterator() {}
 
 bool SkDeferredDisplayList::ProgramIterator::compile() {
-    if (!fDContext || fIndex < 0 || fIndex >= (int) fProgramData.size()) {
+    if (/*!fDContext ||*/ fIndex < 0 || fIndex >= (int) fProgramData.size()) {
         return false;
     }
-
-    return fDContext->priv().compile(fProgramData[fIndex].desc(), fProgramData[fIndex].info());
+    if (fDContext1) {
+        return fDContext1->priv().compile(fProgramData[fIndex].desc(), fProgramData[fIndex].info());
+    } else if (fUContext) {
+        return fUContext->priv().compile(fProgramData[fIndex].desc(), fProgramData[fIndex].info());
+    }
+    return nullptr;
 }
 
 bool SkDeferredDisplayList::ProgramIterator::done() const {

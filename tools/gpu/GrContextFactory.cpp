@@ -6,7 +6,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "tools/gpu/GrContextFactory.h"
 #ifdef SK_GL
@@ -69,11 +71,12 @@ void GrContextFactory::destroyContexts() {
         if (context.fTestContext) {
             restore = context.fTestContext->makeCurrentAndAutoRestore();
         }
-        if (!context.fGrContext->unique()) {
-            context.fGrContext->releaseResourcesAndAbandonContext();
+        if (context.fDirectContext && !context.fDirectContext->unique()) {
+            context.fDirectContext->releaseResourcesAndAbandonContext();
             context.fAbandoned = true;
         }
-        context.fGrContext->unref();
+        context.fDirectContext = nullptr;
+        context.fUtilityContext = nullptr;
         delete context.fTestContext;
     }
     fContexts.reset();
@@ -91,17 +94,17 @@ void GrContextFactory::abandonContexts() {
                 auto restore = context.fTestContext->makeCurrentAndAutoRestore();
                 context.fTestContext->testAbandon();
             }
-            GrBackendApi api = context.fGrContext->backend();
+            GrBackendApi api = context.fDirectContext->backend();
             bool requiresEarlyAbandon = api == GrBackendApi::kVulkan || api == GrBackendApi::kDawn;
             if (requiresEarlyAbandon) {
-                context.fGrContext->abandonContext();
+                context.fDirectContext->abandonContext();
             }
             if (context.fTestContext) {
                 delete(context.fTestContext);
                 context.fTestContext = nullptr;
             }
             if (!requiresEarlyAbandon) {
-                context.fGrContext->abandonContext();
+                context.fDirectContext->abandonContext();
             }
             context.fAbandoned = true;
         }
@@ -120,7 +123,7 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
             if (context.fTestContext) {
                 restore = context.fTestContext->makeCurrentAndAutoRestore();
             }
-            context.fGrContext->releaseResourcesAndAbandonContext();
+            context.fDirectContext->releaseResourcesAndAbandonContext();
             if (context.fTestContext) {
                 delete context.fTestContext;
                 context.fTestContext = nullptr;
@@ -134,7 +137,8 @@ GrDirectContext* GrContextFactory::get(ContextType type, ContextOverrides overri
     return this->getContextInfo(type, overrides).directContext();
 }
 
-ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOverrides overrides,
+ContextInfo GrContextFactory::getContextInfoInternal(ContextType type,
+                                                     ContextOverrides overrides,
                                                      GrDirectContext* shareContext,
                                                      uint32_t shareIndex) {
     // (shareIndex != 0) -> (shareContext != nullptr)
@@ -148,7 +152,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             context.fShareIndex == shareIndex &&
             !context.fAbandoned) {
             context.fTestContext->makeCurrent();
-            return ContextInfo(context.fType, context.fTestContext, context.fGrContext,
+            return ContextInfo(context.fType,
+                               context.fTestContext,
+                               context.fDirectContext.get(),
+                               context.fUtilityContext.get(),
                                context.fOptions);
         }
     }
@@ -157,7 +164,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     Context* primaryContext = nullptr;
     if (shareContext) {
         for (int i = 0; i < fContexts.count(); ++i) {
-            if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
+            if (!fContexts[i].fAbandoned && fContexts[i].fDirectContext.get() == shareContext) {
                 primaryContext = &fContexts[i];
                 break;
             }
@@ -291,9 +298,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         }
 #endif
         case GrBackendApi::kMock: {
-            TestContext* sharedContext = primaryContext ? primaryContext->fTestContext : nullptr;
+            TestContext* mockSharedContext = primaryContext ? primaryContext->fTestContext
+                                                            : nullptr;
             SkASSERT(kMock_ContextType == type);
-            testCtx.reset(CreateMockTestContext(sharedContext));
+            testCtx.reset(CreateMockTestContext(mockSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }
@@ -304,37 +312,54 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     }
 
     SkASSERT(testCtx && testCtx->backend() == backend);
-    GrContextOptions grOptions = fGlobalOptions;
-    if (ContextOverrides::kAvoidStencilBuffers & overrides) {
-        grOptions.fAvoidStencilBuffers = true;
-    }
-    sk_sp<GrDirectContext> grCtx;
+    sk_sp<GrUtilityContext> uContext;
+    sk_sp<GrDirectContext> dContext;
+    sk_sp<GrContextThreadSafeProxy> threadSafeProxy;
+
     {
         auto restore = testCtx->makeCurrentAndAutoRestore();
-        grCtx = testCtx->makeContext(grOptions);
-    }
-    if (!grCtx) {
-        return ContextInfo();
+        if (shareContext) {
+            uContext = testCtx->makeUtilityContext(shareContext);
+
+            threadSafeProxy = shareContext->threadSafeProxy();
+        } else {
+            GrContextOptions grOptions = fGlobalOptions;
+            if (ContextOverrides::kAvoidStencilBuffers & overrides) {
+                grOptions.fAvoidStencilBuffers = true;
+            }
+
+            dContext = testCtx->makeContext(grOptions);
+            if (!dContext) {
+                return ContextInfo();
+            }
+
+            threadSafeProxy = dContext->threadSafeProxy();
+        }
     }
 
-    if (shareContext) {
-        SkASSERT(grCtx->directContextID() != shareContext->directContextID());
-    }
+//    if (shareContext) {
+//        SkASSERT(grCtx->directContextID() != shareContext->directContextID());
+//    }
 
     // We must always add new contexts by pushing to the back so that when we delete them we delete
     // them in reverse order in which they were made.
     Context& context = fContexts.push_back();
     context.fBackend = backend;
     context.fTestContext = testCtx.release();
-    context.fGrContext = SkRef(grCtx.get());
+    context.fDirectContext = dContext;
+    context.fUtilityContext = uContext;
     context.fType = type;
     context.fOverrides = overrides;
     context.fAbandoned = false;
     context.fShareContext = shareContext;
     context.fShareIndex = shareIndex;
-    context.fOptions = grOptions;
+    context.fOptions = threadSafeProxy->priv().options();
     context.fTestContext->makeCurrent();
-    return ContextInfo(context.fType, context.fTestContext, context.fGrContext, context.fOptions);
+    return ContextInfo(context.fType,
+                       context.fTestContext,
+                       context.fDirectContext.get(),
+                       context.fUtilityContext.get(),
+                       context.fOptions);
 }
 
 ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides) {
@@ -345,7 +370,7 @@ ContextInfo GrContextFactory::getSharedContextInfo(GrDirectContext* shareContext
                                                    uint32_t shareIndex) {
     SkASSERT(shareContext);
     for (int i = 0; i < fContexts.count(); ++i) {
-        if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
+        if (!fContexts[i].fAbandoned && fContexts[i].fDirectContext.get() == shareContext) {
             return this->getContextInfoInternal(fContexts[i].fType, fContexts[i].fOverrides,
                                                 shareContext, shareIndex);
         }
