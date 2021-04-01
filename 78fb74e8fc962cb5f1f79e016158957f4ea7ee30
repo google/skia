@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae86e9f7_bf535efd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-01T15:12:23Z",
+      "side": 1,
+      "message": "Do we only sometimes support these (on low-end GPUs), or do we just \"inline\" them when there is no explicit support?",
+      "revId": "78fb74e8fc962cb5f1f79e016158957f4ea7ee30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fe89b458_30b8c079",
