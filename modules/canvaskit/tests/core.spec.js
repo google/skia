@@ -347,6 +347,9 @@ describe('Core canvas behavior', () => {
         expect(image).toBeTruthy();
         canvas.clear(CanvasKit.WHITE);
 
+        canvas.scale(10, 10);
+        canvas.drawImage(image, 0, 0, null);
+        return;
         const paint = new CanvasKit.Paint();
         const shader = image.makeShaderCubic(CanvasKit.TileMode.Clamp,
                                              CanvasKit.TileMode.Clamp,
