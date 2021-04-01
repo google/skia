@@ -242,11 +242,6 @@ private:
                                                                const Type& type,
                                                                ExpressionArray args);
 
-    static std::unique_ptr<Expression> MakeArrayConstructor(const Context& context,
-                                                            int offset,
-                                                            const Type& type,
-                                                            ExpressionArray args);
-
     template <typename ResultType> ResultType getConstantValue(const Expression& expr) const;
 
     template <typename ResultType>
