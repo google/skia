@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe89b458_30b8c079",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-01T15:03:12Z",
+      "side": 1,
+      "message": "I never really can remember whether it\u0027s legal to alias a char* to both int* and float* like this.  But I\u0027m okay with tested and working, if not legal. :)",
+      "revId": "78fb74e8fc962cb5f1f79e016158957f4ea7ee30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
