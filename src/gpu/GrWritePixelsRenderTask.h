@@ -18,7 +18,8 @@ public:
                                     GrColorType srcColorType,
                                     GrColorType dstColorType,
                                     const GrMipLevel[],
-                                    int levelCount);
+                                    int levelCount,
+                                    bool prepForSampling);
 
 private:
     GrWritePixelsTask(GrDrawingManager*,
@@ -27,7 +28,8 @@ private:
                       GrColorType srcColorType,
                       GrColorType dstColorType,
                       const GrMipLevel[],
-                      int levelCount);
+                      int levelCount,
+                      bool prepForSampling);
 
     bool onIsUsed(GrSurfaceProxy* proxy) const override { return false; }
     void gatherProxyIntervals(GrResourceAllocator*) const override;
@@ -45,6 +47,7 @@ private:
     SkIRect fRect;
     GrColorType fSrcColorType;
     GrColorType fDstColorType;
+    bool fPrepForSampling;
 };
 
 #endif
