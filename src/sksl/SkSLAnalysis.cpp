@@ -747,24 +747,22 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
         case Expression::Kind::kBoolLiteral:
             return left.as<BoolLiteral>().value() == right.as<BoolLiteral>().value();
 
-        case Expression::Kind::kConstructor: {
-            const Constructor& leftCtor = left.as<Constructor>();
-            const Constructor& rightCtor = right.as<Constructor>();
-            if (leftCtor.arguments().count() != rightCtor.arguments().count()) {
+        case Expression::Kind::kConstructor:
+        case Expression::Kind::kConstructorArray:
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            const AnyConstructor& leftCtor = left.asAnyConstructor();
+            const AnyConstructor& rightCtor = right.asAnyConstructor();
+            const auto leftSpan = leftCtor.argumentSpan();
+            const auto rightSpan = rightCtor.argumentSpan();
+            if (leftSpan.size() != rightSpan.size()) {
                 return false;
             }
-            for (int index = 0; index < leftCtor.arguments().count(); ++index) {
-                if (!IsSameExpressionTree(*leftCtor.arguments()[index],
-                                          *rightCtor.arguments()[index])) {
+            for (size_t index = 0; index < leftSpan.size(); ++index) {
+                if (!IsSameExpressionTree(*leftSpan[index], *rightSpan[index])) {
                     return false;
                 }
             }
             return true;
-        }
-        case Expression::Kind::kConstructorDiagonalMatrix: {
-            const ConstructorDiagonalMatrix& leftCtor = left.as<ConstructorDiagonalMatrix>();
-            const ConstructorDiagonalMatrix& rightCtor = right.as<ConstructorDiagonalMatrix>();
-            return IsSameExpressionTree(*leftCtor.argument(), *rightCtor.argument());
         }
         case Expression::Kind::kFieldAccess:
             return left.as<FieldAccess>().fieldIndex() == right.as<FieldAccess>().fieldIndex() &&
@@ -1019,6 +1017,7 @@ public:
             // ... expressions composed of both of the above
             case Expression::Kind::kBinary:
             case Expression::Kind::kConstructor:
+            case Expression::Kind::kConstructorArray:
             case Expression::Kind::kConstructorDiagonalMatrix:
             case Expression::Kind::kFieldAccess:
             case Expression::Kind::kIndex:
@@ -1141,15 +1140,14 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
             return (b.left() && this->visitExpressionPtr(b.left())) ||
                    (b.right() && this->visitExpressionPtr(b.right()));
         }
-        case Expression::Kind::kConstructor: {
-            auto& c = e.template as<Constructor>();
-            for (auto& arg : c.arguments()) {
+        case Expression::Kind::kConstructor:
+        case Expression::Kind::kConstructorArray:
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            auto& c = e.asAnyConstructor();
+            for (auto& arg : c.argumentSpan()) {
                 if (this->visitExpressionPtr(arg)) { return true; }
             }
             return false;
-        }
-        case Expression::Kind::kConstructorDiagonalMatrix: {
-            return this->visitExpressionPtr(e.template as<ConstructorDiagonalMatrix>().argument());
         }
         case Expression::Kind::kExternalFunctionCall: {
             auto& c = e.template as<ExternalFunctionCall>();
