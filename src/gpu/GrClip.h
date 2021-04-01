@@ -56,14 +56,24 @@ public:
     /**
      * This computes a GrAppliedClip from the clip which in turn can be used to build a GrPipeline.
      * To determine the appropriate clipping implementation the GrClip subclass must know whether
-     * the draw will enable HW AA or uses the stencil buffer. On input 'bounds' is a conservative
-     * bounds of the draw that is to be clipped. If kClipped or kUnclipped is returned, the 'bounds'
-     * will have been updated to be contained within the clip bounds (or the device's, for wide-open
-     * clips). If kNoDraw is returned, 'bounds' and the applied clip are in an undetermined state
-     * and should be ignored (and the draw should be skipped).
+     * the draw will enable HW AA or uses the stencil buffer.
+     *
+     * On input 'bounds' is a conservative bounds of the draw that is to be clipped. If kClipped or
+     * kUnclipped is returned, the 'bounds' will have been updated to be contained within the clip
+     * bounds (or the device's, for wide-open clips). If kNoDraw is returned, 'bounds' and the
+     * applied clip are in an undetermined state and should be ignored (and the draw should be
+     * skipped).
+     *
+     * If the applied clip uses atlas clip masks, they are not applied at this point. Instead they
+     * are returned in the 'pathsForClipAtlas' array. The caller is responsible to create the atlas
+     * clip FPs and add them to the GrAppliedClip once they know exactly which opsTask the atlas
+     * will come from.
+     *
+     * If atlas clips are not supported then pathsForClipAtlas must be null.
      */
     virtual Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrAAType,
-                         bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
+                         bool hasUserStencilSettings, GrAppliedClip*,
+                         SkRect* bounds, SkTArray<SkPath>* pathsForClipAtlas) const = 0;
 
     /**
      * Perform preliminary, conservative analysis on the draw bounds as if it were provided to
@@ -244,7 +254,8 @@ public:
 
 private:
     Effect apply(GrRecordingContext*, GrSurfaceDrawContext* rtc, GrAAType aa,
-                 bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final {
+                 bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds,
+                 SkTArray<SkPath>* /*pathsForClipAtlas*/) const final {
         SkIRect pixelBounds = GetPixelIBounds(*bounds, GrAA(aa != GrAAType::kNone));
         Effect effect = this->apply(&out->hardClip(), &pixelBounds);
         bounds->intersect(SkRect::Make(pixelBounds));

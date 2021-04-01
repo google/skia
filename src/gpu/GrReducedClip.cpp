@@ -902,23 +902,17 @@ int GrReducedClip::numAnalyticElements() const {
     return fCCPRClipPaths.size() + fNumAnalyticElements;
 }
 
-GrFPResult GrReducedClip::finishAndDetachAnalyticElements(GrRecordingContext* context,
-                                                          const SkMatrixProvider& matrixProvider,
-                                                          GrCoverageCountingPathRenderer* ccpr,
-                                                          uint32_t opsTaskID) {
+std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticElements(
+        GrRecordingContext* context, const SkMatrixProvider& matrixProvider,
+        SkTArray<SkPath>* pathsForClipAtlas) {
     // Combine the analytic FP with any CCPR clip processors.
     std::unique_ptr<GrFragmentProcessor> clipFP = std::move(fAnalyticFP);
     fNumAnalyticElements = 0;
 
     for (const SkPath& ccprClipPath : fCCPRClipPaths) {
-        SkASSERT(ccpr);
+        SkASSERT(pathsForClipAtlas);
         SkASSERT(fHasScissor);
-        bool success;
-        std::tie(success, clipFP) = ccpr->makeClipProcessor(std::move(clipFP), opsTaskID,
-                                                            ccprClipPath, fScissor, *fCaps);
-        if (!success) {
-            return GrFPFailure(nullptr);
-        }
+        pathsForClipAtlas->push_back(ccprClipPath);
     }
     fCCPRClipPaths.reset();
 
@@ -935,5 +929,5 @@ GrFPResult GrReducedClip::finishAndDetachAnalyticElements(GrRecordingContext* co
     }
 
     // Compose the clip and shader FPs.
-    return GrFPSuccess(GrFragmentProcessor::Compose(std::move(shaderFP), std::move(clipFP)));
+    return GrFragmentProcessor::Compose(std::move(shaderFP), std::move(clipFP));
 }
