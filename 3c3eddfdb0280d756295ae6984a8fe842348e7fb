@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7db7207c_98a3ac00",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-01T16:02:45Z",
+      "side": 1,
+      "message": "😕",
+      "range": {
+        "startLine": 220,
+        "startChar": 4,
+        "endLine": 220,
+        "endChar": 12
+      },
+      "revId": "3c3eddfdb0280d756295ae6984a8fe842348e7fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
