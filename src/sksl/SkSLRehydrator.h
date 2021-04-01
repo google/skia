@@ -218,6 +218,8 @@ private:
 
     std::unique_ptr<Expression> expression();
 
+    ExpressionArray expressionArray();
+
     const Type* type();
 
     const Context& fContext;

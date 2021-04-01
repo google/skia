@@ -2241,7 +2241,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kConstructor: {
             const Constructor& c = e->as<Constructor>();
             Requirements result = kNo_Requirements;
-            for (const auto& arg : c.arguments()) {
+            for (const auto& arg : c.argumentSpan()) {
                 result |= this->requirements(arg.get());
             }
             return result;
