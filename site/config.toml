@@ -176,3 +176,5 @@ enable = false
 #	icon = "fa fa-envelope"
 #        desc = "Discuss development issues around the project"
 
+[params.mermaid]
+enable = true
