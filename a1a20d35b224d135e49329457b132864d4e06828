@@ -16,6 +16,24 @@
       "message": "If this is a cherry-pick, should put a\n\n    Cherry-pick: \u003csha\u003e\n\nhere.",
       "revId": "a1a20d35b224d135e49329457b132864d4e06828",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15631b13_d7a9fd5c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-01T18:43:53Z",
+      "side": 1,
+      "message": "This is not a cherry pick. I just re-implemented the changes in this CL. The cherry-pick was not clean at all.",
+      "parentUuid": "eb8676b5_53fd7f6e",
+      "revId": "a1a20d35b224d135e49329457b132864d4e06828",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
