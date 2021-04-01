@@ -23,7 +23,9 @@
 namespace SkSL {
 
 class Expression;
+class MultiArgumentConstructor;
 class ProgramElement;
+class SingleArgumentConstructor;
 class Statement;
 class Symbol;
 class SymbolTable;
@@ -117,6 +119,10 @@ private:
     void write(const Statement* s);
 
     void write(const Symbol& s);
+
+    void writeSingleArgumentConstructor(const SingleArgumentConstructor& c);
+
+    void writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
 
     uint16_t fNextId = 1;
 

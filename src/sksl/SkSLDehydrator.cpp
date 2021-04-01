@@ -254,6 +254,19 @@ void Dehydrator::write(const SymbolTable& symbols) {
     }
 }
 
+void Dehydrator::writeSingleArgumentConstructor(const SingleArgumentConstructor& c) {
+    this->write(c.type());
+    this->write(c.argument().get());
+}
+
+void Dehydrator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c) {
+    this->write(c.type());
+    this->writeU8(c.arguments().size());
+    for (const auto& arg : c.arguments()) {
+        this->write(arg.get());
+    }
+}
+
 void Dehydrator::write(const Expression* e) {
     if (e) {
         switch (e->kind()) {
@@ -274,27 +287,22 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kCodeString:
                 SkDEBUGFAIL("shouldn't be able to receive kCodeString here");
                 break;
-            case Expression::Kind::kConstructor: {
-                const Constructor& c = e->as<Constructor>();
+
+            case Expression::Kind::kConstructor:
                 this->writeCommand(Rehydrator::kConstructor_Command);
-                this->write(c.type());
-                this->writeU8(c.arguments().size());
-                for (const auto& a : c.arguments()) {
-                    this->write(a.get());
-                }
+                this->writeMultiArgumentConstructor(e->as<Constructor>());
                 break;
-            }
-            case Expression::Kind::kConstructorDiagonalMatrix: {
-                const ConstructorDiagonalMatrix& c = e->as<ConstructorDiagonalMatrix>();
+
+            case Expression::Kind::kConstructorDiagonalMatrix:
                 this->writeCommand(Rehydrator::kConstructorDiagonalMatrix_Command);
-                this->write(c.type());
-                this->write(c.argument().get());
+                this->writeSingleArgumentConstructor(e->as<ConstructorDiagonalMatrix>());
                 break;
-            }
+
             case Expression::Kind::kExternalFunctionCall:
             case Expression::Kind::kExternalFunctionReference:
                 SkDEBUGFAIL("unimplemented--not expected to be used from within an include file");
                 break;
+
             case Expression::Kind::kFieldAccess: {
                 const FieldAccess& f = e->as<FieldAccess>();
                 this->writeCommand(Rehydrator::kFieldAccess_Command);
