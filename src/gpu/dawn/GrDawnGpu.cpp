@@ -392,15 +392,14 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     const void* pixels;
     SkAutoMalloc defaultStorage(baseLayerSize);
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
-        SkTDArray<GrMipLevel> texels;
-        GrColorType colorType = data->pixmap(0).colorType();
         int numMipLevels = info.fLevelCount;
-        texels.append(numMipLevels);
+        SkAutoTArray<GrMipLevel> texels(numMipLevels);
+        GrColorType colorType = data->pixmap(0).colorType();
         for (int i = 0; i < numMipLevels; ++i) {
-            texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};
+            texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes(), nullptr};
         }
         SkIRect dstRect = SkIRect::MakeSize(backendTexture.dimensions());
-        this->uploadTextureData(colorType, texels.begin(), texels.count(), dstRect, info.fTexture);
+        this->uploadTextureData(colorType, texels.get(), numMipLevels, dstRect, info.fTexture);
         return true;
     }
     pixels = defaultStorage.get();
