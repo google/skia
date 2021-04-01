@@ -711,6 +711,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeBoolLiteral(expr.as<BoolLiteral>());
         case Expression::Kind::kConstructor:
             return this->writeConstructor(expr.as<Constructor>(), out);
+        case Expression::Kind::kConstructorArray:
+            return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
         case Expression::Kind::kIntLiteral:
@@ -1643,7 +1645,7 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeArrayConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeArrayConstructor(const ConstructorArray& c, OutputStream& out) {
     const Type& type = c.type();
     SkASSERT(type.isArray());
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
@@ -1682,8 +1684,6 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
             return this->writeVectorConstructor(c, out);
         case Type::TypeKind::kMatrix:
             return this->writeMatrixConstructor(c, out);
-        case Type::TypeKind::kArray:
-            return this->writeArrayConstructor(c, out);
         default:
             fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
             return -1;

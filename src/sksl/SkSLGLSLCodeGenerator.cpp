@@ -10,6 +10,8 @@
 #include <memory>
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -199,8 +201,9 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
         case Expression::Kind::kConstructor:
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
+        case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
-            this->writeAnyConstructor(expr.as<ConstructorDiagonalMatrix>(), parentPrecedence);
+            this->writeAnyConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:
             this->writeIntLiteral(expr.as<IntLiteral>());
