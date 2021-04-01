@@ -624,11 +624,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
         auto backendRTFactory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
                     // skbug.com/8862
-                    if (src.colorType() == kRGB_888x_SkColorType) {
-                        return Surface();
-                    }
-                    // Dawn backend implementation of backend render targets doesn't support
-                    // reading.
+                  if (src.colorType() == kRGB_888x_SkColorType) {
+                      return Surface();
+                  }
+                  // Dawn backend implementation of backend render targets doesn't support// reading.
                     if (context->backend() == GrBackendApi::kDawn) {
                         return Surface();
                     }
