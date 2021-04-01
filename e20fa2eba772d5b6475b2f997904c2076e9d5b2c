@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c93d759d_63842dfa",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-01T16:18:08Z",
+      "side": 1,
+      "message": "not a big fan of this name since to me it implies checking if the type is a uniform type (which is a type description in shading languages).\n\nWhy not GrSLTypeIsNumericType? Also what about bools? Maybe your name is slightly better. Or something like GrSLTypeCanBeUniformValue....",
+      "range": {
+        "startLine": 493,
+        "startChar": 22,
+        "endLine": 493,
+        "endChar": 43
+      },
+      "revId": "e20fa2eba772d5b6475b2f997904c2076e9d5b2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
