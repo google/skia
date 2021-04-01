@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "879e5443_b7f1cf13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-01T15:22:56Z",
+      "side": 1,
+      "message": "Support always exists, the limit on low-end GPUs is that there\u0027s no real guarantees on range, and you\u0027re not allowed to do anything integer-specific (eg, bitwise ops) with them.",
+      "parentUuid": "ae86e9f7_bf535efd",
+      "revId": "78fb74e8fc962cb5f1f79e016158957f4ea7ee30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fe89b458_30b8c079",
