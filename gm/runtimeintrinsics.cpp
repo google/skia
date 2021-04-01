@@ -464,7 +464,7 @@ static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label) {
 
     draw_label(canvas, label);
 
-    const char* type = std::is_integral_v<T> ? "int" : "float";
+    const char* type = std::is_integral<T>::value ? "int" : "float";
     auto [effect, error] = SkRuntimeEffect::Make(make_bvec_sksl(type, fn));
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
