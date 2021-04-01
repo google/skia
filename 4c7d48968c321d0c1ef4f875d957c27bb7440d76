@@ -16,6 +16,24 @@
       "message": "AFAICT, we don\u0027t need the non-const version of this?",
       "revId": "4c7d48968c321d0c1ef4f875d957c27bb7440d76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a87d2844_e1fc8935",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-01T17:07:14Z",
+      "side": 1,
+      "message": "It is used in followup CLs. If I remove it, the followup ConstructorArray CL fails with:\n\n\n../../src/sksl/SkSLAnalysis.cpp:1148:46: error: binding reference of type \u0027unique_ptr\u003c...\u003e\u0027 to value of type \u0027unique_ptr\u003c...\u003e\u0027 drops \u0027const\u0027 qualifier\n                if (this-\u003evisitExpressionPtr(arg)) { return true; }\n                                             ^~~\n../../src/sksl/SkSLAnalysis.cpp:1289:16: note: in instantiation of member function \u0027SkSL::TProgramVisitor\u003cSkSL::ProgramWriterTypes\u003e::visitExpression\u0027 requested here\ntemplate class TProgramVisitor\u003cProgramWriterTypes\u003e;\n               ^\n../../src/sksl/SkSLAnalysis.h:168:70: note: passing argument to parameter \u0027expr\u0027 here\n    virtual bool visitExpressionPtr(typename T::UniquePtrExpression\u0026 expr) \u003d 0;\n                                                                     ^",
+      "parentUuid": "264e1960_47cf9988",
+      "revId": "4c7d48968c321d0c1ef4f875d957c27bb7440d76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
