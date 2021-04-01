@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb8676b5_53fd7f6e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-01T17:54:37Z",
+      "side": 1,
+      "message": "If this is a cherry-pick, should put a\n\n    Cherry-pick: \u003csha\u003e\n\nhere.",
+      "revId": "a1a20d35b224d135e49329457b132864d4e06828",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
