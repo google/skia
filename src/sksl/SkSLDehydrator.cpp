@@ -254,16 +254,10 @@ void Dehydrator::write(const SymbolTable& symbols) {
     }
 }
 
-void Dehydrator::writeSingleArgumentConstructor(const SingleArgumentConstructor& c) {
-    this->write(c.type());
-    this->write(c.argument().get());
-}
-
-void Dehydrator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c) {
-    this->write(c.type());
-    this->writeU8(c.arguments().size());
-    for (const auto& arg : c.arguments()) {
-        this->write(arg.get());
+void Dehydrator::writeExpressionSpan(const SkSpan<const std::unique_ptr<Expression>>& span) {
+    this->writeU8(span.size());
+    for (const auto& expr : span) {
+        this->write(expr.get());
     }
 }
 
@@ -288,16 +282,20 @@ void Dehydrator::write(const Expression* e) {
                 SkDEBUGFAIL("shouldn't be able to receive kCodeString here");
                 break;
 
-            case Expression::Kind::kConstructor:
+            case Expression::Kind::kConstructor: {
+                const Constructor& c = e->as<Constructor>();
                 this->writeCommand(Rehydrator::kConstructor_Command);
-                this->writeMultiArgumentConstructor(e->as<Constructor>());
+                this->write(c.type());
+                this->writeExpressionSpan(c.argumentSpan());
                 break;
-
-            case Expression::Kind::kConstructorDiagonalMatrix:
+            }
+            case Expression::Kind::kConstructorDiagonalMatrix: {
+                const ConstructorDiagonalMatrix& c = e->as<ConstructorDiagonalMatrix>();
                 this->writeCommand(Rehydrator::kConstructorDiagonalMatrix_Command);
-                this->writeSingleArgumentConstructor(e->as<ConstructorDiagonalMatrix>());
+                this->write(c.type());
+                this->writeExpressionSpan(c.argumentSpan());
                 break;
-
+            }
             case Expression::Kind::kExternalFunctionCall:
             case Expression::Kind::kExternalFunctionReference:
                 SkDEBUGFAIL("unimplemented--not expected to be used from within an include file");
