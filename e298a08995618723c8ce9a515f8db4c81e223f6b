@@ -176,6 +176,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "96c17aa0_32fe00ec",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1920,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-01T17:40:48Z",
+      "side": 1,
+      "message": "It was a real bug. We need to defer even more due to setupDstProxyView. I\u0027ll do it in a follow-on CL.",
+      "parentUuid": "dd630465_50f3e192",
+      "range": {
+        "startLine": 1920,
+        "startChar": 23,
+        "endLine": 1920,
+        "endChar": 31
+      },
+      "revId": "e298a08995618723c8ce9a515f8db4c81e223f6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "005b4a5d_1c13a48c",
