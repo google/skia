@@ -733,6 +733,11 @@ void GLSLCodeGenerator::writeConstructor(const Constructor& c, Precedence parent
         this->writeExpression(*c.arguments()[0], parentPrecedence);
         return;
     }
+    return this->writeMultiArgumentConstructor(c, parentPrecedence);
+}
+
+void GLSLCodeGenerator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c,
+                                                      Precedence parentPrecedence) {
     this->writeType(c.type());
     this->write("(");
     const char* separator = "";

@@ -140,6 +140,9 @@ protected:
     void writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
                                         Precedence parentPrecedence);
 
+    void writeMultiArgumentConstructor(const MultiArgumentConstructor& c,
+                                       Precedence parentPrecedence);
+
     virtual void writeFieldAccess(const FieldAccess& f);
 
     virtual void writeSwizzle(const Swizzle& swizzle);

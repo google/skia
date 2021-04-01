@@ -244,6 +244,7 @@ private:
     Value writeExpression(const Expression& expr);
     Value writeBinaryExpression(const BinaryExpression& b);
     Value writeConstructor(const Constructor& c);
+    Value writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
@@ -645,19 +646,25 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     }
 }
 
+Value SkVMGenerator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c) {
+    // Multi-argument constructors just aggregate their arguments, with no conversion
+    // NOTE: This (SkSL rule) is actually more restrictive than GLSL.
+    Value result(slot_count(c.type()));
+    size_t resultIdx = 0;
+    for (const auto &arg : c.arguments()) {
+        Value tmp = this->writeExpression(*arg);
+        for (size_t tmpSlot = 0; tmpSlot < tmp.slots(); ++tmpSlot) {
+            result[resultIdx++] = tmp[tmpSlot];
+        }
+    }
+    return result;
+}
+
 Value SkVMGenerator::writeConstructor(const Constructor& c) {
     if (c.arguments().size() > 1) {
         // Multi-argument constructors just aggregate their arguments, with no conversion
         // NOTE: This (SkSL rule) is actually more restrictive than GLSL.
-        Value result(slot_count(c.type()));
-        size_t resultIdx = 0;
-        for (const auto &arg : c.arguments()) {
-            Value tmp = this->writeExpression(*arg);
-            for (size_t tmpSlot = 0; tmpSlot < tmp.slots(); ++tmpSlot) {
-                result[resultIdx++] = tmp[tmpSlot];
-            }
-        }
-        return result;
+        return this->writeMultiArgumentConstructor(c);
     }
 
     const Type& srcType = c.arguments()[0]->type();

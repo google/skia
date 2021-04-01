@@ -77,6 +77,8 @@ private:
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
     void writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
                                         Precedence parentPrecedence);
+    void writeMultiArgumentConstructor(const MultiArgumentConstructor& c,
+                                       Precedence parentPrecedence);
     void writeFieldAccess(const FieldAccess& f);
     void writeSwizzle(const Swizzle& swizzle);
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
@@ -411,7 +413,7 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
             this->write(expr.description());
             break;
         case Expression::Kind::kConstructor:
-            this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
+            this->writeMultiArgumentConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorDiagonalMatrix:
             this->writeSingleArgumentConstructor(expr.as<ConstructorDiagonalMatrix>(),
@@ -448,8 +450,8 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
     }
 }
 
-void PipelineStageCodeGenerator::writeConstructor(const Constructor& c,
-                                                  Precedence parentPrecedence) {
+void PipelineStageCodeGenerator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c,
+                                                               Precedence parentPrecedence) {
     this->writeType(c.type());
     this->write("(");
     const char* separator = "";
