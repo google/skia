@@ -66,8 +66,9 @@ GrFPResult GrCoverageCountingPathRenderer::makeClipProcessor(
 
     if (deviceSpacePath.isEmpty() ||
         !SkIRect::Intersects(accessRect, deviceSpacePath.getBounds().roundOut())) {
-        // "Intersect" draws that don't intersect the clip can be dropped.
-        return deviceSpacePath.isInverseFillType() ? GrFPSuccess(nullptr) : GrFPFailure(nullptr);
+        // The accessRect never touches the path.
+        return deviceSpacePath.isInverseFillType() ? GrFPSuccess(std::move(inputFP))  // Wide open.
+                                                   : GrFPFailure(nullptr);  // Clipped out.
     }
 
     uint32_t key = deviceSpacePath.getGenerationID();
