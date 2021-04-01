@@ -10,6 +10,7 @@ Make sure you have first followed the
 
 Skia uses [GN](https://chromium.googlesource.com/chromium/src/tools/gn/) to
 configure its builds.
+TEST
 
 - [`is_official_build` and Third-party Dependencies](#third-party)
 - [Supported and Preferred Compilers](#compilers)
