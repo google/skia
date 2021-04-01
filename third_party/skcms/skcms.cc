@@ -2299,7 +2299,8 @@ typedef enum {
     Op_table_b,
     Op_table_a,
 
-    Op_clut,
+    Op_clut_A2B,
+    Op_clut_B2A,
 
     Op_store_a8,
     Op_store_g8,
@@ -2705,8 +2706,8 @@ bool skcms_TransformWithPalette(const void*             src,
                         *args++ = oa.arg;
                     }
                 }
-                *ops++ = Op_clamp;
-                *ops++ = Op_clut;
+                *ops++  = Op_clamp;
+                *ops++  = Op_clut_A2B;
                 *args++ = &srcProfile->A2B;
             }
 
