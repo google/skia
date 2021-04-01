@@ -701,11 +701,9 @@ bool Compiler::optimize(Program& program) {
     ProgramUsage* usage = program.fUsage.get();
 
     if (fErrorCount == 0) {
-        if (fContext->fCaps.enableSkSLInliner() || sInliner == OverrideFlag::kOn) {
-            // Run the inliner only once; it is expensive! Multiple passes can very occasionally
-            // shake out more wins, but it's diminishing returns.
-            fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
-        }
+        // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
+        // more wins, but it's diminishing returns.
+        fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
 
         while (this->removeDeadFunctions(program, usage)) {
             // Removing dead functions may cause more functions to become unreferenced. Try again.
