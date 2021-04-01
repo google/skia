@@ -444,34 +444,42 @@ DEF_SIMPLE_GM(runtime_intrinsics_matrix,
 /*
   Specialized shader for testing relational operators.
 */
-static SkString make_bvec_sksl(const char* fn) {
+static SkString make_bvec_sksl(const char* type, const char* fn) {
     // We use negative floats, to ensure that the integer variants are working with the correct
     // interpretation of the data.
     return SkStringPrintf(
+            "uniform %s2 v1;"
             "half4 main(float2 p) {"
-            "    float2 v1 = float2(-2.0);"
             "    p.x = p.x < 0.33 ? -3.0 : (p.x < 0.66 ? -2.0 : -1.0);"
             "    p.y = p.y < 0.33 ? -3.0 : (p.y < 0.66 ? -2.0 : -1.0);"
             "    bool2 cmp = %s;"
             "    return half4(cmp.x ? 1.0 : 0.0, cmp.y ? 1.0 : 0.0, 0, 1);"
             "}",
-            fn);
+            type, fn);
 }
 
+template <typename T = float>
 static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label) {
     canvas->save();
 
     draw_label(canvas, label);
 
-    auto [effect, error] = SkRuntimeEffect::Make(make_bvec_sksl(fn));
+    const char* type = std::is_integral_v<T> ? "int" : "float";
+    auto [effect, error] = SkRuntimeEffect::Make(make_bvec_sksl(type, fn));
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;
     }
 
+    T uniformData[2] = { -2, -2 };
+    sk_sp<SkData> uniforms = SkData::MakeWithCopy(uniformData, sizeof(uniformData));
+
     draw_shader(canvas,
-                effect->makeShader(/*uniforms=*/nullptr, /*children=*/nullptr, /*childCount=*/0,
-                                   /*localMatrix=*/nullptr, /*isOpaque=*/false));
+                effect->makeShader(uniforms,
+                                   /*children=*/nullptr,
+                                   /*childCount=*/0,
+                                   /*localMatrix=*/nullptr,
+                                   /*isOpaque=*/false));
 
     canvas->restore();
     next_column(canvas);
@@ -485,22 +493,22 @@ DEF_SIMPLE_GM(runtime_intrinsics_relational,
     canvas->translate(kPadding, kPadding);
     canvas->save();
 
-    plot_bvec(canvas, "lessThan(p, v1)",                  "lessThan");
-    plot_bvec(canvas, "lessThan(int2(p), int2(v1))",      "lessThan(int)");
-    plot_bvec(canvas, "lessThanEqual(p, v1)",             "lessThanEqual");
-    plot_bvec(canvas, "lessThanEqual(int2(p), int2(v1))", "lessThanEqual(int)");
+    plot_bvec<float>(canvas, "lessThan(p, v1)",            "lessThan");
+    plot_bvec<int>  (canvas, "lessThan(int2(p), v1)",      "lessThan(int)");
+    plot_bvec<float>(canvas, "lessThanEqual(p, v1)",       "lessThanEqual");
+    plot_bvec<int>  (canvas, "lessThanEqual(int2(p), v1)", "lessThanEqual(int)");
     next_row(canvas);
 
-    plot_bvec(canvas, "greaterThan(p, v1)",                  "greaterThan");
-    plot_bvec(canvas, "greaterThan(int2(p), int2(v1))",      "greaterThan(int)");
-    plot_bvec(canvas, "greaterThanEqual(p, v1)",             "greaterThanEqual");
-    plot_bvec(canvas, "greaterThanEqual(int2(p), int2(v1))", "greaterThanEqual(int)");
+    plot_bvec<float>(canvas, "greaterThan(p, v1)",            "greaterThan");
+    plot_bvec<int>  (canvas, "greaterThan(int2(p), v1)",      "greaterThan(int)");
+    plot_bvec<float>(canvas, "greaterThanEqual(p, v1)",       "greaterThanEqual");
+    plot_bvec<int>  (canvas, "greaterThanEqual(int2(p), v1)", "greaterThanEqual(int)");
     next_row(canvas);
 
-    plot_bvec(canvas, "equal(p, v1)",                "equal");
-    plot_bvec(canvas, "equal(int2(p), int2(v1))",    "equal(int)");
-    plot_bvec(canvas, "notEqual(p, v1)",             "notEqual");
-    plot_bvec(canvas, "notEqual(int2(p), int2(v1))", "notEqual(int)");
+    plot_bvec<float>(canvas, "equal(p, v1)",          "equal");
+    plot_bvec<int>  (canvas, "equal(int2(p), v1)",    "equal(int)");
+    plot_bvec<float>(canvas, "notEqual(p, v1)",       "notEqual");
+    plot_bvec<int>  (canvas, "notEqual(int2(p), v1)", "notEqual(int)");
     next_row(canvas);
 
     plot_bvec(canvas, "equal(   lessThanEqual(p, v1), greaterThanEqual(p, v1))", "equal(bvec)");

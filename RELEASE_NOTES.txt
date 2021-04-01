@@ -12,6 +12,13 @@ Milestone 91
 
   * Skia's GPU backend no longer supports NVPR. Our more recent path renderers are more
     performant and are not limited to nVidia hardware.
+
+  * SkRuntimeEffect now supports uniforms of type int, int2, int3, and int4. Per the OpenGL ES
+    Shading Language Version 1.00 specification, there are few guarantees about the representation
+    or range of integral types, and operations that assume integral representation (eg, bitwise),
+    are not supported.
+    https://review.skia.org/391856
+
 * * *
 
 Milestone 90

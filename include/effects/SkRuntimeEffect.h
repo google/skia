@@ -50,6 +50,10 @@ public:
             kFloat2x2,
             kFloat3x3,
             kFloat4x4,
+            kInt,
+            kInt2,
+            kInt3,
+            kInt4,
         };
 
         enum Flags {
