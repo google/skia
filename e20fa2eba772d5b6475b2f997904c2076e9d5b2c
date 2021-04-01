@@ -22,6 +22,30 @@
       },
       "revId": "e20fa2eba772d5b6475b2f997904c2076e9d5b2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8aa3b606_3faa6a39",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-01T16:36:28Z",
+      "side": 1,
+      "message": "Yeah, I didn\u0027t love this name either. Numeric works, but I liked having it represent the thing we actually want to know (can it be a uniform), so your suggestion is good.\n\nAs for bool - we don\u0027t actually support those in any of the backends today (they run into new corners of std140, and interesting behaviors with how the values are treated by SPIRV).",
+      "parentUuid": "c93d759d_63842dfa",
+      "range": {
+        "startLine": 493,
+        "startChar": 22,
+        "endLine": 493,
+        "endChar": 43
+      },
+      "revId": "e20fa2eba772d5b6475b2f997904c2076e9d5b2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
