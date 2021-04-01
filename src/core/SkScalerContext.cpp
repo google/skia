@@ -549,39 +549,37 @@ static void generateMask(const SkMask& mask, const SkPath& path,
 }
 
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
-    const SkGlyph*  glyph = &origGlyph;
+    const SkGlyph* unfilteredGlyph = &origGlyph;
     // in case we need to call generateImage on a mask-format that is different
     // (i.e. larger) than what our caller allocated by looking at origGlyph.
     SkAutoMalloc tmpGlyphImageStorage;
     SkGlyph tmpGlyph;
-    if (fMaskFilter) {   // restore the prefilter bounds
-
+    if (fMaskFilter) {
         // need the original bounds, sans our maskfilter
         sk_sp<SkMaskFilter> mf = std::move(fMaskFilter);
         tmpGlyph = this->internalMakeGlyph(origGlyph.getPackedID(), fRec.fMaskFormat);
         fMaskFilter = std::move(mf);
 
-        // we need the prefilter bounds to be <= filter bounds
-        SkASSERT(tmpGlyph.fWidth <= origGlyph.fWidth);
-        SkASSERT(tmpGlyph.fHeight <= origGlyph.fHeight);
-
-        if (tmpGlyph.fMaskFormat == origGlyph.fMaskFormat) {
+        // Use the origGlyph storage for the temporary unfiltered mask if it will fit.
+        if (tmpGlyph.fMaskFormat == origGlyph.fMaskFormat &&
+            tmpGlyph.imageSize() <= origGlyph.imageSize())
+        {
             tmpGlyph.fImage = origGlyph.fImage;
         } else {
             tmpGlyphImageStorage.reset(tmpGlyph.imageSize());
             tmpGlyph.fImage = tmpGlyphImageStorage.get();
         }
-        glyph = &tmpGlyph;
+        unfilteredGlyph = &tmpGlyph;
     }
 
     if (!fGenerateImageFromPath) {
-        generateImage(*glyph);
+        generateImage(*unfilteredGlyph);
     } else {
         SkPath devPath;
-        SkMask mask = glyph->mask();
+        SkMask mask = unfilteredGlyph->mask();
 
-        if (!this->internalGetPath(glyph->getPackedID(), &devPath)) {
-            generateImage(*glyph);
+        if (!this->internalGetPath(unfilteredGlyph->getPackedID(), &devPath)) {
+            generateImage(*unfilteredGlyph);
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
@@ -597,39 +595,98 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     }
 
     if (fMaskFilter) {
-        // the src glyph image shouldn't be 3D
-        SkASSERT(SkMask::k3D_Format != glyph->fMaskFormat);
+        // k3D_Format should not be mask filtered.
+        SkASSERT(SkMask::k3D_Format != unfilteredGlyph->fMaskFormat);
 
-        SkMask      srcM = glyph->mask(),
-                    dstM;
-        SkMatrix    matrix;
+        SkMask filteredMask;
+        SkMask srcMask;
+        SkMatrix m;
+        fRec.getMatrixFrom2x2(&m);
 
-        fRec.getMatrixFrom2x2(&matrix);
-
-        if (as_MFB(fMaskFilter)->filterMask(&dstM, srcM, matrix, nullptr)) {
-            int width = std::min<int>(origGlyph.fWidth, dstM.fBounds.width());
-            int height = std::min<int>(origGlyph.fHeight, dstM.fBounds.height());
-            int dstRB = origGlyph.rowBytes();
-            int srcRB = dstM.fRowBytes;
-
-            const uint8_t* src = (const uint8_t*)dstM.fImage;
-            uint8_t* dst = (uint8_t*)origGlyph.fImage;
-
-            if (SkMask::k3D_Format == dstM.fFormat) {
-                // we have to copy 3 times as much
-                height *= 3;
-            }
-
-            // clean out our glyph, since it may be larger than dstM
-            //sk_bzero(dst, height * dstRB);
-
-            while (--height >= 0) {
-                memcpy(dst, src, width);
-                src += srcRB;
-                dst += dstRB;
-            }
-            SkMask::FreeImage(dstM.fImage);
+        if (as_MFB(fMaskFilter)->filterMask(&filteredMask, unfilteredGlyph->mask(), m, nullptr)) {
+            // Filter succeeded; filteredMask.fImage was allocated.
+            srcMask = filteredMask;
+        } else if (unfilteredGlyph->fImage == tmpGlyphImageStorage.get()) {
+            // Filter did nothing; unfiltered mask is independent of origGlyph.fImage.
+            srcMask = unfilteredGlyph->mask();
+        } else if (origGlyph.iRect() == unfilteredGlyph->iRect()) {
+            // Filter did nothing; the unfiltered mask is in origGlyph.fImage and matches.
+            return;
+        } else {
+            // Filter did nothing; the unfiltered mask is in origGlyph.fImage and conflicts.
+            srcMask = unfilteredGlyph->mask();
+            size_t imageSize = unfilteredGlyph->imageSize();
+            tmpGlyphImageStorage.reset(imageSize);
+            srcMask.fImage = static_cast<uint8_t*>(tmpGlyphImageStorage.get());
+            memcpy(srcMask.fImage, unfilteredGlyph->fImage, imageSize);
         }
+
+        SkASSERT_RELEASE(srcMask.fFormat == origGlyph.fMaskFormat);
+        SkMask dstMask = origGlyph.mask();
+        SkIRect origBounds = dstMask.fBounds;
+
+        // Find the intersection of src and dst while updating the fImages.
+        if (srcMask.fBounds.fTop < dstMask.fBounds.fTop) {
+            int32_t topDiff = dstMask.fBounds.fTop - srcMask.fBounds.fTop;
+            srcMask.fImage += srcMask.fRowBytes * topDiff;
+            srcMask.fBounds.fTop = dstMask.fBounds.fTop;
+        }
+        if (dstMask.fBounds.fTop < srcMask.fBounds.fTop) {
+            int32_t topDiff = srcMask.fBounds.fTop - dstMask.fBounds.fTop;
+            dstMask.fImage += dstMask.fRowBytes * topDiff;
+            dstMask.fBounds.fTop = srcMask.fBounds.fTop;
+        }
+
+        if (srcMask.fBounds.fLeft < dstMask.fBounds.fLeft) {
+            int32_t leftDiff = dstMask.fBounds.fLeft - srcMask.fBounds.fLeft;
+            srcMask.fImage += leftDiff;
+            srcMask.fBounds.fLeft = dstMask.fBounds.fLeft;
+        }
+        if (dstMask.fBounds.fLeft < srcMask.fBounds.fLeft) {
+            int32_t leftDiff = srcMask.fBounds.fLeft - dstMask.fBounds.fLeft;
+            dstMask.fImage += leftDiff;
+            dstMask.fBounds.fLeft = srcMask.fBounds.fLeft;
+        }
+
+        if (srcMask.fBounds.fBottom < dstMask.fBounds.fBottom) {
+            dstMask.fBounds.fBottom = srcMask.fBounds.fBottom;
+        }
+        if (dstMask.fBounds.fBottom < srcMask.fBounds.fBottom) {
+            srcMask.fBounds.fBottom = dstMask.fBounds.fBottom;
+        }
+
+        if (srcMask.fBounds.fRight < dstMask.fBounds.fRight) {
+            dstMask.fBounds.fRight = srcMask.fBounds.fRight;
+        }
+        if (dstMask.fBounds.fRight < srcMask.fBounds.fRight) {
+            srcMask.fBounds.fRight = dstMask.fBounds.fRight;
+        }
+
+        SkASSERT(srcMask.fBounds == dstMask.fBounds);
+        int width = srcMask.fBounds.width();
+        int height = srcMask.fBounds.height();
+        int dstRB = dstMask.fRowBytes;
+        int srcRB = srcMask.fRowBytes;
+
+        const uint8_t* src = srcMask.fImage;
+        uint8_t* dst = dstMask.fImage;
+
+        if (SkMask::k3D_Format == filteredMask.fFormat) {
+            // we have to copy 3 times as much
+            height *= 3;
+        }
+
+        // If not filling the full original glyph, clear it out first.
+        if (dstMask.fBounds != origBounds) {
+            sk_bzero(origGlyph.fImage, origGlyph.fHeight * origGlyph.rowBytes());
+        }
+
+        while (--height >= 0) {
+            memcpy(dst, src, width);
+            src += srcRB;
+            dst += dstRB;
+        }
+        SkMask::FreeImage(filteredMask.fImage);
     }
 }
 
