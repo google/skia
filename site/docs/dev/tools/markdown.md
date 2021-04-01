@@ -46,7 +46,55 @@ Docsy supports both
 [Font-Awesome](https://fontawesome.com/). Check out their documentation for what
 they offer.
 
+Bootstrap contains many classes that allow you to avoid setting styles via CSS.
+For example, just using classes, we can change the font, the padding, and the
+color:
+
+```html
+<p class="font-monospace p-2 text-danger">This is in monospace</p>
+```
+
+Which renders as:
+
+<p class="font-monospace p-2 text-danger">This is in monospace</p>
+
+## Diagrams
+
+[Mermaid](https://mermaid-js.github.io/mermaid/#/) diagrams are enabled, so
+this:
+
+````markdown
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+````
+
+Gets rendered as:
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
+## Code Snippets
+
+To get syntax highlighting in code snippets you need to specify the language,
+which is specified after the first code fence, for example this is how you would
+show HTML markup:
+
+````
+```html
+<p class="font-monospace p-2 text-danger">This is in monospace</p>
+```
+````
+
 ## Configuration
 
-The Hugo configuration file is [config.toml](../../../config.toml) in the site
-directory.
+The Hugo configuration file is `config.toml` located in the site directory.
