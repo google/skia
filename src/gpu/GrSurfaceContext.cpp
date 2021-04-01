@@ -355,7 +355,10 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
     return true;
 }
 
-bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrCPixmap src, SkIPoint dstPt) {
+bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
+                                   GrCPixmap src,
+                                   SkIPoint dstPt,
+                                   bool prepForSampling) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -367,12 +370,13 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, GrCPixmap src, SkI
     if (!src.info().bpp() || src.rowBytes() % src.info().bpp()) {
         return false;
     }
-    return this->internalWritePixels(dContext, &src, 1, dstPt);
+    return this->internalWritePixels(dContext, &src, 1, dstPt, prepForSampling);
 }
 
 bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
                                    const GrCPixmap src[],
-                                   int numLevels) {
+                                   int numLevels,
+                                   bool prepForSampling) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -385,7 +389,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
         if (src->dimensions() != this->dimensions()) {
             return false;
         }
-        return this->writePixels(dContext, src[0], {0, 0});
+        return this->writePixels(dContext, src[0], {0, 0}, prepForSampling);
     }
     if (!this->asTextureProxy() || this->asTextureProxy()->proxyMipmapped() == GrMipmapped::kNo) {
         return false;
@@ -407,13 +411,14 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
         }
         dims = {std::max(1, dims.width()/2), std::max(1, dims.height()/2)};
     }
-    return this->internalWritePixels(dContext, src, numLevels, {0, 0});
+    return this->internalWritePixels(dContext, src, numLevels, {0, 0}, prepForSampling);
 }
 
 bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
                                            const GrCPixmap src[],
                                            int numLevels,
-                                           SkIPoint pt) {
+                                           SkIPoint pt,
+                                           bool prepForSampling) {
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::internalWritePixels");
 
     SkASSERT(numLevels >= 1);
@@ -424,8 +429,8 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
     SkASSERT(numLevels == 1 ||
              (this->asTextureProxy() && this->asTextureProxy()->mipmapped() == GrMipmapped::kYes));
     // Our public caller should have clipped to the bounds of the surface already.
-    SkASSERT(SkIRect::MakeSize(this->dimensions())
-                     .contains(SkIRect::MakePtSize(pt, src[0].dimensions())));
+    SkASSERT(SkIRect::MakeSize(this->dimensions()).contains(
+            SkIRect::MakePtSize(pt, src[0].dimensions())));
 
     if (!dContext) {
         return false;
@@ -479,7 +484,9 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
                             dContext->priv().validPMUPMConversionExists();
     // Drawing code path doesn't support writing to levels and doesn't support inserting layout
     // transitions.
-    if ((!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) && numLevels == 1) {
+    if ((!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) &&
+        numLevels == 1 &&
+        !prepForSampling) {
         GrColorInfo tempColorInfo;
         GrBackendFormat format;
         GrSwizzle tempReadSwizzle;
@@ -608,12 +615,13 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
     pt.fY = flip ? dstSurface->height() - pt.fY - src[0].height() : pt.fY;
 
     if (!dContext->priv().drawingManager()->newWritePixelsTask(
-                sk_ref_sp(dstProxy),
-                SkIRect::MakePtSize(pt, src[0].dimensions()),
-                this->colorInfo().colorType(),
-                allowedColorType,
-                srcLevels.begin(),
-                numLevels)) {
+            sk_ref_sp(dstProxy),
+            SkIRect::MakePtSize(pt, src[0].dimensions()),
+            this->colorInfo().colorType(),
+            allowedColorType,
+            srcLevels.begin(),
+            numLevels,
+            prepForSampling)) {
         return false;
     }
     if (numLevels > 1) {

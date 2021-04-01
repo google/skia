@@ -17,14 +17,16 @@ sk_sp<GrRenderTask> GrWritePixelsTask::Make(GrDrawingManager* dm,
                                             GrColorType srcColorType,
                                             GrColorType dstColorType,
                                             const GrMipLevel texels[],
-                                            int levelCount) {
+                                            int levelCount,
+                                            bool prepForSampling) {
     return sk_sp<GrRenderTask>(new GrWritePixelsTask(dm,
                                                      std::move(dst),
                                                      rect,
                                                      srcColorType,
                                                      dstColorType,
                                                      texels,
-                                                     levelCount));
+                                                     levelCount,
+                                                     prepForSampling));
 }
 
 GrWritePixelsTask::GrWritePixelsTask(GrDrawingManager* dm,
@@ -33,8 +35,12 @@ GrWritePixelsTask::GrWritePixelsTask(GrDrawingManager* dm,
                                      GrColorType srcColorType,
                                      GrColorType dstColorType,
                                      const GrMipLevel texels[],
-                                     int levelCount)
-        : fRect(rect), fSrcColorType(srcColorType), fDstColorType(dstColorType) {
+                                     int levelCount,
+                                     bool prepForSampling)
+        : fRect(rect)
+        , fSrcColorType(srcColorType)
+        , fDstColorType(dstColorType)
+        , fPrepForSampling(prepForSampling) {
     this->addTarget(dm, std::move(dst));
     fLevels.reset(levelCount);
     std::copy_n(texels, levelCount, fLevels.get());
@@ -66,5 +72,6 @@ bool GrWritePixelsTask::onExecute(GrOpFlushState* flushState) {
                                           fDstColorType,
                                           fSrcColorType,
                                           fLevels.get(),
-                                          fLevels.count());
+                                          fLevels.count(),
+                                          fPrepForSampling);
 }

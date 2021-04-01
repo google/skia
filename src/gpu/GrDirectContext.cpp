@@ -18,8 +18,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderUtils.h"
-#include "src/image/SkImage_GpuBase.h"
-
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -27,6 +26,7 @@
 #include "src/gpu/ops/GrSmallPathAtlasMgr.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
+#include "src/image/SkImage_GpuBase.h"
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlBackendContext.h"
 #include "src/gpu/mtl/GrMtlTrampoline.h"
@@ -482,7 +482,7 @@ static GrBackendTexture create_and_update_backend_texture(
         sk_sp<GrRefCntedCallback> finishedCallback,
         const GrGpu::BackendTextureData* data) {
     GrGpu* gpu = dContext->priv().getGpu();
-
+    SkASSERT(data->type() == GrGpu::BackendTextureData::Type::kColor);
     GrBackendTexture beTex = gpu->createBackendTexture(dimensions, backendFormat, renderable,
                                                        mipMapped, isProtected);
     if (!beTex.isValid()) {
@@ -498,42 +498,46 @@ static GrBackendTexture create_and_update_backend_texture(
     return beTex;
 }
 
-static bool update_texture_with_pixmaps(GrGpu* gpu,
-                                        const SkPixmap* srcData,
+static bool update_texture_with_pixmaps(GrDirectContext* context,
+                                        const SkPixmap src[],
                                         int numLevels,
                                         const GrBackendTexture& backendTexture,
                                         GrSurfaceOrigin textureOrigin,
                                         sk_sp<GrRefCntedCallback> finishedCallback) {
-    bool flip = textureOrigin == kBottomLeft_GrSurfaceOrigin;
-    bool mustBeTight = !gpu->caps()->writePixelsRowBytesSupport();
+    GrColorType ct = SkColorTypeToGrColorType(src[0].colorType());
+    const GrBackendFormat& format = backendTexture.getBackendFormat();
 
-    size_t size = 0;
+    if (!context->priv().caps()->areColorTypeAndFormatCompatible(ct, format)) {
+        return false;
+    }
+
+    auto proxy = context->priv().proxyProvider()->wrapBackendTexture(backendTexture,
+                                                                     kBorrow_GrWrapOwnership,
+                                                                     GrWrapCacheable::kNo,
+                                                                     kRW_GrIOType,
+                                                                     std::move(finishedCallback));
+    if (!proxy) {
+        return false;
+    }
+
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, ct);
+    GrSurfaceProxyView view(std::move(proxy), textureOrigin, swizzle);
+    GrSurfaceContext surfaceContext(context, std::move(view), src[0].info().colorInfo());
+    SkAutoSTArray<15, GrCPixmap> tmpSrc(numLevels);
     for (int i = 0; i < numLevels; ++i) {
-        size_t minRowBytes = srcData[i].info().minRowBytes();
-        if (flip || (mustBeTight && srcData[i].rowBytes() != minRowBytes)) {
-            size += minRowBytes * srcData[i].height();
-        }
+        tmpSrc[i] = src[i];
+    }
+    if (!surfaceContext.writePixels(context, tmpSrc.get(), numLevels, /*prep for sampling*/ true)) {
+        return false;
     }
 
-    std::unique_ptr<char[]> tempStorage;
-    if (size) {
-        tempStorage.reset(new char[size]);
-    }
-    size = 0;
-    SkAutoSTArray<15, GrPixmap> tempPixmaps(numLevels);
-    for (int i = 0; i < numLevels; ++i) {
-        size_t minRowBytes = srcData[i].info().minRowBytes();
-        if (flip || (mustBeTight && srcData[i].rowBytes() != minRowBytes)) {
-            tempPixmaps[i] = {srcData[i].info(), tempStorage.get() + size, minRowBytes};
-            SkAssertResult(GrConvertPixels(tempPixmaps[i], srcData[i], flip));
-            size += minRowBytes*srcData[i].height();
-        } else {
-            tempPixmaps[i] = srcData[i];
-        }
-    }
-
-    GrGpu::BackendTextureData data(tempPixmaps.get());
-    return gpu->updateBackendTexture(backendTexture, std::move(finishedCallback), &data);
+    GrSurfaceProxy* p = surfaceContext.asSurfaceProxy();
+    GrFlushInfo info;
+    context->priv().drawingManager()->flushSurfaces({&p, 1},
+                                                    SkSurface::BackendSurfaceAccess::kNoAccess,
+                                                    info,
+                                                    nullptr);
+    return true;
 }
 
 GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
@@ -604,19 +608,11 @@ GrBackendTexture GrDirectContext::createBackendTexture(const SkPixmap srcData[],
         return {};
     }
 
-    int baseWidth = srcData[0].width();
-    int baseHeight = srcData[0].height();
     SkColorType colorType = srcData[0].colorType();
 
     GrMipmapped mipMapped = GrMipmapped::kNo;
-    int numExpectedLevels = 1;
     if (numProvidedLevels > 1) {
-        numExpectedLevels = SkMipmap::ComputeLevelCount(baseWidth, baseHeight) + 1;
         mipMapped = GrMipmapped::kYes;
-    }
-
-    if (numProvidedLevels != numExpectedLevels) {
-        return {};
     }
 
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
@@ -629,7 +625,7 @@ GrBackendTexture GrDirectContext::createBackendTexture(const SkPixmap srcData[],
     if (!beTex.isValid()) {
         return {};
     }
-    if (!update_texture_with_pixmaps(this->priv().getGpu(),
+    if (!update_texture_with_pixmaps(this,
                                      srcData,
                                      numProvidedLevels,
                                      beTex,
@@ -695,6 +691,7 @@ bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTextur
         return false;
     }
 
+    // If the texture has MIP levels then we require that the full set is overwritten.
     int numExpectedLevels = 1;
     if (backendTexture.hasMipmaps()) {
         numExpectedLevels = SkMipmap::ComputeLevelCount(backendTexture.width(),
@@ -703,7 +700,7 @@ bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTextur
     if (numLevels != numExpectedLevels) {
         return false;
     }
-    return update_texture_with_pixmaps(fGpu.get(),
+    return update_texture_with_pixmaps(this,
                                        srcData,
                                        numLevels,
                                        backendTexture,
