@@ -232,7 +232,7 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
                                                                    int arrayCount,
                                                                    const char** outName) {
     SkASSERT(name && strlen(name));
-    SkASSERT(GrSLTypeIsFloatType(type));
+    SkASSERT(GrSLTypeCanBeUniformValue(type));
 
     // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
     // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
@@ -359,7 +359,7 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     SkString uniformsString;
     for (const VkUniformInfo& localUniform : fUniforms.items()) {
         if (visibility & localUniform.fVisibility) {
-            if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
+            if (GrSLTypeCanBeUniformValue(localUniform.fVariable.getType())) {
                 Layout layout = fUsePushConstants ? kStd430Layout : kStd140Layout;
                 uniformsString.appendf("layout(offset=%d) ", localUniform.fOffsets[layout]);
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
