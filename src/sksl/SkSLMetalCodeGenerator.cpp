@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -179,6 +180,9 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
         case Expression::Kind::kConstructorDiagonalMatrix:
             this->writeSingleArgumentConstructor(expr.as<ConstructorDiagonalMatrix>(),
                                                  parentPrecedence);
+            break;
+        case Expression::Kind::kConstructorSplat:
+            this->writeSingleArgumentConstructor(expr.as<ConstructorSplat>(), parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:
             this->writeIntLiteral(expr.as<IntLiteral>());
@@ -2260,7 +2264,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         }
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorDiagonalMatrix: {
+        case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorSplat: {
             const AnyConstructor& c = e->asAnyConstructor();
             Requirements result = kNo_Requirements;
             for (const auto& arg : c.argumentSpan()) {

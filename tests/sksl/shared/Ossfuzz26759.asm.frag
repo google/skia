@@ -15,6 +15,7 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
 %int_1 = OpConstant %int 1
+%int_0 = OpConstant %int 0
 %v3int = OpTypeVector %int 3
 %main = OpFunction %void None %7
 %8 = OpLabel
@@ -22,6 +23,8 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %12 = OpLoad %int %i
 %14 = OpISub %int %12 %int_1
 OpStore %i %14
-%15 = OpCompositeConstruct %v3int %12 %12 %12
+%16 = OpCompositeConstruct %v3int %int_0 %int_0 %int_0
+%18 = OpCompositeConstruct %v3int %12 %12 %12
+%19 = OpISub %v3int %18 %16
 OpReturn
 OpFunctionEnd

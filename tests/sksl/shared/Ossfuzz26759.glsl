@@ -1,5 +1,5 @@
 
 void main() {
     int i;
-    ivec3(i--);
+    i-- - ivec3(0);
 }

@@ -32,7 +32,6 @@ OpDecorate %50 RelaxedPrecision
 %float_2 = OpConstant %float 2
 %float_5 = OpConstant %float 5
 %float_0_75 = OpConstant %float 0.75
-%21 = OpConstantComposite %v4float %float_0_75 %float_0_75 %float_0_75 %float_0_75
 %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
 %int_0 = OpConstant %int 0
@@ -51,6 +50,7 @@ OpDecorate %50 RelaxedPrecision
 OpSelectionMerge %19 None
 OpBranchConditional %16 %17 %18
 %17 = OpLabel
+%21 = OpCompositeConstruct %v4float %float_0_75 %float_0_75 %float_0_75 %float_0_75
 OpStore %sk_FragColor %21
 OpBranch %19
 %18 = OpLabel

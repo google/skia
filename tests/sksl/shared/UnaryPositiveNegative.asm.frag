@@ -54,7 +54,6 @@ OpDecorate %48 RelaxedPrecision
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %float_n1 = OpConstant %float -1
-%33 = OpConstantComposite %v2float %float_n1 %float_n1
 %v2bool = OpTypeVector %bool 2
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %int_1 = OpConstant %int 1
@@ -77,6 +76,7 @@ OpStore %x %28
 %29 = OpFNegate %v2float %30
 OpStore %x %29
 %31 = OpLoad %v2float %x
+%33 = OpCompositeConstruct %v2float %float_n1 %float_n1
 %34 = OpFOrdEqual %v2bool %31 %33
 %36 = OpAll %bool %34
 OpSelectionMerge %41 None

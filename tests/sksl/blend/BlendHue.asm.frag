@@ -235,7 +235,6 @@ OpDecorate %308 RelaxedPrecision
 %float_0 = OpConstant %float 0
 %float_1 = OpConstant %float 1
 %112 = OpTypeFunction %v3float %_ptr_Function_v3float %_ptr_Function_float
-%139 = OpConstantComposite %v3float %float_0 %float_0 %float_0
 %140 = OpTypeFunction %v3float %_ptr_Function_v3float %_ptr_Function_v3float
 %void = OpTypeVoid
 %243 = OpTypeFunction %void
@@ -378,6 +377,7 @@ OpBranchConditional %120 %121 %122
 %138 = OpCompositeConstruct %v3float %float_0 %136 %137
 OpReturnValue %138
 %122 = OpLabel
+%139 = OpCompositeConstruct %v3float %float_0 %float_0 %float_0
 OpReturnValue %139
 %123 = OpLabel
 OpUnreachable
