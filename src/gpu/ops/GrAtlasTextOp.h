@@ -20,8 +20,10 @@ public:
     DEFINE_OP_CLASS_ID
 
     ~GrAtlasTextOp() override {
-        for (const Geometry* g = fHead; g != nullptr; g = g->fNext) {
-            g->~Geometry();
+        for (const Geometry* g = fHead; g != nullptr;) {
+            const Geometry* next = g->fNext;
+            delete g;
+            g = next;
         }
     }
 
