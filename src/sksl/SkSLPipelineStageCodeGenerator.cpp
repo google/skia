@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -409,10 +410,9 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
             this->write(expr.description());
             break;
         case Expression::Kind::kConstructor:
-            this->writeAnyConstructor(expr.as<Constructor>(), parentPrecedence);
-            break;
+        case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
-            this->writeAnyConstructor(expr.as<ConstructorDiagonalMatrix>(), parentPrecedence);
+            this->writeAnyConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(expr.as<FieldAccess>());

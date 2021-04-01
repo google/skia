@@ -10,6 +10,7 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
@@ -41,6 +42,16 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
                 if (prefix.getOperator().kind() == Token::Kind::TK_MINUS) {
                     return std::move(prefix.operand());
                 }
+            }
+            break;
+
+        case Expression::Kind::kConstructorArray:
+            // Convert `-array[N](literal, ...)` into `array[N](-literal, ...)`.
+            if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
+                ConstructorArray& ctor = operand->as<ConstructorArray>();
+                return ConstructorArray::Make(
+                        context, ctor.fOffset, ctor.type(),
+                        negate_operands(context, std::move(ctor.arguments())));
             }
             break;
 

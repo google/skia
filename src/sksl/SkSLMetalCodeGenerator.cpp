@@ -10,6 +10,8 @@
 #include "src/core/SkScopeExit.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLMemoryLayout.h"
+#include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -170,6 +172,9 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             break;
         case Expression::Kind::kConstructor:
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
+            break;
+        case Expression::Kind::kConstructorArray:
+            this->writeConstructorArray(expr.as<ConstructorArray>(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorDiagonalMatrix:
             this->writeSingleArgumentConstructor(expr.as<ConstructorDiagonalMatrix>(),
@@ -1114,6 +1119,19 @@ void MetalCodeGenerator::writeSingleArgumentConstructor(const SingleArgumentCons
     this->write("(");
     this->writeExpression(*c.argument(), Precedence::kSequence);
     this->write(")");
+}
+
+void MetalCodeGenerator::writeConstructorArray(const ConstructorArray& c,
+                                               Precedence parentPrecedence) {
+    this->writeType(c.type());
+    this->write("{");
+    const char* separator = "";
+    for (const std::unique_ptr<Expression>& arg : c.arguments()) {
+        this->write(separator);
+        separator = ", ";
+        this->writeExpression(*arg, Precedence::kSequence);
+    }
+    this->write("}");
 }
 
 void MetalCodeGenerator::writeFragCoord() {
@@ -2238,16 +2256,15 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             }
             return result;
         }
-        case Expression::Kind::kConstructor: {
-            const Constructor& c = e->as<Constructor>();
+        case Expression::Kind::kConstructor:
+        case Expression::Kind::kConstructorArray:
+        case Expression::Kind::kConstructorDiagonalMatrix: {
+            const AnyConstructor& c = e->asAnyConstructor();
             Requirements result = kNo_Requirements;
             for (const auto& arg : c.argumentSpan()) {
                 result |= this->requirements(arg.get());
             }
             return result;
-        }
-        case Expression::Kind::kConstructorDiagonalMatrix: {
-            return this->requirements(e->as<ConstructorDiagonalMatrix>().argument().get());
         }
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = e->as<FieldAccess>();
