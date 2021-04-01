@@ -14,6 +14,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
@@ -126,14 +127,12 @@ static std::unique_ptr<Expression> cast_expression(const Context& context,
     return ctor;
 }
 
-static Constructor splat_scalar(const Expression& scalar, const Type& type) {
+static ConstructorSplat splat_scalar(const Expression& scalar, const Type& type) {
     SkASSERT(type.isVector());
     SkASSERT(type.componentType() == scalar.type());
 
-    // Use a Constructor to splat the scalar expression across a vector.
-    ExpressionArray arg;
-    arg.push_back(scalar.clone());
-    return Constructor{scalar.fOffset, type, std::move(arg)};
+    // Use a constructor to splat the scalar expression across a vector.
+    return ConstructorSplat{scalar.fOffset, type, scalar.clone()};
 }
 
 bool ConstantFolder::GetConstantInt(const Expression& value, SKSL_INT* out) {
@@ -161,8 +160,8 @@ static bool is_constant_scalar_value(const Expression& inExpr, float match) {
 }
 
 static bool contains_constant_zero(const Expression& expr) {
-    if (expr.is<Constructor>()) {
-        for (const auto& arg : expr.as<Constructor>().arguments()) {
+    if (expr.isAnyConstructor()) {
+        for (const auto& arg : expr.asAnyConstructor().argumentSpan()) {
             if (contains_constant_zero(*arg)) {
                 return true;
             }
@@ -176,8 +175,8 @@ static bool is_constant_value(const Expression& expr, float value) {
     // This check only supports scalars and vectors (and in particular, not matrices).
     SkASSERT(expr.type().isScalar() || expr.type().isVector());
 
-    if (expr.is<Constructor>()) {
-        for (const auto& arg : expr.as<Constructor>().arguments()) {
+    if (expr.isAnyConstructor()) {
+        for (const auto& arg : expr.asAnyConstructor().argumentSpan()) {
             if (!is_constant_value(*arg, value)) {
                 return false;
             }
