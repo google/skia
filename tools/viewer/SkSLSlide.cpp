@@ -199,6 +199,21 @@ void SkSLSlide::draw(SkCanvas* canvas) {
                 }
                 break;
             }
+            case SkRuntimeEffect::Uniform::Type::kInt:
+            case SkRuntimeEffect::Uniform::Type::kInt2:
+            case SkRuntimeEffect::Uniform::Type::kInt3:
+            case SkRuntimeEffect::Uniform::Type::kInt4: {
+                int rows = ((int)v.type - (int)SkRuntimeEffect::Uniform::Type::kInt) + 1;
+                int* i = reinterpret_cast<int*>(data);
+                for (int c = 0; c < v.count; ++c, i += rows) {
+                    SkString name = v.isArray() ? SkStringPrintf("%s[%d]", v.name.c_str(), c)
+                                                : v.name;
+                    ImGui::PushID(c);
+                    ImGui::DragScalarN(name.c_str(), ImGuiDataType_S32, i, rows, 1.0f);
+                    ImGui::PopID();
+                }
+                break;
+            }
         }
     }
 
