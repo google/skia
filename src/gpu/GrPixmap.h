@@ -124,8 +124,8 @@ public:
     GrCPixmap& operator=(GrCPixmap&&) = default;
 
     /* implicit*/ GrCPixmap(const GrPixmap& pixmap) {
-        if (pixmap.pixelStorage()) {
-            *this = GrCPixmap(pixmap.info(), pixmap.pixelStorage(), pixmap.rowBytes());
+        if (auto storage = pixmap.pixelStorage()) {
+            *this = GrCPixmap(pixmap.info(), std::move(storage), pixmap.rowBytes());
         } else {
             *this = GrCPixmap(pixmap.info(), pixmap.addr(), pixmap.rowBytes());
         }

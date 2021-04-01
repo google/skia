@@ -15,6 +15,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
@@ -184,7 +185,7 @@ SkPixmap make_pixmap_have_valid_alpha_type(SkPixmap pm) {
     return pm;
 }
 
-SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaque) {
+static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaque) {
     SkAutoPixmapStorage result;
     result.alloc(info);
     auto surface = SkSurface::MakeRasterDirect(make_pixmap_have_valid_alpha_type(result));
@@ -326,7 +327,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                 ERRORF(reporter,
                        "%sSrc CT: %s, Src AT: %s, Read CT: %s, Read AT: %s, Rect [%d, %d, %d, %d]"
                        ", CS conversion: %d\n"
-                       "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
+                       "Error at %d, %d. Diff in floats: (%f, %f, %f, %f)",
                        label.c_str(),
                        ToolUtils::colortype_name(srcCT), ToolUtils::alphatype_name(srcAT),
                        ToolUtils::colortype_name(readCT), ToolUtils::alphatype_name(readAT),
@@ -500,6 +501,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuSrcFactory<Surface>>(
                     [direct, origin, renderable](const SkPixmap& src) {
+                        // skbug.com/8862
                         if (src.colorType() == kRGB_888x_SkColorType) {
                             return Surface();
                         }
@@ -602,6 +604,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto factory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
+                    // skbug.com/8862
                     if (src.colorType() == kRGB_888x_SkColorType) {
                         return Surface();
                     }
@@ -620,21 +623,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
         gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
         auto backendRTFactory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
-                  if (src.colorType() == kRGB_888x_SkColorType) {
-                      return Surface();
-                  }
-                  // Dawn backend implementation of backend render targets doesn't support reading.
-                  if (context->backend() == GrBackendApi::kDawn) {
-                      return Surface();
-                  }
-                  auto surf = sk_gpu_test::MakeBackendRenderTargetSurface(context,
-                                                                          src.info(),
-                                                                          origin,
-                                                                          1);
-                  if (surf) {
-                      surf->writePixels(src, 0, 0);
-                  }
-                  return surf;
+                    // skbug.com/8862
+                    if (src.colorType() == kRGB_888x_SkColorType) {
+                        return Surface();
+                    }
+                    // Dawn backend implementation of backend render targets doesn't support
+                    // reading.
+                    if (context->backend() == GrBackendApi::kDawn) {
+                        return Surface();
+                    }
+                    auto surf = sk_gpu_test::MakeBackendRenderTargetSurface(context,
+                                                                            src.info(),
+                                                                            origin,
+                                                                            1);
+                    if (surf) {
+                        surf->writePixels(src, 0, 0);
+                    }
+                    return surf;
                 });
         label = SkStringPrintf("BERT Origin: %d", origin);
         gpu_read_pixels_test_driver(reporter, rules, backendRTFactory, reader, label);
@@ -682,6 +687,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             auto factory = std::function<GpuSrcFactory<Image>>([&](const SkPixmap& src) {
+                // skbug.com/8862
                 if (src.colorType() == kRGB_888x_SkColorType) {
                     return Image();
                 }
@@ -904,7 +910,7 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
             ERRORF(reporter,
                    "Write CT: %s, Write AT: %s, Dst CT: %s, Dst AT: %s, Rect [%d, %d, %d, %d]"
                    ", CS conversion: %d\n"
-                   "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
+                   "Error at %d, %d. Diff in floats: (%f, %f, %f, %f)",
                    ToolUtils::colortype_name(writeCT),
                    ToolUtils::alphatype_name(writeAT),
                    ToolUtils::colortype_name(dstCT),
@@ -952,7 +958,7 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
                             ERRORF(reporter,
                                    "Write CT: %s, Write AT: %s, Dst CT: %s, Dst AT: %s,"
                                    "Rect [%d, %d, %d, %d], CS conversion: %d\n"
-                                   "Error in guard region %d, %d. Diff in floats: (%f, %f, %f %f)",
+                                   "Error in guard region %d, %d. Diff in floats: (%f, %f, %f, %f)",
                                    ToolUtils::colortype_name(writeCT),
                                    ToolUtils::alphatype_name(writeAT),
                                    ToolUtils::colortype_name(dstCT),
@@ -1093,6 +1099,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo)
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuDstFactory<Surface>>(
                     [direct, origin, renderable](const SkImageInfo& info) {
+                        // skbug.com/8862
                         if (info.colorType() == kRGB_888x_SkColorType) {
                             return Surface();
                         }
@@ -1104,6 +1111,111 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo)
                     });
 
             gpu_write_pixels_test_driver(reporter, factory, writer, reader);
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ctxInfo) {
+    auto direct = ctxInfo.directContext();
+    if (!direct->priv().caps()->mipmapSupport()) {
+        return;
+    }
+    static constexpr int kW = 25,
+                         kH = 37;
+    SkAutoPixmapStorage refP = make_ref_data(SkImageInfo::Make({kW, kH},
+                                                               kRGBA_F32_SkColorType,
+                                                               kPremul_SkAlphaType,
+                                                               nullptr),
+                                             false);
+    SkAutoPixmapStorage refO = make_ref_data(SkImageInfo::Make({kW, kH},
+                                                               kRGBA_F32_SkColorType,
+                                                               kOpaque_SkAlphaType,
+                                                               nullptr),
+                                             true);
+
+    for (int c = 0; c < kGrColorTypeCnt; ++c) {
+        auto ct = static_cast<GrColorType>(c);
+        // skbug.com/8862
+        if (ct == GrColorType::kRGB_888x) {
+            continue;
+        }
+        auto format = direct->priv().caps()->getDefaultBackendFormat(ct, GrRenderable::kYes);
+        if (!direct->priv().caps()->isFormatRenderable(format, 1)) {
+            // Below we use rendering to read the level pixels back.
+            continue;
+        }
+        SkAlphaType at = GrColorTypeHasAlpha(ct) ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+        GrImageInfo info(ct, at, nullptr, kW, kH);
+        SkTArray<GrCPixmap> levels;
+        const auto& ref = at == kPremul_SkAlphaType ? refP : refO;
+        for (int w = kW, h = kH; w || h; w/=2, h/=2) {
+            auto level = GrPixmap::Allocate(info.makeWH(std::max(w, 1), std::max(h, 1)));
+            SkPixmap src;
+            SkAssertResult(ref.extractSubset(&src, SkIRect::MakeSize(level.dimensions())));
+            GrConvertPixels(level, src);
+            levels.push_back(level);
+        }
+
+        for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
+            for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+                auto sc = GrSurfaceContext::Make(direct,
+                                                 info,
+                                                 SkBackingFit::kExact,
+                                                 origin,
+                                                 renderable,
+                                                 /*sample count*/ 1,
+                                                 GrMipmapped::kYes);
+                if (!sc) {
+                    continue;
+                }
+                // Going through intermediate textures is not supported for MIP levels (because we
+                // don't support rendering to non-base levels). So it's hard to have any hard rules
+                // about when we expect success.
+                if (!sc->writePixels(direct, levels.begin(), levels.count())) {
+                    continue;
+                }
+                // TODO: Update this when read pixels supports reading back levels to read directly
+                // rather than using minimizing draws.
+                auto dst = GrSurfaceDrawContext::Make(direct,
+                                                      info.colorType(),
+                                                      info.refColorSpace(),
+                                                      SkBackingFit::kExact,
+                                                      info.dimensions());
+                SkASSERT(dst);
+                GrSamplerState sampler(SkFilterMode::kNearest, SkMipmapMode::kNearest);
+                for (int i = 1; i <= 1; ++i) {
+                    auto te = GrTextureEffect::Make(sc->readSurfaceView(),
+                                                    info.alphaType(),
+                                                    SkMatrix::I(),
+                                                    sampler,
+                                                    *direct->priv().caps());
+                    dst->fillRectToRectWithFP(SkIRect::MakeSize(sc->dimensions()),
+                                              SkIRect::MakeSize(levels[i].dimensions()),
+                                              std::move(te));
+                    GrImageInfo readInfo = dst->imageInfo().makeDimensions(levels[i].dimensions());
+                    GrPixmap read = GrPixmap::Allocate(readInfo);
+                    if (!dst->readPixels(direct, read, {0, 0})) {
+                        continue;
+                    }
+
+                    auto skCT = GrColorTypeToSkColorType(info.colorType());
+                    int rgbBits = std::min(min_rgb_channel_bits(skCT), 8);
+                    float rgbTol = 2.f / (1 << rgbBits);
+                    int alphaBits = std::min(alpha_channel_bits(skCT), 8);
+                    float alphaTol = 2.f / (1 << alphaBits);
+                    float tol[] = {rgbTol, rgbTol, rgbTol, alphaTol};
+
+                    auto error = std::function<ComparePixmapsErrorReporter>(
+                            [&](int x, int y, const float diffs[4]) {
+                      SkASSERT(x >= 0 && y >= 0);
+                      ERRORF(reporter,
+                             "CT: %s, Level %d. Error at %d, %d. Diff in floats: (%f, %f, %f, %f)",
+                             GrColorTypeToStr(info.colorType()),
+                             i, x, y, diffs[0], diffs[1], diffs[2], diffs[3]);
+                    });
+                    ComparePixels(levels[i], read, tol, error);
+                }
+            }
         }
     }
 }
