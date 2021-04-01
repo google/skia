@@ -715,6 +715,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
+        case Expression::Kind::kConstructorSplat:
+            return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
         case Expression::Kind::kIntLiteral:
             return this->writeIntLiteral(expr.as<IntLiteral>());
         case Expression::Kind::kFieldAccess:
@@ -1172,7 +1174,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeConstantVector(const Constructor& c) {
+SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
     const Type& type = c.type();
     SkASSERT(type.isVector() && c.isCompileTimeConstant());
 
@@ -1625,25 +1627,38 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
             arguments.push_back(this->writeExpression(*c.arguments()[i], out));
         }
     }
+    SkASSERT((int)arguments.size() == type.columns());
+
     SpvId result = this->nextId(&type);
-    if (arguments.size() == 1 && c.arguments()[0]->type().isScalar()) {
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
-        this->writeWord(this->getType(type), out);
-        this->writeWord(result, out);
-        for (int i = 0; i < type.columns(); i++) {
-            this->writeWord(arguments[0], out);
-        }
-    } else {
-        SkASSERT(arguments.size() > 1);
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
-        this->writeWord(this->getType(type), out);
-        this->writeWord(result, out);
-        for (SpvId id : arguments) {
-            this->writeWord(id, out);
-        }
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
+    this->writeWord(this->getType(type), out);
+    this->writeWord(result, out);
+    for (SpvId id : arguments) {
+        this->writeWord(id, out);
     }
     return result;
 }
+
+SpvId SPIRVCodeGenerator::writeConstructorSplat(const ConstructorSplat& c, OutputStream& out) {
+    // Use writeConstantVector to deduplicate constant splats.
+    if (c.isCompileTimeConstant()) {
+        return this->writeConstantVector(c);
+    }
+
+    // Write the splat argument.
+    SpvId argument = this->writeExpression(*c.argument(), out);
+
+    // Generate a OpCompositeConstruct which repeats the argument N times.
+    SpvId result = this->nextId(&c.type());
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + c.type().columns(), out);
+    this->writeWord(this->getType(c.type()), out);
+    this->writeWord(result, out);
+    for (int i = 0; i < c.type().columns(); i++) {
+        this->writeWord(argument, out);
+    }
+    return result;
+}
+
 
 SpvId SPIRVCodeGenerator::writeArrayConstructor(const ConstructorArray& c, OutputStream& out) {
     const Type& type = c.type();
