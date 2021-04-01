@@ -24,6 +24,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -241,7 +242,7 @@ private:
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 
-    SpvId writeConstantVector(const Constructor& c);
+    SpvId writeConstantVector(const AnyConstructor& c);
 
     SpvId writeFloatConstructor(const Constructor& c, OutputStream& out);
 
@@ -290,6 +291,8 @@ private:
     SpvId writeConstructor(const Constructor& c, OutputStream& out);
 
     SpvId writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c, OutputStream& out);
+
+    SpvId writeConstructorSplat(const ConstructorSplat& c, OutputStream& out);
 
     SpvId writeFieldAccess(const FieldAccess& f, OutputStream& out);
 

@@ -20,6 +20,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -247,6 +248,7 @@ private:
     Value writeConstructor(const Constructor& c);
     Value writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
+    Value writeConstructorSplat(const ConstructorSplat& c);
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
     Value writeFieldAccess(const FieldAccess& expr);
@@ -768,17 +770,22 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
         return dst;
     }
 
-    // We can splat scalars to all components of a vector
-    if (dstType.isVector() && srcType.isScalar()) {
-        Value dst(dstType.columns());
-        for (int i = 0; i < dstType.columns(); ++i) {
-            dst[i] = src[0];
-        }
-        return dst;
-    }
-
     SkDEBUGFAIL("Invalid constructor");
     return {};
+}
+
+Value SkVMGenerator::writeConstructorSplat(const ConstructorSplat& c) {
+    SkASSERT(c.type().isVector());
+    SkASSERT(c.argument()->type().isScalar());
+    int columns = c.type().columns();
+
+    // Splat the argument across all components of a vector.
+    Value src = this->writeExpression(*c.argument());
+    Value dst(columns);
+    for (int i = 0; i < columns; ++i) {
+        dst[i] = src[0];
+    }
+    return dst;
 }
 
 Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c) {
@@ -1457,6 +1464,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeMultiArgumentConstructor(e.as<ConstructorArray>());
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
+        case Expression::Kind::kConstructorSplat:
+            return this->writeConstructorSplat(e.as<ConstructorSplat>());
         case Expression::Kind::kFieldAccess:
             return this->writeFieldAccess(e.as<FieldAccess>());
         case Expression::Kind::kIndex:

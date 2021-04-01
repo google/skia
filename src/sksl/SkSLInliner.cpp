@@ -19,6 +19,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -325,6 +326,12 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return ConstructorDiagonalMatrix::Make(*fContext, offset,
                                                    *ctor.type().clone(symbolTableForExpression),
                                                    expr(ctor.argument()));
+        }
+        case Expression::Kind::kConstructorSplat: {
+            const ConstructorSplat& ctor = expression.as<ConstructorSplat>();
+            return ConstructorSplat::Make(*fContext, offset,
+                                          *ctor.type().clone(symbolTableForExpression),
+                                          expr(ctor.argument()));
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
@@ -922,7 +929,8 @@ public:
             }
             case Expression::Kind::kConstructor:
             case Expression::Kind::kConstructorArray:
-            case Expression::Kind::kConstructorDiagonalMatrix: {
+            case Expression::Kind::kConstructorDiagonalMatrix:
+            case Expression::Kind::kConstructorSplat: {
                 AnyConstructor& constructorExpr = (*expr)->asAnyConstructor();
                 for (std::unique_ptr<Expression>& arg : constructorExpr.argumentSpan()) {
                     this->visitExpression(&arg);

@@ -12,6 +12,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 
@@ -62,6 +63,15 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
                 return ConstructorDiagonalMatrix::Make(
                         context, ctor.fOffset, ctor.type(),
                         negate_operand(context, std::move(ctor.argument())));
+            }
+            break;
+
+        case Expression::Kind::kConstructorSplat:
+            // Convert `-vector(literal)` into `vector(-literal)`.
+            if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
+                ConstructorSplat& ctor = operand->as<ConstructorSplat>();
+                return ConstructorSplat::Make(context, ctor.fOffset, ctor.type(),
+                                              negate_operand(context, std::move(ctor.argument())));
             }
             break;
 
