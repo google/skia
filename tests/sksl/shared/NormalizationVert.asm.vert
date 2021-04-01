@@ -28,7 +28,6 @@ OpDecorate %15 RelaxedPrecision
 %void = OpTypeVoid
 %12 = OpTypeFunction %void
 %float_1 = OpConstant %float 1
-%15 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -37,6 +36,7 @@ OpDecorate %15 RelaxedPrecision
 %float_0 = OpConstant %float 0
 %main = OpFunction %void None %12
 %13 = OpLabel
+%15 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
 %18 = OpAccessChain %_ptr_Output_v4float %3 %int_0
 OpStore %18 %15
 %20 = OpAccessChain %_ptr_Output_v4float %3 %int_0

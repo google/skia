@@ -10,6 +10,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _out;
     (void)_out;
     int i;
-    int3(i--);
+    i-- - int3(0);
     return _out;
 }
