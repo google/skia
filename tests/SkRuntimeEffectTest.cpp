@@ -43,9 +43,8 @@ DEF_TEST(SkRuntimeEffectInvalid_FPOnly, r) {
 }
 
 DEF_TEST(SkRuntimeEffectInvalid_LimitedUniformTypes, r) {
-    // Runtime SkSL supports a limited set of uniform types. No bool, or int, for example:
+    // Runtime SkSL supports a limited set of uniform types. No bool, for example:
     test_invalid_effect(r, "uniform bool b;" EMPTY_MAIN, "uniform");
-    test_invalid_effect(r, "uniform int i;"  EMPTY_MAIN, "uniform");
 }
 
 DEF_TEST(SkRuntimeEffectInvalid_NoInVariables, r) {
@@ -214,6 +213,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     TestEffect effect(r, surface);
 
     using float4 = std::array<float, 4>;
+    using int4 = std::array<int, 4>;
 
     // Local coords
     effect.build("half4 main(float2 p) { return half4(half2(p - 0.5), 0, 1); }");
@@ -224,6 +224,13 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.uniform("gColor") = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
     effect.test(0xFFBF4000);
     effect.uniform("gColor") = float4{ 1.0f, 0.0f, 0.0f, 0.498f };
+    effect.test(0x7F00007F);  // Tests that we clamp to valid premul
+
+    // Same, with integer uniforms
+    effect.build("uniform int4 gColor; half4 main() { return half4(gColor) / 255.0; }");
+    effect.uniform("gColor") = int4{ 0x00, 0x40, 0xBF, 0xFF };
+    effect.test(0xFFBF4000);
+    effect.uniform("gColor") = int4{ 0xFF, 0x00, 0x00, 0x7F };
     effect.test(0x7F00007F);  // Tests that we clamp to valid premul
 
     // Test sk_FragCoord (device coords). Rotate the canvas to be sure we're seeing device coords.
