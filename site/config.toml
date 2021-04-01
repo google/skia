@@ -90,12 +90,12 @@ version = "0.0"
 url_latest_version = "https://skia.org"
 
 # Repository configuration (URLs for in-page links to opening issues and suggesting changes)
-# github_repo = "https://github.com/google/skia"
+#github_repo = "https://github.com/google/skia"
 # An optional link to a related project repo. For example, the sibling repository where your product code lives.
-#github_project_repo = "https://github.com/google/docsy"
+#github_project_repo = "https://skia.googlesource.com/skia"
 
 # Specify a value here if your content directory is not in your repo's root directory
-#github_subdir = "site2"
+github_subdir = "site"
 
 # Uncomment this if you have a newer GitHub repo with "main" as the default branch,
 # or specify a new value if you want to reference another branch in your GitHub links
@@ -176,3 +176,5 @@ enable = false
 #	icon = "fa fa-envelope"
 #        desc = "Discuss development issues around the project"
 
+[params.mermaid]
+enable = true
