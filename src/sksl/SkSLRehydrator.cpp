@@ -16,6 +16,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
@@ -457,6 +458,10 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             auto ctor = Constructor::Convert(fContext, /*offset=*/-1, *type, std::move(args));
             SkASSERT(ctor);
             return ctor;
+        }
+        case Rehydrator::kConstructorArray_Command: {
+            const Type* type = this->type();
+            return ConstructorArray::Make(fContext, /*offset=*/-1, *type, this->expressionArray());
         }
         case Rehydrator::kConstructorDiagonalMatrix_Command: {
             const Type* type = this->type();
