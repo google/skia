@@ -133,7 +133,10 @@ public:
      * @param src              source for the write
      * @param dstPt            offset w/in the surface context at which to write
      */
-    bool writePixels(GrDirectContext* dContext, GrCPixmap src, SkIPoint dstPt);
+    bool writePixels(GrDirectContext* dContext,
+                     GrCPixmap src,
+                     SkIPoint dstPt,
+                     bool prepForSampling = false);
 
     /**
      * Fully populates either the base level or all MIP levels of the GrSurface with pixel data.
@@ -142,7 +145,10 @@ public:
      * @param numLevels        Number of pixmaps in src. To succeed this must be 1 or the total
      *                         number of MIP levels.
      */
-    bool writePixels(GrDirectContext* dContext, const GrCPixmap src[], int numLevels);
+    bool writePixels(GrDirectContext* dContext,
+                     const GrCPixmap src[],
+                     int numLevels,
+                     bool prepForSampling = false);
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
@@ -257,7 +263,8 @@ private:
     bool internalWritePixels(GrDirectContext* dContext,
                              const GrCPixmap src[],
                              int numLevels,
-                             SkIPoint);
+                             SkIPoint,
+                             bool prepForSampling);
 
     class AsyncReadResult;
 
