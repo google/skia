@@ -20,6 +20,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -248,6 +249,7 @@ private:
     Value writeConstructor(const Constructor& c);
     Value writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
+    Value writeConstructorScalarCast(const ConstructorScalarCast& c);
     Value writeConstructorSplat(const ConstructorSplat& c);
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
@@ -259,6 +261,8 @@ private:
     Value writeSwizzle(const Swizzle& swizzle);
     Value writeTernaryExpression(const TernaryExpression& t);
     Value writeVariableExpression(const VariableReference& expr);
+
+    Value writeTypeConversion(const Value& src, Type::NumberKind srcKind, Type::NumberKind dstKind);
 
     void writeStatement(const Statement& s);
     void writeBlock(const Block& b);
@@ -685,62 +689,7 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
     // TODO: Handle signed vs. unsigned. GLSL ES 1.0 only has 'int', so no problem yet.
     if (srcKind != dstKind) {
         // One argument constructors can do type conversion
-        Value dst(src.slots());
-        switch (dstKind) {
-            case Type::NumberKind::kFloat:
-                if (srcKind == Type::NumberKind::kSigned) {
-                    // int -> float
-                    for (size_t i = 0; i < src.slots(); ++i) {
-                        dst[i] = skvm::to_F32(i32(src[i]));
-                    }
-                    return dst;
-                } else if (srcKind == Type::NumberKind::kBoolean) {
-                    // bool -> float
-                    for (size_t i = 0; i < src.slots(); ++i) {
-                        dst[i] = skvm::select(i32(src[i]), 1.0f, 0.0f);
-                    }
-                    return dst;
-                }
-                break;
-
-            case Type::NumberKind::kSigned:
-                if (srcKind == Type::NumberKind::kFloat) {
-                    // float -> int
-                    for (size_t i = 0; i < src.slots(); ++i) {
-                        dst[i] = skvm::trunc(f32(src[i]));
-                    }
-                    return dst;
-                } else if (srcKind == Type::NumberKind::kBoolean) {
-                    // bool -> int
-                    for (size_t i = 0; i < src.slots(); ++i) {
-                        dst[i] = skvm::select(i32(src[i]), 1, 0);
-                    }
-                    return dst;
-                }
-                break;
-
-            case Type::NumberKind::kBoolean:
-                if (srcKind == Type::NumberKind::kSigned) {
-                    // int -> bool
-                    for (size_t i = 0; i < src.slots(); ++i) {
-                        dst[i] = i32(src[i]) != 0;
-                    }
-                    return dst;
-                } else if (srcKind == Type::NumberKind::kFloat) {
-                    // float -> bool
-                    for (size_t i = 0; i < src.slots(); ++i) {
-                        dst[i] = f32(src[i]) != 0.0;
-                    }
-                    return dst;
-                }
-                break;
-
-            default:
-                break;
-        }
-        SkDEBUGFAILF("Unsupported type conversion: %s -> %s", srcType.displayName().c_str(),
-                                                              dstType.displayName().c_str());
-        return {};
+        return this->writeTypeConversion(src, srcKind, dstKind);
     }
 
     // Matrices can be constructed from scalars or other matrices
@@ -772,6 +721,84 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
 
     SkDEBUGFAIL("Invalid constructor");
     return {};
+}
+
+Value SkVMGenerator::writeTypeConversion(const Value& src,
+                                         Type::NumberKind srcKind,
+                                         Type::NumberKind dstKind) {
+    // Conversion among "similar" types (floatN <-> halfN), (shortN <-> intN), etc. is a no-op.
+    if (srcKind == dstKind) {
+        return src;
+    }
+
+    // TODO: Handle signed vs. unsigned. GLSL ES 1.0 only has 'int', so no problem yet.
+    Value dst(src.slots());
+    switch (dstKind) {
+        case Type::NumberKind::kFloat:
+            if (srcKind == Type::NumberKind::kSigned) {
+                // int -> float
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::to_F32(i32(src[i]));
+                }
+                return dst;
+            }
+            if (srcKind == Type::NumberKind::kBoolean) {
+                // bool -> float
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::select(i32(src[i]), 1.0f, 0.0f);
+                }
+                return dst;
+            }
+            break;
+
+        case Type::NumberKind::kSigned:
+            if (srcKind == Type::NumberKind::kFloat) {
+                // float -> int
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::trunc(f32(src[i]));
+                }
+                return dst;
+            }
+            if (srcKind == Type::NumberKind::kBoolean) {
+                // bool -> int
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::select(i32(src[i]), 1, 0);
+                }
+                return dst;
+            }
+            break;
+
+        case Type::NumberKind::kBoolean:
+            if (srcKind == Type::NumberKind::kSigned) {
+                // int -> bool
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = i32(src[i]) != 0;
+                }
+                return dst;
+            }
+            if (srcKind == Type::NumberKind::kFloat) {
+                // float -> bool
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = f32(src[i]) != 0.0;
+                }
+                return dst;
+            }
+            break;
+
+        default:
+            break;
+    }
+    SkDEBUGFAILF("Unsupported type conversion: %d -> %d", srcKind, dstKind);
+    return {};
+}
+
+Value SkVMGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c) {
+    const Type& srcType = c.argument()->type();
+    const Type& dstType = c.type();
+    Type::NumberKind srcKind = base_number_kind(srcType);
+    Type::NumberKind dstKind = base_number_kind(dstType);
+    Value src = this->writeExpression(*c.argument());
+    return this->writeTypeConversion(src, srcKind, dstKind);
 }
 
 Value SkVMGenerator::writeConstructorSplat(const ConstructorSplat& c) {
@@ -1464,6 +1491,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeMultiArgumentConstructor(e.as<ConstructorArray>());
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
+        case Expression::Kind::kConstructorScalarCast:
+            return this->writeConstructorScalarCast(e.as<ConstructorScalarCast>());
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(e.as<ConstructorSplat>());
         case Expression::Kind::kFieldAccess:
