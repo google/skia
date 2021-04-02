@@ -9,6 +9,7 @@
 
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -269,10 +270,10 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
 
     ExpressionArray args;
     args.push_back(std::move(expr));
-    if (!this->isScalar()) {
-        return Constructor::Convert(context, offset, *this, std::move(args));
+    if (this->isScalar()) {
+        return ConstructorScalarCast::Convert(context, offset, *this, std::move(args));
     }
-    return Constructor::Convert(context, offset, this->scalarTypeForLiteral(), std::move(args));
+    return Constructor::Convert(context, offset, *this, std::move(args));
 }
 
 bool Type::isOrContainsArray() const {
