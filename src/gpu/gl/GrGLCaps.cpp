@@ -2408,10 +2408,10 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             ctInfo.fExternalIOFormats = std::make_unique<ColorTypeInfo::ExternalIOFormats[]>(
                     ctInfo.fExternalIOFormatCount);
             int ioIdx = 0;
-            // Format: RGB8, Surface: kRGB_888x, Data: kRGB_888x
+            // Format: RGB8, Surface: kRGB_888x, Data: kRGB_888
             {
                 auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
-                ioFormat.fColorType = GrColorType::kRGB_888x;
+                ioFormat.fColorType = GrColorType::kRGB_888;
                 ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
                 // This is technically the wrong format to use for this color type since the color
                 // type is 4 bytes but the format is 3. However, we don't currently upload data of
