@@ -278,7 +278,7 @@ public:
     bool writePixels(GrSurface* surface, int left, int top, int width, int height,
                      GrColorType surfaceColorType, GrColorType srcColorType, const void* buffer,
                      size_t rowBytes, bool prepForTexSampling = false) {
-        GrMipLevel mipLevel = {buffer, rowBytes};
+        GrMipLevel mipLevel = {buffer, rowBytes, nullptr};
         return this->writePixels(surface, left, top, width, height, surfaceColorType, srcColorType,
                                  &mipLevel, 1, prepForTexSampling);
     }

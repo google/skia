@@ -163,6 +163,8 @@ enum class GrScissorTest : bool {
 struct GrMipLevel {
     const void* fPixels = nullptr;
     size_t fRowBytes = 0;
+    // This may be used to keep fPixels from being freed while a GrMipLevel exists.
+    sk_sp<SkData> fOptionalStorage;
 };
 
 /**
@@ -911,7 +913,7 @@ enum class GrColorType {
     kBGRA_4444,
     kARGB_4444,
 
-    kLast = kGray_F16
+    kLast = kARGB_4444
 };
 
 static const int kGrColorTypeCnt = static_cast<int>(GrColorType::kLast) + 1;

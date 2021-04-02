@@ -94,8 +94,7 @@ public:
                             GrColorType srcColorType,
                             GrColorType dstColorType,
                             const GrMipLevel[],
-                            int levelCount,
-                            sk_sp<SkData> storage);
+                            int levelCount);
 
     GrRecordingContext* getContext() { return fContext; }
 

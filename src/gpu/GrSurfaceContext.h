@@ -128,13 +128,21 @@ public:
                                          ReadPixelsContext context);
 
     /**
-     * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the
-     * surfaceDrawContext at the specified position.
-     * @param dContext      The direct context to use
-     * @param src           source for the write
-     * @param dstPt         offset w/in the surface context at which to write
+     * Writes a rectangle of pixels from src into the surfaceDrawContext at the specified position.
+     * @param dContext         The direct context to use
+     * @param src              source for the write
+     * @param dstPt            offset w/in the surface context at which to write
      */
     bool writePixels(GrDirectContext* dContext, GrCPixmap src, SkIPoint dstPt);
+
+    /**
+     * Fully populates either the base level or all MIP levels of the GrSurface with pixel data.
+     * @param dContext         The direct context to use
+     * @param src              Array of pixmaps
+     * @param numLevels        Number of pixmaps in src. To succeed this must be 1 or the total
+     *                         number of MIP levels.
+     */
+    bool writePixels(GrDirectContext* dContext, const GrCPixmap src[], int numLevels);
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
@@ -245,6 +253,11 @@ private:
      *       of fSurfaceContext.
      */
     sk_sp<GrRenderTask> copy(sk_sp<GrSurfaceProxy> src, SkIRect srcRect, SkIPoint dstPoint);
+
+    bool internalWritePixels(GrDirectContext* dContext,
+                             const GrCPixmap src[],
+                             int numLevels,
+                             SkIPoint);
 
     class AsyncReadResult;
 
