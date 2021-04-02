@@ -89,7 +89,7 @@ To get syntax highlighting in code snippets you need to specify the language,
 which is specified after the first code fence, for example this is how you would
 show HTML markup:
 
-````
+````markdown
 ```html
 <p class="font-monospace p-2 text-danger">This is in monospace</p>
 ```
