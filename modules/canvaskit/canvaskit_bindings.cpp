@@ -884,13 +884,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      uintptr_t /* float* */ innerPtr, const SkPaint& paint) {
             self.drawDRRect(ptrToSkRRect(outerPtr), ptrToSkRRect(innerPtr), paint);
         }))
-        // TODO: deprecate this version, and require sampling
-        .function("drawImage", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
-                                                    SkScalar x, SkScalar y, const SkPaint* paint) {
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImage(image.get(), x, y, sampling, paint);
-        }), allow_raw_pointers())
         .function("drawImageCubic",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
                                                           SkScalar left, SkScalar top,
                                                           float B, float C, // See SkSamplingOptions.h for docs.
@@ -920,33 +913,26 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawImageNine(image.get(), *center, *dst, filter, paint);
         }), allow_raw_pointers())
         // TODO: deprecate this version, and require sampling
-        .function("_drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
-                                                         uintptr_t /* float* */ srcPtr, uintptr_t /* float* */ dstPtr,
-                                                         const SkPaint* paint, bool fastSample)->void {
-            const SkRect* src = reinterpret_cast<const SkRect*>(srcPtr);
-            const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImageRect(image, *src, *dst, sampling, paint,
-                               fastSample ? SkCanvas::kFast_SrcRectConstraint:
-                                            SkCanvas::kStrict_SrcRectConstraint);
-        }), allow_raw_pointers())
         .function("_drawImageRectCubic", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                               uintptr_t /* float* */ srcPtr, uintptr_t /* float* */ dstPtr,
+                                                              bool fastSample,
                                                               float B, float C, // See SkSamplingOptions.h for docs.
                                                               const SkPaint* paint)->void {
             const SkRect* src = reinterpret_cast<const SkRect*>(srcPtr);
             const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
-            auto constraint = SkCanvas::kStrict_SrcRectConstraint;  // TODO: get from caller
+            auto constraint = fastSample ? SkCanvas::kFast_SrcRectConstraint
+                                         : SkCanvas::kStrict_SrcRectConstraint;
             self.drawImageRect(image.get(), *src, *dst, SkSamplingOptions({B, C}), paint, constraint);
         }), allow_raw_pointers())
         .function("_drawImageRectOptions", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                                 uintptr_t /* float* */ srcPtr, uintptr_t /* float* */ dstPtr,
+                                                                bool fastSample,
                                                                 SkFilterMode filter, SkMipmapMode mipmap,
                                                                 const SkPaint* paint)->void {
             const SkRect* src = reinterpret_cast<const SkRect*>(srcPtr);
             const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
-            auto constraint = SkCanvas::kStrict_SrcRectConstraint;  // TODO: get from caller
+            auto constraint = fastSample ? SkCanvas::kFast_SrcRectConstraint
+                                         : SkCanvas::kStrict_SrcRectConstraint;
             self.drawImageRect(image.get(), *src, *dst, {filter, mipmap}, paint, constraint);
         }), allow_raw_pointers())
         .function("drawLine", select_overload<void (SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawLine))

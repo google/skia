@@ -1110,12 +1110,15 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param left
      * @param top
      * @param paint
+     * @param sampling
      */
-    drawImage(img: Image, left: number, top: number, paint?: Paint): void;
+    drawImage(img: Image, left: number, top: number, paint?: Paint,
+              sampling?: CubicResampler | FilterOptions): void;
 
     /**
      * Draws the given image with its top-left corner at (left, top) using the current clip,
      * the current matrix. It will use the cubic sampling options B and C if necessary.
+     * DEPRECATED -- use ddrawImage(... sampling)
      * @param img
      * @param left
      * @param top
@@ -1129,6 +1132,7 @@ export interface Canvas extends EmbindObject<Canvas> {
     /**
      * Draws the given image with its top-left corner at (left, top) using the current clip,
      * the current matrix. It will use the provided sampling options if necessary.
+     * DEPRECATED -- use drawImage(..., sampling)
      * @param img
      * @param left
      * @param top
@@ -1171,13 +1175,15 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param dest
      * @param paint
      * @param fastSample - if false, will filter strictly within src.
+     * @param sampling -- how the image will be sampled (defaults to Nearest)
      */
     drawImageRect(img: Image, src: InputRect, dest: InputRect, paint: Paint,
-                  fastSample?: boolean): void;
+                  fastSample?: boolean, sampling?: FilterOptions | CubicResampler): void;
 
     /**
      * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
      * It will use the cubic sampling options B and C if necessary.
+     * DEPRECATED -- use drawImageRect(..., sampling)
      * @param img
      * @param src
      * @param dest
@@ -1191,6 +1197,7 @@ export interface Canvas extends EmbindObject<Canvas> {
     /**
      * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
      * It will use the provided sampling options if necessary.
+     * DEPRECATED -- use drawImageRect(..., sampling)
      * @param img
      * @param src
      * @param dest
@@ -1713,7 +1720,18 @@ export interface Image extends EmbindObject<Image> {
     makeCopyWithDefaultMipmaps(): Image;
 
     /**
+     * Returns this image as a shader with the specified tiling.
+     * @param tx - tile mode in the x direction.
+     * @param ty - tile mode in the y direction.
+     * @param sampling - how to sampling the image
+     * @param localMatrix
+     */
+     makeShader(tx: TileMod, ty: TileMode, sampling: CubicResampler | FilterOptions,
+               localMatrix?: InputMatrix): Shader;
+    
+    /**
      * Returns this image as a shader with the specified tiling. It will use cubic sampling.
+     * DEPRECATED -- use makeShader(..., sampling) instead
      * @param tx - tile mode in the x direction.
      * @param ty - tile mode in the y direction.
      * @param B - See CubicResampler in SkSamplingOptions.h for more information
@@ -1725,6 +1743,7 @@ export interface Image extends EmbindObject<Image> {
 
     /**
      * Returns this image as a shader with the specified tiling. It will use cubic sampling.
+     * DEPRECATED -- use makeShader(..., sampling) instead
      * @param tx - tile mode in the x direction.
      * @param ty - tile mode in the y direction.
      * @param fm - The filter mode.

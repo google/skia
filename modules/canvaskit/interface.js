@@ -582,30 +582,62 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawDRRect(oPtr, iPtr, paint);
   };
 
+  CanvasKit.Canvas.prototype.drawImage = function(image, x, y, paint, sampling) {
+    if (sampling && ('B' in sampling) && ('C' in sampling)) {
+        this.drawImageCubic(image, x, y, sampling['B'], sampling['C'], paint);
+    } else {
+        let filter = CanvasKit.FilterMode.Nearest;
+        let mipmap = CanvasKit.MipmapMode.None;
+        if (sampling) {
+            filter = sampling['filter'];    // 'filter' is a required field
+            if ('mipmap' in sampling) {     // 'mipmap' is optional
+                mipmap = sampling['mipmap'];
+            }
+        }
+        this.drawImageOptions(image, x, y, filter, mipmap, paint);
+    }
+  };
+
   CanvasKit.Canvas.prototype.drawImageNine = function(img, center, dest, filter, paint) {
     var cPtr = copyIRectToWasm(center);
     var dPtr = copyRectToWasm(dest);
     this._drawImageNine(img, cPtr, dPtr, filter, paint || null);
   };
 
-  CanvasKit.Canvas.prototype.drawImageRect = function(img, src, dest, paint, fastSample) {
+  CanvasKit.Canvas.prototype.drawImageRect = function(img, src, dest, paint, fastSample, sampling) {
     copyRectToWasm(src,  _scratchFourFloatsAPtr);
     copyRectToWasm(dest, _scratchFourFloatsBPtr);
-    this._drawImageRect(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr, paint, !!fastSample);
+    fastSample = !!fastSample;  // turn null into false
+
+    if (sampling && ('B' in sampling) && ('C' in sampling)) {
+      this._drawImageRectCubic(image, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr,
+                               fastSample, sampling['B'], sampling['C'], paint);
+    } else {
+      let filter = CanvasKit.FilterMode.Nearest;
+      let mipmap = CanvasKit.MipmapMode.None;
+      if (sampling) {
+          filter = sampling['filter'];    // 'filter' is a required field
+          if ('mipmap' in sampling) {     // 'mipmap' is optional
+              mipmap = sampling['mipmap'];
+          }
+      }
+      this._drawImageRectOptions(image, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr,
+                                 fastSample, filter, mipmap, paint);
+    }
   };
 
   CanvasKit.Canvas.prototype.drawImageRectCubic = function(img, src, dest, B, C, paint) {
     copyRectToWasm(src,  _scratchFourFloatsAPtr);
     copyRectToWasm(dest, _scratchFourFloatsBPtr);
-    this._drawImageRectCubic(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr, B, C,
-      paint || null);
+    this._drawImageRectCubic(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr,
+                             false, B, C, paint || null);
   };
 
   CanvasKit.Canvas.prototype.drawImageRectOptions = function(img, src, dest, filter, mipmap, paint) {
     copyRectToWasm(src,  _scratchFourFloatsAPtr);
     copyRectToWasm(dest, _scratchFourFloatsBPtr);
-    this._drawImageRectOptions(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr, filter, mipmap,
-      paint || null);
+    this._drawImageRectOptions(img, _scratchFourFloatsAPtr, _scratchFourFloatsBPtr,
+                               false, filter, mipmap, paint || null);
   };
 
   CanvasKit.Canvas.prototype.drawOval = function(oval, paint) {
