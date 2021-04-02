@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -186,6 +187,10 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             break;
         case Expression::Kind::kConstructorSplat:
             this->writeSingleArgumentConstructor(expr.as<ConstructorSplat>(), parentPrecedence);
+            break;
+        case Expression::Kind::kConstructorVectorCast:
+            this->writeSingleArgumentConstructor(expr.as<ConstructorVectorCast>(),
+                                                 parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:
             this->writeIntLiteral(expr.as<IntLiteral>());
@@ -559,14 +564,14 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write(SAMPLER_SUFFIX);
             this->write(", ");
             const Type& arg1Type = arguments[1]->type();
-            if (arg1Type == *fContext.fTypes.fFloat3) {
+            if (arg1Type.columns() == 3) {
                 // have to store the vector in a temp variable to avoid double evaluating it
                 String tmpVar = this->getTempVariable(arg1Type);
                 this->write("(" + tmpVar + " = ");
                 this->writeExpression(*arguments[1], Precedence::kSequence);
                 this->write(", " + tmpVar + ".xy / " + tmpVar + ".z))");
             } else {
-                SkASSERT(arg1Type == *fContext.fTypes.fFloat2);
+                SkASSERT(arg1Type.columns() == 2);
                 this->writeExpression(*arguments[1], Precedence::kSequence);
                 this->write(")");
             }
@@ -2269,7 +2274,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorSplat: {
+        case Expression::Kind::kConstructorSplat:
+        case Expression::Kind::kConstructorVectorCast: {
             const AnyConstructor& c = e->asAnyConstructor();
             Requirements result = kNo_Requirements;
             for (const auto& arg : c.argumentSpan()) {
