@@ -3,7 +3,7 @@ out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
-    vec4 value = colorGreen.yyyy * 2.5;
+    vec4 value = vec4(colorGreen.yyyy * 2.5);
     vec4 whole;
     vec4 fraction;
     bvec4 ok;

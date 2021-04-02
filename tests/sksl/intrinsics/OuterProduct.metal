@@ -18,15 +18,15 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = outerProduct(_uniforms.f2, _uniforms.f2)[1].xyyy;
-    _out.sk_FragColor = outerProduct(_uniforms.f3, _uniforms.f3)[2].xyzz;
-    _out.sk_FragColor = outerProduct(_uniforms.f4, _uniforms.f4)[3];
-    _out.sk_FragColor = outerProduct(_uniforms.f3, _uniforms.f2)[1].xyzz;
-    _out.sk_FragColor = outerProduct(_uniforms.f2, _uniforms.f3)[2].xyyy;
-    _out.sk_FragColor = outerProduct(_uniforms.f4, _uniforms.f2)[1];
-    _out.sk_FragColor = outerProduct(_uniforms.f2, _uniforms.f4)[3].xyyy;
-    _out.sk_FragColor = outerProduct(_uniforms.f4, _uniforms.f3)[2];
-    _out.sk_FragColor = outerProduct(_uniforms.f3, _uniforms.f4)[3].xyzz;
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f2, _uniforms.f2)[1].xyyy);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f3, _uniforms.f3)[2].xyzz);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f4, _uniforms.f4)[3]);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f3, _uniforms.f2)[1].xyzz);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f2, _uniforms.f3)[2].xyyy);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f4, _uniforms.f2)[1]);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f2, _uniforms.f4)[3].xyyy);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f4, _uniforms.f3)[2]);
+    _out.sk_FragColor = float4(outerProduct(_uniforms.f3, _uniforms.f4)[3].xyzz);
     _out.sk_FragColor = outerProduct(_uniforms.h2, _uniforms.h2)[1].xyyy;
     _out.sk_FragColor = outerProduct(_uniforms.h3, _uniforms.h3)[2].xyzz;
     _out.sk_FragColor = outerProduct(_uniforms.h4, _uniforms.h4)[3];
