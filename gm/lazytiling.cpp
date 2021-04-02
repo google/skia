@@ -43,7 +43,7 @@ static GrSurfaceProxyView create_view(GrDirectContext* dContext,
                       const GrSurfaceProxy::LazySurfaceDesc& desc)
                             -> GrSurfaceProxy::LazyCallbackResult {
                     SkASSERT(desc.fMipmapped == GrMipmapped::kNo);
-                    GrMipLevel mipLevel = { src.getPixels(), src.rowBytes() };
+                    GrMipLevel mipLevel = {src.getPixels(), src.rowBytes(), nullptr};
                     auto colorType = SkColorTypeToGrColorType(src.colorType());
 
                     return rp->createTexture(src.dimensions(), desc.fFormat, colorType,

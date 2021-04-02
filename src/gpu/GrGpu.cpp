@@ -571,8 +571,12 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bounds || !bounds->isEmpty()) {
         GrTexture* texture = surface->asTexture();
-        if (texture && 1 == mipLevels) {
-            texture->markMipmapsDirty();
+        if (texture) {
+            if (mipLevels == 1) {
+                texture->markMipmapsDirty();
+            } else {
+                texture->markMipmapsClean();
+            }
         }
     }
 }

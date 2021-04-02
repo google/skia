@@ -18,8 +18,7 @@ public:
                                     GrColorType srcColorType,
                                     GrColorType dstColorType,
                                     const GrMipLevel[],
-                                    int levelCount,
-                                    sk_sp<SkData> pixelStorage);
+                                    int levelCount);
 
 private:
     GrWritePixelsTask(GrDrawingManager*,
@@ -28,8 +27,7 @@ private:
                       GrColorType srcColorType,
                       GrColorType dstColorType,
                       const GrMipLevel[],
-                      int levelCount,
-                      sk_sp<SkData> pixelStorage);
+                      int levelCount);
 
     bool onIsUsed(GrSurfaceProxy* proxy) const override { return false; }
     void gatherProxyIntervals(GrResourceAllocator*) const override;
@@ -43,11 +41,10 @@ private:
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {}
 #endif
 
+    SkAutoSTArray<16, GrMipLevel> fLevels;
     SkIRect fRect;
     GrColorType fSrcColorType;
     GrColorType fDstColorType;
-    SkAutoSTArray<16, GrMipLevel> fLevels;
-    sk_sp<SkData> fStorage;
 };
 
 #endif
