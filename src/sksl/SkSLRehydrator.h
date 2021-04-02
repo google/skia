@@ -54,6 +54,7 @@ public:
         kConstructorArray_Command,
         kConstructorDiagonalMatrix_Command,
         kConstructorSplat_Command,
+        kConstructorVectorCast_Command,
         kContinue_Command,
         kDefaultLayout_Command,
         kDefaultModifiers_Command,
