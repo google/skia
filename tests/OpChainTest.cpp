@@ -220,7 +220,6 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                           dContext->priv().resourceProvider(),
                                           &tracker);
                 GrOpsTask opsTask(drawingMgr,
-                                  dContext->priv().arenas(),
                                   GrSurfaceProxyView(proxy, kOrigin, writeSwizzle),
                                   dContext->priv().auditTrail());
                 // This assumes the particular values of kRanges.

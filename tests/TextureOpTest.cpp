@@ -75,7 +75,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
 
     GrDirectContext* dContext = ctxInfo.directContext();
     const GrCaps* caps = dContext->priv().caps();
-    GrRecordingContext::Arenas arenas = dContext->priv().arenas();
+    SkArenaAlloc arena{nullptr, 0, 1024};
     auto auditTrail = dContext->priv().auditTrail();
 
     if (!caps->dynamicStateArrayGeometryProcessorTextureSupport()) {
@@ -106,7 +106,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
     OpsTaskTestingAccess::OpChain chain1(std::move(opA), GrProcessorSet::EmptySetAnalysis(),
                                          &noClip, nullptr);
     chain1.appendOp(std::move(opB), GrProcessorSet::EmptySetAnalysis(), nullptr, &noClip, *caps,
-                    &arenas, dContext->priv().auditTrail());
+                    &arena, dContext->priv().auditTrail());
     check_chain(&chain1, kOpARect, kOpBRect, 2);
 
     // opC & opD can also chain together but can't merge (bc, again, they have different
@@ -118,12 +118,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
     OpsTaskTestingAccess::OpChain chain2(std::move(opC), GrProcessorSet::EmptySetAnalysis(),
                                          &noClip, nullptr);
     chain2.appendOp(std::move(opD), GrProcessorSet::EmptySetAnalysis(), nullptr, &noClip, *caps,
-                    &arenas, auditTrail);
+                    &arena, auditTrail);
     check_chain(&chain2, kOpCRect, kOpDRect, 2);
 
     // opA and opD, now in separate chains, can merge when the two chains are combined while
     // opB and opC can still only chain.
-    chain1.prependChain(&chain2, *caps, &arenas, auditTrail);
+    chain1.prependChain(&chain2, *caps, &arena, auditTrail);
 
     // We should end up with the chain
     //   opC - opD/opA - opB
