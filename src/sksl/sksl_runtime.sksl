@@ -1,4 +1,14 @@
 layout(builtin=15) float4 sk_FragCoord;
-half4 sample(fragmentProcessor fp);
-half4 sample(fragmentProcessor fp, float2 coords);
-half4 sample(fragmentProcessor fp, float3x3 transform);
+
+// Today, we continue to allow all versions of sample from any runtime effect.
+// When shader and colorFilter are different program kinds, move these declarations into separate
+// modules so that each stage can only see the permitted versions.
+// Ultimately, these declarations can go away, when we support invoking children like functions
+// (using the same arguments here, eg shader_name(coords) rather than sample(shader, coords)).
+// skbug.com/11813
+
+half4 sample(shader s);
+half4 sample(shader s, float3x3 transform);
+half4 sample(shader s, float2 coords);
+
+half4 sample(colorFilter f);
