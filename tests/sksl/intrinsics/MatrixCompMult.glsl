@@ -6,5 +6,5 @@ mat4 c;
 mat4 d;
 void main() {
     sk_FragColor.xyz = matrixCompMult(a, b)[0];
-    sk_FragColor = matrixCompMult(c, d)[0];
+    sk_FragColor = vec4(matrixCompMult(c, d)[0]);
 }

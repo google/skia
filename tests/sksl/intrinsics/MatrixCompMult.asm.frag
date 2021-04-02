@@ -31,6 +31,7 @@ OpDecorate %36 RelaxedPrecision
 OpDecorate %41 RelaxedPrecision
 OpDecorate %42 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
+OpDecorate %69 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -95,6 +96,11 @@ OpStore %sk_FragColor %43
 OpStore %44 %61
 %62 = OpAccessChain %_ptr_Function_v4float %44 %int_0
 %64 = OpLoad %v4float %62
-OpStore %sk_FragColor %64
+%65 = OpCompositeExtract %float %64 0
+%66 = OpCompositeExtract %float %64 1
+%67 = OpCompositeExtract %float %64 2
+%68 = OpCompositeExtract %float %64 3
+%69 = OpCompositeConstruct %v4float %65 %66 %67 %68
+OpStore %sk_FragColor %69
 OpReturn
 OpFunctionEnd

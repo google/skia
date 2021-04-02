@@ -28,10 +28,26 @@ OpDecorate %two RelaxedPrecision
 OpDecorate %two Binding 1
 OpDecorate %two DescriptorSet 0
 OpDecorate %24 RelaxedPrecision
+OpDecorate %27 RelaxedPrecision
+OpDecorate %28 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
+OpDecorate %38 RelaxedPrecision
+OpDecorate %39 RelaxedPrecision
+OpDecorate %40 RelaxedPrecision
+OpDecorate %44 RelaxedPrecision
+OpDecorate %45 RelaxedPrecision
+OpDecorate %46 RelaxedPrecision
+OpDecorate %47 RelaxedPrecision
 OpDecorate %48 RelaxedPrecision
+OpDecorate %52 RelaxedPrecision
+OpDecorate %55 RelaxedPrecision
+OpDecorate %56 RelaxedPrecision
+OpDecorate %57 RelaxedPrecision
+OpDecorate %58 RelaxedPrecision
+OpDecorate %68 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -53,9 +69,9 @@ OpDecorate %48 RelaxedPrecision
 %float_0 = OpConstant %float 0
 %float_n0_5 = OpConstant %float -0.5
 %v2float = OpTypeVector %float 2
-%31 = OpConstantComposite %v2float %float_0 %float_0
+%36 = OpConstantComposite %v2float %float_0 %float_0
 %v3float = OpTypeVector %float 3
-%39 = OpConstantComposite %v3float %float_0 %float_0 %float_0
+%54 = OpConstantComposite %v3float %float_0 %float_0 %float_0
 %main = OpFunction %void None %19
 %20 = OpLabel
 %a = OpVariable %_ptr_Function_v4float Function
@@ -64,26 +80,46 @@ OpDecorate %48 RelaxedPrecision
 %d = OpVariable %_ptr_Function_v4float Function
 %24 = OpLoad %12 %one
 %23 = OpImageSampleImplicitLod %v4float %24 %float_0 Bias %float_n0_5
-OpStore %a %23
-%29 = OpLoad %16 %two
-%28 = OpImageSampleImplicitLod %v4float %29 %31 Bias %float_n0_5
-OpStore %b %28
-%34 = OpLoad %12 %one
-%33 = OpImageSampleProjImplicitLod %v4float %34 %31 Bias %float_n0_5
-OpStore %c %33
-%37 = OpLoad %16 %two
-%36 = OpImageSampleProjImplicitLod %v4float %37 %39 Bias %float_n0_5
-OpStore %d %36
-%40 = OpLoad %v4float %a
-%41 = OpCompositeExtract %float %40 0
-%42 = OpLoad %v4float %b
-%43 = OpCompositeExtract %float %42 0
-%44 = OpLoad %v4float %c
-%45 = OpCompositeExtract %float %44 0
-%46 = OpLoad %v4float %d
-%47 = OpCompositeExtract %float %46 0
-%48 = OpCompositeConstruct %v4float %41 %43 %45 %47
-OpStore %sk_FragColor %48
+%27 = OpCompositeExtract %float %23 0
+%28 = OpCompositeExtract %float %23 1
+%29 = OpCompositeExtract %float %23 2
+%30 = OpCompositeExtract %float %23 3
+%31 = OpCompositeConstruct %v4float %27 %28 %29 %30
+OpStore %a %31
+%34 = OpLoad %16 %two
+%33 = OpImageSampleImplicitLod %v4float %34 %36 Bias %float_n0_5
+%37 = OpCompositeExtract %float %33 0
+%38 = OpCompositeExtract %float %33 1
+%39 = OpCompositeExtract %float %33 2
+%40 = OpCompositeExtract %float %33 3
+%41 = OpCompositeConstruct %v4float %37 %38 %39 %40
+OpStore %b %41
+%44 = OpLoad %12 %one
+%43 = OpImageSampleProjImplicitLod %v4float %44 %36 Bias %float_n0_5
+%45 = OpCompositeExtract %float %43 0
+%46 = OpCompositeExtract %float %43 1
+%47 = OpCompositeExtract %float %43 2
+%48 = OpCompositeExtract %float %43 3
+%49 = OpCompositeConstruct %v4float %45 %46 %47 %48
+OpStore %c %49
+%52 = OpLoad %16 %two
+%51 = OpImageSampleProjImplicitLod %v4float %52 %54 Bias %float_n0_5
+%55 = OpCompositeExtract %float %51 0
+%56 = OpCompositeExtract %float %51 1
+%57 = OpCompositeExtract %float %51 2
+%58 = OpCompositeExtract %float %51 3
+%59 = OpCompositeConstruct %v4float %55 %56 %57 %58
+OpStore %d %59
+%60 = OpLoad %v4float %a
+%61 = OpCompositeExtract %float %60 0
+%62 = OpLoad %v4float %b
+%63 = OpCompositeExtract %float %62 0
+%64 = OpLoad %v4float %c
+%65 = OpCompositeExtract %float %64 0
+%66 = OpLoad %v4float %d
+%67 = OpCompositeExtract %float %66 0
+%68 = OpCompositeConstruct %v4float %61 %63 %65 %67
+OpStore %sk_FragColor %68
 OpReturn
 OpFunctionEnd
 

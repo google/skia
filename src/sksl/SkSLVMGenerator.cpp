@@ -21,6 +21,7 @@
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -249,6 +250,7 @@ private:
     Value writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
     Value writeConstructorSplat(const ConstructorSplat& c);
+    Value writeConstructorVectorCast(const ConstructorVectorCast& c);
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
     Value writeFieldAccess(const FieldAccess& expr);
@@ -661,6 +663,81 @@ Value SkVMGenerator::writeMultiArgumentConstructor(const MultiArgumentConstructo
         }
     }
     return result;
+}
+
+Value SkVMGenerator::writeConstructorVectorCast(const ConstructorVectorCast& c) {
+    const Type& srcType = c.argument()->type();
+    const Type& dstType = c.type();
+    Value src = this->writeExpression(*c.argument());
+    size_t dstSlots = slot_count(dstType);
+    SkASSERT(src.slots() == dstSlots);
+
+    // Conversion among "similar" types (floatN <-> halfN), (shortN <-> intN), etc. is a no-op
+    Type::NumberKind srcKind = base_number_kind(srcType);
+    Type::NumberKind dstKind = base_number_kind(dstType);
+    if (srcKind == dstKind) {
+        return src;
+    }
+
+    Value dst(src.slots());
+    switch (dstKind) {
+        case Type::NumberKind::kFloat:
+            if (srcKind == Type::NumberKind::kSigned) {
+                // int -> float
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::to_F32(i32(src[i]));
+                }
+                return dst;
+            }
+            if (srcKind == Type::NumberKind::kBoolean) {
+                // bool -> float
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::select(i32(src[i]), 1.0f, 0.0f);
+                }
+                return dst;
+            }
+            break;
+
+        case Type::NumberKind::kSigned:
+            if (srcKind == Type::NumberKind::kFloat) {
+                // float -> int
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::trunc(f32(src[i]));
+                }
+                return dst;
+            }
+            if (srcKind == Type::NumberKind::kBoolean) {
+                // bool -> int
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = skvm::select(i32(src[i]), 1, 0);
+                }
+                return dst;
+            }
+            break;
+
+        case Type::NumberKind::kBoolean:
+            if (srcKind == Type::NumberKind::kSigned) {
+                // int -> bool
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = i32(src[i]) != 0;
+                }
+                return dst;
+            }
+            if (srcKind == Type::NumberKind::kFloat) {
+                // float -> bool
+                for (size_t i = 0; i < src.slots(); ++i) {
+                    dst[i] = f32(src[i]) != 0.0;
+                }
+                return dst;
+            }
+            break;
+
+        default:
+            break;
+    }
+    SkDEBUGFAILF("Unsupported type conversion: %s -> %s", srcType.displayName().c_str(),
+                                                          dstType.displayName().c_str());
+    return {};
 }
 
 Value SkVMGenerator::writeConstructor(const Constructor& c) {
@@ -1466,6 +1543,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(e.as<ConstructorSplat>());
+        case Expression::Kind::kConstructorVectorCast:
+            return this->writeConstructorVectorCast(e.as<ConstructorVectorCast>());
         case Expression::Kind::kFieldAccess:
             return this->writeFieldAccess(e.as<FieldAccess>());
         case Expression::Kind::kIndex:
