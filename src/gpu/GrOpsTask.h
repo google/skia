@@ -39,7 +39,7 @@ private:
 public:
     // The Arenas must outlive the GrOpsTask, either by preserving the context that owns
     // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
-    GrOpsTask(GrDrawingManager*, GrRecordingContext::Arenas, GrSurfaceProxyView, GrAuditTrail*);
+    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -171,14 +171,14 @@ private:
         // Attempts to move the ops from the passed chain to this chain at the head. Also attempts
         // to merge ops between the chains. Upon success the passed chain is empty.
         // Fails when the chains aren't of the same op type, have different clips or dst proxies.
-        bool prependChain(OpChain*, const GrCaps&, GrRecordingContext::Arenas*, GrAuditTrail*);
+        bool prependChain(OpChain*, const GrCaps&, SkArenaAlloc* opsTaskArena, GrAuditTrail*);
 
         // Attempts to add 'op' to this chain either by merging or adding to the tail. Returns
         // 'op' to the caller upon failure, otherwise null. Fails when the op and chain aren't of
         // the same op type, have different clips or dst proxies.
-        GrOp::Owner appendOp(GrOp::Owner op, GrProcessorSet::Analysis,
-                             const DstProxyView*, const GrAppliedClip*, const GrCaps&,
-                             GrRecordingContext::Arenas*, GrAuditTrail*);
+        GrOp::Owner appendOp(GrOp::Owner op, GrProcessorSet::Analysis, const DstProxyView*,
+                             const GrAppliedClip*, const GrCaps&, SkArenaAlloc* opsTaskArena,
+                             GrAuditTrail*);
 
         bool shouldExecute() const {
             return SkToBool(this->head());
@@ -211,9 +211,9 @@ private:
         void validate() const;
 
         bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxyView&, const GrAppliedClip*,
-                       const SkRect& bounds, const GrCaps&, GrRecordingContext::Arenas*,
+                       const SkRect& bounds, const GrCaps&, SkArenaAlloc* opsTaskArena,
                        GrAuditTrail*);
-        static List DoConcat(List, List, const GrCaps&, GrRecordingContext::Arenas*, GrAuditTrail*);
+        static List DoConcat(List, List, const GrCaps&, SkArenaAlloc* opsTaskArena, GrAuditTrail*);
 
         List fList;
         GrProcessorSet::Analysis fProcessorAnalysis;
@@ -246,11 +246,7 @@ private:
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrSurfaceDrawContext;
 
-    // This is a backpointer to the Arenas that holds the memory for this GrOpsTask's ops. In the
-    // DDL case, the Arenas must have been detached from the original recording context and moved
-    // into the owning DDL.
-    GrRecordingContext::Arenas fArenas;
-    GrAuditTrail*              fAuditTrail;
+    GrAuditTrail* fAuditTrail;
 
     GrSwizzle fTargetSwizzle;
     GrSurfaceOrigin fTargetOrigin;
@@ -269,10 +265,9 @@ private:
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;
 
-    // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
-    // Gather statistics to determine the correct size.
-    // TODO: Move the clips onto the recordTimeAllocator after CCPR is removed.
-    SkSTArray<1, std::unique_ptr<SkArenaAlloc>> fClipAllocators;
+    // MDB TODO: 4096 for the first allocation may be huge overkill. Gather statistics to determine
+    // the correct size.
+    SkSTArray<1, std::unique_ptr<SkArenaAlloc>> fAllocators;
     SkDEBUGCODE(int fNumClips;)
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
