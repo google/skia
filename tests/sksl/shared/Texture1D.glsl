@@ -2,7 +2,7 @@
 out vec4 sk_FragColor;
 layout (binding = 0) uniform sampler1D tex;
 void main() {
-    vec4 a = texture(tex, 0.0);
-    vec4 b = textureProj(tex, vec2(0.0));
-    sk_FragColor = vec4(a.xy, b.zw);
+    vec4 a = vec4(texture(tex, 0.0));
+    vec4 b = vec4(textureProj(tex, vec2(0.0)));
+    sk_FragColor = vec4(vec2(a.xy), vec2(b.zw));
 }

@@ -27,6 +27,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _out;
     (void)_out;
     _out.sk_FragColor.xyz = matrixCompMult(_globals.a, _globals.b)[0];
-    _out.sk_FragColor = matrixCompMult(_globals.c, _globals.d)[0];
+    _out.sk_FragColor = float4(matrixCompMult(_globals.c, _globals.d)[0]);
     return _out;
 }

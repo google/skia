@@ -16,12 +16,17 @@ OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %24 RelaxedPrecision
-OpDecorate %25 RelaxedPrecision
-OpDecorate %29 RelaxedPrecision
-OpDecorate %30 RelaxedPrecision
+OpDecorate %26 RelaxedPrecision
+OpDecorate %27 RelaxedPrecision
+OpDecorate %28 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %35 RelaxedPrecision
+OpDecorate %36 RelaxedPrecision
+OpDecorate %42 RelaxedPrecision
+OpDecorate %43 RelaxedPrecision
+OpDecorate %44 RelaxedPrecision
+OpDecorate %52 RelaxedPrecision
+OpDecorate %60 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -44,28 +49,47 @@ OpDecorate %35 RelaxedPrecision
 %18 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
 %22 = OpLoad %uint %18
 %17 = OpExtInst %v2float %1 UnpackHalf2x16 %22
-%24 = OpLoad %v4float %sk_FragColor
-%25 = OpVectorShuffle %v4float %24 %17 4 5 2 3
-OpStore %sk_FragColor %25
-%27 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
-%28 = OpLoad %uint %27
-%26 = OpExtInst %v2float %1 UnpackUnorm2x16 %28
-%29 = OpLoad %v4float %sk_FragColor
-%30 = OpVectorShuffle %v4float %29 %26 4 5 2 3
-OpStore %sk_FragColor %30
-%32 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
-%33 = OpLoad %uint %32
-%31 = OpExtInst %v2float %1 UnpackSnorm2x16 %33
-%34 = OpLoad %v4float %sk_FragColor
-%35 = OpVectorShuffle %v4float %34 %31 4 5 2 3
-OpStore %sk_FragColor %35
-%37 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
-%38 = OpLoad %uint %37
-%36 = OpExtInst %v4float %1 UnpackUnorm4x8 %38
+%24 = OpCompositeExtract %float %17 0
+%25 = OpCompositeExtract %float %17 1
+%26 = OpCompositeConstruct %v2float %24 %25
+%27 = OpLoad %v4float %sk_FragColor
+%28 = OpVectorShuffle %v4float %27 %26 4 5 2 3
+OpStore %sk_FragColor %28
+%30 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
+%31 = OpLoad %uint %30
+%29 = OpExtInst %v2float %1 UnpackUnorm2x16 %31
+%32 = OpCompositeExtract %float %29 0
+%33 = OpCompositeExtract %float %29 1
+%34 = OpCompositeConstruct %v2float %32 %33
+%35 = OpLoad %v4float %sk_FragColor
+%36 = OpVectorShuffle %v4float %35 %34 4 5 2 3
 OpStore %sk_FragColor %36
-%40 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
-%41 = OpLoad %uint %40
-%39 = OpExtInst %v4float %1 UnpackSnorm4x8 %41
-OpStore %sk_FragColor %39
+%38 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
+%39 = OpLoad %uint %38
+%37 = OpExtInst %v2float %1 UnpackSnorm2x16 %39
+%40 = OpCompositeExtract %float %37 0
+%41 = OpCompositeExtract %float %37 1
+%42 = OpCompositeConstruct %v2float %40 %41
+%43 = OpLoad %v4float %sk_FragColor
+%44 = OpVectorShuffle %v4float %43 %42 4 5 2 3
+OpStore %sk_FragColor %44
+%46 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
+%47 = OpLoad %uint %46
+%45 = OpExtInst %v4float %1 UnpackUnorm4x8 %47
+%48 = OpCompositeExtract %float %45 0
+%49 = OpCompositeExtract %float %45 1
+%50 = OpCompositeExtract %float %45 2
+%51 = OpCompositeExtract %float %45 3
+%52 = OpCompositeConstruct %v4float %48 %49 %50 %51
+OpStore %sk_FragColor %52
+%54 = OpAccessChain %_ptr_Uniform_uint %10 %int_0
+%55 = OpLoad %uint %54
+%53 = OpExtInst %v4float %1 UnpackSnorm4x8 %55
+%56 = OpCompositeExtract %float %53 0
+%57 = OpCompositeExtract %float %53 1
+%58 = OpCompositeExtract %float %53 2
+%59 = OpCompositeExtract %float %53 3
+%60 = OpCompositeConstruct %v4float %56 %57 %58 %59
+OpStore %sk_FragColor %60
 OpReturn
 OpFunctionEnd
