@@ -10,7 +10,6 @@ OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %25 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -23,21 +22,14 @@ OpDecorate %25 RelaxedPrecision
 %v2float = OpTypeVector %float 2
 %float_0 = OpConstant %float 0
 %16 = OpConstantComposite %v2float %float_0 %float_0
-%int = OpTypeInt 32 1
-%v2int = OpTypeVector %int 2
 %_ptr_Output_float = OpTypePointer Output %float
+%int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %main = OpFunction %void None %11
 %12 = OpLabel
-%17 = OpCompositeExtract %float %16 0
-%18 = OpConvertFToS %int %17
-%20 = OpCompositeExtract %float %16 1
-%21 = OpConvertFToS %int %20
-%22 = OpCompositeConstruct %v2int %18 %21
-%13 = OpExtInst %v2int %1 SAbs %22
-%24 = OpCompositeExtract %int %13 0
-%25 = OpConvertSToF %float %24
-%26 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %26 %25
+%13 = OpExtInst %v2float %1 FAbs %16
+%17 = OpCompositeExtract %float %13 0
+%18 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %18 %17
 OpReturn
 OpFunctionEnd

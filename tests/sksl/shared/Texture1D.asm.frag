@@ -22,12 +22,22 @@ OpDecorate %tex RelaxedPrecision
 OpDecorate %tex Binding 0
 OpDecorate %tex DescriptorSet 0
 OpDecorate %20 RelaxedPrecision
+OpDecorate %22 RelaxedPrecision
+OpDecorate %23 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
+OpDecorate %25 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
-OpDecorate %30 RelaxedPrecision
+OpDecorate %32 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %35 RelaxedPrecision
+OpDecorate %41 RelaxedPrecision
+OpDecorate %42 RelaxedPrecision
+OpDecorate %43 RelaxedPrecision
+OpDecorate %48 RelaxedPrecision
+OpDecorate %49 RelaxedPrecision
+OpDecorate %50 RelaxedPrecision
+OpDecorate %51 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -44,27 +54,43 @@ OpDecorate %35 RelaxedPrecision
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %float_0 = OpConstant %float 0
 %v2float = OpTypeVector %float 2
-%26 = OpConstantComposite %v2float %float_0 %float_0
+%31 = OpConstantComposite %v2float %float_0 %float_0
 %main = OpFunction %void None %15
 %16 = OpLabel
 %a = OpVariable %_ptr_Function_v4float Function
 %b = OpVariable %_ptr_Function_v4float Function
 %20 = OpLoad %12 %tex
 %19 = OpImageSampleImplicitLod %v4float %20 %float_0
-OpStore %a %19
-%24 = OpLoad %12 %tex
-%23 = OpImageSampleProjImplicitLod %v4float %24 %26
-OpStore %b %23
-%27 = OpLoad %v4float %a
-%28 = OpVectorShuffle %v2float %27 %27 0 1
-%29 = OpCompositeExtract %float %28 0
-%30 = OpCompositeExtract %float %28 1
-%31 = OpLoad %v4float %b
-%32 = OpVectorShuffle %v2float %31 %31 2 3
-%33 = OpCompositeExtract %float %32 0
-%34 = OpCompositeExtract %float %32 1
-%35 = OpCompositeConstruct %v4float %29 %30 %33 %34
-OpStore %sk_FragColor %35
+%22 = OpCompositeExtract %float %19 0
+%23 = OpCompositeExtract %float %19 1
+%24 = OpCompositeExtract %float %19 2
+%25 = OpCompositeExtract %float %19 3
+%26 = OpCompositeConstruct %v4float %22 %23 %24 %25
+OpStore %a %26
+%29 = OpLoad %12 %tex
+%28 = OpImageSampleProjImplicitLod %v4float %29 %31
+%32 = OpCompositeExtract %float %28 0
+%33 = OpCompositeExtract %float %28 1
+%34 = OpCompositeExtract %float %28 2
+%35 = OpCompositeExtract %float %28 3
+%36 = OpCompositeConstruct %v4float %32 %33 %34 %35
+OpStore %b %36
+%37 = OpLoad %v4float %a
+%38 = OpVectorShuffle %v2float %37 %37 0 1
+%39 = OpCompositeExtract %float %38 0
+%40 = OpCompositeExtract %float %38 1
+%41 = OpCompositeConstruct %v2float %39 %40
+%42 = OpCompositeExtract %float %41 0
+%43 = OpCompositeExtract %float %41 1
+%44 = OpLoad %v4float %b
+%45 = OpVectorShuffle %v2float %44 %44 2 3
+%46 = OpCompositeExtract %float %45 0
+%47 = OpCompositeExtract %float %45 1
+%48 = OpCompositeConstruct %v2float %46 %47
+%49 = OpCompositeExtract %float %48 0
+%50 = OpCompositeExtract %float %48 1
+%51 = OpCompositeConstruct %v4float %42 %43 %49 %50
+OpStore %sk_FragColor %51
 OpReturn
 OpFunctionEnd
 

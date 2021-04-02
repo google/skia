@@ -11,6 +11,7 @@
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -100,7 +101,7 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
         args[0]->type().columns() == expected) {
         // A vector constructor containing a single vector with the same number of columns is a
         // cast (e.g. float3 -> int3).
-        return std::make_unique<Constructor>(offset, type, std::move(args));
+        return ConstructorVectorCast::Make(context, offset, type, std::move(args[0]));
     }
 
     // For more complex cases, we walk the argument list and fix up the arguments as needed.

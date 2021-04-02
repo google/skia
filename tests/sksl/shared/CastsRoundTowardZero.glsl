@@ -1,8 +1,4 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-uniform vec4 colorGreen;
-uniform vec4 colorRed;
-vec4 main() {
-    bool ok = true;
-    return ok ? colorGreen : colorRed;
-}
+error: 5: type mismatch: '==' cannot operate on 'int4', 'half4'
+1 error
