@@ -39,6 +39,30 @@
       },
       "revId": "a4cd9f9b0f01536c4cdd5ca0e1073b969324d40e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "add9e724_8a67b7b1",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-02T18:20:40Z",
+      "side": 1,
+      "message": "I considered that, but the philosophy through PolyUtils is to use single precision only for speed, because this code is only used for generating Material shadows which don\u0027t need to be as accurate.\n\nIn any case, I\u0027m also considering dropping all the geometric concave shadow support and switching to blurs only for concave shapes. No one seems to be using it, and it constantly runs into bad cases like this.",
+      "parentUuid": "5079cda3_8185fcf3",
+      "range": {
+        "startLine": 494,
+        "startChar": 13,
+        "endLine": 494,
+        "endChar": 19
+      },
+      "revId": "a4cd9f9b0f01536c4cdd5ca0e1073b969324d40e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
