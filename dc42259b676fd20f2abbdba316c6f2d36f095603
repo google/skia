@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4eb13d4e_11d289ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-02T16:40:41Z",
+      "side": 1,
+      "message": "Adding Adlai for the new changes re: fClipAllocators",
+      "revId": "dc42259b676fd20f2abbdba316c6f2d36f095603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
