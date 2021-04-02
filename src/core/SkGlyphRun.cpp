@@ -71,15 +71,37 @@ void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) cons
 }
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
-void SkGlyphRunBuilder::drawTextUTF8(const SkFont& font, const void* bytes,
-                                     size_t byteLength, SkPoint origin) {
-    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, SkTextEncoding::kUTF8);
+static SkSpan<const SkPoint> draw_text_positions(
+        const SkFont& font, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin, SkPoint* buffer) {
+    SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(font);
+    SkBulkGlyphMetrics storage{strikeSpec};
+    auto glyphs = storage.glyphs(glyphIDs);
+
+    SkPoint* positionCursor = buffer;
+    SkPoint endOfLastGlyph = origin;
+    for (auto glyph : glyphs) {
+        *positionCursor++ = endOfLastGlyph;
+        endOfLastGlyph += glyph->advanceVector();
+    }
+    return SkSpan(buffer, glyphIDs.size());
+}
+
+const SkGlyphRunList& SkGlyphRunBuilder::textToGlyphRunList(
+        const SkFont& font, const void* bytes, size_t byteLength, SkPoint origin,
+        SkTextEncoding encoding) {
+    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, encoding);
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
-        this->simplifyDrawText(font, glyphIDs, origin, fPositions);
+        SkSpan<const SkPoint> positions = draw_text_positions(font, glyphIDs, {0, 0}, fPositions);
+        this->makeGlyphRun(font,
+                           glyphIDs,
+                           positions,
+                           SkSpan<const char>{},
+                           SkSpan<const uint32_t>{});
     }
 
-    this->makeGlyphRunList(nullptr, SkPoint::Make(0, 0));
+    this->makeGlyphRunList(nullptr, origin);
+    return fGlyphRunList;
 }
 
 void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin,
@@ -241,17 +263,7 @@ void SkGlyphRunBuilder::simplifyDrawText(
     auto runSize = glyphIDs.size();
 
     if (!glyphIDs.empty()) {
-        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(font);
-        SkBulkGlyphMetrics storage{strikeSpec};
-        auto glyphs = storage.glyphs(glyphIDs);
-
-        SkPoint endOfLastGlyph = origin;
-        SkPoint* cursor = positions;
-        for (auto glyph : glyphs) {
-            *cursor++ = endOfLastGlyph;
-            endOfLastGlyph += glyph->advanceVector();
-        }
-
+        draw_text_positions(font, glyphIDs, origin, positions);
         this->makeGlyphRun(
                 font,
                 glyphIDs,
