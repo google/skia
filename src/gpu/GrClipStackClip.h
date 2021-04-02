@@ -29,8 +29,7 @@ public:
 
     SkIRect getConservativeBounds() const final;
     Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrAAType aaType,
-                     bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds,
-                     SkTArray<SkPath>* pathsForClipAtlas) const final;
+                     bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
     PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const final;
 
     sk_sp<GrTextureProxy> testingOnly_createClipMask(GrRecordingContext*) const;

@@ -188,8 +188,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
 GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
                                       GrSurfaceDrawContext* surfaceDrawContext,
                                       GrAAType aa, bool hasUserStencilSettings,
-                                      GrAppliedClip* out, SkRect* bounds,
-                                      SkTArray<SkPath>* pathsForClipAtlas) const {
+                                      GrAppliedClip* out, SkRect* bounds) const {
     SkASSERT(surfaceDrawContext->width() == fDeviceSize.fWidth &&
              surfaceDrawContext->height() == fDeviceSize.fHeight);
     SkRect devBounds = SkRect::MakeIWH(fDeviceSize.fWidth, fDeviceSize.fHeight);
@@ -217,9 +216,10 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
         // We disable MSAA when avoiding stencil.
         SkASSERT(!context->priv().caps()->avoidStencilBuffers());
     }
+    auto* ccpr = context->priv().drawingManager()->getCoverageCountingPathRenderer();
 
     GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(), maxWindowRectangles,
-                              maxAnalyticElements, (pathsForClipAtlas) ? maxAnalyticElements : 0);
+                              maxAnalyticElements, ccpr ? maxAnalyticElements : 0);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return Effect::kClippedOut;
@@ -227,13 +227,8 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
 
     Effect effect = Effect::kUnclipped;
     if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
-        if (!out->hardClip().addScissor(reducedClip.scissor())) {
-            return Effect::kClippedOut;
-        }
+        out->hardClip().addScissor(reducedClip.scissor(), bounds);
         effect = Effect::kClipped;
-    }
-    if (!bounds->intersect(SkRect::Make(reducedClip.scissor()))) {
-        return Effect::kClippedOut;
     }
 
     if (!reducedClip.windowRectangles().empty()) {
@@ -252,8 +247,10 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
 
     // The opsTask ID must not be looked up until AFTER producing the clip mask (if any). That step
     // can cause a flush or otherwise change which opstask our draw is going into.
-    if (auto clipFPs = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider,
-                                                                   pathsForClipAtlas)) {
+    uint32_t opsTaskID = surfaceDrawContext->getOpsTask()->uniqueID();
+    auto [success, clipFPs] = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider,
+                                                                          ccpr, opsTaskID);
+    if (success) {
         out->addCoverageFP(std::move(clipFPs));
         effect = Effect::kClipped;
     } else {

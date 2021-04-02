@@ -72,8 +72,8 @@ public:
 
     // GrClip implementation
     GrClip::Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrAAType aa,
-                         bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds,
-                         SkTArray<SkPath>* pathsForClipAtlas) const override;
+                         bool hasUserStencilSettings,
+                         GrAppliedClip*, SkRect* bounds) const override;
     GrClip::PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const override;
     SkIRect getConservativeBounds() const override;
 

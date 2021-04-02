@@ -104,9 +104,9 @@ public:
      * the render target context, surface allocations, and even switching render targets (pre MDB)
      * may cause flushes or otherwise change which opsTask the actual draw is going into.
      */
-    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticElements(
-            GrRecordingContext*, const SkMatrixProvider& matrixProvider,
-            SkTArray<SkPath>* pathsForClipAtlas);
+    GrFPResult finishAndDetachAnalyticElements(GrRecordingContext*, const SkMatrixProvider&
+                                               matrixProvider, GrCoverageCountingPathRenderer*,
+                                               uint32_t opsTaskID);
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);
