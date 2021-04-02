@@ -492,6 +492,11 @@ bool SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar offse
     int steps = SkScalarRoundToInt(floatSteps);
 
     SkScalar dTheta = steps > 0 ? theta / steps : 0;
+    // Our offset may be so large that we end up with a tiny dTheta, in which case we
+    // lose precision when computing rotSin and rotCos.
+    if (SkScalarNearlyZero(dTheta)) {
+        return false;
+    }
     *rotSin = SkScalarSin(dTheta);
     *rotCos = SkScalarCos(dTheta);
     *n = steps;
