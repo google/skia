@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "CommonJS",
+    "outDir": "build"
+  },
+  "files": [
+    "bindings/core.ts"
+  ]
+}
