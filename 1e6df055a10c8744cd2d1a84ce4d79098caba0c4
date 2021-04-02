@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9d3a081_235c9302",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-02T14:05:39Z",
+      "side": 1,
+      "message": "the new image is different than the original image.",
+      "range": {
+        "startLine": 616,
+        "startChar": 82,
+        "endLine": 616,
+        "endChar": 91
+      },
+      "revId": "1e6df055a10c8744cd2d1a84ce4d79098caba0c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
