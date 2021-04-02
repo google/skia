@@ -717,6 +717,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
+        case Expression::Kind::kConstructorVectorCast:
+            return this->writeConstructorVectorCast(expr.as<ConstructorVectorCast>(), out);
         case Expression::Kind::kIntLiteral:
             return this->writeIntLiteral(expr.as<IntLiteral>());
         case Expression::Kind::kFieldAccess:
@@ -1632,6 +1634,54 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     SpvId result = this->nextId(&type);
     this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
     this->writeWord(this->getType(type), out);
+    this->writeWord(result, out);
+    for (SpvId id : arguments) {
+        this->writeWord(id, out);
+    }
+    return result;
+}
+
+SpvId SPIRVCodeGenerator::writeConstructorVectorCast(const ConstructorVectorCast& c,
+                                                     OutputStream& out) {
+    const Type& ctorType = c.type();
+    SkASSERT(ctorType.isVector());
+
+    // SPIR-V doesn't support vector(vector-of-different-type) directly, so we need to
+    // extract the components and convert them in that case manually. On top of that,
+    // as of this writing there's a bug in the Intel Vulkan driver where
+    // OpCompositeConstruct doesn't handle vector arguments at all, so we always extract
+    // vector components and pass them into OpCompositeConstruct individually.
+    const Type& argType = c.argument()->type();
+    const Type& src = argType.componentType();
+    const Type& dst = ctorType.componentType();
+
+    SpvId argId = this->writeExpression(*c.argument(), out);
+
+    std::vector<SpvId> arguments;
+    for (int j = 0; j < argType.columns(); j++) {
+        SpvId swizzle = this->nextId(&src);
+        this->writeInstruction(SpvOpCompositeExtract, this->getType(src), swizzle,
+                               argId, j, out);
+        if (dst.isFloat()) {
+            arguments.push_back(this->castScalarToFloat(swizzle, src, dst, out));
+        } else if (dst.isSigned()) {
+            arguments.push_back(this->castScalarToSignedInt(swizzle, src, dst, out));
+        } else if (dst.isUnsigned()) {
+            arguments.push_back(this->castScalarToUnsignedInt(swizzle, src, dst, out));
+        } else if (dst.isBoolean()) {
+            arguments.push_back(this->castScalarToBoolean(swizzle, src, dst, out));
+        } else {
+            arguments.push_back(swizzle);
+            fErrors.error(c.argument()->fOffset, "unsupported cast in SPIR-V: vector " +
+                                                 src.description() + " to " + dst.description());
+        }
+    }
+
+    SkASSERT((int)arguments.size() == ctorType.columns());
+
+    SpvId result = this->nextId(&ctorType);
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
+    this->writeWord(this->getType(ctorType), out);
     this->writeWord(result, out);
     for (SpvId id : arguments) {
         this->writeWord(id, out);
