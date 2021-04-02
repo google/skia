@@ -87,6 +87,10 @@ public:
         kTexture,
         kVector,
         kVoid,
+
+        // Types that represent stages in the Skia pipeline
+        kColorFilter,
+        kShader,
     };
 
     enum class NumberKind {
@@ -217,10 +221,12 @@ public:
      */
     bool isOpaque() const {
         switch (fTypeKind) {
+            case TypeKind::kColorFilter:
             case TypeKind::kFragmentProcessor:
             case TypeKind::kOther:
             case TypeKind::kSampler:
             case TypeKind::kSeparateSampler:
+            case TypeKind::kShader:
             case TypeKind::kTexture:
             case TypeKind::kVoid:
                 return true;
@@ -358,6 +364,12 @@ public:
 
     bool isFragmentProcessor() const {
         return fTypeKind == TypeKind::kFragmentProcessor;
+    }
+
+    // Is this type something that can be bound & sampled from an SkRuntimeEffect?
+    // Includes types that represent stages of the Skia pipeline (colorFilter and shader).
+    bool isEffectChild() const {
+        return fTypeKind == TypeKind::kColorFilter || fTypeKind == TypeKind::kShader;
     }
 
     bool isMultisampled() const {
