@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "877cbaa6_48e831bb",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-02T18:37:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6ddd335_76f4eefa",
+      "range": {
+        "startLine": 624,
+        "startChar": 19,
+        "endLine": 624,
+        "endChar": 26
+      },
+      "revId": "b2b810eb528a60059ad872cbb5fe5c7f01e83dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f82a44cd_a824bd52",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-02T18:25:59Z",
       "side": 1,
       "message": "I don\u0027t think we need this check. I don\u0027t believe getDefaultBackendFormat will return a non renderable format if we pass in GrRenderable::kYes (well specifically since we\u0027re passing in a sample count of 1)",
+      "range": {
+        "startLine": 1143,
+        "startChar": 9,
+        "endLine": 1143,
+        "endChar": 68
+      },
+      "revId": "b2b810eb528a60059ad872cbb5fe5c7f01e83dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47d0675b_ba3f6fde",
+        "filename": "tests/ReadWritePixelsGpuTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-02T18:37:19Z",
+      "side": 1,
+      "message": "Replaced with:\n if (!format.isValid()) {",
+      "parentUuid": "f82a44cd_a824bd52",
       "range": {
         "startLine": 1143,
         "startChar": 9,
