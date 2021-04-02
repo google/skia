@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba989d44_d078467c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-02T13:45:55Z",
+      "side": 1,
+      "message": "Still doing a final check (ag/14076257) but indicators are pointing to this being the change that broke the android roll.  If that check points to this CL, then my current plan is to trigger a revert while it gets figured out.",
+      "revId": "92b35673c5bb97ffad6f88c3d237db51cdce39bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
