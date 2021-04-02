@@ -45,9 +45,11 @@ public:
 
     /**
      * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
+     * 'clippedDrawBounds' will be intersected with 'irect'. This returns false if the clip becomes
+     * empty or the draw no longer intersects the clip. In either case the draw can be skipped.
      */
-    bool SK_WARN_UNUSED_RESULT addScissor(const SkIRect& scissor) {
-        return fScissorState.intersect(scissor);
+    bool addScissor(const SkIRect& irect, SkRect* clippedDrawBounds) {
+        return fScissorState.intersect(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
     }
 
     void setScissor(const SkIRect& irect) {

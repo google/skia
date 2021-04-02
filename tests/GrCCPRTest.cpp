@@ -33,21 +33,26 @@ static constexpr int kCanvasSize = 100;
 
 class CCPRClip : public GrClip {
 public:
-    CCPRClip(const SkPath& path) : fPath(path) {}
+    CCPRClip(GrCoverageCountingPathRenderer* ccpr, const SkPath& path) : fCCPR(ccpr), fPath(path) {}
 
 private:
     SkIRect getConservativeBounds() const final { return fPath.getBounds().roundOut(); }
     Effect apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc, GrAAType,
                  bool hasUserStencilSettings, GrAppliedClip* out,
-                 SkRect* bounds, SkTArray<SkPath>* pathsForClipAtlas) const override {
-        SkASSERT(pathsForClipAtlas);
-        pathsForClipAtlas->push_back(fPath);
-        if (!bounds->intersect(fPath.getBounds())) {
+                 SkRect* bounds) const override {
+        auto [success, fp] = fCCPR->makeClipProcessor(/*inputFP=*/nullptr,
+                                                      rtc->getOpsTask()->uniqueID(), fPath,
+                                                      SkIRect::MakeWH(rtc->width(), rtc->height()),
+                                                      *context->priv().caps());
+        if (success) {
+            out->addCoverageFP(std::move(fp));
+            return Effect::kClipped;
+        } else {
             return Effect::kClippedOut;
         }
-        return Effect::kClipped;
     }
 
+    GrCoverageCountingPathRenderer* const fCCPR;
     const SkPath fPath;
 };
 
@@ -85,7 +90,7 @@ public:
         GrPaint paint;
         paint.setColor4f({0, 1, 0, 1});
 
-        CCPRClip clip(clipPath);
+        CCPRClip clip(fCCPR, clipPath);
         fRTC->drawRect(&clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
                        SkRect::MakeIWH(kCanvasSize, kCanvasSize));
     }

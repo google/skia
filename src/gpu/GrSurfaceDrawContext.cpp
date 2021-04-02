@@ -48,7 +48,6 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
@@ -1865,7 +1864,8 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrSurfaceDrawContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
+void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
+                                     GrOp::Owner op,
                                      const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (fContext->abandoned()) {
@@ -1880,8 +1880,6 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
-    SkSTArray<4, SkPath> pathsForClipAtlas;
-    auto* ccpr = this->drawingManager()->getCoverageCountingPathRenderer();
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = drawOp->fixedFunctionFlags();
     bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
     bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
@@ -1899,9 +1897,8 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
         } else {
             aaType = op->hasAABloat() ? GrAAType::kCoverage : GrAAType::kNone;
         }
-        auto clipEffect = clip->apply(fContext, this, aaType, usesUserStencilBits, &appliedClip,
-                                      &bounds, (ccpr) ? &pathsForClipAtlas : nullptr);
-        skipDraw = (clipEffect == GrClip::Effect::kClippedOut);
+        skipDraw = clip->apply(fContext, this, aaType, usesUserStencilBits,
+                               &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions
         skipDraw = !bounds.intersect(this->asSurfaceProxy()->getBoundsRect());
@@ -1909,27 +1906,6 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
 
     if (skipDraw) {
         return;
-    }
-
-    // Create atlas clip paths now that we know exactly which opsTask their atlas will come from.
-    if (!pathsForClipAtlas.empty()) {
-        std::unique_ptr<GrFragmentProcessor> clipFP;
-        if (appliedClip.hasCoverageFragmentProcessor()) {
-            clipFP = appliedClip.detachCoverageFragmentProcessor();
-        }
-        for (const SkPath& clipPath : pathsForClipAtlas) {
-            bool success;
-            // FIXME: ccpr shouldn't be given an opsTaskID until after the potential call to
-            // setupDstProxyView.
-            std::tie(success, clipFP) = ccpr->makeClipProcessor(std::move(clipFP),
-                                                                this->getOpsTask()->uniqueID(),
-                                                                clipPath, bounds.roundOut(),
-                                                                *this->caps());
-            if (!success) {
-                return;  // Clipped completely out.
-            }
-        }
-        appliedClip.addCoverageFP(std::move(clipFP));
     }
 
     bool willUseStencil = usesUserStencilBits || appliedClip.hasStencilClip();
@@ -1958,17 +1934,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
     }
 
     auto opsTask = this->getOpsTask();
-
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
     opsTask->addDrawOp(this->drawingManager(), std::move(op), analysis, std::move(appliedClip),
                        dstProxyView, GrTextureResolveManager(this->drawingManager()),
                        *this->caps());
-
-    // Our opsTask should not have changed or closed between the previous getOpsTask call and now.
-    SkASSERT(!opsTask->isClosed());
-    SkASSERT(this->getOpsTask() == opsTask);
 }
 
 bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,
