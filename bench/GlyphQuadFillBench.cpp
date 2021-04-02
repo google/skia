@@ -39,8 +39,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         size_t len = strlen(gText);
         SkGlyphRunBuilder builder;
         SkPaint paint;
-        builder.drawTextUTF8(font, gText, len, {100, 100});
-        auto glyphRunList = builder.useGlyphRunList();
+        auto glyphRunList = builder.textToGlyphRunList(font, gText, len, {100, 100});
         SkASSERT(!glyphRunList.empty());
         SkSurfaceProps props;
         if (canvas) { canvas->getProps(&props); }

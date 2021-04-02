@@ -79,7 +79,6 @@ public:
         }
         return glyphCount;
     }
-    bool allFontsFinite() const;
 
     SkPoint origin() const { return fOrigin; }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
@@ -101,7 +100,11 @@ private:
 
 class SkGlyphRunBuilder {
 public:
-    void drawTextUTF8(const SkFont&, const void* bytes, size_t byteLength, SkPoint origin);
+    const SkGlyphRunList& textToGlyphRunList(const SkFont& font,
+                                             const void* bytes,
+                                             size_t byteLength,
+                                             SkPoint origin,
+                                             SkTextEncoding encoding = SkTextEncoding::kUTF8);
     void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
 
     void textBlobToGlyphRunListIgnoringRSXForm(const SkTextBlob& blob, SkPoint origin);
