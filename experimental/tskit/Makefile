@@ -1,0 +1,11 @@
+debug:
+	npx tsc
+	./compile.sh debug
+	rm -rf ./npm_build/bin
+	mkdir -p ./npm_build/bin
+	cp ../../out/tskit_debug/tskit.js ./npm_build/bin
+	cp ../../out/tskit_debug/tskit.wasm ./npm_build/bin
+
+serve:
+	echo "Go check out http://localhost:8000/npm_build/example.html"
+	python serve.py
