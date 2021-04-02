@@ -148,18 +148,12 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
     }));
 
     // SkSL supports splatting a scalar via `scalar.xxxx`, but not all versions of GLSL allow this.
-    // Replace swizzles with equivalent constructors (`scalar.xxx` --> `half3(value)`).
+    // Replace swizzles with equivalent splat constructors (`scalar.xxx` --> `half3(value)`).
     if (exprType.isScalar()) {
         int offset = expr->fOffset;
-
-        ExpressionArray ctorArgs;
-        ctorArgs.push_back(std::move(expr));
-
-        auto ctor = Constructor::Convert(context, offset,
-                                         exprType.toCompound(context, components.size(),/*rows=*/1),
-                                         std::move(ctorArgs));
-        SkASSERT(ctor);
-        return ctor;
+        return ConstructorSplat::Make(context, offset,
+                                      exprType.toCompound(context, components.size(), /*rows=*/1),
+                                      std::move(expr));
     }
 
     if (context.fConfig->fSettings.fOptimize) {
@@ -195,14 +189,10 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
         // in a splat constructor holds the same value.
         if (expr->is<ConstructorSplat>()) {
             ConstructorSplat& splat = expr->as<ConstructorSplat>();
-            ExpressionArray ctorArgs;
-            ctorArgs.push_back(std::move(splat.argument()));
-            auto ctor = Constructor::Convert(
+            return ConstructorSplat::Make(
                     context, splat.fOffset,
                     splat.type().componentType().toCompound(context, components.size(), /*rows=*/1),
-                    std::move(ctorArgs));
-            SkASSERT(ctor);
-            return ctor;
+                    std::move(splat.argument()));
         }
 
         // Optimize swizzles of constructors.

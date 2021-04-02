@@ -13,8 +13,15 @@ std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
                                                    int offset,
                                                    const Type& type,
                                                    std::unique_ptr<Expression> arg) {
-    SkASSERT(type.isVector());
     SkASSERT(arg->type() == type.componentType());
+    SkASSERT(arg->type().isScalar());
+
+    // A "splat" to a scalar type is a no-op and can be eliminated.
+    if (type.isScalar()) {
+        return arg;
+    }
+
+    SkASSERT(type.isVector());
     return std::make_unique<ConstructorSplat>(offset, type, std::move(arg));
 }
 
