@@ -576,6 +576,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/LoopExpressionErrors.rte",
   "/sksl/runtime_errors/LoopInitializerErrors.rte",
   "/sksl/runtime_errors/LoopStructureErrors.rte",
+  "/sksl/runtime_errors/UnsupportedTypeFragmentProcessor.rte",
   "/sksl/runtime_errors/UnsupportedTypeSampler.rte",
   "/sksl/runtime_errors/UnsupportedTypeTexture.rte",
 ]
