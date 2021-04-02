@@ -24,6 +24,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -244,22 +245,22 @@ private:
 
     SpvId writeConstantVector(const AnyConstructor& c);
 
-    SpvId writeFloatConstructor(const Constructor& c, OutputStream& out);
+    SpvId writeFloatConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToFloat(SpvId inputId, const Type& inputType, const Type& outputType,
                             OutputStream& out);
 
-    SpvId writeIntConstructor(const Constructor& c, OutputStream& out);
+    SpvId writeIntConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToSignedInt(SpvId inputId, const Type& inputType, const Type& outputType,
                                 OutputStream& out);
 
-    SpvId writeUIntConstructor(const Constructor& c, OutputStream& out);
+    SpvId writeUIntConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToUnsignedInt(SpvId inputId, const Type& inputType, const Type& outputType,
                                   OutputStream& out);
 
-    SpvId writeBooleanConstructor(const Constructor& c, OutputStream& out);
+    SpvId writeBooleanConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToBoolean(SpvId inputId, const Type& inputType, const Type& outputType,
                               OutputStream& out);
@@ -291,6 +292,8 @@ private:
     SpvId writeConstructor(const Constructor& c, OutputStream& out);
 
     SpvId writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c, OutputStream& out);
+
+    SpvId writeConstructorScalarCast(const ConstructorScalarCast& c, OutputStream& out);
 
     SpvId writeConstructorSplat(const ConstructorSplat& c, OutputStream& out);
 
