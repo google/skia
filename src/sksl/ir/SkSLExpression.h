@@ -33,6 +33,7 @@ public:
         kConstructor,
         kConstructorArray,
         kConstructorDiagonalMatrix,
+        kConstructorScalarCast,
         kConstructorSplat,
         kDefined,
         kExternalFunctionCall,
