@@ -22,6 +22,30 @@
       },
       "revId": "1e6df055a10c8744cd2d1a84ce4d79098caba0c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5208b72_5cdb7f94",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-02T14:51:13Z",
+      "side": 1,
+      "message": "Well, the origGlyph doesn\u0027t have an image yet (this code is going to make it). Using the term \u0027original image\u0027 is ambiguous, I think here you used \u0027original\u0027 to refer to the image in unfilteredMask.fImage, and \u0027new\u0027 to refer to the origGlyph.fImage under construction.\n\nHere the unfilteredMask is simply squatting on the storage of the origGlyph.fImage. That\u0027s why it is necessary to do the allocation and copy. In theory one could be even more clever and check if a forward or backward copy could work (shifting the bits around without overwriting any bits which need to be shifted later, while also clearing bits that won\u0027t be shifted into) but that is terribly complicated and we should only get to this case in really crazy situations.\n\nI suppose one could say \"unfilteredMask.fImage is in origGlyph.fImage but has different bounds\". But the reason isn\u0027t really all that important, this is actually just the catch-all case. This change would work even if the two \u0027else if\u0027 above were removed, since really those are optimizations for common cases to avoid any copy. So if I did change this I think it would be to add another comment below that this is the catch-all case for when the filter returns false.",
+      "parentUuid": "d9d3a081_235c9302",
+      "range": {
+        "startLine": 616,
+        "startChar": 82,
+        "endLine": 616,
+        "endChar": 91
+      },
+      "revId": "1e6df055a10c8744cd2d1a84ce4d79098caba0c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
