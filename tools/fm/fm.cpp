@@ -638,9 +638,15 @@ int main(int argc, char** argv) {
             }
 
             if (!FLAGS_writePath.isEmpty()) {
-                sk_mkdir(FLAGS_writePath[0]);
                 SkString path = SkStringPrintf("%s/%s%s",
                                                FLAGS_writePath[0], source.name.c_str(), ext);
+                for (char* it = path.writable_str(); *it != '\0'; it++) {
+                    if (*it == '/' || *it == '\\') {
+                        char prev = std::exchange(*it, '\0');
+                        sk_mkdir(path.c_str());
+                        *it = prev;
+                    }
+                }
 
                 SkFILEWStream file(path.c_str());
                 if (image) {
