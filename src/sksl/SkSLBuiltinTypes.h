@@ -138,6 +138,9 @@ public:
     const std::unique_ptr<Type> fSkCaps;
     const std::unique_ptr<Type> fFragmentProcessor;
 
+    const std::unique_ptr<Type> fColorFilter;
+    const std::unique_ptr<Type> fShader;
+
 private:
     static std::unique_ptr<Type> MakeScalarType(const char* name, const char* abbrev,
                                                 Type::NumberKind numberKind, int priority,

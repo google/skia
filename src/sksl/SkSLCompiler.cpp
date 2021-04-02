@@ -133,7 +133,8 @@ Compiler::Compiler(const ShaderCapsClass* caps)
         TYPE(GenType), TYPE(GenHType), TYPE(GenIType), TYPE(GenBType),
         TYPE(Vec),     TYPE(HVec),     TYPE(IVec),     TYPE(BVec),
 
-        TYPE(FragmentProcessor),
+        TYPE(ColorFilter),
+        TYPE(Shader),
     };
 
     const SkSL::Symbol* privateTypes[] = {
@@ -165,6 +166,8 @@ Compiler::Compiler(const ShaderCapsClass* caps)
 
         TYPE(Sampler),
         TYPE(Texture2D),
+
+        TYPE(FragmentProcessor),
     };
 
     for (const SkSL::Symbol* type : rootTypes) {
@@ -244,8 +247,6 @@ const ParsedModule& Compiler::loadRuntimeEffectModule() {
                                                  this->loadPublicModule());
 
         // Add some aliases to the runtime effect module so that it's friendlier, and more like GLSL
-        fRuntimeEffectModule.fSymbols->addAlias("shader", fContext->fTypes.fFragmentProcessor.get());
-
         fRuntimeEffectModule.fSymbols->addAlias("vec2", fContext->fTypes.fFloat2.get());
         fRuntimeEffectModule.fSymbols->addAlias("vec3", fContext->fTypes.fFloat3.get());
         fRuntimeEffectModule.fSymbols->addAlias("vec4", fContext->fTypes.fFloat4.get());

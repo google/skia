@@ -45,9 +45,9 @@ public:
             String declareUniform(const SkSL::VarDeclaration* decl) override {
                 const SkSL::Variable& var = decl->var();
                 if (var.type().isOpaque()) {
-                    // Nothing to do. The only opaque type we should see is fragmentProcessor, and
-                    // those (children) are handled specially, above.
-                    SkASSERT(var.type().isFragmentProcessor());
+                    // Nothing to do. The only opaque types we should see are children, and those
+                    // are handled specially, above.
+                    SkASSERT(var.type().isEffectChild());
                     return String(var.name());
                 }
 
