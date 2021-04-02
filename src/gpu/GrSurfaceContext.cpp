@@ -422,7 +422,7 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
     // We can either write to a subset or write MIP levels, but not both.
     SkASSERT((src[0].dimensions() == this->dimensions() && pt.isZero()) || numLevels == 1);
     SkASSERT(numLevels == 1 ||
-             this->asTextureProxy() && this->asTextureProxy()->mipmapped() == GrMipmapped::kYes);
+             (this->asTextureProxy() && this->asTextureProxy()->mipmapped() == GrMipmapped::kYes));
     // Our public caller should have clipped to the bounds of the surface already.
     SkASSERT(SkIRect::MakeSize(this->dimensions())
                      .contains(SkIRect::MakePtSize(pt, src[0].dimensions())));
