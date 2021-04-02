@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "331d9525_9718b539",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-02T17:26:20Z",
+      "side": 1,
+      "message": "Rob has plans for dealing with the recordTimeAllocator. I think I\u0027ll let him take over that part.",
+      "parentUuid": "c3c0447f_7261d363",
+      "revId": "dc42259b676fd20f2abbdba316c6f2d36f095603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "215ae764_198d9aac",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-04-02T16:48:03Z",
       "side": 1,
       "message": "just \"for the first allocation\"",
+      "revId": "dc42259b676fd20f2abbdba316c6f2d36f095603",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "579488ce_5c7414e1",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-02T17:26:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "215ae764_198d9aac",
       "revId": "dc42259b676fd20f2abbdba316c6f2d36f095603",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
