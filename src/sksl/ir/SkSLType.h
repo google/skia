@@ -401,8 +401,7 @@ private:
 
     using INHERITED = Symbol;
 
-    // Constructor for MakeFragmentProcessorType, MakeOtherType, MakeSeparateSamplerType,
-    // and MakeVoidType.
+    // Constructor for MakeSpecialType.
     Type(const char* name, const char* abbrev, TypeKind kind)
             : INHERITED(-1, kSymbolKind, name)
             , fAbbreviatedName(abbrev)
