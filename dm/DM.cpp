@@ -1493,6 +1493,11 @@ int main(int argc, char** argv) {
 #endif
     CommandLineFlags::Parse(argc, argv);
 
+    FLAGS_match.reset();
+    FLAGS_match.append("Transfer");
+    FLAGS_match.append("ixels");
+    FLAGS_match.append("ackend");
+    FLAGS_match.append("xtended");
     initializeEventTracingForTools();
 
 #if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)
