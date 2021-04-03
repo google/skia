@@ -35,6 +35,7 @@ public:
         kConstructorDiagonalMatrix,
         kConstructorScalarCast,
         kConstructorSplat,
+        kConstructorVectorCast,
         kDefined,
         kExternalFunctionCall,
         kExternalFunctionReference,
@@ -85,8 +86,8 @@ public:
     }
 
     bool isAnyConstructor() const {
-        static_assert((int)Kind::kConstructorSplat + 1 == (int)Kind::kDefined);
-        return this->kind() >= Kind::kConstructor && this->kind() <= Kind::kConstructorSplat;
+        static_assert((int)Kind::kConstructorVectorCast + 1 == (int)Kind::kDefined);
+        return this->kind() >= Kind::kConstructor && this->kind() <= Kind::kConstructorVectorCast;
     }
 
     /**
