@@ -127,24 +127,8 @@ private:
 
     void makeGlyphRunList(const SkTextBlob* blob, SkPoint origin);
 
-    void simplifyDrawText(
-            const SkFont& font, SkSpan<const SkGlyphID> glyphIDs,
-            SkPoint origin, SkPoint* positions,
-            SkSpan<const char> text = SkSpan<const char>{},
-            SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
-    void simplifyDrawPosTextH(
-            const SkFont& font, SkSpan<const SkGlyphID> glyphIDs,
-            const SkScalar* xpos, SkScalar constY, SkPoint* positions,
-            SkSpan<const char> text = SkSpan<const char>{},
-            SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
-    void simplifyDrawPosText(
-            const SkFont& font, SkSpan<const SkGlyphID> glyphIDs,
-            const SkPoint* pos,
-            SkSpan<const char> text = SkSpan<const char>{},
-            SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
-    void simplifyTextBlobIgnoringRSXForm(
-            const SkTextBlobRunIterator& it,
-            SkPoint* positions);
+    SkPoint* simplifyTextBlobIgnoringRSXForm(const SkTextBlobRunIterator& it,
+                                             SkPoint* positionsCursor);
 
     size_t fMaxTotalRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
