@@ -34,6 +34,24 @@
       "parentUuid": "e1d38632_b0398c11",
       "revId": "9b9f6e86f0d205b816d210e9536b8c869581cbcb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47263308_a2030d28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-05T14:01:11Z",
+      "side": 1,
+      "message": "Ah, so for example, when we end a function with\n\nfunction(..., paint?: Paint)\n\nWe can\u0027t pass a null for the paint param?",
+      "parentUuid": "2caf2a90_dba4cac3",
+      "revId": "9b9f6e86f0d205b816d210e9536b8c869581cbcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
