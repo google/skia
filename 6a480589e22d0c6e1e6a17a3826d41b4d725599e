@@ -22,6 +22,30 @@
       },
       "revId": "6a480589e22d0c6e1e6a17a3826d41b4d725599e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0e6bc80_fa6a8f40",
+        "filename": "tests/ClipStackTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1550,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-05T18:02:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34d491c7_9b63910f",
+      "range": {
+        "startLine": 1550,
+        "startChar": 0,
+        "endLine": 1550,
+        "endChar": 41
+      },
+      "revId": "6a480589e22d0c6e1e6a17a3826d41b4d725599e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
