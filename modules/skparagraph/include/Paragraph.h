@@ -73,6 +73,16 @@ public:
     virtual void updateForegroundPaint(size_t from, size_t to, SkPaint paint) = 0;
     virtual void updateBackgroundPaint(size_t from, size_t to, SkPaint paint) = 0;
 
+    struct VisitorInfo {
+        const SkFont&   font;
+        uint8_t         bidiLevel;
+        int             count;
+        const uint16_t* glyphs;
+        const SkPoint*  positions;
+        const uint32_t* utf8Starts;
+    };
+    virtual void visit(std::function<bool(int lineNumber, const VisitorInfo&)>);
+
 protected:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
