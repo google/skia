@@ -20,7 +20,6 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
-#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -249,7 +248,7 @@ private:
     Value writeConstructor(const Constructor& c);
     Value writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
-    Value writeConstructorScalarCast(const ConstructorScalarCast& c);
+    Value writeConstructorCast(const AnyConstructor& c);
     Value writeConstructorSplat(const ConstructorSplat& c);
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
@@ -794,12 +793,16 @@ Value SkVMGenerator::writeTypeConversion(const Value& src,
     return {};
 }
 
-Value SkVMGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c) {
-    const Type& srcType = c.argument()->type();
+Value SkVMGenerator::writeConstructorCast(const AnyConstructor& c) {
+    auto arguments = c.argumentSpan();
+    SkASSERT(arguments.size() == 1);
+    const Expression& argument = *arguments.front();
+
+    const Type& srcType = argument.type();
     const Type& dstType = c.type();
     Type::NumberKind srcKind = base_number_kind(srcType);
     Type::NumberKind dstKind = base_number_kind(dstType);
-    Value src = this->writeExpression(*c.argument());
+    Value src = this->writeExpression(argument);
     return this->writeTypeConversion(src, srcKind, dstKind);
 }
 
@@ -1495,7 +1498,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
         case Expression::Kind::kConstructorScalarCast:
-            return this->writeConstructorScalarCast(e.as<ConstructorScalarCast>());
+        case Expression::Kind::kConstructorVectorCast:
+            return this->writeConstructorCast(e.asAnyConstructor());
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(e.as<ConstructorSplat>());
         case Expression::Kind::kFieldAccess:

@@ -26,6 +26,7 @@
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -265,6 +266,9 @@ private:
     SpvId castScalarToBoolean(SpvId inputId, const Type& inputType, const Type& outputType,
                               OutputStream& out);
 
+    SpvId castScalarToType(SpvId inputExprId, const Type& inputType, const Type& outputType,
+                           OutputStream& out);
+
     /**
      * Writes a matrix with the diagonal entries all equal to the provided expression, and all other
      * entries equal to zero.
@@ -296,6 +300,10 @@ private:
     SpvId writeConstructorScalarCast(const ConstructorScalarCast& c, OutputStream& out);
 
     SpvId writeConstructorSplat(const ConstructorSplat& c, OutputStream& out);
+
+    SpvId writeConstructorVectorCast(const ConstructorVectorCast& c, OutputStream& out);
+
+    SpvId writeComposite(const std::vector<SpvId>& arguments, const Type& type, OutputStream& out);
 
     SpvId writeFieldAccess(const FieldAccess& f, OutputStream& out);
 

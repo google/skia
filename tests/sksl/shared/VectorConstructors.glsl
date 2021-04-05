@@ -11,17 +11,17 @@ vec4 main() {
     vec2 v3 = vec2(1.0);
     vec3 v4 = vec3(vec2(1.0), 1.0);
     ivec2 v5 = ivec2(1);
-    ivec2 v6 = ivec2(vec2(1.0, 2.0));
-    vec2 v7 = vec2(ivec2(1, 2));
+    ivec2 v6 = ivec2(1, 2);
+    vec2 v7 = vec2(1.0, 2.0);
     vec2 v8 = vec2(v5);
-    vec4 v9 = vec4(float(v6.x), sqrt(2.0), vec2(ivec2(3, 4)));
+    vec4 v9 = vec4(float(v6.x), sqrt(2.0), 3.0, 4.0);
     ivec2 v10 = ivec2(3, int(v1.x));
     bvec4 v11 = bvec4(true, false, true, false);
     vec2 v12 = vec2(1.0, 0.0);
     vec2 v13 = vec2(0.0);
-    vec2 v14 = vec2(bvec2(false));
+    vec2 v14 = vec2(0.0);
     bvec2 v15 = bvec2(true);
-    bvec2 v16 = bvec2(vec2(1.0));
-    bvec3 v17 = bvec3(true, bvec2(ivec2(77)));
+    bvec2 v16 = bvec2(true);
+    bvec3 v17 = bvec3(true, bvec2(true));
     return check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17) ? colorGreen : colorRed;
 }

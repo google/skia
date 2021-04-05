@@ -12,6 +12,7 @@
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -68,16 +69,17 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
                        : ConstructorSplat::Make(context, offset, type, std::move(typecast));
     }
 
-    int expected = type.rows() * type.columns();
-
-    if (type.isVector() && args.size() == 1 && args[0]->type().isVector() &&
-        args[0]->type().columns() == expected) {
+    if (type.isVector() &&
+        args.size() == 1 &&
+        args[0]->type().isVector() &&
+        args[0]->type().columns() == type.columns()) {
         // A vector constructor containing a single vector with the same number of columns is a
         // cast (e.g. float3 -> int3).
-        return std::make_unique<Constructor>(offset, type, std::move(args));
+        return ConstructorVectorCast::Make(context, offset, type, std::move(args[0]));
     }
 
     // For more complex cases, we walk the argument list and fix up the arguments as needed.
+    int expected = type.rows() * type.columns();
     int actual = 0;
     for (std::unique_ptr<Expression>& arg : args) {
         if (!arg->type().isScalar() && !arg->type().isVector()) {
