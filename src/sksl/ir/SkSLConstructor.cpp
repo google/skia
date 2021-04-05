@@ -49,33 +49,58 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
                                                                  const Type& type,
                                                                  ExpressionArray args) {
     SkASSERT(type.isVector() || type.isMatrix());
-    if (type.isMatrix() && args.size() == 1 && args[0]->type().isMatrix()) {
-        // Matrix-from-matrix is always legal.
-        return std::make_unique<Constructor>(offset, type, std::move(args));
-    }
 
-    if (args.size() == 1 && args[0]->type().isScalar()) {
-        // A constructor containing a single scalar is a splat (for vectors) or diagonal matrix (for
-        // matrices). In either event, it's legal regardless of the scalar's type. Synthesize an
-        // explicit conversion to the proper type (this is a no-op if it's unnecessary).
-        std::unique_ptr<Expression> typecast = ConstructorScalarCast::Make(context, offset,
-                                                                           type.componentType(),
-                                                                           std::move(args[0]));
-        SkASSERT(typecast);
+    // The meaning of a compound constructor containing a single argument varies significantly in
+    // GLSL/SkSL, depending on the argument type.
+    if (args.size() == 1) {
+        std::unique_ptr<Expression>& argument = args.front();
+        if (argument->type().isScalar()) {
+            // A constructor containing a single scalar is a splat (for vectors) or diagonal matrix
+            // (for matrices). It's legal regardless of the scalar's type, so synthesize an explicit
+            // conversion to the proper type. (This cast is a no-op if it's unnecessary.)
+            std::unique_ptr<Expression> typecast = ConstructorScalarCast::Make(
+                    context, offset, type.componentType(), std::move(argument));
 
-        // Matrix-from-scalar creates a diagonal matrix; vector-from-scalar creates a splat.
-        return type.isMatrix()
+            // Matrix-from-scalar creates a diagonal matrix; vector-from-scalar creates a splat.
+            return type.isMatrix()
                        ? ConstructorDiagonalMatrix::Make(context, offset, type, std::move(typecast))
                        : ConstructorSplat::Make(context, offset, type, std::move(typecast));
-    }
+        } else if (argument->type().isVector()) {
+            // A vector constructor containing a single vector with the same number of columns is a
+            // cast (e.g. float3 -> int3).
+            if (type.isVector() && argument->type().columns() == type.columns()) {
+                return ConstructorVectorCast::Make(context, offset, type, std::move(argument));
+            }
+        } else if (argument->type().isMatrix()) {
+            // A matrix constructor containing a single matrix can be a resize, typecast, or both.
+            // GLSL lumps these into one category, but internally SkSL keeps them distinct.
+            if (type.isMatrix()) {
+                // First, handle type conversion. If the component types differ, synthesize the
+                // destination type with the argument's rows/columns. If not, leave it as-is.
+                std::unique_ptr<Expression> typecast;
+                if (type.componentType() != argument->type().componentType()) {
+                    const Type& typecastType = type.componentType().toCompound(
+                            context,
+                            argument->type().columns(),
+                            argument->type().rows());
+                    typecast = std::make_unique<Constructor>(offset, typecastType, std::move(args));
+                    SkASSERT(typecast);
+                } else {
+                    typecast = std::move(argument);
+                }
 
-    if (type.isVector() &&
-        args.size() == 1 &&
-        args[0]->type().isVector() &&
-        args[0]->type().columns() == type.columns()) {
-        // A vector constructor containing a single vector with the same number of columns is a
-        // cast (e.g. float3 -> int3).
-        return ConstructorVectorCast::Make(context, offset, type, std::move(args[0]));
+                // Next, wrap the typecasted expression in a matrix-resize constructor if the sizes
+                // differ. If not, return the typecasted expression as-is.
+                if (type.rows() != typecast->type().rows() ||
+                    type.columns() != typecast->type().columns()) {
+                    ExpressionArray typecastArgs;
+                    typecastArgs.push_back(std::move(typecast));
+                    return std::make_unique<Constructor>(offset, type, std::move(typecastArgs));
+                } else {
+                    return typecast;
+                }
+            }
+        }
     }
 
     // For more complex cases, we walk the argument list and fix up the arguments as needed.
