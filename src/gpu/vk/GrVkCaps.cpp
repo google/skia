@@ -868,6 +868,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGBA_8888;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
             // Format: VK_FORMAT_R8G8B8A8_UNORM, Surface: kRGB_888x
@@ -875,6 +876,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
                 ctInfo.fReadSwizzle = GrSwizzle::RGB1();
             }
@@ -895,6 +897,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kAlpha_8;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = GrSwizzle("000r");
                 ctInfo.fWriteSwizzle = GrSwizzle("a000");
@@ -904,6 +907,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kGray_8;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
                 ctInfo.fReadSwizzle = GrSwizzle("rrr1");
             }
@@ -923,6 +927,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kBGRA_8888;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -941,6 +946,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kBGR_565;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -959,6 +965,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGBA_F16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
             // Format: VK_FORMAT_R16G16B16A16_SFLOAT, Surface: GrColorType::kRGBA_F16_Clamped
@@ -966,6 +973,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGBA_F16_Clamped;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -984,6 +992,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kAlpha_F16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = GrSwizzle("000r");
                 ctInfo.fWriteSwizzle = GrSwizzle("a000");
@@ -1004,6 +1013,8 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                // The Vulkan format is 3 bpp so we must convert to/from that when transferring.
+                ctInfo.fTransferColorType = GrColorType::kRGB_888;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1022,6 +1033,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRG_88;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1040,6 +1052,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGBA_1010102;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1058,6 +1071,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kBGRA_1010102;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1076,6 +1090,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kABGR_4444;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = GrSwizzle::BGRA();
                 ctInfo.fWriteSwizzle = GrSwizzle::BGRA();
@@ -1097,6 +1112,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kABGR_4444;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1115,6 +1131,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGBA_8888_SRGB;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1133,6 +1150,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kAlpha_16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = GrSwizzle("000r");
                 ctInfo.fWriteSwizzle = GrSwizzle("a000");
@@ -1153,6 +1171,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRG_1616;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1171,6 +1190,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGBA_16161616;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1189,6 +1209,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRG_F16;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
@@ -1209,6 +1230,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kWrappedOnly_Flag;
             }
         }
@@ -1229,6 +1251,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRGB_888x;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kWrappedOnly_Flag;
             }
         }
@@ -1529,7 +1552,7 @@ GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrColorType surfa
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == surfaceColorType) {
-            return {surfaceColorType, offsetAlignment};
+            return {ctInfo.fTransferColorType, offsetAlignment};
         }
     }
     return {GrColorType::kUnknown, 0};
@@ -1558,6 +1581,16 @@ GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(
         return SurfaceReadPixelsSupport::kSupported;
     }
     return SurfaceReadPixelsSupport::kUnsupported;
+}
+
+GrColorType GrVkCaps::transferColorType(VkFormat vkFormat, GrColorType surfaceColorType) const {
+    const auto& info = this->getFormatInfo(vkFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        if (info.fColorTypeInfos[i].fColorType == surfaceColorType) {
+            return info.fColorTypeInfos[i].fTransferColorType;
+        }
+    }
+    return GrColorType::kUnknown;
 }
 
 bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
@@ -1720,7 +1753,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == srcColorType) {
-            return {srcColorType, offsetAlignment};
+            return {ctInfo.fTransferColorType, offsetAlignment};
         }
     }
     return {GrColorType::kUnknown, 0};
