@@ -67,8 +67,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrClip.h",
   "$_src/gpu/GrClipStack.cpp",
   "$_src/gpu/GrClipStack.h",
-  "$_src/gpu/GrClipStackClip.cpp",
-  "$_src/gpu/GrClipStackClip.h",
   "$_src/gpu/GrColor.h",
   "$_src/gpu/GrColorInfo.cpp",
   "$_src/gpu/GrColorInfo.h",
@@ -638,6 +636,13 @@ skia_ccpr_sources = [
 skia_gpu_sources += skia_ccpr_sources
 
 skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
+
+skia_nga_sources = []
+
+skia_oga_sources = [
+  "$_src/gpu/GrClipStackClip.cpp",
+  "$_src/gpu/GrClipStackClip.h",
+]
 
 skia_vk_sources = [
   "$_include/gpu/vk/GrVkBackendContext.h",
