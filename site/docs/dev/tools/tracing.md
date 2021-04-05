@@ -35,13 +35,13 @@ clutter and slowdown in the interface), it's best to run a small number of tests
 tracing. Once you have generated a file in this way, go to
 [chrome://tracing](chrome://tracing), click Load:
 
-![Load Button](tracing_load.png)
+![Load Button](../tracing_load.png)
 
 ... then select the JSON file. The data will be loaded and can be navigated/inspected using the
 tracing tools. Tip: press '?' for a help screen explaining the available keyboard and mouse
 controls.
 
-![Tracing interface](tracing.png)
+![Tracing interface](../tracing.png)
 
 Android ATrace
 --------------
