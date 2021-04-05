@@ -790,7 +790,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     GrGLRenderTarget::IDs rtIDs;
     rtIDs.fRTFBOID = info.fFBOID;
     rtIDs.fMSColorRenderbufferID = 0;
-    rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
 
     int sampleCount = this->glCaps().getRenderTargetSampleCount(backendRT.sampleCnt(), format);
@@ -1171,7 +1171,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     rtIDs->fMSColorRenderbufferID = 0;
     rtIDs->fRTFBOID = 0;
     rtIDs->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
-    rtIDs->fTexFBOID = 0;
+    rtIDs->fSingleSampleFBOID = 0;
 
     GrGLenum colorRenderbufferFormat = 0; // suppress warning
 
@@ -1183,8 +1183,8 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
         goto FAILED;
     }
 
-    GL_CALL(GenFramebuffers(1, &rtIDs->fTexFBOID));
-    if (!rtIDs->fTexFBOID) {
+    GL_CALL(GenFramebuffers(1, &rtIDs->fSingleSampleFBOID));
+    if (!rtIDs->fSingleSampleFBOID) {
         goto FAILED;
     }
 
@@ -1193,7 +1193,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
     // rendered from.
     if (sampleCount <= 1) {
-        rtIDs->fRTFBOID = rtIDs->fTexFBOID;
+        rtIDs->fRTFBOID = rtIDs->fSingleSampleFBOID;
     } else {
         GL_CALL(GenFramebuffers(1, &rtIDs->fRTFBOID));
         if (!rtIDs->fRTFBOID) {
@@ -1225,7 +1225,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     } else if (sampleCount > 1) {
         // multisampled_render_to_texture
         SkASSERT(this->glCaps().usesImplicitMSAAResolve());  // Otherwise fMSColorRenderbufferID!=0.
-        SkASSERT(rtIDs->fRTFBOID != rtIDs->fTexFBOID);
+        SkASSERT(rtIDs->fRTFBOID != rtIDs->fSingleSampleFBOID);
         this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fRTFBOID);
         GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
@@ -1235,7 +1235,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                                 sampleCount));
     }
 
-    this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fTexFBOID);
+    this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fSingleSampleFBOID);
     GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                  GR_GL_COLOR_ATTACHMENT0,
                                  desc.fTarget,
@@ -1248,11 +1248,11 @@ FAILED:
     if (rtIDs->fMSColorRenderbufferID) {
         GL_CALL(DeleteRenderbuffers(1, &rtIDs->fMSColorRenderbufferID));
     }
-    if (rtIDs->fRTFBOID != rtIDs->fTexFBOID) {
+    if (rtIDs->fRTFBOID != rtIDs->fSingleSampleFBOID) {
         this->deleteFramebuffer(rtIDs->fRTFBOID);
     }
-    if (rtIDs->fTexFBOID) {
-        this->deleteFramebuffer(rtIDs->fTexFBOID);
+    if (rtIDs->fSingleSampleFBOID) {
+        this->deleteFramebuffer(rtIDs->fSingleSampleFBOID);
     }
     return false;
 }
@@ -2113,11 +2113,11 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     if (renderTarget) {
         if (renderTarget->numSamples() > 1) {
             // Bind the texture FBO since we can't read pixels from an MSAA framebuffer.
-            if (renderTarget->textureFBOID() == GrGLRenderTarget::kUnresolvableFBOID) {
+            if (renderTarget->singleSampleFBOID() == GrGLRenderTarget::kUnresolvableFBOID) {
                 return false;
             }
             // we don't track the state of the READ FBO ID.
-            this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
+            this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->singleSampleFBOID());
         } else {
             this->flushRenderTargetNoColorWrites(renderTarget);
         }
@@ -2316,9 +2316,9 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     SkASSERT(rt->requiresManualMSAAResolve());
-    SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
+    SkASSERT(rt->singleSampleFBOID() != 0 && rt->renderFBOID() != 0);
     this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
-    this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID());
+    this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
 
     // make sure we go through flushRenderTarget() since we've modified
     // the bound DRAW FBO ID.
@@ -3538,7 +3538,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     switch (type) {
         case kTexture_GrXferBarrierType: {
             GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
-            SkASSERT(glrt->textureFBOID() != 0 && glrt->renderFBOID() != 0);
+            SkASSERT(glrt->singleSampleFBOID() != 0 && glrt->renderFBOID() != 0);
             if (glrt->requiresManualMSAAResolve()) {
                 // The render target uses separate storage so no need for glTextureBarrier.
                 // FIXME: The render target will resolve automatically when its texture is bound,
