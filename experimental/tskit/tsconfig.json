@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "None",
+    "outDir": "build/"
+  },
+  "files": [
+    "bindings/core.ts",
+    "bindings/extension.ts",
+    "bindings/load.ts",
+    "bindings/memory.ts"
+  ]
+}
