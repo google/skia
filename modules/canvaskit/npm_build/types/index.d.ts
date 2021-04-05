@@ -1058,7 +1058,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      */
     drawAtlas(atlas: Image, srcRects: InputFlattenedRectangleArray,
               dstXforms: InputFlattenedRSXFormArray, paint: Paint,
-              blendMode?: BlendMode, colors?: ColorIntArray,
+              blendMode?: BlendMode | null, colors?: ColorIntArray | null,
               sampling?: CubicResampler | FilterOptions): void;
 
     /**
@@ -1253,10 +1253,10 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param paint
      */
     drawPatch(cubics: InputFlattenedPointArray,
-              colors?: ColorIntArray,
-              texs?: InputFlattenedPointArray,
-              mode?: BlendMode,
-              paint: Paint): void;
+              colors?: ColorIntArray | Color[] | null,
+              texs?: InputFlattenedPointArray | null,
+              mode?: BlendMode | null,
+              paint?: Paint): void;
 
     /**
      * Draws the given picture using the current clip, current matrix, and the provided paint.
@@ -1794,7 +1794,7 @@ export interface CubicResampler {
  * Specifies sampling using filter and mipmap options
  */
 export interface FilterOptions {
-    filter:  FilterMode;
+    filter: FilterMode;
     mipmap?: MipmapMode;    // defaults to None if not specified
 }
 

@@ -128,15 +128,14 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     canvas.drawOval(someRect, paint);
     canvas.drawPaint(paint);
     canvas.drawParagraph(para, 10, 7);
-    {
-        const cubics = [1,1, 2,2, 3,3, 4,4, 5,5, 6,6, 7,7, 8,8, 9,9, 10,10, 11,11, 12,12];
-        const colors = [CK.RED, CK.BLUE, CK.GREEN, CK.WHITE];
-        const texs = [1,1, 2,2, 3,3, 4,4];
-        canvas.drawPatch(cubics, null, null, paint);
-        canvas.drawPatch(cubics, colors, null, paint);
-        canvas.drawPatch(cubics, null, texs, paint);
-        canvas.drawPatch(cubics, colors, texs, paint);
-    }
+    const cubics = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
+        7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12];
+    const colors = [CK.RED, CK.BLUE, CK.GREEN, CK.WHITE];
+    const texs = [1, 1, 2, 2, 3, 3, 4, 4];
+    canvas.drawPatch(cubics, null, null, null, paint);
+    canvas.drawPatch(cubics, colors, null, CK.BlendMode.Clear, paint);
+    canvas.drawPatch(cubics, null, texs, null, paint);
+    canvas.drawPatch(cubics, colors, texs, CK.BlendMode.SrcOver, paint);
     canvas.drawPath(path, paint);
     canvas.drawPicture(skp);
     canvas.drawPoints(CK.PointMode.Lines, [1, 2, 3, 4, 5, 6], paint);
