@@ -231,12 +231,15 @@ protected:
 
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
 
-    void writeConstructorArray(const ConstructorArray& c, Precedence parentPrecedence);
+    void writeAnyConstructor(const AnyConstructor& c,
+                             const char* leftBracket,
+                             const char* rightBracket,
+                             Precedence parentPrecedence);
 
-    void writeConstructorScalarCast(const ConstructorScalarCast& c, Precedence parentPrecedence);
-
-    void writeSingleArgumentConstructor(const SingleArgumentConstructor& c,
-                                        Precedence parentPrecedence);
+    void writeCastConstructor(const AnyConstructor& c,
+                              const char* leftBracket,
+                              const char* rightBracket,
+                              Precedence parentPrecedence);
 
     void writeFieldAccess(const FieldAccess& f);
 
