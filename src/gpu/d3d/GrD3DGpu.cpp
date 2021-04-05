@@ -925,6 +925,170 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     return std::move(tgt);
 }
 
+bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
+    auto * d3dTex = static_cast<GrD3DTexture*>(tex);
+    SkASSERT(tex->textureType() == GrTextureType::k2D);
+    int width = tex->width();
+    int height = tex->height();
+    //*** check for NPOT
+
+    // determine if we can read from and mipmap this format
+    const GrD3DCaps & caps = this->d3dCaps();
+    if (!caps.isFormatTexturable(d3dTex->dxgiFormat()) ||
+        !caps.mipmapSupport()) {
+        return false;
+    }
+
+    // SkMipmap doesn't include the base level in the level count so we have to add 1
+    uint32_t levelCount = SkMipmap::ComputeLevelCount(tex->width(), tex->height()) + 1;
+    SkASSERT(levelCount == d3dTex->mipLevels());
+
+    // change resource state of the resource so we can write to the subresources.
+    d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    //*** this won't work, we need to add UAV descriptor
+    sk_sp<GrD3DRootSignature> rootSig = fResourceProvider.findOrCreateRootSignature(1);
+    this->currentCommandList()->setComputeRootSignature(rootSig);
+
+    //*** switch based on format
+    //*** use &?
+    sk_sp<GrD3DPipeline> pipeline = this->resourceProvider().findOrCreateMipmapPipeline(
+                                      GrD3DResourceProvider::MipmapType::kLinear);
+    this->currentCommandList()->setPipelineState(std::move(pipeline));
+
+    // get srv
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> srvuav;
+    srvuav[0] = d3dTex->shaderResourceView();
+
+    // set sampler
+    GrSamplerState samplerState(SkFilterMode::kLinear, SkMipmapMode::kNearest);
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> samplers(1);
+    samplers[0] = fResourceProvider.findOrCreateCompatibleSampler(samplerState);
+    this->currentCommandList()->addSampledTextureRef(d3dTex); //*** necessary?
+    sk_sp<GrD3DDescriptorTable> samplerTable = fResourceProvider.findOrCreateSamplerTable(samplers);
+    this->currentCommandList()->setComputeRootDescriptorTable(
+            static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable),
+            samplerTable->baseGpuDescriptor());
+
+    // Draw the miplevels
+    uint32_t mipLevel = 1;
+    while (mipLevel < levelCount) {
+        int prevWidth = width;
+        int prevHeight = height;
+        width = std::max(1, width / 2);
+        height = std::max(1, height / 2);
+
+        // set constants
+        SkSize constantData; //*** or whatever it is
+        D3D12_GPU_VIRTUAL_ADDRESS constantsAddress =
+            fResourceProvider.uploadConstantData(&constantData, sizeof(constantData));
+        this->currentCommandList()->setComputeRootConstantBufferView(
+                (unsigned int)(GrD3DRootSignature::ParamIndex::kConstantBufferView),
+                constantsAddress);
+
+        //*** create UAV
+        GrD3DDescriptorHeap::CPUHandle uav =
+                fResourceProvider.createUnorderedAccessView(d3dTex->d3dResource()/*, srcSubresource, 1*/);
+        srvuav[1] = uav.fHandle;
+
+        // set up and bind resource view table
+        sk_sp<GrD3DDescriptorTable> srvTable =
+                fResourceProvider.findOrCreateShaderResourceTable(srvuav);
+        this->currentCommandList()->setComputeRootDescriptorTable(
+                static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kTextureDescriptorTable),
+                srvTable->baseGpuDescriptor());
+
+        this->currentCommandList()->dispatch(width, height);
+
+        //*** add UAV Barrier?
+
+        fResourceProvider.recycleCBVSRVUAV(uav);
+
+        ++mipLevel;
+    }
+
+    d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    return true;
+}
+
+//+ void GrD3DGpu::blitByDraw(GrD3DTexture * d3dTex, unsigned int srcSubresource,
+//                            +unsigned int dstSubresource) {
+//    +    // create base objects
+//        +
+//        +    //*** maybe set up root signature with everything in it rather than using descriptor tables?
+//        +sk_sp<GrD3DRootSignature> rootSig =
+//        +fResourceProvider.findOrCreateRootSignature(1);
+//    +
+//        +sk_sp<GrD3DPipelineState> pipelineState =
+//        +fResourceProvider.findOrCreateCopyByDrawPipelineState(d3dTex->dxgiFormat());
+//    +
+//        +GrD3DDescriptorHeap::CPUHandle rtv =
+//        +fResourceProvider.createRenderTargetView(d3dTex->d3dResource(), dstSubresource);
+//    +GrD3DDescriptorHeap::CPUHandle srv =
+//        +fResourceProvider.createShaderResourceView(d3dTex->d3dResource(), srcSubresource, 1);
+//    +std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> shaderResourceViews;
+//    +shaderResourceViews[0] = srv.fHandle;
+//    +
+//        +GrSamplerState samplerState(SkFilterMode::kLinear, SkMipmapMode::kNone);
+//    +std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> samplers(1);
+//    +samplers[0] = fResourceProvider.findOrCreateCompatibleSampler(samplerState);
+//    +this->currentCommandList()->addSampledTextureRef(d3dTex);
+//    +
+//        +    // create vertex buffer if needed
+//        +if (!fCopyVertexBuffer) {
+//        +const float data[] = {
+//        +0, 0,
+//        +1, 0,
+//        +0, 1,
+//        +1, 1
+//        + };
+//        +fCopyVertexBuffer =
+//            +this->createBuffer(sizeof(data), GrGpuBufferType::kVertex, kStatic_GrAccessPattern,
+//                                +data);
+//        +((GrD3DBuffer*)(fCopyVertexBuffer.get()))->setResourceState(
+//            +this, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+//        +
+//    }
+//    +
+//        +    //---------------------------------------------------------------------------
+//        +
+//        +this->currentCommandList()->setGraphicsRootSignature(rootSig);
+//    +this->currentCommandList()->setPipelineState(pipelineState);
+//    +
+//        +    // bind constants
+//        +SkSize constantData;
+//    +D3D12_GPU_VIRTUAL_ADDRESS constantsAddress =
+//        +fResourceProvider.uploadConstantData(&constantData, sizeof(constantData));
+//    +this->currentCommandList()->setGraphicsRootConstantBufferView(
+//        +(unsigned int)(GrD3DRootSignature::ParamIndex::kConstantBufferView),
+//        +constantsAddress);
+//    +
+//        +    // set up and bind shader resource view table
+//        +sk_sp<GrD3DDescriptorTable> srvTable =
+//        +fResourceProvider.findOrCreateShaderResourceTable(shaderResourceViews);
+//    +this->currentCommandList()->setGraphicsRootDescriptorTable(
+//        +static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kTextureDescriptorTable),
+//        +srvTable->baseGpuDescriptor());
+//    +
+//        +    // set up and bind sampler table
+//        +sk_sp<GrD3DDescriptorTable> samplerTable = fResourceProvider.findOrCreateSamplerTable(samplers);
+//    +this->currentCommandList()->setGraphicsRootDescriptorTable(
+//        +static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable),
+//        +samplerTable->baseGpuDescriptor());
+//    +
+//        +    // set vertex buffer
+//        +this->currentCommandList()->setVertexBuffers(0, fCopyVertexBuffer, 2 * sizeof(float), nullptr, 0);
+//    +
+//        +    // draw? anything else?
+//        +this->currentCommandList()->drawInstanced(4, 0, 0, 0);
+//    +
+//        +fResourceProvider.recycleRenderTargetView(rtv);
+//    +fResourceProvider.recycleConstantOrShaderView(srv);
+//    +
+//}
+
+
 sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrD3DBuffer> buffer = GrD3DBuffer::Make(this, sizeInBytes, type, accessPattern);

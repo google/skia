@@ -198,6 +198,21 @@ GrD3DPipelineState* GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
     return fPipelineStateCache->refPipelineState(rt, info);
 }
 
+sk_sp<GrD3DPipeline> GrD3DResourceProvider::findOrCreateMipmapPipeline(MipmapType pipelineType) {
+    unsigned int index = (unsigned int)pipelineType;
+    if (!fMipmapPipelines[index]) {
+        const char* shader = "";
+
+        //*** this won't work, we need to add UAV descriptor
+        sk_sp<GrD3DRootSignature> rootSig = this->findOrCreateRootSignature(1);
+
+        fMipmapPipelines[index] =
+                GrD3DPipelineStateBuilder::MakeComputePipeline(fGpu, rootSig.get(), shader);
+    }
+
+    return fMipmapPipelines[index];
+}
+
 D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, size_t size) {
     // constant size has to be aligned to 256
     constexpr int kConstantAlignment = 256;
