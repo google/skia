@@ -37,5 +37,5 @@ Method 2 \- Make the new code path opt\-in for Chromium
     in use.
 
 If your changes will affect Blink layout tests, see detailed instructions about
-how to synchronize the changes between Skia, Blink, and Chromium [here](./blink).
+how to synchronize the changes between Skia, Blink, and Chromium [here](../blink).
 
