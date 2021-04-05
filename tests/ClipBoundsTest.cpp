@@ -5,6 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/SkGpuDevice.h"
+
+// For the GrClipStack case, this is covered in GrClipStack_RectDeviceClip
+#if defined(SK_DISABLE_NEW_GR_CLIP_STACK)
+
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "src/core/SkClipOpPriv.h"
@@ -48,3 +53,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     // make sure that GrClip is behaving itself
     REPORTER_ASSERT(reporter, intScreen == devGrClipBound);
 }
+
+#endif // SK_DISABLE_NEW_GR_CLIP_STACK
