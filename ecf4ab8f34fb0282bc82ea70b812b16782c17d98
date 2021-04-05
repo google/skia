@@ -16,6 +16,24 @@
       "message": "This seems a little too hacky. Sure it may fix this one particular case, but it this isn\u0027t just a little bit wrong. The real issue here is ParagraphImpl::layout taking the floor of the rawWidth, is it not? It seems that the issue is more that the width is reported shorter than it actually is, so asking for the the glyph at the end of the reported width isn\u0027t actually getting the one at the end.\n\nIf the ParagraphImpl::layout hack needs to stay, instead of rounding the clip context one could bump dx up to the right of the clip if it\u0027s within a pixel or so. It\u0027s still a bad hack, but seems less bad.",
       "revId": "ecf4ab8f34fb0282bc82ea70b812b16782c17d98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e022747_384901e5",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-04-05T16:28:34Z",
+      "side": 1,
+      "message": "The problem here is that we get dx as a coordinate from another function that floors it. That explains how I got this weird idea in the first place. I just tried to move all the values on the same level.",
+      "parentUuid": "e0eefb3b_d6ca1791",
+      "revId": "ecf4ab8f34fb0282bc82ea70b812b16782c17d98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
