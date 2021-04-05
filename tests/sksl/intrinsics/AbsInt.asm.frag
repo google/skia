@@ -63,7 +63,6 @@ OpDecorate %106 RelaxedPrecision
 %int_1 = OpConstant %int 1
 %int_0 = OpConstant %int 0
 %int_2 = OpConstant %int 2
-%27 = OpConstantComposite %v4int %int_1 %int_0 %int_0 %int_2
 %false = OpConstantFalse %bool
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %v2float = OpTypeVector %float 2
@@ -84,6 +83,7 @@ OpFunctionEnd
 %19 = OpLabel
 %expected = OpVariable %_ptr_Function_v4int Function
 %97 = OpVariable %_ptr_Function_v4float Function
+%27 = OpCompositeConstruct %v4int %int_1 %int_0 %int_0 %int_2
 OpStore %expected %27
 %30 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %32 = OpLoad %v4float %30

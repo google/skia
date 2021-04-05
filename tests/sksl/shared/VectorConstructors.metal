@@ -22,10 +22,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float2 v3 = float2(1.0);
     float3 v4 = float3(float2(1.0), 1.0);
     int2 v5 = int2(1);
-    int2 v6 = int2(1, 2);
-    float2 v7 = float2(1.0, 2.0);
+    int2 v6 = int2(float2(1.0, 2.0));
+    float2 v7 = float2(int2(1, 2));
     float2 v8 = float2(v5);
-    float4 v9 = float4(float(v6.x), sqrt(2.0), 3.0, 4.0);
+    float4 v9 = float4(float(v6.x), sqrt(2.0), float2(int2(3, 4)));
     int2 v10 = int2(3, int(v1.x));
     bool4 v11 = bool4(true, false, true, false);
     float2 v12 = float2(1.0, 0.0);

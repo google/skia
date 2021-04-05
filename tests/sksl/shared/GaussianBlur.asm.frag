@@ -64,6 +64,7 @@ OpDecorate %_6_output RelaxedPrecision
 OpDecorate %109 RelaxedPrecision
 OpDecorate %115 RelaxedPrecision
 OpDecorate %116 RelaxedPrecision
+OpDecorate %119 RelaxedPrecision
 OpDecorate %121 RelaxedPrecision
 OpDecorate %122 RelaxedPrecision
 OpDecorate %129 RelaxedPrecision
@@ -288,10 +289,8 @@ OpDecorate %527 RelaxedPrecision
 %101 = OpTypeFunction %void
 %105 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %float_0 = OpConstant %float 0
-%109 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %float_12 = OpConstant %float 12
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
-%119 = OpConstantComposite %v2float %float_0 %float_0
 %int_2 = OpConstant %int 2
 %MatrixEffect_Stage1_c0_c0_h4h4f2 = OpFunction %v4float None %26
 %29 = OpFunctionParameter %_ptr_Function_v4float
@@ -428,6 +427,7 @@ OpFunctionEnd
 %510 = OpVariable %_ptr_Function_v2float Function
 OpStore %outputColor_Stage0 %105
 OpStore %outputCoverage_Stage0 %105
+%109 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
 OpStore %_6_output %109
 %111 = OpLoad %v2float %vLocalCoord_Stage0
 %113 = OpAccessChain %_ptr_Uniform_v2float %4 %int_1
@@ -435,6 +435,7 @@ OpStore %_6_output %109
 %116 = OpVectorTimesScalar %v2float %115 %float_12
 %117 = OpFSub %v2float %111 %116
 OpStore %_7_coord %117
+%119 = OpCompositeConstruct %v2float %float_0 %float_0
 OpStore %_8_coordSampled %119
 %120 = OpLoad %v2float %_7_coord
 OpStore %_8_coordSampled %120

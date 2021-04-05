@@ -35,6 +35,7 @@ public:
         kConstructorDiagonalMatrix,
         kConstructorScalarCast,
         kConstructorSplat,
+        kConstructorVector,
         kConstructorVectorCast,
         kDefined,
         kExternalFunctionCall,

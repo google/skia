@@ -65,9 +65,7 @@ OpDecorate %157 RelaxedPrecision
 %int_1 = OpConstant %int 1
 %int_n125 = OpConstant %int -125
 %int_50 = OpConstant %int 50
-%56 = OpConstantComposite %v4int %int_n125 %int_0 %int_50 %int_50
 %int_100 = OpConstant %int 100
-%59 = OpConstantComposite %v4int %int_n125 %int_0 %int_0 %int_100
 %false = OpConstantFalse %bool
 %v2int = OpTypeVector %int 2
 %v2bool = OpTypeVector %bool 2
@@ -115,7 +113,9 @@ OpStore %intValues %38
 %51 = OpConvertFToS %int %50
 %52 = OpCompositeConstruct %v4int %45 %47 %49 %51
 OpStore %intGreen %52
+%56 = OpCompositeConstruct %v4int %int_n125 %int_0 %int_50 %int_50
 OpStore %expectedA %56
+%59 = OpCompositeConstruct %v4int %int_n125 %int_0 %int_0 %int_100
 OpStore %expectedB %59
 %62 = OpLoad %v4int %intValues
 %63 = OpCompositeExtract %int %62 0

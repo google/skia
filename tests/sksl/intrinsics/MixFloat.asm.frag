@@ -119,22 +119,16 @@ OpDecorate %207 RelaxedPrecision
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %float_0_5 = OpConstant %float 0.5
 %float_1 = OpConstant %float 1
-%24 = OpConstantComposite %v4float %float_0_5 %float_0_5 %float_0_5 %float_1
 %float_2_25 = OpConstant %float 2.25
-%27 = OpConstantComposite %v4float %float_1 %float_0_5 %float_1 %float_2_25
 %false = OpConstantFalse %bool
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
 %float_0 = OpConstant %float 0
-%40 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
 %v4bool = OpTypeVector %bool 4
 %float_0_25 = OpConstant %float 0.25
 %float_0_75 = OpConstant %float 0.75
-%54 = OpConstantComposite %v4float %float_0_25 %float_0_75 %float_0 %float_1
-%66 = OpConstantComposite %v4float %float_0_75 %float_0_25 %float_0 %float_1
-%78 = OpConstantComposite %v4float %float_1 %float_0 %float_0 %float_1
 %int_2 = OpConstant %int 2
 %int_3 = OpConstant %int 3
 %v2float = OpTypeVector %float 2
@@ -142,9 +136,6 @@ OpDecorate %207 RelaxedPrecision
 %v3float = OpTypeVector %float 3
 %v3bool = OpTypeVector %bool 3
 %int_4 = OpConstant %int 4
-%166 = OpConstantComposite %v2float %float_0 %float_0_5
-%181 = OpConstantComposite %v3float %float_0 %float_0_5 %float_0
-%194 = OpConstantComposite %v4float %float_0 %float_0_5 %float_0 %float_1
 %_entrypoint_v = OpFunction %void None %15
 %16 = OpLabel
 %17 = OpFunctionCall %v4float %main
@@ -156,7 +147,9 @@ OpFunctionEnd
 %expectedBW = OpVariable %_ptr_Function_v4float Function
 %expectedWT = OpVariable %_ptr_Function_v4float Function
 %199 = OpVariable %_ptr_Function_v4float Function
+%24 = OpCompositeConstruct %v4float %float_0_5 %float_0_5 %float_0_5 %float_1
 OpStore %expectedBW %24
+%27 = OpCompositeConstruct %v4float %float_1 %float_0_5 %float_1 %float_2_25
 OpStore %expectedWT %27
 %30 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %34 = OpLoad %v4float %30
@@ -164,6 +157,7 @@ OpStore %expectedWT %27
 %37 = OpLoad %v4float %35
 %39 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
 %29 = OpExtInst %v4float %1 FMix %34 %37 %39
+%40 = OpCompositeConstruct %v4float %float_0 %float_1 %float_0 %float_1
 %41 = OpFOrdEqual %v4bool %29 %40
 %43 = OpAll %bool %41
 OpSelectionMerge %45 None
@@ -175,6 +169,7 @@ OpBranchConditional %43 %44 %45
 %50 = OpLoad %v4float %49
 %52 = OpCompositeConstruct %v4float %float_0_25 %float_0_25 %float_0_25 %float_0_25
 %46 = OpExtInst %v4float %1 FMix %48 %50 %52
+%54 = OpCompositeConstruct %v4float %float_0_25 %float_0_75 %float_0 %float_1
 %55 = OpFOrdEqual %v4bool %46 %54
 %56 = OpAll %bool %55
 OpBranch %45
@@ -189,6 +184,7 @@ OpBranchConditional %57 %58 %59
 %64 = OpLoad %v4float %63
 %65 = OpCompositeConstruct %v4float %float_0_75 %float_0_75 %float_0_75 %float_0_75
 %60 = OpExtInst %v4float %1 FMix %62 %64 %65
+%66 = OpCompositeConstruct %v4float %float_0_75 %float_0_25 %float_0 %float_1
 %67 = OpFOrdEqual %v4bool %60 %66
 %68 = OpAll %bool %67
 OpBranch %59
@@ -203,6 +199,7 @@ OpBranchConditional %69 %70 %71
 %76 = OpLoad %v4float %75
 %77 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
 %72 = OpExtInst %v4float %1 FMix %74 %76 %77
+%78 = OpCompositeConstruct %v4float %float_1 %float_0 %float_0 %float_1
 %79 = OpFOrdEqual %v4bool %72 %78
 %80 = OpAll %bool %79
 OpBranch %71
@@ -300,6 +297,7 @@ OpBranchConditional %156 %157 %158
 %163 = OpAccessChain %_ptr_Uniform_v4float %10 %int_4
 %164 = OpLoad %v4float %163
 %165 = OpVectorShuffle %v2float %164 %164 0 1
+%166 = OpCompositeConstruct %v2float %float_0 %float_0_5
 %159 = OpExtInst %v2float %1 FMix %162 %165 %166
 %167 = OpLoad %v4float %expectedWT
 %168 = OpVectorShuffle %v2float %167 %167 0 1
@@ -317,6 +315,7 @@ OpBranchConditional %171 %172 %173
 %178 = OpAccessChain %_ptr_Uniform_v4float %10 %int_4
 %179 = OpLoad %v4float %178
 %180 = OpVectorShuffle %v3float %179 %179 0 1 2
+%181 = OpCompositeConstruct %v3float %float_0 %float_0_5 %float_0
 %174 = OpExtInst %v3float %1 FMix %177 %180 %181
 %182 = OpLoad %v4float %expectedWT
 %183 = OpVectorShuffle %v3float %182 %182 0 1 2
@@ -332,6 +331,7 @@ OpBranchConditional %186 %187 %188
 %191 = OpLoad %v4float %190
 %192 = OpAccessChain %_ptr_Uniform_v4float %10 %int_4
 %193 = OpLoad %v4float %192
+%194 = OpCompositeConstruct %v4float %float_0 %float_0_5 %float_0 %float_1
 %189 = OpExtInst %v4float %1 FMix %191 %193 %194
 %195 = OpLoad %v4float %expectedWT
 %196 = OpFOrdEqual %v4bool %189 %195

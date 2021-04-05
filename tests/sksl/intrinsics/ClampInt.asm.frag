@@ -58,17 +58,13 @@ OpDecorate %163 RelaxedPrecision
 %int_0 = OpConstant %int 0
 %int_75 = OpConstant %int 75
 %int_100 = OpConstant %int 100
-%28 = OpConstantComposite %v4int %int_n100 %int_0 %int_75 %int_100
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %float_100 = OpConstant %float 100
 %int_n200 = OpConstant %int -200
-%46 = OpConstantComposite %v4int %int_n100 %int_n200 %int_n200 %int_100
 %int_50 = OpConstant %int 50
 %int_225 = OpConstant %int 225
-%50 = OpConstantComposite %v4int %int_n100 %int_0 %int_50 %int_225
 %int_200 = OpConstant %int 200
 %int_300 = OpConstant %int 300
-%54 = OpConstantComposite %v4int %int_100 %int_200 %int_50 %int_300
 %false = OpConstantFalse %bool
 %v2int = OpTypeVector %int 2
 %v2bool = OpTypeVector %bool 2
@@ -92,6 +88,7 @@ OpFunctionEnd
 %expectedB = OpVariable %_ptr_Function_v4int Function
 %clampHigh = OpVariable %_ptr_Function_v4int Function
 %152 = OpVariable %_ptr_Function_v4float Function
+%28 = OpCompositeConstruct %v4int %int_n100 %int_0 %int_75 %int_100
 OpStore %expectedA %28
 %30 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %32 = OpLoad %v4float %30
@@ -106,8 +103,11 @@ OpStore %expectedA %28
 %42 = OpConvertFToS %int %41
 %43 = OpCompositeConstruct %v4int %36 %38 %40 %42
 OpStore %intValues %43
+%46 = OpCompositeConstruct %v4int %int_n100 %int_n200 %int_n200 %int_100
 OpStore %clampLow %46
+%50 = OpCompositeConstruct %v4int %int_n100 %int_0 %int_50 %int_225
 OpStore %expectedB %50
+%54 = OpCompositeConstruct %v4int %int_100 %int_200 %int_50 %int_300
 OpStore %clampHigh %54
 %57 = OpLoad %v4int %intValues
 %58 = OpCompositeExtract %int %57 0

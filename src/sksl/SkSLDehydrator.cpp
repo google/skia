@@ -20,6 +20,7 @@
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVector.h"
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
@@ -314,6 +315,12 @@ void Dehydrator::write(const Expression* e) {
                 this->writeCommand(Rehydrator::kConstructorSplat_Command);
                 this->write(e->type());
                 this->writeExpressionSpan(e->as<ConstructorSplat>().argumentSpan());
+                break;
+
+            case Expression::Kind::kConstructorVector:
+                this->writeCommand(Rehydrator::kConstructorVector_Command);
+                this->write(e->type());
+                this->writeExpressionSpan(e->as<ConstructorVector>().argumentSpan());
                 break;
 
             case Expression::Kind::kConstructorVectorCast:

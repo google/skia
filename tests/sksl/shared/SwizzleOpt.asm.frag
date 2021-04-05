@@ -136,7 +136,6 @@ OpDecorate %154 RelaxedPrecision
 %float_456 = OpConstant %float 456
 %float_2 = OpConstant %float 2
 %float_3 = OpConstant %float 3
-%109 = OpConstantComposite %v4float %float_1 %float_1 %float_2 %float_3
 %int_0 = OpConstant %int 0
 %142 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %v4bool = OpTypeVector %bool 4
@@ -252,6 +251,7 @@ OpStore %103 %102
 %105 = OpCompositeConstruct %v3float %104 %float_123 %float_456
 %106 = OpVectorShuffle %v4float %105 %105 1 0 0 2
 OpStore %v %106
+%109 = OpCompositeConstruct %v4float %float_1 %float_1 %float_2 %float_3
 OpStore %v %109
 %110 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
 %112 = OpLoad %v4float %110

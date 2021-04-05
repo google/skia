@@ -31,16 +31,12 @@ OpDecorate %67 RelaxedPrecision
 %_arr_v2float_int_2 = OpTypeArray %v2float %int_2
 %_ptr_Function__arr_v2float_int_2 = OpTypePointer Function %_arr_v2float_int_2
 %float_0 = OpConstant %float 0
-%24 = OpConstantComposite %v2float %float_0 %float_0
 %int_0 = OpConstant %int 0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %float_1 = OpConstant %float 1
-%29 = OpConstantComposite %v2float %float_1 %float_0
 %int_1 = OpConstant %int 1
-%33 = OpConstantComposite %v2float %float_0 %float_1
 %float_n1 = OpConstant %float -1
 %float_2 = OpConstant %float 2
-%37 = OpConstantComposite %v2float %float_n1 %float_2
 %_entrypoint_v = OpFunction %void None %12
 %13 = OpLabel
 %14 = OpFunctionCall %v4float %main
@@ -51,12 +47,16 @@ OpFunctionEnd
 %16 = OpLabel
 %x = OpVariable %_ptr_Function__arr_v2float_int_2 Function
 %y = OpVariable %_ptr_Function__arr_v2float_int_2 Function
+%24 = OpCompositeConstruct %v2float %float_0 %float_0
 %26 = OpAccessChain %_ptr_Function_v2float %x %int_0
 OpStore %26 %24
+%29 = OpCompositeConstruct %v2float %float_1 %float_0
 %31 = OpAccessChain %_ptr_Function_v2float %x %int_1
 OpStore %31 %29
+%33 = OpCompositeConstruct %v2float %float_0 %float_1
 %34 = OpAccessChain %_ptr_Function_v2float %y %int_0
 OpStore %34 %33
+%37 = OpCompositeConstruct %v2float %float_n1 %float_2
 %38 = OpAccessChain %_ptr_Function_v2float %y %int_1
 OpStore %38 %37
 %39 = OpAccessChain %_ptr_Function_v2float %x %int_0

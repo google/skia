@@ -20,9 +20,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %int_1 = OpConstant %int 1
 %int_2 = OpConstant %int 2
 %int_3 = OpConstant %int 3
-%13 = OpConstantComposite %v3int %int_1 %int_2 %int_3
 %main = OpFunction %v3int None %8
 %9 = OpLabel
+%13 = OpCompositeConstruct %v3int %int_1 %int_2 %int_3
 OpReturnValue %13
 OpFunctionEnd
 

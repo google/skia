@@ -66,13 +66,13 @@ OpDecorate %106 RelaxedPrecision
 OpDecorate %107 RelaxedPrecision
 OpDecorate %109 RelaxedPrecision
 OpDecorate %110 RelaxedPrecision
-OpDecorate %185 RelaxedPrecision
-OpDecorate %193 RelaxedPrecision
-OpDecorate %195 RelaxedPrecision
-OpDecorate %197 RelaxedPrecision
 OpDecorate %207 RelaxedPrecision
-OpDecorate %209 RelaxedPrecision
-OpDecorate %210 RelaxedPrecision
+OpDecorate %215 RelaxedPrecision
+OpDecorate %217 RelaxedPrecision
+OpDecorate %219 RelaxedPrecision
+OpDecorate %229 RelaxedPrecision
+OpDecorate %231 RelaxedPrecision
+OpDecorate %232 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -106,22 +106,15 @@ OpDecorate %210 RelaxedPrecision
 %113 = OpTypeFunction %v4float
 %116 = OpConstantComposite %v2float %float_1 %float_1
 %float_2 = OpConstant %float 2
-%119 = OpConstantComposite %v2float %float_1 %float_2
-%122 = OpConstantComposite %v3float %float_1 %float_1 %float_1
 %int_1 = OpConstant %int 1
-%125 = OpConstantComposite %v2int %int_1 %int_1
+%127 = OpConstantComposite %v2int %int_1 %int_1
 %int_2 = OpConstant %int 2
-%128 = OpConstantComposite %v2int %int_1 %int_2
-%float_3 = OpConstant %float 3
-%float_4 = OpConstant %float 4
 %int_3 = OpConstant %int 3
+%int_4 = OpConstant %int 4
 %true = OpConstantTrue %bool
 %false = OpConstantFalse %bool
-%154 = OpConstantComposite %v4bool %true %false %true %false
-%156 = OpConstantComposite %v2float %float_1 %float_0
-%158 = OpConstantComposite %v2float %float_0 %float_0
-%161 = OpConstantComposite %v2bool %true %true
-%164 = OpConstantComposite %v3bool %true %true %true
+%178 = OpConstantComposite %v2float %float_0 %float_0
+%181 = OpConstantComposite %v2bool %true %true
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int_0 = OpConstant %int 0
 %_entrypoint_v = OpFunction %void None %16
@@ -228,104 +221,133 @@ OpFunctionEnd
 %v15 = OpVariable %_ptr_Function_v2bool Function
 %v16 = OpVariable %_ptr_Function_v2bool Function
 %v17 = OpVariable %_ptr_Function_v3bool Function
-%166 = OpVariable %_ptr_Function_v2float Function
-%168 = OpVariable %_ptr_Function_v2float Function
-%170 = OpVariable %_ptr_Function_v2float Function
-%172 = OpVariable %_ptr_Function_v3float Function
-%174 = OpVariable %_ptr_Function_v2int Function
-%176 = OpVariable %_ptr_Function_v2int Function
-%178 = OpVariable %_ptr_Function_v2float Function
-%180 = OpVariable %_ptr_Function_v2float Function
-%182 = OpVariable %_ptr_Function_v4float Function
-%184 = OpVariable %_ptr_Function_v2int Function
-%186 = OpVariable %_ptr_Function_v4bool Function
 %188 = OpVariable %_ptr_Function_v2float Function
 %190 = OpVariable %_ptr_Function_v2float Function
 %192 = OpVariable %_ptr_Function_v2float Function
-%194 = OpVariable %_ptr_Function_v2bool Function
-%196 = OpVariable %_ptr_Function_v2bool Function
-%198 = OpVariable %_ptr_Function_v3bool Function
-%200 = OpVariable %_ptr_Function_v4float Function
+%194 = OpVariable %_ptr_Function_v3float Function
+%196 = OpVariable %_ptr_Function_v2int Function
+%198 = OpVariable %_ptr_Function_v2int Function
+%200 = OpVariable %_ptr_Function_v2float Function
+%202 = OpVariable %_ptr_Function_v2float Function
+%204 = OpVariable %_ptr_Function_v4float Function
+%206 = OpVariable %_ptr_Function_v2int Function
+%208 = OpVariable %_ptr_Function_v4bool Function
+%210 = OpVariable %_ptr_Function_v2float Function
+%212 = OpVariable %_ptr_Function_v2float Function
+%214 = OpVariable %_ptr_Function_v2float Function
+%216 = OpVariable %_ptr_Function_v2bool Function
+%218 = OpVariable %_ptr_Function_v2bool Function
+%220 = OpVariable %_ptr_Function_v3bool Function
+%222 = OpVariable %_ptr_Function_v4float Function
 OpStore %v1 %116
+%119 = OpCompositeConstruct %v2float %float_1 %float_2
 OpStore %v2 %119
 OpStore %v3 %116
-OpStore %v4 %122
-OpStore %v5 %125
-OpStore %v6 %128
-OpStore %v7 %119
-%131 = OpLoad %v2int %v5
-%132 = OpCompositeExtract %int %131 0
-%133 = OpConvertSToF %float %132
-%134 = OpCompositeExtract %int %131 1
-%135 = OpConvertSToF %float %134
-%136 = OpCompositeConstruct %v2float %133 %135
-OpStore %v8 %136
-%138 = OpLoad %v2int %v6
-%139 = OpCompositeExtract %int %138 0
-%140 = OpConvertSToF %float %139
-%141 = OpExtInst %float %1 Sqrt %float_2
-%144 = OpCompositeConstruct %v4float %140 %141 %float_3 %float_4
-OpStore %v9 %144
-%147 = OpLoad %v2float %v1
-%148 = OpCompositeExtract %float %147 0
-%149 = OpConvertFToS %int %148
-%150 = OpCompositeConstruct %v2int %int_3 %149
-OpStore %v10 %150
-OpStore %v11 %154
-OpStore %v12 %156
-OpStore %v13 %158
-OpStore %v14 %158
-OpStore %v15 %161
-OpStore %v16 %161
-OpStore %v17 %164
-%165 = OpLoad %v2float %v1
-OpStore %166 %165
-%167 = OpLoad %v2float %v2
-OpStore %168 %167
-%169 = OpLoad %v2float %v3
-OpStore %170 %169
-%171 = OpLoad %v3float %v4
-OpStore %172 %171
-%173 = OpLoad %v2int %v5
-OpStore %174 %173
-%175 = OpLoad %v2int %v6
-OpStore %176 %175
-%177 = OpLoad %v2float %v7
-OpStore %178 %177
-%179 = OpLoad %v2float %v8
-OpStore %180 %179
-%181 = OpLoad %v4float %v9
-OpStore %182 %181
-%183 = OpLoad %v2int %v10
-OpStore %184 %183
-%185 = OpLoad %v4bool %v11
-OpStore %186 %185
-%187 = OpLoad %v2float %v12
+%122 = OpCompositeExtract %float %116 0
+%123 = OpCompositeExtract %float %116 1
+%124 = OpCompositeConstruct %v3float %122 %123 %float_1
+OpStore %v4 %124
+OpStore %v5 %127
+%129 = OpCompositeConstruct %v2float %float_1 %float_2
+%130 = OpCompositeExtract %float %129 0
+%131 = OpConvertFToS %int %130
+%132 = OpCompositeExtract %float %129 1
+%133 = OpConvertFToS %int %132
+%134 = OpCompositeConstruct %v2int %131 %133
+OpStore %v6 %134
+%137 = OpCompositeConstruct %v2int %int_1 %int_2
+%138 = OpCompositeExtract %int %137 0
+%139 = OpConvertSToF %float %138
+%140 = OpCompositeExtract %int %137 1
+%141 = OpConvertSToF %float %140
+%142 = OpCompositeConstruct %v2float %139 %141
+OpStore %v7 %142
+%144 = OpLoad %v2int %v5
+%145 = OpCompositeExtract %int %144 0
+%146 = OpConvertSToF %float %145
+%147 = OpCompositeExtract %int %144 1
+%148 = OpConvertSToF %float %147
+%149 = OpCompositeConstruct %v2float %146 %148
+OpStore %v8 %149
+%151 = OpLoad %v2int %v6
+%152 = OpCompositeExtract %int %151 0
+%153 = OpConvertSToF %float %152
+%154 = OpExtInst %float %1 Sqrt %float_2
+%157 = OpCompositeConstruct %v2int %int_3 %int_4
+%158 = OpCompositeExtract %int %157 0
+%159 = OpConvertSToF %float %158
+%160 = OpCompositeExtract %int %157 1
+%161 = OpConvertSToF %float %160
+%162 = OpCompositeConstruct %v2float %159 %161
+%163 = OpCompositeExtract %float %162 0
+%164 = OpCompositeExtract %float %162 1
+%165 = OpCompositeConstruct %v4float %153 %154 %163 %164
+OpStore %v9 %165
+%167 = OpLoad %v2float %v1
+%168 = OpCompositeExtract %float %167 0
+%169 = OpConvertFToS %int %168
+%170 = OpCompositeConstruct %v2int %int_3 %169
+OpStore %v10 %170
+%174 = OpCompositeConstruct %v4bool %true %false %true %false
+OpStore %v11 %174
+%176 = OpCompositeConstruct %v2float %float_1 %float_0
+OpStore %v12 %176
+OpStore %v13 %178
+OpStore %v14 %178
+OpStore %v15 %181
+OpStore %v16 %181
+%184 = OpCompositeExtract %bool %181 0
+%185 = OpCompositeExtract %bool %181 1
+%186 = OpCompositeConstruct %v3bool %true %184 %185
+OpStore %v17 %186
+%187 = OpLoad %v2float %v1
 OpStore %188 %187
-%189 = OpLoad %v2float %v13
+%189 = OpLoad %v2float %v2
 OpStore %190 %189
-%191 = OpLoad %v2float %v14
+%191 = OpLoad %v2float %v3
 OpStore %192 %191
-%193 = OpLoad %v2bool %v15
+%193 = OpLoad %v3float %v4
 OpStore %194 %193
-%195 = OpLoad %v2bool %v16
+%195 = OpLoad %v2int %v5
 OpStore %196 %195
-%197 = OpLoad %v3bool %v17
+%197 = OpLoad %v2int %v6
 OpStore %198 %197
-%199 = OpFunctionCall %bool %check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3 %166 %168 %170 %172 %174 %176 %178 %180 %182 %184 %186 %188 %190 %192 %194 %196 %198
-OpSelectionMerge %203 None
-OpBranchConditional %199 %201 %202
-%201 = OpLabel
-%204 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
-%207 = OpLoad %v4float %204
-OpStore %200 %207
-OpBranch %203
-%202 = OpLabel
-%208 = OpAccessChain %_ptr_Uniform_v4float %11 %int_1
-%209 = OpLoad %v4float %208
-OpStore %200 %209
-OpBranch %203
-%203 = OpLabel
-%210 = OpLoad %v4float %200
-OpReturnValue %210
+%199 = OpLoad %v2float %v7
+OpStore %200 %199
+%201 = OpLoad %v2float %v8
+OpStore %202 %201
+%203 = OpLoad %v4float %v9
+OpStore %204 %203
+%205 = OpLoad %v2int %v10
+OpStore %206 %205
+%207 = OpLoad %v4bool %v11
+OpStore %208 %207
+%209 = OpLoad %v2float %v12
+OpStore %210 %209
+%211 = OpLoad %v2float %v13
+OpStore %212 %211
+%213 = OpLoad %v2float %v14
+OpStore %214 %213
+%215 = OpLoad %v2bool %v15
+OpStore %216 %215
+%217 = OpLoad %v2bool %v16
+OpStore %218 %217
+%219 = OpLoad %v3bool %v17
+OpStore %220 %219
+%221 = OpFunctionCall %bool %check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3 %188 %190 %192 %194 %196 %198 %200 %202 %204 %206 %208 %210 %212 %214 %216 %218 %220
+OpSelectionMerge %225 None
+OpBranchConditional %221 %223 %224
+%223 = OpLabel
+%226 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
+%229 = OpLoad %v4float %226
+OpStore %222 %229
+OpBranch %225
+%224 = OpLabel
+%230 = OpAccessChain %_ptr_Uniform_v4float %11 %int_1
+%231 = OpLoad %v4float %230
+OpStore %222 %231
+OpBranch %225
+%225 = OpLabel
+%232 = OpLoad %v4float %222
+OpReturnValue %232
 OpFunctionEnd

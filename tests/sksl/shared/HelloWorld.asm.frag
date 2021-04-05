@@ -24,7 +24,6 @@ OpDecorate %19 RelaxedPrecision
 %15 = OpTypeFunction %v4float
 %float_0 = OpConstant %float 0
 %float_1 = OpConstant %float 1
-%19 = OpConstantComposite %v4float %float_0 %float_1 %float_0 %float_1
 %_entrypoint_v = OpFunction %void None %12
 %13 = OpLabel
 %14 = OpFunctionCall %v4float %main
@@ -33,5 +32,6 @@ OpReturn
 OpFunctionEnd
 %main = OpFunction %v4float None %15
 %16 = OpLabel
+%19 = OpCompositeConstruct %v4float %float_0 %float_1 %float_0 %float_1
 OpReturnValue %19
 OpFunctionEnd

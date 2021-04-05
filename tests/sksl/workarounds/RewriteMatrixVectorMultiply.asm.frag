@@ -58,7 +58,6 @@ OpDecorate %60 RelaxedPrecision
 %float_1 = OpConstant %float 1
 %float_2 = OpConstant %float 2
 %float_3 = OpConstant %float 3
-%32 = OpConstantComposite %v4float %float_0 %float_1 %float_2 %float_3
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
@@ -80,6 +79,7 @@ OpFunctionEnd
 %26 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_123
 %21 = OpCompositeConstruct %mat4v4float %23 %24 %25 %26
 OpStore %m44 %21
+%32 = OpCompositeConstruct %v4float %float_0 %float_1 %float_2 %float_3
 OpStore %v4 %32
 %35 = OpAccessChain %_ptr_Function_v4float %m44 %int_0
 %36 = OpLoad %v4float %35
