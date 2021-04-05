@@ -46,7 +46,9 @@ public:
     void freeGpuResources();
 
     // OpsTasks created at flush time are stored and handled different from the others.
-    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView, bool flushTimeOpsTask);
+    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView,
+                                std::shared_ptr<SkArenaAlloc>,
+                                bool flushTimeOpsTask);
 
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call

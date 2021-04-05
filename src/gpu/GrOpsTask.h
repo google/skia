@@ -39,7 +39,7 @@ private:
 public:
     // The Arenas must outlive the GrOpsTask, either by preserving the context that owns
     // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
-    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*);
+    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*, std::shared_ptr<SkArenaAlloc>);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -268,6 +268,7 @@ private:
     // MDB TODO: 4096 for the first allocation may be huge overkill. Gather statistics to determine
     // the correct size.
     SkSTArray<1, std::unique_ptr<SkArenaAlloc>> fAllocators;
+    std::shared_ptr<SkArenaAlloc> fArenaAlloc;
     SkDEBUGCODE(int fNumClips;)
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
