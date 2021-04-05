@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<title>TSKit (CanvasKit with Typescript)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script type="text/javascript" src="/npm_build/bin/tskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+  async function run() {
+    const tsKit = InitTSKit({locateFile: (file) => '/npm_build/bin/' + file});
+
+    const TSK = await tsKit;
+    TSK.sayHello(8, 4);
+    TSK.publicFunction("vanilla");
+
+    const sm = new TSK.Something("sentinel");
+    sm.setName("double_vision");
+    console.log(sm.getName());
+    sm.delete();
+
+    if (TSK.publicExtension) {
+      console.log("extension", TSK.publicExtension([0, 0, 10, 10, 10, 10, 20, 20]));
+      TSK.withObject({alpha: 7, beta: "foo"});
+    } else {
+      console.log("no extension")
+    }
+  }
+  run();
+
+</script>
