@@ -18,6 +18,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
@@ -302,6 +303,12 @@ void Dehydrator::write(const Expression* e) {
                 this->writeCommand(Rehydrator::kConstructorDiagonalMatrix_Command);
                 this->write(e->type());
                 this->writeExpressionSpan(e->as<ConstructorDiagonalMatrix>().argumentSpan());
+                break;
+
+            case Expression::Kind::kConstructorMatrixResize:
+                this->writeCommand(Rehydrator::kConstructorMatrixResize_Command);
+                this->write(e->type());
+                this->writeExpressionSpan(e->as<ConstructorMatrixResize>().argumentSpan());
                 break;
 
             case Expression::Kind::kConstructorScalarCast:
