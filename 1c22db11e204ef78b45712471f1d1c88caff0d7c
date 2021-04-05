@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cceea85_ea054b81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-05T16:21:05Z",
+      "side": 1,
+      "message": "Want to explore (and possibly land) something like this, so I can use it as the impl for exposing similar API to JS (on behalf of the proposed Text API).",
+      "revId": "1c22db11e204ef78b45712471f1d1c88caff0d7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
