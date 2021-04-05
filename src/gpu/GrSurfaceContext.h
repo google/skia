@@ -17,6 +17,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrRenderTask.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -90,6 +91,8 @@ public:
     SkISize dimensions() const { return fReadView.dimensions(); }
     int width() const { return fReadView.proxy()->width(); }
     int height() const { return fReadView.proxy()->height(); }
+
+    SkArenaAlloc* arenaAlloc() { return fArenas->arenaAlloc(); }
 
     const GrCaps* caps() const;
 
@@ -222,6 +225,9 @@ protected:
     GrRecordingContext* fContext;
 
     GrSurfaceProxyView fReadView;
+
+    // The arenas shared by the OpsTask.
+    sk_sp<GrArenas> fArenas = sk_make_sp<GrArenas>();
 
     // Inserts a transfer, part of the implementation of asyncReadPixels and
     // asyncRescaleAndReadPixelsYUV420().
