@@ -2104,17 +2104,15 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     }
 
     if (renderTarget) {
-        if (renderTarget->numSamples() <= 1 ||
-            renderTarget->renderFBOID() == renderTarget->textureFBOID()) {  // Also catches FBO 0.
-            SkASSERT(!renderTarget->requiresManualMSAAResolve());
-            this->flushRenderTargetNoColorWrites(renderTarget);
-        } else if (GrGLRenderTarget::kUnresolvableFBOID == renderTarget->textureFBOID()) {
-            SkASSERT(!renderTarget->requiresManualMSAAResolve());
-            return false;
-        } else {
-            SkASSERT(renderTarget->requiresManualMSAAResolve());
+        if (renderTarget->numSamples() > 1) {
+            // Bind the texture FBO since we can't read pixels from an MSAA framebuffer.
+            if (renderTarget->textureFBOID() == GrGLRenderTarget::kUnresolvableFBOID) {
+                return false;
+            }
             // we don't track the state of the READ FBO ID.
             this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
+        } else {
+            this->flushRenderTargetNoColorWrites(renderTarget);
         }
     } else {
         // Use a temporary FBO.
@@ -2310,7 +2308,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
     SkASSERT(this->glCaps().usesMSAARenderBuffers());
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
-    SkASSERT(rt->textureFBOID() != rt->renderFBOID());
+    SkASSERT(rt->requiresManualMSAAResolve());
     SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
     this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
     this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID());
@@ -3534,7 +3532,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
         case kTexture_GrXferBarrierType: {
             GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
             SkASSERT(glrt->textureFBOID() != 0 && glrt->renderFBOID() != 0);
-            if (glrt->textureFBOID() != glrt->renderFBOID()) {
+            if (glrt->requiresManualMSAAResolve()) {
                 // The render target uses separate storage so no need for glTextureBarrier.
                 // FIXME: The render target will resolve automatically when its texture is bound,
                 // but we could resolve only the bounds that will be read if we do it here instead.
