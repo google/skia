@@ -510,10 +510,6 @@ static inline void append_clamp_gamut(SkRasterPipeline* pipeline) {
 
 bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    if (src.colorType() == GrColorType::kRGB_888) {
-        // We don't expect to have to convert from this format.
-        return false;
-    }
     if (src.dimensions().isEmpty() || dst.dimensions().isEmpty()) {
         return false;
     }
@@ -538,12 +534,27 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
         auto* dRow = reinterpret_cast<char*>(dst.addr());
         for (int y = 0; y < dst.height(); ++y, tRow += temp.rowBytes(), dRow += dst.rowBytes()) {
             for (int x = 0; x < dst.width(); ++x) {
-                auto t = reinterpret_cast<const uint32_t*>(tRow + x * sizeof(uint32_t));
-                auto d = reinterpret_cast<uint32_t*>(dRow + x * 3);
+                auto t = tRow + x*sizeof(uint32_t);
+                auto d = dRow + x*3;
                 memcpy(d, t, 3);
             }
         }
         return true;
+    } else if (src.colorType() == GrColorType::kRGB_888) {
+        // SkRasterPipeline doesn't handle reading from RGB_888. So convert it to RGB_888x and then
+        // do a recursive call if there is any remaining conversion.
+        GrPixmap temp = GrPixmap::Allocate(src.info().makeColorType(GrColorType::kRGB_888x));
+        auto* sRow = reinterpret_cast<const char*>(src.addr());
+        auto* tRow = reinterpret_cast<char*>(temp.addr());
+        for (int y = 0; y < src.height(); ++y, sRow += src.rowBytes(), tRow += temp.rowBytes()) {
+            for (int x = 0; x < src.width(); ++x) {
+                auto s = sRow + x*3;
+                auto t = tRow + x*sizeof(uint32_t);
+                memcpy(t, s, 3);
+                t[3] = static_cast<char>(0xFF);
+            }
+        }
+        return GrConvertPixels(dst, temp, flipY);
     }
 
     size_t srcBpp = src.info().bpp();
