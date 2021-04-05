@@ -12,17 +12,15 @@ engine for Google Chrome and Chrome OS, Android, Flutter, Mozilla Firefox and
 Firefox OS, and many other products.
 
 Skia is sponsored and managed by Google, but is available for use by anyone
-under the BSD Free Software License. While engineering of the core components
-is done by the Skia development team, we consider contributions from any
-source.
+under the BSD Free Software License. While engineering of the core components is
+done by the Skia development team, we consider contributions from any source.
 
 - Canonical source tree:
   [skia.googlesource.com/skia](https://skia.googlesource.com/skia).
-- Issue tracker:
-  [bug.skia.org](https://bug.skia.org/).
+- Issue tracker: [bug.skia.org](https://bug.skia.org/).
 - Discussion forum:
   [skia-discuss@googlegroups.com](https://groups.google.com/forum/#!forum/skia-discuss).
-- API Reference and Overview: [skia.org/user/api](https://skia.org/user/api/).
+- [API Reference and Overview](https://skia.org/docs/user/api/).
 - Skia Fiddle: [fiddle.skia.org](https://fiddle.skia.org/c/@skcanvas_paint).
 
 ## Showcase
@@ -73,8 +71,10 @@ Click on any image below to see the source code that generated the image.
 ## Roadmap
 
 For a look at high level themes we have on tap the next 6-12 months, view our
-roadmap [here](https://docs.google.com/document/d/1LSdO3I-IdZVZCtEnW9pu3k_32gfPIcB_YeSn-OJBGZI/edit?usp=sharing).
-Note it is a living document that changes based on the requirements of our users.
+roadmap
+[here](https://docs.google.com/document/d/1LSdO3I-IdZVZCtEnW9pu3k_32gfPIcB_YeSn-OJBGZI/edit?usp=sharing).
+Note it is a living document that changes based on the requirements of our
+users.
 
 ## Platforms
 

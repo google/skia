@@ -38,7 +38,7 @@ The code above will draw a rectangle rotated by 45 degrees. Exactly
 what color and style the rect will be drawn in is described by the
 paint, not the canvas.
 
-Check out more detailed info on [creating a SkCanvas object](canvas).
+Check out more detailed info on [creating a SkCanvas object](../skcanvas_creation).
 
 To begin with, we might want to erase the entire canvas. We can do
 this by drawing an enormous rectangle, but there are easier ways to do
@@ -74,5 +74,5 @@ In some of the calls, we pass a pointer, rather than a reference, to
 the paint. In those instances, the paint parameter may be null. In all
 other cases the paint parameter is required.
 
-Next: [SkPaint](/user/api/skpaint_overview)
+Next: [SkPaint](../skpaint_overview)
 

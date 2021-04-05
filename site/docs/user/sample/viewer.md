@@ -50,7 +50,7 @@ Android
 -------
 
 To build Viewer as an Android App, first follow the
-[Android build instructions](https://skia.org/user/build#android) to set up the
+[Android build instructions](/docs/user/build#android) to set up the
 Android NDK and a ninja out directory. In addition, you will need the
 [Android SDK](https://developer.android.com/studio/#command-tools) installed and your
 `ANDROID_HOME` environment variable set.
@@ -91,7 +91,7 @@ Viewer on iOS is built using the regular GN process, e.g.
 Like other iOS apps it can be deployed either by using something like
 [ios-deploy](https://github.com/ios-control/ios-deploy)
 or by building within Xcode and launching via the IDE. See the
-[iOS build instructions](https://skia.org/user/build#ios) for more information
+[iOS build instructions](https://skia.org/docs/user/build#ios) for more information
 on managing provisioning profiles for signing and deployment.
 
 Viewer will

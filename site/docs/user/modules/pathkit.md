@@ -5,9 +5,9 @@ linkTitle: 'PathKit - Geometry in the Browser'
 weight: 30
 ---
 
-Skia has made its [SkPath](../api/SkPath_Reference) object and many related
-methods available to JS clients (e.g. Web Browsers) using WebAssembly and
-asm.js.
+Skia has made its [SkPath](https://api.skia.org/classSkPath.html) object and
+many related methods available to JS clients (e.g. Web Browsers) using
+WebAssembly and asm.js.
 
 ## Features
 
@@ -488,7 +488,7 @@ for more details.
 
 Returns an `SkRect` that represents the minimum and maximum area of `this` path.
 See
-[SkPath reference](https://skia.org/user/api/SkPath_Reference#SkPath_computeTightBounds)
+[SkPath reference](https://api.skia.org/classSkPath.html#a597c8fcc5e4750542e2688b057a14e9e)
 for more details.
 
 #### `conicTo(x1, y1, x2, y2, w)`
@@ -498,7 +498,7 @@ the end point. <br> **w** - `Number`, The weight of the conic.
 
 Adds the described conic line to `this` (appending a line, if needed) then
 returns `this` for chaining purposes. See
-[SkPath reference](https://skia.org/user/api/SkPath_Reference#SkPath_conicTo)
+[SkPath reference](https://api.skia.org/classSkPath.html#a9edc41978765cfe9a0b16e9ecf4d276e)
 for more details.
 
 #### `copy()`
@@ -557,7 +557,7 @@ Returns a `Boolean` value based on if `this` path is equal to **otherPath**.
 
 Returns an `SkRect` that represents the minimum and maximum area of `this` path.
 See
-[SkPath reference](https://skia.org/user/api/SkPath_Reference#SkPath_getBounds)
+[SkPath reference](https://api.skia.org/classSkPath.html#ac60188dc6075d6ebb56b5398fbba0c10)
 for more details.
 
 #### `getFillType()`
@@ -640,7 +640,7 @@ for more details.
 **fillType** - `FillType`, the new fillType.
 
 Set the fillType of the path. See
-[SkPath reference](https://skia.org/user/api/SkPath_Reference#SkPath_FillType)
+[SkPath reference](https://api.skia.org/SkPathTypes_8h.html#acc5b8721019c4a4b1beb8c759baab011)
 for more details.
 
 #### `simplify()`
@@ -805,14 +805,14 @@ keys:
 
 - **width**, `Number` the width of the lines of the path. Default 1.
 - **miter_limit**, `Number`, the miter limit. Defautl 4. See
-  [SkPaint reference](https://skia.org/user/api/SkPaint_Reference#Miter_Limit)
+  [SkPaint reference](https://api.skia.org/classSkPaint.html#a2e767abfeb7795ed251a08b5ed85033f)
   for more details.
 - **join**, `StrokeJoin`, the join to use. Default `PathKit.StrokeJoin.MITER`.
   See
-  [SkPaint reference](https://skia.org/user/api/SkPaint_Reference#SkPaint_Join)
+  [SkPaint reference](https://api.skia.org/classSkPaint.html#ac582b0cbf59909c9056de34a6b977cca)
   for more details.
 - **cap**, `StrokeCap`, the cap to use. Default `PathKit.StrokeCap.BUTT`. See
-  [SkPaint reference](https://skia.org/user/api/SkPaint_Reference#Stroke_Cap)
+  [SkPaint reference](https://api.skia.org/classSkPaint.html#a0f78de8559b795defba93171f6cb6333)
   for more details.
 
 ### PathOp (enum)
@@ -851,7 +851,7 @@ differentiated by their `.value` property.
 - `PathKit.StrokeJoin.BEVEL`
 
 See
-[SkPaint reference](https://skia.org/user/api/SkPaint_Reference#SkPaint_Join)
+[SkPaint reference](https://api.skia.org/classSkPaint.html#ac582b0cbf59909c9056de34a6b977cca)
 for more details.
 
 ### StrokeCap (enum)
@@ -863,7 +863,8 @@ differentiated by their `.value` property.
 - `PathKit.StrokeCap.ROUND`
 - `PathKit.StrokeCap.SQUARE`
 
-See [SkPaint reference](https://skia.org/user/api/SkPaint_Reference#Stroke_Cap)
+See
+[SkPaint reference](https://api.skia.org/classSkPaint.html#a0f78de8559b795defba93171f6cb6333)
 for more details.
 
 ### Constants

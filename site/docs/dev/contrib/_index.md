@@ -38,10 +38,10 @@ steps that can speed up the review process:
 - Propose new features to the project leads by opening a feature bug or posting
   to skia-discuss ahead of development.
 
-For more information, see [How to submit a patch](/dev/contrib/submit).
+For more information, see [How to submit a patch](/docs/dev/contrib/submit/).
 
 For background on the project and an outline of the types of roles interested
-parties can take on, see [Project Roles](/roles).
+parties can take on, see [Project Roles](/docs/roles).
 
 Anyone contributing code to Skia must sign a Contributor License Agreement and
 ensure they are listed in the AUTHORS file:
