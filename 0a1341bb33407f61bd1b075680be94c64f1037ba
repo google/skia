@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7e9e3c7_c72173a7",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-05T15:47:14Z",
+      "side": 1,
+      "message": "In a future CL the positions will be used by RSXForm. Until that CL, this is just a conservative calculation.",
+      "parentUuid": "8f38e78c_4ab668b2",
+      "revId": "0a1341bb33407f61bd1b075680be94c64f1037ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb238752_f3f61bcf",
@@ -35,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "008407a5_f4048d90",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-05T15:47:14Z",
+      "side": 1,
+      "message": "The rest of the inlining happens when I add RSXForm to glyph run. Then everything is inlined into a function called blobToGlyphRunList.",
+      "parentUuid": "eb238752_f3f61bcf",
+      "revId": "0a1341bb33407f61bd1b075680be94c64f1037ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca403f36_13c3094f",
@@ -48,6 +84,24 @@
       "writtenOn": "2021-04-05T15:37:53Z",
       "side": 1,
       "message": "Should simplifyTextBlobIgnoringRSXForm just be inlined here? It would make it more obvious that the optimization not to allocate anything for fully positioned blob runs is valid. Without inlining it here, it seems like there should be comment on simplifyTextBlobIgnoringRSXForm describing what state it expects (in terms of number of positions available).",
+      "revId": "0a1341bb33407f61bd1b075680be94c64f1037ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ae6b058_5019a28e",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-05T15:47:14Z",
+      "side": 1,
+      "message": "Yes. Everything is inlined when RSXFrom is added to glyph run. This would need to be inlined in two places now. In a future CL there will only be a single place to inline.",
+      "parentUuid": "ca403f36_13c3094f",
       "revId": "0a1341bb33407f61bd1b075680be94c64f1037ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
