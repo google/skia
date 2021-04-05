@@ -16,6 +16,23 @@
       "message": "Goal: provide a convenient, efficient way for the output of SkShaper to be drawn.\n\nWe may need to add variants that also take the back-tracking data for glyph-\u003etext needed by PDF, but that can just be a non-virtual variant.",
       "revId": "90cae5d0a26a60cb2f59de4e89e5778da84f6c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffa58319_c4ba4611",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-05T01:17:20Z",
+      "side": 1,
+      "message": "Should it take an (optional) bounds, for culling? (Do we use that in today\u0027s blobs?)",
+      "revId": "90cae5d0a26a60cb2f59de4e89e5778da84f6c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
