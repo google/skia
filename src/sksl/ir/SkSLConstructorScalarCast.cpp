@@ -9,44 +9,47 @@
 
 namespace SkSL {
 
-static std::unique_ptr<Expression> cast_scalar_literal(const Type& constructorType,
-                                                       const Expression& expr) {
-    if (expr.is<IntLiteral>()) {
-        SKSL_INT value = expr.as<IntLiteral>().value();
-        if (constructorType.isFloat()) {
-            // promote float(1) to 1.0
-            return FloatLiteral::Make(expr.fOffset, (SKSL_FLOAT)value, &constructorType);
-        } else if (constructorType.isInteger()) {
-            // promote uint(1) to 1u
-            return IntLiteral::Make(expr.fOffset, value, &constructorType);
-        } else if (constructorType.isBoolean()) {
-            // promote bool(1) to true/false
-            return BoolLiteral::Make(expr.fOffset, value != 0, &constructorType);
-        }
-    } else if (expr.is<FloatLiteral>()) {
-        float value = expr.as<FloatLiteral>().value();
-        if (constructorType.isFloat()) {
-            // promote float(1.23) to 1.23
-            return FloatLiteral::Make(expr.fOffset, value, &constructorType);
-        } else if (constructorType.isInteger()) {
-            // promote uint(1.23) to 1u
-            return IntLiteral::Make(expr.fOffset, (SKSL_INT)value, &constructorType);
-        } else if (constructorType.isBoolean()) {
-            // promote bool(1.23) to true/false
-            return BoolLiteral::Make(expr.fOffset, value != 0.0f, &constructorType);
-        }
-    } else if (expr.is<BoolLiteral>()) {
-        bool value = expr.as<BoolLiteral>().value();
-        if (constructorType.isFloat()) {
-            // promote float(true) to 1.0
-            return FloatLiteral::Make(expr.fOffset, value ? 1.0f : 0.0f, &constructorType);
-        } else if (constructorType.isInteger()) {
-            // promote uint(true) to 1u
-            return IntLiteral::Make(expr.fOffset, value ? 1 : 0, &constructorType);
-        } else if (constructorType.isBoolean()) {
-            // promote bool(true) to true/false
-            return BoolLiteral::Make(expr.fOffset, value, &constructorType);
-        }
+std::unique_ptr<Expression> IntLiteral::castConstantExpression(const Context& context,
+                                                               const Type& type) const {
+    SkASSERT(type.isScalar());
+    if (type.isFloat()) {
+        return FloatLiteral::Make(fOffset, (SKSL_FLOAT)this->value(), &type);
+    }
+    if (type.isInteger()) {
+        return IntLiteral::Make(fOffset, (SKSL_INT)this->value(), &type);
+    }
+    if (type.isBoolean()) {
+        return BoolLiteral::Make(fOffset, this->value() != 0, &type);
+    }
+    return nullptr;
+}
+
+std::unique_ptr<Expression> FloatLiteral::castConstantExpression(const Context& context,
+                                                                 const Type& type) const {
+    SkASSERT(type.isScalar());
+    if (type.isFloat()) {
+        return FloatLiteral::Make(fOffset, (SKSL_FLOAT)this->value(), &type);
+    }
+    if (type.isInteger()) {
+        return IntLiteral::Make(fOffset, (SKSL_INT)this->value(), &type);
+    }
+    if (type.isBoolean()) {
+        return BoolLiteral::Make(fOffset, this->value() != 0, &type);
+    }
+    return nullptr;
+}
+
+std::unique_ptr<Expression> BoolLiteral::castConstantExpression(const Context& context,
+                                                                const Type& type) const {
+    SkASSERT(type.isScalar());
+    if (type.isFloat()) {
+        return FloatLiteral::Make(fOffset, (SKSL_FLOAT)this->value(), &type);
+    }
+    if (type.isInteger()) {
+        return IntLiteral::Make(fOffset, (SKSL_INT)this->value(), &type);
+    }
+    if (type.isBoolean()) {
+        return BoolLiteral::Make(fOffset, this->value() != 0, &type);
     }
     return nullptr;
 }
@@ -89,7 +92,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
         return arg;
     }
     // We can cast scalar literals at compile-time.
-    if (std::unique_ptr<Expression> converted = cast_scalar_literal(type, *arg)) {
+    if (std::unique_ptr<Expression> converted = arg->castConstantExpression(context, type)) {
         return converted;
     }
     return std::make_unique<ConstructorScalarCast>(offset, type, std::move(arg));

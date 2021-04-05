@@ -73,6 +73,8 @@ public:
         return std::make_unique<BoolLiteral>(fOffset, this->value(), &this->type());
     }
 
+    virtual std::unique_ptr<Expression> castConstantExpression(const Context& context, const Type& type) const override;
+
 private:
     bool fValue;
 

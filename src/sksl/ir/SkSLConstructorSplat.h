@@ -52,6 +52,9 @@ public:
         return this->argument()->getConstantBool();
     }
 
+    virtual std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                               const Type& type) const override;
+
 private:
     Expression::ComparisonResult compareConstantConstructor(const AnyConstructor& other) const;
 

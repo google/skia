@@ -79,6 +79,9 @@ public:
         return std::make_unique<FloatLiteral>(fOffset, this->value(), &this->type());
     }
 
+    virtual std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                               const Type& type) const override;
+
 private:
     float fValue;
 
