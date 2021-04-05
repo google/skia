@@ -20,7 +20,7 @@ Features:
 - Android offscreen layer visualization
 - Shared resource viewer
 
-<img src="/dev/tools/onlinedebugger.png" style="display: inline-block;" />
+<img src="../onlinedebugger.png" style="display: inline-block;" />
 
 ## User Guide
 
@@ -33,8 +33,8 @@ capture one from an android device using the
 ### Command Playback and Filters
 
 Try playing back the commands within the current frame using the lower play
-button <img src="/dev/tools/playcommands.png" style="display: inline-block;" />,
-(the one not in a circle) You should see the image built up one draw at a time.
+button <img src="../playcommands.png" style="display: inline-block;" />, (the
+one not in a circle) You should see the image built up one draw at a time.
 
 Many commands manipulate the matrix or clip but don't make any visible change
 when run. Try filtering these out by pasting
@@ -52,18 +52,18 @@ using `,` (comma) and `.` (period).
 > at the beginning.
 
 Any command can be expanded using the
-<img src="/dev/tools/expand.png" style="display: inline-block;" /> icon to see
-all of the parameters that were recorded with that command.
+<img src="../expand.png" style="display: inline-block;" /> icon to see all of
+the parameters that were recorded with that command.
 
 Commands can be disabled or enabled with the checkbox that becomes available
 after expanding the command's detail view.
 
 Jog the command playhead to the end of the list with the
-<img src="/dev/tools/end.png" style="display: inline-block;" /> button.
+<img src="../end.png" style="display: inline-block;" /> button.
 
 ### Frame playback
 
-<img src="/dev/tools/frameplayback.png" style="display: inline-block;" />
+<img src="../frameplayback.png" style="display: inline-block;" />
 
 The sample file contains multiple frames. Use the encircled play button to play
 back the frames. The current frame is indictated by the slider position, and the
@@ -77,7 +77,7 @@ the end of its list. If the command playhead is somewhere in the middle, say
 
 ### Resources Tab
 
-<img src="/dev/tools/resources.png" style="display: inline-block;" />
+<img src="../resources.png" style="display: inline-block;" />
 
 Any resources that were referenced by commands in the file appear here. As of
 Dec 2019, this only shows images.
@@ -97,7 +97,7 @@ ids in the process that recorded the SKP.
 
 ### Android Layers
 
-<img src="/dev/tools/layers.png" style="display: inline-block;" />
+<img src="../layers.png" style="display: inline-block;" />
 
 When MSKPs are recorded in Android, Extra information about offscreen hardware
 layers is recorded. The sample google calendar mskp linked above contains this
@@ -121,7 +121,7 @@ by clicking the `Exit` button on the layer box.
 
 ### Crosshair and Breakpoints
 
-<img src="/dev/tools/crosshair.png" style="display: inline-block;" />
+<img src="../crosshair.png" style="display: inline-block;" />
 
 Clicking any point in the main view will toggle a red crosshair for selecting
 pixels. the selected pixel's color is shown in several formats on the right
@@ -135,12 +135,12 @@ command that draws something you see in the viewer.
 
 ### GPU Op Bounds and Other settings
 
-<img src="/dev/tools/settings.png" style="display: inline-block;" />
+<img src="../settings.png" style="display: inline-block;" />
 
 Each of the filtered commands from above has a colored number to its right
-<img src="/dev/tools/gpuop.png" style="display: inline-block;" />. This is the
-GPU operation id. When multiple commands share a GPU op id, this indicates that
-they were batched together when sent to the GPU. In the WASM debugger, this goes
+<img src="../gpuop.png" style="display: inline-block;" />. This is the GPU
+operation id. When multiple commands share a GPU op id, this indicates that they
+were batched together when sent to the GPU. In the WASM debugger, this goes
 though WebGL.
 
 There is a "Display GPU Op Bounds" toggle in the upper right of the interface.
@@ -162,7 +162,7 @@ the pixel was drawn to more than once.
 
 ### Image fit and download buttons.
 
-<img src="/dev/tools/settings.png" style="display: inline-block;" />
+<img src="../settings.png" style="display: inline-block;" />
 
 These buttons resize the main view. they are, from left to right:
 

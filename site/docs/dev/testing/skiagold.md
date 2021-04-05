@@ -48,14 +48,14 @@ Solution today:
   - Blame is not sorted in any particular order
   - Digests are clustered by runs and the most minimal set of blame
 
-<img src=BlameView.png style="margin-left:30px" align="left" width="800"/>
+<img src=../BlameView.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">
 
 - Select digests for triage
   - Digests will be listed in order with largest difference first
   - Click to open the digest view with detailed information
 
-<img src=Digests.png style="margin-left:40px" align="left" width="780"/>
+<img src=../Digests.png style="margin-left:40px" align="left" width="780"/>
 <br clear="left">
 
 - Open bugs for identified owner(s)
@@ -65,7 +65,7 @@ Solution today:
   - The URL reference to the digest in Issue Tracker will link the bug to the
     digest in Gold
 
-<img src="IssueHighlight.png" style="margin-left:60px" align="left" width="720" border=1/>
+<img src="../IssueHighlight.png" style="margin-left:60px" align="left" width="720" border=1/>
 <br clear="left">
 
 <br>
@@ -88,7 +88,7 @@ To find your results:
 - Note: It is not yet implemented in the UI but possible to filter the view by
   CL. Delete hashes in the URL to only include the hash for your CL.
 
-<img src=BlameView.png style="margin-left:30px" align="left" width="800"/>
+<img src=../BlameView.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">
 
 To rebaseline images:
@@ -96,7 +96,7 @@ To rebaseline images:
 - Access the Ignores view and create a new, short-interval (hours) ignore for
   the most affected configuration(s)
 
-<img src=Ignores.png style="margin-left:30px" align="left" width="800"/>
+<img src=../Ignores.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">
 
 - Click on the Ignore to bring up a search view filtered by the affected
@@ -141,7 +141,7 @@ Solution:
 
 - Access the By Test view
 
-<img src=ByTest.png style="margin-left:30px" align="left" width="800"/>
+<img src=../ByTest.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">
 
 - Click the magnifier to filter by configuration
@@ -150,12 +150,12 @@ Solution:
   - Click on configurations under “parameters” to highlight data points and
     compare
 
-<img src=ClusterConfig.png style="margin-left:30px" align="left" width="800"/>
+<img src=../ClusterConfig.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">
 
 - Access the Grid view to see NxN diffs
 
-<img src=Grid.png style="margin-left:30px" align="left" width="800"/>
+<img src=../Grid.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">
 
 - Access the Dot diagram to see history of commits for the trace
@@ -163,7 +163,7 @@ Solution:
   - Each line represents a configuration
   - Dot colors distinguish between digests
 
-<img src=DotDiagram.png style="margin-left:30px" align="left" width="800"/>
+<img src=../DotDiagram.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">
 
 <br>
@@ -181,5 +181,5 @@ Solution:
 - Access the Search view
 - Select any parameters desired to search across tests
 
-<img src=Search.png style="margin-left:30px" align="left" width="800"/>
+<img src=../Search.png style="margin-left:30px" align="left" width="800"/>
 <br clear="left">

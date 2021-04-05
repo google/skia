@@ -19,13 +19,13 @@ Add the checkout location to your $PATH.
 To download the isolated files for a test first visit
 the build status page and find the "isolated output" link:
 
-<img src="Status.png" style="margin-left:30px" width=576 height=271 >
+<img src="../Status.png" style="margin-left:30px" width=576 height=271 >
 
 
 Follow that link to find the hash of the isolated outputs:
 
 
-<img src="Isolate.png" style="margin-left:30px" width=451 height=301 >
+<img src="../Isolate.png" style="margin-left:30px" width=451 height=301 >
 
 Then run `isolateserver.py` with --isolated set to that hash:
 
