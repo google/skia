@@ -355,11 +355,13 @@ inline void GrOpsTask::OpChain::validate() const {
 
 GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
                      GrSurfaceProxyView view,
-                     GrAuditTrail* auditTrail)
+                     GrAuditTrail* auditTrail,
+                     std::shared_ptr<SkArenaAlloc> arenaAlloc)
         : GrRenderTask()
         , fAuditTrail(auditTrail)
         , fTargetSwizzle(view.swizzle())
         , fTargetOrigin(view.origin())
+        , fArenaAlloc{std::move(arenaAlloc)}
           SkDEBUGCODE(, fNumClips(0)) {
     fAllocators.push_back(std::make_unique<SkArenaAlloc>(4096));
     this->addTarget(drawingMgr, view.detachProxy());

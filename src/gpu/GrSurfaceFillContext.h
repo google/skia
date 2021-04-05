@@ -201,6 +201,8 @@ public:
 
     const GrSurfaceProxyView& writeSurfaceView() const { return fWriteView; }
 
+    SkArenaAlloc* arenaAlloc() { return fArenaAlloc.get(); }
+
 protected:
     /**
      * Creates a constant color paint for a clear, using src-over if possible to improve batching.
@@ -242,6 +244,9 @@ private:
     sk_sp<GrOpsTask> fOpsTask;
 
     bool fFlushTimeOpsTask;
+
+    // This arena is shared among all the OpsTasks.
+    std::shared_ptr<SkArenaAlloc> fArenaAlloc = std::make_shared<SkArenaAlloc>(1024);
 
     using INHERITED = GrSurfaceContext;
 };
