@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e171e47_4c534deb",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-05T14:18:53Z",
+      "side": 0,
+      "message": "This only works with pow2 alignments, but on some backends it will be a common multiple of 4 and bpp, so 12 for rgb_888.",
+      "range": {
+        "startLine": 318,
+        "startChar": 31,
+        "endLine": 318,
+        "endChar": 40
+      },
+      "revId": "ea1d39b35cf6f67ab3a00ecd53655775c11c550e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
