@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34d491c7_9b63910f",
+        "filename": "tests/ClipStackTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1550,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-05T17:44:09Z",
+      "side": 1,
+      "message": "For the GrClipStack case, this is covered in GrClipStack_SWMask?",
+      "range": {
+        "startLine": 1550,
+        "startChar": 0,
+        "endLine": 1550,
+        "endChar": 41
+      },
+      "revId": "6a480589e22d0c6e1e6a17a3826d41b4d725599e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
