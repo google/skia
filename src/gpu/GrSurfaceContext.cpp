@@ -615,13 +615,13 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
     pt.fY = flip ? dstSurface->height() - pt.fY - src[0].height() : pt.fY;
 
     if (!dContext->priv().drawingManager()->newWritePixelsTask(
-                sk_ref_sp(dstProxy),
-                SkIRect::MakePtSize(pt, src[0].dimensions()),
-                allowedColorType,
-                this->colorInfo().colorType(),
-                srcLevels.begin(),
-                numLevels,
-                prepForSampling)) {
+            sk_ref_sp(dstProxy),
+            SkIRect::MakePtSize(pt, src[0].dimensions()),
+            this->colorInfo().colorType(),
+            allowedColorType,
+            srcLevels.begin(),
+            numLevels,
+            prepForSampling)) {
         return false;
     }
     if (numLevels > 1) {
