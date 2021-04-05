@@ -1545,6 +1545,10 @@ DEF_TEST(ClipStack, reporter) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include "src/gpu/SkGpuDevice.h"
+
+#if defined(SK_DISABLE_NEW_GR_CLIP_STACK)
+
 sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(
         GrRecordingContext* context) const {
     const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), nullptr);
@@ -1593,3 +1597,4 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
     }
 #endif
 }
+#endif // SK_DISABLE_NEW_GR_CLIP_STACK
