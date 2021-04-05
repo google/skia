@@ -179,14 +179,6 @@ public:
                                                const Type& type,
                                                ExpressionArray args);
 
-    // If the passed-in expression is a literal, performs a constructor-conversion of the literal
-    // value to the constructor's type and returns that converted value as a new literal. e.g., the
-    // constructor expression `short(3.14)` would be represented as `FloatLiteral(3.14)` along with
-    // type `Short`, and this would result in `IntLiteral(3, type=Short)`. Returns nullptr if the
-    // expression is not a literal or the conversion cannot be made.
-    static std::unique_ptr<Expression> SimplifyConversion(const Type& constructorType,
-                                                          const Expression& expr);
-
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<Constructor>(fOffset, this->type(), this->cloneArguments());
     }
