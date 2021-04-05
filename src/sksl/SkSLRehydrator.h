@@ -55,7 +55,7 @@ public:
         kConstructorDiagonalMatrix_Command,
         kConstructorSplat_Command,
         kConstructorScalarCast_Command,
-        kConstructorReserved1_Command,
+        kConstructorVectorCast_Command,
         kConstructorReserved2_Command,
         kConstructorReserved3_Command,
         kConstructorReserved4_Command,
