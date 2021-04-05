@@ -10,6 +10,7 @@
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
@@ -91,14 +92,7 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
 
                 // Next, wrap the typecasted expression in a matrix-resize constructor if the sizes
                 // differ. If not, return the typecasted expression as-is.
-                if (type.rows() != typecast->type().rows() ||
-                    type.columns() != typecast->type().columns()) {
-                    ExpressionArray typecastArgs;
-                    typecastArgs.push_back(std::move(typecast));
-                    return std::make_unique<Constructor>(offset, type, std::move(typecastArgs));
-                } else {
-                    return typecast;
-                }
+                return ConstructorMatrixResize::Make(context, offset, type, std::move(typecast));
             }
         }
     }
@@ -183,6 +177,9 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
 
 Expression::ComparisonResult Constructor::compareConstant(const Expression& other) const {
     if (other.is<ConstructorDiagonalMatrix>()) {
+        return other.compareConstant(*this);
+    }
+    if (other.is<ConstructorMatrixResize>()) {
         return other.compareConstant(*this);
     }
     if (other.is<ConstructorSplat>()) {
