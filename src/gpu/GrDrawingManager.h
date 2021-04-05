@@ -23,6 +23,7 @@
 // Enabling this will print out which path renderers are being chosen
 #define GR_PATH_RENDERER_SPEW 0
 
+class GrArenas;
 class GrCoverageCountingPathRenderer;
 class GrGpuBuffer;
 class GrOnFlushCallbackObject;
@@ -46,7 +47,9 @@ public:
     void freeGpuResources();
 
     // OpsTasks created at flush time are stored and handled different from the others.
-    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView, bool flushTimeOpsTask);
+    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView,
+                                sk_sp<GrArenas> arenas,
+                                bool flushTimeOpsTask);
 
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call

@@ -53,7 +53,7 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern GrOp::Owner Op##__Test(GrPaint&&, SkRandom*, \
-                                    GrRecordingContext*, int numSamples)
+                                    GrRecordingContext*, GrSurfaceDrawContext*, int)
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
@@ -81,7 +81,7 @@ DRAW_OP_TEST_EXTERN(TextureOp);
 void GrDrawRandomOp(SkRandom* random, GrSurfaceDrawContext* surfaceDrawContext, GrPaint&& paint) {
     auto context = surfaceDrawContext->recordingContext();
     using MakeDrawOpFn = GrOp::Owner (GrPaint&&, SkRandom*,
-                                      GrRecordingContext*, int numSamples);
+                                      GrRecordingContext*, GrSurfaceDrawContext*, int numSamples);
     static constexpr MakeDrawOpFn* gFactories[] = {
             DRAW_OP_TEST_ENTRY(AAConvexPathOp),
             DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
@@ -108,8 +108,11 @@ void GrDrawRandomOp(SkRandom* random, GrSurfaceDrawContext* surfaceDrawContext, 
 
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
-    auto op = gFactories[index](
-            std::move(paint), random, context, surfaceDrawContext->numSamples());
+    auto op = gFactories[index](std::move(paint),
+                                random,
+                                context,
+                                surfaceDrawContext,
+                                surfaceDrawContext->numSamples());
 
     // Creating a GrAtlasTextOp my not produce an op if for example, it is totally outside the
     // render target context.

@@ -9,12 +9,21 @@
 #define GrRenderTargetProxy_DEFINED
 
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
 
 class GrResourceProvider;
+
+class GrArenas : public SkNVRefCnt<GrArenas> {
+public:
+    SkArenaAlloc* arenaAlloc() { return &fArenaAlloc; }
+
+private:
+    SkArenaAlloc fArenaAlloc{1024};
+};
 
 // This class delays the acquisition of RenderTargets until they are actually
 // required
@@ -85,6 +94,17 @@ public:
     // TODO: move this to a priv class!
     bool refsWrappedObjects() const;
 
+    sk_sp<GrArenas> arenas() {
+        if (fArenas == nullptr) {
+            fArenas = sk_make_sp<GrArenas>();
+        }
+        return fArenas;
+    }
+
+    void clearArenas() {
+        fArenas = nullptr;
+    }
+
 protected:
     friend class GrProxyProvider;  // for ctors
     friend class GrRenderTargetProxyPriv;
@@ -149,6 +169,8 @@ private:
     int8_t             fNumStencilSamples = 0;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
     SkIRect            fMSAADirtyRect = SkIRect::MakeEmpty();
+    sk_sp<GrArenas>    fArenas{nullptr};
+
     // This is to fix issue in large comment above. Without the padding we can end up with the
     // GrTextureProxy starting 8 byte aligned by not 16. This happens when the RT ends at bytes 1-8.
     // Note: with the virtual inheritance an 8 byte pointer is at the start of GrRenderTargetProxy.
