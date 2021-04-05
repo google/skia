@@ -4,5 +4,6 @@ uniform vec4 colorRed;
 uniform vec4 colorGreen;
 vec4 main() {
     bool _0_ok = true;
+    _0_ok = false;
     return _0_ok ? colorGreen : colorRed;
 }

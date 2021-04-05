@@ -42,6 +42,7 @@
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLExternalFunctionCall.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -100,9 +101,7 @@ protected:
                 } else if (lastArg->type() == *fContext.fTypes.fFloat3x3) {
                     // Determine the type of matrix for this call site
                     if (lastArg->isConstantOrUniform()) {
-                        if (lastArg->is<VariableReference>() ||
-                            lastArg->is<Constructor>() ||
-                            lastArg->is<ConstructorDiagonalMatrix>()) {
+                        if (lastArg->is<VariableReference>() || lastArg->isAnyConstructor()) {
                             // FIXME if this is a constant, we should parse the float3x3 constructor
                             // and determine if the resulting matrix introduces perspective.
                             fUsage.merge(SampleUsage::UniformMatrix(lastArg->description()));
@@ -750,6 +749,7 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat:
         case Expression::Kind::kConstructorVectorCast: {
@@ -1025,6 +1025,7 @@ public:
             case Expression::Kind::kConstructor:
             case Expression::Kind::kConstructorArray:
             case Expression::Kind::kConstructorDiagonalMatrix:
+            case Expression::Kind::kConstructorMatrixResize:
             case Expression::Kind::kConstructorScalarCast:
             case Expression::Kind::kConstructorSplat:
             case Expression::Kind::kConstructorVectorCast:
@@ -1152,6 +1153,7 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat:
         case Expression::Kind::kConstructorVectorCast: {
