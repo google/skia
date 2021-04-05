@@ -501,6 +501,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuSrcFactory<Surface>>(
                     [direct, origin, renderable](const SkPixmap& src) {
+                        // skbug.com/8862
+                        if (src.colorType() == kRGB_888x_SkColorType) {
+                            return Surface();
+                        }
                         auto surfContext = GrSurfaceContext::Make(
                                 direct, src.info(), SkBackingFit::kExact, origin, renderable);
                         if (surfContext) {
@@ -619,6 +623,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
         gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
         auto backendRTFactory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
+                    // skbug.com/8862
+                    if (src.colorType() == kRGB_888x_SkColorType) {
+                        return Surface();
+                    }
                     // Dawn backend implementation of backend render targets doesn't support
                     // reading.
                     if (context->backend() == GrBackendApi::kDawn) {
@@ -1091,6 +1099,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo)
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuDstFactory<Surface>>(
                     [direct, origin, renderable](const SkImageInfo& info) {
+                        // skbug.com/8862
+                        if (info.colorType() == kRGB_888x_SkColorType) {
+                            return Surface();
+                        }
                         return GrSurfaceContext::Make(direct,
                                                       info,
                                                       SkBackingFit::kExact,
