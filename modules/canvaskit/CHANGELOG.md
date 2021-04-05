@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Add `drawPatch` to `Canvas`.
+
 ## [0.25.1] - 2021-03-30
 
 ### Added
