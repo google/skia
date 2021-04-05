@@ -195,6 +195,8 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
     GrMipmapped mipmapped() const;
 
+    SkArenaAlloc* arenaAlloc() { return this->arenas()->arenaAlloc(); }
+
 #if GR_TEST_UTILS
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
@@ -210,6 +212,8 @@ protected:
     void addOp(GrOp::Owner);
 
 private:
+    sk_sp<GrArenas> arenas() { return fWriteView.proxy()->asRenderTargetProxy()->arenas(); }
+
     template <SkAlphaType AlphaType>
     static std::array<float, 4> ConvertColor(SkRGBA4f<AlphaType> color);
 
