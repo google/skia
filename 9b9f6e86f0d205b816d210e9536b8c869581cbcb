@@ -16,6 +16,24 @@
       "message": "Interesting. What is the formal \"rule\" for this?\n\nfunction(a?: A, b?: B)\n\nA needs to be A | null, but B doesn\u0027t... because it\u0027s the last one?",
       "revId": "9b9f6e86f0d205b816d210e9536b8c869581cbcb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2caf2a90_dba4cac3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-05T13:44:26Z",
+      "side": 1,
+      "message": "TS is picky about undefined vs null. If you omit a function param, it is undefined. If you want to skip a param, you would use null. The idiomatic way to skip the last param is to omit it, so generally you don\u0027t need to add null.",
+      "parentUuid": "e1d38632_b0398c11",
+      "revId": "9b9f6e86f0d205b816d210e9536b8c869581cbcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
