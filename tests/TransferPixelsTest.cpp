@@ -315,7 +315,9 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     size_t bufferSize = fullBufferRowBytes * kTexDims.fHeight;
     // Arbitrary starting offset for the partial read.
-    size_t partialReadOffset = GrAlignTo(11, offsetAlignment);
+    static constexpr size_t kStartingOffset = 11;
+    size_t partialReadOffset = kStartingOffset +
+                               (offsetAlignment - kStartingOffset%offsetAlignment)%offsetAlignment;
     bufferSize = std::max(bufferSize, partialReadOffset + partialBufferRowBytes * kPartialHeight);
 
     sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(
@@ -421,7 +423,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest, reporter, ctxInf
                      GrColorType::kABGR_4444,
                      GrColorType::kRGBA_8888,
                      GrColorType::kRGBA_8888_SRGB,
-                     //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
+                     GrColorType::kRGB_888x,
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
                      GrColorType::kRGBA_1010102,
@@ -454,7 +456,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest, reporter, ctxI
                      GrColorType::kABGR_4444,
                      GrColorType::kRGBA_8888,
                      GrColorType::kRGBA_8888_SRGB,
-                     //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
+                     GrColorType::kRGB_888x,
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
                      GrColorType::kRGBA_1010102,
