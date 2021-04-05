@@ -13,11 +13,4 @@ error: 31: type mismatch: '=' cannot operate on 'half4', 'float4'
 error: 32: type mismatch: '*=' cannot operate on 'half4', 'float'
 error: 36: type mismatch: '=' cannot operate on 'half4', 'float4'
 error: 37: type mismatch: '=' cannot operate on 'half4', 'float4'
-error: 42: type mismatch: '=' cannot operate on 'half4', 'float4'
-error: 43: type mismatch: '=' cannot operate on 'half4', 'float4'
-error: 44: type mismatch: '*=' cannot operate on 'half4', 'float4x4'
-error: 49: type mismatch: '=' cannot operate on 'half4x4', 'float4x4'
-error: 50: type mismatch: '=' cannot operate on 'half4x4', 'float4x4'
-error: 51: type mismatch: '*=' cannot operate on 'half4x4', 'float4x4'
-error: 55: type mismatch: '*=' cannot operate on 'float4x4', 'float4'
-20 errors
+13 errors

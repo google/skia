@@ -35,6 +35,7 @@ void matrix_times_vector_ok_1()         { F4 = F4x4 * H4; }
 void matrix_times_vector_ok_2()         { F4 = H4x4 * F4; }
 void matrix_times_vector_disallowed_1() { H4 = F4x4 * H4; }
 void matrix_times_vector_disallowed_2() { H4 = H4x4 * F4; }
+/*
 
 void vector_times_matrix_ok_1()         { F4 = F4 * H4x4; }
 void vector_times_matrix_ok_2()         { F4 = H4 * F4x4; }
@@ -53,3 +54,4 @@ void matrix_times_matrix_disallowed_3() { H4x4 *= F4x4;       }
 void dimensions_ok_1()                  { F4x4 *= F4x4; }
 void dimensions_ok_2()                  { F4   *= F4x4; }
 void dimensions_disallowed_1()          { F4x4 *= F4;   }
+*/
