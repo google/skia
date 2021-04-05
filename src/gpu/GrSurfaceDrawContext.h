@@ -713,8 +713,6 @@ private:
     bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op,
                                                  GrXferProcessor::DstProxyView* result);
 
-    SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
-
     SkSurfaceProps fSurfaceProps;
 
     int fNumStencilSamples = 0;
@@ -725,6 +723,7 @@ private:
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
     SkGlyphRunListPainter fGlyphPainter;
+
     using INHERITED = GrSurfaceFillContext;
 };
 
