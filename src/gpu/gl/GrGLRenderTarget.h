@@ -21,14 +21,14 @@ class GrGLRenderTarget : public GrRenderTarget {
 public:
     bool alwaysClearStencil() const override { return 0 == fRTFBOID; }
 
-    // set fTexFBOID to this value to indicate that it is multisampled but
+    // set fSingleSampleFBOID to this value to indicate that it is multisampled but
     // Gr doesn't know how to resolve it.
     enum { kUnresolvableFBOID = 0 };
 
     struct IDs {
         GrGLuint                   fRTFBOID;
         GrBackendObjectOwnership   fRTFBOOwnership;
-        GrGLuint                   fTexFBOID;
+        GrGLuint                   fSingleSampleFBOID;
         GrGLuint                   fMSColorRenderbufferID;
     };
 
@@ -44,7 +44,7 @@ public:
     // FBO ID used to render into
     GrGLuint renderFBOID() const { return fRTFBOID; }
     // FBO ID that has texture ID attached.
-    GrGLuint textureFBOID() const { return fTexFBOID; }
+    GrGLuint singleSampleFBOID() const { return fSingleSampleFBOID; }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
@@ -90,7 +90,7 @@ private:
     int totalSamples() const;
 
     GrGLuint    fRTFBOID;
-    GrGLuint    fTexFBOID;
+    GrGLuint    fSingleSampleFBOID;
     GrGLuint    fMSColorRenderbufferID;
     GrGLFormat  fRTFormat;
 
