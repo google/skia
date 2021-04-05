@@ -1192,20 +1192,25 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     // the texture bound to the other. The exception is the IMG multisample extension. With this
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
     // rendered from.
-    if (sampleCount > 1 && this->glCaps().usesMSAARenderBuffers()) {
+    if (sampleCount <= 1) {
+        rtIDs->fRTFBOID = rtIDs->fTexFBOID;
+    } else {
         GL_CALL(GenFramebuffers(1, &rtIDs->fRTFBOID));
-        GL_CALL(GenRenderbuffers(1, &rtIDs->fMSColorRenderbufferID));
-        if (!rtIDs->fRTFBOID || !rtIDs->fMSColorRenderbufferID) {
+        if (!rtIDs->fRTFBOID) {
             goto FAILED;
         }
-        colorRenderbufferFormat = this->glCaps().getRenderbufferInternalFormat(desc.fFormat);
-    } else {
-        rtIDs->fRTFBOID = rtIDs->fTexFBOID;
+        if (!this->glCaps().usesImplicitMSAAResolve()) {
+            GL_CALL(GenRenderbuffers(1, &rtIDs->fMSColorRenderbufferID));
+            if (!rtIDs->fMSColorRenderbufferID) {
+                goto FAILED;
+            }
+            colorRenderbufferFormat = this->glCaps().getRenderbufferInternalFormat(desc.fFormat);
+        }
     }
 
     // below here we may bind the FBO
     fHWBoundRenderTargetUniqueID.makeInvalid();
-    if (rtIDs->fRTFBOID != rtIDs->fTexFBOID) {
+    if (rtIDs->fMSColorRenderbufferID) {
         SkASSERT(sampleCount > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, rtIDs->fMSColorRenderbufferID));
         if (!this->renderbufferStorageMSAA(*fGLContext, sampleCount, colorRenderbufferFormat,
@@ -1217,23 +1222,25 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         rtIDs->fMSColorRenderbufferID));
-    }
-    this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fTexFBOID);
-
-    if (this->glCaps().usesImplicitMSAAResolve() && sampleCount > 1) {
+    } else if (sampleCount > 1) {
+        // multisampled_render_to_texture
+        SkASSERT(this->glCaps().usesImplicitMSAAResolve());  // Otherwise fMSColorRenderbufferID!=0.
+        SkASSERT(rtIDs->fRTFBOID != rtIDs->fTexFBOID);
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fRTFBOID);
         GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 desc.fTarget,
                                                 desc.fID,
                                                 0,
                                                 sampleCount));
-    } else {
-        GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
-                                     GR_GL_COLOR_ATTACHMENT0,
-                                     desc.fTarget,
-                                     desc.fID,
-                                     0));
     }
+
+    this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fTexFBOID);
+    GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
+                                 GR_GL_COLOR_ATTACHMENT0,
+                                 desc.fTarget,
+                                 desc.fID,
+                                 0));
 
     return true;
 
