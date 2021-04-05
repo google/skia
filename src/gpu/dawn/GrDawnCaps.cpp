@@ -164,8 +164,7 @@ static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
     return key;
 }
 
-GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
-                                   const GrProgramInfo& programInfo,
+GrProgramDesc GrDawnCaps::makeDesc(const GrProgramInfo& programInfo,
                                    ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;
@@ -183,7 +182,8 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt,
     stencil.genKey(&b, true);
 
     // TODO: remove this reliance on the renderTarget
-    bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+//    bool hasDepthStencil = rt->getStencilAttachment() != nullptr;
+    bool hasDepthStencil = programInfo.isStencilEnabled();
 
     b.add32(static_cast<uint32_t>(format));
     b.add32(static_cast<int32_t>(hasDepthStencil));

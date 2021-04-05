@@ -67,8 +67,7 @@ public:
         return &fDescriptorTableManager;
     }
 
-    GrD3DPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
-                                                            const GrProgramInfo&);
+    GrD3DPipelineState* findOrCreateCompatiblePipelineState(const GrProgramInfo&);
 
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
     void prepForSubmit();
@@ -90,7 +89,7 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrD3DPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&);
+        GrD3DPipelineState* refPipelineState(const GrProgramInfo&);
 
         void markPipelineStateUniformsDirty();
 

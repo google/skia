@@ -23,7 +23,6 @@
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
-        GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
@@ -38,7 +37,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrVkPipelineStateBuilder builder(gpu, desc, programInfo);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -48,10 +47,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
-                                                   GrRenderTarget* renderTarget,
                                                    const GrProgramDesc& desc,
                                                    const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+        : INHERITED(desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}

@@ -1031,8 +1031,7 @@ void GrD3DCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
 /**
  * TODO: Determine what goes in the ProgramDesc
  */
-GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
-                                  const GrProgramInfo& programInfo,
+GrProgramDesc GrD3DCaps::makeDesc(const GrProgramInfo& programInfo,
                                   ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;
@@ -1040,15 +1039,15 @@ GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
 
     GrProcessorKeyBuilder b(desc.key());
 
-    GrD3DRenderTarget* d3dRT = (GrD3DRenderTarget*) rt;
-    d3dRT->genKey(&b);
+//    GrD3DRenderTarget* d3dRT = (GrD3DRenderTarget*) rt;
+//    d3dRT->genKey(&b);
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();
     stencil.genKey(&b, false);
 
     programInfo.pipeline().genKey(&b, *this);
     // The num samples is already added in the render target key so we don't need to add it here.
-    SkASSERT(programInfo.numRasterSamples() == rt->numSamples());
+//    SkASSERT(programInfo.numRasterSamples() == rt->numSamples());
 
     // D3D requires the full primitive type as part of its key
     b.add32(programInfo.primitiveTypeKey());

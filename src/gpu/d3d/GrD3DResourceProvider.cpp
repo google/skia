@@ -194,8 +194,8 @@ sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateSamplerTable(
 }
 
 GrD3DPipelineState* GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* rt, const GrProgramInfo& info) {
-    return fPipelineStateCache->refPipelineState(rt, info);
+        const GrProgramInfo& info) {
+    return fPipelineStateCache->refPipelineState(info);
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, size_t size) {
@@ -266,14 +266,14 @@ void GrD3DResourceProvider::PipelineStateCache::release() {
 }
 
 GrD3DPipelineState* GrD3DResourceProvider::PipelineStateCache::refPipelineState(
-        GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+        const GrProgramInfo& programInfo) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
 
     const GrCaps* caps = fGpu->caps();
 
-    GrProgramDesc desc = caps->makeDesc(renderTarget, programInfo);
+    GrProgramDesc desc = caps->makeDesc(programInfo);
     if (!desc.isValid()) {
         GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
         return nullptr;
@@ -285,7 +285,7 @@ GrD3DPipelineState* GrD3DResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         std::unique_ptr<GrD3DPipelineState> pipelineState =
-                GrD3DPipelineStateBuilder::MakePipelineState(fGpu, renderTarget, desc, programInfo);
+                GrD3DPipelineStateBuilder::MakePipelineState(fGpu, desc, programInfo);
         if (!pipelineState) {
             return nullptr;
         }

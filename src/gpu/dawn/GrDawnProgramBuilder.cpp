@@ -258,7 +258,6 @@ static wgpu::BindGroupEntry make_bind_group_entry(uint32_t binding,
 }
 
 sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
-                                                 GrRenderTarget* renderTarget,
                                                  const GrProgramInfo& programInfo,
                                                  wgpu::TextureFormat colorFormat,
                                                  bool hasDepthStencil,
@@ -266,7 +265,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                  GrProgramDesc* desc) {
     GrAutoLocaleSetter als("C");
 
-    GrDawnProgramBuilder builder(gpu, renderTarget, programInfo, desc);
+    GrDawnProgramBuilder builder(gpu, programInfo, desc);
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
@@ -340,7 +339,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 
 #ifdef SK_DEBUG
     if (programInfo.isStencilEnabled()) {
-        SkASSERT(renderTarget->numStencilBits() == 8);
+        SkASSERT(programInfo.numStencilSamples() == 8);
     }
 #endif
     depthStencilState = create_depth_stencil_state(programInfo, depthStencilFormat);
@@ -419,10 +418,9 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 }
 
 GrDawnProgramBuilder::GrDawnProgramBuilder(GrDawnGpu* gpu,
-                                           GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,
                                            GrProgramDesc* desc)
-    : INHERITED(renderTarget, *desc, programInfo)
+    : INHERITED(*desc, programInfo)
     , fGpu(gpu)
     , fVaryingHandler(this)
     , fUniformHandler(this) {

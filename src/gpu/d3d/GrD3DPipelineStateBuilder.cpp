@@ -29,7 +29,6 @@
 
 std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
         GrD3DGpu* gpu,
-        GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo) {
     // ensure that we use "." as a decimal separator when creating SkSL code
@@ -37,7 +36,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrD3DPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrD3DPipelineStateBuilder builder(gpu, desc, programInfo);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -47,10 +46,9 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState
 }
 
 GrD3DPipelineStateBuilder::GrD3DPipelineStateBuilder(GrD3DGpu* gpu,
-                                                     GrRenderTarget* renderTarget,
                                                      const GrProgramDesc& desc,
                                                      const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+        : INHERITED(desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -648,7 +646,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         return nullptr;
     }
 
-    const GrD3DRenderTarget* rt = static_cast<const GrD3DRenderTarget*>(fRenderTarget);
+    const GrD3DRenderTarget* rt = nullptr;//static_cast<const GrD3DRenderTarget*>(fRenderTarget);
     gr_cp<ID3D12PipelineState> pipelineState = create_pipeline_state(
             fGpu, fProgramInfo, rootSig, std::move(shaders[kVertex_GrShaderType]),
             std::move(shaders[kGeometry_GrShaderType]), std::move(shaders[kFragment_GrShaderType]),

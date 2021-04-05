@@ -48,7 +48,6 @@ static void cleanup_program(GrGLGpu* gpu, GrGLuint programID,
 
 sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
                                                GrDirectContext* dContext,
-                                               GrRenderTarget* renderTarget,
                                                const GrProgramDesc& desc,
                                                const GrProgramInfo& programInfo,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
@@ -59,7 +58,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(glGpu, renderTarget, desc, programInfo);
+    GrGLProgramBuilder builder(glGpu, desc, programInfo);
 
     auto persistentCache = dContext->priv().getPersistentCache();
     if (persistentCache && !precompiledProgram) {
@@ -78,10 +77,9 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
 /////////////////////////////////////////////////////////////////////////////
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
-                                       GrRenderTarget* renderTarget,
                                        const GrProgramDesc& desc,
                                        const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+        : INHERITED(desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)

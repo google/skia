@@ -92,7 +92,7 @@ public:
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
-    sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*, const GrProgramInfo&);
+    sk_sp<GrDawnProgram> getOrCreateRenderPipeline(const GrProgramInfo&);
 
     wgpu::Sampler getOrCreateSampler(GrSamplerState samplerState);
 

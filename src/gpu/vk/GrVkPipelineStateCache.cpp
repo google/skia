@@ -70,32 +70,23 @@ void GrVkResourceProvider::PipelineStateCache::release() {
     fMap.reset();
 }
 
-GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
-        GrRenderTarget* renderTarget,
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineStateInline(
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
         bool overrideSubpassForResolveLoad) {
-#ifdef SK_DEBUG
-    if (programInfo.isStencilEnabled()) {
-        SkASSERT(renderTarget->getStencilAttachment());
-        SkASSERT(renderTarget->numStencilBits() == 8);
-        SkASSERT(renderTarget->getStencilAttachment()->numSamples() ==
-                 programInfo.numStencilSamples());
-    }
-#endif
 
     auto flags = overrideSubpassForResolveLoad
             ? GrCaps::ProgramDescOverrideFlags::kVulkanHasResolveLoadSubpass
             : GrCaps::ProgramDescOverrideFlags::kNone;
 
-    GrProgramDesc desc = fGpu->caps()->makeDesc(renderTarget, programInfo, flags);
+    GrProgramDesc desc = fGpu->caps()->makeDesc(programInfo, flags);
     if (!desc.isValid()) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
 
     Stats::ProgramCacheResult stat;
-    auto tmp = this->findOrCreatePipelineState(renderTarget, desc, programInfo,
+    auto tmp = this->findOrCreatePipelineState(desc, programInfo,
                                                compatibleRenderPass, overrideSubpassForResolveLoad,
                                                &stat);
     if (!tmp) {
@@ -108,7 +99,6 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
 }
 
 GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
-        GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
@@ -124,8 +114,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
             *stat = Stats::ProgramCacheResult::kMiss;
         }
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, desc, programInfo, compatibleRenderPass,
-                overrideSubpassForResolveLoad));
+                fGpu, desc, programInfo, compatibleRenderPass, overrideSubpassForResolveLoad));
         if (!pipelineState) {
             return nullptr;
         }

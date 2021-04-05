@@ -358,7 +358,6 @@ private:
         void abandon();
         void reset();
         sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
-                                               GrRenderTarget*,
                                                const GrProgramInfo&);
         sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
                                                const GrProgramDesc&,
@@ -369,11 +368,10 @@ private:
     private:
         struct Entry;
 
-        sk_sp<GrGLProgram> findOrCreateProgram(GrDirectContext*,
-                                               GrRenderTarget*,
-                                               const GrProgramDesc&,
-                                               const GrProgramInfo&,
-                                               Stats::ProgramCacheResult*);
+        sk_sp<GrGLProgram> findOrCreateProgramImpl(GrDirectContext*,
+                                                   const GrProgramDesc&,
+                                                   const GrProgramInfo&,
+                                                   Stats::ProgramCacheResult*);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {

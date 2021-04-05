@@ -48,7 +48,7 @@ private:
             return;
         }
 
-        GrProgramDesc desc = caps->makeDesc(nullptr, *programInfo);
+        GrProgramDesc desc = caps->makeDesc(*programInfo);
         if (!desc.isValid()) {
             return;
         }

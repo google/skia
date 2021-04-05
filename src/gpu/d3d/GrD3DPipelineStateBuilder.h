@@ -28,7 +28,6 @@ public:
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
     static std::unique_ptr<GrD3DPipelineState> MakePipelineState(GrD3DGpu*,
-                                                                 GrRenderTarget*,
                                                                  const GrProgramDesc&,
                                                                  const GrProgramInfo&);
 
@@ -42,7 +41,8 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrD3DPipelineStateBuilder(GrD3DGpu*, GrRenderTarget*, const GrProgramDesc&,
+    GrD3DPipelineStateBuilder(GrD3DGpu*,
+                              const GrProgramDesc&,
                               const GrProgramInfo&);
 
     std::unique_ptr<GrD3DPipelineState> finalize();

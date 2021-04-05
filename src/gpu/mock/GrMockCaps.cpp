@@ -9,8 +9,7 @@
 
 #include "src/gpu/GrProgramDesc.h"
 
-GrProgramDesc GrMockCaps::makeDesc(GrRenderTarget* /* rt */,
-                                   const GrProgramInfo& programInfo,
+GrProgramDesc GrMockCaps::makeDesc(const GrProgramInfo& programInfo,
                                    ProgramDescOverrideFlags overrideFlags) const {
     SkASSERT(overrideFlags == ProgramDescOverrideFlags::kNone);
     GrProgramDesc desc;

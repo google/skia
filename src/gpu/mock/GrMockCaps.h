@@ -150,8 +150,7 @@ public:
 
     uint64_t computeFormatKey(const GrBackendFormat&) const override;
 
-    GrProgramDesc makeDesc(GrRenderTarget*,
-                           const GrProgramInfo&,
+    GrProgramDesc makeDesc(const GrProgramInfo&,
                            ProgramDescOverrideFlags) const override;
 
 #if GR_TEST_UTILS
