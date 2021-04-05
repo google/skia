@@ -131,7 +131,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
     GrGLRenderTarget::IDs rtIDs;
     rtIDs.fRTFBOID = 20;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
-    rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fMSColorRenderbufferID = 22;
 
     sk_sp<GrGLRenderTarget> rt =
@@ -149,7 +149,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
     GrGLRenderTarget::IDs rtIDs;
     rtIDs.fRTFBOID = 20;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
-    rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fMSColorRenderbufferID = 22;
 
     sk_sp<GrGLRenderTarget> rt =
