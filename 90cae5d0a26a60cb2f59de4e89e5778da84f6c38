@@ -50,6 +50,23 @@
       "message": "Should it take an (optional) offset[x,y] to perform convenience translates?",
       "revId": "90cae5d0a26a60cb2f59de4e89e5778da84f6c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "435736bd_d13b8a56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-05T15:01:04Z",
+      "side": 1,
+      "message": "If you look at the following CL. It enables a way to draw text without creating an intermediate TextBlob. I think we should sink up and combine work.\n\nhttps://skia-review.googlesource.com/c/skia/+/388719\n\nThe following CL has a similar API but includes text and clusters...\n\nhttps://skia-review.googlesource.com/c/skia/+/375296",
+      "revId": "90cae5d0a26a60cb2f59de4e89e5778da84f6c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
