@@ -16,6 +16,24 @@
       "message": "I was trying to figure out all the different pieces in SPIR-V now. We still need this for something like: float3(int2(...), 1.0), right? If it were float2(int2(...)), it would go through the newly added writeVectorConstructorCast?\n\nDo we want to keep supporting implicit casts of elements as part of aggregate initialization? I\u0027d be really tempted to have the IR generarator expand that, so the aggregation can always assert that the components have the same (component) type as the result.",
       "revId": "cffff083079d46d942c1031053a67f7fdd4e270b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b236722_35c59793",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1621,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-05T15:42:32Z",
+      "side": 1,
+      "message": "This code is being deleted in a followup CL that I am actually working on right now. We will not support implicit type conversion.\n\nWork in progress sneak peek: http://review.skia.org/392816",
+      "parentUuid": "a71e12f5_69197642",
+      "revId": "cffff083079d46d942c1031053a67f7fdd4e270b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
