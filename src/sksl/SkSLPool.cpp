@@ -64,10 +64,14 @@ Pool::~Pool() {
 }
 
 std::unique_ptr<Pool> Pool::Create() {
-    auto pool = std::unique_ptr<Pool>(new Pool);
+    auto pool = std::make_unique<Pool>();
     pool->fMemPool = MemoryPool::Make(/*preallocSize=*/65536, /*minAllocSize=*/32768);
     VLOG("CREATE Pool:0x%016llX\n", (uint64_t)pool->fMemPool.get());
     return pool;
+}
+
+bool Pool::IsAttached() {
+    return get_thread_local_memory_pool();
 }
 
 void Pool::attachToThread() {

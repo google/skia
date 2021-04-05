@@ -299,11 +299,11 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
                  "half4 main(float2 p) { float2 v = helper(p); return half4(half2(v), 0, 1); }");
     effect.test(0xFF00FFFF);
 }
-
+/*
 DEF_TEST(SkRuntimeEffectSimple, r) {
     test_RuntimeEffect_Shaders(r, nullptr);
 }
-
+*/
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
     test_RuntimeEffect_Shaders(r, ctxInfo.directContext());
 }
