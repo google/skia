@@ -19,14 +19,14 @@ class GrGLAttachment;
 
 class GrGLRenderTarget : public GrRenderTarget {
 public:
-    bool alwaysClearStencil() const override { return 0 == fRTFBOID; }
+    bool alwaysClearStencil() const override { return 0 == this->renderFBOID(); }
 
     // set fSingleSampleFBOID to this value to indicate that it is multisampled but
     // Gr doesn't know how to resolve it.
     enum { kUnresolvableFBOID = 0 };
 
     struct IDs {
-        GrGLuint                   fRTFBOID;
+        GrGLuint                   fMultisampleFBOID;
         GrBackendObjectOwnership   fRTFBOOwnership;
         GrGLuint                   fSingleSampleFBOID;
         GrGLuint                   fMSColorRenderbufferID;
@@ -42,7 +42,9 @@ public:
     // The following two functions return the same ID when a texture/render target is not
     // multisampled, and different IDs when it is multisampled.
     // FBO ID used to render into
-    GrGLuint renderFBOID() const { return fRTFBOID; }
+    GrGLuint renderFBOID() const {
+        return (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
+    }
     // FBO ID that has texture ID attached.
     GrGLuint singleSampleFBOID() const { return fSingleSampleFBOID; }
 
@@ -85,11 +87,10 @@ private:
 
     size_t onGpuMemorySize() const override;
 
-    int msaaSamples() const;
     // The number total number of samples, including both MSAA and resolve texture samples.
     int totalSamples() const;
 
-    GrGLuint    fRTFBOID;
+    GrGLuint    fMultisampleFBOID;
     GrGLuint    fSingleSampleFBOID;
     GrGLuint    fMSColorRenderbufferID;
     GrGLFormat  fRTFormat;
