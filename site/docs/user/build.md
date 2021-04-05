@@ -6,7 +6,7 @@ weight: 20
 ---
 
 Make sure you have first followed the
-[instructions to download Skia](./download).
+[instructions to download Skia](../download).
 
 Skia uses [GN](https://chromium.googlesource.com/chromium/src/tools/gn/) to
 configure its builds.
@@ -252,8 +252,7 @@ skia_use_egl = true
 Compile dm (or another executable of your choice) with ninja, as per usual.
 
 Push the binary to a chromebook via ssh and
-[run dm as normal](https://skia.org/dev/testing/tests) using the gles GPU
-config.
+[run dm as normal](/docs/dev/testing/tests) using the gles GPU config.
 
 Most chromebooks by default have their home directory partition marked as
 noexec. To avoid "permission denied" errors, remember to run something like:

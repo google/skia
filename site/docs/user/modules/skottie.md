@@ -1,12 +1,9 @@
-
 ---
-title: "Skottie - Lottie Animation Player"
-linkTitle: "Skottie - Lottie Animation Player"
+title: 'Skottie - Lottie Animation Player'
+linkTitle: 'Skottie - Lottie Animation Player'
 
 weight: 10
-
 ---
-
 
 Skia now offers a performant, secure native player for JSON animations derived
 from the Bodymovin plugin for After Effects. It can be used on any platform
@@ -19,8 +16,7 @@ contributing advancements back to Bodymovin/Lottie.
 
 <br>
 
-Sample JSON animations
-----------------------
+## Sample JSON animations
 
 Here are some test samples rendering with Skia's animation player:
 
@@ -52,38 +48,37 @@ Here are some test samples rendering with Skia's animation player:
   <skottie-inline-sk src="https://skottie.skia.org/_/j/c16eee287f2cea44102b6670c66e60ab" width=200 height=200></skottie-inline-sk>
 </a>
 
-*Sample animations courtesy of the lottiefiles.com community
+\*Sample animations courtesy of the lottiefiles.com community
 
 <br>
 
-Test server
------------
+## Test server
 
 Test your Lottie files in our player at https://skottie.skia.org
 
 <br>
 
-The code
---------
+## The code
+
 Skia's animation code entry point can be found here on
 [Googlesource](https://skia.googlesource.com/skia/+/master/modules/skottie/include/Skottie.h)
-and [GitHub](https://github.com/google/skia/blob/master/modules/skottie/include/Skottie.h).
+and
+[GitHub](https://github.com/google/skia/blob/master/modules/skottie/include/Skottie.h).
 The code is part of Skia's library but can also be made available as a separate
 package.
 
 <br>
 
-Embedding examples
-------------------
+## Embedding examples
+
 Sample C code for using the Skottie native player can be found
 [here](https://github.com/google/skia/blob/master/modules/skottie/src/SkottieTool.cpp).
 
-Android app code for inspiration can be found 
+Android app code for inspiration can be found
 [here](https://github.com/google/skia/tree/master/platform_tools/android/apps/skottie).
 
 Example code embedding Skottie into our Viewer app is
 [here](https://github.com/google/skia/blob/master/tools/viewer/SkottieSlide.cpp).
 
-The Viewer or Skottie Android apps can be built following [these](https://skia.org/user/sample/viewer)
-instructions.
-
+The Viewer or Skottie Android apps can be built following
+[these](/docs/user/sample/viewer) instructions.
