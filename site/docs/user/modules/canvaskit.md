@@ -1,34 +1,27 @@
-
 ---
-title: "CanvasKit - Skia + WebAssembly"
-linkTitle: "CanvasKit - Skia + WebAssembly"
+title: 'CanvasKit - Skia + WebAssembly'
+linkTitle: 'CanvasKit - Skia + WebAssembly'
 
 weight: 20
-
 ---
-
 
 Skia now offers a WebAssembly build for easy deployment of our graphics APIs on
 the web.
 
 CanvasKit provides a playground for testing new Canvas and SVG platform APIs,
-enabling fast-paced development on the web platform.
-It can also be used as a deployment mechanism for custom web apps requiring
-cutting-edge features, like Skia's [Lottie
-animation](https://skia.org/user/modules/skottie) support.
+enabling fast-paced development on the web platform. It can also be used as a
+deployment mechanism for custom web apps requiring cutting-edge features, like
+Skia's [Lottie animation](https://skia.org/docs/user/modules/skottie) support.
 
+## Features
 
-Features
---------
+- WebGL context encapsulated as an SkSurface, allowing for direct drawing to an
+  HTML canvas
+- Core set of Skia canvas/paint/path/text APIs available, see bindings
+- Draws to a hardware-accelerated backend
+- Security tested with Skia's fuzzers
 
-  - WebGL context encapsulated as an SkSurface, allowing for direct drawing to
-    an HTML canvas
-  - Core set of Skia canvas/paint/path/text APIs available, see bindings
-  - Draws to a hardware-accelerated backend
-  - Security tested with Skia's fuzzers
-
-Samples
--------
+## Samples
 
 <style>
   #demo canvas {
@@ -843,16 +836,15 @@ Lottie files courtesy of the lottiefiles.com community:
 [Confetti](https://www.lottiefiles.com/1370-confetti),
 [Onboarding](https://www.lottiefiles.com/1134-onboarding-1)
 
-Test server
------------
+## Test server
+
 Test your code on our [CanvasKit Fiddle](https://jsfiddle.skia.org/canvaskit)
 
-Download
---------
+## Download
+
 Get [CanvasKit on NPM](https://www.npmjs.com/package/canvaskit-wasm).
 Documentation and Typescript definitions are available in the `types/` subfolder
 of the npm package or from the
-[Skia repo](https://github.com/google/skia/tree/master/modules/canvaskit/canvaskit/types).
+[Skia repo](https://github.com/google/skia/tree/master/modules/canvaskit/npm_build/types).
 
-Check out the [quickstart guide](../modules/quickstart) as well.
-
+Check out the [quickstart guide](../quickstart) as well.

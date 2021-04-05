@@ -5,7 +5,7 @@ linkTitle: 'SkCanvas Creation'
 weight: 250
 ---
 
-First, read about [the SkCanvas API](skcanvas_overview).
+First, read about [the SkCanvas API](../skcanvas_overview).
 
 Skia has multiple backends which receive SkCanvas drawing commands, including:
 
@@ -231,7 +231,7 @@ The (_still experimental_) SkSVG canvas writes into an SVG document.
 ---
 
 To try this code out, make a
-[new unit test using instructions here](/dev/testing/tests) and wrap these
+[new unit test using instructions here](/docs/dev/testing/tests) and wrap these
 functions together:
 
 <!--?prettify lang=cc?-->

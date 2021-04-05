@@ -12,7 +12,7 @@ patches.  This page describes in detail the kinds of roles that interested
 parties can assume.
 
 For more information on ways to get involved in Skia development, see the
-[Contributing to Skia page](/dev/contrib/).
+[Contributing to Skia page](/docs/dev/contrib/).
 
 <div>
 <style scoped><!--

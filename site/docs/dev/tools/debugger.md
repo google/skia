@@ -26,8 +26,8 @@ Features:
 
 SKP files can contain a single frame or multiple frames. Single frame files have
 the .skp extension and Multi-frame files have the .mskp extension. In the online
-debugger linked above, Open a [sample mskp file](/dev/tools/calendar.mskp) or
-capture one from an android device using the
+debugger linked above, Open a [sample mskp file](/docs/dev/tools/calendar.mskp)
+or capture one from an android device using the
 [instructions here](https://sites.google.com/a/google.com/skia/android/skp-from-framework).
 
 ### Command Playback and Filters
@@ -177,7 +177,7 @@ as a PNG file.
 ## Building and running locally
 
 Begin by following the instructions to
-[download and build Skia](../../user/quick), then simply build and run the
+[download and build Skia](/docs/user/build), then simply build and run the
 `skiaserve` tool:
 
 <!--?prettify lang=sh?-->

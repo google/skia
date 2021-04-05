@@ -16,7 +16,7 @@ Internally, SkPDFDocument and SkPDFDevice represents PDF documents and pages.
 This document describes how the backend operates, but **these interfaces are not
 part of the public API and are subject to perpetual change.**
 
-See [Using Skia's PDF Backend](../../user/sample/pdf) to find out how to use
+See [Using Skia's PDF Backend](/docs/user/sample/pdf/) to find out how to use
 SkPDF as a client calling Skia's public API.
 
 ---

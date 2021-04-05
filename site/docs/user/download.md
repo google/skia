@@ -38,10 +38,10 @@ installed with `depot_tools`.
 
 ## Getting started with Skia
 
-You will probably now want to [build](./build) Skia.
+You will probably now want to [build](../build) Skia.
 
 ## Changing and contributing to Skia
 
 At this point, you have everything you need to build and use Skia! If
 you want to make changes, and possibly contribute them back to the Skia
-project, read [How To Submit a Patch](../dev/contrib/submit).
+project, read [How To Submit a Patch](/docs/dev/contrib/submit/).
