@@ -1,0 +1,238 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "fa1df66a_c48d04f3",
+        "filename": "site/docs/dev/design/conical/corollary2.2.1.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "41e1f39c_1fa670c0",
+        "filename": "site/docs/dev/design/conical/corollary2.2.2.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "81fa884b_56b997f4",
+        "filename": "site/docs/dev/design/conical/corollary2.3.1.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c6e4ac83_5f3d8e91",
+        "filename": "site/docs/dev/design/conical/corollary2.3.2.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a8041a15_e3976e0d",
+        "filename": "site/docs/dev/design/conical/corollary2.3.3.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "56a95c72_ec8fa31f",
+        "filename": "site/docs/dev/design/conical/lemma1.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "8df58dd0_cb15fadc",
+        "filename": "site/docs/dev/design/conical/lemma3.1.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "81ef8850_f917ce22",
+        "filename": "site/docs/dev/design/conical/lemma3.2.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009596211",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/392736?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "66beed8b_b107d3af",
+        "filename": "site/docs/dev/design/conical/lemma4.svg",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-05T13:17:45Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 4,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "f6366c37d3e8537145783ab92a289c4c2e556885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
