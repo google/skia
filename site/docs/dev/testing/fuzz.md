@@ -1,16 +1,13 @@
-
 ---
-title: "Fuzzing"
-linkTitle: "Fuzzing"
-
+title: 'Fuzzing'
+linkTitle: 'Fuzzing'
 ---
 
+## Reproducing using `fuzz`
 
-Reproducing using `fuzz`
-------------------------
-
-We assume that you can [build Skia](/user/build). Many fuzzes only reproduce
-when building with ASAN or MSAN; see [those instructions for more details](./xsan).
+We assume that you can [build Skia](/docs/user/build). Many fuzzes only
+reproduce when building with ASAN or MSAN; see
+[those instructions for more details](../xsan).
 
 When building, you should add the following args to BUILD.gn to make reproducing
 less machine- and platform- dependent:
@@ -24,13 +21,14 @@ less machine- and platform- dependent:
     skia_enable_fontmgr_custom_embedded=false
     skia_enable_fontmgr_custom_empty=true
 
-All that is needed to reproduce a fuzz downloaded from ClusterFuzz or oss-fuzz is to
-run something like:
+All that is needed to reproduce a fuzz downloaded from ClusterFuzz or oss-fuzz
+is to run something like:
 
     out/ASAN/fuzz -b /path/to/downloaded/testcase
 
 The fuzz binary will try its best to guess what the type/name should be based on
-the name of the testcase. Manually providing type and name is also supported, like:
+the name of the testcase. Manually providing type and name is also supported,
+like:
 
     out/ASAN/fuzz -t filter_fuzz -b /path/to/downloaded/testcase
     out/ASAN/fuzz -t api -n RasterN32Canvas -b /path/to/downloaded/testcase
@@ -44,8 +42,7 @@ If the crash does not show up, try to add the flag --loops:
 
     out/ASAN/fuzz -b /path/to/downloaded/testcase --loops <times-to-run>
 
-Writing fuzzers with libfuzzer
-------------------------------
+## Writing fuzzers with libfuzzer
 
 libfuzzer is an easy way to write new fuzzers, and how we run them on oss-fuzz.
 Your fuzzer entry point should implement this API:
@@ -75,11 +72,10 @@ Run your new fuzzer binary
 
     ./a.out
 
+## Fuzzing Defines
 
-Fuzzing Defines
----------------
-There are some defines that can help guide a fuzzer to be more productive (e.g. avoid OOMs, avoid
-unnecessarily slow code).
+There are some defines that can help guide a fuzzer to be more productive (e.g.
+avoid OOMs, avoid unnecessarily slow code).
 
     // Required for fuzzing with afl-fuzz to prevent OOMs from adding noise.
     SK_BUILD_FOR_AFL_FUZZ
@@ -90,4 +86,3 @@ unnecessarily slow code).
     // This define adds in guards to abort when we think some code path will take a long time or
     // use a lot of RAM. It is set by default when either of the above defines are set.
     SK_BUILD_FOR_FUZZER
-

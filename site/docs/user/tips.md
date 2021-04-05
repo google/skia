@@ -22,8 +22,8 @@ Use the script `experimental/tools/web_to_skp` , _or_ do the following:
 3.  Execute: `chrome.gpuBenchmarking.printToSkPicture('/tmp')` This returns
     "undefined" on success.
 
-Open the resulting file in the [Skia Debugger](/dev/tools/debugger), rasterize
-it with `dm`, or use Skia's `viewer` to view it:
+Open the resulting file in the [Skia Debugger](/docs/dev/tools/debugger),
+rasterize it with `dm`, or use Skia's `viewer` to view it:
 
 <!--?prettify lang=sh?-->
 
@@ -48,8 +48,8 @@ Use the script `experimental/tools/web_to_mskp` , _or_ do the following:
     `chrome.gpuBenchmarking.printPagesToSkPictures('/tmp/filename.mskp')` This
     returns "undefined" on success.
 
-Open the resulting file in the [Skia Debugger](/dev/tools/debugger) or process
-it with `dm`.
+Open the resulting file in the [Skia Debugger](/docs/dev/tools/debugger) or
+process it with `dm`.
 
 <!--?prettify lang=sh?-->
 

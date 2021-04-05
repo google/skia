@@ -12,17 +12,17 @@ we hope to make the existing code conform to the guildelines.
 We use .cpp and .h as extensions for c++ source and header files.
 
 Headers that aren't meant for public consumption should be placed in src
-directories so that they aren't in a client's search path, or in
-include/private if they need to be used by public headers.
+directories so that they aren't in a client's search path, or in include/private
+if they need to be used by public headers.
 
 We prefer to minimize includes. If forward declaring a name in a header is
 sufficient then that is preferred to an include.
 
 Forward declarations and file includes should be in alphabetical order.
 
-<span id="no-define-before-sktypes"></span>
-Do not use #if/#ifdef before including "SkTypes.h" (directly or indirectly).
-Most things you'd #if on tend to not yet be decided until SkTypes.h.
+<span id="no-define-before-sktypes"></span> Do not use #if/#ifdef before
+including "SkTypes.h" (directly or indirectly). Most things you'd #if on tend to
+not yet be decided until SkTypes.h.
 
 We use 4 spaces, not tabs.
 
@@ -51,8 +51,8 @@ public:
 
 Data fields in structs, classes, and unions that have methods begin with
 lower-case f and are then camel-capped, to distinguish those fields from other
-variables. Types that are predominantly meant for direct field access don't
-need f-decoration.
+variables. Types that are predominantly meant for direct field access don't need
+f-decoration.
 
 <!--?prettify?-->
 
@@ -104,8 +104,8 @@ int drawPicture() {
 }
 ```
 
-Enum values are also prefixed with k. Unscoped enum values are postfixed with
-an underscore and singular name of the enum name. The enum itself should be
+Enum values are also prefixed with k. Unscoped enum values are postfixed with an
+underscore and singular name of the enum name. The enum itself should be
 singular for exclusive values or plural for a bitfield. If a count is needed it
 is `k<singular enum name>Count` and not be a member of the enum (see example),
 or a kLast member of the enum is fine too.
@@ -169,7 +169,8 @@ static inline bool tastes_like_chicken(Food food) {
 }
 ```
 
-Externed functions or static class functions are camel-capped with an initial cap:
+Externed functions or static class functions are camel-capped with an initial
+cap:
 
 <!--?prettify?-->
 
@@ -195,8 +196,8 @@ Ganesh macros that are GL-specific should be prefixed GR_GL.
 #define GR_GL_TEXTURE0 0xdeadbeef
 ```
 
-Ganesh prefers that macros are always defined and the use of `#if MACRO` rather than
-`#ifdef MACRO`.
+Ganesh prefers that macros are always defined and the use of `#if MACRO` rather
+than `#ifdef MACRO`.
 
 <!--?prettify?-->
 
@@ -333,8 +334,9 @@ switch (filter) {
 
 Unless there is a need for forward declaring something, class declarations
 should be ordered `public`, `protected`, `private`. Each should be preceded by a
-newline. Within each visibility section (`public`, `private`), fields should not be
-intermixed with methods. It's nice to keep all data fields together at the end.
+newline. Within each visibility section (`public`, `private`), fields should not
+be intermixed with methods. It's nice to keep all data fields together at the
+end.
 
 <!--?prettify?-->
 
@@ -471,21 +473,22 @@ private:
 
 ## Integer Types
 
-We follow the Google C++ guide for ints and are slowly making older code conform to this
+We follow the Google C++ guide for ints and are slowly making older code conform
+to this
 
-(http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Integer_Types)
+(https://google.github.io/styleguide/cppguide.html#Integer_Types)
 
 Summary: Use `int` unless you have need a guarantee on the bit count, then use
-`stdint.h` types (`int32_t`, etc). Assert that counts, etc are not negative instead
-of using unsigned. Bitfields use `uint32_t` unless they have to be made shorter
-for packing or performance reasons.
+`stdint.h` types (`int32_t`, etc). Assert that counts, etc are not negative
+instead of using unsigned. Bitfields use `uint32_t` unless they have to be made
+shorter for packing or performance reasons.
 
 ## Function Parameters
 
-Mandatory constant object parameters are passed to functions as const references.
-Optional constant object parameters are passed to functions as const pointers.
-Mutable object parameters are passed to functions as pointers.
-We very rarely pass anything by non-const reference.
+Mandatory constant object parameters are passed to functions as const
+references. Optional constant object parameters are passed to functions as const
+pointers. Mutable object parameters are passed to functions as pointers. We very
+rarely pass anything by non-const reference.
 
 <!--?prettify?-->
 
@@ -526,4 +529,5 @@ void drawBitmapRect(
 
 ## Python
 
-Python code follows the [Google Python Style Guide](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html).
+Python code follows the
+[Google Python Style Guide](https://google.github.io/styleguide/pyguide.html).
