@@ -659,14 +659,17 @@ void GrDrawingManager::closeActiveOpsTask() {
 }
 
 sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
+                                              sk_sp<GrArenas> arenas,
                                               bool flushTimeOpsTask) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     this->closeActiveOpsTask();
 
-    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this, std::move(surfaceView),
-                                           fContext->priv().auditTrail()));
+    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this,
+                                           std::move(surfaceView),
+                                           fContext->priv().auditTrail(),
+                                           std::move(arenas)));
     SkASSERT(this->getLastRenderTask(opsTask->target(0)) == opsTask.get());
 
     if (flushTimeOpsTask) {

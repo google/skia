@@ -342,8 +342,8 @@ GrOpsTask* GrSurfaceFillContext::getOpsTask() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpsTask || fOpsTask->isClosed()) {
-        sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(this->writeSurfaceView(),
-                                                                         fFlushTimeOpsTask);
+        sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(
+                this->writeSurfaceView(), fArenas, fFlushTimeOpsTask);
         if (fOpsTask) {
             this->willReplaceOpsTask(fOpsTask.get(), newOpsTask.get());
         }
