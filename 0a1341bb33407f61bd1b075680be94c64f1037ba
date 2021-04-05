@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f38e78c_4ab668b2",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-05T15:37:53Z",
+      "side": 1,
+      "message": "Should any kRSXform_Positioning also be ignored? It also will not update the positionsCursor.",
+      "revId": "0a1341bb33407f61bd1b075680be94c64f1037ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb238752_f3f61bcf",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-05T15:37:53Z",
+      "side": 1,
+      "message": "Since this is now so tightly linked to the fact that simplifyTextBlobIgnoringRSXForm with kFull_Positioning happens to not update or write to positionsCursor it seems like maybe simplifyTextBlobIgnoringRSXForm should be inlined into the loop over the blob below?\n\nThis seems to have been somewhat true before, but the inline allocations weren\u0027t used for fully positioned text blob runs?",
+      "revId": "0a1341bb33407f61bd1b075680be94c64f1037ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca403f36_13c3094f",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-05T15:37:53Z",
+      "side": 1,
+      "message": "Should simplifyTextBlobIgnoringRSXForm just be inlined here? It would make it more obvious that the optimization not to allocate anything for fully positioned blob runs is valid. Without inlining it here, it seems like there should be comment on simplifyTextBlobIgnoringRSXForm describing what state it expects (in terms of number of positions available).",
+      "revId": "0a1341bb33407f61bd1b075680be94c64f1037ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
