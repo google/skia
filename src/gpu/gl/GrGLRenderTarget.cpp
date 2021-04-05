@@ -52,7 +52,7 @@ inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDs& idDesc
 
 void GrGLRenderTarget::init(GrGLFormat format, const IDs& idDesc) {
      fRTFBOID                = idDesc.fRTFBOID;
-     fTexFBOID               = idDesc.fTexFBOID;
+     fSingleSampleFBOID      = idDesc.fSingleSampleFBOID;
      fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
      fRTFBOOwnership         = idDesc.fRTFBOOwnership;
      fRTFormat               = format;
@@ -180,10 +180,10 @@ bool GrGLRenderTarget::completeStencilAttachment() {
 void GrGLRenderTarget::onRelease() {
     if (GrBackendObjectOwnership::kBorrowed != fRTFBOOwnership) {
         GrGLGpu* gpu = this->getGLGpu();
-        if (fTexFBOID) {
-            gpu->deleteFramebuffer(fTexFBOID);
+        if (fSingleSampleFBOID) {
+            gpu->deleteFramebuffer(fSingleSampleFBOID);
         }
-        if (fRTFBOID && fRTFBOID != fTexFBOID) {
+        if (fRTFBOID && fRTFBOID != fSingleSampleFBOID) {
             gpu->deleteFramebuffer(fRTFBOID);
         }
         if (fMSColorRenderbufferID) {
@@ -191,14 +191,14 @@ void GrGLRenderTarget::onRelease() {
         }
     }
     fRTFBOID                = 0;
-    fTexFBOID               = 0;
+    fSingleSampleFBOID      = 0;
     fMSColorRenderbufferID  = 0;
     INHERITED::onRelease();
 }
 
 void GrGLRenderTarget::onAbandon() {
     fRTFBOID                = 0;
-    fTexFBOID               = 0;
+    fSingleSampleFBOID      = 0;
     fMSColorRenderbufferID  = 0;
     INHERITED::onAbandon();
 }
@@ -254,21 +254,22 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
 }
 
 int GrGLRenderTarget::msaaSamples() const {
-    if (fTexFBOID == kUnresolvableFBOID || fTexFBOID != fRTFBOID) {
-        // If the render target's FBO is external (fTexFBOID == kUnresolvableFBOID), or if we own
-        // the render target's FBO (fTexFBOID == fRTFBOID) then we use the provided sample count.
+    if (fSingleSampleFBOID == kUnresolvableFBOID || fSingleSampleFBOID != fRTFBOID) {
+        // If the render target's FBO is external (fSingleSampleFBOID == kUnresolvableFBOID), or if
+        // we own the render target's FBO (fSingleSampleFBOID == fRTFBOID) then we use the provided
+        // sample count.
         return this->numSamples();
     }
 
-    // When fTexFBOID == fRTFBOID, we either are not using MSAA, or MSAA is auto resolving, so use
-    // 0 for the sample count.
+    // When fSingleSampleFBOID == fRTFBOID, we either are not using MSAA, or MSAA is auto resolving,
+    // so use 0 for the sample count.
     return 0;
 }
 
 int GrGLRenderTarget::totalSamples() const {
   int total_samples = this->msaaSamples();
 
-  if (fTexFBOID != kUnresolvableFBOID) {
+  if (fSingleSampleFBOID != kUnresolvableFBOID) {
       // If we own the resolve buffer then that is one more sample per pixel.
       total_samples += 1;
   }
