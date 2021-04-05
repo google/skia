@@ -6,6 +6,7 @@
  */
 
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 
@@ -95,10 +96,9 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
             case SwizzleComponent::ZERO:
                 if (constantZeroIdx == -1) {
                     // Synthesize a 'type(0)' argument at the end of the constructor.
-                    ExpressionArray zeroArgs;
-                    zeroArgs.push_back(IntLiteral::Make(context, offset, /*value=*/0));
-                    constructorArgs.push_back(Constructor::Convert(context, offset, *numberType,
-                                                                   std::move(zeroArgs)));
+                    constructorArgs.push_back(ConstructorScalarCast::Make(
+                            context, offset, *numberType,
+                            IntLiteral::Make(context, offset, /*value=*/0)));
                     constantZeroIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantZeroIdx);
@@ -106,10 +106,9 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
             case SwizzleComponent::ONE:
                 if (constantOneIdx == -1) {
                     // Synthesize a 'type(1)' argument at the end of the constructor.
-                    ExpressionArray oneArgs;
-                    oneArgs.push_back(IntLiteral::Make(context, offset, /*value=*/1));
-                    constructorArgs.push_back(Constructor::Convert(context, offset, *numberType,
-                                                                   std::move(oneArgs)));
+                    constructorArgs.push_back(ConstructorScalarCast::Make(
+                            context, offset, *numberType,
+                            IntLiteral::Make(context, offset, /*value=*/1)));
                     constantOneIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantOneIdx);

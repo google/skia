@@ -715,6 +715,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
+        case Expression::Kind::kConstructorScalarCast:
+            return this->writeConstructorScalarCast(expr.as<ConstructorScalarCast>(), out);
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
         case Expression::Kind::kIntLiteral:
@@ -1219,10 +1221,10 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
     return iter->second;
 }
 
-SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, OutputStream& out) {
-    SkASSERT(c.arguments().size() == 1);
+SpvId SPIRVCodeGenerator::writeFloatConstructor(const AnyConstructor& c, OutputStream& out) {
+    SkASSERT(c.argumentSpan().size() == 1);
     SkASSERT(c.type().isFloat());
-    const Expression& ctorExpr = *c.arguments()[0];
+    const Expression& ctorExpr = *c.argumentSpan().front();
     SpvId expressionId = this->writeExpression(ctorExpr, out);
     return this->castScalarToFloat(expressionId, ctorExpr.type(), c.type(), out);
 }
@@ -1255,10 +1257,10 @@ SpvId SPIRVCodeGenerator::castScalarToFloat(SpvId inputId, const Type& inputType
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, OutputStream& out) {
-    SkASSERT(c.arguments().size() == 1);
+SpvId SPIRVCodeGenerator::writeIntConstructor(const AnyConstructor& c, OutputStream& out) {
+    SkASSERT(c.argumentSpan().size() == 1);
     SkASSERT(c.type().isSigned());
-    const Expression& ctorExpr = *c.arguments()[0];
+    const Expression& ctorExpr = *c.argumentSpan().front();
     SpvId expressionId = this->writeExpression(ctorExpr, out);
     return this->castScalarToSignedInt(expressionId, ctorExpr.type(), c.type(), out);
 }
@@ -1292,10 +1294,10 @@ SpvId SPIRVCodeGenerator::castScalarToSignedInt(SpvId inputId, const Type& input
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeUIntConstructor(const Constructor& c, OutputStream& out) {
-    SkASSERT(c.arguments().size() == 1);
+SpvId SPIRVCodeGenerator::writeUIntConstructor(const AnyConstructor& c, OutputStream& out) {
+    SkASSERT(c.argumentSpan().size() == 1);
     SkASSERT(c.type().isUnsigned());
-    const Expression& ctorExpr = *c.arguments()[0];
+    const Expression& ctorExpr = *c.argumentSpan().front();
     SpvId expressionId = this->writeExpression(ctorExpr, out);
     return this->castScalarToUnsignedInt(expressionId, ctorExpr.type(), c.type(), out);
 }
@@ -1329,10 +1331,10 @@ SpvId SPIRVCodeGenerator::castScalarToUnsignedInt(SpvId inputId, const Type& inp
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeBooleanConstructor(const Constructor& c, OutputStream& out) {
-    SkASSERT(c.arguments().size() == 1);
+SpvId SPIRVCodeGenerator::writeBooleanConstructor(const AnyConstructor& c, OutputStream& out) {
+    SkASSERT(c.argumentSpan().size() == 1);
     SkASSERT(c.type().isBoolean());
-    const Expression& ctorExpr = *c.arguments()[0];
+    const Expression& ctorExpr = *c.argumentSpan().front();
     SpvId expressionId = this->writeExpression(ctorExpr, out);
     return this->castScalarToBoolean(expressionId, ctorExpr.type(), c.type(), out);
 }
@@ -1685,24 +1687,36 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         this->getActualType(type) == this->getActualType(c.arguments()[0]->type())) {
         return this->writeExpression(*c.arguments()[0], out);
     }
+    if (type.isVector()) {
+        return this->writeVectorConstructor(c, out);
+    }
+    if (type.isMatrix()) {
+        return this->writeMatrixConstructor(c, out);
+    }
+    fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
+    return -1;
+}
+
+SpvId SPIRVCodeGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c,
+                                                     OutputStream& out) {
+    const Type& type = c.type();
+    if (this->getActualType(type) == this->getActualType(c.argument()->type())) {
+        return this->writeExpression(*c.argument(), out);
+    }
     if (type.isFloat()) {
         return this->writeFloatConstructor(c, out);
-    } else if (type.isSigned()) {
+    }
+    if (type.isSigned()) {
         return this->writeIntConstructor(c, out);
-    } else if (type.isUnsigned()) {
+    }
+    if (type.isUnsigned()) {
         return this->writeUIntConstructor(c, out);
-    } else if (type.isBoolean()) {
+    }
+    if (type.isBoolean()) {
         return this->writeBooleanConstructor(c, out);
     }
-    switch (type.typeKind()) {
-        case Type::TypeKind::kVector:
-            return this->writeVectorConstructor(c, out);
-        case Type::TypeKind::kMatrix:
-            return this->writeMatrixConstructor(c, out);
-        default:
-            fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
-            return -1;
-    }
+    fErrors.error(c.fOffset, "unsupported scalar constructor: " + c.description());
+    return -1;
 }
 
 SpvId SPIRVCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,

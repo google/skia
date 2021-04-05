@@ -181,6 +181,9 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writeSingleArgumentConstructor(expr.as<ConstructorDiagonalMatrix>(),
                                                  parentPrecedence);
             break;
+        case Expression::Kind::kConstructorScalarCast:
+            this->writeConstructorScalarCast(expr.as<ConstructorScalarCast>(), parentPrecedence);
+            break;
         case Expression::Kind::kConstructorSplat:
             this->writeSingleArgumentConstructor(expr.as<ConstructorSplat>(), parentPrecedence);
             break;
@@ -1055,24 +1058,11 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
     // Handle special cases for single-argument constructors.
     if (c.arguments().size() == 1) {
         // If the type is coercible, emit it directly.
+        // (This will no longer be needed when VectorCast is added.)
         const Expression& arg = *c.arguments().front();
         const Type& argType = arg.type();
         if (this->canCoerce(constructorType, argType)) {
             this->writeExpression(arg, parentPrecedence);
-            return;
-        }
-
-        // Metal supports creating matrices with a scalar on the diagonal via the single-argument
-        // matrix constructor.
-        if (constructorType.isMatrix() && argType.isNumber()) {
-            const Type& matrix = constructorType;
-            this->write("float");
-            this->write(to_string(matrix.columns()));
-            this->write("x");
-            this->write(to_string(matrix.rows()));
-            this->write("(");
-            this->writeExpression(arg, parentPrecedence);
-            this->write(")");
             return;
         }
     }
@@ -1138,6 +1128,19 @@ void MetalCodeGenerator::writeConstructorArray(const ConstructorArray& c,
         this->writeExpression(*arg, Precedence::kSequence);
     }
     this->write("}");
+}
+
+void MetalCodeGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c,
+                                                    Precedence parentPrecedence) {
+    // If the type is coercible, emit it directly.
+    const Expression& arg = *c.argument();
+    const Type& argType = arg.type();
+    if (this->canCoerce(c.type(), argType)) {
+        this->writeExpression(arg, parentPrecedence);
+        return;
+    }
+
+    return this->writeSingleArgumentConstructor(c, parentPrecedence);
 }
 
 void MetalCodeGenerator::writeFragCoord() {
@@ -2265,6 +2268,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat: {
             const AnyConstructor& c = e->asAnyConstructor();
             Requirements result = kNo_Requirements;
