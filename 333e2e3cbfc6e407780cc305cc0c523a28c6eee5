@@ -46,6 +46,30 @@
       },
       "revId": "333e2e3cbfc6e407780cc305cc0c523a28c6eee5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1662c53f_28cc88fd",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1746,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-05T15:07:25Z",
+      "side": 1,
+      "message": "Just nits:\n\ncan we make the paint be the last(ish) parameter?\n\ns/n/count\n\nglyphs[], locations[], clusters[]\n\n(perhaps these are just dox)\nWhat are \"clusters\"?\nWhat encoding is \"text\"?\nIf utf8, size_t for its length, s/textSize/length||byteLength\n\nVariant where we ignore the last 3 params?",
+      "parentUuid": "f66a9c0e_11ef439c",
+      "range": {
+        "startLine": 1746,
+        "startChar": 45,
+        "endLine": 1746,
+        "endChar": 69
+      },
+      "revId": "333e2e3cbfc6e407780cc305cc0c523a28c6eee5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
