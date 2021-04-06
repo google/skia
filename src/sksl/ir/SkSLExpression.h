@@ -179,6 +179,18 @@ public:
     }
 
     /**
+     * Returns the n'th compile-time constant expression within a literal or constructor.
+     * Use Type::slotCount to determine the number of subexpressions within an expression.
+     * Subexpressions which are not compile-time constants will return null.
+     * `vec4(1, vec2(2), 3)` contains four subexpressions: (1, 2, 2, 3)
+     * `mat2(f)` contains four subexpressions: (null, 0,
+     *                                          0, null)
+     */
+    virtual const Expression* getConstantSubexpression(int n) const {
+        return nullptr;
+    }
+
+    /**
      * For a vector of floating point values, return the value of the n'th vector component. It is
      * an error to call this method on an expression which is not a vector of floating-point
      * constant expressions.
@@ -214,16 +226,6 @@ public:
      * call this method on an expression which is not a vector of Literal<T>.
      */
     template <typename T> T getVecComponent(int index) const;
-
-    /**
-     * For a literal matrix expression, return the floating point value of the component at
-     * [col][row]. It is an error to call this method on an expression which is not a literal
-     * matrix.
-     */
-    virtual SKSL_FLOAT getMatComponent(int col, int row) const {
-        SkASSERT(false);
-        return 0;
-    }
 
     virtual std::unique_ptr<Expression> clone() const = 0;
 

@@ -28,7 +28,9 @@ public:
     static constexpr Kind kExpressionKind = Kind::kConstructorMatrixResize;
 
     ConstructorMatrixResize(int offset, const Type& type, std::unique_ptr<Expression> arg)
-            : INHERITED(offset, kExpressionKind, &type, std::move(arg)) {}
+            : INHERITED(offset, kExpressionKind, &type, std::move(arg))
+            , fZeroLiteral(offset, /*value=*/0.0f, &type.componentType())
+            , fOneLiteral(offset, /*value=*/1.0f, &type.componentType()) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             int offset,
@@ -40,12 +42,12 @@ public:
                                                          argument()->clone());
     }
 
-    Expression::ComparisonResult compareConstant(const Expression& other) const override;
-
-    SKSL_FLOAT getMatComponent(int col, int row) const override;
+    const Expression* getConstantSubexpression(int n) const override;
 
 private:
     using INHERITED = SingleArgumentConstructor;
+    const FloatLiteral fZeroLiteral;
+    const FloatLiteral fOneLiteral;
 };
 
 }  // namespace SkSL

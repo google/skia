@@ -56,22 +56,4 @@ std::unique_ptr<Expression> ConstructorArray::Make(const Context& context,
     return std::make_unique<ConstructorArray>(offset, type, std::move(args));
 }
 
-Expression::ComparisonResult ConstructorArray::compareConstant(const Expression& other) const {
-    // There is only one array-constructor type, so if this comparison had type-checked
-    // successfully, `other` should be a ConstructorArray with the same array size.
-    const ConstructorArray& otherArray = other.as<ConstructorArray>();
-    int numColumns = this->type().columns();
-    SkASSERT(numColumns == otherArray.type().columns());
-
-    ComparisonResult check = ComparisonResult::kEqual;
-    for (int index = 0; index < numColumns; index++) {
-        check = this->arguments()[index]->compareConstant(*otherArray.arguments()[index]);
-        if (check != ComparisonResult::kEqual) {
-            break;
-        }
-    }
-
-    return check;
-}
-
 }  // namespace SkSL
