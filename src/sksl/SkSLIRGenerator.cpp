@@ -294,10 +294,13 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         }
     }
     if (this->programKind() == ProgramKind::kRuntimeEffect) {
-        // TODO(skbug.com/11374): Remove this special case, 'in' should be prohibited in all cases
-        if ((modifiers.fFlags & Modifiers::kIn_Flag) && !baseType->isEffectChild()) {
+        if (modifiers.fFlags & Modifiers::kIn_Flag) {
             this->errorReporter().error(offset, "'in' variables not permitted in runtime effects");
         }
+    }
+    if (baseType->isEffectChild() && !(modifiers.fFlags & Modifiers::kUniform_Flag)) {
+        this->errorReporter().error(
+                offset, "variables of type '" + baseType->displayName() + "' must be uniform");
     }
     if ((modifiers.fLayout.fFlags & Layout::kKey_Flag) &&
         (modifiers.fFlags & Modifiers::kUniform_Flag)) {
