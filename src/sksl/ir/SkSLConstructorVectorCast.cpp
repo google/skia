@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
 
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorComposite.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 
@@ -27,7 +28,7 @@ static std::unique_ptr<Expression> cast_constant_vector(const Context& context,
                                             std::move(splat.argument())));
     }
 
-    // Create a vector Constructor(literal, ...) which typecasts each argument inside.
+    // Create a composite Constructor(literal, ...) which typecasts each argument inside.
     auto inputArgs = constCtor->asAnyConstructor().argumentSpan();
     ExpressionArray typecastArgs;
     typecastArgs.reserve_back(inputArgs.size());
@@ -47,11 +48,8 @@ static std::unique_ptr<Expression> cast_constant_vector(const Context& context,
         }
     }
 
-    // TODO(skia:11032): once we have ConstructorVector::Make, use it.
-    auto typecastVec = Constructor::Convert(context, constCtor->fOffset, destType,
-                                            std::move(typecastArgs));
-    SkASSERT(typecastVec);
-    return typecastVec;
+    return ConstructorComposite::Make(context, constCtor->fOffset, destType,
+                                      std::move(typecastArgs));
 }
 
 std::unique_ptr<Expression> ConstructorVectorCast::Make(const Context& context,

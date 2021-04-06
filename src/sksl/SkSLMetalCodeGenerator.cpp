@@ -173,21 +173,21 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
         case Expression::Kind::kBoolLiteral:
             this->writeBoolLiteral(expr.as<BoolLiteral>());
             break;
-        case Expression::Kind::kConstructor:
-            this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
+        case Expression::Kind::kConstructorArray:
+            this->writeAnyConstructor(expr.asAnyConstructor(), "{", "}", parentPrecedence);
+            break;
+        case Expression::Kind::kConstructorComposite:
+            this->writeConstructorComposite(expr.as<ConstructorComposite>(), parentPrecedence);
+            break;
+        case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorSplat:
+            this->writeAnyConstructor(expr.asAnyConstructor(), "(", ")", parentPrecedence);
             break;
         case Expression::Kind::kConstructorMatrixResize:
             this->writeConstructorMatrixResize(expr.as<ConstructorMatrixResize>(),
                                                parentPrecedence);
             break;
-        case Expression::Kind::kConstructorArray:
-            this->writeAnyConstructor(expr.asAnyConstructor(), "{", "}", parentPrecedence);
-            break;
-        case Expression::Kind::kConstructorDiagonalMatrix:
-        case Expression::Kind::kConstructorSplat:
-        case Expression::Kind::kConstructorVector:
-            this->writeAnyConstructor(expr.asAnyConstructor(), "(", ")", parentPrecedence);
-            break;
+        case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorVectorCast:
             this->writeCastConstructor(expr.asAnyConstructor(), "(", ")", parentPrecedence);
@@ -1010,11 +1010,8 @@ bool MetalCodeGenerator::canCoerce(const Type& t1, const Type& t2) {
     return t1.isFloat() && t2.isFloat();
 }
 
-bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const Constructor& c) {
-    // A matrix construct helper is only necessary if we are, in fact, constructing a matrix.
-    if (!c.type().isMatrix()) {
-        return false;
-    }
+bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const ConstructorComposite& c) {
+    SkASSERT(c.type().isMatrix());
 
     // GLSL is fairly free-form about inputs to its matrix constructors, but Metal is not; it
     // expects exactly R vectors of C components apiece. (Metal 2.0 also allows a list of R*C
@@ -1067,10 +1064,17 @@ void MetalCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixRes
     this->write(")");
 }
 
-void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
-    const Type& constructorType = c.type();
-    SkASSERT(!constructorType.isArray());
+void MetalCodeGenerator::writeConstructorComposite(const ConstructorComposite& c,
+                                                   Precedence parentPrecedence) {
+    if (c.type().isMatrix()) {
+        this->writeConstructorCompositeMatrix(c, parentPrecedence);
+    } else {
+        this->writeAnyConstructor(c, "(", ")", parentPrecedence);
+    }
+}
 
+void MetalCodeGenerator::writeConstructorCompositeMatrix(const ConstructorComposite& c,
+                                                         Precedence parentPrecedence) {
     // Emit and invoke a matrix-constructor helper method if one is necessary.
     if (this->matrixConstructHelperIsNeeded(c)) {
         this->write(this->getMatrixConstructHelper(c));
@@ -1085,27 +1089,32 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
         return;
     }
 
-    // Explicitly invoke the constructor, passing in the necessary arguments.
-    this->writeType(constructorType);
+    // Metal doesn't allow creating matrices by passing in scalars and vectors in a jumble; it
+    // requires your scalars to be grouped up into columns. Because `matrixConstructHelperIsNeeded`
+    // returned false, we know that none of our scalars/vectors "wrap" across across a column, so we
+    // can group our inputs up and synthesize a constructor for each column.
+    const Type& matrixType = c.type();
+    const Type& columnType = matrixType.componentType().toCompound(
+            fContext, /*columns=*/matrixType.rows(), /*rows=*/1);
+
+    this->writeType(matrixType);
     this->write("(");
     const char* separator = "";
     int scalarCount = 0;
     for (const std::unique_ptr<Expression>& arg : c.arguments()) {
-        const Type& argType = arg->type();
         this->write(separator);
         separator = ", ";
-        if (constructorType.isMatrix() &&
-            argType.columns() < constructorType.rows()) {
-            // Merge scalars and smaller vectors together.
+        if (arg->type().columns() < matrixType.rows()) {
+            // Write a `floatN(` constructor to group scalars and smaller vectors together.
             if (!scalarCount) {
-                this->writeType(constructorType.componentType());
-                this->write(to_string(constructorType.rows()));
+                this->writeType(columnType);
                 this->write("(");
             }
-            scalarCount += argType.columns();
+            scalarCount += arg->type().columns();
         }
         this->writeExpression(*arg, Precedence::kSequence);
-        if (scalarCount && scalarCount == constructorType.rows()) {
+        if (scalarCount && scalarCount == matrixType.rows()) {
+            // Close our `floatN(...` constructor block from above.
             this->write(")");
             scalarCount = 0;
         }
@@ -2267,11 +2276,11 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             return result;
         }
         case Expression::Kind::kConstructor:
+        case Expression::Kind::kConstructorComposite:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat:
-        case Expression::Kind::kConstructorVector:
         case Expression::Kind::kConstructorVectorCast: {
             const AnyConstructor& c = e->asAnyConstructor();
             Requirements result = kNo_Requirements;

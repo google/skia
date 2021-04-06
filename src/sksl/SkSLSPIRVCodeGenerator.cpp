@@ -721,8 +721,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeConstructorScalarCast(expr.as<ConstructorScalarCast>(), out);
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
-        case Expression::Kind::kConstructorVector:
-            return this->writeVectorConstructor(expr.as<ConstructorVector>(), out);
+        case Expression::Kind::kConstructorComposite:
+            return this->writeConstructorComposite(expr.as<ConstructorComposite>(), out);
         case Expression::Kind::kConstructorVectorCast:
             return this->writeConstructorVectorCast(expr.as<ConstructorVectorCast>(), out);
         case Expression::Kind::kIntLiteral:
@@ -929,7 +929,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             args.reserve_back(2);
             args.push_back(IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
             args.push_back(IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
-            Constructor ctor(/*offset=*/-1, *fContext.fTypes.fInt2, std::move(args));
+            ConstructorComposite ctor(/*offset=*/-1, *fContext.fTypes.fInt2, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (arguments.size() == 1) {
                 this->writeInstruction(SpvOpImageRead,
@@ -1510,26 +1510,24 @@ void SPIRVCodeGenerator::addColumnEntry(SpvId columnType, Precision precision,
     }
 }
 
-SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorComposite& c, OutputStream& out) {
     const Type& type = c.type();
     SkASSERT(type.isMatrix());
-    SkASSERT(c.arguments().size() > 0);
+    SkASSERT(!c.arguments().empty());
     const Type& arg0Type = c.arguments()[0]->type();
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
     // an instruction
     std::vector<SpvId> arguments;
-    for (size_t i = 0; i < c.arguments().size(); i++) {
-        arguments.push_back(this->writeExpression(*c.arguments()[i], out));
+    arguments.reserve(c.arguments().size());
+    for (const std::unique_ptr<Expression>& arg : c.arguments()) {
+        arguments.push_back(this->writeExpression(*arg, out));
     }
     SpvId result = this->nextId(&type);
     int rows = type.rows();
     int columns = type.columns();
-    if (arguments.size() == 1 && arg0Type.isScalar()) {
-        this->writeUniformScaleMatrix(result, arguments[0], type, out);
-    } else if (arguments.size() == 1 && arg0Type.isMatrix()) {
+    if (arguments.size() == 1 && arg0Type.isMatrix()) {
         this->writeMatrixCopy(result, arguments[0], arg0Type, type, out);
-    } else if (arguments.size() == 1 &&
-               arg0Type.isVector()) {
+    } else if (arguments.size() == 1 && arg0Type.isVector()) {
         SkASSERT(type.rows() == 2 && type.columns() == 2);
         SkASSERT(arg0Type.columns() == 4);
         SpvId componentType = this->getType(type.componentType());
@@ -1587,7 +1585,13 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorVector& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeConstructorComposite(const ConstructorComposite& c,
+                                                    OutputStream& out) {
+    return c.type().isMatrix() ? this->writeMatrixConstructor(c, out)
+                               : this->writeVectorConstructor(c, out);
+}
+
+SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorComposite& c, OutputStream& out) {
     const Type& type = c.type();
     const Type& componentType = type.componentType();
     SkASSERT(type.isVector());
@@ -1666,9 +1670,6 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
     if (c.arguments().size() == 1 &&
         this->getActualType(type) == this->getActualType(c.arguments()[0]->type())) {
         return this->writeExpression(*c.arguments()[0], out);
-    }
-    if (type.isMatrix()) {
-        return this->writeMatrixConstructor(c, out);
     }
     fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
     return -1;

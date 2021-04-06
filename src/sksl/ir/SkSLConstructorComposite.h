@@ -17,17 +17,18 @@
 namespace SkSL {
 
 /**
- * Represents the construction of a vector, such as `half3(pos.xy, 1)`.
+ * Represents a vector or matrix that is composed from other expressions, such as
+ * `half3(pos.xy, 1)` or `mat3(a.xyz, b.xyz, 0, 0, 1)`
  *
- * These can contain a mix of scalars and vectors; the total number of scalar values inside the
- * constructor must always match the type width. (e.g. `pos.xy` counts for two scalars)
- * The inner values must have the same component type as the vector.
+ * These can contain a mix of scalars and aggregates. The total number of scalar values inside the
+ * constructor must always match the type's slot count. (e.g. `pos.xy` consumes two slots.)
+ * The inner values must have the same component type as the vector/matrix.
  */
-class ConstructorVector final : public MultiArgumentConstructor {
+class ConstructorComposite final : public MultiArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorVector;
+    static constexpr Kind kExpressionKind = Kind::kConstructorComposite;
 
-    ConstructorVector(int offset, const Type& type, ExpressionArray args)
+    ConstructorComposite(int offset, const Type& type, ExpressionArray args)
             : INHERITED(offset, kExpressionKind, &type, std::move(args)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
@@ -36,7 +37,8 @@ public:
                                             ExpressionArray args);
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorVector>(fOffset, this->type(), this->cloneArguments());
+        return std::make_unique<ConstructorComposite>(fOffset, this->type(),
+                                                      this->cloneArguments());
     }
 
 private:

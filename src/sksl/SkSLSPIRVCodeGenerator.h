@@ -23,11 +23,11 @@
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorComposite.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
-#include "src/sksl/ir/SkSLConstructorVector.h"
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -289,9 +289,11 @@ private:
                         std::vector<SpvId>* columnIds, int* currentCount, int rows, SpvId entry,
                         OutputStream& out);
 
-    SpvId writeMatrixConstructor(const Constructor& c, OutputStream& out);
+    SpvId writeConstructorComposite(const ConstructorComposite& c, OutputStream& out);
 
-    SpvId writeVectorConstructor(const ConstructorVector& c, OutputStream& out);
+    SpvId writeMatrixConstructor(const ConstructorComposite& c, OutputStream& out);
+
+    SpvId writeVectorConstructor(const ConstructorComposite& c, OutputStream& out);
 
     SpvId writeArrayConstructor(const ConstructorArray& c, OutputStream& out);
 
