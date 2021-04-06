@@ -1,11 +1,10 @@
-// Expect 5 errors
+// Expect >= 7 errors (currently 9, due to double-reporting)
 
 // Correct declaration (used in some test functions)
 uniform shader s1;
 uniform shader s2;
 
 // Incorrect shader declarations (they must be uniform)
-// TODO(skbug.com/11374): These are not detected as errors yet
 shader s3;
 in shader s4;
 

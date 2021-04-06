@@ -19,6 +19,10 @@ Milestone 91
     are not supported.
     https://review.skia.org/391856
 
+  * SkRuntimeEffect requires that 'shader' variables be declared as 'uniform'. The deprecated
+    syntax of 'in shader' is no longer supported.
+    https://review.skia.org/393081
+
 * * *
 
 Milestone 90
