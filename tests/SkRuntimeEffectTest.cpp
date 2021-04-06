@@ -274,12 +274,6 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
 
-    // Legacy behavior - shaders can be declared 'in' rather than 'uniform'
-    effect.build("in shader child;"
-                 "half4 main() { return sample(child); }");
-    effect.child("child") = rgbwShader;
-    effect.test(0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF);
-
     //
     // Helper functions
     //
