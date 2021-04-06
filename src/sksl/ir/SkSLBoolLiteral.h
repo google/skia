@@ -65,10 +65,6 @@ public:
                                                                 : ComparisonResult::kNotEqual;
     }
 
-    bool getConstantBool() const override {
-        return this->value();
-    }
-
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<BoolLiteral>(fOffset, this->value(), &this->type());
     }
