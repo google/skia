@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "88ee4fad_2ed27780",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-06T12:55:37Z",
+      "side": 1,
+      "message": "Maybe the parent class, GrSurfaceFillContext, should hold this? It also can record ops into opstasks.",
+      "revId": "e3534f5ee021ae4f463aad1aa34452f0d2742e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22e9a0ed_f2c1919a",
