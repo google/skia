@@ -16,6 +16,24 @@
       "message": "Did we previously discuss (and decide not to support) GLSL\u0027s \"make a vector from a matrix\" case? (It\u0027s only possible with float4(float2x2(...)), so mostly useless - just curious.",
       "revId": "914a6d3dcc2045573de32c54dc5e438c9bfb0980",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "534261b4_fe1471c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-06T20:09:18Z",
+      "side": 1,
+      "message": "I don\u0027t think we discussed it. \n\nIn a followup CL I am currently experimenting with changing this type from ConstructorVector to ConstructorComposite, and having it support both vectors and matrices, since in practice there is barely any difference at all. (There are matrix handling details in SPIR-V and Metal that we have to handle, but there\u0027s no way to avoid that.) That might naturally allow such a cast to work.",
+      "parentUuid": "12c8b95f_26fddfdb",
+      "revId": "914a6d3dcc2045573de32c54dc5e438c9bfb0980",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
