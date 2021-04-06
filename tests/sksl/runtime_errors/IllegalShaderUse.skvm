@@ -1,8 +1,12 @@
 ### Compilation failed:
 
+error: 9: variables of type 'shader' must be uniform
+error: 10: 'in' variables not permitted in runtime effects
+error: 10: variables of type 'shader' must be uniform
 error: 13: variables of type 'shader' must be global
+error: 13: variables of type 'shader' must be uniform
 error: 14: parameters of type 'shader' not allowed
 error: 15: functions may not return opaque type 'shader'
 error: 16: cannot construct 'shader'
 error: 17: ternary expression of opaque type 'shader' not allowed
-5 errors
+9 errors

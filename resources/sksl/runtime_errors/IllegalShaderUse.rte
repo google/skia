@@ -1,4 +1,4 @@
-// Expect 5 errors
+// Expect >= 7 errors (currently 9, due to double-reporting)
 
 // Correct declaration (used in some test functions)
 uniform shader s1;
