@@ -23,12 +23,8 @@ std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& conte
 
 Expression::ComparisonResult ConstructorDiagonalMatrix::compareConstant(
         const Expression& other) const {
+    SkASSERT(other.type().isMatrix());
     SkASSERT(this->type() == other.type());
-
-    // We know that these are the only SkSL constant expressions which can hold a matrix.
-    if (!other.is<Constructor>() && !other.is<ConstructorDiagonalMatrix>()) {
-        return ComparisonResult::kNotEqual;
-    }
 
     // The other constructor might not be DiagonalMatrix-based, so we check each cell individually.
     for (int col = 0; col < this->type().columns(); col++) {

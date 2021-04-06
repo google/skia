@@ -1,4 +1,5 @@
 uniform half4 colorRed, colorGreen;
+uniform half unknownInput;
 
 bool test() {
     bool ok = true;
@@ -19,8 +20,14 @@ bool test() {
 
     ok = ok && !(float2x2(1) != float2x2(1));
     ok = ok &&  (float2x2(1) != float2x2(0));
-    ok = ok &&  (float3x3(float3(1.0, 0.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, 0.0)) ==
+    ok = ok &&  (float3x3(float3(1.0, 0.0, 0.0), float3(0.0, 1.0, 0.0), float3(0.0, 0.0, 1.0)) ==
                  float3x3(float2x2(1.0)));
+    ok = ok &&  (float3x3(float3(9.0, 0.0, 0.0), float3(0.0, 9.0, 0.0), float3(0.0, 0.0, 1.0)) ==
+                 float3x3(float2x2(9.0)));
+    ok = ok &&  (float3x3(unknownInput) == float3x3(float2x2(1.0)));
+    ok = ok &&  (float3x3(float3(9).x00, float3(9).0x0, float3(unknownInput).00x) ==
+                 float3x3(float2x2(9.0)));
+    ok = ok &&  (float2x2(float3x3(1.0)) == float2x2(1.0));
     ok = ok &&  (float2x2(float3x3(1.0)) == float2x2(1.0));
     ok = ok &&  (float2x2(float4(1.0, 0.0, 0.0, 1.0)) == float2x2(1.0));
     ok = ok &&  (float2x2(1.0, 0.0, float2(0.0, 1.0)) == float2x2(1.0));

@@ -33,6 +33,7 @@ public:
         kConstructor,
         kConstructorArray,
         kConstructorDiagonalMatrix,
+        kConstructorMatrixResize,
         kConstructorScalarCast,
         kConstructorSplat,
         kConstructorVectorCast,

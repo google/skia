@@ -7,13 +7,6 @@
 
 #include "src/sksl/ir/SkSLConstructorArray.h"
 
-#include "src/sksl/ir/SkSLBoolLiteral.h"
-#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
-#include "src/sksl/ir/SkSLFloatLiteral.h"
-#include "src/sksl/ir/SkSLIntLiteral.h"
-#include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLType.h"
-
 namespace SkSL {
 
 std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,

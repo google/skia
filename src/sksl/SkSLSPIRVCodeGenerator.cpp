@@ -715,6 +715,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
+        case Expression::Kind::kConstructorMatrixResize:
+            return this->writeConstructorMatrixResize(expr.as<ConstructorMatrixResize>(), out);
         case Expression::Kind::kConstructorScalarCast:
             return this->writeConstructorScalarCast(expr.as<ConstructorScalarCast>(), out);
         case Expression::Kind::kConstructorSplat:
@@ -1748,6 +1750,18 @@ SpvId SPIRVCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagon
     // Build the diagonal matrix.
     SpvId result = this->nextId(&type);
     this->writeUniformScaleMatrix(result, argument, type, out);
+    return result;
+}
+
+SpvId SPIRVCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize& c,
+                                                       OutputStream& out) {
+    // Write the input matrix.
+    SpvId argument = this->writeExpression(*c.argument(), out);
+
+    // Use matrix-copy to resize the input matrix to its new size.
+    const Type& type = c.type();
+    SpvId result = this->nextId(&type);
+    this->writeMatrixCopy(result, argument, c.argument()->type(), type, out);
     return result;
 }
 

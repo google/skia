@@ -20,6 +20,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -248,6 +249,7 @@ private:
     Value writeConstructor(const Constructor& c);
     Value writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
+    Value writeConstructorMatrixResize(const ConstructorMatrixResize& c);
     Value writeConstructorCast(const AnyConstructor& c);
     Value writeConstructorSplat(const ConstructorSplat& c);
     Value writeFunctionCall(const FunctionCall& c);
@@ -664,37 +666,9 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
         return src;
     }
 
-    // TODO: Handle signed vs. unsigned. GLSL ES 1.0 only has 'int', so no problem yet.
     if (srcKind != dstKind) {
         // One argument constructors can do type conversion
         return this->writeTypeConversion(src, srcKind, dstKind);
-    }
-
-    // Matrices can be constructed from scalars or other matrices
-    if (dstType.isMatrix()) {
-        Value dst(dstType.rows() * dstType.columns());
-        size_t dstIndex = 0;
-        if (srcType.isMatrix()) {
-            // Matrix-from-matrix uses src where it overlaps, fills in missing with identity
-            for (int c = 0; c < dstType.columns(); ++c)
-            for (int r = 0; r < dstType.rows(); ++r) {
-                if (c < srcType.columns() && r < srcType.rows()) {
-                    dst[dstIndex++] = src[c * srcType.rows() + r];
-                } else {
-                    dst[dstIndex++] = fBuilder->splat(c == r ? 1.0f : 0.0f);
-                }
-            }
-        } else if (srcType.isScalar()) {
-            // Matrix-from-scalar builds a diagonal scale matrix
-            for (int c = 0; c < dstType.columns(); ++c)
-            for (int r = 0; r < dstType.rows(); ++r) {
-                dst[dstIndex++] = (c == r ? f32(src) : fBuilder->splat(0.0f));
-            }
-        } else {
-            SkDEBUGFAIL("Invalid matrix constructor");
-        }
-        SkASSERT(dstIndex == dst.slots());
-        return dst;
     }
 
     SkDEBUGFAIL("Invalid constructor");
@@ -810,6 +784,28 @@ Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMat
     for (int c = 0; c < dstType.columns(); ++c) {
         for (int r = 0; r < dstType.rows(); ++r) {
             dst[dstIndex++] = (c == r ? f32(src) : fBuilder->splat(0.0f));
+        }
+    }
+
+    SkASSERT(dstIndex == dst.slots());
+    return dst;
+}
+
+Value SkVMGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize& c) {
+    const Type& srcType = c.argument()->type();
+    const Type& dstType = c.type();
+    Value src = this->writeExpression(*c.argument());
+    Value dst(dstType.rows() * dstType.columns());
+
+    // Matrix-from-matrix uses src where it overlaps, and fills in missing fields with identity.
+    size_t dstIndex = 0;
+    for (int c = 0; c < dstType.columns(); ++c) {
+        for (int r = 0; r < dstType.rows(); ++r) {
+            if (c < srcType.columns() && r < srcType.rows()) {
+                dst[dstIndex++] = src[c * srcType.rows() + r];
+            } else {
+                dst[dstIndex++] = fBuilder->splat(c == r ? 1.0f : 0.0f);
+            }
         }
     }
 
@@ -1474,6 +1470,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeMultiArgumentConstructor(e.as<ConstructorArray>());
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
+        case Expression::Kind::kConstructorMatrixResize:
+            return this->writeConstructorMatrixResize(e.as<ConstructorMatrixResize>());
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorVectorCast:
             return this->writeConstructorCast(e.asAnyConstructor());
