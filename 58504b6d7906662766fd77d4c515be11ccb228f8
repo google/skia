@@ -34,6 +34,24 @@
       "parentUuid": "c93f752b_1f69d74a",
       "revId": "58504b6d7906662766fd77d4c515be11ccb228f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e4b78ff_4154a086",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-06T17:48:40Z",
+      "side": 1,
+      "message": "very true.\n\nSomewhat just joking. If I could imagine any different organization, it might be to consolidate all attributes into a single table:\nColorTypeInfo {\n    bytesPerElement,\n    \"name\",\n    is_opaque,\n    ...\n};\n\nProbably not better, but at least makes it clear/simpler when adding/modifying the enum (which I know is super rare).",
+      "parentUuid": "3f1ac3bb_6d541a61",
+      "revId": "58504b6d7906662766fd77d4c515be11ccb228f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
