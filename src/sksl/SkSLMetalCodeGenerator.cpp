@@ -11,10 +11,10 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
-#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -189,7 +189,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             break;
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorVectorCast:
+        case Expression::Kind::kConstructorCompositeCast:
             this->writeCastConstructor(expr.asAnyConstructor(), "(", ")", parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:
@@ -2277,11 +2277,11 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         }
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorComposite:
+        case Expression::Kind::kConstructorCompositeCast:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorSplat:
-        case Expression::Kind::kConstructorVectorCast: {
+        case Expression::Kind::kConstructorSplat: {
             const AnyConstructor& c = e->asAnyConstructor();
             Requirements result = kNo_Requirements;
             for (const auto& arg : c.argumentSpan()) {

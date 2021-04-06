@@ -10,11 +10,11 @@
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorComposite.h"
+#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
-#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -71,28 +71,24 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
             // A vector constructor containing a single vector with the same number of columns is a
             // cast (e.g. float3 -> int3).
             if (type.isVector() && argument->type().columns() == type.columns()) {
-                return ConstructorVectorCast::Make(context, offset, type, std::move(argument));
+                return ConstructorCompositeCast::Make(context, offset, type, std::move(argument));
             }
         } else if (argument->type().isMatrix()) {
             // A matrix constructor containing a single matrix can be a resize, typecast, or both.
             // GLSL lumps these into one category, but internally SkSL keeps them distinct.
             if (type.isMatrix()) {
                 // First, handle type conversion. If the component types differ, synthesize the
-                // destination type with the argument's rows/columns. If not, leave it as-is.
-                std::unique_ptr<Expression> typecast;
-                if (type.componentType() != argument->type().componentType()) {
-                    const Type& typecastType = type.componentType().toCompound(
-                            context,
-                            argument->type().columns(),
-                            argument->type().rows());
-                    typecast = std::make_unique<Constructor>(offset, typecastType, std::move(args));
-                    SkASSERT(typecast);
-                } else {
-                    typecast = std::move(argument);
-                }
+                // destination type with the argument's rows/columns. (This will be a no-op if it's
+                // already the right type.)
+                const Type& typecastType = type.componentType().toCompound(
+                        context,
+                        argument->type().columns(),
+                        argument->type().rows());
+                std::unique_ptr<Expression> typecast = ConstructorCompositeCast::Make(
+                        context, offset, typecastType, std::move(argument));
 
-                // Next, wrap the typecasted expression in a matrix-resize constructor if the sizes
-                // differ. If not, return the typecasted expression as-is.
+                // Next, wrap the typecasted expression in a matrix-resize constructor if the
+                // sizes differ. (This will be a no-op if it's already the right size.)
                 return ConstructorMatrixResize::Make(context, offset, type, std::move(typecast));
             }
         }
