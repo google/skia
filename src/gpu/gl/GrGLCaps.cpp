@@ -3592,7 +3592,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         if (ctxInfo.driverVersion() <= GR_GL_DRIVER_VER(219, 0, 0)) {
             fPerformStencilClearsAsDraws = true;
         }
-        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
+        // This is known to be fixed sometime between driver 129.0 and 145.0 on Nexus 6P.
+        // On driver 129 on Android M it fails the unit tests called WritePixelsPendingIO without
+        // the workaround. It passes on Android N with driver 145 without the workaround.
+        // skbug.com/11834
+        if (ctxInfo.driverVersion() < GR_GL_DRIVER_VER(145, 0, 0)) {
+            fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
+        }
     }
 
     if (fDriverBugWorkarounds.gl_clear_broken) {

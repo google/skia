@@ -505,6 +505,9 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // This is tests whether the first writePixels is completed before the
 // second writePixels takes effect (i.e., that writePixels correctly flushes
 // in between uses of the shared backing resource).
+// The unit test fails on Nexus 6P/Android M with driver 129.0 without the
+// "DisallowTexSubImageForUnormConfigTexturesEverBoundToFBO" workaround enabled.
+// skbug.com/11834
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
