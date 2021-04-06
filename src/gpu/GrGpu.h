@@ -720,10 +720,6 @@ private:
     // Implementation of resetTextureBindings.
     virtual void onResetTextureBindings() {}
 
-    // Queries the effective number of samples in use by the hardware for the given render target,
-    // and queries the individual sample locations.
-    virtual void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) = 0;
-
     // overridden by backend-specific derived class to create objects.
     // Texture size, renderablility, format support, sample count will have already been validated
     // in base class before onCreateTexture is called.

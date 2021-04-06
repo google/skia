@@ -1768,59 +1768,6 @@ bool GrVkGpu::setBackendRenderTargetState(const GrBackendRenderTarget& backendRe
                                         previousState);
 }
 
-void GrVkGpu::querySampleLocations(GrRenderTarget* renderTarget,
-                                   SkTArray<SkPoint>* sampleLocations) {
-    // In Vulkan, sampleLocationsSupport() means that the platform uses the standard sample
-    // locations defined by the spec.
-    SkASSERT(this->caps()->sampleLocationsSupport());
-    static constexpr SkPoint kStandardSampleLocations_1[1] = {
-        {0.5f, 0.5f}};
-    static constexpr SkPoint kStandardSampleLocations_2[2] = {
-        {0.75f, 0.75f}, {0.25f, 0.25f}};
-    static constexpr SkPoint kStandardSampleLocations_4[4] = {
-        {0.375f, 0.125f}, {0.875f, 0.375f}, {0.125f, 0.625f}, {0.625f, 0.875f}};
-    static constexpr SkPoint kStandardSampleLocations_8[8] = {
-        {0.5625f, 0.3125f}, {0.4375f, 0.6875f}, {0.8125f, 0.5625f}, {0.3125f, 0.1875f},
-        {0.1875f, 0.8125f}, {0.0625f, 0.4375f}, {0.6875f, 0.9375f}, {0.9375f, 0.0625f}};
-    static constexpr SkPoint kStandardSampleLocations_16[16] = {
-        {0.5625f, 0.5625f}, {0.4375f, 0.3125f}, {0.3125f, 0.625f}, {0.75f, 0.4375f},
-        {0.1875f, 0.375f}, {0.625f, 0.8125f}, {0.8125f, 0.6875f}, {0.6875f, 0.1875f},
-        {0.375f, 0.875f}, {0.5f, 0.0625f}, {0.25f, 0.125f}, {0.125f, 0.75f},
-        {0.0f, 0.5f}, {0.9375f, 0.25f}, {0.875f, 0.9375f}, {0.0625f, 0.0f}};
-
-    int numSamples = renderTarget->numSamples();
-    if (1 == numSamples) {
-        SkASSERT(this->caps()->mixedSamplesSupport());
-        if (auto* stencil = renderTarget->getStencilAttachment()) {
-            numSamples = stencil->numSamples();
-        }
-    }
-    SkASSERT(numSamples > 1);
-    SkASSERT(!renderTarget->getStencilAttachment() ||
-             numSamples == renderTarget->getStencilAttachment()->numSamples());
-
-    switch (numSamples) {
-        case 1:
-            sampleLocations->push_back_n(1, kStandardSampleLocations_1);
-            break;
-        case 2:
-            sampleLocations->push_back_n(2, kStandardSampleLocations_2);
-            break;
-        case 4:
-            sampleLocations->push_back_n(4, kStandardSampleLocations_4);
-            break;
-        case 8:
-            sampleLocations->push_back_n(8, kStandardSampleLocations_8);
-            break;
-        case 16:
-            sampleLocations->push_back_n(16, kStandardSampleLocations_16);
-            break;
-        default:
-            SK_ABORT("Invalid vulkan sample count.");
-            break;
-    }
-}
-
 void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType barrierType) {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
     VkPipelineStageFlags dstStage;

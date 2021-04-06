@@ -221,8 +221,6 @@ private:
 
     void onResetTextureBindings() override;
 
-    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override;
-
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     sk_sp<GrTexture> onCreateTexture(SkISize dimensions,

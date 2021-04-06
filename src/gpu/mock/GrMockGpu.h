@@ -54,8 +54,6 @@ public:
 private:
     GrMockGpu(GrDirectContext*, const GrMockOptions&, const GrContextOptions&);
 
-    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>* sampleLocations) override;
-
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     sk_sp<GrTexture> onCreateTexture(SkISize,

@@ -109,8 +109,6 @@ public:
 private:
     GrDawnGpu(GrDirectContext*, const GrContextOptions&, const wgpu::Device&);
 
-    virtual void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override {}
-
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,
                                      GrRenderable,

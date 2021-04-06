@@ -77,8 +77,6 @@ public:
 
     GrVkPrimaryCommandBuffer* currentCommandBuffer() const { return fMainCmdBuffer; }
 
-    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override;
-
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     bool setBackendTextureState(const GrBackendTexture&,
