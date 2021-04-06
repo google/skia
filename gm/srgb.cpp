@@ -41,3 +41,27 @@ DEF_SIMPLE_GM(srgb_colorfilter, canvas, 512, 256*3) {
     p.setColorFilter(cf2->makeComposed(cf0));
     canvas->drawImage(img, 256, 512, sampling, &p);
 }
+
+DEF_SIMPLE_GM(srgb_colortype, canvas, 260*2, 260) {
+    auto draw = [canvas](SkColorType ct, sk_sp<SkColorSpace> cs) {
+        uint32_t buf[] = {
+            0xff0000ff, 0xff7f007f, 0xffff0000,
+            0xff007f7f, 0xff3f3f7f, 0xff7f0000,
+            0xff00ff00, 0xff007f00, 0xff000000,
+        };
+        SkPixmap pm = {
+            SkImageInfo::Make(3,3, ct, kUnpremul_SkAlphaType, cs),
+            buf,
+            sizeof(buf)/3,
+        };
+        canvas->drawImageRect(SkImage::MakeRasterCopy(pm),
+                              {2,2,258,258},
+                              SkSamplingOptions{SkFilterMode::kLinear});
+    };
+
+    draw(kRGBA_8888_SkColorType,  SkColorSpace::MakeSRGB());
+    canvas->translate(260,0);
+    draw(kRGBA_8888_SkColorType,  SkColorSpace::MakeSRGBLinear());
+    canvas->translate(260,0);
+    draw(kSRGBA_8888_SkColorType, SkColorSpace::MakeSRGBLinear());
+}

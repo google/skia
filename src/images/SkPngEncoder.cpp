@@ -238,6 +238,7 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
             break;
 
         case kRGBA_8888_SkColorType:
+        case kSRGBA_8888_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:
                     return transform_scanline_RGBX;

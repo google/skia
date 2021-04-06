@@ -33,6 +33,7 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
         case kA16_float_SkColorType:          return 2;
         case kR16G16_float_SkColorType:       return 4;
         case kR16G16B16A16_unorm_SkColorType: return 8;
+        case kSRGBA_8888_SkColorType:         return 4;
     }
     SkUNREACHABLE;
 }
@@ -93,6 +94,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
             [[fallthrough]];
         case kARGB_4444_SkColorType:
         case kRGBA_8888_SkColorType:
+        case kSRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kRGBA_1010102_SkColorType:
         case kBGRA_1010102_SkColorType:
