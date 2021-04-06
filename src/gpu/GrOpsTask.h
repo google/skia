@@ -253,6 +253,10 @@ private:
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrSurfaceDrawContext;
 
+    // This must be the first field in the class because it needs to be the last destructed. Later
+    // fields may have references into the arena, and must be destructed first.
+    sk_sp<GrArenas> fArenas;
+
     GrAuditTrail* fAuditTrail;
 
     GrSwizzle fTargetSwizzle;
@@ -272,7 +276,6 @@ private:
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;
 
-    sk_sp<GrArenas> fArenas;
     SkDEBUGCODE(int fNumClips;)
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
