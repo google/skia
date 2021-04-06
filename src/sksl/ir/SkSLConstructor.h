@@ -187,42 +187,6 @@ public:
         return std::make_unique<Constructor>(fOffset, this->type(), this->cloneArguments());
     }
 
-    template <typename ResultType>
-    ResultType getVecComponent(int index) const;
-
-    /**
-     * For a literal vector expression, return the float value of the n'th vector component. It is
-     * an error to call this method on an expression which is not a compile-time constant vector of
-     * floating-point type.
-     */
-    SKSL_FLOAT getFVecComponent(int n) const override {
-        return this->getVecComponent<SKSL_FLOAT>(n);
-    }
-
-    /**
-     * For a literal vector expression, return the integer value of the n'th vector component. It is
-     * an error to call this method on an expression which is not a compile-time constant vector of
-     * integer type.
-     */
-    SKSL_INT getIVecComponent(int n) const override {
-        return this->getVecComponent<SKSL_INT>(n);
-    }
-
-    /**
-     * For a literal vector expression, return the boolean value of the n'th vector component. It is
-     * an error to call this method on an expression which is not a compile-time constant vector of
-     * Boolean type.
-     */
-    bool getBVecComponent(int n) const override {
-        return this->getVecComponent<bool>(n);
-    }
-
-    SKSL_INT getConstantInt() const override;
-
-    SKSL_FLOAT getConstantFloat() const override;
-
-    bool getConstantBool() const override;
-
 private:
     static std::unique_ptr<Expression> MakeScalarConstructor(const Context& context,
                                                              int offset,
@@ -233,11 +197,6 @@ private:
                                                                int offset,
                                                                const Type& type,
                                                                ExpressionArray args);
-
-    template <typename ResultType> ResultType getConstantValue(const Expression& expr) const;
-
-    template <typename ResultType>
-    ResultType getInnerVecComponent(const Expression& expr, int position) const;
 
     using INHERITED = MultiArgumentConstructor;
 };
