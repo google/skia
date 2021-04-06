@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_CORE
 #define SKSL_DSL_CORE
 
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLCase.h"
@@ -34,7 +35,7 @@ using namespace SkSL::SwizzleComponent;
  * Starts DSL output on the current thread using the specified compiler. This must be called
  * prior to any other DSL functions.
  */
-void Start(SkSL::Compiler* compiler);
+void Start(SkSL::Compiler* compiler, ProgramKind kind = ProgramKind::kFragment);
 
 /**
  * Signals the end of DSL output. This must be called sometime between a call to Start() and the
