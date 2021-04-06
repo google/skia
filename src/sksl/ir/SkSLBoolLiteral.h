@@ -73,6 +73,11 @@ public:
         return std::make_unique<BoolLiteral>(fOffset, this->value(), &this->type());
     }
 
+    const Expression* getConstantSubexpression(int n) const override {
+        SkASSERT(n == 0);
+        return this;
+    }
+
 private:
     bool fValue;
 
