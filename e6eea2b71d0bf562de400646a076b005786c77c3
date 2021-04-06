@@ -22,6 +22,30 @@
       },
       "revId": "e6eea2b71d0bf562de400646a076b005786c77c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7488bb3_b60f03aa",
+        "filename": "tests/TraceMemoryDumpTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-06T23:25:27Z",
+      "side": 1,
+      "message": "I\u0027m not sure I follow. We just provide a sample count to MakeWrapped. Are you asking about rtIDs.fNumSamplesOwnedPerPixel?",
+      "parentUuid": "cef4fa89_1609b1af",
+      "range": {
+        "startLine": 127,
+        "startChar": 1,
+        "endLine": 163,
+        "endChar": 0
+      },
+      "revId": "e6eea2b71d0bf562de400646a076b005786c77c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
