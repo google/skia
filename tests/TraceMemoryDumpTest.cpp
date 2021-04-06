@@ -129,15 +129,16 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
     static constexpr auto kSize = SkISize::Make(64, 64);
 
     GrGLRenderTarget::IDs rtIDs;
-    rtIDs.fRTFBOID = 20;
+    rtIDs.fMultisampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
-    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    rtIDs.fSingleSampleFBOID = 20;
     rtIDs.fMSColorRenderbufferID = 22;
+    rtIDs.fNumSamplesOwnedPerPixel = 9;
 
     sk_sp<GrGLRenderTarget> rt =
-            GrGLRenderTarget::MakeWrapped(gpu, kSize, GrGLFormat::kRGBA8, 1, rtIDs, 0);
+            GrGLRenderTarget::MakeWrapped(gpu, kSize, GrGLFormat::kRGBA8, 8, rtIDs, 0);
 
-    ValidateMemoryDumps(reporter, dContext, rt->gpuMemorySize(), true /* isOwned */);
+    ValidateMemoryDumps(reporter, dContext, rt->gpuMemorySize() * 8/9, true /* isOwned */);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, reporter, ctxInfo) {
@@ -147,14 +148,15 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
     static constexpr auto kSize = SkISize::Make(64, 64);
 
     GrGLRenderTarget::IDs rtIDs;
-    rtIDs.fRTFBOID = 20;
+    rtIDs.fMultisampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
-    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    rtIDs.fSingleSampleFBOID = 20;
     rtIDs.fMSColorRenderbufferID = 22;
+    rtIDs.fNumSamplesOwnedPerPixel = 5;
 
     sk_sp<GrGLRenderTarget> rt =
-            GrGLRenderTarget::MakeWrapped(gpu, kSize, GrGLFormat::kRGBA8, 1, rtIDs, 0);
+            GrGLRenderTarget::MakeWrapped(gpu, kSize, GrGLFormat::kRGBA8, 4, rtIDs, 0);
 
-    ValidateMemoryDumps(reporter, dContext, rt->gpuMemorySize(), false /* isOwned */);
+    ValidateMemoryDumps(reporter, dContext, rt->gpuMemorySize() * 4/5, false /* isOwned */);
 }
 #endif  // SK_GL
