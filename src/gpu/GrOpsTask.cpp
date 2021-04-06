@@ -358,10 +358,10 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
                      GrAuditTrail* auditTrail,
                      sk_sp<GrArenas> arenas)
         : GrRenderTask()
+        , fArenas{std::move(arenas)}
         , fAuditTrail(auditTrail)
         , fTargetSwizzle(view.swizzle())
         , fTargetOrigin(view.origin())
-        , fArenas{std::move(arenas)}
           SkDEBUGCODE(, fNumClips(0)) {
     this->addTarget(drawingMgr, view.detachProxy());
 }
