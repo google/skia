@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12c8b95f_26fddfdb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-06T20:03:53Z",
+      "side": 1,
+      "message": "Did we previously discuss (and decide not to support) GLSL\u0027s \"make a vector from a matrix\" case? (It\u0027s only possible with float4(float2x2(...)), so mostly useless - just curious.",
+      "revId": "914a6d3dcc2045573de32c54dc5e438c9bfb0980",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
