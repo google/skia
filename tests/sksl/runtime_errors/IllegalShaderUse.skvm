@@ -1,0 +1,8 @@
+### Compilation failed:
+
+error: 13: variables of type 'shader' must be global
+error: 14: parameters of type 'shader' not allowed
+error: 15: functions may not return opaque type 'shader'
+error: 16: cannot construct 'shader'
+error: 17: ternary expression of opaque type 'shader' not allowed
+5 errors
