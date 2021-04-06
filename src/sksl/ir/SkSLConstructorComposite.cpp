@@ -12,6 +12,27 @@
 
 namespace SkSL {
 
+std::unique_ptr<Expression> ConstructorComposite::castConstantExpression(const Context& context,
+                                                                         const Type& type) const {
+    SkASSERT(type.columns() == this->type().columns());
+    SkASSERT(type.rows() == this->type().rows());
+
+    ExpressionArray typecastArgs;
+    typecastArgs.reserve_back(this->arguments().size());
+    for (const std::unique_ptr<Expression>& arg : this->arguments()) {
+        // Attempt to cast this argument to the requested type; return null if it can't be done.
+        const Type& destType = type.componentType().toCompound(
+                context, /*columns=*/arg->type().columns(), /*rows=*/1);
+        std::unique_ptr<Expression> typecast = arg->castConstantExpression(context, destType);
+        if (!typecast) {
+            return nullptr;
+        }
+        typecastArgs.push_back(std::move(typecast));
+    }
+
+    return std::make_unique<ConstructorComposite>(fOffset, type, std::move(typecastArgs));
+}
+
 std::unique_ptr<Expression> ConstructorComposite::Make(const Context& context,
                                                        int offset,
                                                        const Type& type,

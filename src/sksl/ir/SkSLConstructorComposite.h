@@ -41,6 +41,9 @@ public:
                                                       this->cloneArguments());
     }
 
+    std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                       const Type& type) const override;
+
 private:
     using INHERITED = MultiArgumentConstructor;
 };

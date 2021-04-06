@@ -74,6 +74,9 @@ public:
         return this;
     }
 
+    virtual std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                               const Type& type) const override;
+
 private:
     bool fValue;
 

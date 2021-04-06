@@ -42,6 +42,9 @@ public:
 
     const Expression* getConstantSubexpression(int n) const override;
 
+    std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                       const Type& type) const override;
+
 private:
     const FloatLiteral fZeroLiteral;
     using INHERITED = SingleArgumentConstructor;

@@ -12,6 +12,21 @@
 
 namespace SkSL {
 
+std::unique_ptr<Expression> ConstructorDiagonalMatrix::castConstantExpression(
+        const Context& context,
+        const Type& type) const {
+    SkASSERT(type.columns() == this->type().columns());
+    SkASSERT(type.rows() == this->type().rows());
+
+    // Attempt to cast the argument to the requested type.
+    std::unique_ptr<Expression> arg =
+            this->argument()->castConstantExpression(context, type.componentType());
+    if (arg) {
+        return std::make_unique<ConstructorDiagonalMatrix>(fOffset, type, std::move(arg));
+    }
+    return nullptr;
+}
+
 std::unique_ptr<Expression> ConstructorDiagonalMatrix::Make(const Context& context,
                                                             int offset,
                                                             const Type& type,

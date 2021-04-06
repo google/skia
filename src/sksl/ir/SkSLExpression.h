@@ -133,6 +133,15 @@ public:
     }
 
     /**
+     * Converts a compile-time constant scalar or vector to a different number-kind.
+     * Returns null if it's not a constant expression, or if the expression matches in type.
+     */
+    virtual std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                               const Type& type) const {
+        return nullptr;
+    }
+
+    /**
      * Returns true if, given fixed values for uniforms, this expression always evaluates to the
      * same result with no side effects.
      */
