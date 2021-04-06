@@ -71,6 +71,10 @@ public:
         return true;
     }
 
+    const Expression* getConstantSubexpression(int n) const override;
+
+    ComparisonResult compareConstant(const Expression& other) const override;
+
 private:
     std::unique_ptr<Expression> fArgument;
 
@@ -183,8 +187,6 @@ public:
         return std::make_unique<Constructor>(fOffset, this->type(), this->cloneArguments());
     }
 
-    ComparisonResult compareConstant(const Expression& other) const override;
-
     template <typename ResultType>
     ResultType getVecComponent(int index) const;
 
@@ -214,8 +216,6 @@ public:
     bool getBVecComponent(int n) const override {
         return this->getVecComponent<bool>(n);
     }
-
-    SKSL_FLOAT getMatComponent(int col, int row) const override;
 
     SKSL_INT getConstantInt() const override;
 
