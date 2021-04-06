@@ -132,14 +132,10 @@ public:
      * @param dContext         The direct context to use
      * @param src              source for the write
      * @param dstPt            offset w/in the surface context at which to write
-     * @param prepForSampling  Should the surface be configured for sampling after the write
-     *                         completes. Used to avoid a separate submission to change texture
-     *                         layout
      */
     bool writePixels(GrDirectContext* dContext,
                      GrCPixmap src,
-                     SkIPoint dstPt,
-                     bool prepForSampling = false);
+                     SkIPoint dstPt);
 
     /**
      * Fully populates either the base level or all MIP levels of the GrSurface with pixel data.
@@ -147,14 +143,10 @@ public:
      * @param src              Array of pixmaps
      * @param numLevels        Number of pixmaps in src. To succeed this must be 1 or the total
      *                         number of MIP levels.
-     * @param prepForSampling  Should the surface be configured for sampling after the write
-     *                         completes. Used to avoid a separate submission to change texture
-     *                         layout
      */
     bool writePixels(GrDirectContext* dContext,
                      const GrCPixmap src[],
-                     int numLevels,
-                     bool prepForSampling = false);
+                     int numLevels);
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
@@ -269,8 +261,7 @@ private:
     bool internalWritePixels(GrDirectContext* dContext,
                              const GrCPixmap src[],
                              int numLevels,
-                             SkIPoint,
-                             bool prepForSampling);
+                             SkIPoint);
 
     class AsyncReadResult;
 

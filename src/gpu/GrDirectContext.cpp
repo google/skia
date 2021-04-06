@@ -527,7 +527,7 @@ static bool update_texture_with_pixmaps(GrDirectContext* context,
     for (int i = 0; i < numLevels; ++i) {
         tmpSrc[i] = src[i];
     }
-    if (!surfaceContext.writePixels(context, tmpSrc.get(), numLevels, /*prep for sampling*/ true)) {
+    if (!surfaceContext.writePixels(context, tmpSrc.get(), numLevels)) {
         return false;
     }
 
