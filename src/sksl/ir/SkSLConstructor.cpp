@@ -175,65 +175,6 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
     return std::make_unique<Constructor>(offset, type, std::move(args));
 }
 
-Expression::ComparisonResult Constructor::compareConstant(const Expression& other) const {
-    if (other.is<ConstructorDiagonalMatrix>()) {
-        return other.compareConstant(*this);
-    }
-    if (other.is<ConstructorMatrixResize>()) {
-        return other.compareConstant(*this);
-    }
-    if (other.is<ConstructorSplat>()) {
-        return other.compareConstant(*this);
-    }
-    if (!other.is<Constructor>()) {
-        return ComparisonResult::kUnknown;
-    }
-    const Constructor& c = other.as<Constructor>();
-    const Type& myType = this->type();
-    SkASSERT(myType == c.type());
-
-    if (myType.isVector()) {
-        if (myType.componentType().isFloat()) {
-            for (int i = 0; i < myType.columns(); i++) {
-                if (this->getFVecComponent(i) != c.getFVecComponent(i)) {
-                    return ComparisonResult::kNotEqual;
-                }
-            }
-            return ComparisonResult::kEqual;
-        }
-        if (myType.componentType().isInteger()) {
-            for (int i = 0; i < myType.columns(); i++) {
-                if (this->getIVecComponent(i) != c.getIVecComponent(i)) {
-                    return ComparisonResult::kNotEqual;
-                }
-            }
-            return ComparisonResult::kEqual;
-        }
-        if (myType.componentType().isBoolean()) {
-            for (int i = 0; i < myType.columns(); i++) {
-                if (this->getBVecComponent(i) != c.getBVecComponent(i)) {
-                    return ComparisonResult::kNotEqual;
-                }
-            }
-            return ComparisonResult::kEqual;
-        }
-    }
-
-    if (myType.isMatrix()) {
-        for (int col = 0; col < myType.columns(); col++) {
-            for (int row = 0; row < myType.rows(); row++) {
-                if (getMatComponent(col, row) != c.getMatComponent(col, row)) {
-                    return ComparisonResult::kNotEqual;
-                }
-            }
-        }
-        return ComparisonResult::kEqual;
-    }
-
-    SkDEBUGFAILF("compareConstant unexpected type: %s", myType.description().c_str());
-    return ComparisonResult::kUnknown;
-}
-
 template <typename ResultType>
 ResultType Constructor::getConstantValue(const Expression& expr) const {
     const Type& type = expr.type();
@@ -313,50 +254,6 @@ template SKSL_INT Constructor::getVecComponent(int) const;
 template SKSL_FLOAT Constructor::getVecComponent(int) const;
 template bool Constructor::getVecComponent(int) const;
 
-SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
-    SkDEBUGCODE(const Type& myType = this->type();)
-    SkASSERT(this->isCompileTimeConstant());
-    SkASSERT(myType.isMatrix());
-    SkASSERT(col < myType.columns() && row < myType.rows());
-    if (this->arguments().size() == 1) {
-        const Type& argType = this->arguments()[0]->type();
-        if (argType.isScalar()) {
-            // single scalar argument, so matrix is of the form:
-            // x 0 0
-            // 0 x 0
-            // 0 0 x
-            // return x if col == row
-            return col == row ? this->getConstantValue<SKSL_FLOAT>(*this->arguments()[0]) : 0.0;
-        }
-        if (argType.isMatrix()) {
-            SkASSERT(this->arguments()[0]->isAnyConstructor());
-            // single matrix argument. make sure we're within the argument's bounds.
-            if (col < argType.columns() && row < argType.rows()) {
-                // within bounds, defer to argument
-                return this->arguments()[0]->getMatComponent(col, row);
-            }
-            // out of bounds
-            return 0.0;
-        }
-    }
-    int currentIndex = 0;
-    int targetIndex = col * this->type().rows() + row;
-    for (const auto& arg : this->arguments()) {
-        const Type& argType = arg->type();
-        SkASSERT(targetIndex >= currentIndex);
-        SkASSERT(argType.rows() == 1);
-        if (currentIndex + argType.columns() > targetIndex) {
-            if (argType.columns() == 1) {
-                return arg->getConstantFloat();
-            } else {
-                return arg->getFVecComponent(targetIndex - currentIndex);
-            }
-        }
-        currentIndex += argType.columns();
-    }
-    SK_ABORT("can't happen, matrix component out of bounds");
-}
-
 SKSL_INT Constructor::getConstantInt() const {
     // We're looking for scalar integer constructors only, i.e. `int(1)`.
     SkASSERT(this->arguments().size() == 1);
@@ -397,6 +294,45 @@ bool Constructor::getConstantBool() const {
     return expr.type().isBoolean() ? expr.getConstantBool() :
            expr.type().isInteger() ? (bool)expr.getConstantInt() :
                                      (bool)expr.getConstantFloat();
+}
+
+const Expression* AnyConstructor::getConstantSubexpression(int n) const {
+    SkASSERT(n >= 0 && n < (int)this->type().slotCount());
+    for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
+        int argSlots = arg->type().slotCount();
+        if (n < argSlots) {
+            return arg->getConstantSubexpression(n);
+        }
+        n -= argSlots;
+    }
+
+    SkDEBUGFAIL("argument-list slot count doesn't match constructor-type slot count");
+    return nullptr;
+}
+
+Expression::ComparisonResult AnyConstructor::compareConstant(const Expression& other) const {
+    ComparisonResult result = ComparisonResult::kEqual;
+    SkASSERT(this->type().slotCount() == other.type().slotCount());
+
+    int exprs = this->type().slotCount();
+    for (int n = 0; n < exprs; ++n) {
+        // Get the n'th subexpression from each side. If either one is null, return "unknown."
+        const Expression* left = this->getConstantSubexpression(n);
+        if (!left) {
+            return ComparisonResult::kUnknown;
+        }
+        const Expression* right = other.getConstantSubexpression(n);
+        if (!right) {
+            return ComparisonResult::kUnknown;
+        }
+        // Recurse into the subexpressions; the literal types will perform real comparisons, and
+        // most other expressions fall back on the base class Expression which returns unknown.
+        result = left->compareConstant(*right);
+        if (result != ComparisonResult::kEqual) {
+            break;
+        }
+    }
+    return result;
 }
 
 AnyConstructor& Expression::asAnyConstructor() {

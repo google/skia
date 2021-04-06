@@ -39,8 +39,6 @@ public:
         return std::make_unique<ConstructorArray>(fOffset, this->type(), this->cloneArguments());
     }
 
-    ComparisonResult compareConstant(const Expression& other) const override;
-
 private:
     using INHERITED = MultiArgumentConstructor;
 };
