@@ -247,7 +247,7 @@ private:
     Value writeExpression(const Expression& expr);
     Value writeBinaryExpression(const BinaryExpression& b);
     Value writeConstructor(const Constructor& c);
-    Value writeMultiArgumentConstructor(const MultiArgumentConstructor& c);
+    Value writeAggregationConstructor(const AnyConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
     Value writeConstructorMatrixResize(const ConstructorMatrixResize& c);
     Value writeConstructorCast(const AnyConstructor& c);
@@ -633,12 +633,10 @@ Value SkVMGenerator::writeBinaryExpression(const BinaryExpression& b) {
     }
 }
 
-Value SkVMGenerator::writeMultiArgumentConstructor(const MultiArgumentConstructor& c) {
-    // Multi-argument constructors just aggregate their arguments, with no conversion
-    // NOTE: This (SkSL rule) is actually more restrictive than GLSL.
+Value SkVMGenerator::writeAggregationConstructor(const AnyConstructor& c) {
     Value result(c.type().slotCount());
     size_t resultIdx = 0;
-    for (const auto &arg : c.arguments()) {
+    for (const auto &arg : c.argumentSpan()) {
         Value tmp = this->writeExpression(*arg);
         for (size_t tmpSlot = 0; tmpSlot < tmp.slots(); ++tmpSlot) {
             result[resultIdx++] = tmp[tmpSlot];
@@ -651,7 +649,7 @@ Value SkVMGenerator::writeConstructor(const Constructor& c) {
     if (c.arguments().size() > 1) {
         // Multi-argument constructors just aggregate their arguments, with no conversion
         // NOTE: This (SkSL rule) is actually more restrictive than GLSL.
-        return this->writeMultiArgumentConstructor(c);
+        return this->writeAggregationConstructor(c);
     }
 
     const Type& srcType = c.arguments()[0]->type();
@@ -1467,7 +1465,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
         case Expression::Kind::kConstructor:
             return this->writeConstructor(e.as<Constructor>());
         case Expression::Kind::kConstructorArray:
-            return this->writeMultiArgumentConstructor(e.as<ConstructorArray>());
+        case Expression::Kind::kConstructorVector:
+            return this->writeAggregationConstructor(e.asAnyConstructor());
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
         case Expression::Kind::kConstructorMatrixResize:

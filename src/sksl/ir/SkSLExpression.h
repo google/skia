@@ -36,6 +36,7 @@ public:
         kConstructorMatrixResize,
         kConstructorScalarCast,
         kConstructorSplat,
+        kConstructorVector,
         kConstructorVectorCast,
         kDefined,
         kExternalFunctionCall,
