@@ -27,6 +27,7 @@ class SkShader;
 namespace SkSL {
 class FunctionDefinition;
 struct Program;
+enum class ProgramKind : int8_t;
 }  // namespace SkSL
 
 namespace skvm {
@@ -85,6 +86,11 @@ public:
         bool forceNoInline = false;
     };
 
+    /*
+     * DEPRECATED(skbug.com/11813) Direct use of SkRuntimeEffect::Make, is discouraged.
+     * Please use SkRuntimeColorFilterEffect::Make, or SkRuntimeShaderEffect::Make.
+     */
+
     // If the effect is compiled successfully, `effect` will be non-null.
     // Otherwise, `errorText` will contain the reason for failure.
     struct Result {
@@ -117,7 +123,7 @@ public:
                                          sk_sp<SkColorFilter> children[],
                                          size_t childCount) const;
 
-    const SkString& source() const { return fSkSL; }
+    const SkString& source() const { return fEffect->fSkSL; }
 
     template <typename T>
     class ConstIterable {
@@ -129,6 +135,7 @@ public:
         const_iterator begin() const { return fVec.begin(); }
         const_iterator end() const { return fVec.end(); }
         size_t count() const { return fVec.size(); }
+        bool empty() const { return fVec.empty(); }
 
     private:
         const std::vector<T>& fVec;
@@ -138,9 +145,9 @@ public:
     // provide an SkData of this size, containing values for all of those variables.
     size_t uniformSize() const;
 
-    ConstIterable<Uniform> uniforms() const { return ConstIterable<Uniform>(fUniforms); }
-    ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
-    ConstIterable<Varying> varyings() const { return ConstIterable<Varying>(fVaryings); }
+    ConstIterable<Uniform> uniforms() const { return ConstIterable<Uniform>(fEffect->fUniforms); }
+    ConstIterable<SkString> children() const { return ConstIterable<SkString>(fEffect->fChildren); }
+    ConstIterable<Varying> varyings() const { return ConstIterable<Varying>(fEffect->fVaryings); }
 
     // Returns pointer to the named uniform variable's description, or nullptr if not found
     const Uniform* findUniform(const char* name) const;
@@ -159,46 +166,96 @@ public:
                                                 size_t childCount) const;
 #endif
 
-private:
-    SkRuntimeEffect(SkString sksl,
-                    std::unique_ptr<SkSL::Program> baseProgram,
-                    const Options& options,
-                    const SkSL::FunctionDefinition& main,
-                    std::vector<Uniform>&& uniforms,
-                    std::vector<SkString>&& children,
-                    std::vector<SkSL::SampleUsage>&& sampleUsages,
-                    std::vector<Varying>&& varyings,
-                    bool usesSampleCoords,
-                    bool allowColorFilter);
+protected:
+    struct ParsedEffect {
+        SkString                        fSkSL;
+        std::unique_ptr<SkSL::Program>  fProgram;
+        const SkSL::FunctionDefinition& fMain;
+        std::vector<Uniform>            fUniforms;
+        std::vector<SkString>           fChildren;
+        std::vector<SkSL::SampleUsage>  fSampleUsages;
+        std::vector<Varying>            fVaryings;
+        bool                            fUsesSampleCoords;
+        bool                            fAllowColorFilter;
+    };
+    struct ParseResult {
+        std::unique_ptr<ParsedEffect> effect;
+        SkString                      errorText;
+    };
+    static ParseResult ParseEffect(SkString sksl, const Options& options, SkSL::ProgramKind kind);
+
+    SkRuntimeEffect(std::unique_ptr<ParsedEffect> effect, const Options& options);
 
     uint32_t hash() const { return fHash; }
-    bool usesSampleCoords() const { return fUsesSampleCoords; }
+    bool usesSampleCoords() const { return fEffect->fUsesSampleCoords; }
+    bool allowColorFilter() const { return fEffect->fAllowColorFilter; }
+    const std::vector<SkSL::SampleUsage> sampleUsages() const { return fEffect->fSampleUsages; }
+
+    const SkSL::Program& getProgram() const { return *fEffect->fProgram; }
+    const SkSL::FunctionDefinition& getMain() const { return fEffect->fMain; }
 
     const skvm::Program* getFilterColorProgram();
 
 #if SK_SUPPORT_GPU
-    friend class GrSkSLFP;      // fBaseProgram, fSampleUsages
-    friend class GrGLSLSkSLFP;  //
+    friend class GrSkSLFP;
+    friend class GrGLSLSkSLFP;
 #endif
 
-    friend class SkRTShader;            // fBaseProgram, fMain
-    friend class SkRuntimeColorFilter;  //
+    friend class SkRTShader;
+    friend class SkRuntimeColorFilter;
 
+    std::unique_ptr<ParsedEffect> fEffect;
     uint32_t fHash;
-    SkString fSkSL;
-
-    std::unique_ptr<SkSL::Program> fBaseProgram;
-    const SkSL::FunctionDefinition& fMain;
-    std::vector<Uniform> fUniforms;
-    std::vector<SkString> fChildren;
-    std::vector<SkSL::SampleUsage> fSampleUsages;
-    std::vector<Varying>  fVaryings;
 
     SkOnce fColorFilterProgramOnce;
     std::unique_ptr<skvm::Program> fColorFilterProgram;
+};
 
-    bool   fUsesSampleCoords;
-    bool   fAllowColorFilter;
+class SK_API SkRuntimeColorFilterEffect : public SkRuntimeEffect {
+public:
+    // If the effect is compiled successfully, `effect` will be non-null.
+    // Otherwise, `errorText` will contain the reason for failure.
+    struct Result {
+        sk_sp<SkRuntimeColorFilterEffect> effect;
+        SkString errorText;
+    };
+
+    static Result Make(SkString sksl, const Options& options);
+
+    // We can't use a default argument for `options` due to a bug in Clang.
+    // https://bugs.llvm.org/show_bug.cgi?id=36684
+    static Result Make(SkString sksl) { return Make(std::move(sksl), Options{}); }
+
+    using SkRuntimeEffect::makeColorFilter;
+
+private:
+    SkRuntimeColorFilterEffect(std::unique_ptr<ParsedEffect> effect, const Options& options);
+
+    using INHERITED = SkRuntimeEffect;
+};
+
+class SK_API SkRuntimeShaderEffect : public SkRuntimeEffect {
+public:
+    // If the effect is compiled successfully, `effect` will be non-null.
+    // Otherwise, `errorText` will contain the reason for failure.
+    struct Result {
+        sk_sp<SkRuntimeShaderEffect> effect;
+        SkString errorText;
+    };
+
+    static Result Make(SkString sksl, const Options& options);
+
+    // We can't use a default argument for `options` due to a bug in Clang.
+    // https://bugs.llvm.org/show_bug.cgi?id=36684
+    static Result Make(SkString sksl) { return Make(std::move(sksl), Options{}); }
+
+    using SkRuntimeEffect::makeShader;
+    using SkRuntimeEffect::makeImage;
+
+private:
+    SkRuntimeShaderEffect(std::unique_ptr<ParsedEffect> effect, const Options& options);
+
+    using INHERITED = SkRuntimeEffect;
 };
 
 /** Base class for SkRuntimeShaderBuilder, defined below. */

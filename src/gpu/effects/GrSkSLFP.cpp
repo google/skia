@@ -25,7 +25,7 @@ class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
         const GrSkSLFP& fp            = args.fFp.cast<GrSkSLFP>();
-        const SkSL::Program& program  = *fp.fEffect->fBaseProgram;
+        const SkSL::Program& program  = fp.fEffect->getProgram();
 
         // We need to ensure that we emit each child's helper function at least once.
         // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
@@ -175,8 +175,8 @@ GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler,
                    const char* name,
                    sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
-                    effect->fAllowColorFilter ? kConstantOutputForConstantInput_OptimizationFlag
-                                              : kNone_OptimizationFlags)
+                    effect->allowColorFilter() ? kConstantOutputForConstantInput_OptimizationFlag
+                                               : kNone_OptimizationFlags)
         , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
@@ -205,9 +205,9 @@ const char* GrSkSLFP::name() const {
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
     int childIndex = this->numChildProcessors();
-    SkASSERT((size_t)childIndex < fEffect->fSampleUsages.size());
+    SkASSERT((size_t)childIndex < fEffect->sampleUsages().size());
     this->mergeOptimizationFlags(ProcessorOptimizationFlags(child.get()));
-    this->registerChild(std::move(child), fEffect->fSampleUsages[childIndex]);
+    this->registerChild(std::move(child), fEffect->sampleUsages()[childIndex]);
 }
 
 std::unique_ptr<GrGLSLFragmentProcessor> GrSkSLFP::onMakeProgramImpl() const {

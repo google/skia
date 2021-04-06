@@ -101,7 +101,7 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256 * 2) {
     sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_256.png");
 
     auto draw_filter = [&](const char* src) {
-        auto [effect, err] = SkRuntimeEffect::Make(SkString(src));
+        auto [effect, err] = SkRuntimeColorFilterEffect::Make(SkString(src));
         if (!effect) {
             SkDebugf("%s\n%s\n", src, err.c_str());
         }
