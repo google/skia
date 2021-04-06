@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dacba67b_473287d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-06T13:37:44Z",
+      "side": 1,
+      "message": "I have changed the implementation to use sk_sp instead of std::shared_ptr. I wrap the SkArenaAlloc in a new class called GrArenas. It\u0027s plural because I plan to add a sub run arena to GrArenas in the future.",
+      "revId": "54f523df607b8916cc6122c5b9cb7931c61d6ef0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

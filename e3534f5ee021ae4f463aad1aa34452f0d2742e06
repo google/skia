@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "098ffee7_3708f917",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-06T13:37:44Z",
+      "side": 1,
+      "message": "The origin commit message was inaccurate. The arena was already on GrSurfaceFillContext. Updated the message.",
+      "parentUuid": "88ee4fad_2ed27780",
+      "revId": "e3534f5ee021ae4f463aad1aa34452f0d2742e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22e9a0ed_f2c1919a",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-04-05T23:56:50Z",
       "side": 1,
       "message": "What is your motivation for doing this? Is it for perf?",
+      "range": {
+        "startLine": 117,
+        "startChar": 4,
+        "endLine": 118,
+        "endChar": 34
+      },
+      "revId": "e3534f5ee021ae4f463aad1aa34452f0d2742e06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a570dfa4_40c6783a",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-06T13:37:44Z",
+      "side": 1,
+      "message": "It is perf, but by way of solving an ownership problem. When using GrTextBlobCache the GrAtlasTextOp::Geometry has a many to one relationship with the sub runs. When in cache bypass mode, there is a 1:1 relationship between the Geometry and the sub run. This means that Geometry can be a member of the sub run avoiding an allocation. In the end, this allows the ~GrAtlasTextOp() to handle destructing the Geometries in the same way.",
+      "parentUuid": "22e9a0ed_f2c1919a",
       "range": {
         "startLine": 117,
         "startChar": 4,
