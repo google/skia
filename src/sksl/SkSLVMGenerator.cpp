@@ -1465,7 +1465,7 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
         case Expression::Kind::kConstructor:
             return this->writeConstructor(e.as<Constructor>());
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorVector:
+        case Expression::Kind::kConstructorComposite:
             return this->writeAggregationConstructor(e.asAnyConstructor());
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
