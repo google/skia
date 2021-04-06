@@ -33,8 +33,10 @@ public:
         kConstructor,
         kConstructorArray,
         kConstructorDiagonalMatrix,
+        kConstructorMatrixResize,
         kConstructorScalarCast,
         kConstructorSplat,
+        kConstructorVector,
         kConstructorVectorCast,
         kDefined,
         kExternalFunctionCall,
@@ -131,30 +133,6 @@ public:
     }
 
     /**
-     * For an expression which evaluates to a constant int, returns the value. Otherwise calls
-     * SK_ABORT.
-     */
-    virtual SKSL_INT getConstantInt() const {
-        SK_ABORT("not a constant int");
-    }
-
-    /**
-     * For an expression which evaluates to a constant float, returns the value. Otherwise calls
-     * SK_ABORT.
-     */
-    virtual SKSL_FLOAT getConstantFloat() const {
-        SK_ABORT("not a constant float");
-    }
-
-    /**
-     * For an expression which evaluates to a constant Boolean, returns the value. Otherwise calls
-     * SK_ABORT.
-     */
-    virtual bool getConstantBool() const {
-        SK_ABORT("not a constant Boolean");
-    }
-
-    /**
      * Returns true if, given fixed values for uniforms, this expression always evaluates to the
      * same result with no side effects.
      */
@@ -178,50 +156,15 @@ public:
     }
 
     /**
-     * For a vector of floating point values, return the value of the n'th vector component. It is
-     * an error to call this method on an expression which is not a vector of floating-point
-     * constant expressions.
+     * Returns the n'th compile-time constant expression within a literal or constructor.
+     * Use Type::slotCount to determine the number of subexpressions within an expression.
+     * Subexpressions which are not compile-time constants will return null.
+     * `vec4(1, vec2(2), 3)` contains four subexpressions: (1, 2, 2, 3)
+     * `mat2(f)` contains four subexpressions: (null, 0,
+     *                                          0, null)
      */
-    virtual SKSL_FLOAT getFVecComponent(int n) const {
-        SkDEBUGFAILF("expression does not support getVecComponent: %s",
-                     this->description().c_str());
-        return 0;
-    }
-
-    /**
-     * For a vector of integer values, return the value of the n'th vector component. It is an error
-     * to call this method on an expression which is not a vector of integer constant expressions.
-     */
-    virtual SKSL_INT getIVecComponent(int n) const {
-        SkDEBUGFAILF("expression does not support getVecComponent: %s",
-                     this->description().c_str());
-        return 0;
-    }
-
-    /**
-     * For a vector of Boolean values, return the value of the n'th vector component. It is an error
-     * to call this method on an expression which is not a vector of Boolean constant expressions.
-     */
-    virtual bool getBVecComponent(int n) const {
-        SkDEBUGFAILF("expression does not support getVecComponent: %s",
-                     this->description().c_str());
-        return false;
-    }
-
-    /**
-     * For a vector of literals, return the value of the n'th vector component. It is an error to
-     * call this method on an expression which is not a vector of Literal<T>.
-     */
-    template <typename T> T getVecComponent(int index) const;
-
-    /**
-     * For a literal matrix expression, return the floating point value of the component at
-     * [col][row]. It is an error to call this method on an expression which is not a literal
-     * matrix.
-     */
-    virtual SKSL_FLOAT getMatComponent(int col, int row) const {
-        SkASSERT(false);
-        return 0;
+    virtual const Expression* getConstantSubexpression(int n) const {
+        return nullptr;
     }
 
     virtual std::unique_ptr<Expression> clone() const = 0;
@@ -231,18 +174,6 @@ private:
 
     using INHERITED = IRNode;
 };
-
-template <> inline SKSL_FLOAT Expression::getVecComponent<SKSL_FLOAT>(int index) const {
-    return this->getFVecComponent(index);
-}
-
-template <> inline SKSL_INT Expression::getVecComponent<SKSL_INT>(int index) const {
-    return this->getIVecComponent(index);
-}
-
-template <> inline bool Expression::getVecComponent<bool>(int index) const {
-    return this->getBVecComponent(index);
-}
 
 }  // namespace SkSL
 

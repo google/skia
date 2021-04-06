@@ -73,12 +73,13 @@ public:
         return INHERITED::coercionCost(target);
     }
 
-    SKSL_INT getConstantInt() const override {
-        return this->value();
-    }
-
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<IntLiteral>(fOffset, this->value(), &this->type());
+    }
+
+    const Expression* getConstantSubexpression(int n) const override {
+        SkASSERT(n == 0);
+        return this;
     }
 
 private:

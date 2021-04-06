@@ -38,23 +38,12 @@ public:
         return std::make_unique<ConstructorSplat>(fOffset, this->type(), argument()->clone());
     }
 
-    ComparisonResult compareConstant(const Expression& other) const override;
-
-    SKSL_FLOAT getFVecComponent(int) const override {
-        return this->argument()->getConstantFloat();
-    }
-
-    SKSL_INT getIVecComponent(int) const override {
-        return this->argument()->getConstantInt();
-    }
-
-    bool getBVecComponent(int) const override {
-        return this->argument()->getConstantBool();
+    const Expression* getConstantSubexpression(int n) const override {
+        SkASSERT(n >= 0 && n < this->type().columns());
+        return this->argument()->getConstantSubexpression(0);
     }
 
 private:
-    Expression::ComparisonResult compareConstantConstructor(const AnyConstructor& other) const;
-
     using INHERITED = SingleArgumentConstructor;
 };
 

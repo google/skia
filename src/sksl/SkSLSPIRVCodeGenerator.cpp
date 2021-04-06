@@ -715,10 +715,14 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
+        case Expression::Kind::kConstructorMatrixResize:
+            return this->writeConstructorMatrixResize(expr.as<ConstructorMatrixResize>(), out);
         case Expression::Kind::kConstructorScalarCast:
             return this->writeConstructorScalarCast(expr.as<ConstructorScalarCast>(), out);
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
+        case Expression::Kind::kConstructorVector:
+            return this->writeVectorConstructor(expr.as<ConstructorVector>(), out);
         case Expression::Kind::kConstructorVectorCast:
             return this->writeConstructorVectorCast(expr.as<ConstructorVectorCast>(), out);
         case Expression::Kind::kIntLiteral:
@@ -1186,25 +1190,13 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
     SPIRVVectorConstant key{this->getType(type),
                             /*fValueId=*/{SpvId(-1), SpvId(-1), SpvId(-1), SpvId(-1)}};
 
-    if (c.componentType().isFloat()) {
-        for (int i = 0; i < type.columns(); i++) {
-            FloatLiteral literal(c.fOffset, c.getFVecComponent(i), &c.componentType());
-            key.fValueId[i] = this->writeFloatLiteral(literal);
+    for (int n = 0; n < type.columns(); n++) {
+        const Expression* expr = c.getConstantSubexpression(n);
+        if (!expr || type.componentType() != expr->type()) {
+            SkDEBUGFAILF("writeConstantVector: cannot write %s", c.description().c_str());
+            return SpvId(-1);
         }
-    } else if (c.componentType().isInteger()) {
-        for (int i = 0; i < type.columns(); i++) {
-            IntLiteral literal(c.fOffset, c.getIVecComponent(i), &c.componentType());
-            key.fValueId[i] = this->writeIntLiteral(literal);
-        }
-    } else if (c.componentType().isBoolean()) {
-        for (int i = 0; i < type.columns(); i++) {
-            BoolLiteral literal(c.fOffset, c.getBVecComponent(i), &c.componentType());
-            key.fValueId[i] = this->writeBoolLiteral(literal);
-        }
-    } else {
-        SkDEBUGFAILF("unexpected vector component type: %s",
-                     c.componentType().displayName().c_str());
-        return SpvId(-1);
+        key.fValueId[n] = this->writeExpression(*expr, fConstantBuffer);
     }
 
     // Check to see if we've already synthesized this vector constant.
@@ -1595,38 +1587,30 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorVector& c, OutputStream& out) {
     const Type& type = c.type();
+    const Type& componentType = type.componentType();
     SkASSERT(type.isVector());
-    // Constructing a vector from another vector (even if it's constant) requires our general
-    // case code, to deal with (possible) per-element type conversion.
-    bool vectorToVector = c.arguments().size() == 1 && c.arguments()[0]->type().isVector();
-    if (c.isCompileTimeConstant() && !vectorToVector) {
+
+    if (c.isCompileTimeConstant()) {
         return this->writeConstantVector(c);
     }
-    // go ahead and write the arguments so we don't try to write new instructions in the middle of
-    // an instruction
+
     std::vector<SpvId> arguments;
     for (size_t i = 0; i < c.arguments().size(); i++) {
         const Type& argType = c.arguments()[i]->type();
-        if (argType.isVector()) {
-            // SPIR-V doesn't support vector(vector-of-different-type) directly, so we need to
-            // extract the components and convert them in that case manually. On top of that,
-            // as of this writing there's a bug in the Intel Vulkan driver where
-            // OpCompositeConstruct doesn't handle vector arguments at all, so we always extract
-            // vector components and pass them into OpCompositeConstruct individually.
-            SpvId vec = this->writeExpression(*c.arguments()[i], out);
-            const Type& srcType = argType.componentType();
-            const Type& dstType = type.componentType();
-            if (c.arguments().size() == 1 && srcType.numberKind() == dstType.numberKind()) {
-                return vec;
-            }
+        SkASSERT(componentType == argType.componentType());
 
+        if (argType.isVector()) {
+            // There's a bug in the Intel Vulkan driver where OpCompositeConstruct doesn't handle
+            // vector arguments at all, so we always extract each vector component and pass them
+            // into OpCompositeConstruct individually.
+            SpvId vec = this->writeExpression(*c.arguments()[i], out);
             for (int j = 0; j < argType.columns(); j++) {
-                SpvId componentId = this->nextId(&srcType);
-                this->writeInstruction(SpvOpCompositeExtract, this->getType(srcType), componentId,
-                                       vec, j, out);
-                arguments.push_back(this->castScalarToType(componentId, srcType, dstType, out));
+                SpvId componentId = this->nextId(&componentType);
+                this->writeInstruction(SpvOpCompositeExtract, this->getType(componentType),
+                                       componentId, vec, j, out);
+                arguments.push_back(componentId);
             }
         } else {
             arguments.push_back(this->writeExpression(*c.arguments()[i], out));
@@ -1683,9 +1667,6 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         this->getActualType(type) == this->getActualType(c.arguments()[0]->type())) {
         return this->writeExpression(*c.arguments()[0], out);
     }
-    if (type.isVector()) {
-        return this->writeVectorConstructor(c, out);
-    }
     if (type.isMatrix()) {
         return this->writeMatrixConstructor(c, out);
     }
@@ -1718,10 +1699,7 @@ SpvId SPIRVCodeGenerator::writeConstructorVectorCast(const ConstructorVectorCast
     }
 
     // SPIR-V doesn't support vector(vector-of-different-type) directly, so we need to extract the
-    // components and convert them in that case manually. On top of that, as of this writing there's
-    // a bug in the Intel Vulkan driver where OpCompositeConstruct doesn't handle vector arguments
-    // at all, so we always extract vector components and pass them into OpCompositeConstruct
-    // individually.
+    // components and convert each one manually.
     const Type& srcType = argType.componentType();
     const Type& dstType = ctorType.componentType();
 
@@ -1748,6 +1726,18 @@ SpvId SPIRVCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagon
     // Build the diagonal matrix.
     SpvId result = this->nextId(&type);
     this->writeUniformScaleMatrix(result, argument, type, out);
+    return result;
+}
+
+SpvId SPIRVCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize& c,
+                                                       OutputStream& out) {
+    // Write the input matrix.
+    SpvId argument = this->writeExpression(*c.argument(), out);
+
+    // Use matrix-copy to resize the input matrix to its new size.
+    const Type& type = c.type();
+    SpvId result = this->nextId(&type);
+    this->writeMatrixCopy(result, argument, c.argument()->type(), type, out);
     return result;
 }
 
