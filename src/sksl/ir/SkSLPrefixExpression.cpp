@@ -86,27 +86,6 @@ static std::unique_ptr<Expression> negate_operand(const Context& context,
             }
             break;
 
-        case Expression::Kind::kConstructor:
-            // To be consistent with prior behavior, the conversion of a negated constructor into a
-            // constructor of negative values is only performed when optimization is on.
-            // Conceptually it's pretty similar to the int/float optimizations above, though.
-            if (context.fConfig->fSettings.fOptimize && value->isCompileTimeConstant()) {
-                Constructor& ctor = operand->as<Constructor>();
-
-                // We've found a negated constant constructor, e.g.:
-                //     -float4(float3(floatLiteral(1)), floatLiteral(2))
-                // To optimize this, the outer negation is removed and each argument is negated:
-                //     float4(-float3(floatLiteral(1)), floatLiteral(-2))
-                // Recursion will continue to push negation inwards as deeply as possible:
-                //     float4(float3(floatLiteral(-1)), floatLiteral(-2))
-                auto negatedCtor = Constructor::Convert(
-                        context, ctor.fOffset, ctor.type(),
-                        negate_operands(context, std::move(ctor.arguments())));
-                SkASSERT(negatedCtor);
-                return negatedCtor;
-            }
-            break;
-
         default:
             break;
     }

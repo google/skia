@@ -246,7 +246,6 @@ private:
 
     Value writeExpression(const Expression& expr);
     Value writeBinaryExpression(const BinaryExpression& b);
-    Value writeConstructor(const Constructor& c);
     Value writeAggregationConstructor(const AnyConstructor& c);
     Value writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
     Value writeConstructorMatrixResize(const ConstructorMatrixResize& c);
@@ -643,11 +642,6 @@ Value SkVMGenerator::writeAggregationConstructor(const AnyConstructor& c) {
         }
     }
     return result;
-}
-
-Value SkVMGenerator::writeConstructor(const Constructor& c) {
-    SkDEBUGFAIL("Invalid constructor");
-    return {};
 }
 
 Value SkVMGenerator::writeTypeConversion(const Value& src,
@@ -1439,8 +1433,6 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeBinaryExpression(e.as<BinaryExpression>());
         case Expression::Kind::kBoolLiteral:
             return fBuilder->splat(e.as<BoolLiteral>().value() ? ~0 : 0);
-        case Expression::Kind::kConstructor:
-            return this->writeConstructor(e.as<Constructor>());
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorComposite:
             return this->writeAggregationConstructor(e.asAnyConstructor());

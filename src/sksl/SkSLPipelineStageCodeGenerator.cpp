@@ -408,7 +408,6 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
         case Expression::Kind::kIntLiteral:
             this->write(expr.description());
             break;
-        case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorComposite:
         case Expression::Kind::kConstructorCompositeCast:
