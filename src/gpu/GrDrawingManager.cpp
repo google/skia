@@ -240,6 +240,12 @@ bool GrDrawingManager::flush(
     fFlushingRenderTaskIDs.reset();
     fFlushing = false;
 
+    for (auto p : proxies) {
+        if (auto rtp = p->asRenderTargetProxy()) {
+            rtp->clearArenas();
+        }
+    }
+
     return true;
 }
 
