@@ -16,6 +16,24 @@
       "message": "we have a lot of switch statements",
       "revId": "58504b6d7906662766fd77d4c515be11ccb228f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f1ac3bb_6d541a61",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-06T17:37:56Z",
+      "side": 1,
+      "message": "yeah, but we at least try to make sure they never have default: cases",
+      "parentUuid": "c93f752b_1f69d74a",
+      "revId": "58504b6d7906662766fd77d4c515be11ccb228f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
