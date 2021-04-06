@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVector.h"
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
@@ -170,6 +171,10 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
             }
             args = std::move(flattened);
         }
+    }
+
+    if (type.isVector()) {
+        return ConstructorVector::Make(context, offset, type, std::move(args));
     }
 
     return std::make_unique<Constructor>(offset, type, std::move(args));

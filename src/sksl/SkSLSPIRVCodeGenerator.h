@@ -27,6 +27,7 @@
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVector.h"
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -290,7 +291,7 @@ private:
 
     SpvId writeMatrixConstructor(const Constructor& c, OutputStream& out);
 
-    SpvId writeVectorConstructor(const Constructor& c, OutputStream& out);
+    SpvId writeVectorConstructor(const ConstructorVector& c, OutputStream& out);
 
     SpvId writeArrayConstructor(const ConstructorArray& c, OutputStream& out);
 

@@ -104,6 +104,8 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLConstructorScalarCast.h",
   "$_src/sksl/ir/SkSLConstructorSplat.cpp",
   "$_src/sksl/ir/SkSLConstructorSplat.h",
+  "$_src/sksl/ir/SkSLConstructorVector.cpp",
+  "$_src/sksl/ir/SkSLConstructorVector.h",
   "$_src/sksl/ir/SkSLConstructorVectorCast.cpp",
   "$_src/sksl/ir/SkSLConstructorVectorCast.h",
   "$_src/sksl/ir/SkSLContinueStatement.h",

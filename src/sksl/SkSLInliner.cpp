@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorVector.h"
 #include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
@@ -347,6 +348,12 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return ConstructorSplat::Make(*fContext, offset,
                                           *ctor.type().clone(symbolTableForExpression),
                                           expr(ctor.argument()));
+        }
+        case Expression::Kind::kConstructorVector: {
+            const ConstructorVector& ctor = expression.as<ConstructorVector>();
+            return ConstructorVector::Make(*fContext, offset,
+                                           *ctor.type().clone(symbolTableForExpression),
+                                           argList(ctor.arguments()));
         }
         case Expression::Kind::kConstructorVectorCast: {
             const ConstructorVectorCast& ctor = expression.as<ConstructorVectorCast>();
@@ -954,6 +961,7 @@ public:
             case Expression::Kind::kConstructorMatrixResize:
             case Expression::Kind::kConstructorScalarCast:
             case Expression::Kind::kConstructorSplat:
+            case Expression::Kind::kConstructorVector:
             case Expression::Kind::kConstructorVectorCast: {
                 AnyConstructor& constructorExpr = (*expr)->asAnyConstructor();
                 for (std::unique_ptr<Expression>& arg : constructorExpr.argumentSpan()) {
