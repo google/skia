@@ -20,8 +20,7 @@ class SkiaMobilePage(page_module.Page):
     self.archive_data_file = 'data/skia_wikipedia_mobile.json'
 
   def RunNavigateSteps(self, action_runner):
-    action_runner.Navigate(self.url)
-    action_runner.Wait(15)
+    action_runner.Navigate(self.url, timeout_in_seconds=120)
 
 
 class SkiaWikipediaMobilePageSet(story.StorySet):
