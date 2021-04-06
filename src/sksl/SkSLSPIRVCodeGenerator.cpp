@@ -1434,17 +1434,12 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
     SpvId dstColumnType = this->getType(dstType.componentType().toCompound(fContext,
                                                                            dstType.rows(),
                                                                            1));
-    SpvId zeroId;
-    if (dstType.componentType() == *fContext.fTypes.fFloat) {
-        FloatLiteral zero(/*offset=*/-1, /*value=*/0.0, fContext.fTypes.fFloat.get());
-        zeroId = this->writeFloatLiteral(zero);
-    } else if (dstType.componentType() == *fContext.fTypes.fInt) {
-        IntLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fInt.get());
-        zeroId = this->writeIntLiteral(zero);
-    } else {
-        SK_ABORT("unsupported matrix component type");
-    }
-    SpvId zeroColumn = 0;
+    SkASSERT(dstType.componentType().isFloat());
+    FloatLiteral zero(/*offset=*/-1, /*value=*/0.0, &dstType.componentType());
+    const SpvId zeroId = this->writeFloatLiteral(zero);
+    FloatLiteral one(/*offset=*/-1, /*value=*/1.0, &dstType.componentType());
+    const SpvId oneId = this->writeFloatLiteral(one);
+
     SpvId columns[4];
     for (int i = 0; i < dstType.columns(); i++) {
         if (i < srcType.columns()) {
@@ -1464,36 +1459,33 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                 this->writeWord(dstColumnType, out);
                 this->writeWord(dstColumn, out);
                 this->writeWord(srcColumn, out);
-                for (int j = 0; j < delta; ++j) {
-                    this->writeWord(zeroId, out);
+                for (int j = srcType.rows(); j < dstType.rows(); ++j) {
+                    this->writeWord((i == j) ? oneId : zeroId, out);
                 }
             }
             else {
                 // dst column is smaller, need to swizzle the src column
                 dstColumn = this->nextId(&dstType);
-                int count = dstType.rows();
-                this->writeOpCode(SpvOpVectorShuffle, 5 + count, out);
+                this->writeOpCode(SpvOpVectorShuffle, 5 + dstType.rows(), out);
                 this->writeWord(dstColumnType, out);
                 this->writeWord(dstColumn, out);
                 this->writeWord(srcColumn, out);
                 this->writeWord(srcColumn, out);
-                for (int j = 0; j < count; j++) {
+                for (int j = 0; j < dstType.rows(); j++) {
                     this->writeWord(j, out);
                 }
             }
             columns[i] = dstColumn;
         } else {
-            // we're past the end of the src matrix, need a vector of zeroes
-            if (!zeroColumn) {
-                zeroColumn = this->nextId(&dstType);
-                this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.rows(), out);
-                this->writeWord(dstColumnType, out);
-                this->writeWord(zeroColumn, out);
-                for (int j = 0; j < dstType.rows(); ++j) {
-                    this->writeWord(zeroId, out);
-                }
+            // we're past the end of the src matrix, need to synthesize an identity-matrix column
+            SpvId identityColumn = this->nextId(&dstType);
+            this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.rows(), out);
+            this->writeWord(dstColumnType, out);
+            this->writeWord(identityColumn, out);
+            for (int j = 0; j < dstType.rows(); ++j) {
+                this->writeWord((i == j) ? oneId : zeroId, out);
             }
-            columns[i] = zeroColumn;
+            columns[i] = identityColumn;
         }
     }
     this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.columns(), out);
