@@ -139,7 +139,7 @@ OpStore %result %83
 %90 = OpCompositeConstruct %v3float %89 %float_0
 %91 = OpCompositeExtract %v2float %85 1
 %92 = OpCompositeConstruct %v3float %91 %float_0
-%93 = OpCompositeConstruct %v3float %float_0 %float_0 %float_0
+%93 = OpCompositeConstruct %v3float %float_0 %float_0 %float_1
 %88 = OpCompositeConstruct %mat3v3float %90 %92 %93
 OpStore %d %88
 %94 = OpLoad %float %result
@@ -155,7 +155,7 @@ OpStore %result %98
 %106 = OpCompositeConstruct %v3float %105 %float_0
 %107 = OpCompositeExtract %v2float %101 1
 %108 = OpCompositeConstruct %v3float %107 %float_0
-%109 = OpCompositeConstruct %v3float %float_0 %float_0 %float_0
+%109 = OpCompositeConstruct %v3float %float_0 %float_0 %float_1
 %104 = OpCompositeConstruct %mat3v3float %106 %108 %109
 %111 = OpCompositeExtract %v3float %104 0
 %112 = OpCompositeConstruct %v4float %111 %float_0
@@ -163,7 +163,7 @@ OpStore %result %98
 %114 = OpCompositeConstruct %v4float %113 %float_0
 %115 = OpCompositeExtract %v3float %104 2
 %116 = OpCompositeConstruct %v4float %115 %float_0
-%117 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_0
+%117 = OpCompositeConstruct %v4float %float_0 %float_0 %float_0 %float_1
 %110 = OpCompositeConstruct %mat4v4float %112 %114 %116 %117
 OpStore %e %110
 %118 = OpLoad %float %result
