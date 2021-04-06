@@ -1188,25 +1188,13 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const AnyConstructor& c) {
     SPIRVVectorConstant key{this->getType(type),
                             /*fValueId=*/{SpvId(-1), SpvId(-1), SpvId(-1), SpvId(-1)}};
 
-    if (c.componentType().isFloat()) {
-        for (int i = 0; i < type.columns(); i++) {
-            FloatLiteral literal(c.fOffset, c.getFVecComponent(i), &c.componentType());
-            key.fValueId[i] = this->writeFloatLiteral(literal);
+    for (int n = 0; n < type.columns(); n++) {
+        const Expression* expr = c.getConstantSubexpression(n);
+        if (!expr) {
+            SkDEBUGFAILF("writeConstantVector: %s not actually constant", c.description().c_str());
+            return (SpvId)-1;
         }
-    } else if (c.componentType().isInteger()) {
-        for (int i = 0; i < type.columns(); i++) {
-            IntLiteral literal(c.fOffset, c.getIVecComponent(i), &c.componentType());
-            key.fValueId[i] = this->writeIntLiteral(literal);
-        }
-    } else if (c.componentType().isBoolean()) {
-        for (int i = 0; i < type.columns(); i++) {
-            BoolLiteral literal(c.fOffset, c.getBVecComponent(i), &c.componentType());
-            key.fValueId[i] = this->writeBoolLiteral(literal);
-        }
-    } else {
-        SkDEBUGFAILF("unexpected vector component type: %s",
-                     c.componentType().displayName().c_str());
-        return SpvId(-1);
+        key.fValueId[n] = this->writeExpression(*expr, fConstantBuffer);
     }
 
     // Check to see if we've already synthesized this vector constant.

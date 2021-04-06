@@ -795,17 +795,20 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
 }
 
 static bool get_constant_value(const Expression& expr, double* val) {
-    if (!expr.isCompileTimeConstant()) {
+    const Expression* valExpr = expr.getConstantSubexpression(0);
+    if (!valExpr) {
         return false;
     }
-    if (!expr.type().isNumber()) {
-        SkDEBUGFAILF("unexpected constant type (%s)", expr.type().description().c_str());
-        return false;
+    if (valExpr->is<IntLiteral>()) {
+        *val = static_cast<double>(valExpr->as<IntLiteral>().value());
+        return true;
     }
-
-    *val = expr.type().isInteger() ? static_cast<double>(expr.getConstantInt())
-                                   : static_cast<double>(expr.getConstantFloat());
-    return true;
+    if (valExpr->is<FloatLiteral>()) {
+        *val = static_cast<double>(valExpr->as<FloatLiteral>().value());
+        return true;
+    }
+    SkDEBUGFAILF("unexpected constant type (%s)", expr.type().description().c_str());
+    return false;
 }
 
 static const char* invalid_for_ES2(int offset,
