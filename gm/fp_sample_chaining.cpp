@@ -315,11 +315,11 @@ const char* gExplicitCoordSkSL = R"(
 DEF_SIMPLE_GM(sksl_sample_chaining, canvas, 380, 306) {
     SkBitmap bmp = make_test_bitmap();
 
-    sk_sp<SkRuntimeEffect> effects[4] = {
-        SkRuntimeEffect::Make(SkString(gConstantMatrixSkSL)).effect,
-        SkRuntimeEffect::Make(SkString(gUniformMatrixSkSL)).effect,
-        SkRuntimeEffect::Make(SkString(gVariableMatrixSkSL)).effect,
-        SkRuntimeEffect::Make(SkString(gExplicitCoordSkSL)).effect,
+    sk_sp<SkRuntimeShaderEffect> effects[4] = {
+        SkRuntimeShaderEffect::Make(SkString(gConstantMatrixSkSL)).effect,
+        SkRuntimeShaderEffect::Make(SkString(gUniformMatrixSkSL)).effect,
+        SkRuntimeShaderEffect::Make(SkString(gVariableMatrixSkSL)).effect,
+        SkRuntimeShaderEffect::Make(SkString(gExplicitCoordSkSL)).effect,
     };
 
     canvas->translate(10, 10);

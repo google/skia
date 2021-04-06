@@ -189,9 +189,11 @@ enum class NoiseFractal {
     kTurbulentSharp,
 };
 
-sk_sp<SkRuntimeEffect> make_noise_effect(unsigned loops, const char* filter, const char* fractal) {
-    auto result =
-            SkRuntimeEffect::Make(SkStringPrintf(gNoiseEffectSkSL, filter, fractal, loops), {});
+sk_sp<SkRuntimeShaderEffect> make_noise_effect(unsigned loops,
+                                               const char* filter,
+                                               const char* fractal) {
+    auto result = SkRuntimeShaderEffect::Make(
+            SkStringPrintf(gNoiseEffectSkSL, filter, fractal, loops), {});
 
     if (0 && !result.effect) {
         printf("!!! %s\n", result.errorText.c_str());
@@ -201,7 +203,7 @@ sk_sp<SkRuntimeEffect> make_noise_effect(unsigned loops, const char* filter, con
 }
 
 template <unsigned LOOPS, NoiseFilter FILTER, NoiseFractal FRACTAL>
-sk_sp<SkRuntimeEffect> noise_effect() {
+sk_sp<SkRuntimeShaderEffect> noise_effect() {
     static constexpr char const* gFilters[] = {
         gFilterNearestSkSL,
         gFilterLinearSkSL,
@@ -218,7 +220,7 @@ sk_sp<SkRuntimeEffect> noise_effect() {
     static_assert(static_cast<size_t>(FILTER)  < SK_ARRAY_COUNT(gFilters));
     static_assert(static_cast<size_t>(FRACTAL) < SK_ARRAY_COUNT(gFractals));
 
-    static const SkRuntimeEffect* effect =
+    static const SkRuntimeShaderEffect* effect =
             make_noise_effect(LOOPS,
                               gFilters[static_cast<size_t>(FILTER)],
                               gFractals[static_cast<size_t>(FRACTAL)])
@@ -243,7 +245,7 @@ public:
 
 private:
     template <NoiseFilter FI, NoiseFractal FR>
-    sk_sp<SkRuntimeEffect> getEffect() const {
+    sk_sp<SkRuntimeShaderEffect> getEffect() const {
         // Bin the loop counter based on the number of octaves (range: [1..20]).
         // Low complexities are common, so we maximize resolution for the low end.
         if (fOctaves > 8) return noise_effect<20, FI, FR>();
@@ -256,7 +258,7 @@ private:
     }
 
     template <NoiseFilter FI>
-    sk_sp<SkRuntimeEffect> getEffect() const {
+    sk_sp<SkRuntimeShaderEffect> getEffect() const {
         switch (fFractal) {
             case NoiseFractal::kBasic:
                 return this->getEffect<FI, NoiseFractal::kBasic>();
@@ -270,7 +272,7 @@ private:
         SkUNREACHABLE;
     }
 
-    sk_sp<SkRuntimeEffect> getEffect() const {
+    sk_sp<SkRuntimeShaderEffect> getEffect() const {
         switch (fFilter) {
             case NoiseFilter::kNearest   : return this->getEffect<NoiseFilter::kNearest>();
             case NoiseFilter::kLinear    : return this->getEffect<NoiseFilter::kLinear>();

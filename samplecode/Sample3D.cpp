@@ -351,9 +351,9 @@ private:
 };
 
 class SampleBump3D : public SampleCubeBase {
-    sk_sp<SkShader>        fBmpShader, fImgShader;
-    sk_sp<SkRuntimeEffect> fEffect;
-    SkRRect                fRR;
+    sk_sp<SkShader>              fBmpShader, fImgShader;
+    sk_sp<SkRuntimeShaderEffect> fEffect;
+    SkRRect                      fRR;
 
 public:
     SampleBump3D() : SampleCubeBase(Flags(kCanRunOnCPU | kShowLightDome)) {}
@@ -395,7 +395,7 @@ public:
                 return sample(color_map, p) * scale.xxx1;
             }
         )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        auto [effect, error] = SkRuntimeShaderEffect::Make(SkString(code));
         if (!effect) {
             SkDebugf("runtime error %s\n", error.c_str());
         }
@@ -424,8 +424,8 @@ public:
 DEF_SAMPLE( return new SampleBump3D; )
 
 class SampleVerts3D : public SampleCubeBase {
-    sk_sp<SkRuntimeEffect> fEffect;
-    sk_sp<SkVertices>      fVertices;
+    sk_sp<SkRuntimeShaderEffect> fEffect;
+    sk_sp<SkVertices>            fVertices;
 
 public:
     SampleVerts3D() : SampleCubeBase(kShowLightDome) {}
@@ -480,7 +480,7 @@ public:
                 return half4(0.7, 0.9, 0.3, 1) * scale.xxx1;
             }
         )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        auto [effect, error] = SkRuntimeShaderEffect::Make(SkString(code));
         if (!effect) {
             SkDebugf("runtime error %s\n", error.c_str());
         }

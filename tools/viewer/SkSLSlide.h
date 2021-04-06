@@ -36,7 +36,7 @@ private:
 
     SkString fSkSL;
     bool fCodeIsDirty;
-    sk_sp<SkRuntimeEffect> fEffect;
+    sk_sp<SkRuntimeShaderEffect> fEffect;
     SkAutoTMalloc<char> fInputs;
     SkTArray<sk_sp<SkShader>> fChildren;
     float fSeconds = 0.0f;

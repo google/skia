@@ -32,7 +32,7 @@ namespace  {
 //
 // (inspired by https://github.com/RoyiAvital/StackExchangeCodes/blob/master/SignalProcessing/Q688/ApplyBlackWhiteFilter.m)
 
-static sk_sp<SkRuntimeEffect> make_effect() {
+static sk_sp<SkRuntimeColorFilterEffect> make_effect() {
     static constexpr char BLACK_AND_WHITE_EFFECT[] = R"(
         uniform shader input;
         uniform half kR, kY, kG, kC, kB, kM;
@@ -63,8 +63,8 @@ static sk_sp<SkRuntimeEffect> make_effect() {
         }
     )";
 
-    static const SkRuntimeEffect* effect =
-            SkRuntimeEffect::Make(SkString(BLACK_AND_WHITE_EFFECT)).effect.release();
+    static const SkRuntimeColorFilterEffect* effect =
+            SkRuntimeColorFilterEffect::Make(SkString(BLACK_AND_WHITE_EFFECT)).effect.release();
     SkASSERT(effect);
 
     return sk_ref_sp(effect);
@@ -121,7 +121,7 @@ private:
             fEffect->makeColorFilter(SkData::MakeWithCopy(&coeffs, sizeof(coeffs)), &input, 1));
     }
 
-    const sk_sp<SkRuntimeEffect> fEffect;
+    const sk_sp<SkRuntimeColorFilterEffect> fEffect;
 
     ScalarValue                  fCoeffs[6];
 

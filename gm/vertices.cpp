@@ -305,7 +305,7 @@ DEF_SIMPLE_GM(vertices_data, canvas, 512, 256) {
                 return vtx_color;
             }
         )";
-        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+        auto [effect, errorText] = SkRuntimeShaderEffect::Make(SkString(gProg));
         if (!effect) {
             SK_ABORT("RuntimeEffect error: %s\n", errorText.c_str());
         }
@@ -386,7 +386,7 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
             return mix(col0, col1, vtx_lerp);
         }
     )";
-    auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+    auto [effect, errorText] = SkRuntimeShaderEffect::Make(SkString(gProg));
     SkMatrix scale = SkMatrix::Scale(2, 2);
     sk_sp<SkShader> children[] = {
         GetResourceAsImage("images/mandrill_256.png")->makeShader(SkSamplingOptions()),
@@ -466,7 +466,7 @@ DEF_SIMPLE_GM(vertices_custom_colors, canvas, 400, 200) {
         }
     )";
     SkPaint skslPaint;
-    auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+    auto [effect, errorText] = SkRuntimeShaderEffect::Make(SkString(gProg));
     skslPaint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, false));
 
     Attr byteColorAttr(Attr::Type::kByte4_unorm, Attr::Usage::kColor);
@@ -557,7 +557,7 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 400) {
     auto draw = [=](SkScalar cx, SkScalar cy, sk_sp<SkVertices> vertices, const char* prog,
                     SkScalar squish = 1.0f) {
         SkPaint paint;
-        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(prog));
+        auto [effect, errorText] = SkRuntimeShaderEffect::Make(SkString(prog));
         paint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, false));
 
         canvas->save();

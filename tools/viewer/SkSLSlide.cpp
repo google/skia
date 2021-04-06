@@ -96,7 +96,7 @@ bool SkSLSlide::rebuild() {
         fwrite(fSkSL.c_str(), 1, fSkSL.size(), backup);
         fclose(backup);
     }
-    auto [effect, errorText] = SkRuntimeEffect::Make(sksl);
+    auto [effect, errorText] = SkRuntimeShaderEffect::Make(sksl);
     if (backup) {
         std::remove(kBackupFile);
     }

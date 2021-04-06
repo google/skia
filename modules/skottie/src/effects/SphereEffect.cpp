@@ -124,21 +124,24 @@ static constexpr char gFancyLightSkSL[] = R"(
     }
 )";
 
-static sk_sp<SkRuntimeEffect> sphere_fancylight_effect() {
-    static const SkRuntimeEffect* effect =
-        SkRuntimeEffect::Make(SkStringPrintf(gSphereSkSL, gFancyLightSkSL), {}).effect.release();
+static sk_sp<SkRuntimeShaderEffect> sphere_fancylight_effect() {
+    static const SkRuntimeShaderEffect* effect =
+            SkRuntimeShaderEffect::Make(SkStringPrintf(gSphereSkSL, gFancyLightSkSL), {})
+                    .effect.release();
     if (0 && !effect) {
-        printf("!!! %s\n", SkRuntimeEffect::Make(SkStringPrintf(gSphereSkSL, gFancyLightSkSL),
-                                                 {}).errorText.c_str());
+        printf("!!! %s\n",
+               SkRuntimeShaderEffect::Make(SkStringPrintf(gSphereSkSL, gFancyLightSkSL), {})
+                       .errorText.c_str());
     }
     SkASSERT(effect);
 
     return sk_ref_sp(effect);
 }
 
-static sk_sp<SkRuntimeEffect> sphere_basiclight_effect() {
-    static const SkRuntimeEffect* effect =
-        SkRuntimeEffect::Make(SkStringPrintf(gSphereSkSL, gBasicLightSkSL), {}).effect.release();
+static sk_sp<SkRuntimeShaderEffect> sphere_basiclight_effect() {
+    static const SkRuntimeShaderEffect* effect =
+            SkRuntimeShaderEffect::Make(SkStringPrintf(gSphereSkSL, gBasicLightSkSL), {})
+                    .effect.release();
     SkASSERT(effect);
 
     return sk_ref_sp(effect);

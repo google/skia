@@ -39,8 +39,8 @@ class RuntimeFunctions : public skiagm::GM {
     SkISize onISize() override { return {256, 256}; }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkRuntimeEffect> gEffect =
-                SkRuntimeEffect::Make(SkString(RUNTIME_FUNCTIONS_SRC)).effect;
+        sk_sp<SkRuntimeShaderEffect> gEffect =
+                SkRuntimeShaderEffect::Make(SkString(RUNTIME_FUNCTIONS_SRC)).effect;
         SkASSERT(gEffect);
 
         SkMatrix localM;

@@ -1674,21 +1674,25 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
 #ifdef SK_INCLUDE_RUNTIME_EFFECT
-    class_<SkRuntimeEffect>("RuntimeEffect")
-        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<RuntimeEffect>")
+    class_<SkRuntimeShaderEffect>("RuntimeEffect")
+        .smart_ptr<sk_sp<SkRuntimeShaderEffect>>("sk_sp<RuntimeEffect>")
         .class_function("_Make", optional_override([](std::string sksl,
                                                      emscripten::val errHandler
-                                                    )->sk_sp<SkRuntimeEffect> {
+                                                    )->sk_sp<SkRuntimeShaderEffect> {
             SkString s(sksl.c_str(), sksl.length());
-            auto [effect, errorText] = SkRuntimeEffect::Make(s);
+            auto [effect, errorText] = SkRuntimeShaderEffect::Make(s);
             if (!effect) {
                 errHandler.call<void>("onError", val(errorText.c_str()));
                 return nullptr;
             }
             return effect;
         }))
-        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque,
-                                                      uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
+        .function("_makeShader",
+                  optional_override([](SkRuntimeShaderEffect& self,
+                                       uintptr_t fPtr,
+                                       size_t fLen,
+                                       bool isOpaque,
+                                       uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
             castUniforms(inputData, fLen, self);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
@@ -1696,9 +1700,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
             OptionalMatrix localMatrix(mPtr);
             return self.makeShader(inputs, nullptr, 0, &localMatrix, isOpaque);
         }))
-        .function("_makeShaderWithChildren", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque,
-                                                                  uintptr_t /** SkShader*[] */cPtrs, size_t cLen,
-                                                                  uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
+        .function("_makeShaderWithChildren",
+                  optional_override([](SkRuntimeShaderEffect& self,
+                                       uintptr_t fPtr,
+                                       size_t fLen,
+                                       bool isOpaque,
+                                       uintptr_t /** SkShader*[] */cPtrs,
+                                       size_t cLen,
+                                       uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
             castUniforms(inputData, fLen, self);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
@@ -1715,17 +1724,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
             delete[] children;
             return s;
         }))
-        .function("getUniformCount", optional_override([](SkRuntimeEffect& self)->int {
+        .function("getUniformCount", optional_override([](SkRuntimeShaderEffect& self)->int {
             return self.uniforms().count();
         }))
-        .function("getUniformFloatCount", optional_override([](SkRuntimeEffect& self)->int {
+        .function("getUniformFloatCount", optional_override([](SkRuntimeShaderEffect& self)->int {
             return self.uniformSize() / sizeof(float);
         }))
-        .function("getUniformName", optional_override([](SkRuntimeEffect& self, int i)->JSString {
+        .function("getUniformName",
+                  optional_override([](SkRuntimeShaderEffect& self, int i)->JSString {
             auto it = self.uniforms().begin() + i;
             return emscripten::val(it->name.c_str());
         }))
-        .function("getUniform", optional_override([](SkRuntimeEffect& self, int i)->RuntimeEffectUniform {
+        .function("getUniform",
+                  optional_override([](SkRuntimeShaderEffect& self, int i)->RuntimeEffectUniform {
             auto it = self.uniforms().begin() + i;
             RuntimeEffectUniform su = fromUniform(*it);
             return su;

@@ -42,7 +42,7 @@ protected:
                 return result;
             }
         )");
-        auto [effect, error] = SkRuntimeEffect::Make(sksl);
+        auto [effect, error] = SkRuntimeShaderEffect::Make(sksl);
         if (!effect) {
             SkDebugf("RuntimeShader error: %s\n", error.c_str());
         }
@@ -130,6 +130,6 @@ protected:
     }
 
 private:
-    sk_sp<SkRuntimeEffect> fEffect;
+    sk_sp<SkRuntimeShaderEffect> fEffect;
 };
 DEF_GM(return new RuntimeEffectImage;)

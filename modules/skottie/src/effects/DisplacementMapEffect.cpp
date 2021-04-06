@@ -53,11 +53,11 @@ static constexpr char gDisplacementSkSL[] = R"(
     }
 )";
 
-static sk_sp<SkRuntimeEffect> displacement_effect_singleton() {
-    static const SkRuntimeEffect* effect =
-            SkRuntimeEffect::Make(SkString(gDisplacementSkSL)).effect.release();
+static sk_sp<SkRuntimeShaderEffect> displacement_effect_singleton() {
+    static const SkRuntimeShaderEffect* effect =
+            SkRuntimeShaderEffect::Make(SkString(gDisplacementSkSL)).effect.release();
     if (0 && !effect) {
-        auto err = SkRuntimeEffect::Make(SkString(gDisplacementSkSL)).errorText;
+        auto err = SkRuntimeShaderEffect::Make(SkString(gDisplacementSkSL)).errorText;
         printf("!!! %s\n", err.c_str());
     }
     SkASSERT(effect);

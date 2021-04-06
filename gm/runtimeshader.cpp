@@ -29,7 +29,7 @@ public:
             : fName(name), fSize(size), fFlags(flags), fSkSL(sksl) {}
 
     void onOnceBeforeDraw() override {
-        auto [effect, error] = SkRuntimeEffect::Make(fSkSL);
+        auto [effect, error] = SkRuntimeShaderEffect::Make(fSkSL);
         if (!effect) {
             SkDebugf("RuntimeShader error: %s\n", error.c_str());
         }
@@ -52,7 +52,7 @@ protected:
     float    fSecs = 0.0f;
 
     SkString fSkSL;
-    sk_sp<SkRuntimeEffect> fEffect;
+    sk_sp<SkRuntimeShaderEffect> fEffect;
 };
 
 class SimpleRT : public RuntimeShaderGM {
@@ -418,7 +418,7 @@ DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     surf->getCanvas()->drawLine(0, 0, 100, 100, p);
     auto shader = surf->makeImageSnapshot()->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
 
-    SkRuntimeShaderBuilder builder(SkRuntimeEffect::Make(SkString(scale)).effect);
+    SkRuntimeShaderBuilder builder(SkRuntimeShaderEffect::Make(SkString(scale)).effect);
     builder.child("child") = shader;
     p.setShader(builder.makeShader(nullptr, false));
 

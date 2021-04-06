@@ -36,8 +36,8 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> bytes, const SkRuntimeEffect:
     sk_sp<SkData> codeBytes = SkData::MakeSubset(bytes.get(), 0, bytes->size() - kReservedBytes);
 
     SkString shaderText{static_cast<const char*>(codeBytes->data()), codeBytes->size()};
-    SkRuntimeEffect::Result result = SkRuntimeEffect::Make(shaderText, options);
-    SkRuntimeEffect* effect = result.effect.get();
+    SkRuntimeShaderEffect::Result result = SkRuntimeShaderEffect::Make(shaderText, options);
+    SkRuntimeShaderEffect* effect = result.effect.get();
 
     if (!effect || effect->uniformSize() > kReservedBytes) { // if there is not enough uniform bytes
         return false;
