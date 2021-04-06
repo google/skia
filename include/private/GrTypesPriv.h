@@ -925,8 +925,7 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kBGR_565:          return kRGB_565_SkColorType;
         case GrColorType::kABGR_4444:        return kARGB_4444_SkColorType;
         case GrColorType::kRGBA_8888:        return kRGBA_8888_SkColorType;
-        // Once we add kRGBA_8888_SRGB_SkColorType we should return that here.
-        case GrColorType::kRGBA_8888_SRGB:   return kRGBA_8888_SkColorType;
+        case GrColorType::kRGBA_8888_SRGB:   return kSRGBA_8888_SkColorType;
         case GrColorType::kRGB_888x:         return kRGB_888x_SkColorType;
         case GrColorType::kRG_88:            return kR8G8_unorm_SkColorType;
         case GrColorType::kBGRA_8888:        return kBGRA_8888_SkColorType;
@@ -963,6 +962,7 @@ static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kRGB_565_SkColorType:            return GrColorType::kBGR_565;
         case kARGB_4444_SkColorType:          return GrColorType::kABGR_4444;
         case kRGBA_8888_SkColorType:          return GrColorType::kRGBA_8888;
+        case kSRGBA_8888_SkColorType:         return GrColorType::kRGBA_8888_SRGB;
         case kRGB_888x_SkColorType:           return GrColorType::kRGB_888x;
         case kBGRA_8888_SkColorType:          return GrColorType::kBGRA_8888;
         case kGray_8_SkColorType:             return GrColorType::kGray_8;

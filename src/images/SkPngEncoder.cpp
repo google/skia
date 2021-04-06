@@ -237,6 +237,11 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
         case kUnknown_SkColorType:
             break;
 
+        // TODO: I don't think this can just use kRGBA's procs.
+        // kPremul is especially tricky here, since it's presumably TF⁻¹(rgb * a),
+        // so to get at unpremul rgb we'd need to undo the transfer function first.
+        case kSRGBA_8888_SkColorType: return nullptr;
+
         case kRGBA_8888_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:

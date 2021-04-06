@@ -128,6 +128,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         }
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+        case kSRGBA_8888_SkColorType:
             value = static_cast<const uint8_t*>(srcPtr)[3] * (1.0f/255);
             break;
         case kRGBA_1010102_SkColorType:
@@ -321,7 +322,8 @@ SkColor SkPixmap::getColor(int x, int y) const {
             SkPMColor c = SkSwizzle_BGRA_to_PMColor(value);
             return toColor(c);
         }
-        case kRGBA_8888_SkColorType: {
+        case kRGBA_8888_SkColorType:
+        case kSRGBA_8888_SkColorType: {
             uint32_t value = *this->addr32(x, y);
             SkPMColor c = SkSwizzle_RGBA_to_PMColor(value);
             return toColor(c);
@@ -481,7 +483,8 @@ bool SkPixmap::computeIsOpaque() const {
             return true;
         }
         case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType: {
+        case kRGBA_8888_SkColorType:
+        case kSRGBA_8888_SkColorType: {
             SkPMColor c = (SkPMColor)~0;
             for (int y = 0; y < height; ++y) {
                 const SkPMColor* row = this->addr32(0, y);
