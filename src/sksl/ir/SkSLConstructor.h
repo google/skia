@@ -187,6 +187,9 @@ public:
         return std::make_unique<Constructor>(fOffset, this->type(), this->cloneArguments());
     }
 
+    virtual std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                               const Type& type) const override;
+
 private:
     static std::unique_ptr<Expression> MakeScalarConstructor(const Context& context,
                                                              int offset,

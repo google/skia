@@ -214,6 +214,31 @@ Expression::ComparisonResult AnyConstructor::compareConstant(const Expression& o
     return result;
 }
 
+std::unique_ptr<Expression> Constructor::castConstantExpression(const Context& context,
+                                                                const Type& type) const {
+    if (this->type().isVector()) {
+        const Type& componentType = type.componentType();
+
+        // Cast every constructor argument.
+        ExpressionArray ctorArgs;
+        ctorArgs.reserve_back(this->type().columns());
+        for (const std::unique_ptr<Expression>& arg : this->arguments()) {
+            const Type& castType = componentType.toCompound(context, arg->type().columns(),
+                                                            /*rows=*/1);
+            std::unique_ptr<Expression> converted = arg->castConstantExpression(context, castType);
+            if (!converted) {
+                // If we couldn't convert this argument, it probably just isn't a compile-time
+                // constant. That's not a problem; just return nullptr.
+                return nullptr;
+            }
+            ctorArgs.push_back(std::move(converted));
+        }
+        // Make a new constructor wrapping this vector.
+        return Constructor::Convert(context, fOffset, type, std::move(ctorArgs));
+    }
+    return nullptr;
+}
+
 AnyConstructor& Expression::asAnyConstructor() {
     SkASSERT(this->isAnyConstructor());
     return static_cast<AnyConstructor&>(*this);

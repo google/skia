@@ -43,6 +43,9 @@ public:
         return this->argument()->getConstantSubexpression(0);
     }
 
+    virtual std::unique_ptr<Expression> castConstantExpression(const Context& context,
+                                                               const Type& type) const override;
+
 private:
     using INHERITED = SingleArgumentConstructor;
 };
