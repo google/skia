@@ -112,18 +112,14 @@ auto GrAtlasTextOp::Geometry::MakeForBlob(const GrAtlasSubRun& subRun,
                                           SkPoint drawOrigin,
                                           SkIRect clipRect,
                                           sk_sp<GrTextBlob> blob,
-                                          const SkPMColor4f& color,
-                                          SkArenaAlloc* alloc) -> Geometry* {
-    // Bypass the automatic dtor behavior in SkArenaAlloc. I'm leaving this up to the Op to run
-    // all geometry dtors for now.
-    void* geo = alloc->makeBytesAlignedTo(sizeof(Geometry), alignof(Geometry));
-    return new(geo) Geometry{subRun,
-                             drawMatrix,
-                             drawOrigin,
-                             clipRect,
-                             std::move(blob),
-                             nullptr,
-                             color};
+                                          const SkPMColor4f& color) -> Geometry* {
+    return new Geometry{subRun,
+                        drawMatrix,
+                        drawOrigin,
+                        clipRect,
+                        std::move(blob),
+                        nullptr,
+                        color};
 }
 
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
@@ -526,6 +522,10 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
 }
 
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
+    // Setup dummy SkPaint / GrPaint / GrSurfaceDrawContext
+    auto rtc = GrSurfaceDrawContext::Make(
+            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1024, 1024});
+
     SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
 
     SkPaint skPaint;
@@ -548,7 +548,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     int xInt = (random->nextU() % kMaxTrans) * xPos;
     int yInt = (random->nextU() % kMaxTrans) * yPos;
 
-    return GrAtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, matrixProvider, text, xInt, yInt);
+    return GrAtlasTextOp::CreateOpTestingOnly(
+            rtc.get(), skPaint, font, matrixProvider, text, xInt, yInt);
 }
 
 #endif

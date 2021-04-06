@@ -195,8 +195,6 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
     GrMipmapped mipmapped() const;
 
-    SkArenaAlloc* arenaAlloc() { return fArenas->arenaAlloc(); }
-
 #if GR_TEST_UTILS
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
@@ -242,9 +240,6 @@ private:
     // The GrOpsTask can be closed by some other surface context that has picked it up. For this
     // reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
     sk_sp<GrOpsTask> fOpsTask;
-
-    // The arenas shared by the OpsTask.
-    sk_sp<GrArenas> fArenas = sk_make_sp<GrArenas>();
 
     bool fFlushTimeOpsTask;
 

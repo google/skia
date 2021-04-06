@@ -17,7 +17,6 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrRenderTask.h"
 #include "src/gpu/GrSurfaceProxy.h"

@@ -27,7 +27,7 @@ public:
     ~GrAtlasTextOp() override {
         for (const Geometry* g = fHead; g != nullptr;) {
             const Geometry* next = g->fNext;
-            g->~Geometry();
+            delete g;
             g = next;
         }
     }
@@ -67,8 +67,7 @@ public:
                                      SkPoint drawOrigin,
                                      SkIRect clipRect,
                                      sk_sp<GrTextBlob> blob,
-                                     const SkPMColor4f& color,
-                                     SkArenaAlloc* alloc);
+                                     const SkPMColor4f& color);
 
         void fillVertexData(void* dst, int offset, int count) const;
 
