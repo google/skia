@@ -357,8 +357,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
 
 bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
                                    GrCPixmap src,
-                                   SkIPoint dstPt,
-                                   bool prepForSampling) {
+                                   SkIPoint dstPt) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -370,13 +369,12 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
     if (!src.info().bpp() || src.rowBytes() % src.info().bpp()) {
         return false;
     }
-    return this->internalWritePixels(dContext, &src, 1, dstPt, prepForSampling);
+    return this->internalWritePixels(dContext, &src, 1, dstPt);
 }
 
 bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
                                    const GrCPixmap src[],
-                                   int numLevels,
-                                   bool prepForSampling) {
+                                   int numLevels) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -389,7 +387,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
         if (src->dimensions() != this->dimensions()) {
             return false;
         }
-        return this->writePixels(dContext, src[0], {0, 0}, prepForSampling);
+        return this->writePixels(dContext, src[0], {0, 0});
     }
     if (!this->asTextureProxy() || this->asTextureProxy()->proxyMipmapped() == GrMipmapped::kNo) {
         return false;
@@ -411,14 +409,13 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext,
         }
         dims = {std::max(1, dims.width()/2), std::max(1, dims.height()/2)};
     }
-    return this->internalWritePixels(dContext, src, numLevels, {0, 0}, prepForSampling);
+    return this->internalWritePixels(dContext, src, numLevels, {0, 0});
 }
 
 bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
                                            const GrCPixmap src[],
                                            int numLevels,
-                                           SkIPoint pt,
-                                           bool prepForSampling) {
+                                           SkIPoint pt) {
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::internalWritePixels");
 
     SkASSERT(numLevels >= 1);
@@ -484,9 +481,7 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
                             dContext->priv().validPMUPMConversionExists();
     // Drawing code path doesn't support writing to levels and doesn't support inserting layout
     // transitions.
-    if ((!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) &&
-        numLevels == 1 &&
-        !prepForSampling) {
+    if ((!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) && numLevels == 1) {
         GrColorInfo tempColorInfo;
         GrBackendFormat format;
         GrSwizzle tempReadSwizzle;
@@ -620,8 +615,7 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
                 allowedColorType,
                 this->colorInfo().colorType(),
                 srcLevels.begin(),
-                numLevels,
-                prepForSampling)) {
+                numLevels)) {
         return false;
     }
     if (numLevels > 1) {

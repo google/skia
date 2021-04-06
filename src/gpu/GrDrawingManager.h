@@ -94,8 +94,7 @@ public:
                             GrColorType srcColorType,
                             GrColorType dstColorType,
                             const GrMipLevel[],
-                            int levelCount,
-                            bool prepForSampling);
+                            int levelCount);
 
     GrRecordingContext* getContext() { return fContext; }
 
