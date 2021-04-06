@@ -71,6 +71,46 @@ public:
         return true;
     }
 
+    const Expression* getConstantSubexpression(int n) const override {
+        SkASSERT(n >= 0 && n < this->type().columns() * this->type().rows());
+        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
+            int argSize = arg->type().columns() * arg->type().rows();
+            if (n < argSize) {
+                return arg->getConstantSubexpression(n);
+            }
+            n -= argSize;
+        }
+
+        SkDEBUGFAIL("argument column count doesn't match constructor column count");
+        return nullptr;
+    }
+
+    ComparisonResult compareConstant(const Expression& other) const override {
+        ComparisonResult result = ComparisonResult::kEqual;
+        SkASSERT(this->type().columns() == other.type().columns());
+        SkASSERT(this->type().rows()    == other.type().rows());
+
+        int exprs = this->type().columns() * this->type().rows();
+        for (int n = 0; n < exprs; ++n) {
+            // Get the n'th subexpression from each side. If either one is null, return "unknown."
+            const Expression* left = this->getConstantSubexpression(n);
+            if (!left) {
+                return ComparisonResult::kUnknown;
+            }
+            const Expression* right = other.getConstantSubexpression(n);
+            if (!right) {
+                return ComparisonResult::kUnknown;
+            }
+            // Recurse into the subexpressions; the literal types will perform real comparisons, and
+            // most other expressions fall back on the base class Expression which returns unknown.
+            result = left->compareConstant(*right);
+            if (result != ComparisonResult::kEqual) {
+                break;
+            }
+        }
+        return result;
+    }
+
 private:
     std::unique_ptr<Expression> fArgument;
 
@@ -183,8 +223,6 @@ public:
         return std::make_unique<Constructor>(fOffset, this->type(), this->cloneArguments());
     }
 
-    ComparisonResult compareConstant(const Expression& other) const override;
-
     template <typename ResultType>
     ResultType getVecComponent(int index) const;
 
@@ -214,8 +252,6 @@ public:
     bool getBVecComponent(int n) const override {
         return this->getVecComponent<bool>(n);
     }
-
-    SKSL_FLOAT getMatComponent(int col, int row) const override;
 
     SKSL_INT getConstantInt() const override;
 
