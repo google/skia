@@ -52,11 +52,11 @@ public:
         // (All constructors) Type type, uint8 argCount, Expression[] arguments
         kConstructor_Command,
         kConstructorArray_Command,
+        kConstructorComposite_Command,
         kConstructorDiagonalMatrix_Command,
         kConstructorMatrixResize_Command,
         kConstructorScalarCast_Command,
         kConstructorSplat_Command,
-        kConstructorVector_Command,
         kConstructorVectorCast_Command,
         kConstructorReserved4_Command,
         kConstructorReserved5_Command,
