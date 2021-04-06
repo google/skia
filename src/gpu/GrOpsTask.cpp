@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -364,7 +365,6 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
         , fTargetOrigin(view.origin())
         , fArenas{std::move(arenas)}
           SkDEBUGCODE(, fNumClips(0)) {
-    fAllocators.push_back(std::make_unique<SkArenaAlloc>(4096));
     this->addTarget(drawingMgr, view.detachProxy());
 }
 
@@ -377,7 +377,6 @@ void GrOpsTask::deleteOps() {
 
 GrOpsTask::~GrOpsTask() {
     this->deleteOps();
-    this->target(0)->asRenderTargetProxy()->clearArenas();
 }
 
 void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
@@ -428,7 +427,6 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
     fLastClipStackGenID = SK_InvalidUniqueID;
     this->deleteOps();
-    fAllocators.reset();
 
     fDeferredProxies.reset();
     fSampledProxies.reset();
@@ -540,6 +538,11 @@ static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
+    SkASSERT(this->numTargets() == 1);
+    GrRenderTargetProxy* proxy = this->target(0)->asRenderTargetProxy();
+    SkASSERT(proxy);
+    SK_AT_SCOPE_EXIT(proxy->clearArenas());
+
     // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
     // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
     // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
@@ -548,9 +551,6 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
-    SkASSERT(this->numTargets() == 1);
-    GrRenderTargetProxy* proxy = this->target(0)->asRenderTargetProxy();
-    SkASSERT(proxy);
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
@@ -678,7 +678,6 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
 void GrOpsTask::reset() {
     fDeferredProxies.reset();
     fSampledProxies.reset();
-    fAllocators.reset();
     fClippedContentBounds = SkIRect::MakeEmpty();
     fTotalBounds = SkRect::MakeEmpty();
     this->deleteOps();
@@ -691,7 +690,8 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     int mergedCount = 0;
     for (const sk_sp<GrRenderTask>& task : tasks) {
         auto opsTask = task->asOpsTask();
-        if (!opsTask || opsTask->target(0) != this->target(0)) {
+        if (!opsTask || opsTask->target(0) != this->target(0)
+                     || this->fArenas != opsTask->fArenas) {
             break;
         }
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
@@ -705,8 +705,8 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         return 0;
     }
 
-    SkSpan<const sk_sp<GrOpsTask>> opsTasks(reinterpret_cast<const sk_sp<GrOpsTask>*>(tasks.data()),
-                                            SkToSizeT(mergedCount));
+    SkSpan<const sk_sp<GrOpsTask>> opsTasks(
+            reinterpret_cast<const sk_sp<GrOpsTask>*>(tasks.data()), SkToSizeT(mergedCount));
     if (indexOfLastColorClear >= 0) {
         // If any dropped task needs to preserve stencil, for now just bail on the merge.
         // Could keep the merge and insert a clear op, but might be tricky due to closed task.
@@ -742,7 +742,6 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     fDeferredProxies.reserve_back(addlDeferredProxyCount);
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
-    fAllocators.reserve_back(opsTasks.count());
     for (const auto& opsTask : opsTasks) {
         fDeferredProxies.move_back_n(opsTask->fDeferredProxies.count(),
                                      opsTask->fDeferredProxies.data());
@@ -750,9 +749,6 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
                                     opsTask->fSampledProxies.data());
         fOpChains.move_back_n(opsTask->fOpChains.count(),
                               opsTask->fOpChains.data());
-        SkASSERT(1 == opsTask->fAllocators.count());
-        fAllocators.push_back(std::move(opsTask->fAllocators[0]));
-        opsTask->fAllocators.reset();
         opsTask->fDeferredProxies.reset();
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();
@@ -974,7 +970,7 @@ void GrOpsTask::recordOp(
         while (true) {
             OpChain& candidate = fOpChains.fromBack(i);
             op = candidate.appendOp(std::move(op), processorAnalysis, dstProxyView, clip, caps,
-                                    fAllocators.front().get(), fAuditTrail);
+                                    fArenas->arenaAlloc(), fAuditTrail);
             if (!op) {
                 return;
             }
@@ -993,7 +989,7 @@ void GrOpsTask::recordOp(
         GrOP_INFO("\t\tBackward: FirstOp\n");
     }
     if (clip) {
-        clip = fAllocators[0]->make<GrAppliedClip>(std::move(*clip));
+        clip = fArenas->arenaAlloc()->make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
     fOpChains.emplace_back(std::move(op), processorAnalysis, clip, dstProxyView);
@@ -1009,7 +1005,7 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
         int j = i + 1;
         while (true) {
             OpChain& candidate = fOpChains[j];
-            if (candidate.prependChain(&chain, caps, fAllocators.front().get(), fAuditTrail)) {
+            if (candidate.prependChain(&chain, caps, fArenas->arenaAlloc(), fAuditTrail)) {
                 break;
             }
             // Stop traversing if we would cause a painter's order violation.

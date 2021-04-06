@@ -169,22 +169,6 @@ protected:
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
 
-        // Ensure paths get unreffed.
-        for (int i = 0; i < 10; ++i) {
-            ccpr.clipFullscreenRect(fPath);
-        }
-        REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
-        ccpr.flush();
-        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
-
-        // Ensure clip paths get unreffed.
-        for (int i = 0; i < 10; ++i) {
-            ccpr.clipFullscreenRect(fPath);
-        }
-        REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
-        ccpr.flush();
-        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
-
         // Ensure paths get unreffed when we delete the context without flushing.
         for (int i = 0; i < 10; ++i) {
             ccpr.clipFullscreenRect(fPath);
@@ -245,26 +229,6 @@ class CCPR_parseEmptyPath : public CCPRTest {
     }
 };
 DEF_CCPR_TEST(CCPR_parseEmptyPath)
-
-class CCPR_unrefPerOpsTaskPathsBeforeOps : public CCPRTest {
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
-        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
-        for (int i = 0; i < 10000; ++i) {
-            // Draw enough paths to make the arena allocator hit the heap.
-            ccpr.clipFullscreenRect(fPath);
-        }
-
-        // Unref the GrCCPerOpsTaskPaths object.
-        auto perOpsTaskPathsMap = ccpr.ccpr()->detachPendingPaths();
-        perOpsTaskPathsMap.clear();
-
-        // Now delete the Op and all its draws.
-        REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
-        ccpr.flush();
-        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
-    }
-};
-DEF_CCPR_TEST(CCPR_unrefPerOpsTaskPathsBeforeOps)
 
 class CCPRRenderingTest {
 public:
