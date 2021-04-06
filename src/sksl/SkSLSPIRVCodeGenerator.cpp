@@ -709,8 +709,6 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeBinaryExpression(expr.as<BinaryExpression>(), out);
         case Expression::Kind::kBoolLiteral:
             return this->writeBoolLiteral(expr.as<BoolLiteral>());
-        case Expression::Kind::kConstructor:
-            return this->writeConstructor(expr.as<Constructor>(), out);
         case Expression::Kind::kConstructorArray:
             return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
@@ -1664,11 +1662,6 @@ SpvId SPIRVCodeGenerator::writeArrayConstructor(const ConstructorArray& c, Outpu
         arguments.push_back(this->writeExpression(*c.arguments()[i], out));
     }
     return this->writeComposite(arguments, type, out);
-}
-
-SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& out) {
-    fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
-    return -1;
 }
 
 SpvId SPIRVCodeGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c,

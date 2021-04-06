@@ -311,14 +311,6 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kIntLiteral:
         case Expression::Kind::kFloatLiteral:
             return expression.clone();
-        case Expression::Kind::kConstructor: {
-            const Constructor& constructor = expression.as<Constructor>();
-            auto inlinedCtor = Constructor::Convert(
-                    *fContext, offset, *constructor.type().clone(symbolTableForExpression),
-                    argList(constructor.arguments()));
-            SkASSERT(inlinedCtor);
-            return inlinedCtor;
-        }
         case Expression::Kind::kConstructorArray: {
             const ConstructorArray& ctor = expression.as<ConstructorArray>();
             return ConstructorArray::Make(*fContext, offset,
@@ -955,7 +947,6 @@ public:
                 }
                 break;
             }
-            case Expression::Kind::kConstructor:
             case Expression::Kind::kConstructorArray:
             case Expression::Kind::kConstructorComposite:
             case Expression::Kind::kConstructorCompositeCast:
