@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e103fe4_2c6ff141",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-06T13:12:22Z",
+      "side": 1,
+      "message": "If we wrap an external FBO that is single sampled, which funciton gets the FBO? Wondering if that needs",
+      "revId": "60bae1fda79144350a21389ec25d761443f33af9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f47de12_d5f8f34b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-06T13:12:22Z",
+      "side": 1,
+      "message": "Seems like this should change, too, with this renaming. We\u0027re wrapping a possibly single sampled FBO but now always setting fSingleSampledFBOID to 0.\n\nBTW, this can be tested with a config called \"glbert\" (GL BackEnd RenderTarget). It\u0027s run by the bot Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs.",
+      "range": {
+        "startLine": 790,
+        "startChar": 3,
+        "endLine": 794,
+        "endChar": 64
+      },
+      "revId": "60bae1fda79144350a21389ec25d761443f33af9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
