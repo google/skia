@@ -88,6 +88,22 @@ bool GrDrawingManager::flush(
         const GrBackendSurfaceMutableState* newState) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
+    {
+        GrArenas* arena = nullptr;
+        GrRenderTargetProxy* rtp = nullptr;
+        for (auto& renderTask : fDAG) {
+            if (auto opsTask = renderTask->asOpsTask()) {
+                if (arena == nullptr) {
+                    arena = opsTask->fArenas.get();
+                    rtp = opsTask->target(0)->asRenderTargetProxy();
+                } else {
+                    SkASSERT(rtp == opsTask->target(0)->asRenderTargetProxy());
+                    SkASSERT(arena == opsTask->fArenas.get());
+                }
+            }
+        }
+    }
+
     if (fFlushing || this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -390,6 +406,18 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
 
 bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     SkASSERT(fReduceOpsTaskSplitting);
+    {
+        GrArenas* arena = nullptr;
+        for (auto& renderTask : fDAG) {
+            if (auto opsTask = renderTask->asOpsTask()) {
+                if (arena == nullptr) {
+                    arena = opsTask->fArenas.get();
+                } else {
+                    SkASSERT(arena == opsTask->fArenas.get());
+                }
+            }
+        }
+    }
     SkTInternalLList<GrRenderTask> llist;
     bool clustered = GrClusterRenderTasks(fDAG, &llist);
     if (!clustered) {
@@ -411,6 +439,19 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     // TODO: Handle case where proposed order would blow our memory budget.
     // Such cases are currently pathological, so we could just return here and keep current order.
     reorder_array_by_llist(llist, &fDAG);
+
+    {
+        GrArenas* arena = nullptr;
+        for (auto& renderTask : fDAG) {
+            if (auto opsTask = renderTask->asOpsTask()) {
+                if (arena == nullptr) {
+                    arena = opsTask->fArenas.get();
+                } else {
+                    SkASSERT(arena == opsTask->fArenas.get());
+                }
+            }
+        }
+    }
 
     int newCount = 0;
     for (int i = 0; i < fDAG.count(); i++) {
