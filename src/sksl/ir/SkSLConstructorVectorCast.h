@@ -34,7 +34,7 @@ public:
                                             std::unique_ptr<Expression> arg);
 
     bool isCompileTimeConstant() const override {
-        // If this were a compile-time constant, we would have created a ConstructorVector instead.
+        // If this were a compile-time constant, we would have made a ConstructorComposite instead.
         return false;
     }
 
