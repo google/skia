@@ -265,12 +265,10 @@ private:
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;
 
-    // MDB TODO: 4096 for the first allocation may be huge overkill. Gather statistics to determine
-    // the correct size.
-    SkSTArray<1, std::unique_ptr<SkArenaAlloc>> fAllocators;
     sk_sp<GrArenas> fArenas;
     SkDEBUGCODE(int fNumClips;)
 
+    friend class GrDrawingManager;
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
     // causing slow downs.
     SkTArray<GrSurfaceProxy*, true> fSampledProxies;

@@ -390,6 +390,7 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
 
 bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     SkASSERT(fReduceOpsTaskSplitting);
+
     SkTInternalLList<GrRenderTask> llist;
     bool clustered = GrClusterRenderTasks(fDAG, &llist);
     if (!clustered) {
