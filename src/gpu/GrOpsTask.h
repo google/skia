@@ -32,21 +32,14 @@ class GrClearOp;
 class GrGpuBuffer;
 class GrRenderTargetProxy;
 
-class GrArenas : public SkNVRefCnt<GrArenas> {
-public:
-    SkArenaAlloc* arenaAlloc() { return &fArenaAlloc; }
-
-private:
-    SkArenaAlloc fArenaAlloc{1024};
-};
-
 class GrOpsTask : public GrRenderTask {
 private:
     using DstProxyView = GrXferProcessor::DstProxyView;
 
 public:
-    // Manage the arenas life time by maintaining are reference to it.
-    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*, sk_sp<GrArenas>);
+    // The Arenas must outlive the GrOpsTask, either by preserving the context that owns
+    // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
+    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -275,7 +268,6 @@ private:
     // MDB TODO: 4096 for the first allocation may be huge overkill. Gather statistics to determine
     // the correct size.
     SkSTArray<1, std::unique_ptr<SkArenaAlloc>> fAllocators;
-    sk_sp<GrArenas> fArenas;
     SkDEBUGCODE(int fNumClips;)
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
