@@ -72,24 +72,6 @@ DEF_TEST(SkRuntimeEffectInvalid_UndefinedMain, r) {
     test_invalid_effect(r, "", "main");
 }
 
-DEF_TEST(SkRuntimeEffectInvalid_ShaderLimitations, r) {
-    // Various places that shaders (fragmentProcessors) should not be allowed
-    test_invalid_effect(r, "half4 main() { shader child; return sample(child); }",
-                        "must be global");
-    test_invalid_effect(r, "uniform shader child; half4 helper(shader fp) { return sample(fp); }"
-                           "half4 main() { return helper(child); }",
-                           "parameter");
-    test_invalid_effect(r, "uniform shader child; shader get_child() { return child; }"
-                           "half4 main() { return sample(get_child()); }",
-                           "return");
-    test_invalid_effect(r, "uniform shader child;"
-                           "half4 main() { return sample(shader(child)); }",
-                           "construct");
-    test_invalid_effect(r, "uniform shader child1; uniform shader child2;"
-                           "half4 main(float2 p) { return sample(p.x > 10 ? child1 : child2); }",
-                           "expression");
-}
-
 DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
     // sk_Caps is an internal system. It should not be visible to runtime effects
     test_invalid_effect(r, "half4 main() { return sk_Caps.integerSupport ? half4(1) : half4(0); }",
