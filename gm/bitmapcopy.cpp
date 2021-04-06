@@ -25,33 +25,6 @@
 
 namespace {
 
-static const char* color_type_name(SkColorType colorType) {
-    switch (colorType) {
-        case kUnknown_SkColorType:            return "unknown";
-        case kAlpha_8_SkColorType:            return "A8";
-        case kRGB_565_SkColorType:            return "565";
-        case kARGB_4444_SkColorType:          return "4444";
-        case kRGBA_8888_SkColorType:          return "8888";
-        case kRGB_888x_SkColorType:           return "888x";
-        case kBGRA_8888_SkColorType:          return "8888";
-        case kRGBA_1010102_SkColorType:       return "1010102";
-        case kRGB_101010x_SkColorType:        return "101010x";
-        case kBGRA_1010102_SkColorType:       return "bgra1010102";
-        case kBGR_101010x_SkColorType:        return "bgr101010x";
-        case kGray_8_SkColorType:             return "G8";
-        case kRGBA_F16Norm_SkColorType:       return "F16Norm";
-        case kRGBA_F16_SkColorType:           return "F16";
-        case kRGBA_F32_SkColorType:           return "F32";
-        case kR8G8_unorm_SkColorType:         return "R8G8_unorm";
-        case kA16_unorm_SkColorType:          return "A16_unorm";
-        case kR16G16_unorm_SkColorType:       return "R16G16_unorm";
-        case kA16_float_SkColorType:          return "A16_float";
-        case kR16G16_float_SkColorType:       return "R16G16_float";
-        case kR16G16B16A16_unorm_SkColorType: return "R16G16B16A16_unorm";
-    }
-    return "";
-}
-
 constexpr SkColorType gColorTypes[] = {
     kRGB_565_SkColorType,
     kARGB_4444_SkColorType,
@@ -110,7 +83,7 @@ class BitmapCopyGM : public skiagm::GM {
             height = font.getSpacing();
         }
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
-            const char* name = color_type_name(src.colorType());
+            const char* name = ToolUtils::colortype_name(src.colorType());
             SkScalar textWidth = font.measureText(name, strlen(name), SkTextEncoding::kUTF8);
             if (textWidth > width) {
                 width = textWidth;
@@ -123,7 +96,7 @@ class BitmapCopyGM : public skiagm::GM {
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
             canvas->save();
             // Draw destination config name
-            const char* name = color_type_name(fDst[i].colorType());
+            const char* name = ToolUtils::colortype_name(fDst[i].colorType());
             SkScalar textWidth = font.measureText(name, strlen(name), SkTextEncoding::kUTF8);
             SkScalar x = (width - textWidth) / SkScalar(2);
             SkScalar y = font.getSpacing() / SkScalar(2);
