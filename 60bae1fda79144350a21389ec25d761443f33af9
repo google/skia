@@ -39,6 +39,30 @@
       },
       "revId": "60bae1fda79144350a21389ec25d761443f33af9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fdb77cc_304feadf",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-06T17:54:50Z",
+      "side": 1,
+      "message": "This does get changed in the next CL in the chain:\n\nhttps://skia-review.googlesource.com/c/skia/+/392746/5/src/gpu/gl/GrGLGpu.cpp\n\nDo you mind if we leave this one as a strict rename, then take this change on in the next CL?",
+      "parentUuid": "8f47de12_d5f8f34b",
+      "range": {
+        "startLine": 790,
+        "startChar": 3,
+        "endLine": 794,
+        "endChar": 64
+      },
+      "revId": "60bae1fda79144350a21389ec25d761443f33af9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
