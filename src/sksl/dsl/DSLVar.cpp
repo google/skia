@@ -100,6 +100,16 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 }
 
+DSLVar::DSLVar(const DSLVar& other)
+    : fModifiers(other.fModifiers)
+    , fType(other.fType)
+    , fUniformHandle(other.fUniformHandle)
+    , fVar(other.fVar)
+    , fRawName(other.fRawName)
+    , fName(other.fName)
+    , fStorage(other.fStorage)
+    , fDeclared(true) {}
+
 DSLVar::~DSLVar() {
     if (!fDeclared) {
         DSLWriter::ReportError(String::printf("error: variable '%s' was destroyed without being "
