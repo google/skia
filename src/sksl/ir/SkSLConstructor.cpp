@@ -22,34 +22,10 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> Constructor::Convert(const Context& context,
-                                                 int offset,
-                                                 const Type& type,
-                                                 ExpressionArray args) {
-    // FIXME: add support for structs
-    if (args.size() == 1 && args[0]->type() == type && !type.componentType().isOpaque()) {
-        // Don't generate redundant casts; if the expression is already of the correct type, just
-        // return it as-is.
-        return std::move(args[0]);
-    }
-    if (type.isScalar()) {
-        return ConstructorScalarCast::Convert(context, offset, type, std::move(args));
-    }
-    if (type.isVector() || type.isMatrix()) {
-        return MakeCompoundConstructor(context, offset, type, std::move(args));
-    }
-    if (type.isArray() && type.columns() > 0) {
-        return ConstructorArray::Convert(context, offset, type, std::move(args));
-    }
-
-    context.fErrors.error(offset, "cannot construct '" + type.displayName() + "'");
-    return nullptr;
-}
-
-std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& context,
-                                                                 int offset,
-                                                                 const Type& type,
-                                                                 ExpressionArray args) {
+static std::unique_ptr<Expression> convert_compound_constructor(const Context& context,
+                                                                int offset,
+                                                                const Type& type,
+                                                                ExpressionArray args) {
     SkASSERT(type.isVector() || type.isMatrix());
 
     // The meaning of a compound constructor containing a single argument varies significantly in
@@ -129,6 +105,30 @@ std::unique_ptr<Expression> Constructor::MakeCompoundConstructor(const Context& 
     }
 
     return ConstructorComposite::Make(context, offset, type, std::move(args));
+}
+
+std::unique_ptr<Expression> Constructor::Convert(const Context& context,
+                                                 int offset,
+                                                 const Type& type,
+                                                 ExpressionArray args) {
+    // FIXME: add support for structs
+    if (args.size() == 1 && args[0]->type() == type && !type.componentType().isOpaque()) {
+        // Don't generate redundant casts; if the expression is already of the correct type, just
+        // return it as-is.
+        return std::move(args[0]);
+    }
+    if (type.isScalar()) {
+        return ConstructorScalarCast::Convert(context, offset, type, std::move(args));
+    }
+    if (type.isVector() || type.isMatrix()) {
+        return convert_compound_constructor(context, offset, type, std::move(args));
+    }
+    if (type.isArray() && type.columns() > 0) {
+        return ConstructorArray::Convert(context, offset, type, std::move(args));
+    }
+
+    context.fErrors.error(offset, "cannot construct '" + type.displayName() + "'");
+    return nullptr;
 }
 
 const Expression* AnyConstructor::getConstantSubexpression(int n) const {
