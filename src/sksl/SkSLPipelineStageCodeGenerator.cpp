@@ -409,8 +409,8 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
             this->write(expr.description());
             break;
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorComposite:
-        case Expression::Kind::kConstructorCompositeCast:
+        case Expression::Kind::kConstructorCompound:
+        case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:
