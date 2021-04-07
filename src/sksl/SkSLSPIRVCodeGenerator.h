@@ -296,8 +296,6 @@ private:
 
     SpvId writeArrayConstructor(const ConstructorArray& c, OutputStream& out);
 
-    SpvId writeConstructor(const Constructor& c, OutputStream& out);
-
     SpvId writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c, OutputStream& out);
 
     SpvId writeConstructorMatrixResize(const ConstructorMatrixResize& c, OutputStream& out);
