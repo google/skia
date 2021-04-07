@@ -748,12 +748,12 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
 
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
+        case Expression::Kind::kConstructorComposite:
+        case Expression::Kind::kConstructorCompositeCast:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorSplat:
-        case Expression::Kind::kConstructorVector:
-        case Expression::Kind::kConstructorVectorCast: {
+        case Expression::Kind::kConstructorSplat: {
             if (left.kind() != right.kind()) {
                 return false;
             }
@@ -1028,12 +1028,12 @@ public:
             case Expression::Kind::kBinary:
             case Expression::Kind::kConstructor:
             case Expression::Kind::kConstructorArray:
+            case Expression::Kind::kConstructorComposite:
+            case Expression::Kind::kConstructorCompositeCast:
             case Expression::Kind::kConstructorDiagonalMatrix:
             case Expression::Kind::kConstructorMatrixResize:
             case Expression::Kind::kConstructorScalarCast:
             case Expression::Kind::kConstructorSplat:
-            case Expression::Kind::kConstructorVector:
-            case Expression::Kind::kConstructorVectorCast:
             case Expression::Kind::kFieldAccess:
             case Expression::Kind::kIndex:
             case Expression::Kind::kPrefix:
@@ -1157,12 +1157,12 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
         }
         case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
+        case Expression::Kind::kConstructorComposite:
+        case Expression::Kind::kConstructorCompositeCast:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorSplat:
-        case Expression::Kind::kConstructorVector:
-        case Expression::Kind::kConstructorVectorCast: {
+        case Expression::Kind::kConstructorSplat: {
             auto& c = e.asAnyConstructor();
             for (auto& arg : c.argumentSpan()) {
                 if (this->visitExpressionPtr(arg)) { return true; }

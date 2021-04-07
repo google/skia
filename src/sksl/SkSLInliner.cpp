@@ -18,12 +18,12 @@
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorComposite.h"
+#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
-#include "src/sksl/ir/SkSLConstructorVector.h"
-#include "src/sksl/ir/SkSLConstructorVectorCast.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -325,6 +325,18 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
                                           *ctor.type().clone(symbolTableForExpression),
                                           argList(ctor.arguments()));
         }
+        case Expression::Kind::kConstructorComposite: {
+            const ConstructorComposite& ctor = expression.as<ConstructorComposite>();
+            return ConstructorComposite::Make(*fContext, offset,
+                                              *ctor.type().clone(symbolTableForExpression),
+                                              argList(ctor.arguments()));
+        }
+        case Expression::Kind::kConstructorCompositeCast: {
+            const ConstructorCompositeCast& ctor = expression.as<ConstructorCompositeCast>();
+            return ConstructorCompositeCast::Make(*fContext, offset,
+                                                  *ctor.type().clone(symbolTableForExpression),
+                                                  expr(ctor.argument()));
+        }
         case Expression::Kind::kConstructorDiagonalMatrix: {
             const ConstructorDiagonalMatrix& ctor = expression.as<ConstructorDiagonalMatrix>();
             return ConstructorDiagonalMatrix::Make(*fContext, offset,
@@ -348,18 +360,6 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return ConstructorSplat::Make(*fContext, offset,
                                           *ctor.type().clone(symbolTableForExpression),
                                           expr(ctor.argument()));
-        }
-        case Expression::Kind::kConstructorVector: {
-            const ConstructorVector& ctor = expression.as<ConstructorVector>();
-            return ConstructorVector::Make(*fContext, offset,
-                                           *ctor.type().clone(symbolTableForExpression),
-                                           argList(ctor.arguments()));
-        }
-        case Expression::Kind::kConstructorVectorCast: {
-            const ConstructorVectorCast& ctor = expression.as<ConstructorVectorCast>();
-            return ConstructorVectorCast::Make(*fContext, offset,
-                                               *ctor.type().clone(symbolTableForExpression),
-                                               expr(ctor.argument()));
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
@@ -957,12 +957,12 @@ public:
             }
             case Expression::Kind::kConstructor:
             case Expression::Kind::kConstructorArray:
+            case Expression::Kind::kConstructorComposite:
+            case Expression::Kind::kConstructorCompositeCast:
             case Expression::Kind::kConstructorDiagonalMatrix:
             case Expression::Kind::kConstructorMatrixResize:
             case Expression::Kind::kConstructorScalarCast:
-            case Expression::Kind::kConstructorSplat:
-            case Expression::Kind::kConstructorVector:
-            case Expression::Kind::kConstructorVectorCast: {
+            case Expression::Kind::kConstructorSplat: {
                 AnyConstructor& constructorExpr = (*expr)->asAnyConstructor();
                 for (std::unique_ptr<Expression>& arg : constructorExpr.argumentSpan()) {
                     this->visitExpression(&arg);
