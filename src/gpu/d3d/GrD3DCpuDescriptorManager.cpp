@@ -59,10 +59,19 @@ GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createShaderResourceVi
 }
 
 GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createUnorderedAccessView(
-        GrD3DGpu* gpu, ID3D12Resource* resource) {
+        GrD3DGpu* gpu, ID3D12Resource* resource, unsigned int mipSlice) {
     const GrD3DDescriptorHeap::CPUHandle& descriptor = fCBVSRVUAVDescriptorPool.allocateHandle(gpu);
-    // TODO: might need more granularity here for textures (specify miplevels, etc.)
-    gpu->device()->CreateUnorderedAccessView(resource, nullptr, nullptr, descriptor.fHandle);
+
+    D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+    desc.Format = resource->GetDesc().Format;
+    if (resource->GetDesc().Dimension == D3D12_RESOURCE_DIMENSION_BUFFER) {
+        desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+    } else {
+        desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+        desc.Texture2D.MipSlice = mipSlice;
+    }
+    gpu->device()->CreateUnorderedAccessView(resource, nullptr, &desc, descriptor.fHandle);
+
     return descriptor;
 }
 

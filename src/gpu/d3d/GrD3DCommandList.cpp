@@ -510,7 +510,9 @@ void GrD3DDirectCommandList::setComputeRootDescriptorTable(
     SkASSERT(rootParameterIndex ==
              (unsigned int)GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable ||
              rootParameterIndex ==
-             (unsigned int)GrD3DRootSignature::ParamIndex::kTextureDescriptorTable);
+             (unsigned int)GrD3DRootSignature::ParamIndex::kTextureDescriptorTable ||
+             rootParameterIndex ==
+             (unsigned int)GrD3DRootSignature::ParamIndex::kUAVDescriptorTable);
     if (fCurrentComputeRootDescTable[rootParameterIndex].ptr != baseDescriptor.ptr) {
         fCommandList->SetComputeRootDescriptorTable(rootParameterIndex, baseDescriptor);
         fCurrentComputeRootDescTable[rootParameterIndex] = baseDescriptor;
