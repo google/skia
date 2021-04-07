@@ -69,6 +69,24 @@
       "parentUuid": "170dc798_7c0bfae1",
       "revId": "07dd2b1a8b160ba459ddb3423009feb0a8b3fb83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4241d9f_1369304e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-07T19:47:00Z",
+      "side": 1,
+      "message": "Are you looking at the 1010102 ones? I bet those are cases where we were near the boundary between two alpha values and pushing it over the edge by getting a slightly different result in the alpha channel in the shader causes a huge change when going from say alpha \u003d 1/3 to 2/3. I think it\u0027s just showing 2 bits of alpha is a bad idea.",
+      "parentUuid": "2bdbfcf1_0b65f5a3",
+      "revId": "07dd2b1a8b160ba459ddb3423009feb0a8b3fb83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
