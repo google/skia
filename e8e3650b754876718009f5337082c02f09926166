@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "897a9201_576754fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-07T20:06:21Z",
+      "side": 1,
+      "message": "https://skia.org/docs/user/coordinates/?cl\u003d393516\n\n  -and-\n\nhttps://skia.org/docs/user/sksl/?cl\u003d393516#span-idcoordscoordinate-spacesspan",
+      "revId": "e8e3650b754876718009f5337082c02f09926166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
