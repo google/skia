@@ -105,6 +105,24 @@
       "parentUuid": "e4241d9f_1369304e",
       "revId": "07dd2b1a8b160ba459ddb3423009feb0a8b3fb83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c33f8c5d_cf216be7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-07T21:20:38Z",
+      "side": 1,
+      "message": "This one, right?\nhttps://gold.skia.org/detail?test\u003dimagefiltersbase\u0026digest\u003db45053cdb670ce0b1c3d79283590aedb\u0026changelist_id\u003d390796\u0026crs\u003dgerrit\n\nThat\u0027s rendering to RGBA_1010102 (see the color type field).",
+      "parentUuid": "52b510b1_7a597a9d",
+      "revId": "07dd2b1a8b160ba459ddb3423009feb0a8b3fb83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
