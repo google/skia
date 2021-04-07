@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9d0362e_cf62146d",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-07T18:29:33Z",
+      "side": 1,
+      "message": "Just to make sure I am following correctly, since it initially felt backwards to me: Upscaling because we make an SDF at a resolution than what we\u0027d ideally be using given maxScale, so the mipScale SDF is upscaled to match maxScale during the actual draw.",
+      "range": {
+        "startLine": 296,
+        "startChar": 51,
+        "endLine": 296,
+        "endChar": 86
+      },
+      "revId": "37dddb3c35f6d0ac30c3efd2d8677f48b04eca63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
