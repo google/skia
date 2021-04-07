@@ -155,6 +155,9 @@ void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const
         return;
     }
 
+    size_t size = GrSurface::ComputeSize(this->backendFormat(), this->dimensions(), 1,
+                                         this->mipmapped());
+
     // Dump as skia/gpu_resources/resource_#/texture, to avoid conflicts in the
     // GrGLTextureRenderTarget case, where multiple things may dump to the same resource. This
     // has no downside in the normal case.
@@ -164,8 +167,7 @@ void GrGLTexture::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const
     // As we are only dumping our texture memory (not any additional memory tracked by classes
     // which may inherit from us), specifically call GrGLTexture::gpuMemorySize to avoid
     // hitting an override.
-    this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "Texture",
-                                   GrGLTexture::gpuMemorySize());
+    this->dumpMemoryStatisticsPriv(traceMemoryDump, resourceName, "Texture", size);
 
     SkString texture_id;
     texture_id.appendU32(this->textureID());

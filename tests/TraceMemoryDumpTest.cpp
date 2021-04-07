@@ -17,6 +17,7 @@
 #include "src/gpu/gl/GrGLBuffer.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/GrGLTextureRenderTarget.h"
 #endif
 
 /*
@@ -55,18 +56,18 @@ private:
     size_t fDumpedObjectsSize = 0;
 };
 
-void ValidateMemoryDumps(skiatest::Reporter* reporter, GrDirectContext* dContext, size_t size,
-                         bool isOwned) {
+void ValidateMemoryDumps(skiatest::Reporter* reporter, GrDirectContext* dContext,
+                         size_t numDumpedObjects, size_t size, bool isOwned) {
     // Note than one entry in the dumped objects is expected for the text blob cache.
     TestSkTraceMemoryDump dump_with_wrapped(true /* shouldDumpWrappedObjects */);
     dContext->dumpMemoryStatistics(&dump_with_wrapped);
-    REPORTER_ASSERT(reporter, 2 == dump_with_wrapped.numDumpedObjects());
+    REPORTER_ASSERT(reporter, numDumpedObjects == dump_with_wrapped.numDumpedObjects());
     REPORTER_ASSERT(reporter, size == dump_with_wrapped.dumpedObjectsSize());
 
     TestSkTraceMemoryDump dump_no_wrapped(false /* shouldDumpWrappedObjects */);
     dContext->dumpMemoryStatistics(&dump_no_wrapped);
     if (isOwned) {
-        REPORTER_ASSERT(reporter, 2 == dump_no_wrapped.numDumpedObjects());
+        REPORTER_ASSERT(reporter, numDumpedObjects == dump_no_wrapped.numDumpedObjects());
         REPORTER_ASSERT(reporter, size == dump_no_wrapped.dumpedObjectsSize());
     } else {
         REPORTER_ASSERT(reporter, 1 == dump_no_wrapped.numDumpedObjects());
@@ -82,7 +83,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLBuffer, reporter,
     sk_sp<GrGLBuffer> buffer =
             GrGLBuffer::Make(gpu, kMemorySize, GrGpuBufferType::kVertex, kDynamic_GrAccessPattern);
 
-    ValidateMemoryDumps(reporter, dContext, kMemorySize, true /* isOwned */);
+    ValidateMemoryDumps(reporter, dContext, 2, kMemorySize, true /* isOwned */);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter, ctxInfo) {
@@ -99,7 +100,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter
     auto texture =
             sk_make_sp<GrGLTexture>(gpu, SkBudgeted::kNo, desc, GrMipmapStatus::kNotAllocated);
 
-    ValidateMemoryDumps(reporter, dContext, texture->gpuMemorySize(), true /* isOwned */);
+    ValidateMemoryDumps(reporter, dContext, 2, texture->gpuMemorySize(), true /* isOwned */);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, reporter, ctxInfo) {
@@ -119,7 +120,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, report
             GrGLTexture::MakeWrapped(gpu, GrMipmapStatus::kNotAllocated, desc, std::move(params),
                                      GrWrapCacheable::kNo, kRead_GrIOType);
 
-    ValidateMemoryDumps(reporter, dContext, texture->gpuMemorySize(), false /* isOwned */);
+    ValidateMemoryDumps(reporter, dContext, 2, texture->gpuMemorySize(), false /* isOwned */);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, reporter, ctxInfo) {
@@ -128,16 +129,24 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
 
     static constexpr auto kSize = SkISize::Make(64, 64);
 
+    GrGLTexture::Desc texDesc;
+    texDesc.fSize = kSize;
+    texDesc.fTarget = GR_GL_TEXTURE_2D;
+    texDesc.fID = 17;
+    texDesc.fFormat = GrGLFormat::kRGBA8;
+    texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+
     GrGLRenderTarget::IDs rtIDs;
-    rtIDs.fRTFBOID = 20;
+    rtIDs.fMultisampleFBOID = 12;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
-    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    rtIDs.fSingleSampleFBOID = 20;
     rtIDs.fMSColorRenderbufferID = 22;
+    rtIDs.fNumSamplesOwnedPerPixel = 9;
 
-    sk_sp<GrGLRenderTarget> rt =
-            GrGLRenderTarget::MakeWrapped(gpu, kSize, GrGLFormat::kRGBA8, 1, rtIDs, 0);
+    auto texRT = sk_make_sp<GrGLTextureRenderTarget>(gpu, SkBudgeted::kYes, 8, texDesc, rtIDs,
+                                                     GrMipmapStatus::kNotAllocated);
 
-    ValidateMemoryDumps(reporter, dContext, rt->gpuMemorySize(), true /* isOwned */);
+    ValidateMemoryDumps(reporter, dContext, 3, texRT->gpuMemorySize(), true /* isOwned */);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, reporter, ctxInfo) {
@@ -147,14 +156,15 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
     static constexpr auto kSize = SkISize::Make(64, 64);
 
     GrGLRenderTarget::IDs rtIDs;
-    rtIDs.fRTFBOID = 20;
+    rtIDs.fMultisampleFBOID = 12;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
-    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
-    rtIDs.fMSColorRenderbufferID = 22;
+    rtIDs.fSingleSampleFBOID = 0;
+    rtIDs.fMSColorRenderbufferID = 0;
+    rtIDs.fNumSamplesOwnedPerPixel = 4;
 
     sk_sp<GrGLRenderTarget> rt =
-            GrGLRenderTarget::MakeWrapped(gpu, kSize, GrGLFormat::kRGBA8, 1, rtIDs, 0);
+            GrGLRenderTarget::MakeWrapped(gpu, kSize, GrGLFormat::kRGBA8, 4, rtIDs, 0);
 
-    ValidateMemoryDumps(reporter, dContext, rt->gpuMemorySize(), false /* isOwned */);
+    ValidateMemoryDumps(reporter, dContext, 1, 0, false /* isOwned */);
 }
 #endif  // SK_GL
