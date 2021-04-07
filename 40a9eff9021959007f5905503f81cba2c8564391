@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "407d2831_9beb0dd8",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-07T20:42:39Z",
+      "side": 1,
+      "message": "I\u0027m not happy about having to make DSLVar copyable, but I wasn\u0027t able to come up with a better solution.\n\nIdeally I want DSLFunction::operator() to behave as if it had been declared operator()(DSLExpression a1, DSLExpression a2, ...) rather than operator()(Arg1Type a1, Arg2Type a2, ...), so the implicit conversion happens outside of the function and therefore it doesn\u0027t matter whether the argument type is copyable.\n\nThere might be some C++ template magic to make it behave that way, but a promising approach I thought of turned out to not work and I\u0027m out of ideas, so here\u0027s the sledgehammer solution. I\u0027m all ears if there\u0027s a trick to doing this that I\u0027m unaware of.",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "40a9eff9021959007f5905503f81cba2c8564391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
