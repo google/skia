@@ -22,6 +22,30 @@
       },
       "revId": "37dddb3c35f6d0ac30c3efd2d8677f48b04eca63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62a03f72_46dc86cb",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-07T18:43:38Z",
+      "side": 1,
+      "message": "When we finally render the SDF, we use maxScale/mipScale for scaling. Ideally we want that to scale down (i.e., be \u003c\u003d 1) because otherwise we could end up with rounded corners. So we choose the power of 2 \u003e\u003d maxScale. In this case we\u0027re so close to a power of 2 that we shouldn\u0027t get any visible rounding of corners.",
+      "parentUuid": "e9d0362e_cf62146d",
+      "range": {
+        "startLine": 296,
+        "startChar": 51,
+        "endLine": 296,
+        "endChar": 86
+      },
+      "revId": "37dddb3c35f6d0ac30c3efd2d8677f48b04eca63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
