@@ -791,13 +791,19 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    GrGLRenderTarget::IDs rtIDs;
-    rtIDs.fRTFBOID = info.fFBOID;
-    rtIDs.fMSColorRenderbufferID = 0;
-    rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
-    rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
-
     int sampleCount = this->glCaps().getRenderTargetSampleCount(backendRT.sampleCnt(), format);
+
+    GrGLRenderTarget::IDs rtIDs;
+    if (sampleCount <= 1) {
+        rtIDs.fSingleSampleFBOID = info.fFBOID;
+        rtIDs.fMultisampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+    } else {
+        rtIDs.fSingleSampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+        rtIDs.fMultisampleFBOID = info.fFBOID;
+    }
+    rtIDs.fMSColorRenderbufferID = 0;
+    rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
+    rtIDs.fTotalMemorySamplesPerPixel = sampleCount;
 
     return GrGLRenderTarget::MakeWrapped(this, backendRT.dimensions(), format, sampleCount, rtIDs,
                                          backendRT.stencilBits());
@@ -1173,9 +1179,10 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                         int sampleCount,
                                         GrGLRenderTarget::IDs* rtIDs) {
     rtIDs->fMSColorRenderbufferID = 0;
-    rtIDs->fRTFBOID = 0;
+    rtIDs->fMultisampleFBOID = 0;
     rtIDs->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     rtIDs->fSingleSampleFBOID = 0;
+    rtIDs->fTotalMemorySamplesPerPixel = 0;
 
     GrGLenum colorRenderbufferFormat = 0; // suppress warning
 
@@ -1197,10 +1204,10 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
     // rendered from.
     if (sampleCount <= 1) {
-        rtIDs->fRTFBOID = rtIDs->fSingleSampleFBOID;
+        rtIDs->fMultisampleFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     } else {
-        GL_CALL(GenFramebuffers(1, &rtIDs->fRTFBOID));
-        if (!rtIDs->fRTFBOID) {
+        GL_CALL(GenFramebuffers(1, &rtIDs->fMultisampleFBOID));
+        if (!rtIDs->fMultisampleFBOID) {
             goto FAILED;
         }
         if (!this->glCaps().usesImplicitMSAAResolve()) {
@@ -1221,16 +1228,16 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                            desc.fSize.width(), desc.fSize.height())) {
             goto FAILED;
         }
-        this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fRTFBOID);
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fMultisampleFBOID);
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         rtIDs->fMSColorRenderbufferID));
+        rtIDs->fTotalMemorySamplesPerPixel += sampleCount;
     } else if (sampleCount > 1) {
         // multisampled_render_to_texture
         SkASSERT(this->glCaps().usesImplicitMSAAResolve());  // Otherwise fMSColorRenderbufferID!=0.
-        SkASSERT(rtIDs->fRTFBOID != rtIDs->fSingleSampleFBOID);
-        this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fRTFBOID);
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fMultisampleFBOID);
         GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 desc.fTarget,
@@ -1245,6 +1252,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                  desc.fTarget,
                                  desc.fID,
                                  0));
+    ++rtIDs->fTotalMemorySamplesPerPixel;
 
     return true;
 
@@ -1252,8 +1260,8 @@ FAILED:
     if (rtIDs->fMSColorRenderbufferID) {
         GL_CALL(DeleteRenderbuffers(1, &rtIDs->fMSColorRenderbufferID));
     }
-    if (rtIDs->fRTFBOID != rtIDs->fSingleSampleFBOID) {
-        this->deleteFramebuffer(rtIDs->fRTFBOID);
+    if (rtIDs->fMultisampleFBOID != rtIDs->fSingleSampleFBOID) {
+        this->deleteFramebuffer(rtIDs->fMultisampleFBOID);
     }
     if (rtIDs->fSingleSampleFBOID) {
         this->deleteFramebuffer(rtIDs->fSingleSampleFBOID);
