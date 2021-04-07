@@ -33,6 +33,24 @@
       "message": "\u003e Patch Set 1:\n\u003e \n\u003e Gold has detected about 35 untriaged digest(s) on patchset 1.\n\u003e View them at https://gold.skia.org/cl/gerrit/390796\n\nThese diffs look acceptable to me",
       "revId": "07dd2b1a8b160ba459ddb3423009feb0a8b3fb83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "170dc798_7c0bfae1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17669
+      },
+      "writtenOn": "2021-04-07T18:39:14Z",
+      "side": 1,
+      "message": "Yeah I\u0027m not too worried about the tiny differences, but there are a few cases where there are single big changes and I want to see if that is caused by half precision loss first",
+      "parentUuid": "fe87ae90_d2b065e1",
+      "revId": "07dd2b1a8b160ba459ddb3423009feb0a8b3fb83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
