@@ -74,10 +74,11 @@ public:
         return fResolveAttachment ? fResolveAttachment.get() : fColorAttachment.get();
     }
 
-    const GrVkRenderPass* getSimpleRenderPass(bool withResolve,
-                                              bool withStencil,
-                                              SelfDependencyFlags selfDepFlags,
-                                              LoadFromResolve);
+    std::pair<const GrVkRenderPass*, GrVkResourceProvider::CompatibleRPHandle> getSimpleRenderPass(
+            bool withResolve,
+            bool withStencil,
+            SelfDependencyFlags selfDepFlags,
+            LoadFromResolve);
     GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle(
             bool withResolve,
             bool withStencil,
