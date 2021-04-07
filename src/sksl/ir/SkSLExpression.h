@@ -30,7 +30,6 @@ public:
         kBinary = (int) Statement::Kind::kLast + 1,
         kBoolLiteral,
         kCodeString,
-        kConstructor,
         kConstructorArray,
         kConstructorComposite,
         kConstructorCompositeCast,
@@ -88,9 +87,9 @@ public:
     }
 
     bool isAnyConstructor() const {
-        static_assert((int)Kind::kConstructor - 1 == (int)Kind::kCodeString);
+        static_assert((int)Kind::kConstructorArray - 1 == (int)Kind::kCodeString);
         static_assert((int)Kind::kConstructorSplat + 1 == (int)Kind::kDefined);
-        return this->kind() >= Kind::kConstructor && this->kind() <= Kind::kConstructorSplat;
+        return this->kind() >= Kind::kConstructorArray && this->kind() <= Kind::kConstructorSplat;
     }
 
     /**
