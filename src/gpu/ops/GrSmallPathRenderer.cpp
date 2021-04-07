@@ -292,6 +292,9 @@ private:
                     SkScalar log = SkScalarCeilToScalar(SkScalarLog2(maxScale));
                     mipScale = SkScalarPow(2, log);
                 }
+		if (maxScale > mipScale) {
+		  SkDebugf("max: %f, mip: %f\n", maxScale, mipScale);
+		}
                 SkASSERT(maxScale <= mipScale);
 
                 SkScalar mipSize = mipScale*SkScalarAbs(maxDim);
