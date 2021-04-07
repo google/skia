@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -1435,6 +1436,7 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return fBuilder->splat(e.as<BoolLiteral>().value() ? ~0 : 0);
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorCompound:
+        case Expression::Kind::kConstructorStruct:
             return this->writeAggregationConstructor(e.asAnyConstructor());
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
