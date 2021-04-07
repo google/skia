@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e937ef0c_ae63ad59",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-07T21:28:00Z",
+      "side": 1,
+      "message": "Do we need to assume other levels were bound as well?",
+      "range": {
+        "startLine": 679,
+        "startChar": 17,
+        "endLine": 679,
+        "endChar": 39
+      },
+      "revId": "16b12463f24b60e30a81ca04ff65064afdec1e7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
