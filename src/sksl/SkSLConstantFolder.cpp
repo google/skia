@@ -14,6 +14,9 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -102,9 +105,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
                              right.getConstantSubexpression(i)->as<Literal<T>>().value());
             args.push_back(Literal<T>::Make(left.fOffset, value, &componentType));
         }
-        auto foldedCtor = Constructor::Convert(context, left.fOffset, type, std::move(args));
-        SkASSERT(foldedCtor);
-        return foldedCtor;
+        return ConstructorCompound::Make(context, left.fOffset, type, std::move(args));
     };
 
     switch (op.kind()) {
@@ -120,6 +121,7 @@ static std::unique_ptr<Expression> simplify_vector(const Context& context,
 static std::unique_ptr<Expression> cast_expression(const Context& context,
                                                    const Expression& expr,
                                                    const Type& type) {
+    // Synthesize a constructor to convert the expression to the appropriate type.
     ExpressionArray ctorArgs;
     ctorArgs.push_back(expr.clone());
     std::unique_ptr<Expression> ctor = Constructor::Convert(context, expr.fOffset, type,

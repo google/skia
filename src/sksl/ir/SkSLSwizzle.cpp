@@ -6,6 +6,7 @@
  */
 
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -103,6 +104,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 }
                 swizzleComponents.push_back(constantZeroIdx);
                 break;
+
             case SwizzleComponent::ONE:
                 if (constantOneIdx == -1) {
                     // Synthesize a 'type(1)' argument at the end of the constructor.
@@ -113,6 +115,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 }
                 swizzleComponents.push_back(constantOneIdx);
                 break;
+
             default:
                 // The non-constant fields are already in the expected order.
                 swizzleComponents.push_back(maskFieldIdx++);
@@ -120,13 +123,12 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         }
     }
 
-    expr = Constructor::Convert(context, offset,
-                                numberType->toCompound(context, constantFieldIdx, /*rows=*/1),
-                                std::move(constructorArgs));
-    if (!expr) {
-        return nullptr;
-    }
+    // Make a compound constructor containing these new components.
+    expr = ConstructorCompound::Make(context, offset,
+                                     numberType->toCompound(context, constantFieldIdx, /*rows=*/1),
+                                     std::move(constructorArgs));
 
+    // And re-swizzle the result into the proper order.
     return Swizzle::Make(context, std::move(expr), swizzleComponents);
 }
 
@@ -223,7 +225,7 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
             int numConstructorArgs = base.type().columns();
             ConstructorArgMap argMap[4] = {};
             int writeIdx = 0;
-            for (int argIdx = 0; argIdx < (int)baseArguments.size(); ++argIdx) {
+            for (int argIdx = 0; argIdx < baseArguments.count(); ++argIdx) {
                 const Expression& arg = *baseArguments[argIdx];
                 int argWidth = arg.type().columns();
                 for (int componentIdx = 0; componentIdx < argWidth; ++componentIdx) {
@@ -320,13 +322,11 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                     }
                 }
 
-                // Wrap the new argument list in a constructor.
-                auto ctor = Constructor::Convert(
+                // Wrap the new argument list in a compound constructor.
+                return ConstructorCompound::Make(
                         context, base.fOffset,
                         componentType.toCompound(context, swizzleSize, /*rows=*/1),
                         std::move(newArgs));
-                SkASSERT(ctor);
-                return ctor;
             }
         }
     }
