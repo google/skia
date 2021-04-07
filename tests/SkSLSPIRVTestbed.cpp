@@ -31,8 +31,27 @@ DEF_TEST(SkSLSPIRVTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+
+struct A {
+    int x;
+    half y;
+} a1, a2;
+A a3, a4 = A(1, 2);
+
+struct B {
+    half x;
+    float y[2];
+    layout(binding=1) A z;
+};
+B b1, b2, b3;
+B b4 = B(1, float[2](2, 3), A(4, 5));
+
+void main() {
+    a1.x = 0;
+    b1.x = 0;
+    sk_FragColor.r = half(a1.x) + half(b1.x) + a4.y + b4.x + A(1, 2).y;
+}
+
+
          )__SkSL__");
 }
