@@ -94,6 +94,30 @@
       },
       "revId": "e6eea2b71d0bf562de400646a076b005786c77c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4ff5742_babc74e2",
+        "filename": "tests/TraceMemoryDumpTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-07T20:57:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a07876d7_1520296a",
+      "range": {
+        "startLine": 127,
+        "startChar": 1,
+        "endLine": 163,
+        "endChar": 0
+      },
+      "revId": "e6eea2b71d0bf562de400646a076b005786c77c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
