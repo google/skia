@@ -24,11 +24,11 @@ namespace SkSL {
  * constructor must always match the type's slot count. (e.g. `pos.xy` consumes two slots.)
  * The inner values must have the same component type as the vector/matrix.
  */
-class ConstructorComposite final : public MultiArgumentConstructor {
+class ConstructorCompound final : public MultiArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorComposite;
+    static constexpr Kind kExpressionKind = Kind::kConstructorCompound;
 
-    ConstructorComposite(int offset, const Type& type, ExpressionArray args)
+    ConstructorCompound(int offset, const Type& type, ExpressionArray args)
             : INHERITED(offset, kExpressionKind, &type, std::move(args)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
@@ -37,7 +37,7 @@ public:
                                             ExpressionArray args);
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorComposite>(fOffset, this->type(),
+        return std::make_unique<ConstructorCompound>(fOffset, this->type(),
                                                       this->cloneArguments());
     }
 
