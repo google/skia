@@ -40,7 +40,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     S s = returns_a_struct_S();
     float x = accepts_a_struct_fS(s);
     _skOutParamHelper0_modifies_a_struct_vS(s);
-    bool valid = (x == 3.0 && s.x == 2.0) && s.y == 3;
+    S expected;
+    expected.x = 2.0;
+    expected.y = 3;
+    bool valid = (((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s != returns_a_struct_S();
     _out.sk_FragColor = valid ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
