@@ -17,8 +17,8 @@
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
-#include "src/sksl/ir/SkSLConstructorComposite.h"
-#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
@@ -294,16 +294,16 @@ void Dehydrator::write(const Expression* e) {
                 this->writeExpressionSpan(e->as<ConstructorArray>().argumentSpan());
                 break;
 
-            case Expression::Kind::kConstructorComposite:
-                this->writeCommand(Rehydrator::kConstructorComposite_Command);
+            case Expression::Kind::kConstructorCompound:
+                this->writeCommand(Rehydrator::kConstructorCompound_Command);
                 this->write(e->type());
-                this->writeExpressionSpan(e->as<ConstructorComposite>().argumentSpan());
+                this->writeExpressionSpan(e->as<ConstructorCompound>().argumentSpan());
                 break;
 
-            case Expression::Kind::kConstructorCompositeCast:
-                this->writeCommand(Rehydrator::kConstructorCompositeCast_Command);
+            case Expression::Kind::kConstructorCompoundCast:
+                this->writeCommand(Rehydrator::kConstructorCompoundCast_Command);
                 this->write(e->type());
-                this->writeExpressionSpan(e->as<ConstructorCompositeCast>().argumentSpan());
+                this->writeExpressionSpan(e->as<ConstructorCompoundCast>().argumentSpan());
                 break;
 
             case Expression::Kind::kConstructorDiagonalMatrix:
