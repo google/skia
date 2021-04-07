@@ -9,8 +9,8 @@
 
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
-#include "src/sksl/ir/SkSLConstructorComposite.h"
-#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
@@ -47,7 +47,7 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
             // A vector constructor containing a single vector with the same number of columns is a
             // cast (e.g. float3 -> int3).
             if (type.isVector() && argument->type().columns() == type.columns()) {
-                return ConstructorCompositeCast::Make(context, offset, type, std::move(argument));
+                return ConstructorCompoundCast::Make(context, offset, type, std::move(argument));
             }
         } else if (argument->type().isMatrix()) {
             // A matrix constructor containing a single matrix can be a resize, typecast, or both.
@@ -60,7 +60,7 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
                         context,
                         argument->type().columns(),
                         argument->type().rows());
-                std::unique_ptr<Expression> typecast = ConstructorCompositeCast::Make(
+                std::unique_ptr<Expression> typecast = ConstructorCompoundCast::Make(
                         context, offset, typecastType, std::move(argument));
 
                 // Next, wrap the typecasted expression in a matrix-resize constructor if the
@@ -104,7 +104,7 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
         return nullptr;
     }
 
-    return ConstructorComposite::Make(context, offset, type, std::move(args));
+    return ConstructorCompound::Make(context, offset, type, std::move(args));
 }
 
 std::unique_ptr<Expression> Constructor::Convert(const Context& context,

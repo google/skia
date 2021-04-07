@@ -719,10 +719,10 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeConstructorScalarCast(expr.as<ConstructorScalarCast>(), out);
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
-        case Expression::Kind::kConstructorComposite:
-            return this->writeConstructorComposite(expr.as<ConstructorComposite>(), out);
-        case Expression::Kind::kConstructorCompositeCast:
-            return this->writeConstructorCompositeCast(expr.as<ConstructorCompositeCast>(), out);
+        case Expression::Kind::kConstructorCompound:
+            return this->writeConstructorCompound(expr.as<ConstructorCompound>(), out);
+        case Expression::Kind::kConstructorCompoundCast:
+            return this->writeConstructorCompoundCast(expr.as<ConstructorCompoundCast>(), out);
         case Expression::Kind::kIntLiteral:
             return this->writeIntLiteral(expr.as<IntLiteral>());
         case Expression::Kind::kFieldAccess:
@@ -927,7 +927,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             args.reserve_back(2);
             args.push_back(IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
             args.push_back(IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
-            ConstructorComposite ctor(/*offset=*/-1, *fContext.fTypes.fInt2, std::move(args));
+            ConstructorCompound ctor(/*offset=*/-1, *fContext.fTypes.fInt2, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (arguments.size() == 1) {
                 this->writeInstruction(SpvOpImageRead,
@@ -1510,7 +1510,7 @@ void SPIRVCodeGenerator::addColumnEntry(SpvId columnType, Precision precision,
     }
 }
 
-SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorComposite& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, OutputStream& out) {
     const Type& type = c.type();
     SkASSERT(type.isMatrix());
     SkASSERT(!c.arguments().empty());
@@ -1584,13 +1584,13 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorComposite& c, 
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeConstructorComposite(const ConstructorComposite& c,
-                                                    OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
+                                                   OutputStream& out) {
     return c.type().isMatrix() ? this->writeMatrixConstructor(c, out)
                                : this->writeVectorConstructor(c, out);
 }
 
-SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorComposite& c, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, OutputStream& out) {
     const Type& type = c.type();
     const Type& componentType = type.componentType();
     SkASSERT(type.isVector());
@@ -1676,8 +1676,8 @@ SpvId SPIRVCodeGenerator::writeConstructorScalarCast(const ConstructorScalarCast
     return this->castScalarToType(expressionId, ctorExpr.type(), type, out);
 }
 
-SpvId SPIRVCodeGenerator::writeConstructorCompositeCast(const ConstructorCompositeCast& c,
-                                                        OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeConstructorCompoundCast(const ConstructorCompoundCast& c,
+                                                       OutputStream& out) {
     const Type& ctorType = c.type();
     const Type& argType = c.argument()->type();
     SkASSERT(ctorType.isVector() || ctorType.isMatrix());
