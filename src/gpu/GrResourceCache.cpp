@@ -619,6 +619,35 @@ void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point pu
     }
 }
 
+bool GrResourceCache::purgeToMakeHeadroom(size_t desiredHeadroomBytes) {
+    AutoValidate av(this);
+    if (this->wouldFit(desiredHeadroomBytes)) {
+        return true;
+    }
+    fPurgeableQueue.sort();
+
+    size_t headroom = this->overBudget() ? 0 : fMaxBytes - fBudgetedBytes;
+    int purgeCnt = 0;
+    for (int i = 0; i < fPurgeableQueue.count(); i++) {
+        GrGpuResource* resource = fPurgeableQueue.at(i);
+        headroom += resource->gpuMemorySize();
+        if (headroom >= desiredHeadroomBytes) {
+            purgeCnt = i;
+            break;
+        }
+    }
+    if (headroom < desiredHeadroomBytes) {
+        return false;
+    }
+
+    // Success!
+    for (int i = 0; i < purgeCnt; i++) {
+        GrGpuResource* resource = fPurgeableQueue.at(i);
+        resource->cacheAccess().release();
+    }
+    return true;
+}
+
 void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
 
     const size_t tmpByteBudget = std::max((size_t)0, fBytes - bytesToPurge);

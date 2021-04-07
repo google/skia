@@ -422,7 +422,7 @@ protected:
     GrInternalSurfaceFlags fSurfaceFlags;
 
 private:
-    // For wrapped resources, 'fFormat', 'fWidth', and 'fHeight'; will always be filled in from the
+    // For wrapped resources, 'fFormat' and 'fDimensions' will always be filled in from the
     // wrapped resource.
     const GrBackendFormat  fFormat;
     SkISize                fDimensions;
