@@ -1434,14 +1434,14 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
         case Expression::Kind::kBoolLiteral:
             return fBuilder->splat(e.as<BoolLiteral>().value() ? ~0 : 0);
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorComposite:
+        case Expression::Kind::kConstructorCompound:
             return this->writeAggregationConstructor(e.asAnyConstructor());
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
         case Expression::Kind::kConstructorMatrixResize:
             return this->writeConstructorMatrixResize(e.as<ConstructorMatrixResize>());
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorCompositeCast:
+        case Expression::Kind::kConstructorCompoundCast:
             return this->writeConstructorCast(e.asAnyConstructor());
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(e.as<ConstructorSplat>());

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/ir/SkSLConstructorComposite.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
 
 #include <algorithm>
 #include <numeric>
 
 namespace SkSL {
 
-std::unique_ptr<Expression> ConstructorComposite::Make(const Context& context,
-                                                       int offset,
-                                                       const Type& type,
-                                                       ExpressionArray args) {
+std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
+                                                      int offset,
+                                                      const Type& type,
+                                                      ExpressionArray args) {
     // A scalar "composite" type with a single scalar argument is a no-op and can be eliminated.
     // (Pedantically, this isn't a composite at all, but it's harmless to allow and simplifies
     // call sites which need to narrow a vector and may sometimes end up with a scalar.)
@@ -39,7 +39,7 @@ std::unique_ptr<Expression> ConstructorComposite::Make(const Context& context,
                              }));
 
     if (context.fConfig->fSettings.fOptimize) {
-        // Find ConstructorComposites embedded inside other ConstructorComposites and flatten them.
+        // Find ConstructorCompounds embedded inside other ConstructorCompounds and flatten them.
         //   -  float4(float2(1, 2), 3, 4)                -->  float4(1, 2, 3, 4)
         //   -  float4(w, float3(sin(x), cos(y), tan(z))) -->  float4(w, sin(x), cos(y), tan(z))
         //   -  mat2(float2(a, b), float2(c, d))          -->  mat2(a, b, c, d)
@@ -47,8 +47,8 @@ std::unique_ptr<Expression> ConstructorComposite::Make(const Context& context,
         // See how many fields we would have if composite constructors were flattened out.
         size_t fields = 0;
         for (const std::unique_ptr<Expression>& arg : args) {
-            fields += arg->is<ConstructorComposite>()
-                              ? arg->as<ConstructorComposite>().arguments().size()
+            fields += arg->is<ConstructorCompound>()
+                              ? arg->as<ConstructorCompound>().arguments().size()
                               : 1;
         }
 
@@ -58,13 +58,13 @@ std::unique_ptr<Expression> ConstructorComposite::Make(const Context& context,
             ExpressionArray flattened;
             flattened.reserve_back(fields);
             for (std::unique_ptr<Expression>& arg : args) {
-                // For non-ConstructorComposite fields, move them over as-is.
-                if (!arg->is<ConstructorComposite>()) {
+                // For non-ConstructorCompound fields, move them over as-is.
+                if (!arg->is<ConstructorCompound>()) {
                     flattened.push_back(std::move(arg));
                     continue;
                 }
-                // For ConstructorComposite fields, move over their inner arguments individually.
-                ConstructorComposite& compositeCtor = arg->as<ConstructorComposite>();
+                // For ConstructorCompound fields, move over their inner arguments individually.
+                ConstructorCompound& compositeCtor = arg->as<ConstructorCompound>();
                 for (std::unique_ptr<Expression>& innerArg : compositeCtor.arguments()) {
                     flattened.push_back(std::move(innerArg));
                 }
@@ -73,7 +73,7 @@ std::unique_ptr<Expression> ConstructorComposite::Make(const Context& context,
         }
     }
 
-    return std::make_unique<ConstructorComposite>(offset, type, std::move(args));
+    return std::make_unique<ConstructorCompound>(offset, type, std::move(args));
 }
 
 }  // namespace SkSL

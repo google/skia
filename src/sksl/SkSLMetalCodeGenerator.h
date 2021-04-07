@@ -22,7 +22,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLConstructorComposite.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -208,7 +208,7 @@ protected:
 
     void writeFunctionCall(const FunctionCall& c);
 
-    bool matrixConstructHelperIsNeeded(const ConstructorComposite& c);
+    bool matrixConstructHelperIsNeeded(const ConstructorCompound& c);
     String getMatrixConstructHelper(const AnyConstructor& c);
     void assembleMatrixFromMatrix(const Type& sourceMatrix, int rows, int columns);
     void assembleMatrixFromExpressions(const AnyConstructor& ctor, int rows, int columns);
@@ -229,10 +229,9 @@ protected:
 
     bool canCoerce(const Type& t1, const Type& t2);
 
-    void writeConstructorComposite(const ConstructorComposite& c, Precedence parentPrecedence);
+    void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
 
-    void writeConstructorCompositeMatrix(const ConstructorComposite& c,
-                                         Precedence parentPrecedence);
+    void writeConstructorCompoundMatrix(const ConstructorCompound& c, Precedence parentPrecedence);
 
     void writeConstructorMatrixResize(const ConstructorMatrixResize& c,
                                       Precedence parentPrecedence);

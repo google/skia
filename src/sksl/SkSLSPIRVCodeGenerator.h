@@ -23,8 +23,8 @@
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
-#include "src/sksl/ir/SkSLConstructorComposite.h"
-#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
@@ -288,11 +288,11 @@ private:
                         std::vector<SpvId>* columnIds, int* currentCount, int rows, SpvId entry,
                         OutputStream& out);
 
-    SpvId writeConstructorComposite(const ConstructorComposite& c, OutputStream& out);
+    SpvId writeConstructorCompound(const ConstructorCompound& c, OutputStream& out);
 
-    SpvId writeMatrixConstructor(const ConstructorComposite& c, OutputStream& out);
+    SpvId writeMatrixConstructor(const ConstructorCompound& c, OutputStream& out);
 
-    SpvId writeVectorConstructor(const ConstructorComposite& c, OutputStream& out);
+    SpvId writeVectorConstructor(const ConstructorCompound& c, OutputStream& out);
 
     SpvId writeArrayConstructor(const ConstructorArray& c, OutputStream& out);
 
@@ -304,7 +304,7 @@ private:
 
     SpvId writeConstructorSplat(const ConstructorSplat& c, OutputStream& out);
 
-    SpvId writeConstructorCompositeCast(const ConstructorCompositeCast& c, OutputStream& out);
+    SpvId writeConstructorCompoundCast(const ConstructorCompoundCast& c, OutputStream& out);
 
     SpvId writeComposite(const std::vector<SpvId>& arguments, const Type& type, OutputStream& out);
 

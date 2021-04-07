@@ -11,7 +11,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
-#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -176,8 +176,8 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
         case Expression::Kind::kConstructorArray:
             this->writeAnyConstructor(expr.asAnyConstructor(), "{", "}", parentPrecedence);
             break;
-        case Expression::Kind::kConstructorComposite:
-            this->writeConstructorComposite(expr.as<ConstructorComposite>(), parentPrecedence);
+        case Expression::Kind::kConstructorCompound:
+            this->writeConstructorCompound(expr.as<ConstructorCompound>(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorSplat:
@@ -188,7 +188,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
                                                parentPrecedence);
             break;
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorCompositeCast:
+        case Expression::Kind::kConstructorCompoundCast:
             this->writeCastConstructor(expr.asAnyConstructor(), "(", ")", parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:
@@ -1009,7 +1009,7 @@ bool MetalCodeGenerator::canCoerce(const Type& t1, const Type& t2) {
     return t1.isFloat() && t2.isFloat();
 }
 
-bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const ConstructorComposite& c) {
+bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const ConstructorCompound& c) {
     SkASSERT(c.type().isMatrix());
 
     // GLSL is fairly free-form about inputs to its matrix constructors, but Metal is not; it
@@ -1063,17 +1063,17 @@ void MetalCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixRes
     this->write(")");
 }
 
-void MetalCodeGenerator::writeConstructorComposite(const ConstructorComposite& c,
-                                                   Precedence parentPrecedence) {
+void MetalCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
+                                                  Precedence parentPrecedence) {
     if (c.type().isMatrix()) {
-        this->writeConstructorCompositeMatrix(c, parentPrecedence);
+        this->writeConstructorCompoundMatrix(c, parentPrecedence);
     } else {
         this->writeAnyConstructor(c, "(", ")", parentPrecedence);
     }
 }
 
-void MetalCodeGenerator::writeConstructorCompositeMatrix(const ConstructorComposite& c,
-                                                         Precedence parentPrecedence) {
+void MetalCodeGenerator::writeConstructorCompoundMatrix(const ConstructorCompound& c,
+                                                        Precedence parentPrecedence) {
     // Emit and invoke a matrix-constructor helper method if one is necessary.
     if (this->matrixConstructHelperIsNeeded(c)) {
         this->write(this->getMatrixConstructHelper(c));
@@ -2274,8 +2274,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             }
             return result;
         }
-        case Expression::Kind::kConstructorComposite:
-        case Expression::Kind::kConstructorCompositeCast:
+        case Expression::Kind::kConstructorCompound:
+        case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorScalarCast:

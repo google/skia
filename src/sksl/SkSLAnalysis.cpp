@@ -747,8 +747,8 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
             return left.as<BoolLiteral>().value() == right.as<BoolLiteral>().value();
 
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorComposite:
-        case Expression::Kind::kConstructorCompositeCast:
+        case Expression::Kind::kConstructorCompound:
+        case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:
@@ -1026,8 +1026,8 @@ public:
             // ... expressions composed of both of the above
             case Expression::Kind::kBinary:
             case Expression::Kind::kConstructorArray:
-            case Expression::Kind::kConstructorComposite:
-            case Expression::Kind::kConstructorCompositeCast:
+            case Expression::Kind::kConstructorCompound:
+            case Expression::Kind::kConstructorCompoundCast:
             case Expression::Kind::kConstructorDiagonalMatrix:
             case Expression::Kind::kConstructorMatrixResize:
             case Expression::Kind::kConstructorScalarCast:
@@ -1154,8 +1154,8 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
                    (b.right() && this->visitExpressionPtr(b.right()));
         }
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorComposite:
-        case Expression::Kind::kConstructorCompositeCast:
+        case Expression::Kind::kConstructorCompound:
+        case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:

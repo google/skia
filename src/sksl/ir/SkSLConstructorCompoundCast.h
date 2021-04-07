@@ -22,11 +22,11 @@ namespace SkSL {
  *
  * These always contain exactly 1 vector or matrix of matching size, and are never constant.
  */
-class ConstructorCompositeCast final : public SingleArgumentConstructor {
+class ConstructorCompoundCast final : public SingleArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorCompositeCast;
+    static constexpr Kind kExpressionKind = Kind::kConstructorCompoundCast;
 
-    ConstructorCompositeCast(int offset, const Type& type, std::unique_ptr<Expression> arg)
+    ConstructorCompoundCast(int offset, const Type& type, std::unique_ptr<Expression> arg)
         : INHERITED(offset, kExpressionKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
@@ -35,12 +35,12 @@ public:
                                             std::unique_ptr<Expression> arg);
 
     bool isCompileTimeConstant() const override {
-        // If this were a compile-time constant, we would have made a ConstructorComposite instead.
+        // If this were a compile-time constant, we would have made a ConstructorCompound instead.
         return false;
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorCompositeCast>(fOffset, this->type(),
+        return std::make_unique<ConstructorCompoundCast>(fOffset, this->type(),
                                                           argument()->clone());
     }
 

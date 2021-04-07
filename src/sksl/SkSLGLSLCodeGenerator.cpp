@@ -197,14 +197,14 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
             this->writeBoolLiteral(expr.as<BoolLiteral>());
             break;
         case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorComposite:
+        case Expression::Kind::kConstructorCompound:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorSplat:
             this->writeAnyConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorCompositeCast:
+        case Expression::Kind::kConstructorCompoundCast:
             this->writeCastConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:

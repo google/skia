@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 
 #include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLConstructorComposite.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -59,14 +59,14 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
         }
     }
 
-    return ConstructorComposite::Make(context, constCtor->fOffset, destType,
+    return ConstructorCompound::Make(context, constCtor->fOffset, destType,
                                       std::move(typecastArgs));
 }
 
-std::unique_ptr<Expression> ConstructorCompositeCast::Make(const Context& context,
-                                                        int offset,
-                                                        const Type& type,
-                                                        std::unique_ptr<Expression> arg) {
+std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context,
+                                                          int offset,
+                                                          const Type& type,
+                                                          std::unique_ptr<Expression> arg) {
     // Only vectors or matrices of the same dimensions are allowed.
     SkASSERT(type.isVector() || type.isMatrix());
     SkASSERT(arg->type().isVector() == type.isVector());
@@ -82,7 +82,7 @@ std::unique_ptr<Expression> ConstructorCompositeCast::Make(const Context& contex
     if (arg->isCompileTimeConstant()) {
         return cast_constant_composite(context, type, std::move(arg));
     }
-    return std::make_unique<ConstructorCompositeCast>(offset, type, std::move(arg));
+    return std::make_unique<ConstructorCompoundCast>(offset, type, std::move(arg));
 }
 
 }  // namespace SkSL
