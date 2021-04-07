@@ -450,6 +450,9 @@ public:
         int renderPasses() const { return fRenderPasses; }
         void incRenderPasses() { fRenderPasses++; }
 
+        int numReorderedDAGsOverBudget() const { return fNumReorderedDAGsOverBudget; }
+        void incNumReorderedDAGsOverBudget() { fNumReorderedDAGsOverBudget++; }
+
 #if GR_TEST_UTILS
         void dump(SkString*);
         void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
@@ -467,6 +470,7 @@ public:
         int fNumScratchTexturesReused = 0;
         int fNumScratchMSAAAttachmentsReused = 0;
         int fRenderPasses = 0;
+        int fNumReorderedDAGsOverBudget = 0;
 
 #else  // !GR_GPU_STATS
 
@@ -486,6 +490,7 @@ public:
         void incNumScratchTexturesReused() {}
         void incNumScratchMSAAAttachmentsReused() {}
         void incRenderPasses() {}
+        void incNumReorderedDAGsOverBudget() {}
 #endif
     };
 
