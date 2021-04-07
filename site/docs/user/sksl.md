@@ -81,4 +81,18 @@ by Skia clamping the color's RGB values to its alpha.
 
 ## <span id="coords">Coordinate Spaces</span>
 
-Under construction
+To understand how coordinates work in SkSL, you first need to understand
+[how they work in Skia](/docs/user/coordinates). If you're comfortable with Skia's coordinate
+spaces, then just remember that the coordinates supplied to your `main()` are **local**
+coordinates. They will be relative to the coordinate space of the `SkShader`. This will match the
+local space of the canvas and any `localMatrix` transformations. Additionally, if the shader is
+invoked by another, that parent shader may modify them arbitrarily.
+
+In addition, the `SkShader` produced from an `SkImage` does not use normalized coordinates (like a
+texture in GLSL). It uses `(0, 0)` in the upper-left corner, and `(w, h)` in the bottom-right
+corner. Normally, this is exactly what you want. If you're sampling an `SkImageShader` with
+coordinates based on the ones passed to you, the scale is correct. However, if you want to adjust
+those coordinates (to do some kind of re-mapping of the image), remember that the coordinates are
+scaled up to the dimensions of the image:
+
+<fiddle-embed name='492ddaa829dd1ff3f1358659cd58557b'></fiddle-embed>
