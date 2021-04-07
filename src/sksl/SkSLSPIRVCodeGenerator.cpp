@@ -710,7 +710,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
         case Expression::Kind::kBoolLiteral:
             return this->writeBoolLiteral(expr.as<BoolLiteral>());
         case Expression::Kind::kConstructorArray:
-            return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
+        case Expression::Kind::kConstructorStruct:
+            return this->writeCompositeConstructor(expr.asAnyConstructor(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
         case Expression::Kind::kConstructorMatrixResize:
@@ -1626,7 +1627,7 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
 SpvId SPIRVCodeGenerator::writeComposite(const std::vector<SpvId>& arguments,
                                          const Type& type,
                                          OutputStream& out) {
-    SkASSERT((int)arguments.size() == type.columns());
+    SkASSERT(arguments.size() == (type.isStruct() ? type.fields().size() : (size_t)type.columns()));
 
     SpvId result = this->nextId(&type);
     this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
@@ -1653,15 +1654,17 @@ SpvId SPIRVCodeGenerator::writeConstructorSplat(const ConstructorSplat& c, Outpu
 }
 
 
-SpvId SPIRVCodeGenerator::writeArrayConstructor(const ConstructorArray& c, OutputStream& out) {
-    const Type& type = c.type();
-    SkASSERT(type.isArray());
+SpvId SPIRVCodeGenerator::writeCompositeConstructor(const AnyConstructor& c, OutputStream& out) {
+    SkASSERT(c.type().isArray() || c.type().isStruct());
+    auto ctorArgs = c.argumentSpan();
+
     std::vector<SpvId> arguments;
-    arguments.reserve(c.arguments().size());
-    for (size_t i = 0; i < c.arguments().size(); i++) {
-        arguments.push_back(this->writeExpression(*c.arguments()[i], out));
+    arguments.reserve(ctorArgs.size());
+    for (const std::unique_ptr<Expression>& arg : ctorArgs) {
+        arguments.push_back(this->writeExpression(*arg, out));
     }
-    return this->writeComposite(arguments, type, out);
+
+    return this->writeComposite(arguments, c.type(), out);
 }
 
 SpvId SPIRVCodeGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c,

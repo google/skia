@@ -29,6 +29,7 @@
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -294,7 +295,7 @@ private:
 
     SpvId writeVectorConstructor(const ConstructorCompound& c, OutputStream& out);
 
-    SpvId writeArrayConstructor(const ConstructorArray& c, OutputStream& out);
+    SpvId writeCompositeConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c, OutputStream& out);
 
