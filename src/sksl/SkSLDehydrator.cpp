@@ -288,12 +288,6 @@ void Dehydrator::write(const Expression* e) {
                 SkDEBUGFAIL("shouldn't be able to receive kCodeString here");
                 break;
 
-            case Expression::Kind::kConstructor:
-                this->writeCommand(Rehydrator::kConstructor_Command);
-                this->write(e->type());
-                this->writeExpressionSpan(e->as<Constructor>().argumentSpan());
-                break;
-
             case Expression::Kind::kConstructorArray:
                 this->writeCommand(Rehydrator::kConstructorArray_Command);
                 this->write(e->type());

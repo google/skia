@@ -229,8 +229,6 @@ protected:
 
     bool canCoerce(const Type& t1, const Type& t2);
 
-    void writeConstructor(const Constructor& c, Precedence parentPrecedence);
-
     void writeConstructorComposite(const ConstructorComposite& c, Precedence parentPrecedence);
 
     void writeConstructorCompositeMatrix(const ConstructorComposite& c,

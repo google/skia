@@ -457,13 +457,6 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             bool value = this->readU8();
             return BoolLiteral::Make(fContext, /*offset=*/-1, value);
         }
-        case Rehydrator::kConstructor_Command: {
-            const Type* type = this->type();
-            ExpressionArray args = this->expressionArray();
-            auto ctor = Constructor::Convert(fContext, /*offset=*/-1, *type, std::move(args));
-            SkASSERT(ctor);
-            return ctor;
-        }
         case Rehydrator::kConstructorArray_Command: {
             const Type* type = this->type();
             return ConstructorArray::Make(fContext, /*offset=*/-1, *type, this->expressionArray());

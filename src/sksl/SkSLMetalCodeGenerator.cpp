@@ -187,7 +187,6 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writeConstructorMatrixResize(expr.as<ConstructorMatrixResize>(),
                                                parentPrecedence);
             break;
-        case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorCompositeCast:
             this->writeCastConstructor(expr.asAnyConstructor(), "(", ")", parentPrecedence);
@@ -2275,7 +2274,6 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             }
             return result;
         }
-        case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorComposite:
         case Expression::Kind::kConstructorCompositeCast:
         case Expression::Kind::kConstructorArray:

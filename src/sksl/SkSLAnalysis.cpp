@@ -746,7 +746,6 @@ bool Analysis::IsSameExpressionTree(const Expression& left, const Expression& ri
         case Expression::Kind::kBoolLiteral:
             return left.as<BoolLiteral>().value() == right.as<BoolLiteral>().value();
 
-        case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorComposite:
         case Expression::Kind::kConstructorCompositeCast:
@@ -1026,7 +1025,6 @@ public:
 
             // ... expressions composed of both of the above
             case Expression::Kind::kBinary:
-            case Expression::Kind::kConstructor:
             case Expression::Kind::kConstructorArray:
             case Expression::Kind::kConstructorComposite:
             case Expression::Kind::kConstructorCompositeCast:
@@ -1155,7 +1153,6 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
             return (b.left() && this->visitExpressionPtr(b.left())) ||
                    (b.right() && this->visitExpressionPtr(b.right()));
         }
-        case Expression::Kind::kConstructor:
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorComposite:
         case Expression::Kind::kConstructorCompositeCast:
