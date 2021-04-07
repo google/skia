@@ -31,7 +31,8 @@ public:
     GrD3DDescriptorHeap::CPUHandle createShaderResourceView(GrD3DGpu*,
                                                             ID3D12Resource* resource);
     GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(GrD3DGpu*,
-                                                             ID3D12Resource* resource);
+                                                             ID3D12Resource* resource,
+                                                             unsigned int mipSlice);
     void recycleCBVSRVUAV(const GrD3DDescriptorHeap::CPUHandle&);
 
     GrD3DDescriptorHeap::CPUHandle createSampler(GrD3DGpu*,

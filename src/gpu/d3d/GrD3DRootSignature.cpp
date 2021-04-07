@@ -10,15 +10,17 @@
 #include "src/gpu/GrSPIRVUniformHandler.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 
-sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTextureSamplers) {
-    // Just allocate enough space for 3 in case we need it.
-    D3D12_ROOT_PARAMETER parameters[3];
+sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTextureSamplers,
+                                                   int numUnorderedAccessViews) {
+    // Just allocate enough space for 4 in case we need it.
+    D3D12_ROOT_PARAMETER parameters[4];
 
     // The first will always be our uniforms
     parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
     parameters[0].Descriptor.ShaderRegister = 0;
     parameters[0].Descriptor.RegisterSpace = GrSPIRVUniformHandler::kUniformDescriptorSet;
     parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    int parameterCount = 1;
 
     SkAutoTArray<D3D12_DESCRIPTOR_RANGE> samplerRanges(numTextureSamplers);
     SkAutoTArray<D3D12_DESCRIPTOR_RANGE> textureRanges(numTextureSamplers);
@@ -33,7 +35,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
             samplerRanges[i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
             samplerRanges[i].NumDescriptors = 1;
             samplerRanges[i].BaseShaderRegister = 2 * i;
-            // Spirv-Cross uses the descriptor set as the space in HSLS
+            // Spirv-Cross uses the descriptor set as the space in HLSL
             samplerRanges[i].RegisterSpace = GrSPIRVUniformHandler::kSamplerTextureDescriptorSet;
             // In the descriptor table the descriptors will all be contiguous.
             samplerRanges[i].OffsetInDescriptorsFromTableStart =
@@ -42,7 +44,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
             textureRanges[i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
             textureRanges[i].NumDescriptors = 1;
             textureRanges[i].BaseShaderRegister = 2 * i + 1;
-            // Spirv-Cross uses the descriptor set as the space in HSLS
+            // Spirv-Cross uses the descriptor set as the space in HLSL
             textureRanges[i].RegisterSpace = GrSPIRVUniformHandler::kSamplerTextureDescriptorSet;
             // In the descriptor table the descriptors will all be contiguous.
             textureRanges[i].OffsetInDescriptorsFromTableStart =
@@ -57,13 +59,30 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
         parameters[2].DescriptorTable.NumDescriptorRanges = numTextureSamplers;
         parameters[2].DescriptorTable.pDescriptorRanges = textureRanges.get();
         parameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+        parameterCount = 3;
     }
 
+    D3D12_DESCRIPTOR_RANGE uavRange;
+    if (numUnorderedAccessViews) {
+        uavRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+        uavRange.NumDescriptors = numUnorderedAccessViews;
+        uavRange.BaseShaderRegister = 1;
+        // Spirv-Cross uses the descriptor set as the space in HLSL
+        // *** piggy-back on uniform register space for now
+        uavRange.RegisterSpace = GrSPIRVUniformHandler::kUniformDescriptorSet;
+        // In the descriptor table the descriptors will all be contiguous.
+        uavRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+        parameters[parameterCount].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        parameters[parameterCount].DescriptorTable.NumDescriptorRanges = 1;
+        parameters[parameterCount].DescriptorTable.pDescriptorRanges = &uavRange;
+        parameters[parameterCount].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+        ++parameterCount;
+    }
 
     D3D12_ROOT_SIGNATURE_DESC rootDesc{};
-    // We always assume we at least have a parameter slot for uniforms. If we need textures, then we
-    // need a descriptor table for the textures and another for the samplers.
-    rootDesc.NumParameters = numTextureSamplers ? 3 : 1;
+    rootDesc.NumParameters = parameterCount;
     rootDesc.pParameters = parameters;
     rootDesc.NumStaticSamplers = 0;
     rootDesc.pStaticSamplers = nullptr;
@@ -91,14 +110,18 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
     }
 
     return sk_sp<GrD3DRootSignature>(new GrD3DRootSignature(std::move(rootSig),
-                                                            numTextureSamplers));
+                                                            numTextureSamplers,
+                                                            numUnorderedAccessViews));
 }
 
-GrD3DRootSignature::GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int  numTextureSamplers)
+GrD3DRootSignature::GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int numTextureSamplers,
+                                       int numUnorderedAccessViews)
         : fRootSignature(std::move(rootSig))
-        , fNumTextureSamplers(numTextureSamplers) {
+        , fNumTextureSamplers(numTextureSamplers)
+        , fNumUnorderedAccessViews(numUnorderedAccessViews) {
 }
 
-bool GrD3DRootSignature::isCompatible(int numTextureSamplers) const {
-    return fNumTextureSamplers == numTextureSamplers;
+bool GrD3DRootSignature::isCompatible(int numTextureSamplers, int numUnorderedAccessViews) const {
+    return (fNumTextureSamplers == numTextureSamplers &&
+            fNumUnorderedAccessViews == numUnorderedAccessViews);
 }

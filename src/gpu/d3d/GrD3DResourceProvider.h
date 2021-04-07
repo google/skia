@@ -39,7 +39,8 @@ public:
 
     void recycleDirectCommandList(std::unique_ptr<GrD3DDirectCommandList>);
 
-    sk_sp<GrD3DRootSignature> findOrCreateRootSignature(int numTextureSamplers);
+    sk_sp<GrD3DRootSignature> findOrCreateRootSignature(int numTextureSamplers,
+                                                        int numUnorderedAccessViews = 0);
 
     sk_sp<GrD3DCommandSignature> findOrCreateCommandSignature(GrD3DCommandSignature::ForIndexed,
                                                               unsigned int slot);
@@ -54,7 +55,8 @@ public:
                                                             size_t offset,
                                                             size_t size);
     GrD3DDescriptorHeap::CPUHandle createShaderResourceView(ID3D12Resource* resource);
-    GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(ID3D12Resource* resource);
+    GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(ID3D12Resource* resource,
+                                                             unsigned int mipLevel);
     void recycleCBVSRVUAV(const GrD3DDescriptorHeap::CPUHandle&);
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
@@ -69,6 +71,15 @@ public:
 
     GrD3DPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
                                                             const GrProgramInfo&);
+
+    enum class MipmapType {
+        kLinear,
+        kSRGB,
+
+        kLast = kSRGB
+    };
+    static const int kMipmapTypeCount = static_cast<int>(MipmapType::kLast) + 1;
+    sk_sp<GrD3DPipeline> findOrCreateMipmapPipeline(MipmapType pipelineType);
 
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
     void prepForSubmit();
@@ -156,6 +167,7 @@ private:
     GrD3DDescriptorTableManager fDescriptorTableManager;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
+    sk_sp<GrD3DPipeline> fMipmapPipelines[kMipmapTypeCount];
 
     SkTHashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
 
