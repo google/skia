@@ -674,6 +674,10 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 
     auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
                                             backendTex.getGLTextureParams(), cacheable, ioType);
+    if (this->glCaps().isFormatRenderable(backendTex.getBackendFormat(), 1)) {
+        // Pessimistically assume this external texture may have been bound to a FBO.
+        texture->baseLevelWasBoundToFBO();
+    }
     return std::move(texture);
 }
 
@@ -767,6 +771,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     sk_sp<GrGLTextureRenderTarget> texRT(GrGLTextureRenderTarget::MakeWrapped(
             this, sampleCnt, desc, backendTex.getGLTextureParams(), rtIDs, cacheable,
             mipmapStatus));
+    // Pessimistically assume this external texture may have been bound to a FBO.
     texRT->baseLevelWasBoundToFBO();
     return std::move(texRT);
 }
