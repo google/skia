@@ -18,8 +18,8 @@
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
-#include "src/sksl/ir/SkSLConstructorComposite.h"
-#include "src/sksl/ir/SkSLConstructorCompositeCast.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
@@ -317,15 +317,15 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
                                           *ctor.type().clone(symbolTableForExpression),
                                           argList(ctor.arguments()));
         }
-        case Expression::Kind::kConstructorComposite: {
-            const ConstructorComposite& ctor = expression.as<ConstructorComposite>();
-            return ConstructorComposite::Make(*fContext, offset,
+        case Expression::Kind::kConstructorCompound: {
+            const ConstructorCompound& ctor = expression.as<ConstructorCompound>();
+            return ConstructorCompound::Make(*fContext, offset,
                                               *ctor.type().clone(symbolTableForExpression),
                                               argList(ctor.arguments()));
         }
-        case Expression::Kind::kConstructorCompositeCast: {
-            const ConstructorCompositeCast& ctor = expression.as<ConstructorCompositeCast>();
-            return ConstructorCompositeCast::Make(*fContext, offset,
+        case Expression::Kind::kConstructorCompoundCast: {
+            const ConstructorCompoundCast& ctor = expression.as<ConstructorCompoundCast>();
+            return ConstructorCompoundCast::Make(*fContext, offset,
                                                   *ctor.type().clone(symbolTableForExpression),
                                                   expr(ctor.argument()));
         }
@@ -948,8 +948,8 @@ public:
                 break;
             }
             case Expression::Kind::kConstructorArray:
-            case Expression::Kind::kConstructorComposite:
-            case Expression::Kind::kConstructorCompositeCast:
+            case Expression::Kind::kConstructorCompound:
+            case Expression::Kind::kConstructorCompoundCast:
             case Expression::Kind::kConstructorDiagonalMatrix:
             case Expression::Kind::kConstructorMatrixResize:
             case Expression::Kind::kConstructorScalarCast:

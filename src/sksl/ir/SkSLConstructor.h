@@ -166,7 +166,7 @@ namespace Constructor {
     // Creates, typechecks and simplifies constructor expressions. Reports errors via the
     // ErrorReporter. This can return null on error, so be careful. There are several different
     // Constructor expression types; this class chooses the proper one based on context, e.g.
-    // `ConstructorComposite`, `ConstructorScalarCast`, or `ConstructorMatrixResize`.
+    // `ConstructorCompound`, `ConstructorScalarCast`, or `ConstructorMatrixResize`.
     std::unique_ptr<Expression> Convert(const Context& context,
                                         int offset,
                                         const Type& type,
