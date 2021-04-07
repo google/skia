@@ -205,7 +205,7 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
             this->writeAnyConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorVectorCast:
+        case Expression::Kind::kConstructorCompositeCast:
             this->writeCastConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kIntLiteral:

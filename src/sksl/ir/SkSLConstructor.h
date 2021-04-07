@@ -188,6 +188,11 @@ public:
     }
 
 private:
+    static std::unique_ptr<Expression> MakeScalarConstructor(const Context& context,
+                                                             int offset,
+                                                             const Type& type,
+                                                             ExpressionArray args);
+
     static std::unique_ptr<Expression> MakeCompoundConstructor(const Context& context,
                                                                int offset,
                                                                const Type& type,
