@@ -410,11 +410,12 @@ private:
 
     // The passed bounds contains the render target's color values that will subsequently be
     // written.
-    void flushRenderTarget(GrGLRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds);
+    void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO, GrSurfaceOrigin,
+                           const SkIRect& bounds);
     // This version has an implicit bounds of the entire render target.
-    void flushRenderTarget(GrGLRenderTarget*);
+    void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO);
     // This version can be used when the render target's colors will not be written.
-    void flushRenderTargetNoColorWrites(GrGLRenderTarget*);
+    void flushRenderTargetNoColorWrites(GrGLRenderTarget*, bool useMultisampleFBO);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();
@@ -694,6 +695,7 @@ private:
 
     TriState                                fHWWriteToColor;
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
+    bool                                    fHWBoundFramebufferIsMSAA;
     TriState                                fHWSRGBFramebuffer;
 
     class TextureUnitBindings {

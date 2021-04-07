@@ -45,7 +45,8 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
 }
 
 inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDs& idDesc) {
-    if (!this->renderFBOID()) {
+    GrGLuint renderFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
+    if (renderFBOID == 0) {
         this->setGLRTFBOIDIs0();
     }
 }
@@ -101,7 +102,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     GrGLFramebufferInfo fbi;
-    fbi.fFBOID = this->renderFBOID();
+    fbi.fFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
     fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
     if (GrAttachment* stencil = this->getStencilAttachment()) {
@@ -149,7 +150,8 @@ bool GrGLRenderTarget::completeStencilAttachment() {
         GrGLuint rb = glStencil->renderbufferID();
 
         gpu->invalidateBoundRenderTarget();
-        gpu->bindFramebuffer(GR_GL_FRAMEBUFFER, this->renderFBOID());
+        GrGLuint stencilFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
+        gpu->bindFramebuffer(GR_GL_FRAMEBUFFER, stencilFBOID);
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, rb));
