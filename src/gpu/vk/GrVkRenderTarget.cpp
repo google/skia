@@ -226,18 +226,27 @@ GrVkResourceProvider::CompatibleRPHandle GrVkRenderTarget::compatibleRenderPassH
     return *pRPHandle;
 }
 
-const GrVkRenderPass* GrVkRenderTarget::getSimpleRenderPass(bool withResolve,
-                                                            bool withStencil,
-                                                            SelfDependencyFlags selfDepFlags,
-                                                            LoadFromResolve loadFromResolve) {
+std::pair<const GrVkRenderPass*, GrVkResourceProvider::CompatibleRPHandle>
+        GrVkRenderTarget::getSimpleRenderPass(bool withResolve,
+                                              bool withStencil,
+                                              SelfDependencyFlags selfDepFlags,
+                                              LoadFromResolve loadFromResolve) {
     int cacheIndex = renderpass_features_to_index(withResolve, withStencil, selfDepFlags,
                                                   loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
-    if (const GrVkRenderPass* rp = fCachedRenderPasses[cacheIndex]) {
-        return rp;
+    const GrVkRenderPass* rp = fCachedRenderPasses[cacheIndex];
+    if (this->wrapsSecondaryCommandBuffer()) {
+        SkASSERT(rp);
+        // The compatible handle is invalid for external render passes used in wrapped secondary
+        // command buffers. However, this should not be called by code using external render passes
+        // that needs to use the handle.
+        return {rp, GrVkResourceProvider::CompatibleRPHandle()};
     }
-
-    return this->createSimpleRenderPass(withResolve, withStencil, selfDepFlags, loadFromResolve);
+    if (!rp) {
+        rp = this->createSimpleRenderPass(withResolve, withStencil, selfDepFlags, loadFromResolve);
+    }
+    SkASSERT(!rp || fCompatibleRPHandles[cacheIndex].isValid());
+    return {rp, fCompatibleRPHandles[cacheIndex]};
 }
 
 const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass(bool withResolve,
@@ -278,11 +287,12 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     GrVkGpu* gpu = this->getVkGpu();
 
-    const GrVkRenderPass* renderPass =
+    auto[renderPass, compatibleHandle] =
             this->getSimpleRenderPass(withResolve, withStencil, selfDepFlags, loadFromResolve);
     if (!renderPass) {
         return nullptr;
     }
+    SkASSERT(compatibleHandle.isValid());
 
     int cacheIndex =
             renderpass_features_to_index(withResolve, withStencil, selfDepFlags, loadFromResolve);
@@ -296,7 +306,7 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
                         : nullptr;
     fCachedFramebuffers[cacheIndex] =
             GrVkFramebuffer::Create(gpu, this->width(), this->height(), renderPass,
-                                    this->colorAttachment(), resolve, stencil);
+                                    this->colorAttachment(), resolve, stencil, compatibleHandle);
 
     return fCachedFramebuffers[cacheIndex];
 }

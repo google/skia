@@ -12,12 +12,14 @@
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 
-GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
-                                         int width, int height,
-                                         const GrVkRenderPass* renderPass,
-                                         const GrVkAttachment* colorAttachment,
-                                         const GrVkAttachment* resolveAttachment,
-                                         const GrVkAttachment* stencilAttachment) {
+GrVkFramebuffer* GrVkFramebuffer::Create(
+        GrVkGpu* gpu,
+        int width, int height,
+        const GrVkRenderPass* renderPass,
+        const GrVkAttachment* colorAttachment,
+        const GrVkAttachment* resolveAttachment,
+        const GrVkAttachment* stencilAttachment,
+        GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle) {
     // At the very least we need a renderPass and a colorAttachment
     SkASSERT(renderPass);
     SkASSERT(colorAttachment);
@@ -53,7 +55,8 @@ GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
     }
 
     return new GrVkFramebuffer(gpu, framebuffer, sk_ref_sp(colorAttachment),
-                               sk_ref_sp(resolveAttachment), sk_ref_sp(stencilAttachment));
+                               sk_ref_sp(resolveAttachment), sk_ref_sp(stencilAttachment),
+                               compatibleRenderPassHandle);
 }
 
 GrVkFramebuffer::~GrVkFramebuffer() {}
