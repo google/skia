@@ -754,58 +754,16 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 #endif // GR_GPU_STATS
 #endif // GR_TEST_UTILS
 
-bool GrGpu::MipMapsAreCorrect(SkISize dimensions,
-                              GrMipmapped mipmapped,
-                              const BackendTextureData* data) {
-    int numMipLevels = 1;
-    if (mipmapped == GrMipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
-    }
-
-    if (!data || data->type() == BackendTextureData::Type::kColor) {
-        return true;
-    }
-
-    if (data->type() == BackendTextureData::Type::kCompressed) {
-        return false;  // This should be going through CompressedDataIsCorrect
-    }
-
-    SkASSERT(data->type() == BackendTextureData::Type::kPixmaps);
-
-    if (data->pixmap(0).dimensions() != dimensions) {
-        return false;
-    }
-
-    GrColorType colorType = data->pixmap(0).colorType();
-    for (int i = 1; i < numMipLevels; ++i) {
-        dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
-        if (dimensions != data->pixmap(i).dimensions()) {
-            return false;
-        }
-        if (colorType != data->pixmap(i).colorType()) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool GrGpu::CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType compressionType,
-                                    GrMipmapped mipMapped, const BackendTextureData* data) {
-
-    if (!data || data->type() == BackendTextureData::Type::kColor) {
-        return true;
-    }
-
-    if (data->type() == BackendTextureData::Type::kPixmaps) {
-        return false;
-    }
-
-    SkASSERT(data->type() == BackendTextureData::Type::kCompressed);
-
-    size_t computedSize = SkCompressedDataSize(compressionType, dimensions,
-                                               nullptr, mipMapped == GrMipmapped::kYes);
-
-    return computedSize == data->compressedSize();
+bool GrGpu::CompressedDataIsCorrect(SkISize dimensions,
+                                    SkImage::CompressionType compressionType,
+                                    GrMipmapped mipMapped,
+                                    const void* data,
+                                    size_t length) {
+    size_t computedSize = SkCompressedDataSize(compressionType,
+                                               dimensions,
+                                               nullptr,
+                                               mipMapped == GrMipmapped::kYes);
+    return computedSize == length;
 }
 
 GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
@@ -836,33 +794,18 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
     return this->onCreateBackendTexture(dimensions, format, renderable, mipMapped, isProtected);
 }
 
-bool GrGpu::updateBackendTexture(const GrBackendTexture& backendTexture,
-                                 sk_sp<GrRefCntedCallback> finishedCallback,
-                                 const BackendTextureData* data) {
-    SkASSERT(data);
-    const GrCaps* caps = this->caps();
-
+bool GrGpu::clearBackendTexture(const GrBackendTexture& backendTexture,
+                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                std::array<float, 4> color) {
     if (!backendTexture.isValid()) {
         return false;
-    }
-
-    if (data->type() == BackendTextureData::Type::kPixmaps) {
-        auto ct = data->pixmap(0).colorType();
-        if (!caps->areColorTypeAndFormatCompatible(ct, backendTexture.getBackendFormat())) {
-            return false;
-        }
     }
 
     if (backendTexture.hasMipmaps() && !this->caps()->mipmapSupport()) {
         return false;
     }
 
-    GrMipmapped mipmapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
-    if (!MipMapsAreCorrect(backendTexture.dimensions(), mipmapped, data)) {
-        return false;
-    }
-
-    return this->onUpdateBackendTexture(backendTexture, std::move(finishedCallback), data);
+    return this->onClearBackendTexture(backendTexture, std::move(finishedCallback), color);
 }
 
 GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
@@ -896,7 +839,8 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
 
 bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
                                            sk_sp<GrRefCntedCallback> finishedCallback,
-                                           const BackendTextureData* data) {
+                                           const void* data,
+                                           size_t length) {
     SkASSERT(data);
 
     if (!backendTexture.isValid()) {
@@ -917,10 +861,16 @@ bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTextur
 
     GrMipmapped mipMapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
 
-    if (!CompressedDataIsCorrect(backendTexture.dimensions(), compressionType, mipMapped, data)) {
+    if (!CompressedDataIsCorrect(backendTexture.dimensions(),
+                                 compressionType,
+                                 mipMapped,
+                                 data,
+                                 length)) {
         return false;
     }
 
-    return this->onUpdateCompressedBackendTexture(backendTexture, std::move(finishedCallback),
-                                                  data);
+    return this->onUpdateCompressedBackendTexture(backendTexture,
+                                                  std::move(finishedCallback),
+                                                  data,
+                                                  length);
 }
