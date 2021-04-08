@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3b8d4dd3_b69dc405",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1251,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-08T14:45:58Z",
+      "side": 1,
+      "message": "I think that wouldn\u0027t really match the pattern where it zeroes everything else at the top. Also incrementing here makes is more clear that one sample comes from the single sample FBO,",
+      "parentUuid": "8bef7273_238905f0",
+      "range": {
+        "startLine": 1251,
+        "startChar": 3,
+        "endLine": 1251,
+        "endChar": 40
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4133892e_2b2353cb",
         "filename": "src/gpu/gl/GrGLRenderTarget.cpp",
         "patchSetId": 13
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f3077d82_87773f57",
+        "filename": "src/gpu/gl/GrGLRenderTarget.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-08T14:45:58Z",
+      "side": 1,
+      "message": "Sounds like GL is different than Vulkan, but this matches the same behavior as before and I\u0027d rather change as few things as possible in this CL. Can we have this discussion to a separate CL or bug?",
+      "parentUuid": "4133892e_2b2353cb",
+      "range": {
+        "startLine": 104,
+        "startChar": 17,
+        "endLine": 104,
+        "endChar": 37
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6dc7acb4_18d8ac6d",
         "filename": "tests/TraceMemoryDumpTest.cpp",
         "patchSetId": 13
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-08T12:41:23Z",
       "side": 1,
       "message": "I think I get everything except why this is 3.",
+      "range": {
+        "startLine": 188,
+        "startChar": 44,
+        "endLine": 188,
+        "endChar": 45
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdcb05fd_94422a3c",
+        "filename": "tests/TraceMemoryDumpTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-08T14:45:58Z",
+      "side": 1,
+      "message": "This is 3 because, unlike the others, it dumps a GrGLTextureRenderTarget, which also dumps a GrGLTexture:\n\n  GrGLRenderTarget\n  GrGLTexture\n  GrTextBlobCache",
+      "parentUuid": "6dc7acb4_18d8ac6d",
       "range": {
         "startLine": 188,
         "startChar": 44,
