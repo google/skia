@@ -92,6 +92,16 @@ public:
     void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
+    // Generate an internal plan for resource allocation. After this you can optionally call
+    // `makeBudgetHeadroom`. If so, you can call `reset` and start over with a different set of
+    // intervals. Lazy proxies are also instantiated at this point so that their size can
+    // be known accurately. Returns false if any lazy proxy failed to instantiate, true otherwise.
+    bool planAssignment();
+
+    // Attempt to purge resources to ensure enough headroom in the VRAM budget for this allocation
+    // plan. If that's not possible, do nothing and return false.
+    bool makeBudgetHeadroom();
+
     // Assign resources to all proxies. Returns whether the assignment was successful.
     bool assign();
 
@@ -134,18 +144,17 @@ private:
     class Register {
     public:
         // It's OK to pass an invalid scratch key iff the proxy has a unique key.
-        Register(GrSurfaceProxy* originatingProxy, GrScratchKey scratchKey)
-                : fOriginatingProxy(originatingProxy)
-                , fScratchKey(std::move(scratchKey)) {
-            SkASSERT(originatingProxy);
-            SkASSERT(!originatingProxy->isInstantiated());
-            SkASSERT(!originatingProxy->isLazy());
-            SkASSERT(this->scratchKey().isValid() ^ this->uniqueKey().isValid());
-            SkDEBUGCODE(fUniqueID = CreateUniqueID();)
-        }
+        Register(GrSurfaceProxy* originatingProxy,
+                 GrScratchKey,
+                 GrResourceProvider*);
 
         const GrScratchKey& scratchKey() const { return fScratchKey; }
         const GrUniqueKey& uniqueKey() const { return fOriginatingProxy->getUniqueKey(); }
+
+        bool accountedForInBudget() const { return fAccountedForInBudget; }
+        void setAccountedForInBudget() { fAccountedForInBudget = true; }
+
+        GrSurface* existingSurface() const { return fExistingSurface.get(); }
 
         // Can this register be used by other proxies after this one?
         bool isRecyclable(const GrCaps&, GrSurfaceProxy* proxy, int knownUseCount) const;
@@ -160,6 +169,8 @@ private:
     private:
         GrSurfaceProxy*  fOriginatingProxy;
         GrScratchKey     fScratchKey; // free pool wants a reference to this.
+        sk_sp<GrSurface> fExistingSurface; // queried from resource cache. may be null.
+        bool             fAccountedForInBudget = false;
 
 #ifdef SK_DEBUG
         uint32_t         fUniqueID;
@@ -264,10 +275,11 @@ private:
     UniqueKeyRegisterHash        fUniqueKeyRegisters;
     unsigned int                 fNumOps = 0;
 
+    SkDEBUGCODE(bool             fPlanned = false;)
     SkDEBUGCODE(bool             fAssigned = false;)
 
-    SkSTArenaAlloc<kInitialArenaSize>   fInternalAllocator; // intervals & registers live here
-    bool                                fFailedInstantiation = false;
+    SkSTArenaAllocWithReset<kInitialArenaSize>   fInternalAllocator; // intervals & registers
+    bool                                         fFailedInstantiation = false;
 };
 
 #endif // GrResourceAllocator_DEFINED

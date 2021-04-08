@@ -248,6 +248,19 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
                                GrMipmapped::kNo, SkBudgeted::kYes, isProtected);
 }
 
+sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(const GrScratchKey& key) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(!this->isAbandoned());
+    SkASSERT(key.isValid());
+
+    if (GrGpuResource* resource = fCache->findAndRefScratchResource(key)) {
+        fGpu->stats()->incNumScratchTexturesReused();
+        GrSurface* surface = static_cast<GrSurface*>(resource);
+        return sk_sp<GrTexture>(surface->asTexture());
+    }
+    return nullptr;
+}
+
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
                                                        const GrBackendFormat& format,
                                                        GrRenderable renderable,
@@ -266,12 +279,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
         GrScratchKey key;
         GrTexture::ComputeScratchKey(*this->caps(), format, dimensions, renderable,
                                      renderTargetSampleCnt, mipmapped, isProtected, &key);
-        GrGpuResource* resource = fCache->findAndRefScratchResource(key);
-        if (resource) {
-            fGpu->stats()->incNumScratchTexturesReused();
-            GrSurface* surface = static_cast<GrSurface*>(resource);
-            return sk_sp<GrTexture>(surface->asTexture());
-        }
+        return this->findAndRefScratchTexture(key);
     }
 
     return nullptr;
