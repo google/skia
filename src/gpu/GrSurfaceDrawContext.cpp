@@ -496,7 +496,6 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
         // is meant to help numerical stability for excessively large draws.
         if (drawBounds.width() > kLargeDrawLimit || drawBounds.height() > kLargeDrawLimit) {
             GrQuadUtils::CropToRect(rtRect, *aa, quad, /* compute local */ !constColor);
-            SkASSERT(quad->fEdgeFlags == oldFlags);
         }
     };
 
