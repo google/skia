@@ -126,6 +126,7 @@ void GrD3DGpu::destroyResources() {
 
 GrOpsRenderPass* GrD3DGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
+        bool useMSAASurface,
         GrAttachment*,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
@@ -137,7 +138,8 @@ GrOpsRenderPass* GrD3DGpu::onGetOpsRenderPass(
         fCachedOpsRenderPass.reset(new GrD3DOpsRenderPass(this));
     }
 
-    if (!fCachedOpsRenderPass->set(rt, origin, bounds, colorInfo, stencilInfo, sampledProxies)) {
+    if (!fCachedOpsRenderPass->set(rt, useMSAASurface, origin, bounds, colorInfo, stencilInfo,
+                                   sampledProxies)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
