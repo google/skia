@@ -1350,8 +1350,7 @@ void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
                         std::make_unique<StructDefinition>(decl.fOffset, *type));
             }
         }
-        fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(decl.fOffset,
-                                                                           std::move(stmt)));
+        fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(std::move(stmt)));
     }
 }
 
@@ -2047,6 +2046,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
     };
 
     BuiltinVariableScanner scanner(this);
+    SkASSERT(fProgramElements);
     for (auto& e : *fProgramElements) {
         scanner.visitProgramElement(*e);
     }
@@ -2076,6 +2076,8 @@ void IRGenerator::start(const ParsedModule& base,
                         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions,
                         std::vector<std::unique_ptr<ProgramElement>>* elements,
                         std::vector<const ProgramElement*>* sharedElements) {
+    fProgramElements = elements;
+    fSharedElements = sharedElements;
     fSymbolTable = base.fSymbols;
     fIntrinsics = base.fIntrinsics.get();
     if (fIntrinsics) {
@@ -2105,8 +2107,7 @@ void IRGenerator::start(const ParsedModule& base,
         auto decl = VarDeclaration::Make(fContext, var.get(), fContext.fTypes.fInt.get(),
                                          /*arraySize=*/0, /*value=*/nullptr);
         fSymbolTable->add(std::move(var));
-        fProgramElements->push_back(
-                std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl)));
+        fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(std::move(decl)));
     }
 
     if (externalFunctions) {
@@ -2164,9 +2165,6 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
     std::vector<std::unique_ptr<ProgramElement>> elements;
     std::vector<const ProgramElement*> sharedElements;
-
-    fProgramElements = &elements;
-    fSharedElements = &sharedElements;
 
     this->start(base, isBuiltinCode, externalFunctions, &elements, &sharedElements);
 

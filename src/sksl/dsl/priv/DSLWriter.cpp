@@ -31,28 +31,30 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLWriter::DSLWriter(SkSL::Compiler* compiler)
+DSLWriter::DSLWriter(SkSL::Compiler* compiler, ProgramKind kind)
     : fCompiler(compiler) {
-    SkSL::ParsedModule module = fCompiler->moduleForProgramKind(SkSL::ProgramKind::kFragment);
-    fConfig.fKind = SkSL::ProgramKind::kFragment;
+    SkSL::ParsedModule module = fCompiler->moduleForProgramKind(kind);
+    fConfig.fKind = kind;
 
     SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
-    fOldSymbolTable = ir.fSymbolTable;
     fOldConfig = fCompiler->fContext->fConfig;
-    ir.fSymbolTable = module.fSymbols;
     fCompiler->fContext->fConfig = &fConfig;
-    ir.pushSymbolTable();
     if (compiler->context().fCaps.useNodePools()) {
         fPool = Pool::Create();
         fPool->attachToThread();
     }
+    ir.start(module, false, nullptr, &fProgramElements, &fSharedElements);
 }
 
 DSLWriter::~DSLWriter() {
-    SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
-    ir.fSymbolTable = fOldSymbolTable;
+    if (SymbolTable()) {
+        fCompiler->fIRGenerator->finish();
+        fProgramElements.clear();
+    } else {
+        // We should only be here with a null symbol table if ReleaseProgram was called
+        SkASSERT(fProgramElements.empty());
+    }
     fCompiler->fContext->fConfig = fOldConfig;
-    fProgramElements.clear();
     if (fPool) {
         fPool->detachFromThread();
     }
@@ -82,8 +84,8 @@ const SkSL::Modifiers* DSLWriter::Modifiers(SkSL::Modifiers modifiers) {
 
 const char* DSLWriter::Name(const char* name) {
     if (ManglingEnabled()) {
-        const String* s = SymbolTable()->takeOwnershipOfString(
-                Instance().fMangler.uniqueName(name, SymbolTable().get()));
+        String mangled = Instance().fMangler.uniqueName(name, SymbolTable().get());
+        const SkSL::String* s = SymbolTable()->takeOwnershipOfString(std::move(mangled));
         return s->c_str();
     }
     return name;
@@ -111,8 +113,6 @@ GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLVar& va
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
-    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
-    // IRGenerator::call.
     return IRGenerator().call(/*offset=*/-1, function, std::move(arguments));
 }
 
@@ -198,8 +198,10 @@ void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
 
 const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
     if (!var.fVar) {
-        DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, var.fModifiers.fModifiers,
-                                                     &var.fType.skslType(), var.fStorage);
+        if (var.fStorage != SkSL::VariableStorage::kParameter) {
+            DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, var.fModifiers.fModifiers,
+                                                         &var.fType.skslType(), var.fStorage);
+        }
         std::unique_ptr<SkSL::Variable> skslvar = DSLWriter::IRGenerator().convertVar(
                                                                           /*offset=*/-1,
                                                                           var.fModifiers.fModifiers,
@@ -214,6 +216,10 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                        std::move(skslvar),
                                                                        var.fInitialValue.release());
+        if (var.fStorage == Variable::Storage::kGlobal) {
+            DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
+                                                                      std::move(var.fDeclaration)));
+        }
     }
     return *var.fVar;
 }
@@ -226,6 +232,27 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
 void DSLWriter::MarkDeclared(DSLVar& var) {
     SkASSERT(!var.fDeclared);
     var.fDeclared = true;
+}
+
+std::unique_ptr<SkSL::Program> DSLWriter::ReleaseProgram() {
+    SkSL::IRGenerator& ir = IRGenerator();
+    IRGenerator::IRBundle bundle = ir.finish();
+    Pool* pool = Instance().fPool.get();
+    auto result = std::make_unique<SkSL::Program>(nullptr,
+                                                  std::make_unique<ProgramConfig>(),
+                                                  Compiler().fContext,
+                                                  std::move(bundle.fElements),
+                                                  std::move(bundle.fSharedElements),
+                                                  std::move(bundle.fModifiers),
+                                                  std::move(bundle.fSymbolTable),
+                                                  std::move(Instance().fPool),
+                                                  bundle.fInputs);
+    if (pool) {
+        pool->detachFromThread();
+    }
+    SkASSERT(ProgramElements().empty());
+    SkASSERT(!SymbolTable());
+    return result;
 }
 
 #if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
