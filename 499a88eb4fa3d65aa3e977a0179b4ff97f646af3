@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9086d303_920a3600",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2533,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-08T12:51:04Z",
+      "side": 1,
+      "message": "I believe this works as written, but just to be sure (and to test the other backends), want to add a test-case with nested structs?",
+      "revId": "499a88eb4fa3d65aa3e977a0179b4ff97f646af3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
