@@ -9,7 +9,9 @@
 #define SKSL_DSL_FUNCTION
 
 #include "include/sksl/DSLBlock.h"
+#include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLType.h"
+#include "include/sksl/DSLVar.h"
 
 namespace SkSL {
 
@@ -46,18 +48,31 @@ public:
     void define(DSLBlock block);
 
     template<class... Args>
-    DSLExpression operator()(Args... args) {
-        ExpressionArray argArray;
-        argArray.reserve_back(sizeof...(args));
-        int unused[] = {0, (static_cast<void>(argArray.push_back(args.release())), 0)...};
-        static_cast<void>(unused);
+    DSLExpression operator()(Args&&... args) {
+        SkTArray<DSLExpression> argArray;
+        this->collectArgs(argArray, std::forward<Args>(args)...);
         return this->call(std::move(argArray));
     }
 
 private:
+    void collectArgs(SkTArray<DSLExpression>& args) {}
+
+    template<class... RemainingArgs>
+    void collectArgs(SkTArray<DSLExpression>& args, DSLVar& var, RemainingArgs&&... remaining) {
+        args.push_back(var);
+        collectArgs(args, std::forward<RemainingArgs>(remaining)...);
+    }
+
+    template<class... RemainingArgs>
+    void collectArgs(SkTArray<DSLExpression>& args, DSLExpression expr,
+                     RemainingArgs&&... remaining) {
+        args.push_back(std::move(expr));
+        collectArgs(args, std::forward<RemainingArgs>(remaining)...);
+    }
+
     void init(const DSLType& returnType, const char* name, std::vector<DSLVar*> params);
 
-    DSLExpression call(ExpressionArray args);
+    DSLExpression call(SkTArray<DSLExpression> args);
 
     const SkSL::Type* fReturnType;
     const /* SkSL::FunctionDeclaration* */void* fDecl;

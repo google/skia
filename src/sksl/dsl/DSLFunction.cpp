@@ -65,8 +65,14 @@ void DSLFunction::define(DSLBlock block) {
     DSLWriter::ProgramElements().push_back(std::move(function));
 }
 
-DSLExpression DSLFunction::call(ExpressionArray args) {
-    return DSLWriter::Call(*static_cast<const SkSL::FunctionDeclaration*>(fDecl), std::move(args));
+DSLExpression DSLFunction::call(SkTArray<DSLExpression> args) {
+    ExpressionArray released;
+    released.reserve_back(args.size());
+    for (DSLExpression& arg : args) {
+        released.push_back(arg.release());
+    }
+    return DSLWriter::Call(*static_cast<const SkSL::FunctionDeclaration*>(fDecl),
+                           std::move(released));
 }
 
 } // namespace dsl

@@ -1056,6 +1056,21 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     }
 
     {
+        DSLWriter::Reset();
+        Var x(kFloat, "x");
+        Var y(kFloat, "y");
+        DSLFunction pair(kFloat2, "pair", x, y);
+        pair.define(
+            Return(Float2(x, y))
+        );
+        Var varArg1(kFloat, "varArg1");
+        Var varArg2(kFloat, "varArg2");
+        DSLWriter::MarkDeclared(varArg1);
+        DSLWriter::MarkDeclared(varArg2);
+        EXPECT_EQUAL(pair(varArg1, varArg2), "pair(varArg1, varArg2)");
+    }
+
+    {
         ExpectError error(r, "error: expected 'float', but found 'bool'\n");
         DSLWriter::Reset();
         DSLFunction(kFloat, "broken").define(
