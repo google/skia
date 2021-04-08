@@ -58,7 +58,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = false;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
-    fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
     fNeverDisableColorWrites = false;
     fMustSetAnyTexParameterToEnableMipmapping = false;
@@ -3625,13 +3624,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
     }
 
-    // This was reproduced on a Pixel 1, but the unit test + config + options that exercise it are
-    // only tested on very specific bots. The driver claims that ReadPixels is an invalid operation
-    // when reading from an auto-resolving MSAA framebuffer that has stencil attached.
-    if (kQualcomm_GrGLDriver == ctxInfo.driver()) {
-        fDetachStencilFromMSAABuffersBeforeReadPixels = true;
-    }
-
     // TODO: Don't apply this on iOS?
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
         // Our Chromebook with kPowerVRRogue_GrGLRenderer crashes on large instanced draws. The
@@ -4108,7 +4100,6 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
         SkASSERT(!fUseDrawInsteadOfAllRenderTargetWrites);
         SkASSERT(!fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines);
-        SkASSERT(!fDetachStencilFromMSAABuffersBeforeReadPixels);
         SkASSERT(!fDontSetBaseOrMaxLevelForExternalTextures);
         SkASSERT(!fNeverDisableColorWrites);
     }

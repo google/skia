@@ -2149,26 +2149,8 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     }
     GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, 1));
 
-    bool reattachStencil = false;
-    if (this->glCaps().detachStencilFromMSAABuffersBeforeReadPixels() &&
-        renderTarget &&
-        renderTarget->getStencilAttachment() &&
-        renderTarget->numSamples() > 1) {
-        // Fix Adreno devices that won't read from MSAA framebuffers with stencil attached
-        reattachStencil = true;
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, 0));
-    }
-
     GL_CALL(ReadPixels(readRect.fX, readRect.fY, readRect.fWidth, readRect.fHeight,
                        externalFormat, externalType, offsetOrPtr));
-
-    if (reattachStencil) {
-        auto* stencilAttachment =
-                static_cast<GrGLAttachment*>(renderTarget->getStencilAttachment());
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, stencilAttachment->renderbufferID()));
-    }
 
     if (rowWidthInPixels != width) {
         SkASSERT(this->glCaps().readPixelsRowBytesSupport());
