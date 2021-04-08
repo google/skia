@@ -58,8 +58,6 @@ public:
         kConstructorScalarCast_Command,
         kConstructorSplat_Command,
         kConstructorStruct_Command,
-        kConstructorReserved4_Command,
-        kConstructorReserved5_Command,
         kContinue_Command,
         kDefaultLayout_Command,
         kDefaultModifiers_Command,
