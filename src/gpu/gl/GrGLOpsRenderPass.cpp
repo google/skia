@@ -17,15 +17,16 @@
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 
-void GrGLOpsRenderPass::set(GrRenderTarget* rt, const SkIRect& contentBounds,
-                            GrSurfaceOrigin origin, const LoadAndStoreInfo& colorInfo,
+void GrGLOpsRenderPass::set(GrRenderTarget* rt, bool useMultisampleFBO,
+                            const SkIRect& contentBounds, GrSurfaceOrigin origin,
+                            const LoadAndStoreInfo& colorInfo,
                             const StencilLoadAndStoreInfo& stencilInfo) {
     SkASSERT(fGpu);
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
     this->INHERITED::set(rt, origin);
-    fUseMultisampleFBO = rt->numSamples() > 1;
+    fUseMultisampleFBO = useMultisampleFBO;
     fContentBounds = contentBounds;
     fColorLoadAndStoreInfo = colorInfo;
     fStencilLoadAndStoreInfo = stencilInfo;
