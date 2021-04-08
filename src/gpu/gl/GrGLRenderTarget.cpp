@@ -45,8 +45,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
 }
 
 inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDs& idDesc) {
-    GrGLuint renderFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
-    if (renderFBOID == 0) {
+    if ((fMultisampleFBOID | fSingleSampleFBOID) == 0) {
         this->setGLRTFBOIDIs0();
     }
 }
@@ -129,7 +128,8 @@ bool GrGLRenderTarget::completeStencilAttachment() {
     const GrGLInterface* interface = gpu->glInterface();
     GrAttachment* stencil = this->getStencilAttachment();
 
-    GrGLuint stencilFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
+    GrGLuint stencilFBOID = (this->stencilIsOnMultisampleFBO()) ? fMultisampleFBOID
+                                                                : fSingleSampleFBOID;
     gpu->invalidateBoundRenderTarget();
     gpu->bindFramebuffer(GR_GL_FRAMEBUFFER, stencilFBOID);
 
