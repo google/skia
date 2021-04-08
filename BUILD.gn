@@ -2438,6 +2438,16 @@ if (skia_enable_tools) {
       ]
     }
   }
+  if (is_android && skia_use_gl) {
+    test_app("androidkit") {
+      is_shared_library = true
+
+      sources = [ "modules/androidkit/Canvas.cpp" ]
+      libs = []
+
+      deps = [ ":skia" ]
+    }
+  }
 
   test_app("list_gms") {
     sources = [ "tools/list_gms.cpp" ]
