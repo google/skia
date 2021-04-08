@@ -106,6 +106,18 @@ public:
                                    const GrMipLevel& mipLevel);
 
     /**
+     * Search the cache for a scratch texture matching the provided arguments. Failing that
+     * it returns null. If non-null, the resulting texture is always budgeted.
+     */
+    sk_sp<GrTexture> findAndRefScratchTexture(const GrScratchKey&);
+    sk_sp<GrTexture> findAndRefScratchTexture(SkISize dimensions,
+                                              const GrBackendFormat&,
+                                              GrRenderable,
+                                              int renderTargetSampleCnt,
+                                              GrMipmapped,
+                                              GrProtected);
+
+    /**
      * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
      * It will not be renderable.
      */
@@ -298,15 +310,6 @@ public:
 
 private:
     sk_sp<GrGpuResource> findResourceByUniqueKey(const GrUniqueKey&);
-
-    // Attempts to find a resource in the cache that exactly matches the SkISize. Failing that
-    // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(SkISize dimensions,
-                                       const GrBackendFormat&,
-                                       GrRenderable,
-                                       int renderTargetSampleCnt,
-                                       GrMipmapped,
-                                       GrProtected);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
