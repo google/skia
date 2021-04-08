@@ -710,7 +710,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
         case Expression::Kind::kBoolLiteral:
             return this->writeBoolLiteral(expr.as<BoolLiteral>());
         case Expression::Kind::kConstructorArray:
-            return this->writeArrayConstructor(expr.as<ConstructorArray>(), out);
+        case Expression::Kind::kConstructorStruct:
+            return this->writeCompositeConstructor(expr.asAnyConstructor(), out);
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(), out);
         case Expression::Kind::kConstructorMatrixResize:
@@ -1626,7 +1627,7 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
 SpvId SPIRVCodeGenerator::writeComposite(const std::vector<SpvId>& arguments,
                                          const Type& type,
                                          OutputStream& out) {
-    SkASSERT((int)arguments.size() == type.columns());
+    SkASSERT(arguments.size() == (type.isStruct() ? type.fields().size() : (size_t)type.columns()));
 
     SpvId result = this->nextId(&type);
     this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
@@ -1653,15 +1654,17 @@ SpvId SPIRVCodeGenerator::writeConstructorSplat(const ConstructorSplat& c, Outpu
 }
 
 
-SpvId SPIRVCodeGenerator::writeArrayConstructor(const ConstructorArray& c, OutputStream& out) {
-    const Type& type = c.type();
-    SkASSERT(type.isArray());
+SpvId SPIRVCodeGenerator::writeCompositeConstructor(const AnyConstructor& c, OutputStream& out) {
+    SkASSERT(c.type().isArray() || c.type().isStruct());
+    auto ctorArgs = c.argumentSpan();
+
     std::vector<SpvId> arguments;
-    arguments.reserve(c.arguments().size());
-    for (size_t i = 0; i < c.arguments().size(); i++) {
-        arguments.push_back(this->writeExpression(*c.arguments()[i], out));
+    arguments.reserve(ctorArgs.size());
+    for (const std::unique_ptr<Expression>& arg : ctorArgs) {
+        arguments.push_back(this->writeExpression(*arg, out));
     }
-    return this->writeComposite(arguments, type, out);
+
+    return this->writeComposite(arguments, c.type(), out);
 }
 
 SpvId SPIRVCodeGenerator::writeConstructorScalarCast(const ConstructorScalarCast& c,
@@ -2394,6 +2397,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdEqual,
                                                    SpvOpIEqual, SpvOpAll, SpvOpLogicalAnd, out);
             }
+            if (operandType->isStruct()) {
+                return this->writeStructComparison(*operandType, lhs, op, rhs, out);
+            }
             SkASSERT(resultType.isBoolean());
             const Type* tmpType;
             if (operandType->isVector()) {
@@ -2412,6 +2418,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             if (operandType->isMatrix()) {
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdNotEqual,
                                                    SpvOpINotEqual, SpvOpAny, SpvOpLogicalOr, out);
+            }
+            if (operandType->isStruct()) {
+                return this->writeStructComparison(*operandType, lhs, op, rhs, out);
             }
             [[fallthrough]];
         case Token::Kind::TK_LOGICALXOR:
@@ -2503,18 +2512,13 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
     }
 }
 
-SpvId SPIRVCodeGenerator::writeStructComparison(const Expression& left, Operator op,
-                                                const Expression& right, OutputStream& out) {
+SpvId SPIRVCodeGenerator::writeStructComparison(const Type& structType, SpvId lhs, Operator op,
+                                                SpvId rhs, OutputStream& out) {
     // Both sides must be the same type of struct.
-    SkASSERT(left.type().isStruct());
-    SkASSERT(right.type().isStruct());
-    SkASSERT(left.type() == right.type());
+    SkASSERT(structType.isStruct());
     SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
-    const std::vector<Type::Field>& fields = left.type().fields();
-
-    // Get the ID for each struct expression.
-    SpvId lhs = this->writeExpression(left, out);
-    SpvId rhs = this->writeExpression(right, out);
+    const std::vector<Type::Field>& fields = structType.fields();
+    SkASSERT(!fields.empty());
 
     // Synthesize equality checks for each field in the struct.
     const Type& boolType = *fContext.fTypes.fBool;
@@ -2586,14 +2590,6 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         case Token::Kind::TK_LOGICALOR:
             // Handles short-circuiting; we don't necessarily evaluate both LHS and RHS.
             return this->writeLogicalOr(*b.left(), *b.right(), out);
-
-        case Token::Kind::TK_EQEQ:
-        case Token::Kind::TK_NEQ:
-            // Split apart struct comparison into field-by-field checks.
-            if (b.left()->type().isStruct() && b.right()->type().isStruct()) {
-                return this->writeStructComparison(*b.left(), b.getOperator(), *b.right(), out);
-            }
-            break;
 
         default:
             break;

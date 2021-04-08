@@ -3,12 +3,16 @@
 using namespace metal;
 struct A {
     int x;
-    int y;
+    float y;
 };
 struct B {
     float x;
     array<float, 2> y;
     A z;
+};
+struct C {
+    A i;
+    A j;
 };
 struct Inputs {
 };
@@ -17,15 +21,26 @@ struct Outputs {
 };
 struct Globals {
     A a1;
+    A a4;
     B b1;
+    B b4;
 };
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{{}, {}};
+    Globals _globals{{}, A{1, 2.0}, {}, B{1.0, array<float, 2>{2.0, 3.0}, A{4, 5.0}}};
     (void)_globals;
     Outputs _out;
     (void)_out;
     _globals.a1.x = 0;
     _globals.b1.x = 0.0;
-    _out.sk_FragColor.x = float(_globals.a1.x) + _globals.b1.x;
+    _out.sk_FragColor.x = (((float(_globals.a1.x) + _globals.b1.x) + _globals.a4.y) + _globals.b4.x) + A{1, 2.0}.y;
+    C c1;
+    C c2;
+    C c3;
+    c1 = C{A{1, 2.0}, A{3, 4.0}};
+    c2 = C{A{1, -2.0}, A{-3, 4.0}};
+    c3 = C{A{1, 2.0}, A{3, 4.0}};
+    _out.sk_FragColor.y = float(c1 == c3);
+    _out.sk_FragColor.z = float(c2 != c3);
+    _out.sk_FragColor.w = float(c1.i != c2.j);
     return _out;
 }
