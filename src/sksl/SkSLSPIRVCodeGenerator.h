@@ -324,6 +324,9 @@ private:
                                 SpvOp_ intOperator, SpvOp_ vectorMergeOperator,
                                 SpvOp_ mergeOperator, OutputStream& out);
 
+    SpvId writeStructComparison(const Type& structType, SpvId lhs, Operator op, SpvId rhs,
+                                OutputStream& out);
+
     SpvId writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs, SpvId rhs,
                                          SpvOp_ floatOperator, SpvOp_ intOperator,
                                          OutputStream& out);
@@ -347,9 +350,9 @@ private:
 
     SpvId writeIndexExpression(const IndexExpression& expr, OutputStream& out);
 
-    SpvId writeLogicalAnd(const BinaryExpression& b, OutputStream& out);
+    SpvId writeLogicalAnd(const Expression& left, const Expression& right, OutputStream& out);
 
-    SpvId writeLogicalOr(const BinaryExpression& o, OutputStream& out);
+    SpvId writeLogicalOr(const Expression& left, const Expression& right, OutputStream& out);
 
     SpvId writePrefixExpression(const PrefixExpression& p, OutputStream& out);
 
