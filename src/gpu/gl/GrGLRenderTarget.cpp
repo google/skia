@@ -45,7 +45,8 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
 }
 
 inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDs& idDesc) {
-    if (!this->renderFBOID()) {
+    GrGLuint renderFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
+    if (renderFBOID == 0) {
         this->setGLRTFBOIDIs0();
     }
 }
@@ -101,7 +102,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     GrGLFramebufferInfo fbi;
-    fbi.fFBOID = this->renderFBOID();
+    fbi.fFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
     fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
     if (GrAttachment* stencil = this->getStencilAttachment()) {
@@ -127,6 +128,11 @@ bool GrGLRenderTarget::completeStencilAttachment() {
     GrGLGpu* gpu = this->getGLGpu();
     const GrGLInterface* interface = gpu->glInterface();
     GrAttachment* stencil = this->getStencilAttachment();
+
+    GrGLuint stencilFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
+    gpu->invalidateBoundRenderTarget();
+    gpu->bindFramebuffer(GR_GL_FRAMEBUFFER, stencilFBOID);
+
     if (nullptr == stencil) {
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
@@ -134,22 +140,9 @@ bool GrGLRenderTarget::completeStencilAttachment() {
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_DEPTH_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, 0));
-#ifdef SK_DEBUG
-        if (!gpu->glCaps().skipErrorChecks()) {
-            // This check can cause problems in Chromium if the context has been asynchronously
-            // abandoned (see skbug.com/5200)
-            GrGLenum status;
-            GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-            SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
-        }
-#endif
-        return true;
     } else {
         const GrGLAttachment* glStencil = static_cast<const GrGLAttachment*>(stencil);
         GrGLuint rb = glStencil->renderbufferID();
-
-        gpu->invalidateBoundRenderTarget();
-        gpu->bindFramebuffer(GR_GL_FRAMEBUFFER, this->renderFBOID());
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, rb));
@@ -162,19 +155,19 @@ bool GrGLRenderTarget::completeStencilAttachment() {
                                                           GR_GL_DEPTH_ATTACHMENT,
                                                           GR_GL_RENDERBUFFER, 0));
         }
-
+    }
 
 #ifdef SK_DEBUG
-        if (!gpu->glCaps().skipErrorChecks()) {
-            // This check can cause problems in Chromium if the context has been asynchronously
-            // abandoned (see skbug.com/5200)
-            GrGLenum status;
-            GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-            SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
-        }
-#endif
-        return true;
+    if (!gpu->glCaps().skipErrorChecks()) {
+        // This check can cause problems in Chromium if the context has been asynchronously
+        // abandoned (see skbug.com/5200)
+        GrGLenum status;
+        GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
     }
+#endif
+
+    return true;
 }
 
 void GrGLRenderTarget::onRelease() {
