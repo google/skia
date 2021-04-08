@@ -16,6 +16,23 @@
       "message": "LGTM as this doesn\u0027t look like it will break anything on shaders.skia.org.",
       "revId": "1246099fce2d616782037694c5863d29c9229947",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca7280e8_19250c50",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-08T19:02:50Z",
+      "side": 1,
+      "message": "Can we get a unit test that uses both floats and ints? rtshader.spec.js is a good place to add it.\n\nPlease also add a note to CanvasKit\u0027s CHANGELOG.md.",
+      "revId": "1246099fce2d616782037694c5863d29c9229947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
