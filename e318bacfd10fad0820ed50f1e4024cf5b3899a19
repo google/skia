@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e7e8b95_581ac569",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-08T15:22:41Z",
+      "side": 1,
+      "message": "can_proxy_use_scratch ?",
+      "range": {
+        "startLine": 101,
+        "startChar": 12,
+        "endLine": 101,
+        "endChar": 41
+      },
+      "revId": "e318bacfd10fad0820ed50f1e4024cf5b3899a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4591581e_096a823d",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-08T15:22:41Z",
+      "side": 1,
+      "message": "Maybe move comment up to before line 102 ?",
+      "revId": "e318bacfd10fad0820ed50f1e4024cf5b3899a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
