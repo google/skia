@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "1033a9eb_fe393898",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-08T16:51:38Z",
+      "side": 1,
+      "message": "Oops, fixed.",
+      "parentUuid": "93ea1496_df94a88a",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 0
+      },
+      "revId": "40a9eff9021959007f5905503f81cba2c8564391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "407d2831_9beb0dd8",
         "filename": "include/sksl/DSLVar.h",
         "patchSetId": 1
@@ -109,6 +133,30 @@
       "side": 1,
       "message": "Can you come up with an example of what you were trying to do, that you couldn\u0027t make work? Either as a CL or in godbolt? \n\nAlso, is it possible to write a test to ensure that declaring the same variable twice generates a sane error? (What does it actually do?)",
       "parentUuid": "9c7b0a69_155f7198",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "40a9eff9021959007f5905503f81cba2c8564391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50604d55_33440c8b",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-08T16:51:38Z",
+      "side": 1,
+      "message": "https://godbolt.org/z/9fb3Ec1M4\n\nThere are a couple of duplicate declaration tests already. Look for \"variable has already been declared\" in SkSLDSLTest.cpp.",
+      "parentUuid": "97594566_056a4fb6",
       "range": {
         "startLine": 39,
         "startChar": 4,
