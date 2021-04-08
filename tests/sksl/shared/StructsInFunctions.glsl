@@ -27,15 +27,13 @@ vec4 main() {
     S s = returns_a_struct_S();
     float x = accepts_a_struct_fS(s);
     modifies_a_struct_vS(s);
-    S expected;
-    expected.x = 2.0;
-    expected.y = 3;
+    const S expected = S(2.0, 3);
     Nested n1;
     Nested n2;
     Nested n3;
     n1.a = (n1.b = returns_a_struct_S());
     n3 = (n2 = n1);
     modifies_a_struct_vS(n3.b);
-    bool valid = (((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s != returns_a_struct_S()) && n1 == n2) && n1 != n3;
+    bool valid = ((((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s == S(2.0, 3)) && s != returns_a_struct_S()) && n1 == n2) && n1 != n3;
     return valid ? colorGreen : colorRed;
 }

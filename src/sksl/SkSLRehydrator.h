@@ -57,7 +57,7 @@ public:
         kConstructorMatrixResize_Command,
         kConstructorScalarCast_Command,
         kConstructorSplat_Command,
-        kConstructorReserved3_Command,
+        kConstructorStruct_Command,
         kConstructorReserved4_Command,
         kConstructorReserved5_Command,
         kContinue_Command,
