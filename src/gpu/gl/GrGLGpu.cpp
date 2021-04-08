@@ -1833,7 +1833,8 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
+                           const GrProgramInfo& programInfo) {
     this->handleDirtyContext();
 
     sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(this->getContext(),
@@ -1873,7 +1874,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, glRT->numSamples() > 1);
+    this->flushRenderTarget(glRT, useMultisampleFBO);
 
     return true;
 }
@@ -1935,6 +1936,7 @@ GrGLenum GrGLGpu::bindBuffer(GrGpuBufferType type, const GrBuffer* buffer) {
 void GrGLGpu::clear(const GrScissorState& scissor,
                     std::array<float, 4> color,
                     GrRenderTarget* target,
+                    bool useMultisampleFBO,
                     GrSurfaceOrigin origin) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
@@ -1946,9 +1948,9 @@ void GrGLGpu::clear(const GrScissorState& scissor,
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
     if (scissor.enabled()) {
-        this->flushRenderTarget(glRT, glRT->numSamples() > 1, origin, scissor.rect());
+        this->flushRenderTarget(glRT, useMultisampleFBO, origin, scissor.rect());
     } else {
-        this->flushRenderTarget(glRT, glRT->numSamples() > 1);
+        this->flushRenderTarget(glRT, useMultisampleFBO);
     }
     this->flushScissor(scissor, glRT->height(), origin);
     this->disableWindowRectangles();
@@ -1965,7 +1967,8 @@ static bool use_tiled_rendering(const GrGLCaps& glCaps,
            GrStoreOp::kDiscard == stencilLoadStore.fStoreOp;
 }
 
-void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const SkIRect& bounds, GrSurfaceOrigin origin,
+void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, bool useMultisampleFBO, const SkIRect& bounds,
+                                 GrSurfaceOrigin origin,
                                  const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                  const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
     SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
@@ -1973,7 +1976,7 @@ void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const SkIRect& bounds, GrSu
     this->handleDirtyContext();
 
     auto glRT = static_cast<GrGLRenderTarget*>(rt);
-    this->flushRenderTarget(glRT, glRT->numSamples() > 1);
+    this->flushRenderTarget(glRT, useMultisampleFBO);
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
 
     if (use_tiled_rendering(this->glCaps(), stencilLoadStore)) {
@@ -2005,7 +2008,7 @@ void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const SkIRect& bounds, GrSu
     }
 }
 
-void GrGLGpu::endCommandBuffer(GrRenderTarget* rt,
+void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, bool useMultisampleFBO,
                                const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
     SkASSERT(fIsExecutingCommandBuffer_DebugOnly);
@@ -2023,13 +2026,13 @@ void GrGLGpu::endCommandBuffer(GrRenderTarget* rt,
 
         SkSTArray<2, GrGLenum> discardAttachments;
         if (GrStoreOp::kDiscard == colorLoadStore.fStoreOp) {
-            GrGLuint renderFBOID = (glRT->numSamples() > 1) ? glRT->multisampleFBOID()
-                                                            : glRT->singleSampleFBOID();
+            GrGLuint renderFBOID = (useMultisampleFBO) ? glRT->multisampleFBOID()
+                                                       : glRT->singleSampleFBOID();
             discardAttachments.push_back((!renderFBOID) ? GR_GL_COLOR : GR_GL_COLOR_ATTACHMENT0);
         }
         if (GrStoreOp::kDiscard == stencilLoadStore.fStoreOp) {
-            GrGLuint renderFBOID = (glRT->numSamples() > 1) ? glRT->multisampleFBOID()
-                                                            : glRT->singleSampleFBOID();
+            GrGLuint renderFBOID = (useMultisampleFBO) ? glRT->multisampleFBOID()
+                                                       : glRT->singleSampleFBOID();
             discardAttachments.push_back((!renderFBOID) ? GR_GL_STENCIL : GR_GL_STENCIL_ATTACHMENT);
 
         }
@@ -2090,7 +2093,7 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
         value = 0;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->flushRenderTargetNoColorWrites(glRT, glRT->numSamples() > 1);
+    this->flushRenderTargetNoColorWrites(glRT, glRT->stencilIsOnMultisampleFBO());
 
     this->flushScissor(scissor, glRT->height(), origin);
     this->disableWindowRectangles();
