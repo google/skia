@@ -19,7 +19,8 @@ class GrGLAttachment;
 
 class GrGLRenderTarget : public GrRenderTarget {
 public:
-    bool alwaysClearStencil() const override { return 0 == this->renderFBOID(); }
+    using GrSurface::glRTFBOIDis0;
+    bool alwaysClearStencil() const override { return this->glRTFBOIDis0(); }
 
     // set fSingleSampleFBOID to this value to indicate that it is multisampled but
     // Gr doesn't know how to resolve it.
@@ -40,14 +41,8 @@ public:
                                                const IDs&,
                                                int stencilBits);
 
-    // The following two functions return the same ID when a texture/render target is not
-    // multisampled, and different IDs when it is multisampled.
-    // FBO ID used to render into
-    GrGLuint renderFBOID() const {
-        return (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
-    }
-    // FBO ID that has texture ID attached.
     GrGLuint singleSampleFBOID() const { return fSingleSampleFBOID; }
+    GrGLuint multisampleFBOID() const { return fMultisampleFBOID; }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
