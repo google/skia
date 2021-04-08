@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29b690aa_dc453bd9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-08T19:09:54Z",
+      "side": 1,
+      "message": "I confirmed this fixes the linked fuzzer crash and the assert you found when running glmsaa4 locally.",
+      "revId": "63b281ea955b98de1c1692db5baa24d33fa3c641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afb708fc_a89badfa",
+        "filename": "src/gpu/GrSurfaceDrawContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-08T19:09:54Z",
+      "side": 1,
+      "message": "This is the root cause of the now-deleted assert triggering from `dm --config glmsaa4 --pr none --match dashing5_aa`. In MSAA mode we\u0027d pass aa \u003d yes, but flags \u003d\u003d none, so any crop edges that were clipped would be converted from 0 to 1 for their aa edge flags.\n\nBehaviorally this doesn\u0027t do too much since once the op is created, it normalizes edge flags based on the chosen aa type, but I wanted to keep this to keep things in line between edge flags and overall aa.",
+      "range": {
+        "startLine": 575,
+        "startChar": 22,
+        "endLine": 575,
+        "endChar": 96
+      },
+      "revId": "63b281ea955b98de1c1692db5baa24d33fa3c641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
