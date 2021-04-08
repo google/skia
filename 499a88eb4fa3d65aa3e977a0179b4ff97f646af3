@@ -16,6 +16,24 @@
       "message": "I believe this works as written, but just to be sure (and to test the other backends), want to add a test-case with nested structs?",
       "revId": "499a88eb4fa3d65aa3e977a0179b4ff97f646af3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7128f12_bb65e70c",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2533,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-08T14:59:23Z",
+      "side": 1,
+      "message": "Good thought. I expected it would work too, but it doesn\u0027t! \"unsupported operand for binary expression\" again. I\u0027ll dig into it.",
+      "parentUuid": "9086d303_920a3600",
+      "revId": "499a88eb4fa3d65aa3e977a0179b4ff97f646af3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
