@@ -386,11 +386,6 @@ public:
         return fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines;
     }
 
-    // Some Adreno drivers refuse to ReadPixels from an MSAA buffer that has stencil attached.
-    bool detachStencilFromMSAABuffersBeforeReadPixels() const {
-        return fDetachStencilFromMSAABuffersBeforeReadPixels;
-    }
-
     // Older Android versions seem to have an issue with setting GL_TEXTURE_BASE_LEVEL or
     // GL_TEXTURE_MAX_LEVEL for GL_TEXTURE_EXTERNAL_OES textures.
     bool dontSetBaseOrMaxLevelForExternalTextures() const {
@@ -568,7 +563,6 @@ private:
     bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
-    bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     bool fDontSetBaseOrMaxLevelForExternalTextures : 1;
     bool fNeverDisableColorWrites : 1;
     bool fMustSetAnyTexParameterToEnableMipmapping : 1;
