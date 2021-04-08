@@ -58,10 +58,10 @@ static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext, const Proxy
 
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
 // assigned different GrSurfaces.
-static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
+static void overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
                          sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
                          bool expectedResult) {
-    GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, 1));
+    GrResourceAllocator alloc(dContext SkDEBUGCODE(, 1));
 
     alloc.addInterval(p1.get(), 0, 4, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
@@ -78,10 +78,10 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
 
 // Test various cases when two proxies do not have overlapping intervals.
 // This mainly acts as a test of the ResourceAllocator's free pool.
-static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
+static void non_overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
                              sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
                              bool expectedResult) {
-    GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, 1));
+    GrResourceAllocator alloc(dContext SkDEBUGCODE(, 1));
 
     alloc.incOps();
     alloc.incOps();
@@ -102,10 +102,10 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
-    auto direct = ctxInfo.directContext();
-    const GrCaps* caps = direct->priv().caps();
-    GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
-    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
+    auto dContext = ctxInfo.directContext();
+    const GrCaps* caps = dContext->priv().caps();
+    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = dContext->priv().resourceProvider();
 
     struct TestCase {
         ProxyParams   fP1;
@@ -144,13 +144,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         sk_sp<GrSurfaceProxy> p1 = make_deferred(proxyProvider, caps, test.fP1);
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, test.fP2);
         reporter->push(SkStringPrintf("case %d", SkToInt(i)));
-        overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2), test.fExpectation);
+        overlap_test(reporter, dContext, std::move(p1), std::move(p2), test.fExpectation);
         reporter->pop();
     }
 
     auto beFormat = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
-    int k2 = direct->priv().caps()->getRenderTargetSampleCount(2, beFormat);
-    int k4 = direct->priv().caps()->getRenderTargetSampleCount(4, beFormat);
+    int k2 = caps->getRenderTargetSampleCount(2, beFormat);
+    int k4 = caps->getRenderTargetSampleCount(4, beFormat);
 
     //--------------------------------------------------------------------------------------------
     TestCase gNonOverlappingTests[] = {
@@ -197,7 +197,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         }
 
         reporter->push(SkStringPrintf("case %d", SkToInt(i)));
-        non_overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2),
+        non_overlap_test(reporter, dContext, std::move(p1), std::move(p2),
                          test.fExpectation);
         reporter->pop();
     }
@@ -207,11 +207,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         TestCase t[1] = {
                 {{64, kNotRT, kRGBA, kE, 1, kNotB}, {64, kNotRT, kRGBA, kE, 1, kNotB}, kDontShare}};
 
-        sk_sp<GrSurfaceProxy> p1 = make_backend(direct, t[0].fP1);
+        sk_sp<GrSurfaceProxy> p1 = make_backend(dContext, t[0].fP1);
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, t[0].fP2);
 
         reporter->push(SkString("wrapped case"));
-        non_overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2),
+        non_overlap_test(reporter, dContext, std::move(p1), std::move(p2),
                          t[0].fExpectation);
         reporter->pop();
     }
