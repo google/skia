@@ -506,6 +506,7 @@ describe('Paragraph Behavior', function() {
                 p.delete();
             }
         }
+        expect(CanvasKit.RectHeightStyle.Strut).toBeTruthy();
 
         fontMgr.delete();
         paragraph.delete();

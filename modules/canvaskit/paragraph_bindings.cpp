@@ -451,7 +451,8 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .value("Max",                       para::RectHeightStyle::kMax)
         .value("IncludeLineSpacingMiddle",  para::RectHeightStyle::kIncludeLineSpacingMiddle)
         .value("IncludeLineSpacingTop",     para::RectHeightStyle::kIncludeLineSpacingTop)
-        .value("IncludeLineSpacingBottom",  para::RectHeightStyle::kIncludeLineSpacingBottom);
+        .value("IncludeLineSpacingBottom",  para::RectHeightStyle::kIncludeLineSpacingBottom)
+        .value("Strut",                     para::RectHeightStyle::kStrut);
 
     enum_<para::RectWidthStyle>("RectWidthStyle")
         .value("Tight",  para::RectWidthStyle::kTight)

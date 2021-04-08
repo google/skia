@@ -901,6 +901,7 @@ var CanvasKit = {
     IncludeLineSpacingMiddle: {},
     IncludeLineSpacingTop: {},
     IncludeLineSpacingBottom: {},
+    Strut: {},
   },
 
   RectWidthStyle: {
