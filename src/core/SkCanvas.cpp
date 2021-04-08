@@ -2298,6 +2298,29 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     }
 }
 
+void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint positions[],
+                          SkPoint origin, const SkFont& font, const SkPaint& paint) {
+    if (count <= 0) { return; }
+    SkTextBlobBuilder builder;
+    auto buffer = builder.allocRunPos(font, count);
+    memcpy(buffer.glyphs, glyphs, count * sizeof(SkGlyphID));
+    memcpy(buffer.points(), positions, count * sizeof(SkPoint));
+    this->drawTextBlob(builder.make(), origin.x(), origin.y(), paint);
+}
+
+void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* positions,
+                          const uint32_t* clusters, int textByteCount, const char* utf8text,
+                          SkPoint origin, const SkFont& font, const SkPaint& paint) {
+    if (count <= 0) { return; }
+    SkTextBlobBuilder builder;
+    auto buffer = builder.allocRunTextPos(font, count, textByteCount);
+    memcpy(buffer.glyphs, glyphs, count * sizeof(SkGlyphID));
+    memcpy(buffer.points(), positions, count * sizeof(SkPoint));
+    memcpy(buffer.clusters, clusters, count * sizeof(uint32_t));
+    memcpy(buffer.utf8text, utf8text, textByteCount);
+    this->drawTextBlob(builder.make(), origin.x(), origin.y(), paint);
+}
+
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
