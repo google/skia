@@ -449,7 +449,8 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         SkSpan<const SkPoint>{&sharedPos, 1},
         SkSpan<const SkGlyphID>{&glyphID, 1},
         SkSpan<const char>{},
-        SkSpan<const uint32_t>{}
+        SkSpan<const uint32_t>{},
+        SkSpan<const SkVector>{}
     };
 
     for (int i = 0; i < count; i++) {

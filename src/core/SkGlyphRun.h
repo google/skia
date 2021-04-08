@@ -31,7 +31,9 @@ public:
                SkSpan<const SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,
                SkSpan<const char> text,
-               SkSpan<const uint32_t> clusters);
+               SkSpan<const uint32_t> clusters,
+               SkSpan<const SkVector> scaledRotations);
+
     SkGlyphRun(const SkGlyphRun& glyphRun, const SkFont& font);
 
     size_t runSize() const { return fSource.size(); }
@@ -41,6 +43,7 @@ public:
     const SkFont& font() const { return fFont; }
     SkSpan<const uint32_t> clusters() const { return fClusters; }
     SkSpan<const char> text() const { return fText; }
+    SkSpan<const SkVector> scaledRotations() const { return fScaledRotations; }
 
 private:
     // GlyphIDs and positions.
@@ -49,7 +52,9 @@ private:
     const SkSpan<const char> fText;
     // Original clusters from SkTextBlob if present. Will be empty if not present.
     const SkSpan<const uint32_t>   fClusters;
-    // Paint for this run modified to have glyph encoding and left alignment.
+    // Possible RSXForm information
+    const SkSpan<const SkVector> fScaledRotations;
+    // Font for this run modified to have glyph encoding and left alignment.
     SkFont fFont;
 };
 
@@ -123,7 +128,8 @@ private:
             SkSpan<const SkGlyphID> glyphIDs,
             SkSpan<const SkPoint> positions,
             SkSpan<const char> text,
-            SkSpan<const uint32_t> clusters);
+            SkSpan<const uint32_t> clusters,
+            SkSpan<const SkVector> scaledRotations);
 
     void makeGlyphRunList(const SkTextBlob* blob, SkPoint origin);
 

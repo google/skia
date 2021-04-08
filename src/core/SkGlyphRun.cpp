@@ -24,10 +24,12 @@ SkGlyphRun::SkGlyphRun(const SkFont& font,
                        SkSpan<const SkPoint> positions,
                        SkSpan<const SkGlyphID> glyphIDs,
                        SkSpan<const char> text,
-                       SkSpan<const uint32_t> clusters)
+                       SkSpan<const uint32_t> clusters,
+                       SkSpan<const SkVector> scaledRotations)
         : fSource{SkMakeZip(glyphIDs, positions)}
         , fText{text}
         , fClusters{clusters}
+        , fScaledRotations{scaledRotations}
         , fFont{font} {}
 
 SkGlyphRun::SkGlyphRun(const SkGlyphRun& that, const SkFont& font)
@@ -97,7 +99,8 @@ const SkGlyphRunList& SkGlyphRunBuilder::textToGlyphRunList(
                            glyphIDs,
                            positions,
                            SkSpan<const char>{},
-                           SkSpan<const uint32_t>{});
+                           SkSpan<const uint32_t>{},
+                           SkSpan<const SkVector>{});
     }
 
     this->makeGlyphRunList(nullptr, origin);
@@ -203,7 +206,8 @@ SkPoint* SkGlyphRunBuilder::simplifyTextBlobIgnoringRSXForm(const SkTextBlobRunI
                 glyphIDs,
                 positionsSpan,
                 SkSpan<const char>(it.text(), it.textSize()),
-                SkSpan<const uint32_t>(it.clusters(), runSize));
+                SkSpan<const uint32_t>(it.clusters(), runSize),
+                SkSpan<const SkVector>{});
     }
 
     return positionsCursor;
@@ -244,7 +248,8 @@ void SkGlyphRunBuilder::makeGlyphRun(
         SkSpan<const SkGlyphID> glyphIDs,
         SkSpan<const SkPoint> positions,
         SkSpan<const char> text,
-        SkSpan<const uint32_t> clusters) {
+        SkSpan<const uint32_t> clusters,
+        SkSpan<const SkVector> scaledRotations) {
 
     // Ignore empty runs.
     if (!glyphIDs.empty()) {
@@ -253,7 +258,8 @@ void SkGlyphRunBuilder::makeGlyphRun(
                 positions,
                 glyphIDs,
                 text,
-                clusters);
+                clusters,
+                scaledRotations);
     }
 }
 
