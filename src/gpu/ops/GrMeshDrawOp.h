@@ -142,6 +142,8 @@ class GrMeshDrawOp::Target {
 public:
     virtual ~Target() {}
 
+    virtual GrOpsRenderPass* opsRenderPass() const = 0;
+
     /** Adds a draw of a mesh. 'primProcProxies' must have
      * GrGeometryProcessor::numTextureSamplers() entries. Can be null if no samplers.
      */

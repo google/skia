@@ -97,6 +97,7 @@ public:
     const void* peekStaticIndirectData() const { return fStaticIndirectData; }
 
 #define UNIMPL(...) __VA_ARGS__ override { SK_ABORT("unimplemented."); }
+    UNIMPL(GrOpsRenderPass* opsRenderPass() const)
     UNIMPL(void recordDraw(const GrGeometryProcessor*, const GrSimpleMesh[], int,
                            const GrSurfaceProxy* const[], GrPrimitiveType))
     UNIMPL(uint16_t* makeIndexSpace(int, sk_sp<const GrBuffer>*, int*))
