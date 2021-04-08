@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "75abe9d6_4b56338d",
+        "filename": "src/gpu/gl/GrGLRenderTarget.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-08T14:51:59Z",
+      "side": 1,
+      "message": "yeah doesn\u0027t have to be solved here. But mostly thinking I don\u0027t know if we want to be handing out our internal msaa buffers especially if we start sharing them between different surfaces.",
+      "parentUuid": "f3077d82_87773f57",
+      "range": {
+        "startLine": 104,
+        "startChar": 17,
+        "endLine": 104,
+        "endChar": 37
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6dc7acb4_18d8ac6d",
         "filename": "tests/TraceMemoryDumpTest.cpp",
         "patchSetId": 13
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "This is 3 because, unlike the others, it dumps a GrGLTextureRenderTarget, which also dumps a GrGLTexture:\n\n  GrGLRenderTarget\n  GrGLTexture\n  GrTextBlobCache",
       "parentUuid": "6dc7acb4_18d8ac6d",
+      "range": {
+        "startLine": 188,
+        "startChar": 44,
+        "endLine": 188,
+        "endChar": 45
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9cc3787_c51fd47a",
+        "filename": "tests/TraceMemoryDumpTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-08T14:51:59Z",
+      "side": 1,
+      "message": "I feel like it is wrong to dump both a GrGLRT and a GrGLTexture all for the same GrGLTextureRenderTarget. From an outside POV it would be confusing why Skia has two different objects here. But this is also a symptom of the current system that makes it hard for us to accurately describe the memory we have allocated.\n\nThe new surface system will make this much clearer, but I\u0027m not sure what the best approach in the meantime is.",
+      "parentUuid": "fdcb05fd_94422a3c",
       "range": {
         "startLine": 188,
         "startChar": 44,
