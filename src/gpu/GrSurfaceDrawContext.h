@@ -572,7 +572,7 @@ public:
         // resolution compared to regular rect draws, which is the main reason it remains separate.
         DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),
                       localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix) : GrQuad(rect),
-                      GrQuadAAFlags::kNone};
+                      doStencilMSAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
         this->drawFilledQuad(clip, std::move(paint), doStencilMSAA, &quad, ss);
     }
 
