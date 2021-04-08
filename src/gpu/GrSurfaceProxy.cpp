@@ -154,7 +154,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
         SkASSERT(fTarget->asRenderTarget());
     }
 
-    if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
+    if (!this->isDDLTarget() && kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
         // TODO(11373): Can this check be exact?
         SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
