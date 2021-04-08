@@ -21,47 +21,47 @@ const SkSL::Type& DSLType::skslType() const {
     }
     const SkSL::Context& context = DSLWriter::Context();
     switch (fTypeConstant) {
-        case kBool:
+        case kBool_Type:
             return *context.fTypes.fBool;
-        case kBool2:
+        case kBool2_Type:
             return *context.fTypes.fBool2;
-        case kBool3:
+        case kBool3_Type:
             return *context.fTypes.fBool3;
-        case kBool4:
+        case kBool4_Type:
             return *context.fTypes.fBool4;
-        case kHalf:
+        case kHalf_Type:
             return *context.fTypes.fHalf;
-        case kHalf2:
+        case kHalf2_Type:
             return *context.fTypes.fHalf2;
-        case kHalf3:
+        case kHalf3_Type:
             return *context.fTypes.fHalf3;
-        case kHalf4:
+        case kHalf4_Type:
             return *context.fTypes.fHalf4;
-        case kFloat:
+        case kFloat_Type:
             return *context.fTypes.fFloat;
-        case kFloat2:
+        case kFloat2_Type:
             return *context.fTypes.fFloat2;
-        case kFloat3:
+        case kFloat3_Type:
             return *context.fTypes.fFloat3;
-        case kFloat4:
+        case kFloat4_Type:
             return *context.fTypes.fFloat4;
-        case kInt:
+        case kInt_Type:
             return *context.fTypes.fInt;
-        case kInt2:
+        case kInt2_Type:
             return *context.fTypes.fInt2;
-        case kInt3:
+        case kInt3_Type:
             return *context.fTypes.fInt3;
-        case kInt4:
+        case kInt4_Type:
             return *context.fTypes.fInt4;
-        case kShort:
+        case kShort_Type:
             return *context.fTypes.fShort;
-        case kShort2:
+        case kShort2_Type:
             return *context.fTypes.fShort2;
-        case kShort3:
+        case kShort3_Type:
             return *context.fTypes.fShort3;
-        case kShort4:
+        case kShort4_Type:
             return *context.fTypes.fShort4;
-        case kVoid:
+        case kVoid_Type:
             return *context.fTypes.fVoid;
         default:
             SkUNREACHABLE;

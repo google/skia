@@ -36,13 +36,13 @@ public:
                 StartFragmentProcessor(this, &args);
 
                 // Test for skbug.com/11384
-                Var x(kInt, 1);
+                Var x(kInt_Type, 1);
                 Declare(x);
                 SkASSERT(DSLWriter::Var(x).initialValue()->description() == "1");
 
-                Var blueAlpha(kUniform_Modifier, kHalf2);
+                Var blueAlpha(kUniform_Modifier, kHalf2_Type);
                 fBlueAlphaUniform = VarUniformHandle(blueAlpha);
-                Var coords(kFloat4, sk_FragCoord());
+                Var coords(kFloat4_Type, sk_FragCoord());
                 Declare(coords);
                 Return(Half4(Swizzle(coords, X, Y) / 100, blueAlpha));
                 EndFragmentProcessor();
