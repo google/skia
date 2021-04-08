@@ -302,6 +302,7 @@ sk_sp<GrThreadSafePipelineBuilder> GrVkGpu::refPipelineBuilder() {
 
 GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
+        bool useMultisampleFBO,
         GrAttachment* stencil,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
@@ -313,8 +314,8 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
-    if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds, colorInfo, stencilInfo,
-                                   sampledProxies, renderPassXferBarriers)) {
+    if (!fCachedOpsRenderPass->set(rt, useMultisampleFBO, stencil, origin, bounds, colorInfo,
+                                   stencilInfo, sampledProxies, renderPassXferBarriers)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
