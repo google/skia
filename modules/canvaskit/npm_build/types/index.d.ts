@@ -3862,6 +3862,7 @@ export interface RectHeightStyleEnumValues extends EmbindEnum {
     IncludeLineSpacingMiddle: RectHeightStyle;
     IncludeLineSpacingTop: RectHeightStyle;
     IncludeLineSpacingBottom: RectHeightStyle;
+    Strut: RectHeightStyle;
 }
 
 export interface RectWidthStyleEnumValues extends EmbindEnum {
