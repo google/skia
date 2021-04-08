@@ -4,6 +4,8 @@ uniform half4 colorRed, colorGreen;
 
 struct S { float x; int y; };
 
+struct Nested { S a, b; };
+
 S returns_a_struct() {
     S s;
     s.x = 1;
@@ -25,6 +27,16 @@ half4 main() {
     float x = accepts_a_struct(s);
     modifies_a_struct(s);
 
-    bool valid = (x == 3) && (s.x == 2) && (s.y == 3);
+    S expected;
+    expected.x = 2;
+    expected.y = 3;
+
+    Nested n1, n2, n3;
+    n1.a = n1.b = returns_a_struct();
+    n3 = n2 = n1;
+    modifies_a_struct(n3.b);
+
+    bool valid = (x == 3) && (s.x == 2) && (s.y == 3) &&
+                 (s == expected) && (s != returns_a_struct()) && (n1 == n2) && (n1 != n3);
     return valid ? colorGreen : colorRed;
 }
