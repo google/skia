@@ -23,6 +23,7 @@
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -491,6 +492,10 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             ExpressionArray args = this->expressionArray();
             SkASSERT(args.size() == 1);
             return ConstructorSplat::Make(fContext, /*offset=*/-1, *type, std::move(args[0]));
+        }
+        case Rehydrator::kConstructorStruct_Command: {
+            const Type* type = this->type();
+            return ConstructorStruct::Make(fContext, /*offset=*/-1, *type, this->expressionArray());
         }
         case Rehydrator::kConstructorCompoundCast_Command: {
             const Type* type = this->type();
