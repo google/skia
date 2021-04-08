@@ -501,6 +501,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 
 static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
                                            GrRenderTarget* rt,
+                                           bool useMultisampleFBO,
                                            GrAttachment* stencil,
                                            GrSurfaceOrigin origin,
                                            const SkIRect& bounds,
@@ -526,7 +527,7 @@ static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
         stencilStoreOp,
     };
 
-    return gpu->getOpsRenderPass(rt, stencil, origin, bounds,
+    return gpu->getOpsRenderPass(rt, useMultisampleFBO, stencil, origin, bounds,
                                  kColorLoadStoreInfo, stencilLoadAndStoreInfo, sampledProxies,
                                  renderPassXferBarriers);
 }
@@ -612,6 +613,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 
     GrOpsRenderPass* renderPass = create_render_pass(flushState->gpu(),
                                                      proxy->peekRenderTarget(),
+                                                     proxy->numSamples() > 1,
                                                      stencil,
                                                      fTargetOrigin,
                                                      fClippedContentBounds,

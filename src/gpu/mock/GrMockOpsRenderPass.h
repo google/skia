@@ -15,9 +15,9 @@
 
 class GrMockOpsRenderPass : public GrOpsRenderPass {
 public:
-    GrMockOpsRenderPass(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-                        LoadAndStoreInfo colorInfo)
-            : INHERITED(rt, origin)
+    GrMockOpsRenderPass(GrMockGpu* gpu, GrRenderTarget* rt, bool useMultisampleFBO,
+                        GrSurfaceOrigin origin, LoadAndStoreInfo colorInfo)
+            : INHERITED(rt, useMultisampleFBO, origin)
             , fGpu(gpu)
             , fColorLoadOp(colorInfo.fLoadOp) {
     }
