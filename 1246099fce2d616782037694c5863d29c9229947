@@ -33,6 +33,42 @@
       "message": "Can we get a unit test that uses both floats and ints? rtshader.spec.js is a good place to add it.\n\nPlease also add a note to CanvasKit\u0027s CHANGELOG.md.",
       "revId": "1246099fce2d616782037694c5863d29c9229947",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "733fa863_bb43c678",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-08T19:15:01Z",
+      "side": 1,
+      "message": "Sure. I realize that I should probably update the struct returned from getUniform to indicate if the data is expected to be float or int. I\u0027ll do that too.",
+      "parentUuid": "ca7280e8_19250c50",
+      "revId": "1246099fce2d616782037694c5863d29c9229947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77b5bd74_6c71e3bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-08T19:15:01Z",
+      "side": 1,
+      "message": "Yes - this is actually why I included you. I was just looking at the shaders.skia.org code, too. With this change, the float-sliders for integer uniforms will \"work\" (though they\u0027ll always produce 0 or 1). That\u0027s probably fine - I expect use of int uniforms to be pretty rare in shadertoy style examples.",
+      "parentUuid": "f50e16d8_cb87f4f4",
+      "revId": "1246099fce2d616782037694c5863d29c9229947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
