@@ -46,6 +46,30 @@
       },
       "revId": "40a9eff9021959007f5905503f81cba2c8564391",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c7b0a69_155f7198",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-08T13:25:01Z",
+      "side": 1,
+      "message": "The Declaration is only necessary when we are actually declaring the variable, and I can\u0027t imagine why we\u0027d ever want two declarations for the same variable, so I think this is the right behavior.\n\nAgain, I\u0027d much prefer not having to make DSLVar copyable in the first place, but I wasn\u0027t able to come up with a way to make C++ do what I want. This is the best solution I was able to figure out, but I am certainly open to suggestions.",
+      "parentUuid": "9022146d_b95930d6",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "40a9eff9021959007f5905503f81cba2c8564391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
