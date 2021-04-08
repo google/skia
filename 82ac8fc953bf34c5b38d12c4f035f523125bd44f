@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c147f81_4fcd2dbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-08T19:30:06Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "47cba0a3_3fb19aea",
+      "revId": "82ac8fc953bf34c5b38d12c4f035f523125bd44f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "618f5fa0_f205bc1a",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3094939c_129c4a41",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2441,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-08T19:30:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "618f5fa0_f205bc1a",
+      "range": {
+        "startLine": 2441,
+        "startChar": 0,
+        "endLine": 2441,
+        "endChar": 34
+      },
+      "revId": "82ac8fc953bf34c5b38d12c4f035f523125bd44f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae950c2c_21e0240e",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-04-08T18:31:30Z",
       "side": 1,
       "message": "Since Bitmap binding is not working at the moment, let\u0027s add a comment and ignore the bitmap param.\n\nYou can use the empty SkCanvas constructor for now.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 1
+      },
+      "revId": "82ac8fc953bf34c5b38d12c4f035f523125bd44f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6545935_03b31813",
+        "filename": "modules/androidkit/Canvas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-08T19:30:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae950c2c_21e0240e",
       "range": {
         "startLine": 17,
         "startChar": 0,
