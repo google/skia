@@ -211,7 +211,8 @@ bool GrDrawingManager::flush(
             task->gatherProxyIntervals(&alloc);
         }
 
-        flushed = alloc.assign() && this->executeRenderTasks(&flushState);
+        // TODO: Call makeBudgetHeadroom before proceeding with reordered DAG.
+        flushed = alloc.planAssignment() && alloc.assign() && this->executeRenderTasks(&flushState);
     }
     this->removeRenderTasks();
 
