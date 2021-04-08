@@ -1733,6 +1733,40 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PurgeToMakeHeadroom, reporter, ctxInfo) {
+    constexpr size_t kTexSize = 16 * 16 * 4;
+
+    auto dContext = ctxInfo.directContext();
+    dContext->setResourceCacheLimit(2 * kTexSize);
+    auto resourceProvider = dContext->priv().resourceProvider();
+    auto resourceCache = dContext->priv().getResourceCache();
+    for (bool success : { true, false }) {
+        reporter->push(SkString(success ? "success" : "failure"));
+
+        resourceCache->releaseAll();
+        REPORTER_ASSERT(reporter, resourceCache->getBudgetedResourceBytes() == 0);
+
+        // Make one unpurgeable texture and one purgeable texture.
+        auto lockedTex = make_normal_texture(resourceProvider, GrRenderable::kNo, {16, 16}, 1);
+        REPORTER_ASSERT(reporter, lockedTex->gpuMemorySize() == kTexSize);
+
+        // N.b. this surface is renderable so "reuseScratchTextures = false" won't mess us up.
+        auto purgeableTex = make_normal_texture(resourceProvider, GrRenderable::kYes, {16, 16}, 1);
+        if (success) {
+            purgeableTex = nullptr;
+        }
+
+        size_t expectedPurgeable = success ? kTexSize : 0;
+        REPORTER_ASSERT(reporter, expectedPurgeable == resourceCache->getPurgeableBytes(),
+                        "%zu vs %zu", expectedPurgeable, resourceCache->getPurgeableBytes());
+        REPORTER_ASSERT(reporter, success == resourceCache->purgeToMakeHeadroom(kTexSize));
+        size_t expectedBudgeted = success ? kTexSize : (2 * kTexSize);
+        REPORTER_ASSERT(reporter, expectedBudgeted == resourceCache->getBudgetedResourceBytes(),
+                        "%zu vs %zu", expectedBudgeted, resourceCache->getBudgetedResourceBytes());
+        reporter->pop();
+    }
+}
+
 #if GR_GPU_STATS
 DEF_GPUTEST_FOR_MOCK_CONTEXT(OverbudgetFlush, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();

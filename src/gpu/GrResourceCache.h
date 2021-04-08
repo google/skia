@@ -165,6 +165,11 @@ public:
     /** Purge all resources not used since the passed in time. */
     void purgeResourcesNotUsedSince(GrStdSteadyClock::time_point);
 
+    /** If it's possible to purge enough resources to get the provided amount of budget
+        headroom, do so and return true. If it's not possible, do nothing and return false.
+     */
+    bool purgeToMakeHeadroom(size_t desiredHeadroomBytes);
+
     bool overBudget() const { return fBudgetedBytes > fMaxBytes; }
 
     /**
