@@ -106,6 +106,11 @@ public:
                                    const GrMipLevel& mipLevel);
 
     /**
+     * Search the cache for a scratch texture matching the provided key. May return nullptr.
+     */
+    sk_sp<GrTexture> findAndRefScratchTexture(const GrScratchKey&);
+
+    /**
      * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
      * It will not be renderable.
      */
