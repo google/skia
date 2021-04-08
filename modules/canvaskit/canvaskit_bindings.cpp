@@ -637,17 +637,57 @@ RuntimeEffectUniform fromUniform(const SkRuntimeEffect::Uniform& u) {
     RuntimeEffectUniform su;
     su.rows    = u.count;  // arrayLength
     su.columns = 1;
+    using Type = SkRuntimeEffect::Uniform::Type;
     switch (u.type) {
-        case SkRuntimeEffect::Uniform::Type::kFloat:                                  break;
-        case SkRuntimeEffect::Uniform::Type::kFloat2:   su.columns = 2;               break;
-        case SkRuntimeEffect::Uniform::Type::kFloat3:   su.columns = 3;               break;
-        case SkRuntimeEffect::Uniform::Type::kFloat4:   su.columns = 4;               break;
-        case SkRuntimeEffect::Uniform::Type::kFloat2x2: su.columns = 2; su.rows *= 2; break;
-        case SkRuntimeEffect::Uniform::Type::kFloat3x3: su.columns = 3; su.rows *= 3; break;
-        case SkRuntimeEffect::Uniform::Type::kFloat4x4: su.columns = 4; su.rows *= 4; break;
+        case Type::kFloat:                                  break;
+        case Type::kFloat2:   su.columns = 2;               break;
+        case Type::kFloat3:   su.columns = 3;               break;
+        case Type::kFloat4:   su.columns = 4;               break;
+        case Type::kFloat2x2: su.columns = 2; su.rows *= 2; break;
+        case Type::kFloat3x3: su.columns = 3; su.rows *= 3; break;
+        case Type::kFloat4x4: su.columns = 4; su.rows *= 4; break;
+        case Type::kInt:                                    break;
+        case Type::kInt2:     su.columns = 2;               break;
+        case Type::kInt3:     su.columns = 3;               break;
+        case Type::kInt4:     su.columns = 4;               break;
     }
     su.slot = u.offset / sizeof(float);
     return su;
+}
+
+void castUniforms(void* data, size_t dataLen, const SkRuntimeEffect& effect) {
+    if (dataLen != effect.uniformSize()) {
+        // Incorrect number of uniforms. Our code below could read/write off the end of the buffer.
+        // However, shader creation is going to fail anyway, so just do nothing.
+        return;
+    }
+
+    float* fltData = reinterpret_cast<float*>(data);
+    using Type = SkRuntimeEffect::Uniform::Type;
+    for (const auto& u : effect.uniforms()) {
+        switch (u.type) {
+            case Type::kFloat:
+            case Type::kFloat2:
+            case Type::kFloat3:
+            case Type::kFloat4:
+            case Type::kFloat2x2:
+            case Type::kFloat3x3:
+            case Type::kFloat4x4:
+                // Data is already floating point
+                continue;
+            case Type::kInt:
+            case Type::kInt2:
+            case Type::kInt3:
+            case Type::kInt4: {
+                // The SkSL is expecting integers in the uniform data
+                RuntimeEffectUniform reu = fromUniform(u);
+                for (int i = 0; i < reu.columns * reu.rows; ++i) {
+                    int numAsInt = static_cast<int>(fltData[reu.slot + i]);
+                    fltData[reu.slot + i] = SkBits2Float(numAsInt);
+                }
+            }
+        }
+    }
 }
 #endif
 
@@ -1663,6 +1703,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque,
                                                       uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
+            castUniforms(inputData, fLen, self);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
 
             OptionalMatrix localMatrix(mPtr);
@@ -1672,6 +1713,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                                   uintptr_t /** SkShader*[] */cPtrs, size_t cLen,
                                                                   uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
+            castUniforms(inputData, fLen, self);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
 
             sk_sp<SkShader>* children = new sk_sp<SkShader>[cLen];
