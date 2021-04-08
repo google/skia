@@ -1491,6 +1491,9 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         } else if (GR_IS_GR_WEBGL(standard)) {
             r8Support = ctxInfo.version() >= GR_GL_VER(2, 0);
         }
+        if (formatWorkarounds.fDisallowR8ForPowerVRSGX54x) {
+            r8Support = false;
+        }
 
         if (r8Support) {
             info.fFlags |= FormatInfo::kTexturable_Flag | msaaRenderFlags;
@@ -3533,6 +3536,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer()) {
         fMipmapSupport = false;
     }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer()) {
+        // Flutter found glTexSubImage2D for GL_RED is much slower than GL_ALPHA on the
+        // "MC18 PERSONAL SHOPPER"
+        formatWorkarounds->fDisallowR8ForPowerVRSGX54x = true;
+    }
+#endif
 
     // https://b.corp.google.com/issues/143074513
     if (kAdreno615_GrGLRenderer == ctxInfo.renderer()) {

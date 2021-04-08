@@ -483,6 +483,7 @@ private:
         bool fDontDisableTexStorageOnAndroid = false;
         bool fDisallowDirectRG8ReadPixels = false;
         bool fDisallowBGRA8ReadPixels = false;
+        bool fDisallowR8ForPowerVRSGX54x = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
