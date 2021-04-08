@@ -124,7 +124,7 @@ public:
     /**
      * Retrieves the context that owns the object. Note that it is possible for
      * this to return NULL. When objects have been release()ed or abandon()ed
-     * they no longer have an owning context. Destroying a GrContext
+     * they no longer have an owning context. Destroying a GrDirectContext
      * automatically releases all its resources.
      */
     const GrDirectContext* getContext() const;
