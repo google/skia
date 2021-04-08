@@ -106,6 +106,11 @@ public:
                                    const GrMipLevel& mipLevel);
 
     /**
+     * Search the cache for a scratch texture matching the provided key. May return nullptr.
+     */
+    sk_sp<GrTexture> findAndRefScratchTexture(const GrScratchKey&);
+
+    /**
      * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
      * It will not be renderable.
      */
@@ -293,6 +298,9 @@ public:
 
     static SkISize MakeApprox(SkISize);
 
+    GrResourceCache* cache() { return fCache; }
+    const GrResourceCache* cache() const { return fCache; }
+
     inline GrResourceProviderPriv priv();
     inline const GrResourceProviderPriv priv() const;  // NOLINT(readability-const-return-type)
 
@@ -349,9 +357,6 @@ private:
                                  SkISize baseSize,
                                  const GrMipLevel texels[],
                                  int mipLevelCount) const;
-
-    GrResourceCache* cache() { return fCache; }
-    const GrResourceCache* cache() const { return fCache; }
 
     friend class GrResourceProviderPriv;
 

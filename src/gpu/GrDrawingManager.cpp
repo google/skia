@@ -211,7 +211,15 @@ bool GrDrawingManager::flush(
             task->gatherProxyIntervals(&alloc);
         }
 
-        flushed = alloc.assign() && this->executeRenderTasks(&flushState);
+        if (alloc.planAssignment()) {
+            if (fReduceOpsTaskSplitting) {
+                if (!alloc.makeBudgetHeadroom()) {
+                    // TODO: Switch to the original DAG in this case.
+                    gpu->stats()->incNumReorderedDAGsOverBudget();
+                }
+            }
+            flushed = alloc.assign() && this->executeRenderTasks(&flushState);
+        }
     }
     this->removeRenderTasks();
 
