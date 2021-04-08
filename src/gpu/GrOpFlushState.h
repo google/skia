@@ -48,7 +48,7 @@ public:
     void executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& chainBounds,
                                              const GrPipeline*, const GrUserStencilSettings*);
 
-    GrOpsRenderPass* opsRenderPass() { return fOpsRenderPass; }
+    GrOpsRenderPass* opsRenderPass() const override { return fOpsRenderPass; }
     void setOpsRenderPass(GrOpsRenderPass* renderPass) { fOpsRenderPass = renderPass; }
 
     GrGpu* gpu() { return fGpu; }

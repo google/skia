@@ -45,6 +45,8 @@ public:
         GrStoreOp fStoreOp;
     };
 
+    bool usesMSAASurface() const { return fUseMSAASurface; }
+
     void begin();
     // Signals the end of recording to the GrOpsRenderPass and that it can now be submitted.
     void end();
@@ -73,7 +75,8 @@ public:
                       const GrPipeline&);
 
     void bindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
-                     sk_sp<const GrBuffer> vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
+                     sk_sp<const GrBuffer> vertexBuffer,
+                     GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
     // The next several draw*() methods issue draws using the current pipeline state. Before
     // drawing, the caller must configure the pipeline and dynamic state:
