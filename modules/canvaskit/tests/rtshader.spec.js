@@ -18,12 +18,12 @@ describe('Runtime shader effects', () => {
     // it will draw blank.
     const spiralSkSL = `
 uniform float rad_scale;
-uniform float2 in_center;
+uniform int2   in_center;
 uniform float4 in_colors0;
 uniform float4 in_colors1;
 
 half4 main(float2 p) {
-    float2 pp = p - in_center;
+    float2 pp = p - float2(in_center);
     float radius = sqrt(dot(pp, pp));
     radius = sqrt(radius);
     float angle = atan(pp.y / pp.x);
@@ -45,11 +45,18 @@ half4 main(float2 p) {
 
         expect(spiral.getUniformCount()     ).toEqual(4);
         expect(spiral.getUniformFloatCount()).toEqual(11);
+        const center = spiral.getUniform(1);
+        expect(center).toBeTruthy('could not fetch numbered uniform');
+        expect(center.slot     ).toEqual(1);
+        expect(center.columns  ).toEqual(2);
+        expect(center.rows     ).toEqual(1);
+        expect(center.isInteger).toEqual(true);
         const color_0 = spiral.getUniform(2);
         expect(color_0).toBeTruthy('could not fetch numbered uniform');
-        expect(color_0.slot   ).toEqual(3);
-        expect(color_0.columns).toEqual(4);
-        expect(color_0.rows   ).toEqual(1);
+        expect(color_0.slot     ).toEqual(3);
+        expect(color_0.columns  ).toEqual(4);
+        expect(color_0.rows     ).toEqual(1);
+        expect(color_0.isInteger).toEqual(false);
         expect(spiral.getUniformName(2)).toEqual('in_colors0');
 
         const canvas = surface.getCanvas();
