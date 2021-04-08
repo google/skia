@@ -44,6 +44,12 @@ public:
     GrGLuint singleSampleFBOID() const { return fSingleSampleFBOID; }
     GrGLuint multisampleFBOID() const { return fMultisampleFBOID; }
 
+    // If we have a multisample FBO, that is always where the stencil goes. With dynamic MSAA there
+    // will be a multisample FBO even if numSamples is 1.
+    bool stencilIsOnMultisampleFBO() const {
+        return this->numSamples() > 1 || fMultisampleFBOID != 0;
+    }
+
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
     GrBackendFormat backendFormat() const override;
