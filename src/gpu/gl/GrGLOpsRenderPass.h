@@ -30,7 +30,7 @@ public:
         state->doUpload(upload);
     }
 
-    void set(GrRenderTarget*, const SkIRect& contentBounds, GrSurfaceOrigin,
+    void set(GrRenderTarget*, bool useMultisampleFBO, const SkIRect& contentBounds, GrSurfaceOrigin,
              const LoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
 
     void reset() {
@@ -79,7 +79,7 @@ private:
 
     GrGLGpu* const fGpu;
 
-    bool fUsesMSAA;
+    bool fUseMultisampleFBO;
     SkIRect fContentBounds;
     LoadAndStoreInfo fColorLoadAndStoreInfo;
     StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
