@@ -212,6 +212,30 @@
       },
       "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bef8ff1_01285ac9",
+        "filename": "tests/TraceMemoryDumpTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-08T14:57:08Z",
+      "side": 1,
+      "message": "Oh, the text blob cache was the source of my confusion.\n\nGreg, I agree that it is weird, but we haven\u0027t changed that in this change, just added a test for it.",
+      "parentUuid": "a9cc3787_c51fd47a",
+      "range": {
+        "startLine": 188,
+        "startChar": 44,
+        "endLine": 188,
+        "endChar": 45
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
