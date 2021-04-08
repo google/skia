@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e0431bc7_85d571e2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1251,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-08T14:56:14Z",
+      "side": 1,
+      "message": "I mean its not a big issue, but you don\u0027t have to think of the top as a \"pattern that zeroes everything\" instead of just initializing all the values. I think it is just as clear or clearer to have.\n\n// We always have at least one sample from the single sample FBO\nrtIDs-\u003efTotalMemorySamplesPerPixel \u003d 1;\n\nAnyways I wouldn\u0027t block anything on this, just my opinion.",
+      "parentUuid": "3b8d4dd3_b69dc405",
+      "range": {
+        "startLine": 1251,
+        "startChar": 3,
+        "endLine": 1251,
+        "endChar": 40
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4133892e_2b2353cb",
         "filename": "src/gpu/gl/GrGLRenderTarget.cpp",
         "patchSetId": 13
