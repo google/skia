@@ -22,6 +22,30 @@
       },
       "revId": "40a9eff9021959007f5905503f81cba2c8564391",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9022146d_b95930d6",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-08T12:42:18Z",
+      "side": 1,
+      "message": "I haven\u0027t come up with a scenario yet (because setting fDeclared seems to guard it), but not (being able to) copy fDeclaration feels like something that might bite us in the future?",
+      "parentUuid": "407d2831_9beb0dd8",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "40a9eff9021959007f5905503f81cba2c8564391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
