@@ -89,6 +89,9 @@ void GrGpuResource::dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump,
     if (this->isPurgeable()) {
         traceMemoryDump->dumpNumericValue(resourceName.c_str(), "purgeable_size", "bytes", size);
     }
+    if (traceMemoryDump->shouldDumpWrappedObjects()) {
+        traceMemoryDump->dumpWrappedState(resourceName.c_str(), fRefsWrappedObjects);
+    }
 
     this->setMemoryBacking(traceMemoryDump, resourceName);
 }
