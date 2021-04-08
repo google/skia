@@ -21,7 +21,7 @@ namespace SkSL {
 namespace dsl {
 
 DSLVar::DSLVar(const char* name)
-    : fType(kVoid)
+    : fType(kVoid_Type)
     , fRawName(name)
     , fName(name)
     , fDeclared(true) {

@@ -43,7 +43,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
 
     using namespace SkSL::dsl;
     StartFragmentProcessor(this, &args);
-    Var increment(kUniform_Modifier, kHalf2, "Increment");
+    Var increment(kUniform_Modifier, kHalf2_Type, "Increment");
     fIncrementUni = VarUniformHandle(increment);
 
     int width = SkGpuBlurUtils::KernelWidth(ce.fRadius);
@@ -51,13 +51,13 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     int arrayCount = (width + 3) / 4;
     SkASSERT(4 * arrayCount >= width);
 
-    Var kernel(kUniform_Modifier, Array(kHalf4, arrayCount), "Kernel");
+    Var kernel(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Kernel");
     fKernelUni = VarUniformHandle(kernel);
 
-    Var color(kHalf4, "color", Half4(0));
+    Var color(kHalf4_Type, "color", Half4(0));
     Declare(color);
 
-    Var coord(kFloat2, "coord", sk_SampleCoord() - ce.fRadius * increment);
+    Var coord(kFloat2_Type, "coord", sk_SampleCoord() - ce.fRadius * increment);
     Declare(coord);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.

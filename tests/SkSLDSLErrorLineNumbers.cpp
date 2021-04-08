@@ -59,7 +59,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLErrorLineNumbers, r, ctxInfo) {
     }
 
     {
-        Var a(kBool);
+        Var a(kBool_Type);
         DSLWriter::MarkDeclared(a);
         ExpectErrorLineNumber error(r,
                                     "error: type mismatch: '=' cannot operate on 'bool', 'float'\n",
@@ -68,7 +68,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLErrorLineNumbers, r, ctxInfo) {
     }
 
     {
-        Var a(Array(kInt, 5));
+        Var a(Array(kInt_Type, 5));
         DSLWriter::MarkDeclared(a);
         ExpectErrorLineNumber error(r,
                                     "error: expected 'int', but found 'bool'\n",
@@ -77,7 +77,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLErrorLineNumbers, r, ctxInfo) {
     }
 
     {
-        Var a(Array(kInt, 5));
+        Var a(Array(kInt_Type, 5));
         DSLWriter::MarkDeclared(a);
         ExpectErrorLineNumber error(r,
                                     "error: '++' cannot operate on 'int[5]'\n",

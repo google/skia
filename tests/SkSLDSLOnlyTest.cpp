@@ -19,8 +19,8 @@ void StartDSL(const sk_gpu_test::ContextInfo ctxInfo);
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLImportOnly, r, ctxInfo) {
     StartDSL(ctxInfo);
-    Var x(kInt);
-    Function(kInt, "test", x).define(
+    Var x(kInt_Type);
+    Function(kInt_Type, "test", x).define(
         If(x >= 0,
             Block(Return(x)),
             Block(Return(-x)))
