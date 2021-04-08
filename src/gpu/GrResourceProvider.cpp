@@ -96,8 +96,9 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
                                                      SkBudgeted budgeted,
                                                      GrMipmapped mipmapped,
                                                      GrProtected isProtected) {
-    sk_sp<GrTexture> tex(this->refScratchTexture(dimensions, format, renderable,
-                                                 renderTargetSampleCnt, mipmapped, isProtected));
+    sk_sp<GrTexture> tex(this->findAndRefScratchTexture(dimensions, format, renderable,
+                                                        renderTargetSampleCnt, mipmapped,
+                                                        isProtected));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
@@ -239,8 +240,9 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
 
     auto copyDimensions = MakeApprox(dimensions);
 
-    if (auto tex = this->refScratchTexture(copyDimensions, format, renderable,
-                                           renderTargetSampleCnt, GrMipmapped::kNo, isProtected)) {
+    if (auto tex = this->findAndRefScratchTexture(copyDimensions, format, renderable,
+                                                  renderTargetSampleCnt, GrMipmapped::kNo,
+                                                  isProtected)) {
         return tex;
     }
 
@@ -248,12 +250,25 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
                                GrMipmapped::kNo, SkBudgeted::kYes, isProtected);
 }
 
-sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
-                                                       const GrBackendFormat& format,
-                                                       GrRenderable renderable,
-                                                       int renderTargetSampleCnt,
-                                                       GrMipmapped mipmapped,
-                                                       GrProtected isProtected) {
+sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(const GrScratchKey& key) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(!this->isAbandoned());
+    SkASSERT(key.isValid());
+
+    if (GrGpuResource* resource = fCache->findAndRefScratchResource(key)) {
+        fGpu->stats()->incNumScratchTexturesReused();
+        GrSurface* surface = static_cast<GrSurface*>(resource);
+        return sk_sp<GrTexture>(surface->asTexture());
+    }
+    return nullptr;
+}
+
+sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(SkISize dimensions,
+                                                              const GrBackendFormat& format,
+                                                              GrRenderable renderable,
+                                                              int renderTargetSampleCnt,
+                                                              GrMipmapped mipmapped,
+                                                              GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!this->caps()->isFormatCompressed(format));
@@ -266,12 +281,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(SkISize dimensions,
         GrScratchKey key;
         GrTexture::ComputeScratchKey(*this->caps(), format, dimensions, renderable,
                                      renderTargetSampleCnt, mipmapped, isProtected, &key);
-        GrGpuResource* resource = fCache->findAndRefScratchResource(key);
-        if (resource) {
-            fGpu->stats()->incNumScratchTexturesReused();
-            GrSurface* surface = static_cast<GrSurface*>(resource);
-            return sk_sp<GrTexture>(surface->asTexture());
-        }
+        return this->findAndRefScratchTexture(key);
     }
 
     return nullptr;
