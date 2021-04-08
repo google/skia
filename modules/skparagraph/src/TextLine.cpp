@@ -231,6 +231,32 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
     return bounds;
 }
 
+void TextLine::visit(const Paragraph::Visitor& visitor) const {
+    if (fHasBackground) {
+    }
+
+    if (fHasShadows) {
+    }
+
+    this->iterateThroughVisualRuns(false, [this, visitor]
+                                          (const Run* run, SkScalar runOffsetInLine,
+                                           TextRange textRange, SkScalar* runWidthInLine) {
+        if (run->placeholderStyle() != nullptr) {
+            *runWidthInLine = run->advance().fX;
+            return true;
+        }
+        *runWidthInLine = this->iterateThroughSingleRunByStyles(
+        run, runOffsetInLine, textRange, StyleType::kForeground,
+        [this, visitor](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+            this->buildTextBlob(textCanvas, x, y, textRange, style, context);
+        });
+        return true;
+    });
+
+    if (fHasDecorations) {
+    }
+}
+
 void TextLine::format(TextAlign align, SkScalar maxWidth) {
     SkScalar delta = maxWidth - this->width();
     if (delta <= 0) {
@@ -301,7 +327,7 @@ SkScalar TextLine::metricsWithoutMultiplier(TextHeightBehavior correction) {
     return delta;
 }
 
-void TextLine::buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) {
+void TextLine::extractVisitorInfo(TextRange textRange, const TextStyle& style, const ClipContext& context) {
     if (context.run->placeholderStyle() != nullptr) {
         return;
     }
