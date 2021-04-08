@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6e0b31cb_53069017",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1251,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-08T16:02:46Z",
+      "side": 1,
+      "message": "I guess my opinion is that putting the two in proximity is more clear than a comment from a different part of the function. It\u0027s a weak opinion and I don\u0027t care if it changes later, but I think I\u0027ll submit as-is.",
+      "parentUuid": "e0431bc7_85d571e2",
+      "range": {
+        "startLine": 1251,
+        "startChar": 3,
+        "endLine": 1251,
+        "endChar": 40
+      },
+      "revId": "8bcf20c5d24a8e7e8d0765e01c63296780746dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4133892e_2b2353cb",
         "filename": "src/gpu/gl/GrGLRenderTarget.cpp",
         "patchSetId": 13
