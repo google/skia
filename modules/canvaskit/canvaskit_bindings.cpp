@@ -631,23 +631,50 @@ struct RuntimeEffectUniform {
     int columns;
     int rows;
     int slot; // the index into the uniforms array that this uniform begins.
+    bool isInteger;
 };
 
 RuntimeEffectUniform fromUniform(const SkRuntimeEffect::Uniform& u) {
     RuntimeEffectUniform su;
-    su.rows    = u.count;  // arrayLength
-    su.columns = 1;
+    su.rows      = u.count;  // arrayLength
+    su.columns   = 1;
+    su.isInteger = false;
+    using Type = SkRuntimeEffect::Uniform::Type;
     switch (u.type) {
-        case SkRuntimeEffect::Uniform::Type::kFloat:                                  break;
-        case SkRuntimeEffect::Uniform::Type::kFloat2:   su.columns = 2;               break;
-        case SkRuntimeEffect::Uniform::Type::kFloat3:   su.columns = 3;               break;
-        case SkRuntimeEffect::Uniform::Type::kFloat4:   su.columns = 4;               break;
-        case SkRuntimeEffect::Uniform::Type::kFloat2x2: su.columns = 2; su.rows *= 2; break;
-        case SkRuntimeEffect::Uniform::Type::kFloat3x3: su.columns = 3; su.rows *= 3; break;
-        case SkRuntimeEffect::Uniform::Type::kFloat4x4: su.columns = 4; su.rows *= 4; break;
+        case Type::kFloat:                                                       break;
+        case Type::kFloat2:   su.columns = 2;                                    break;
+        case Type::kFloat3:   su.columns = 3;                                    break;
+        case Type::kFloat4:   su.columns = 4;                                    break;
+        case Type::kFloat2x2: su.columns = 2; su.rows *= 2;                      break;
+        case Type::kFloat3x3: su.columns = 3; su.rows *= 3;                      break;
+        case Type::kFloat4x4: su.columns = 4; su.rows *= 4;                      break;
+        case Type::kInt:                                    su.isInteger = true; break;
+        case Type::kInt2:     su.columns = 2;               su.isInteger = true; break;
+        case Type::kInt3:     su.columns = 3;               su.isInteger = true; break;
+        case Type::kInt4:     su.columns = 4;               su.isInteger = true; break;
     }
     su.slot = u.offset / sizeof(float);
     return su;
+}
+
+void castUniforms(void* data, size_t dataLen, const SkRuntimeEffect& effect) {
+    if (dataLen != effect.uniformSize()) {
+        // Incorrect number of uniforms. Our code below could read/write off the end of the buffer.
+        // However, shader creation is going to fail anyway, so just do nothing.
+        return;
+    }
+
+    float* fltData = reinterpret_cast<float*>(data);
+    for (const auto& u : effect.uniforms()) {
+        RuntimeEffectUniform reu = fromUniform(u);
+        if (reu.isInteger) {
+            // The SkSL is expecting integers in the uniform data
+            for (int i = 0; i < reu.columns * reu.rows; ++i) {
+                int numAsInt = static_cast<int>(fltData[reu.slot + i]);
+                fltData[reu.slot + i] = SkBits2Float(numAsInt);
+            }
+        }
+    }
 }
 #endif
 
@@ -1663,6 +1690,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fPtr, size_t fLen, bool isOpaque,
                                                       uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
+            castUniforms(inputData, fLen, self);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
 
             OptionalMatrix localMatrix(mPtr);
@@ -1672,6 +1700,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                                   uintptr_t /** SkShader*[] */cPtrs, size_t cLen,
                                                                   uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
             void* inputData = reinterpret_cast<void*>(fPtr);
+            castUniforms(inputData, fLen, self);
             sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, fLen);
 
             sk_sp<SkShader>* children = new sk_sp<SkShader>[cLen];
@@ -1703,9 +1732,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }));
 
     value_object<RuntimeEffectUniform>("RuntimeEffectUniform")
-        .field("columns", &RuntimeEffectUniform::columns)
-        .field("rows",    &RuntimeEffectUniform::rows)
-        .field("slot",    &RuntimeEffectUniform::slot);
+        .field("columns",   &RuntimeEffectUniform::columns)
+        .field("rows",      &RuntimeEffectUniform::rows)
+        .field("slot",      &RuntimeEffectUniform::slot)
+        .field("isInteger", &RuntimeEffectUniform::isInteger);
 
     constant("rt_effect", true);
 #endif
