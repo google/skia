@@ -729,14 +729,17 @@ bool GrVkGpu::uploadTexDataLinear(GrVkAttachment* texAttachment, int left, int t
 
 // This fills in the 'regions' vector in preparation for copying a buffer to an image.
 // 'individualMipOffsets' is filled in as a side-effect.
-static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
-                              SkTArray<VkBufferImageCopy>* regions,
-                              SkTArray<size_t>* individualMipOffsets,
-                              GrStagingBufferManager::Slice* slice,
-                              SkImage::CompressionType compression,
-                              VkFormat vkFormat, SkISize dimensions, GrMipmapped mipMapped) {
+static size_t fill_in_compressed_regions(GrStagingBufferManager* stagingBufferManager,
+                                         SkTArray<VkBufferImageCopy>* regions,
+                                         SkTArray<size_t>* individualMipOffsets,
+                                         GrStagingBufferManager::Slice* slice,
+                                         SkImage::CompressionType compression,
+                                         VkFormat vkFormat,
+                                         SkISize dimensions,
+                                         GrMipmapped mipmapped) {
+    SkASSERT(compression != SkImage::CompressionType::kNone);
     int numMipLevels = 1;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -745,15 +748,10 @@ static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
 
     size_t bytesPerBlock = GrVkFormatBytesPerBlock(vkFormat);
 
-    size_t combinedBufferSize;
-    if (compression == SkImage::CompressionType::kNone) {
-        combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerBlock, dimensions,
-                                                              individualMipOffsets,
-                                                              numMipLevels);
-    } else {
-        combinedBufferSize = SkCompressedDataSize(compression, dimensions, individualMipOffsets,
-                                                  mipMapped == GrMipmapped::kYes);
-    }
+    size_t bufferSize = SkCompressedDataSize(compression,
+                                             dimensions,
+                                             individualMipOffsets,
+                                             mipmapped == GrMipmapped::kYes);
     SkASSERT(individualMipOffsets->count() == numMipLevels);
 
     // Get a staging buffer slice to hold our mip data.
@@ -764,7 +762,7 @@ static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
         case 2:     alignment *= 2; break;   // alignment is a multiple of 2 but not 4.
         default:    alignment *= 4; break;   // alignment is not a multiple of 2.
     }
-    *slice = stagingBufferManager->allocateStagingBufferSlice(combinedBufferSize, alignment);
+    *slice = stagingBufferManager->allocateStagingBufferSlice(bufferSize, alignment);
     if (!slice->fBuffer) {
         return 0;
     }
@@ -785,7 +783,7 @@ static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
                       std::max(1, dimensions.height()/2)};
     }
 
-    return combinedBufferSize;
+    return bufferSize;
 }
 
 bool GrVkGpu::uploadTexDataOptimal(GrVkAttachment* texAttachment, int left, int top, int width,
@@ -933,10 +931,14 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkAttachment* uploadTexture,
     GrStagingBufferManager::Slice slice;
     SkTArray<VkBufferImageCopy> regions;
     SkTArray<size_t> individualMipOffsets;
-    SkDEBUGCODE(size_t combinedBufferSize =) fill_in_regions(&fStagingBufferManager,
-                                                             &regions, &individualMipOffsets,
-                                                             &slice, compression, vkFormat,
-                                                             dimensions, mipMapped);
+    SkDEBUGCODE(size_t combinedBufferSize =) fill_in_compressed_regions(&fStagingBufferManager,
+                                                                        &regions,
+                                                                        &individualMipOffsets,
+                                                                        &slice,
+                                                                        compression,
+                                                                        vkFormat,
+                                                                        dimensions,
+                                                                        mipMapped);
     if (!slice.fBuffer) {
         return false;
     }
@@ -1462,22 +1464,6 @@ bool copy_src_data(char* mapPtr,
     return true;
 }
 
-bool copy_compressed_data(GrVkGpu* gpu, char* mapPtr,
-                          const void* rawData, size_t dataSize) {
-    SkASSERT(mapPtr);
-    memcpy(mapPtr, rawData, dataSize);
-    return true;
-}
-
-bool generate_compressed_data(GrVkGpu* gpu, char* mapPtr,
-                              SkImage::CompressionType compression, SkISize dimensions,
-                              GrMipmapped mipMapped, const SkColor4f& color) {
-    SkASSERT(mapPtr);
-    GrFillInCompressedData(compression, dimensions, mipMapped, mapPtr, color);
-
-    return true;
-}
-
 bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                              SkISize dimensions,
                                              int sampleCnt,
@@ -1545,9 +1531,9 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     return true;
 }
 
-bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
-                                     sk_sp<GrRefCntedCallback> finishedCallback,
-                                     const BackendTextureData* data) {
+bool GrVkGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
+                                    sk_sp<GrRefCntedCallback> finishedCallback,
+                                    std::array<float, 4> color) {
     GrVkImageInfo info;
     SkAssertResult(backendTexture.getVkImageInfo(&info));
 
@@ -1571,68 +1557,23 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                   VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                   false);
 
-    // Unfortunately, CmdClearColorImage doesn't work for compressed formats
-    bool fastPath = data->type() == BackendTextureData::Type::kColor &&
-                    !GrVkFormatIsCompressed(info.fFormat);
+    // CmdClearColorImage doesn't work for compressed formats
+    SkASSERT(!GrVkFormatIsCompressed(info.fFormat));
 
-    if (fastPath) {
-        SkASSERT(data->type() == BackendTextureData::Type::kColor);
-        VkClearColorValue vkColor;
-        SkColor4f color = data->color();
-        // If we ever support SINT or UINT formats this needs to be updated to use the int32 and
-        // uint32 union members in those cases.
-        vkColor.float32[0] = color.fR;
-        vkColor.float32[1] = color.fG;
-        vkColor.float32[2] = color.fB;
-        vkColor.float32[3] = color.fA;
-        VkImageSubresourceRange range;
-        range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        range.baseArrayLayer = 0;
-        range.baseMipLevel = 0;
-        range.layerCount = 1;
-        range.levelCount = info.fLevelCount;
-        cmdBuffer->clearColorImage(this, texAttachment, &vkColor, 1, &range);
-    } else {
-        SkImage::CompressionType compression = GrBackendFormatToCompressionType(
-                backendTexture.getBackendFormat());
-
-        SkTArray<VkBufferImageCopy> regions;
-        SkTArray<size_t> individualMipOffsets;
-        GrStagingBufferManager::Slice slice;
-
-        fill_in_regions(&fStagingBufferManager, &regions, &individualMipOffsets,
-                        &slice, compression, info.fFormat, backendTexture.dimensions(),
-                        backendTexture.fMipmapped);
-
-        if (!slice.fBuffer) {
-            return false;
-        }
-
-        bool result;
-        if (data->type() == BackendTextureData::Type::kPixmaps) {
-            result = copy_src_data((char*)slice.fOffsetMapPtr, info.fFormat, individualMipOffsets,
-                                   data->pixmaps(), info.fLevelCount);
-        } else if (data->type() == BackendTextureData::Type::kCompressed) {
-            result = copy_compressed_data(this, (char*)slice.fOffsetMapPtr,
-                                          data->compressedData(), data->compressedSize());
-        } else {
-            SkASSERT(data->type() == BackendTextureData::Type::kColor);
-            result = generate_compressed_data(this, (char*)slice.fOffsetMapPtr, compression,
-                                              backendTexture.dimensions(),
-                                              backendTexture.fMipmapped, data->color());
-        }
-
-        cmdBuffer->addGrSurface(texture);
-        // Copy the buffer to the image. This call takes the raw VkBuffer instead of a GrGpuBuffer
-        // because we don't need the command buffer to ref the buffer here. The reason being is that
-        // the buffer is coming from the staging manager and the staging manager will make sure the
-        // command buffer has a ref on the buffer. This avoids having to add and remove a ref for
-        // every upload in the frame.
-        const GrVkBuffer* vkBuffer = static_cast<GrVkBuffer*>(slice.fBuffer);
-        cmdBuffer->copyBufferToImage(this, vkBuffer->vkBuffer(), texAttachment,
-                                     texAttachment->currentLayout(), regions.count(),
-                                     regions.begin());
-    }
+    VkClearColorValue vkColor;
+    // If we ever support SINT or UINT formats this needs to be updated to use the int32 and
+    // uint32 union members in those cases.
+    vkColor.float32[0] = color[0];
+    vkColor.float32[1] = color[1];
+    vkColor.float32[2] = color[2];
+    vkColor.float32[3] = color[3];
+    VkImageSubresourceRange range;
+    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    range.baseArrayLayer = 0;
+    range.baseMipLevel = 0;
+    range.layerCount = 1;
+    range.levelCount = info.fLevelCount;
+    cmdBuffer->clearColorImage(this, texAttachment, &vkColor, 1, &range);
 
     // Change image layout to shader read since if we use this texture as a borrowed
     // texture within Ganesh we require that its layout be set to that
@@ -1689,8 +1630,82 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
 
 bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
                                                sk_sp<GrRefCntedCallback> finishedCallback,
-                                               const BackendTextureData* data) {
-    return this->onUpdateBackendTexture(backendTexture, std::move(finishedCallback), data);
+                                               const void* data,
+                                               size_t size) {
+    GrVkImageInfo info;
+    SkAssertResult(backendTexture.getVkImageInfo(&info));
+
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = backendTexture.getMutableState();
+    SkASSERT(mutableState);
+    sk_sp<GrVkTexture> texture = GrVkTexture::MakeWrappedTexture(this,
+                                                                 backendTexture.dimensions(),
+                                                                 kBorrow_GrWrapOwnership,
+                                                                 GrWrapCacheable::kNo,
+                                                                 kRW_GrIOType,
+                                                                 info,
+                                                                 std::move(mutableState));
+    if (!texture) {
+        return false;
+    }
+
+    GrVkPrimaryCommandBuffer* cmdBuffer = this->currentCommandBuffer();
+    if (!cmdBuffer) {
+        return false;
+    }
+    GrVkAttachment* attachment = texture->textureAttachment();
+    attachment->setImageLayout(this,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               VK_ACCESS_TRANSFER_WRITE_BIT,
+                               VK_PIPELINE_STAGE_TRANSFER_BIT,
+                               false);
+
+    SkImage::CompressionType compression =
+            GrBackendFormatToCompressionType(backendTexture.getBackendFormat());
+
+    SkTArray<VkBufferImageCopy> regions;
+    SkTArray<size_t> individualMipOffsets;
+    GrStagingBufferManager::Slice slice;
+
+    fill_in_compressed_regions(&fStagingBufferManager,
+                               &regions,
+                               &individualMipOffsets,
+                               &slice,
+                               compression,
+                               info.fFormat,
+                               backendTexture.dimensions(),
+                               backendTexture.fMipmapped);
+
+    if (!slice.fBuffer) {
+        return false;
+    }
+
+    memcpy(slice.fOffsetMapPtr, data, size);
+
+    cmdBuffer->addGrSurface(texture);
+    // Copy the buffer to the image. This call takes the raw VkBuffer instead of a GrGpuBuffer
+    // because we don't need the command buffer to ref the buffer here. The reason being is that
+    // the buffer is coming from the staging manager and the staging manager will make sure the
+    // command buffer has a ref on the buffer. This avoids having to add and remove a ref for
+    // every upload in the frame.
+    cmdBuffer->copyBufferToImage(this,
+                                 static_cast<GrVkBuffer*>(slice.fBuffer)->vkBuffer(),
+                                 attachment,
+                                 attachment->currentLayout(),
+                                 regions.count(),
+                                 regions.begin());
+
+    // Change image layout to shader read since if we use this texture as a borrowed
+    // texture within Ganesh we require that its layout be set to that
+    attachment->setImageLayout(this,
+                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                               VK_ACCESS_SHADER_READ_BIT,
+                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                               false);
+
+    if (finishedCallback) {
+        this->addFinishedCallback(std::move(finishedCallback));
+    }
+    return true;
 }
 
 void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
