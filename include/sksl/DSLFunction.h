@@ -49,7 +49,9 @@ public:
     DSLExpression operator()(Args... args) {
         ExpressionArray argArray;
         argArray.reserve_back(sizeof...(args));
-        int unused[] = {0, (static_cast<void>(argArray.push_back(args.release())), 0)...};
+        int unused[] = {0, (static_cast<void>(argArray.push_back(
+                                            static_cast<DSLExpression>(std::move(args)).release())),
+                            0)...};
         static_cast<void>(unused);
         return this->call(std::move(argArray));
     }

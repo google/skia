@@ -1056,6 +1056,18 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     }
 
     {
+        DSLWriter::Reset();
+        Var x(kFloat, "x");
+        DSLFunction identity(kFloat, "identity", x);
+        identity.define(
+            Return(x)
+        );
+        Var varArg(kFloat, "varArg");
+        DSLWriter::MarkDeclared(varArg);
+        EXPECT_EQUAL(identity(varArg), "identity(varArg)");
+    }
+
+    {
         ExpectError error(r, "error: expected 'float', but found 'bool'\n");
         DSLWriter::Reset();
         DSLFunction(kFloat, "broken").define(

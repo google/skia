@@ -36,6 +36,8 @@ public:
 
     DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
+    DSLVar(const DSLVar& other);
+
     DSLVar(DSLVar&&) = delete;
 
     ~DSLVar();
