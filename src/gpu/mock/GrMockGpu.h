@@ -130,6 +130,7 @@ private:
     }
 
     GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
+                                        bool useMultisampleFBO,
                                         GrAttachment*,
                                         GrSurfaceOrigin,
                                         const SkIRect&,
