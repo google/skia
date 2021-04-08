@@ -5,6 +5,10 @@ struct S {
     float x;
     int y;
 };
+struct Twin {
+    S a;
+    S b;
+};
 struct Uniforms {
     float4 colorRed;
     float4 colorGreen;
@@ -19,6 +23,12 @@ void _skOutParamHelper0_modifies_a_struct_vS(thread S& s) {
     S _var0 = s;
     modifies_a_struct_vS(_var0);
     s = _var0;
+}
+void modifies_a_struct_vS(thread S& s);
+void _skOutParamHelper1_modifies_a_struct_vS(thread Twin& t3) {
+    S _var0 = t3.b;
+    modifies_a_struct_vS(_var0);
+    t3.b = _var0;
 }
 
 S returns_a_struct_S() {
@@ -40,7 +50,16 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     S s = returns_a_struct_S();
     float x = accepts_a_struct_fS(s);
     _skOutParamHelper0_modifies_a_struct_vS(s);
-    bool valid = (x == 3.0 && s.x == 2.0) && s.y == 3;
+    S expected;
+    expected.x = 2.0;
+    expected.y = 3;
+    Twin t1;
+    Twin t2;
+    Twin t3;
+    t1.a = (t1.b = returns_a_struct_S());
+    t3 = (t2 = t1);
+    _skOutParamHelper1_modifies_a_struct_vS(t3);
+    bool valid = (((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s != returns_a_struct_S()) && t1 == t2) && t1 != t3;
     _out.sk_FragColor = valid ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

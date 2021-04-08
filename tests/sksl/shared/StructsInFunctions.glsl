@@ -6,6 +6,10 @@ struct S {
     float x;
     int y;
 };
+struct Twin {
+    S a;
+    S b;
+};
 S returns_a_struct_S() {
     S s;
     s.x = 1.0;
@@ -23,6 +27,15 @@ vec4 main() {
     S s = returns_a_struct_S();
     float x = accepts_a_struct_fS(s);
     modifies_a_struct_vS(s);
-    bool valid = (x == 3.0 && s.x == 2.0) && s.y == 3;
+    S expected;
+    expected.x = 2.0;
+    expected.y = 3;
+    Twin t1;
+    Twin t2;
+    Twin t3;
+    t1.a = (t1.b = returns_a_struct_S());
+    t3 = (t2 = t1);
+    modifies_a_struct_vS(t3.b);
+    bool valid = (((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s != returns_a_struct_S()) && t1 == t2) && t1 != t3;
     return valid ? colorGreen : colorRed;
 }
