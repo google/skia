@@ -77,7 +77,9 @@ private:
     void onClear(const GrScissorState& scissor, std::array<float, 4> color) override;
     void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
-    GrGLGpu* fGpu;
+    GrGLGpu* const fGpu;
+
+    bool fUseMultisampleFBO;
     SkIRect fContentBounds;
     LoadAndStoreInfo fColorLoadAndStoreInfo;
     StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
