@@ -173,7 +173,7 @@ def git_checkout_to_directory(git, repo, commithash, directory, verbose):
 def parse_file_to_dict(path):
   dictionary = {}
   with open(path) as f:
-    exec(f.read(), dictionary)
+    exec('def Var(x): return vars[x]\n' + f.read(), dictionary)
   return dictionary
 
 
