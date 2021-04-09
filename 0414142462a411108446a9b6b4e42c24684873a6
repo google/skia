@@ -22,6 +22,30 @@
       },
       "revId": "0414142462a411108446a9b6b4e42c24684873a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e840fd2d_02ea3017",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1763,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-09T17:18:05Z",
+      "side": 1,
+      "message": "textByteCount Done. I don\u0027t think there has been any call for UTF8, and that is all that is currently supported now through SkTextBlob.",
+      "parentUuid": "27b72fe6_6cc59602",
+      "range": {
+        "startLine": 1763,
+        "startChar": 47,
+        "endLine": 1763,
+        "endChar": 59
+      },
+      "revId": "0414142462a411108446a9b6b4e42c24684873a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
