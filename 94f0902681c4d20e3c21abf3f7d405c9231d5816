@@ -16,6 +16,24 @@
       "message": "Should hasRSXForm be documented not to be cached? I was a bit surprised that what looks like a bool lookup here actually went an iterated over all the runs. Should it be cached by the constructor / builder?",
       "revId": "94f0902681c4d20e3c21abf3f7d405c9231d5816",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ced0005_af5d99c7",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-09T20:02:03Z",
+      "side": 1,
+      "message": "So, I thought about this. There is only ever one run, so there is the check for the run, and a check for the end of list. Is a single compare at the end of the list worth caching for?",
+      "parentUuid": "62cc2999_a6d26187",
+      "revId": "94f0902681c4d20e3c21abf3f7d405c9231d5816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
