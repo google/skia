@@ -10,6 +10,27 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 91
+------------
+  * The SkSL DSL API has been moved into public headers, although it is still under active
+    development and isn't quite ready for prime time yet.
+    https://review.skia.org/378496
+
+  * Skia's GPU backend no longer supports NVPR. Our more recent path renderers are more
+    performant and are not limited to nVidia hardware.
+
+  * SkRuntimeEffect now supports uniforms of type int, int2, int3, and int4. Per the OpenGL ES
+    Shading Language Version 1.00 specification, there are few guarantees about the representation
+    or range of integral types, and operations that assume integral representation (eg, bitwise),
+    are not supported.
+    https://review.skia.org/391856
+
+  * SkRuntimeEffect requires that 'shader' variables be declared as 'uniform'. The deprecated
+    syntax of 'in shader' is no longer supported.
+    https://review.skia.org/393081
+
+* * *
+
 Milestone 90
 ------------
   * Renamed use of sk_cf_obj in external Metal types to sk_cfp.
