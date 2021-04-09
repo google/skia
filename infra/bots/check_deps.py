@@ -48,7 +48,7 @@ def main():
           'Failed to parse `gclient revinfo` output; invalid format: %s' % e)
     repo = split[0]
     rev = split[1]
-    if not 'googlesource.com' in repo:
+    if not 'googlesource.com' in repo and not 'chrome-infra-packages' in repo:
       errs.append(
           'DEPS must be hosted on googlesource.com; %s is not allowed. '
           'See http://go/new-skia-git-mirror' % repo)

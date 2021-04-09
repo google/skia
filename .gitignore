@@ -43,6 +43,8 @@ bin/gn
 bin/gn.exe
 bin/clang-format
 bin/clang-format.exe
+bin/sk
+bin/sk.exe
 
 node_modules
 tools/lottiecap/filmstrip.png
