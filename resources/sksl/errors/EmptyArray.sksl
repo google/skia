@@ -1,0 +1,2 @@
+int disallowed_zero[0];
+int disallowed_negative[-1];
