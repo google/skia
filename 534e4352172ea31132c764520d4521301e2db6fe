@@ -22,6 +22,30 @@
       },
       "revId": "534e4352172ea31132c764520d4521301e2db6fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f12c73ab_593b42d5",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-09T19:55:58Z",
+      "side": 1,
+      "message": "This (and suggestion on other CL) seems good to me. But does it mean we\u0027d have to track the bound FBO on GrGLGpu rather than the bound RT-unique ID + msaa bool? And if so does that have bad ramifications?",
+      "parentUuid": "21a281e3_5a44848e",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 28
+      },
+      "revId": "534e4352172ea31132c764520d4521301e2db6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
