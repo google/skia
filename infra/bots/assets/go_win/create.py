@@ -17,7 +17,7 @@ import utils
 
 
 # Remember to also update the go asset when this is updated.
-GO_URL = "https://dl.google.com/go/go1.15.windows-amd64.zip"
+GO_URL = "https://golang.org/dl/go1.16.3.windows-amd64.zip"
 
 
 def create_asset(target_dir):
