@@ -432,45 +432,56 @@ static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatr
     return shader->makeWithLocalMatrix(lm_inv * inverse * lm * outer_lm);
 }
 
-void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyphs[],
-                                       const SkRSXform xform[], int count, SkPoint origin,
-                                       const SkPaint& paint) {
-    const SkM44 originalLocalToDevice = this->localToDevice44();
-    if (!originalLocalToDevice.isFinite() || !SkScalarIsFinite(font.getSize()) ||
-        !SkScalarIsFinite(font.getScaleX()) ||
-        !SkScalarIsFinite(font.getSkewX())) {
+void SkBaseDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    if (!this->localToDevice().isFinite()) {
         return;
     }
 
-    SkPoint sharedPos{0, 0};    // we're at the origin
-    SkGlyphID glyphID;
-    SkGlyphRun glyphRun{
-        font,
-        SkSpan<const SkPoint>{&sharedPos, 1},
-        SkSpan<const SkGlyphID>{&glyphID, 1},
-        SkSpan<const char>{},
-        SkSpan<const uint32_t>{},
-        SkSpan<const SkVector>{}
-    };
-
-    for (int i = 0; i < count; i++) {
-        glyphID = glyphs[i];
-        // now "glyphRun" is pointing at the current glyphID
-
-        SkMatrix glyphToDevice;
-        glyphToDevice.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
-
-        // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
-        // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
-        // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
-        SkPaint transformingPaint{paint};
-        transformingPaint.setShader(make_post_inverse_lm(paint.getShader(), glyphToDevice));
-
-        this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToDevice));
-
-        this->drawGlyphRunList(SkGlyphRunList{glyphRun}, transformingPaint);
+    if (!glyphRunList.hasRSXForm()) {
+        this->onDrawGlyphRunList(glyphRunList, paint);
+    } else {
+        this->simplifyGlyphRunRSXFormAndRedraw(glyphRunList, paint);
     }
-    this->setLocalToDevice(originalLocalToDevice);
+}
+
+void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphRunList,
+                                                    const SkPaint& paint) {
+    for (const SkGlyphRun& run : glyphRunList) {
+        if (run.scaledRotations().empty()) {
+            this->drawGlyphRunList(SkGlyphRunList{run}, paint);
+        } else {
+            SkPoint origin = glyphRunList.origin();
+            SkPoint sharedPos{0, 0};    // we're at the origin
+            SkGlyphID sharedGlyphID;
+            SkGlyphRun glyphRun {
+                    run.font(),
+                    SkSpan<const SkPoint>{&sharedPos, 1},
+                    SkSpan<const SkGlyphID>{&sharedGlyphID, 1},
+                    SkSpan<const char>{},
+                    SkSpan<const uint32_t>{},
+                    SkSpan<const SkVector>{}
+            };
+
+            const SkM44 originalLocalToDevice = this->localToDevice44();
+            for (auto [i, glyphID, pos] : SkMakeEnumerate(run.source())) {
+                sharedGlyphID = glyphID;
+                auto [scos, ssin] = run.scaledRotations()[i];
+                SkRSXform rsxForm = SkRSXform::Make(scos, ssin, pos.x(), pos.y());
+                SkMatrix glyphToLocal;
+                glyphToLocal.setRSXform(rsxForm).postTranslate(origin.x(), origin.y());
+
+                // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
+                // (i.e. the shader that cares about the ctm) so we have to undo our little ctm
+                // trick with a localmatrixshader so that the shader draws as if there was no
+                // change to the ctm.
+                SkPaint invertingPaint{paint};
+                invertingPaint.setShader(make_post_inverse_lm(paint.getShader(), glyphToLocal));
+                this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToLocal));
+                this->drawGlyphRunList(SkGlyphRunList{glyphRun}, invertingPaint);
+            }
+            this->setLocalToDevice(originalLocalToDevice);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

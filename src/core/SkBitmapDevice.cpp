@@ -543,7 +543,8 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
     this->drawRect(*dstPtr, paintWithShader);
 }
 
-void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+void SkBitmapDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    SkASSERT(!glyphRunList.hasRSXForm());
     LOOP_TILER( drawGlyphRunList(glyphRunList, paint, &fGlyphPainter), nullptr )
 }
 

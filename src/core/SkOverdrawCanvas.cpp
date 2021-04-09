@@ -61,8 +61,8 @@ public:
         }
     }
 
-protected:
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
+        SkASSERT(!glyphRunList.hasRSXForm());
         fPainter.drawForBitmapDevice(glyphRunList, paint, fOverdrawCanvas->getTotalMatrix(), this);
     }
 
@@ -72,14 +72,15 @@ private:
 };
 }  // namespace
 
-void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                      const SkPaint& paint) {
+void SkOverdrawCanvas::onDrawTextBlob(
+        const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
     SkGlyphRunBuilder b;
+    auto glyphRunList = b.blobToGlyphRunList(*blob, {x, y});
     SkSurfaceProps props{0, kUnknown_SkPixelGeometry};
     this->getProps(&props);
     TextDevice device{this, props};
 
-    b.drawTextBlob(paint, *blob, {x, y}, &device);
+    device.drawGlyphRunList(glyphRunList, paint);
 }
 
 void SkOverdrawCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

@@ -927,17 +927,13 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+void SkGpuDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
-
-    // Check for valid input
-    if (!this->localToDevice().isFinite()) {
-        return;
-    }
+    SkASSERT(!glyphRunList.hasRSXForm());
 
     fSurfaceDrawContext->drawGlyphRunList(
-            this->clip(), this->asMatrixProvider(), glyphRunList, paint);
+        this->clip(), this->asMatrixProvider(), glyphRunList, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

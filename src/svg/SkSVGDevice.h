@@ -34,7 +34,7 @@ protected:
                   const SkPaint& paint,
                   bool pathIsMutable = false) override;
 
-    void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
+    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
 private:

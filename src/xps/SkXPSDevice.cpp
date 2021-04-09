@@ -1892,7 +1892,9 @@ static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
     ;
 }
 
-void SkXPSDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+void SkXPSDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    SkASSERT(!glyphRunList.hasRSXForm());
+
     for (const auto& run : glyphRunList) {
         const SkGlyphID* glyphIDs = run.glyphsIDs().data();
         size_t glyphCount = run.glyphsIDs().size();
