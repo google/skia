@@ -45,6 +45,8 @@ const SkSL::Type& DSLType::skslType() const {
             return *context.fTypes.fFloat3;
         case kFloat4_Type:
             return *context.fTypes.fFloat4;
+        case kFragmentProcessor_Type:
+            return *context.fTypes.fFragmentProcessor;
         case kInt_Type:
             return *context.fTypes.fInt;
         case kInt2_Type:

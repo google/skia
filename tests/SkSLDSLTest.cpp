@@ -27,8 +27,9 @@ using namespace SkSL::dsl;
  */
 class AutoDSLContext {
 public:
-    AutoDSLContext(GrGpu* gpu, bool markVarsDeclared = true) {
-        Start(gpu->shaderCompiler());
+    AutoDSLContext(GrGpu* gpu, bool markVarsDeclared = true,
+                   SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
+        Start(gpu->shaderCompiler(), kind);
         DSLWriter::Instance().fMangle = false;
         DSLWriter::Instance().fMarkVarsDeclared = markVarsDeclared;
     }
@@ -1377,6 +1378,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     Var v8(kUniform_Modifier, kInt_Type, "v8");
     REPORTER_ASSERT(r, DSLWriter::Var(v8).modifiers().fFlags == SkSL::Modifiers::kUniform_Flag);
     // Uniforms do not need to be explicitly declared
+}
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSample, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/true,
+                           SkSL::ProgramKind::kFragmentProcessor);
+    DSLVar child(kUniform_Modifier, kFragmentProcessor_Type, "child");
+    EXPECT_EQUAL(Sample(child, Float2(0, 0)), "sample(child, float2(0.0, 0.0))");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {

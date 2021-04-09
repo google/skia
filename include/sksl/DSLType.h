@@ -34,6 +34,7 @@ enum TypeConstant : uint8_t {
     kFloat2_Type,
     kFloat3_Type,
     kFloat4_Type,
+    kFragmentProcessor_Type,
     kInt_Type,
     kInt2_Type,
     kInt3_Type,
