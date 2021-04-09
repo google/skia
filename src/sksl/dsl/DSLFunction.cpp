@@ -51,11 +51,10 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
 
 void DSLFunction::define(DSLBlock block) {
     SkASSERT(fDecl);
-    const SkSL::FunctionDeclaration* decl = static_cast<const SkSL::FunctionDeclaration*>(fDecl);
-    SkASSERTF(!decl->definition(), "function '%s' already defined", decl->description().c_str());
+    SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());
     std::unique_ptr<Statement> body = block.release();
-    DSLWriter::IRGenerator().finalizeFunction(*decl, body.get());
-    auto function = std::make_unique<SkSL::FunctionDefinition>(/*offset=*/-1, decl,
+    DSLWriter::IRGenerator().finalizeFunction(*fDecl, body.get());
+    auto function = std::make_unique<SkSL::FunctionDefinition>(/*offset=*/-1, fDecl,
                                                                /*builtin=*/false, std::move(body));
     if (DSLWriter::Compiler().errorCount()) {
         DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
@@ -65,8 +64,13 @@ void DSLFunction::define(DSLBlock block) {
     DSLWriter::ProgramElements().push_back(std::move(function));
 }
 
-DSLExpression DSLFunction::call(ExpressionArray args) {
-    return DSLWriter::Call(*static_cast<const SkSL::FunctionDeclaration*>(fDecl), std::move(args));
+DSLExpression DSLFunction::call(SkTArray<DSLExpression> args) {
+    ExpressionArray released;
+    released.reserve_back(args.size());
+    for (DSLExpression& arg : args) {
+        released.push_back(arg.release());
+    }
+    return DSLWriter::Call(*fDecl, std::move(released));
 }
 
 } // namespace dsl
