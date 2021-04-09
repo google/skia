@@ -22,6 +22,30 @@
       },
       "revId": "b9bb4379b6a95d056d7cb431f82f3aea40a8be13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1db1711_5c659b8a",
+        "filename": "src/gpu/GrOpsRenderPass.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-09T21:18:00Z",
+      "side": 1,
+      "message": "Agreed. For a minute I was thinking ops would need to ask the GrOpsRenderPass if it\u0027s using MSAA (for geometry outsets, etc.), but I moved away from that idea.",
+      "parentUuid": "a6d29b06_efeb368a",
+      "range": {
+        "startLine": 154,
+        "startChar": 8,
+        "endLine": 154,
+        "endChar": 23
+      },
+      "revId": "b9bb4379b6a95d056d7cb431f82f3aea40a8be13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
