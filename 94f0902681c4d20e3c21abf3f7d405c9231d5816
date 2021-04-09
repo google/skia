@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62cc2999_a6d26187",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-09T19:57:45Z",
+      "side": 1,
+      "message": "Should hasRSXForm be documented not to be cached? I was a bit surprised that what looks like a bool lookup here actually went an iterated over all the runs. Should it be cached by the constructor / builder?",
+      "revId": "94f0902681c4d20e3c21abf3f7d405c9231d5816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

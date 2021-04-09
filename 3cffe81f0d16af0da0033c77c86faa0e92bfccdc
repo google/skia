@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96b160ea_1c5f42ef",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2287,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-09T19:57:45Z",
+      "side": 0,
+      "message": "So this CL is just fixing this TODO. Everything else is just code motion to make this change.",
+      "revId": "3cffe81f0d16af0da0033c77c86faa0e92bfccdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
