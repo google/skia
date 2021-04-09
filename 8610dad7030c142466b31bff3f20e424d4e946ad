@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32acc703_165f576d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T13:32:42Z",
+      "side": 1,
+      "message": "Awesome.",
+      "revId": "8610dad7030c142466b31bff3f20e424d4e946ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9345c69c_09f90118",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T13:32:42Z",
+      "side": 1,
+      "message": "Just a question: Do we even allow empty structs? That\u0027s not allowed in GLSL, and I thought that we forbade it, as well.",
+      "revId": "8610dad7030c142466b31bff3f20e424d4e946ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d13f9c26_feaa7a85",
+        "filename": "src/sksl/ir/SkSLConstructorStruct.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T13:32:42Z",
+      "side": 1,
+      "message": "Ooh, neat.",
+      "range": {
+        "startLine": 42,
+        "startChar": 2,
+        "endLine": 42,
+        "endChar": 14
+      },
+      "revId": "8610dad7030c142466b31bff3f20e424d4e946ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
