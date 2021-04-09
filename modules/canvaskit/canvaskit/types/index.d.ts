@@ -2319,6 +2319,11 @@ export interface Surface extends EmbindObject<Surface> {
     getCanvas(): Canvas;
 
     /**
+     * Return the texture used by this surface. Will return null if not a GPU surface.
+     */
+    getTexture(): WebGLTexture;
+
+    /**
      * Returns the height of this surface in pixels.
      */
     height(): number;

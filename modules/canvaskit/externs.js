@@ -632,6 +632,8 @@ var CanvasKit = {
     // public API (from C++ bindings)
     /** @return {CanvasKit.Canvas} */
     getCanvas: function() {},
+    /** @return {WebGLTexture} */
+    getTexture: function() {},
     imageInfo: function() {},
 
     makeSurface: function() {},
@@ -647,6 +649,7 @@ var CanvasKit = {
 
     // private API
     _flush: function() {},
+    _getTextureId: function() {},
     _makeImageSnapshot: function() {},
     _makeRasterDirect: function() {},
     delete: function() {},

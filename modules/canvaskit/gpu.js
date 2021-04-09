@@ -103,5 +103,15 @@
       };
       // Default to trying WebGL first.
       CanvasKit.MakeCanvasSurface = CanvasKit.MakeWebGLCanvasSurface;
+
+      // Return the texture for the surface
+      CanvasKit.Surface.prototype.getTexture = function() {
+        var textureId = this._getTextureId();
+        if (textureId !== 0 && GL.textures && GL.textures[textureId]) {
+          return GL.textures[textureId];
+        }
+        return null;
+      };
     });
+
 }(Module)); // When this file is loaded in, the high level object is "Module";

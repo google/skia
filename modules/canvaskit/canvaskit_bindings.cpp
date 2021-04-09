@@ -1674,6 +1674,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_flush", optional_override([](SkSurface& self) {
             self.flushAndSubmit(false);
         }))
+        .function("_getTextureId", optional_override([](SkSurface& self) -> GrGLuint {
+            GrBackendTexture texture = self.getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+            if (!texture.isValid()) {
+                return 0;
+            }
+            GrGLTextureInfo textureInfo;
+            if (texture.getGLTextureInfo(&textureInfo)) {
+                return textureInfo.fID;
+            }
+            return 0;
+        }))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers())
         .function("imageInfo", optional_override([](SkSurface& self)->SimpleImageInfo {
             const auto& ii = self.imageInfo();
