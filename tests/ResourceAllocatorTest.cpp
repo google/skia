@@ -19,6 +19,7 @@
 #include "tests/Test.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
+namespace {
 struct ProxyParams {
     int             fSize;
     GrRenderable    fRenderable;
@@ -26,7 +27,31 @@ struct ProxyParams {
     SkBackingFit    fFit;
     int             fSampleCnt;
     SkBudgeted      fBudgeted;
+    enum Kind {
+        kDeferred,
+        kBackend,
+        kFullyLazy,
+        kLazy,
+        kInstantiated
+    };
+    Kind            fKind;
+    GrUniqueKey     fUniqueKey = GrUniqueKey();
     // TODO: do we care about mipmapping
+};
+
+constexpr GrRenderable kRT = GrRenderable::kYes;
+constexpr GrRenderable kNotRT = GrRenderable::kNo;
+
+constexpr GrColorType kRGBA = GrColorType::kRGBA_8888;
+constexpr GrColorType kAlpha = GrColorType::kAlpha_8;
+
+constexpr SkBackingFit kE = SkBackingFit::kExact;
+constexpr SkBackingFit kA = SkBackingFit::kApprox;
+
+constexpr SkBudgeted kNotB = SkBudgeted::kNo;
+
+constexpr ProxyParams::Kind kDeferred = ProxyParams::Kind::kDeferred;
+constexpr ProxyParams::Kind kBackend = ProxyParams::Kind::kBackend;
 };
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
@@ -54,6 +79,70 @@ static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext, const Proxy
                                              GrWrapCacheable::kNo,
                                              kRead_GrIOType,
                                              mbet->refCountedCallback());
+}
+
+static sk_sp<GrSurfaceProxy> make_fully_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
+                                             const ProxyParams& p) {
+    const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
+    auto cb = [p](GrResourceProvider* provider, const GrSurfaceProxy::LazySurfaceDesc& desc) {
+        auto tex = provider->createTexture({p.fSize, p.fSize}, desc.fFormat,
+                                           desc.fRenderable, desc.fSampleCnt,
+                                           desc.fMipmapped, desc.fBudgeted,
+                                           desc.fProtected);
+        return GrSurfaceProxy::LazyCallbackResult(std::move(tex));
+    };
+    return GrProxyProvider::MakeFullyLazyProxy(std::move(cb), format, p.fRenderable, p.fSampleCnt,
+                                               GrProtected::kNo, *caps,
+                                               GrSurfaceProxy::UseAllocator::kYes);
+}
+
+static sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
+                                       const ProxyParams& p) {
+    const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
+    auto cb = [](GrResourceProvider* provider, const GrSurfaceProxy::LazySurfaceDesc& desc) {
+        auto tex = provider->createTexture(desc.fDimensions, desc.fFormat,
+                                           desc.fRenderable, desc.fSampleCnt,
+                                           desc.fMipmapped, desc.fBudgeted,
+                                           desc.fProtected);
+        return GrSurfaceProxy::LazyCallbackResult(std::move(tex));
+    };
+    return proxyProvider->createLazyProxy(std::move(cb), format, {p.fSize, p.fSize},
+                                          GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
+                                          GrInternalSurfaceFlags::kNone,
+                                          p.fFit, p.fBudgeted, GrProtected::kNo,
+                                          GrSurfaceProxy::UseAllocator::kYes);
+}
+
+static sk_sp<GrSurfaceProxy> make_proxy(GrDirectContext* dContext, const ProxyParams& p) {
+    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+    const GrCaps* caps = dContext->priv().caps();
+    sk_sp<GrSurfaceProxy> proxy;
+    switch (p.fKind) {
+        case ProxyParams::kDeferred:
+            proxy = make_deferred(proxyProvider, caps, p);
+            break;
+        case ProxyParams::kBackend:
+            proxy = make_backend(dContext, p);
+            break;
+        case ProxyParams::kFullyLazy:
+            proxy = make_fully_lazy(proxyProvider, caps, p);
+            break;
+        case ProxyParams::kLazy:
+            proxy = make_lazy(proxyProvider, caps, p);
+            break;
+        case ProxyParams::kInstantiated:
+            proxy = make_deferred(proxyProvider, caps, p);
+            if (proxy) {
+                auto surf = proxy->priv().createSurface(dContext->priv().resourceProvider());
+                proxy->priv().assign(std::move(surf));
+            }
+            break;
+    }
+    if (proxy && p.fUniqueKey.isValid()) {
+        SkASSERT(proxy->asTextureProxy());
+        proxyProvider->assignUniqueKeyToProxy(p.fUniqueKey, proxy->asTextureProxy());
+    }
+    return proxy;
 }
 
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
@@ -104,8 +193,6 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrDirectContext* dCon
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
     const GrCaps* caps = dContext->priv().caps();
-    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
-    GrResourceProvider* resourceProvider = dContext->priv().resourceProvider();
 
     struct TestCase {
         ProxyParams   fP1;
@@ -113,36 +200,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         bool          fExpectation;
     };
 
-    constexpr GrRenderable kRT = GrRenderable::kYes;
-    constexpr GrRenderable kNotRT = GrRenderable::kNo;
-
     constexpr bool kShare = true;
     constexpr bool kDontShare = false;
+
     // Non-RT GrSurfaces are never recycled on some platforms.
-    bool kConditionallyShare = resourceProvider->caps()->reuseScratchTextures();
+    bool kConditionallyShare = caps->reuseScratchTextures();
 
-    const GrColorType kRGBA = GrColorType::kRGBA_8888;
-    const GrColorType kAlpha = GrColorType::kAlpha_8;
-
-    const SkBackingFit kE = SkBackingFit::kExact;
-    const SkBackingFit kA = SkBackingFit::kApprox;
-
-    const SkBudgeted kNotB = SkBudgeted::kNo;
-
-    //--------------------------------------------------------------------------------------------
-    TestCase gOverlappingTests[] = {
-            //----------------------------------------------------------------------------------------
-            // Two proxies with overlapping intervals and compatible descriptors should never share
-            // RT version
-            {{64, kRT, kRGBA, kA, 1, kNotB}, {64, kRT, kRGBA, kA, 1, kNotB}, kDontShare},
-            // non-RT version
-            {{64, kNotRT, kRGBA, kA, 1, kNotB}, {64, kNotRT, kRGBA, kA, 1, kNotB}, kDontShare},
+    static const TestCase overlappingTests[] = {
+        // Two proxies with overlapping intervals and compatible descriptors should never share
+        // RT version
+        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kDontShare},
+        // non-RT version
+        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kDontShare},
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gOverlappingTests); i++) {
-        auto test = gOverlappingTests[i];
-        sk_sp<GrSurfaceProxy> p1 = make_deferred(proxyProvider, caps, test.fP1);
-        sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, test.fP2);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(overlappingTests); i++) {
+        auto test = overlappingTests[i];
+        sk_sp<GrSurfaceProxy> p1 = make_proxy(dContext, test.fP1);
+        sk_sp<GrSurfaceProxy> p2 = make_proxy(dContext, test.fP2);
         reporter->push(SkStringPrintf("case %d", SkToInt(i)));
         overlap_test(reporter, dContext, std::move(p1), std::move(p2), test.fExpectation);
         reporter->pop();
@@ -152,67 +231,74 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     int k2 = caps->getRenderTargetSampleCount(2, beFormat);
     int k4 = caps->getRenderTargetSampleCount(4, beFormat);
 
-    //--------------------------------------------------------------------------------------------
-    TestCase gNonOverlappingTests[] = {
-            //----------------------------------------------------------------------------------------
-            // Two non-overlapping intervals w/ compatible proxies should share
-            // both same size & approx
-            {{64, kRT, kRGBA, kA, 1, kNotB}, {64, kRT, kRGBA, kA, 1, kNotB}, kShare},
-            {{64, kNotRT, kRGBA, kA, 1, kNotB},
-             {64, kNotRT, kRGBA, kA, 1, kNotB},
-             kConditionallyShare},
-            // diffs sizes but still approx
-            {{64, kRT, kRGBA, kA, 1, kNotB}, {50, kRT, kRGBA, kA, 1, kNotB}, kShare},
-            {{64, kNotRT, kRGBA, kA, 1, kNotB},
-             {50, kNotRT, kRGBA, kA, 1, kNotB},
-             kConditionallyShare},
-            // sames sizes but exact
-            {{64, kRT, kRGBA, kE, 1, kNotB}, {64, kRT, kRGBA, kE, 1, kNotB}, kShare},
-            {{64, kNotRT, kRGBA, kE, 1, kNotB},
-             {64, kNotRT, kRGBA, kE, 1, kNotB},
-             kConditionallyShare},
-            //----------------------------------------------------------------------------------------
-            // Two non-overlapping intervals w/ different exact sizes should not share
-            {{56, kRT, kRGBA, kE, 1, kNotB}, {54, kRT, kRGBA, kE, 1, kNotB}, kDontShare},
-            // Two non-overlapping intervals w/ _very different_ approx sizes should not share
-            {{255, kRT, kRGBA, kA, 1, kNotB}, {127, kRT, kRGBA, kA, 1, kNotB}, kDontShare},
-            // Two non-overlapping intervals w/ different MSAA sample counts should not share
-            {{64, kRT, kRGBA, kA, k2, kNotB}, {64, kRT, kRGBA, kA, k4, kNotB}, k2 == k4},
-            // Two non-overlapping intervals w/ different configs should not share
-            {{64, kRT, kRGBA, kA, 1, kNotB}, {64, kRT, kAlpha, kA, 1, kNotB}, kDontShare},
-            // Two non-overlapping intervals w/ different RT classifications should never share
-            {{64, kRT, kRGBA, kA, 1, kNotB}, {64, kNotRT, kRGBA, kA, 1, kNotB}, kDontShare},
-            {{64, kNotRT, kRGBA, kA, 1, kNotB}, {64, kRT, kRGBA, kA, 1, kNotB}, kDontShare},
-            // Two non-overlapping intervals w/ different origins should share
-            {{64, kRT, kRGBA, kA, 1, kNotB}, {64, kRT, kRGBA, kA, 1, kNotB}, kShare},
+    static const TestCase nonOverlappingTests[] = {
+        // Two non-overlapping intervals w/ compatible proxies should share
+        // both same size & approx
+        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kShare},
+        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kConditionallyShare},
+        // diffs sizes but still approx
+        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {50, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kShare},
+        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {50, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kConditionallyShare},
+        // sames sizes but exact
+        {{64, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+         {64, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+         kShare},
+        {{64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
+         {64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
+         kConditionallyShare},
+        // Two non-overlapping intervals w/ different exact sizes should not share
+        {{56, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+         {54, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+         kDontShare},
+        // Two non-overlapping intervals w/ _very different_ approx sizes should not share
+        {{255, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {127, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kDontShare},
+        // Two non-overlapping intervals w/ different MSAA sample counts should not share
+        {{64, kRT, kRGBA, kA, k2, kNotB, kDeferred},
+         {64, kRT, kRGBA, kA, k4, kNotB, kDeferred},
+         k2 == k4},
+        // Two non-overlapping intervals w/ different configs should not share
+        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kRT, kAlpha, kA, 1, kNotB, kDeferred},
+         kDontShare},
+        // Two non-overlapping intervals w/ different RT classifications should never share
+        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kDontShare},
+        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kDontShare},
+        // Two non-overlapping intervals w/ different origins should share
+        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+         kShare},
+        // Wrapped backend textures should never be reused
+        {{64, kNotRT, kRGBA, kE, 1, kNotB, kBackend},
+         {64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
+         kDontShare}
     };
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gNonOverlappingTests); i++) {
-        auto test = gNonOverlappingTests[i];
-        sk_sp<GrSurfaceProxy> p1 = make_deferred(proxyProvider, caps, test.fP1);
-        sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, test.fP2);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(nonOverlappingTests); i++) {
+        auto test = nonOverlappingTests[i];
+        sk_sp<GrSurfaceProxy> p1 = make_proxy(dContext, test.fP1);
+        sk_sp<GrSurfaceProxy> p2 = make_proxy(dContext, test.fP2);
 
         if (!p1 || !p2) {
-            continue; // creation can fail (i.e., for msaa4 on iOS)
+            continue; // creation can fail (e.g., for msaa4 on iOS)
         }
 
         reporter->push(SkStringPrintf("case %d", SkToInt(i)));
         non_overlap_test(reporter, dContext, std::move(p1), std::move(p2),
                          test.fExpectation);
-        reporter->pop();
-    }
-
-    {
-        // Wrapped backend textures should never be reused
-        TestCase t[1] = {
-                {{64, kNotRT, kRGBA, kE, 1, kNotB}, {64, kNotRT, kRGBA, kE, 1, kNotB}, kDontShare}};
-
-        sk_sp<GrSurfaceProxy> p1 = make_backend(dContext, t[0].fP1);
-        sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, t[0].fP2);
-
-        reporter->push(SkString("wrapped case"));
-        non_overlap_test(reporter, dContext, std::move(p1), std::move(p2),
-                         t[0].fExpectation);
         reporter->pop();
     }
 }
