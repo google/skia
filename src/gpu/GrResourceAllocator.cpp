@@ -362,6 +362,31 @@ bool GrResourceAllocator::planAssignment() {
     return !fFailedInstantiation;
 }
 
+bool GrResourceAllocator::makeBudgetHeadroom() {
+    SkASSERT(fPlanned);
+    SkASSERT(!fFailedInstantiation);
+    size_t additionalBytesNeeded = 0;
+    for (Interval* cur = fFinishedIntvls.peekHead(); cur; cur = cur->next()) {
+        GrSurfaceProxy* proxy = cur->proxy();
+        if (SkBudgeted::kNo == proxy->isBudgeted() || proxy->isInstantiated()) {
+            continue;
+        }
+
+        // N.B Fully-lazy proxies were already instantiated in planAssignment
+        if (proxy->isLazy()) {
+            additionalBytesNeeded += proxy->gpuMemorySize();
+        } else {
+            Register* r = cur->getRegister();
+            SkASSERT(r);
+            if (!r->accountedForInBudget() && !r->existingSurface()) {
+                additionalBytesNeeded += proxy->gpuMemorySize();
+            }
+            r->setAccountedForInBudget();
+        }
+    }
+    return fDContext->priv().getResourceCache()->purgeToMakeHeadroom(additionalBytesNeeded);
+}
+
 bool GrResourceAllocator::assign() {
     SkASSERT(fPlanned && !fAssigned);
     SkDEBUGCODE(fAssigned = true;)

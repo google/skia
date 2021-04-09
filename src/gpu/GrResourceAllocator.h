@@ -91,10 +91,15 @@ public:
     void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
-    // Generate an internal plan for resource allocation.
+    // Generate an internal plan for resource allocation. After this you can optionally call
+    // `makeBudgetHeadroom` to check whether that plan would go over our memory budget.
     // Fully-lazy proxies are also instantiated at this point so that their size can
     // be known accurately. Returns false if any lazy proxy failed to instantiate, true otherwise.
     bool planAssignment();
+
+    // Figure out how much VRAM headroom this plan requires. If there's enough purgeable resources,
+    // purge them and return true. Otherwise return false.
+    bool makeBudgetHeadroom();
 
     // Instantiate and assign resources to all proxies.
     bool assign();
@@ -143,6 +148,9 @@ private:
         const GrScratchKey& scratchKey() const { return fScratchKey; }
         const GrUniqueKey& uniqueKey() const { return fOriginatingProxy->getUniqueKey(); }
 
+        bool accountedForInBudget() const { return fAccountedForInBudget; }
+        void setAccountedForInBudget() { fAccountedForInBudget = true; }
+
         GrSurface* existingSurface() const { return fExistingSurface.get(); }
 
         // Can this register be used by other proxies after this one?
@@ -159,6 +167,7 @@ private:
         GrSurfaceProxy*  fOriginatingProxy;
         GrScratchKey     fScratchKey; // free pool wants a reference to this.
         sk_sp<GrSurface> fExistingSurface; // queried from resource cache. may be null.
+        bool             fAccountedForInBudget = false;
 
 #ifdef SK_DEBUG
         uint32_t         fUniqueID;
