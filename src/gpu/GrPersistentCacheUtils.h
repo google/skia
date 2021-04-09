@@ -32,9 +32,9 @@ struct ShaderMetadata {
 // Program::Inputs struct in any way, you must increment kCurrentVersion to invalidate the outdated
 // persistent cache files. The KnownSkSLProgramInputs struct must also be updated to match the new
 // contents of Program::Inputs.
-static constexpr int kCurrentVersion = 4;
+static constexpr int kCurrentVersion = 5;
 
-namespace { struct KnownSkSLProgramInputs { bool width, height, flipY; }; }
+namespace { struct KnownSkSLProgramInputs { bool height, flipY; }; }
 static_assert(sizeof(SkSL::Program::Inputs) == sizeof(KnownSkSLProgramInputs));
 
 static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
