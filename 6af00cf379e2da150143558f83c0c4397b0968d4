@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01c1d759_eed2480e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-09T16:54:56Z",
+      "side": 1,
+      "message": "I picked 3.7 instead of 3.5 because some todos in the file say that 3.7 introduces DEPFILE and we should use that.",
+      "revId": "6af00cf379e2da150143558f83c0c4397b0968d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
