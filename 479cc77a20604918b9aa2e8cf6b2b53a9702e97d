@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eff2b8fc_1e075543",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-09T19:12:12Z",
+      "side": 1,
+      "message": "// True if the op under consideration belongs to an GrOpsTask that has an MSAA buffer\n\n?",
+      "revId": "479cc77a20604918b9aa2e8cf6b2b53a9702e97d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
