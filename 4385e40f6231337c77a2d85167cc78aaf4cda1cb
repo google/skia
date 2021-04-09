@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4e679a4_19675254",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-09T14:46:04Z",
+      "side": 1,
+      "message": "Unrelated to this CL, but can\u0027t we use a forward declaration here? Or even something like a ProgramElement* or an IRNode* would be an improvement.",
+      "range": {
+        "startLine": 79,
+        "startChar": 10,
+        "endLine": 79,
+        "endChar": 42
+      },
+      "revId": "4385e40f6231337c77a2d85167cc78aaf4cda1cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
