@@ -16,6 +16,23 @@
       "message": "Extended. ptal.\n\nI don\u0027t love the \u0027isInteger\u0027 thing, but we don\u0027t (yet) have a public enum for \"kind of number\". Is it worth adding one? (FLOAT, INT, ...)?",
       "revId": "9fdb438e35eeb8e7bd73fdbb013d43cca345a70d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b38c8563_9524f524",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T11:53:50Z",
+      "side": 1,
+      "message": "I think isInteger is fine. If we need to make it an enum, that shouldn\u0027t be too difficult.",
+      "revId": "9fdb438e35eeb8e7bd73fdbb013d43cca345a70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
