@@ -154,7 +154,10 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
         SkASSERT(fTarget->asRenderTarget());
     }
 
-    if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
+    // In order to give DDL users some flexibility in the destination of there DDLs,
+    // a DDL's target proxy can be more conservative (and thus require less memory)
+    // than the actual GrSurface used to fulfill it.
+    if (!this->isDDLTarget() && kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
         // TODO(11373): Can this check be exact?
         SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
