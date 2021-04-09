@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "40872230_babeb139",
+        "filename": "modules/androidkit/Canvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-04-09T17:40:22Z",
+      "side": 1,
+      "message": "Ack.\n\nI guess we can stick to r22 for now and reconsider later.  r21 drops support for f16 (not a big deal) and doesn\u0027t provide a way to query the alpha type AFAICT (kind of a big deal).",
+      "parentUuid": "4e9d33b0_ae61c3a4",
+      "range": {
+        "startLine": 33,
+        "startChar": 22,
+        "endLine": 33,
+        "endChar": 54
+      },
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "afd811d3_418f9bd6",
         "filename": "modules/androidkit/Canvas.cpp",
         "patchSetId": 4
@@ -79,6 +103,24 @@
       "side": 1,
       "message": "lock under the covers is just taking a ref on the pixelRef and making sure it doesn\u0027t get cleaned up till your done",
       "parentUuid": "afd811d3_418f9bd6",
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05460fde_8e8da01c",
+        "filename": "modules/androidkit/Canvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-04-09T17:40:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7ef7f3ac_8320235e",
       "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -114,6 +156,24 @@
       "side": 1,
       "message": "NativeAllocationRegistry isn\u0027t public so you can\u0027t use that.  Finalizers are a good option, but I think it is good practice to have a \"release\" or \"recycle\" method that users can call to free up the memory explicitly instead of waiting on the GC to do it.",
       "parentUuid": "a02a3b74_43162aed",
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4a15e2c_25e8e260",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-04-09T17:40:22Z",
+      "side": 1,
+      "message": "Ack, will do separately.",
+      "parentUuid": "d18fa262_2150e6ce",
       "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
