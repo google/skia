@@ -1393,15 +1393,17 @@ void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const
     FloatLiteral zero(/*offset=*/-1, /*value=*/0, fContext.fTypes.fFloat.get());
     SpvId zeroId = this->writeFloatLiteral(zero);
     std::vector<SpvId> columnIds;
+    columnIds.reserve(type.columns());
     for (int column = 0; column < type.columns(); column++) {
         this->writeOpCode(SpvOpCompositeConstruct, 3 + type.rows(),
                           out);
-        this->writeWord(this->getType(type.componentType().toCompound(fContext, type.rows(), 1)),
+        this->writeWord(this->getType(type.componentType().toCompound(
+                                fContext, /*columns=*/type.rows(), /*rows=*/1)),
                         out);
         SpvId columnId = this->nextId(&type);
         this->writeWord(columnId, out);
         columnIds.push_back(columnId);
-        for (int row = 0; row < type.columns(); row++) {
+        for (int row = 0; row < type.rows(); row++) {
             this->writeWord(row == column ? diagonal : zeroId, out);
         }
     }
