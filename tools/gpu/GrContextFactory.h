@@ -57,6 +57,7 @@ public:
         kNone                          = 0x0,
         kAvoidStencilBuffers           = 0x1,
         kFakeGLESVersionAs2            = 0x2,
+        kReducedShaders                = 0x4,
     };
 
     static bool IsRenderingContext(ContextType type) {

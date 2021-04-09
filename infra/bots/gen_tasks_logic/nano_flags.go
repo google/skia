@@ -69,6 +69,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		configs = append(configs, glPrefix, glPrefix+"srgb")
 
+		if b.os("Ubuntu18") && b.noExtraConfig() {
+			configs = append(configs, glPrefix+"reducedshaders")
+		}
 		// glnarrow/glesnarrow tests the case of color converting *all* content
 		// It hangs on the AndroidOne (Mali400)  skia:10669
 		if (!b.gpu("Mali400MP2")) {
@@ -118,6 +121,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 				configs = append(configs, "mtlmsaa4")
 			} else {
 				configs = append(configs, "mtlmsaa8")
+			}
+			if b.model("iPhone11") {
+				configs = append(configs, "mtlreducedshaders")
 			}
 		}
 

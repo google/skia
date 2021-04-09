@@ -120,6 +120,12 @@ func (p parts) extraConfig(eq ...string) bool {
 	return false
 }
 
+// noExtraConfig returns true if there are no extra_configs for this job.
+func (p parts) noExtraConfig(eq ...string) bool {
+	ec := p["extra_config"]
+	return ec == ""
+}
+
 // matchPart returns true if the given part of this job's name matches any of
 // the given regular expressions. Note that a regular expression might match any
 // substring, so if you need an exact match on the entire string you'll need to
