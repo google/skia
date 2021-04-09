@@ -8,6 +8,7 @@
 #include "src/gpu/vk/GrVkPipelineStateBuilder.h"
 
 #include "include/gpu/GrDirectContext.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrDirectContextPriv.h"

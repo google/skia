@@ -175,7 +175,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
         if (length > 0) {
             SkBinaryWriteBuffer writer;
-            writer.writeInt(GrPersistentCacheUtils::kCurrentVersion);
+            writer.writeInt(GrPersistentCacheUtils::GetCurrentVersion());
             writer.writeUInt(kGLPB_Tag);
 
             writer.writePad32(&inputs, sizeof(inputs));
