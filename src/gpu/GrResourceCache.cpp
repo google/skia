@@ -622,33 +622,29 @@ void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point pu
 
 bool GrResourceCache::purgeToMakeHeadroom(size_t desiredHeadroomBytes) {
     AutoValidate av(this);
+    if (desiredHeadroomBytes > fMaxBytes) {
+        return false;
+    }
     if (this->wouldFit(desiredHeadroomBytes)) {
         return true;
     }
     fPurgeableQueue.sort();
 
-    size_t headroom = this->overBudget() ? 0 : fMaxBytes - fBudgetedBytes;
-    int purgeCnt = 0;
+    size_t projectedBudget = fBudgetedBytes;
+    std::vector<GrGpuResource*> resourcesToPurge;
     for (int i = 0; i < fPurgeableQueue.count(); i++) {
         GrGpuResource* resource = fPurgeableQueue.at(i);
-        headroom += resource->gpuMemorySize();
-        if (headroom >= desiredHeadroomBytes) {
-            purgeCnt = i + 1;
-            break;
+        if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
+            projectedBudget -= resource->gpuMemorySize();
+            resourcesToPurge.push_back(resource);
         }
     }
-    if (headroom < desiredHeadroomBytes) {
+    if (resourcesToPurge.empty()) {
         return false;
     }
 
     // Success! Release the resources.
-    // Copy to array first so we don't mess with the queue.
-    std::vector<GrGpuResource*> resources;
-    resources.reserve(purgeCnt);
-    for (int i = 0; i < purgeCnt; i++) {
-        resources.push_back(fPurgeableQueue.at(i));
-    }
-    for (GrGpuResource* resource : resources) {
+    for (GrGpuResource* resource : resourcesToPurge) {
         resource->cacheAccess().release();
     }
     return true;
