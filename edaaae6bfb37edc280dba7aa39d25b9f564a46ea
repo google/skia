@@ -150,6 +150,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "60d49c46_97ab6dfd",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-04-09T17:59:49Z",
+      "side": 1,
+      "message": "Totally, this is just the bootstrapping phase where we want to see *some* pixels on screen.\n\nLong term, it may be useful to have some way to render to legacy Bitmaps for interop, but it would be a helper/convenience tool and not a core feature.",
+      "parentUuid": "c76bb12d_304ab72a",
+      "range": {
+        "startLine": 3,
+        "startChar": 24,
+        "endLine": 4,
+        "endChar": 29
+      },
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e52c2096_ae623d21",
         "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
         "patchSetId": 4
@@ -161,6 +185,30 @@
       "writtenOn": "2021-04-09T17:54:22Z",
       "side": 1,
       "message": "Can we actually start off with Surface and PictureRecorder, and have them be the only ways to \"access\" a Canvas?",
+      "range": {
+        "startLine": 18,
+        "startChar": 18,
+        "endLine": 18,
+        "endChar": 24
+      },
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58c167a7_46690c6b",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-04-09T17:59:49Z",
+      "side": 1,
+      "message": "Ack.  The next planned change is to introduce Surface and drop the direct Canvas factories.",
+      "parentUuid": "e52c2096_ae623d21",
       "range": {
         "startLine": 18,
         "startChar": 18,
