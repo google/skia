@@ -328,6 +328,15 @@ private:
     SpvId writeStructComparison(const Type& structType, SpvId lhs, Operator op, SpvId rhs,
                                 OutputStream& out);
 
+    SpvId writeArrayComparison(const Type& structType, SpvId lhs, Operator op, SpvId rhs,
+                               OutputStream& out);
+
+    // Used by writeStructComparison and writeArrayComparison to logically combine field-by-field
+    // comparisons into an overall comparison result.
+    // - `a.x == b.x` merged with `a.y == b.y` generates `(a.x == b.x) && (a.y == b.y)`
+    // - `a.x != b.x` merged with `a.y != b.y` generates `(a.x != b.x) || (a.y != b.y)`
+    SpvId mergeComparisons(SpvId comparison, SpvId allComparisons, Operator op, OutputStream& out);
+
     SpvId writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs, SpvId rhs,
                                          SpvOp_ floatOperator, SpvOp_ intOperator,
                                          OutputStream& out);
