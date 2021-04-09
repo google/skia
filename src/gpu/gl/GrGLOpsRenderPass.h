@@ -30,7 +30,7 @@ public:
         state->doUpload(upload);
     }
 
-    void set(GrRenderTarget*, const SkIRect& contentBounds, GrSurfaceOrigin,
+    void set(GrRenderTarget*, bool useMSAASurface, const SkIRect& contentBounds, GrSurfaceOrigin,
              const LoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
 
     void reset() {
