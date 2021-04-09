@@ -127,6 +127,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c76bb12d_304ab72a",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-09T17:54:22Z",
+      "side": 1,
+      "message": "Finding ways to support these is of course useful, but we *may* not want to limit ourselves to these...\n\n- we\u0027d need to add slots (i.e. missing features)\n- we\u0027d also be ignoring slots (i.e. features we no longer support)",
+      "range": {
+        "startLine": 3,
+        "startChar": 24,
+        "endLine": 4,
+        "endChar": 29
+      },
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e52c2096_ae623d21",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-09T17:54:22Z",
+      "side": 1,
+      "message": "Can we actually start off with Surface and PictureRecorder, and have them be the only ways to \"access\" a Canvas?",
+      "range": {
+        "startLine": 18,
+        "startChar": 18,
+        "endLine": 18,
+        "endChar": 24
+      },
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a02a3b74_43162aed",
         "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
         "patchSetId": 4
