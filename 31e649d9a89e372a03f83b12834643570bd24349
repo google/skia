@@ -16,6 +16,24 @@
       "message": "What\u0027s up with Housekeeper-OnDemand-Presubmit?",
       "revId": "31e649d9a89e372a03f83b12834643570bd24349",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecfb3641_cf62e385",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-04-09T12:03:37Z",
+      "side": 1,
+      "message": "We have a check which verifies that all of the DEPS entries are hosted on googlesource.  It didn\u0027t know to ignore CIPD entries.  Should be fixed now.",
+      "parentUuid": "48f9190c_b527e50f",
+      "revId": "31e649d9a89e372a03f83b12834643570bd24349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
