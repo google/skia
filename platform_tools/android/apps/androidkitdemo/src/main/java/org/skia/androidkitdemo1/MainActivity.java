@@ -1,16 +1,13 @@
 package org.skia.androidkitdemo1;
 
-// Will eventually be replaced with:
-// import org.skia.androidkit.Canvas;
 import android.app.Activity;
-import android.graphics.Canvas;
-
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import org.skia.androidkit.Canvas;
 
 public class MainActivity extends Activity {
     private static final String TAG = "ANDROIDKIT DEMO";
