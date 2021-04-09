@@ -79,10 +79,17 @@ public:
     size_t runCount() const { return fGlyphRuns.size(); }
     size_t totalGlyphCount() const {
         size_t glyphCount = 0;
-        for(const auto& run : fGlyphRuns) {
+        for (const SkGlyphRun& run : *this) {
             glyphCount += run.runSize();
         }
         return glyphCount;
+    }
+
+    bool hasRSXForm() const {
+        for (const SkGlyphRun& run : *this) {
+            if (!run.scaledRotations().empty()) { return true; }
+        }
+        return false;
     }
 
     SkPoint origin() const { return fOrigin; }
@@ -110,16 +117,13 @@ public:
                                              size_t byteLength,
                                              SkPoint origin,
                                              SkTextEncoding encoding = SkTextEncoding::kUTF8);
-    void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
-
-    void textBlobToGlyphRunListIgnoringRSXForm(const SkTextBlob& blob, SkPoint origin);
-
-    const SkGlyphRunList& useGlyphRunList();
+    const SkGlyphRunList& blobToGlyphRunList(const SkTextBlob& blob, SkPoint origin);
 
     bool empty() const { return fGlyphRunListStorage.empty(); }
 
 private:
-    void initialize(size_t totalRunSize);
+    void initialize(int totalRunSize);
+    void initialize(const SkTextBlob& blob);
     SkSpan<const SkGlyphID> textToGlyphIDs(
             const SkFont& font, const void* bytes, size_t byteLength, SkTextEncoding);
 
@@ -131,13 +135,15 @@ private:
             SkSpan<const uint32_t> clusters,
             SkSpan<const SkVector> scaledRotations);
 
-    void makeGlyphRunList(const SkTextBlob* blob, SkPoint origin);
+    const SkGlyphRunList& makeGlyphRunList(const SkTextBlob* blob, SkPoint origin);
 
     SkPoint* simplifyTextBlobIgnoringRSXForm(const SkTextBlobRunIterator& it,
                                              SkPoint* positionsCursor);
 
-    size_t fMaxTotalRunSize{0};
+    int fMaxTotalRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    int fMaxScaledRotations{0};
+    SkAutoTMalloc<SkVector> fScaledRotations;
 
     std::vector<SkGlyphRun> fGlyphRunListStorage;
     SkGlyphRunList fGlyphRunList;
