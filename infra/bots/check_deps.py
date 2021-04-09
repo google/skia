@@ -48,6 +48,8 @@ def main():
           'Failed to parse `gclient revinfo` output; invalid format: %s' % e)
     repo = split[0]
     rev = split[1]
+    if 'chrome-infra-packages' in repo:
+      continue
     if not 'googlesource.com' in repo:
       errs.append(
           'DEPS must be hosted on googlesource.com; %s is not allowed. '
