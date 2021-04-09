@@ -62,14 +62,10 @@ Differences from GLSL
   foo.rgb1 is equivalent to float4(foo.rgb, 1).
 * All texture functions are named "sample", e.g. sample(sampler2D, float3) is
   equivalent to GLSL's textureProj(sampler2D, float3).
-* Render target width and height are available via sk_Width and sk_Height
 * Functions support the 'inline' modifier, which causes the compiler to ignore
   its normal inlining heuristics and inline the function if at all possible
 * some built-in functions and one or two rarely-used language features are not
   yet supported (sorry!)
-
-SkSL is still under development, and is expected to diverge further from GLSL
-over time.
 
 
 SkSL Fragment Processors
