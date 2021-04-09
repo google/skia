@@ -622,22 +622,27 @@ void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point pu
 
 bool GrResourceCache::purgeToMakeHeadroom(size_t desiredHeadroomBytes) {
     AutoValidate av(this);
+    if (desiredHeadroomBytes > fMaxBytes) {
+        return false;
+    }
     if (this->wouldFit(desiredHeadroomBytes)) {
         return true;
     }
     fPurgeableQueue.sort();
 
-    size_t headroom = this->overBudget() ? 0 : fMaxBytes - fBudgetedBytes;
+    size_t projectedBudget = fBudgetedBytes;
     int purgeCnt = 0;
     for (int i = 0; i < fPurgeableQueue.count(); i++) {
         GrGpuResource* resource = fPurgeableQueue.at(i);
-        headroom += resource->gpuMemorySize();
-        if (headroom >= desiredHeadroomBytes) {
+        if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
+            projectedBudget -= resource->gpuMemorySize();
+        }
+        if (projectedBudget + desiredHeadroomBytes <= fMaxBytes) {
             purgeCnt = i + 1;
             break;
         }
     }
-    if (headroom < desiredHeadroomBytes) {
+    if (purgeCnt == 0) {
         return false;
     }
 
