@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8ea41ff_beb6fe79",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-09T21:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59d69704_53208bbf",
+      "revId": "a43035058eda000d179558b7345f022016e55ec0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "484d0994_bf748661",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fe51796_9926fdd6",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-09T21:00:00Z",
+      "side": 1,
+      "message": "No. This is the opposite – \"if you want more headroom than the entire budget, we\u0027re doomed before we start.",
+      "parentUuid": "484d0994_bf748661",
+      "range": {
+        "startLine": 625,
+        "startChar": 0,
+        "endLine": 627,
+        "endChar": 5
+      },
+      "revId": "a43035058eda000d179558b7345f022016e55ec0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "995015f8_9e914a95",
@@ -54,6 +96,24 @@
       "writtenOn": "2021-04-09T19:38:59Z",
       "side": 1,
       "message": "As discussed this probably has to be an if",
+      "revId": "a43035058eda000d179558b7345f022016e55ec0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9a338fa_a341cee2",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-09T21:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "995015f8_9e914a95",
       "revId": "a43035058eda000d179558b7345f022016e55ec0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
