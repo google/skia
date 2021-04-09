@@ -83,6 +83,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a69dc317_411f2b15",
+        "filename": "experimental/tskit/bindings/core.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-09T18:59:24Z",
+      "side": 1,
+      "message": "Gotcha, was just wondering for the future.",
+      "parentUuid": "45eb9bf3_544b4d85",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 9
+      },
+      "revId": "8b5f459645253f85b47b8fdb427938893df0e446",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f74c1fb3_b1ea55ee",
