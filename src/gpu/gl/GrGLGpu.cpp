@@ -2189,6 +2189,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
 GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
+        bool useMSAASurface,
         GrAttachment*,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
@@ -2200,7 +2201,7 @@ GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
         fCachedOpsRenderPass = std::make_unique<GrGLOpsRenderPass>(this);
     }
 
-    fCachedOpsRenderPass->set(rt, bounds, origin, colorInfo, stencilInfo);
+    fCachedOpsRenderPass->set(rt, useMSAASurface, bounds, origin, colorInfo, stencilInfo);
     return fCachedOpsRenderPass.get();
 }
 
