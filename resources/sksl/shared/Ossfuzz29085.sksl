@@ -1,1 +1,1 @@
-void a() { int i; (i=i).x1x.xx.x; }
+void main() { int i; (i=i).x1x.xx.x; }
