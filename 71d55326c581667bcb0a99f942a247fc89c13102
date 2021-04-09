@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "439d32b9_6f928b93",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T19:48:22Z",
+      "side": 1,
+      "message": "The ProgramKind changes don\u0027t seem necessary for this CL, but I\u0027m guessing they\u0027re part of runtime-effect support?\n\nAlso, I don\u0027t think it impacts what you\u0027re doing right now, but I\u0027m working on landing changes that may shake this up: https://docs.google.com/document/d/1ur7RYieBOCV0iMN7zEqqhVfPMOtp9eQI2AbqKYeuULo/edit?usp\u003dsharing\u0026resourcekey\u003d0-Ic7sE3KjA4sSJii20Excmw",
+      "range": {
+        "startLine": 38,
+        "startChar": 36,
+        "endLine": 38,
+        "endChar": 90
+      },
+      "revId": "71d55326c581667bcb0a99f942a247fc89c13102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
