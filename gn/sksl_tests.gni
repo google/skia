@@ -198,6 +198,7 @@ sksl_error_tests = [
 
 sksl_glsl_tests = [
   "/sksl/glsl/ForceHighPrecision.sksl",
+  "/sksl/glsl/Height.sksl",
   "/sksl/glsl/IncompleteShortIntPrecision.sksl",
   "/sksl/glsl/LayoutQualifiers.sksl",
   "/sksl/glsl/ShortIntPrecision.sksl",
@@ -359,7 +360,6 @@ sksl_shared_tests = [
   "/sksl/shared/GeometryGSInvocations.geom",
   "/sksl/shared/GeometryNoGSInvocations.geom",
   "/sksl/shared/GeometryNoGSInvocationsReorder.geom",
-  "/sksl/shared/Height.sksl",
   "/sksl/shared/HelloWorld.sksl",
   "/sksl/shared/Hex.sksl",
   "/sksl/shared/HexUnsigned.sksl",
