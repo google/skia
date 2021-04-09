@@ -15,6 +15,7 @@
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -111,7 +112,6 @@ std::unique_ptr<Expression> Constructor::Convert(const Context& context,
                                                  int offset,
                                                  const Type& type,
                                                  ExpressionArray args) {
-    // FIXME: add support for structs
     if (args.size() == 1 && args[0]->type() == type && !type.componentType().isOpaque()) {
         // Don't generate redundant casts; if the expression is already of the correct type, just
         // return it as-is.
@@ -125,6 +125,9 @@ std::unique_ptr<Expression> Constructor::Convert(const Context& context,
     }
     if (type.isArray() && type.columns() > 0) {
         return ConstructorArray::Convert(context, offset, type, std::move(args));
+    }
+    if (type.isStruct() && type.fields().size() > 0) {
+        return ConstructorStruct::Convert(context, offset, type, std::move(args));
     }
 
     context.fErrors.error(offset, "cannot construct '" + type.displayName() + "'");
