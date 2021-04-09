@@ -211,7 +211,7 @@ bool GrDrawingManager::flush(
             task->gatherProxyIntervals(&alloc);
         }
 
-        flushed = alloc.assign() && this->executeRenderTasks(&flushState);
+        flushed = alloc.planAssignment() && alloc.assign() && this->executeRenderTasks(&flushState);
     }
     this->removeRenderTasks();
 
