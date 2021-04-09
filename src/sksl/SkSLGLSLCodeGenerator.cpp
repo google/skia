@@ -812,12 +812,6 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
             break;
-        case SK_WIDTH_BUILTIN:
-            this->write("u_skRTWidth");
-            break;
-        case SK_HEIGHT_BUILTIN:
-            this->write("u_skRTHeight");
-            break;
         case SK_CLOCKWISE_BUILTIN:
             this->write(fProgram.fConfig->fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
             break;
@@ -1478,12 +1472,6 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 }
 
 void GLSLCodeGenerator::writeInputVars() {
-    if (fProgram.fInputs.fRTWidth) {
-        const char* precision = usesPrecisionModifiers() ? "highp " : "";
-        fGlobals.writeText("uniform ");
-        fGlobals.writeText(precision);
-        fGlobals.writeText("float " SKSL_RTWIDTH_NAME ";\n");
-    }
     if (fProgram.fInputs.fRTHeight) {
         const char* precision = usesPrecisionModifiers() ? "highp " : "";
         fGlobals.writeText("uniform ");

@@ -1506,12 +1506,6 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
             const Variable* var = &result->as<Variable>();
             const Modifiers& modifiers = var->modifiers();
             switch (modifiers.fLayout.fBuiltin) {
-                case SK_WIDTH_BUILTIN:
-                    fInputs.fRTWidth = true;
-                    break;
-                case SK_HEIGHT_BUILTIN:
-                    fInputs.fRTHeight = true;
-                    break;
 #ifndef SKSL_STANDALONE
                 case SK_FRAGCOORD_BUILTIN:
                     fInputs.fFlipY = true;
