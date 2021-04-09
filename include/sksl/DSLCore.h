@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_CORE
 #define SKSL_DSL_CORE
 
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLCase.h"
@@ -34,7 +35,7 @@ using namespace SkSL::SwizzleComponent;
  * Starts DSL output on the current thread using the specified compiler. This must be called
  * prior to any other DSL functions.
  */
-void Start(SkSL::Compiler* compiler);
+void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment);
 
 /**
  * Signals the end of DSL output. This must be called sometime between a call to Start() and the
@@ -349,6 +350,27 @@ DSLExpression Reflect(DSLExpression i, DSLExpression n, PositionInfo pos = Posit
  */
 DSLExpression Refract(DSLExpression i, DSLExpression n, DSLExpression eta,
                       PositionInfo pos = PositionInfo());
+
+/**
+ * Samples the child processor at the current coordinates.
+ */
+DSLExpression Sample(DSLExpression fp, PositionInfo pos = PositionInfo());
+
+/**
+ * Implements the following functions:
+ *     half4 sample(fragmentProcessor fp, float3x3 transform);
+ *     half4 sample(fragmentProcessor fp, float2 coords);
+ *     half4 sample(fragmentProcessor fp, half4 input);
+ */
+DSLExpression Sample(DSLExpression target, DSLExpression x, PositionInfo pos = PositionInfo());
+
+/**
+ * Implements the following functions:
+ *     half4 sample(fragmentProcessor fp, half4 input, float3x3 transform);
+ *     half4 sample(fragmentProcessor fp, half4 input, float2 coords);
+ */
+DSLExpression Sample(DSLExpression childProcessor, DSLExpression x, DSLExpression y,
+                     PositionInfo pos = PositionInfo());
 
 /**
  * Returns x clamped to the range [0, 1]. If x is a vector, operates componentwise.
