@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56fa50c9_a2e22b34",
+        "filename": "modules/androidkit/Canvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-09T13:58:11Z",
+      "side": 1,
+      "message": "These are newish flags - I had to install NDK r22 to access.\n\n1) is that an acceptable dependency?\n\n2) is there a way to declare a minimum NDK version requirement in build files?",
+      "range": {
+        "startLine": 33,
+        "startChar": 22,
+        "endLine": 33,
+        "endChar": 54
+      },
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afd811d3_418f9bd6",
+        "filename": "modules/androidkit/Canvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-09T13:58:11Z",
+      "side": 1,
+      "message": "The pixel lock scoping is pretty coarse: lifetime of the canvas wrapper.\n\nI guess we could look into locking on the fly but that\u0027s a lot more involved and possibly not worth it at this stage?",
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a02a3b74_43162aed",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-09T13:58:11Z",
+      "side": 1,
+      "message": "I get the feeling this is not the preferred method for handling cleanup anymore.\n\nGoing forward, what should we look at -- NativeAllocationRegistry?",
+      "revId": "edaaae6bfb37edc280dba7aa39d25b9f564a46ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
