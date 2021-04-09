@@ -135,6 +135,24 @@
       "message": "Surprise! Removing this field means you should increment kCurrentVersion in GrPersistentCacheUtils. (We should add a static_assert, or at least a comment here).",
       "revId": "e4454aaf23ee95643efd0fe83bbe94eb497268d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6fedd98_18a7e350",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-09T20:09:28Z",
+      "side": 0,
+      "message": "Rolled back to Patch Set 3. Let\u0027s tackle this in a different CL. For now these inputs are load-bearing and can stay.",
+      "parentUuid": "42082038_7ab35774",
+      "revId": "e4454aaf23ee95643efd0fe83bbe94eb497268d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
