@@ -28,9 +28,9 @@
 GrD3DOpsRenderPass::GrD3DOpsRenderPass(GrD3DGpu* gpu) : fGpu(gpu) {}
 
 bool GrD3DOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
-                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
+                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo, const
+                             GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo, const
+                             SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 

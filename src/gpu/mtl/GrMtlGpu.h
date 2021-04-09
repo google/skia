@@ -205,6 +205,7 @@ private:
     void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
 
     GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
+                                        bool useMSAASurface,
                                         GrAttachment*,
                                         GrSurfaceOrigin,
                                         const SkIRect&,

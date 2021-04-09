@@ -302,6 +302,7 @@ sk_sp<GrThreadSafePipelineBuilder> GrVkGpu::refPipelineBuilder() {
 
 GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
+        bool /*useMSAASurface*/,
         GrAttachment* stencil,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
