@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8eb7d0aa_898a1b12",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1510,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T18:53:25Z",
+      "side": 0,
+      "message": "From a quick search, this is the only time fRTWidth is ever set to true. Removing this means that addRTWidthUniform can be removed, too.",
+      "range": {
+        "startLine": 1510,
+        "startChar": 28,
+        "endLine": 1510,
+        "endChar": 36
+      },
+      "revId": "e4454aaf23ee95643efd0fe83bbe94eb497268d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
