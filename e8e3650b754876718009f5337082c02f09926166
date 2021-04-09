@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "953571a6_addcd46d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T13:08:38Z",
+      "side": 1,
+      "message": "Thank you, and I really appreciate the wordsmithing on the localMatrix aspects. That was where I struggled the most - as Skia doesn\u0027t have a name for those spaces/coordinates.",
+      "parentUuid": "29e7c76c_6b189b51",
+      "revId": "e8e3650b754876718009f5337082c02f09926166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e51129e_4aeb6ff5",
@@ -58,6 +76,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "acef730a_1cf28df7",
+        "filename": "site/docs/user/coordinates.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T13:08:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e51129e_4aeb6ff5",
+      "range": {
+        "startLine": 61,
+        "startChar": 81,
+        "endLine": 61,
+        "endChar": 82
+      },
+      "revId": "e8e3650b754876718009f5337082c02f09926166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "989a60de_bec90700",
@@ -71,6 +113,30 @@
       "writtenOn": "2021-04-09T00:09:27Z",
       "side": 1,
       "message": "Until grokking the rest of the sentence, leading with \"relative to local coordinate space of the `SkCanvas`\" biases me to think it refers to the space the geometry was in. Perhaps we say:\n\n\"relative to the coordinate space of the `SkShader`. This will be match the local space of the canvas and any localMatrix transformations. Additionally, if the shader is invoked by another, that parent shader may modify them arbitrarily\"?",
+      "range": {
+        "startLine": 87,
+        "startChar": 13,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "e8e3650b754876718009f5337082c02f09926166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "112cc31e_b186b670",
+        "filename": "site/docs/user/sksl.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T13:08:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "989a60de_bec90700",
       "range": {
         "startLine": 87,
         "startChar": 13,
