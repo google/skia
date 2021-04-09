@@ -133,15 +133,7 @@ private:
     class Register {
     public:
         // It's OK to pass an invalid scratch key iff the proxy has a unique key.
-        Register(GrSurfaceProxy* originatingProxy, GrScratchKey scratchKey)
-                : fOriginatingProxy(originatingProxy)
-                , fScratchKey(std::move(scratchKey)) {
-            SkASSERT(originatingProxy);
-            SkASSERT(!originatingProxy->isInstantiated());
-            SkASSERT(!originatingProxy->isLazy());
-            SkASSERT(this->scratchKey().isValid() ^ this->uniqueKey().isValid());
-            SkDEBUGCODE(fUniqueID = CreateUniqueID();)
-        }
+        Register(GrSurfaceProxy* originatingProxy, GrScratchKey);
 
         const GrScratchKey& scratchKey() const { return fScratchKey; }
         const GrUniqueKey& uniqueKey() const { return fOriginatingProxy->getUniqueKey(); }

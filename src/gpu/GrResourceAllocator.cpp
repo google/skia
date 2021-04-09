@@ -100,6 +100,16 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     fIntvlHash.set(proxyID, newIntvl);
 }
 
+GrResourceAllocator::Register::Register(GrSurfaceProxy* originatingProxy,
+                                        GrScratchKey scratchKey)
+        : fOriginatingProxy(originatingProxy)
+        , fScratchKey(std::move(scratchKey)) {
+    SkASSERT(originatingProxy);
+    SkASSERT(!originatingProxy->isInstantiated());
+    SkASSERT(!originatingProxy->isLazy());
+    SkDEBUGCODE(fUniqueID = CreateUniqueID();)
+}
+
 bool GrResourceAllocator::Register::isRecyclable(const GrCaps& caps,
                                                  GrSurfaceProxy* proxy,
                                                  int knownUseCount) const {
