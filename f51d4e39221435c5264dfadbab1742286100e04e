@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd5b2c8a_694f2fd4",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-09T17:22:15Z",
+      "side": 1,
+      "message": "Do we need this ?",
+      "range": {
+        "startLine": 102,
+        "startChar": 15,
+        "endLine": 102,
+        "endChar": 16
+      },
+      "revId": "f51d4e39221435c5264dfadbab1742286100e04e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b23f2a23_2c9e57e0",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-09T17:22:15Z",
+      "side": 1,
+      "message": "static const ?",
+      "revId": "f51d4e39221435c5264dfadbab1742286100e04e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82413f79_4bb39d93",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-09T17:22:15Z",
+      "side": 1,
+      "message": "Here too ?",
+      "revId": "f51d4e39221435c5264dfadbab1742286100e04e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
