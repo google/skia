@@ -19,6 +19,7 @@
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkTaskGroup.h"
