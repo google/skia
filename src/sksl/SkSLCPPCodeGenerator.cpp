@@ -288,12 +288,6 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             fFormatArgs.push_back(String("args.fSampleCoord"));
             fAccessSampleCoordsDirectly = true;
             break;
-        case SK_WIDTH_BUILTIN:
-            this->write("sk_Width");
-            break;
-        case SK_HEIGHT_BUILTIN:
-            this->write("sk_Height");
-            break;
         default:
             const Variable& var = *ref.variable();
             if (var.type().typeKind() == Type::TypeKind::kSampler) {

@@ -359,7 +359,6 @@ sksl_shared_tests = [
   "/sksl/shared/GeometryGSInvocations.geom",
   "/sksl/shared/GeometryNoGSInvocations.geom",
   "/sksl/shared/GeometryNoGSInvocationsReorder.geom",
-  "/sksl/shared/Height.sksl",
   "/sksl/shared/HelloWorld.sksl",
   "/sksl/shared/Hex.sksl",
   "/sksl/shared/HexUnsigned.sksl",
@@ -443,7 +442,6 @@ sksl_shared_tests = [
   "/sksl/shared/VertexEarlyReturn.vert",
   "/sksl/shared/VertexID.vert",
   "/sksl/shared/WhileLoopControlFlow.sksl",
-  "/sksl/shared/Width.sksl",
 ]
 
 sksl_folding_tests = [

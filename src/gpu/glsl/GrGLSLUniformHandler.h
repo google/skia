@@ -23,9 +23,9 @@ class GrSurfaceProxy;
 // Handles for program uniforms (other than per-effect uniforms)
 struct GrGLSLBuiltinUniformHandles {
     GrGLSLProgramDataManager::UniformHandle fRTAdjustmentUni;
-    // Render target width, used to implement sk_Width
+    // Render target width, used to implement u_skRTWidth
     GrGLSLProgramDataManager::UniformHandle fRTWidthUni;
-    // Render target height, used to implement sk_Height and to calculate sk_FragCoord when
+    // Render target height, used to implement u_skRTHeight and to calculate sk_FragCoord when
     // origin_upper_left is not supported.
     GrGLSLProgramDataManager::UniformHandle fRTHeightUni;
 };
