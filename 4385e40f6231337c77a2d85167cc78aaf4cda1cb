@@ -22,6 +22,30 @@
       },
       "revId": "4385e40f6231337c77a2d85167cc78aaf4cda1cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df59a434_be387014",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-09T16:26:19Z",
+      "side": 1,
+      "message": "Yeah, I don\u0027t know what the hell that was about. I think I had just dealt with a ton of std::unique_ptrs to various node types and had a brain fart here.\n\nGoing to go ahead and fix it while I\u0027m in this code.",
+      "parentUuid": "e4e679a4_19675254",
+      "range": {
+        "startLine": 79,
+        "startChar": 10,
+        "endLine": 79,
+        "endChar": 42
+      },
+      "revId": "4385e40f6231337c77a2d85167cc78aaf4cda1cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
