@@ -67,6 +67,7 @@ public:
                            bool                      testPrecompile,
                            bool                      useDDLSink,
                            bool                      OOPRish,
+                           bool reducedShaders,
                            SurfType);
 
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
@@ -83,6 +84,7 @@ public:
     bool          getTestPrecompile() const { return fTestPrecompile; }
     bool          getUseDDLSink() const { return fUseDDLSink; }
     bool          getOOPRish() const { return fOOPRish; }
+    bool          getReducedShaders() const { return fReducedShaders; }
     SurfType      getSurfType() const { return fSurfType; }
 
 private:
@@ -99,6 +101,7 @@ private:
     bool                fTestPrecompile;
     bool                fUseDDLSink;
     bool                fOOPRish;
+    bool                fReducedShaders;
     SurfType            fSurfType;
 };
 
