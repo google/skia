@@ -33,6 +33,24 @@
       "message": "I think isInteger is fine. If we need to make it an enum, that shouldn\u0027t be too difficult.",
       "revId": "9fdb438e35eeb8e7bd73fdbb013d43cca345a70d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "096415e8_1d1ffa54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-04-09T12:13:56Z",
+      "side": 1,
+      "message": "Aren\u0027t there also boolean uniforms? If so, maybe making an enum now would be the best way forward.",
+      "parentUuid": "b38c8563_9524f524",
+      "revId": "9fdb438e35eeb8e7bd73fdbb013d43cca345a70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
