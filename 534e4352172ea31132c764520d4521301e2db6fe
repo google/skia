@@ -94,6 +94,30 @@
       },
       "revId": "534e4352172ea31132c764520d4521301e2db6fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfa4b734_ce374c94",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-09T21:27:25Z",
+      "side": 1,
+      "message": "Agreed that GrGLGPU needs some extra work before we can track the FBO, and that we should focus our energy on moving it toward attachments instead. I updated the following CL to only send the bool to getOpsRenderPass.\n\nAre we otherwise good to land this CL?",
+      "parentUuid": "77bd4177_478934f4",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 28
+      },
+      "revId": "534e4352172ea31132c764520d4521301e2db6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
