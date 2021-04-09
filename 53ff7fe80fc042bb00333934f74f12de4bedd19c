@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b65d867_4ea8ac90",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-09T01:44:23Z",
+      "side": 1,
+      "message": "Looks like this doesn\u0027t get set until onExecute.\n\nHow do you think onPrepare/onPrePrepare should know whether we will use MSAA? Should the GrOpFlushState just have a boolean that the GrOpsTask sets? Can it have a pointer back to the GrOpsTask?",
+      "range": {
+        "startLine": 51,
+        "startChar": 61,
+        "endLine": 51,
+        "endChar": 75
+      },
+      "revId": "53ff7fe80fc042bb00333934f74f12de4bedd19c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
