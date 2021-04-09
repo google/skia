@@ -308,6 +308,9 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kAvoidStencilBuffers & overrides) {
         grOptions.fAvoidStencilBuffers = true;
     }
+    if (ContextOverrides::kReducedShaders & overrides) {
+        grOptions.fReducedShaderVariations = true;
+    }
     sk_sp<GrDirectContext> grCtx;
     {
         auto restore = testCtx->makeCurrentAndAutoRestore();

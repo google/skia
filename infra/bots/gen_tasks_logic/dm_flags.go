@@ -428,6 +428,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("mtltestprecompile svg _ Chalkboard.svg")
 			skip("mtltestprecompile svg _ Ghostscript_Tiger.svg")
 		}
+		// Test reduced shader mode on iPhone 11 as representative iOS device
+		if b.model("iPhone11") && b.extraConfig("Metal") {
+			configs = append(configs, "mtlreducedshaders")
+		}
 
 		if b.gpu("AppleM1") && !b.extraConfig("Metal") {
 			skip("_ test _ TransferPixelsFromTextureTest")  // skia:11814
@@ -440,7 +444,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test rendering to wrapped dsts on a few bots
 		// Also test "glenarrow", which hits F16 surfaces and F16 vertex colors.
 		if b.extraConfig("BonusConfigs") {
-			configs = []string{"glbetex", "glbert", "glenarrow"}
+			configs = []string{"glbetex", "glbert", "glenarrow", "glreducedshaders"}
 		}
 
 		if b.os("ChromeOS") {
