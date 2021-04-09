@@ -2400,6 +2400,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             if (operandType->isStruct()) {
                 return this->writeStructComparison(*operandType, lhs, op, rhs, out);
             }
+            if (operandType->isArray()) {
+                return this->writeArrayComparison(*operandType, lhs, op, rhs, out);
+            }
             SkASSERT(resultType.isBoolean());
             const Type* tmpType;
             if (operandType->isVector()) {
@@ -2421,6 +2424,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             }
             if (operandType->isStruct()) {
                 return this->writeStructComparison(*operandType, lhs, op, rhs, out);
+            }
+            if (operandType->isArray()) {
+                return this->writeArrayComparison(*operandType, lhs, op, rhs, out);
             }
             [[fallthrough]];
         case Token::Kind::TK_LOGICALXOR:
@@ -2512,22 +2518,49 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
     }
 }
 
+SpvId SPIRVCodeGenerator::writeArrayComparison(const Type& arrayType, SpvId lhs, Operator op,
+                                               SpvId rhs, OutputStream& out) {
+    // The inputs must be arrays, and the op must be == or !=.
+    SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(arrayType.isArray());
+    const Type& componentType = arrayType.componentType();
+    const SpvId componentTypeId = this->getType(componentType);
+    const int arraySize = arrayType.columns();
+    SkASSERT(arraySize > 0);
+
+    // Synthesize equality checks for each item in the array.
+    const Type& boolType = *fContext.fTypes.fBool;
+    SpvId allComparisons = (SpvId)-1;
+    for (int index = 0; index < arraySize; ++index) {
+        // Get the left and right item in the array.
+        SpvId itemL = this->nextId(&componentType);
+        this->writeInstruction(SpvOpCompositeExtract, componentTypeId, itemL, lhs, index, out);
+        SpvId itemR = this->nextId(&componentType);
+        this->writeInstruction(SpvOpCompositeExtract, componentTypeId, itemR, rhs, index, out);
+        // Use `writeBinaryExpression` with the requested == or != operator on these items.
+        SpvId comparison = this->writeBinaryExpression(componentType, itemL, op,
+                                                       componentType, itemR, boolType, out);
+        // Merge this comparison result with all the other comparisons we've done.
+        allComparisons = this->mergeComparisons(comparison, allComparisons, op, out);
+    }
+    return allComparisons;
+}
+
 SpvId SPIRVCodeGenerator::writeStructComparison(const Type& structType, SpvId lhs, Operator op,
                                                 SpvId rhs, OutputStream& out) {
     // The inputs must be structs containing fields, and the op must be == or !=.
-    SkASSERT(structType.isStruct());
     SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(structType.isStruct());
     const std::vector<Type::Field>& fields = structType.fields();
     SkASSERT(!fields.empty());
 
     // Synthesize equality checks for each field in the struct.
     const Type& boolType = *fContext.fTypes.fBool;
-    SpvId boolTypeId = this->getType(boolType);
     SpvId allComparisons = (SpvId)-1;
     for (int index = 0; index < (int)fields.size(); ++index) {
         // Get the left and right versions of this field.
         const Type& fieldType = *fields[index].fType;
-        SpvId fieldTypeId = this->getType(fieldType);
+        const SpvId fieldTypeId = this->getType(fieldType);
 
         SpvId fieldL = this->nextId(&fieldType);
         this->writeInstruction(SpvOpCompositeExtract, fieldTypeId, fieldL, lhs, index, out);
@@ -2536,28 +2569,36 @@ SpvId SPIRVCodeGenerator::writeStructComparison(const Type& structType, SpvId lh
         // Use `writeBinaryExpression` with the requested == or != operator on these fields.
         SpvId comparison = this->writeBinaryExpression(fieldType, fieldL, op, fieldType, fieldR,
                                                        boolType, out);
-        // If this is the first field, we don't need to merge comparison results with anything.
-        if (allComparisons == (SpvId)-1) {
-            allComparisons = comparison;
-            continue;
-        }
-        // Use LogicalAnd or LogicalOr to combine the comparison with all the other comparisons.
-        SpvId logicalOp = this->nextId(&boolType);
-        switch (op.kind()) {
-            case Token::Kind::TK_EQEQ:
-                this->writeInstruction(SpvOpLogicalAnd, boolTypeId, logicalOp,
-                                       comparison, allComparisons, out);
-                break;
-            case Token::Kind::TK_NEQ:
-                this->writeInstruction(SpvOpLogicalOr, boolTypeId, logicalOp,
-                                       comparison, allComparisons, out);
-                break;
-            default:
-                return (SpvId)-1;
-        }
-        allComparisons = logicalOp;
+        // Merge this comparison result with all the other comparisons we've done.
+        allComparisons = this->mergeComparisons(comparison, allComparisons, op, out);
     }
     return allComparisons;
+}
+
+SpvId SPIRVCodeGenerator::mergeComparisons(SpvId comparison, SpvId allComparisons, Operator op,
+                                           OutputStream& out) {
+    // If this is the first entry, we don't need to merge comparison results with anything.
+    if (allComparisons == (SpvId)-1) {
+        return comparison;
+    }
+    // Use LogicalAnd or LogicalOr to combine the comparison with all the other comparisons.
+    const Type& boolType = *fContext.fTypes.fBool;
+    SpvId boolTypeId = this->getType(boolType);
+    SpvId logicalOp = this->nextId(&boolType);
+    switch (op.kind()) {
+        case Token::Kind::TK_EQEQ:
+            this->writeInstruction(SpvOpLogicalAnd, boolTypeId, logicalOp,
+                                   comparison, allComparisons, out);
+            break;
+        case Token::Kind::TK_NEQ:
+            this->writeInstruction(SpvOpLogicalOr, boolTypeId, logicalOp,
+                                   comparison, allComparisons, out);
+            break;
+        default:
+            SkDEBUGFAILF("mergeComparisons only supports == and !=, not %s", op.operatorName());
+            return (SpvId)-1;
+    }
+    return logicalOp;
 }
 
 static float division_by_literal_value(Operator op, const Expression& right) {
