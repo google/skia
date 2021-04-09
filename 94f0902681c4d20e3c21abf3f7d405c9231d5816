@@ -34,6 +34,24 @@
       "parentUuid": "62cc2999_a6d26187",
       "revId": "94f0902681c4d20e3c21abf3f7d405c9231d5816",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86ed5a48_f2fef932",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-09T20:16:02Z",
+      "side": 1,
+      "message": "Yeah, Blink will probably in practice only produce multiple runs when using horizontal text in a vertical run. There are other ways it could happen, but it isn\u0027t currently very common. It\u0027s somewhat awkward to support multiple runs but not really support them though. I suppose this doesn\u0027t make much difference though, since any time this value is checked we\u0027re about to run through all the runs anyway one way or the other.",
+      "parentUuid": "3ced0005_af5d99c7",
+      "revId": "94f0902681c4d20e3c21abf3f7d405c9231d5816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
