@@ -46,6 +46,30 @@
       },
       "revId": "534e4352172ea31132c764520d4521301e2db6fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9498373d_53801655",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-09T20:04:40Z",
+      "side": 1,
+      "message": "Speaking of which, we are currently missing the msaa bool on the bound RT tracking, right? I don\u0027t think this breaks anything in this CL since a given RT can only be sampled or not, but we\u0027ll obviously need that tracking soon.\n\nBut yeah looking more I don\u0027t think for GL it is that easy to immediately switch to using some FBO/wrapper thing in GrGLOpsRenderPass instead of the GrRT. GrGLGpu uses the GrRT in a lot places below the GrGLOpsRenderPass. I think we\u0027ll need to keep using the GrRT + msaa bool in the short term until we can switch over GrGLRT to holding GrAttachments. However, I still stand by the comment in the follow on CL that the useMSAA bool should not go further than GrGpu::getOpsRenderPass in any of the other backends.",
+      "parentUuid": "f12c73ab_593b42d5",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 28
+      },
+      "revId": "534e4352172ea31132c764520d4521301e2db6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
