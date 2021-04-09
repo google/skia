@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "4f0bd46f_be290616",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "I will when they are actually generated.",
+      "parentUuid": "70f32a5f_a883b9f9",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 49
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c45f9cd9_c2442188",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 11
@@ -81,6 +105,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fe41f41_aac43564",
+        "filename": "experimental/tskit/bindings/core.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a23efafe_8a841fd2",
+      "range": {
+        "startLine": 10,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 35
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4608631_09ea6f46",
@@ -94,6 +142,30 @@
       "writtenOn": "2021-04-09T17:37:51Z",
       "side": 1,
       "message": "Can these undocumented \"@param\"s be deleted? If they are necessary due to technical reasons, consider adding a brief description so the JSDoc looks pretty in code editors that support it.\n\nSame elsewhere.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 22
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5f14dd2_bbdbaa00",
+        "filename": "experimental/tskit/bindings/core.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "These are all toy examples, so documentation isn\u0027t a real concern. For real code, some of the params are obvious, but linters complain if you document some params, but not others.",
+      "parentUuid": "c4608631_09ea6f46",
       "range": {
         "startLine": 23,
         "startChar": 0,
@@ -127,6 +199,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfe38144_1a4bd6ca",
+        "filename": "experimental/tskit/bindings/extension.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "@optional is an invented annotation (like the @ts annotation). It indicates CompoundObj.gamma should be declared as `CompundObj.gamma?` in the generated .d.ts file.",
+      "parentUuid": "f9534402_ec639591",
+      "range": {
+        "startLine": 93,
+        "startChar": 11,
+        "endLine": 93,
+        "endChar": 20
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f300850_41515837",
@@ -140,6 +236,30 @@
       "writtenOn": "2021-04-09T17:37:51Z",
       "side": 1,
       "message": "obj.gamma ||\u003d 1.0",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 7
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae0b9703_ecdb797a",
+        "filename": "experimental/tskit/bindings/extension.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f300850_41515837",
       "range": {
         "startLine": 25,
         "startChar": 6,
@@ -173,6 +293,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4080138e_1d4e325f",
+        "filename": "experimental/tskit/bindings/load.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4377ff39_7cc3714a",
+      "range": {
+        "startLine": 8,
+        "startChar": 4,
+        "endLine": 8,
+        "endChar": 38
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3067cb21_acb583ad",
@@ -186,6 +330,30 @@
       "writtenOn": "2021-04-09T17:37:51Z",
       "side": 1,
       "message": "Would \"arr: unknown[]\" work here? If the context allows it, unknown is generally recommended over any for increased type safety. Same below.",
+      "range": {
+        "startLine": 8,
+        "startChar": 30,
+        "endLine": 8,
+        "endChar": 64
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6900fdd8_63154bb9",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "I believe these will all be number, so number[] used instead.",
+      "parentUuid": "3067cb21_acb583ad",
       "range": {
         "startLine": 8,
         "startChar": 30,
@@ -219,6 +387,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e063126f_7f425397",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cfc594e_e3d3e0b4",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a77b4e14_9457751d",
@@ -232,6 +424,30 @@
       "writtenOn": "2021-04-09T17:37:51Z",
       "side": 1,
       "message": "I suspect this is not necessary. If arr could be null, please add \"| null\" to its type.",
+      "range": {
+        "startLine": 10,
+        "startChar": 8,
+        "endLine": 10,
+        "endChar": 16
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe6afb94_3c71a71f",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a77b4e14_9457751d",
       "range": {
         "startLine": 10,
         "startChar": 8,
@@ -265,6 +481,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "76d54d4d_9b306dc1",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a72acad_ac1ca0d4",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 15
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a4b915a1_75386a4c",
@@ -288,6 +528,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a314d2fb_7213d4bb",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Don\u0027t worry about this for now - the _ck would come from a Malloc obj, which I did not fully port to this demo. It is a marker that the TypedArray is backed by the WASM heap.",
+      "parentUuid": "a4b915a1_75386a4c",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 32
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e11967e5_1376eaf3",
@@ -301,6 +565,30 @@
       "writtenOn": "2021-04-09T17:37:51Z",
       "side": 1,
       "message": "Consider defining a single constructor with an optional \"name\" parameter.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 0
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44501f98_11e329aa",
+        "filename": "experimental/tskit/npm_build/types/index.d.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-09T18:04:14Z",
+      "side": 1,
+      "message": "Good idea. Done",
+      "parentUuid": "e11967e5_1376eaf3",
       "range": {
         "startLine": 31,
         "startChar": 0,
