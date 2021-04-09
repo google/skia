@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27b72fe6_6cc59602",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1763,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-09T16:07:24Z",
+      "side": 1,
+      "message": "size_t textByteCount ?\n\nIs there any desire to support other encodings besides UTF8? I\u0027m fine to not, but if so, we trivially could take a void* instead, and an enum (we already have such an enum)",
+      "range": {
+        "startLine": 1763,
+        "startChar": 47,
+        "endLine": 1763,
+        "endChar": 59
+      },
+      "revId": "0414142462a411108446a9b6b4e42c24684873a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
