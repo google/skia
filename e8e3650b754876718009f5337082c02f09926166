@@ -16,6 +16,69 @@
       "message": "https://skia.org/docs/user/coordinates/?cl\u003d393516\n\n  -and-\n\nhttps://skia.org/docs/user/sksl/?cl\u003d393516#span-idcoordscoordinate-spacesspan",
       "revId": "e8e3650b754876718009f5337082c02f09926166",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29e7c76c_6b189b51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-09T00:09:27Z",
+      "side": 1,
+      "message": "Enthusiastic +1, this is really useful documentation to provide to users.",
+      "revId": "e8e3650b754876718009f5337082c02f09926166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e51129e_4aeb6ff5",
+        "filename": "site/docs/user/coordinates.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-09T00:09:27Z",
+      "side": 1,
+      "message": "Not sure if others find this valuable, but I always think of the shader\u0027s local matrix as the transform that maps its coordinates into the same space as the geometry (this mostly helps me think about why we calculate the inverse of the local matrix during FP creation).  Maybe we add a sentence along those lines?",
+      "range": {
+        "startLine": 61,
+        "startChar": 81,
+        "endLine": 61,
+        "endChar": 82
+      },
+      "revId": "e8e3650b754876718009f5337082c02f09926166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "989a60de_bec90700",
+        "filename": "site/docs/user/sksl.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-09T00:09:27Z",
+      "side": 1,
+      "message": "Until grokking the rest of the sentence, leading with \"relative to local coordinate space of the `SkCanvas`\" biases me to think it refers to the space the geometry was in. Perhaps we say:\n\n\"relative to the coordinate space of the `SkShader`. This will be match the local space of the canvas and any localMatrix transformations. Additionally, if the shader is invoked by another, that parent shader may modify them arbitrarily\"?",
+      "range": {
+        "startLine": 87,
+        "startChar": 13,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "e8e3650b754876718009f5337082c02f09926166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
