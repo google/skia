@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36060f1e_e19b5703",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-09T21:36:00Z",
+      "side": 1,
+      "message": "Actually, I would\u0027ve left the purging of the unbudgeted items - just only decremented the \u0027projectedBudget\u0027 when the resource was budgeted.\n\nThat matches how GrResourceCache::purgeAsNeeded works.",
+      "revId": "51b97d0b1794c3ead66519c546a164928adc4c98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
