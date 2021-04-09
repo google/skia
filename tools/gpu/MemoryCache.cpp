@@ -7,6 +7,7 @@
 
 #include "include/utils/SkBase64.h"
 #include "src/core/SkMD5.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "tools/gpu/MemoryCache.h"
 
