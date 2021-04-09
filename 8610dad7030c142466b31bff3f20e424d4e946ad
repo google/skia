@@ -37,6 +37,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "bf6ab477_bc125f32",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-09T13:53:56Z",
+      "side": 1,
+      "message": "No, this can\u0027t happen with legal code. We even have an error test EmptyStruct.sksl disallowing it. However, I\u0027m not sure if it\u0027s possible for erroneous code to get into this state. e.g. a struct declaration like\n\n    struct S { fragmentProcessor f; };\n\nSince we don\u0027t necessarily halt compilation as soon as we encounter an error.",
+      "parentUuid": "9345c69c_09f90118",
+      "revId": "8610dad7030c142466b31bff3f20e424d4e946ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d13f9c26_feaa7a85",
         "filename": "src/sksl/ir/SkSLConstructorStruct.cpp",
         "patchSetId": 13
@@ -48,6 +66,30 @@
       "writtenOn": "2021-04-09T13:32:42Z",
       "side": 1,
       "message": "Ooh, neat.",
+      "range": {
+        "startLine": 42,
+        "startChar": 2,
+        "endLine": 42,
+        "endChar": 14
+      },
+      "revId": "8610dad7030c142466b31bff3f20e424d4e946ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25719f53_3d821a79",
+        "filename": "src/sksl/ir/SkSLConstructorStruct.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-09T13:53:56Z",
+      "side": 1,
+      "message": "I know! First time using this.",
+      "parentUuid": "d13f9c26_feaa7a85",
       "range": {
         "startLine": 42,
         "startChar": 2,
