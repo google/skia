@@ -158,7 +158,7 @@ sk_sp<GrThreadSafePipelineBuilder> GrDawnGpu::refPipelineBuilder() {
 
 GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
-        bool /*useMSAASurface*/,
+        bool useMSAASurface,
         GrAttachment*,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
@@ -166,7 +166,8 @@ GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
         const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
-    fOpsRenderPass.reset(new GrDawnOpsRenderPass(this, rt, origin, colorInfo, stencilInfo));
+    fOpsRenderPass.reset(new GrDawnOpsRenderPass(this, rt, useMSAASurface, origin, colorInfo,
+                                                 stencilInfo));
     return fOpsRenderPass.get();
 }
 
