@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21a281e3_5a44848e",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-09T18:03:19Z",
+      "side": 1,
+      "message": "Maybe this is more of a follow on change, but what if we did something where the GrGLOpsRenderPass held an fboID (or a wrapper class around in fboID) instead of this bool. We query off of the GrRT to get the fboID we want based on if we want multisampling or not. This query just has to happen once in the set call (and as I commented in follow on CL will get moved up to GrGLGpu::getOpsRenderPass instead).",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 28
+      },
+      "revId": "534e4352172ea31132c764520d4521301e2db6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
