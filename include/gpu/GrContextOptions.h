@@ -269,6 +269,12 @@ struct SK_API GrContextOptions {
 
 #if GR_TEST_UTILS
     /**
+     * Uses a reduced variety of shaders. May perform less optimally in steady state but can reduce
+     * jank due to shader compilations.
+     */
+    bool fReducedShaderVariations = false;
+
+    /**
      * Private options that are only meant for testing within Skia's tools.
      */
 
