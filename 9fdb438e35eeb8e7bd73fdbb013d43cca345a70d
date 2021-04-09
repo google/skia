@@ -51,6 +51,24 @@
       "parentUuid": "b38c8563_9524f524",
       "revId": "9fdb438e35eeb8e7bd73fdbb013d43cca345a70d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0010583d_b98d0cb8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T12:42:03Z",
+      "side": 1,
+      "message": "No, we\u0027ve opted not to expose bool uniforms right now (they end up introducing a bunch of other internal complications). https://docs.google.com/document/d/1JZHzjj_N8vo2KoQIQHCqZ_kJsY8Hg2wRV3DDvCy9JBo/edit#heading\u003dh.mqxtp5nfu689",
+      "parentUuid": "096415e8_1d1ffa54",
+      "revId": "9fdb438e35eeb8e7bd73fdbb013d43cca345a70d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
