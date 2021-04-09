@@ -160,6 +160,8 @@ public:
         return fMustSyncGpuDuringAbandon;
     }
 
+    bool reducedShaderMode() const { return fReducedShaderMode; }
+
     /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
      * textures allows partial mappings or full mappings.
@@ -523,6 +525,7 @@ protected:
     bool fReadPixelsRowBytesSupport                  : 1;
     bool fShouldCollapseSrcOverToSrcWhenAble         : 1;
     bool fMustSyncGpuDuringAbandon                   : 1;
+    bool fReducedShaderMode : 1;
 
     // Driver workaround
     bool fDriverDisableMSAAClipAtlas                 : 1;
