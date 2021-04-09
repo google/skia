@@ -28,8 +28,14 @@ struct ShaderMetadata {
     sk_sp<SkData> fPlatformData;
 };
 
-// Increment this whenever the serialization format of cached shaders changes
+// The persistent cache stores a copy of the SkSL::Program::Inputs struct. If you alter the
+// Program::Inputs struct in any way, you must increment kCurrentVersion to invalidate the outdated
+// persistent cache files. The KnownSkSLProgramInputs struct must also be updated to match the new
+// contents of Program::Inputs.
 static constexpr int kCurrentVersion = 4;
+
+namespace { struct KnownSkSLProgramInputs { bool width, height, flipY; }; }
+static_assert(sizeof(SkSL::Program::Inputs) == sizeof(KnownSkSLProgramInputs));
 
 static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
                                               const SkSL::String shaders[],
