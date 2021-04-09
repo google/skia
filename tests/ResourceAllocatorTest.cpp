@@ -157,6 +157,7 @@ static void overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext
     alloc.addInterval(p2.get(), 1, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
 
+    REPORTER_ASSERT(reporter, alloc.planAssignment());
     REPORTER_ASSERT(reporter, alloc.assign());
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
@@ -182,6 +183,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrDirectContext* dCon
     alloc.addInterval(p1.get(), 0, 2, GrResourceAllocator::ActualUse::kYes);
     alloc.addInterval(p2.get(), 3, 5, GrResourceAllocator::ActualUse::kYes);
 
+    REPORTER_ASSERT(reporter, alloc.planAssignment());
     REPORTER_ASSERT(reporter, alloc.assign());
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
