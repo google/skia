@@ -118,6 +118,23 @@
       },
       "revId": "e4454aaf23ee95643efd0fe83bbe94eb497268d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42082038_7ab35774",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-09T19:08:07Z",
+      "side": 0,
+      "message": "Surprise! Removing this field means you should increment kCurrentVersion in GrPersistentCacheUtils. (We should add a static_assert, or at least a comment here).",
+      "revId": "e4454aaf23ee95643efd0fe83bbe94eb497268d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
