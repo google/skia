@@ -71,10 +71,6 @@ public:
         return this->uniformHandler()->inputSamplerSwizzle(handle);
     }
 
-    // Used to add a uniform for the RenderTarget width (used for u_skRTWidth) without mangling
-    // the name of the uniform inside of a stage.
-    void addRTWidthUniform(const char* name);
-
     // Used to add a uniform for the RenderTarget height (used for u_skRTHeight and frag position)
     // without mangling the name of the uniform inside of a stage.
     void addRTHeightUniform(const char* name);
