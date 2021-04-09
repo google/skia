@@ -25,9 +25,8 @@ namespace SkSL {
 
 namespace dsl {
 
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
-void Start(SkSL::Compiler* compiler) {
-    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler));
+void Start(SkSL::Compiler* compiler, ProgramKind kind) {
+    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind));
 }
 
 void End() {
@@ -35,7 +34,6 @@ void End() {
               "more calls to StartFragmentProcessor than to EndFragmentProcessor");
     DSLWriter::SetInstance(nullptr);
 }
-#endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 
 void SetErrorHandler(ErrorHandler* errorHandler) {
     DSLWriter::SetErrorHandler(errorHandler);
@@ -359,6 +357,20 @@ DSLExpression Reflect(DSLExpression i, DSLExpression n, PositionInfo pos) {
 
 DSLExpression Refract(DSLExpression i, DSLExpression n, DSLExpression eta, PositionInfo pos) {
     return DSLExpression(DSLCore::Call("refract", std::move(i), std::move(n), std::move(eta)), pos);
+}
+
+DSLExpression Sample(DSLExpression target, PositionInfo pos) {
+    return DSLExpression(DSLCore::Call("sample", std::move(target)), pos);
+}
+
+
+DSLExpression Sample(DSLExpression target, DSLExpression x, PositionInfo pos) {
+    return DSLExpression(DSLCore::Call("sample", std::move(target), std::move(x)), pos);
+}
+
+DSLExpression Sample(DSLExpression target, DSLExpression x, DSLExpression y, PositionInfo pos) {
+    return DSLExpression(DSLCore::Call("sample", std::move(target), std::move(x), std::move(y)),
+                         pos);
 }
 
 DSLExpression Saturate(DSLExpression x, PositionInfo pos) {

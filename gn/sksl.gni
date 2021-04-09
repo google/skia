@@ -13,6 +13,7 @@ skia_sksl_sources = [
   "$_include/private/SkSLLayout.h",
   "$_include/private/SkSLModifiers.h",
   "$_include/private/SkSLProgramElement.h",
+  "$_include/private/SkSLProgramKind.h",
   "$_include/private/SkSLSampleUsage.h",
   "$_include/private/SkSLStatement.h",
   "$_include/private/SkSLString.h",
