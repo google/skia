@@ -358,6 +358,7 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
                      GrAuditTrail* auditTrail)
         : GrRenderTask()
         , fAuditTrail(auditTrail)
+        , fUsesMSAASurface(view.asRenderTargetProxy()->numSamples() > 1)
         , fTargetSwizzle(view.swizzle())
         , fTargetOrigin(view.origin())
           SkDEBUGCODE(, fNumClips(0)) {
@@ -479,6 +480,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 #endif
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           dstView,
+                                          fUsesMSAASurface,
                                           chain.appliedClip(),
                                           chain.dstProxyView(),
                                           fRenderPassXferBarriers,
@@ -612,7 +614,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 
     GrOpsRenderPass* renderPass = create_render_pass(flushState->gpu(),
                                                      proxy->peekRenderTarget(),
-                                                     proxy->numSamples() > 1,
+                                                     fUsesMSAASurface,
                                                      stencil,
                                                      fTargetOrigin,
                                                      fClippedContentBounds,
@@ -642,6 +644,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 
         GrOpFlushState::OpArgs opArgs(chain.head(),
                                       dstView,
+                                      fUsesMSAASurface,
                                       chain.appliedClip(),
                                       chain.dstProxyView(),
                                       fRenderPassXferBarriers,
