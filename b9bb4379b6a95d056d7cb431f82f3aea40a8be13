@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6d29b06_efeb368a",
+        "filename": "src/gpu/GrOpsRenderPass.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-09T17:59:55Z",
+      "side": 1,
+      "message": "Why does this need to live in the base class at all? IMO we should pass this to GrGpu::getOpsRenderPass and that\u0027s it. In the short term backends can figure out what attachments/surfaces they need in Gr*Gpu:onGetOpsRenderPass and then pass those attachments into the GrOpsRenderPass (in the very short term sure some backends may pass this flag into their non virtual Gr*OpsRenderPass::set call, but it should not be a required thing because the base class wants it.\n\nThe end goal is to have the GrOpsTask pass in the attachments to the GrGpu::getOpsRenderPass call so I think we should do our best to start moving towards this model.",
+      "range": {
+        "startLine": 154,
+        "startChar": 8,
+        "endLine": 154,
+        "endChar": 23
+      },
+      "revId": "b9bb4379b6a95d056d7cb431f82f3aea40a8be13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
