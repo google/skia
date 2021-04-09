@@ -252,6 +252,10 @@ sk_sp<GrD3DTexture> GrD3DGpu::createD3DTexture(SkISize dimensions,
     if (renderable == GrRenderable::kYes) {
         usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     }
+    // might need to generate mipmaps for this
+    if (this->d3dCaps().isFormatUnorderedAccessible(dxgiFormat)) {
+        usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    }
 
     // This desc refers to a texture that will be read by the client. Thus even if msaa is
     // requested, this describes the resolved texture. Therefore we always have samples set
@@ -870,6 +874,103 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     return std::move(tgt);
 }
 
+bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
+    auto * d3dTex = static_cast<GrD3DTexture*>(tex);
+    SkASSERT(tex->textureType() == GrTextureType::k2D);
+    int width = tex->width();
+    int height = tex->height();
+    //*** check for NPOT
+
+    // determine if we can read from and mipmap this format
+    const GrD3DCaps & caps = this->d3dCaps();
+    if (!caps.isFormatTexturable(d3dTex->dxgiFormat()) ||
+        !caps.mipmapSupport() ||
+        !caps.isFormatUnorderedAccessible(d3dTex->dxgiFormat())) {
+        return false;
+    }
+
+    // SkMipmap doesn't include the base level in the level count so we have to add 1
+    uint32_t levelCount = SkMipmap::ComputeLevelCount(tex->width(), tex->height()) + 1;
+    SkASSERT(levelCount == d3dTex->mipLevels());
+
+    // change resource state of the resource so we can write to the subresources.
+    d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    sk_sp<GrD3DRootSignature> rootSig = fResourceProvider.findOrCreateRootSignature(1, 1);
+    this->currentCommandList()->setComputeRootSignature(rootSig);
+
+    //*** use linear vs. srgb based on texture format
+    //*** use &?
+    sk_sp<GrD3DPipeline> pipeline = this->resourceProvider().findOrCreateMipmapPipeline(
+                                      GrD3DResourceProvider::MipmapType::kLinear);
+    this->currentCommandList()->setPipelineState(std::move(pipeline));
+
+    // get srv
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> srv;
+    srv.push_back(d3dTex->shaderResourceView());
+
+    // set sampler
+    GrSamplerState samplerState(SkFilterMode::kLinear, SkMipmapMode::kNearest);
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> samplers(1);
+    samplers[0] = fResourceProvider.findOrCreateCompatibleSampler(samplerState);
+    this->currentCommandList()->addSampledTextureRef(d3dTex); //*** necessary?
+    sk_sp<GrD3DDescriptorTable> samplerTable = fResourceProvider.findOrCreateSamplerTable(samplers);
+    this->currentCommandList()->setComputeRootDescriptorTable(
+            static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable),
+            samplerTable->baseGpuDescriptor());
+
+    sk_sp<GrD3DDescriptorTable> srvTable =
+            fResourceProvider.findOrCreateShaderResourceTable(srv);
+    this->currentCommandList()->setComputeRootDescriptorTable(
+            static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kTextureDescriptorTable),
+            srvTable->baseGpuDescriptor());
+
+    struct {
+        uint32_t mipLevel;
+        SkSize inverseSize;
+    } constantData = { 0, 1.f / width, 1.f / height };
+
+    // Draw the miplevels
+    uint32_t mipLevel = 1;
+    while (mipLevel < levelCount) {
+        int prevWidth = width;
+        int prevHeight = height;
+        width = std::max(1, width / 2);
+        height = std::max(1, height / 2);
+
+        // set constants
+        constantData.mipLevel = mipLevel;
+        D3D12_GPU_VIRTUAL_ADDRESS constantsAddress =
+            fResourceProvider.uploadConstantData(&constantData, sizeof(constantData));
+        this->currentCommandList()->setComputeRootConstantBufferView(
+                (unsigned int)(GrD3DRootSignature::ParamIndex::kConstantBufferView),
+                constantsAddress);
+
+        // create UAV
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> uav;
+        GrD3DDescriptorHeap::CPUHandle heapHandle =
+                fResourceProvider.createUnorderedAccessView(d3dTex->d3dResource(), mipLevel);
+        uav.push_back(heapHandle.fHandle);
+
+        // set up and bind UAV descriptor table
+        sk_sp<GrD3DDescriptorTable> uavTable =
+                fResourceProvider.findOrCreateShaderResourceTable(uav);
+        this->currentCommandList()->setComputeRootDescriptorTable(
+                static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kUAVDescriptorTable),
+                uavTable->baseGpuDescriptor());
+
+        this->currentCommandList()->dispatch(width, height);
+
+        this->currentCommandList()->uavBarrier(d3dTex->resource(), d3dTex->d3dResource());
+
+        fResourceProvider.recycleCBVSRVUAV(heapHandle);
+
+        ++mipLevel;
+    }
+
+    return true;
+}
+
 sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrD3DBuffer> buffer = GrD3DBuffer::Make(this, sizeInBytes, type, accessPattern);
@@ -924,6 +1025,9 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     D3D12_RESOURCE_FLAGS usageFlags = D3D12_RESOURCE_FLAG_NONE;
     if (renderable == GrRenderable::kYes) {
         usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    }
+    if (this->d3dCaps().isFormatUnorderedAccessible(dxgiFormat)) {
+        usageFlags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     }
 
     D3D12_RESOURCE_DESC resourceDesc = {};
