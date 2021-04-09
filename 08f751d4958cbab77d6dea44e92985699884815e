@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "70f32a5f_a883b9f9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "It might be helpful to add a comment at the top of each file that would be generated.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 49
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c45f9cd9_c2442188",
@@ -14,6 +37,276 @@
       "writtenOn": "2021-04-09T14:29:19Z",
       "side": 1,
       "message": "Leandro to review the TS parts, Jorge for the CPP parts. (You may, of course, review the other files if you like)",
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ec7357f_1e4d9745",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "TypeScript LGTM. Just some nits and minor suggestions.",
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a23efafe_8a841fd2",
+        "filename": "experimental/tskit/bindings/core.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "Nit: Looks like the eslint config is breaking the JSDoc block comment format?",
+      "range": {
+        "startLine": 10,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 35
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4608631_09ea6f46",
+        "filename": "experimental/tskit/bindings/core.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "Can these undocumented \"@param\"s be deleted? If they are necessary due to technical reasons, consider adding a brief description so the JSDoc looks pretty in code editors that support it.\n\nSame elsewhere.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 22
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9534402_ec639591",
+        "filename": "experimental/tskit/bindings/extension.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "I couldn\u0027t find this annotation in https://jsdoc.app/index.html or https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html. Is this an Emscripten feature? If not, I recommend replacing this with prose.\n\nSame elsewhere.",
+      "range": {
+        "startLine": 93,
+        "startChar": 11,
+        "endLine": 93,
+        "endChar": 20
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f300850_41515837",
+        "filename": "experimental/tskit/bindings/extension.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "obj.gamma ||\u003d 1.0",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 7
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4377ff39_7cc3714a",
+        "filename": "experimental/tskit/bindings/load.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "const toLoad: CallbackFn[] \u003d [];",
+      "range": {
+        "startLine": 8,
+        "startChar": 4,
+        "endLine": 8,
+        "endChar": 38
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3067cb21_acb583ad",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "Would \"arr: unknown[]\" work here? If the context allows it, unknown is generally recommended over any for increased type safety. Same below.",
+      "range": {
+        "startLine": 8,
+        "startChar": 30,
+        "endLine": 8,
+        "endChar": 64
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cfc594e_e3d3e0b4",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "Nit: Indentation.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a77b4e14_9457751d",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "I suspect this is not necessary. If arr could be null, please add \"| null\" to its type.",
+      "range": {
+        "startLine": 10,
+        "startChar": 8,
+        "endLine": 10,
+        "endChar": 16
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a72acad_ac1ca0d4",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "ptr ||\u003d ...",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 15
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4b915a1_75386a4c",
+        "filename": "experimental/tskit/bindings/memory.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "It\u0027s not clear where _ck is coming from. It might be helpful to add a comment explaining this. Or if possible, use a type for the \"arr\" argument that includes _ck.",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 32
+      },
+      "revId": "08f751d4958cbab77d6dea44e92985699884815e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e11967e5_1376eaf3",
+        "filename": "experimental/tskit/npm_build/types/index.d.ts",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-04-09T17:37:51Z",
+      "side": 1,
+      "message": "Consider defining a single constructor with an optional \"name\" parameter.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 0
+      },
       "revId": "08f751d4958cbab77d6dea44e92985699884815e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
