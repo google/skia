@@ -257,6 +257,7 @@ private:
 
     GrSwizzle fTargetSwizzle;
     GrSurfaceOrigin fTargetOrigin;
+    bool fUsesMSAASurface;
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     std::array<float, 4> fLoadClearColor = {0, 0, 0, 0};
