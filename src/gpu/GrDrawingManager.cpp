@@ -211,8 +211,15 @@ bool GrDrawingManager::flush(
             task->gatherProxyIntervals(&alloc);
         }
 
-        // TODO: Call makeBudgetHeadroom before proceeding with reordered DAG.
-        flushed = alloc.planAssignment() && alloc.assign() && this->executeRenderTasks(&flushState);
+        if (alloc.planAssignment()) {
+            if (fReduceOpsTaskSplitting) {
+                if (!alloc.makeBudgetHeadroom()) {
+                    // TODO: Switch to the original DAG in this case.
+                    gpu->stats()->incNumReorderedDAGsOverBudget();
+                }
+            }
+            flushed = alloc.assign() && this->executeRenderTasks(&flushState);
+        }
     }
     this->removeRenderTasks();
 

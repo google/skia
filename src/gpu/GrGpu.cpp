@@ -726,6 +726,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Number of Scratch MSAA Attachments reused %d\n",
                  fNumScratchMSAAAttachmentsReused);
     out->appendf("Number of Render Passes: %d\n", fRenderPasses);
+    out->appendf("Reordered DAGs Over Budget: %d\n", fNumReorderedDAGsOverBudget);
 
     // enable this block to output CSV-style stats for program pre-compilation
 #if 0
@@ -746,6 +747,8 @@ void GrGpu::Stats::dump(SkString* out) {
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
     keys->push_back(SkString("render_passes"));
     values->push_back(fRenderPasses);
+    keys->push_back(SkString("reordered_dags_over_budget"));
+    values->push_back(fNumReorderedDAGsOverBudget);
 }
 
 #endif // GR_GPU_STATS
