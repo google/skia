@@ -84,11 +84,19 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(412, 420); }
 
+    void drawFromVisitor(SkCanvas* canvas, skia::textlayout::Paragraph* para) const {
+        SkPaint p;
+        p.setColor(0xFF0000FF);
+        para->visit([canvas, p](const skia::textlayout::Paragraph::VisitorInfo& info) {
+            canvas->drawGlyphs(info.count, info.glyphs, info.positions, info.origin, info.font, p);
+        });
+    }
+
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (nullptr == fPara) {
             return DrawResult::kSkip;
         }
-        const int loop = (this->getMode() == kGM_Mode) ? 1 : 50;
+        const int loop = 2;//(this->getMode() == kGM_Mode) ? 1 : 50;
 
         int parity = 0;
         for (int i = 0; i < loop; ++i) {
@@ -107,6 +115,11 @@ protected:
             fPara->paint(canvas, 10, 10);
         }
 
+        canvas->save();
+        canvas->translate(400, 0);
+        this->drawFromVisitor(canvas, fPara.get());
+        canvas->restore();
+
         if ((this->getMode() == kGM_Mode) && (fFlags & kTimeLayout)) {
             return DrawResult::kSkip;
         }
@@ -116,7 +129,7 @@ protected:
     bool runAsBench() const override { return true; }
 
     bool onAnimate(double /*nanos*/) override {
-        return true;
+        return false;
     }
 
 private:

@@ -8,6 +8,7 @@
 #include "include/private/SkTArray.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/Metrics.h"
+#include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
 
@@ -82,6 +83,8 @@ public:
 
     using ClustersVisitor = std::function<bool(const Cluster* cluster, bool ghost)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
+
+    void visit(const Paragraph::Visitor&) const;
 
     void format(TextAlign align, SkScalar maxWidth);
     SkRect paint(SkCanvas* canvas, SkScalar x, SkScalar y);

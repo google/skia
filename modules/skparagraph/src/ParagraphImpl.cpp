@@ -1038,5 +1038,11 @@ void ParagraphImpl::ensureUTF16Mapping() {
     fUTF8IndexForUTF16Index.emplace_back(fText.size());
 }
 
+void ParagraphImpl::visit(const Visitor& visitor) {
+    for (auto& line : fLines) {
+        line.visit(visitor);
+    }
+}
+
 }  // namespace textlayout
 }  // namespace skia

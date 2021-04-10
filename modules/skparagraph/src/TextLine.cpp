@@ -231,6 +231,47 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
     return bounds;
 }
 
+void TextLine::visit(const Paragraph::Visitor& visitor) const {
+    for (auto& runIndex : fRunsInVisualOrder) {
+        const auto run = &this->fOwner->run(runIndex);
+#if 0
+        const SkFont&   font;
+        uint8_t         bidiLevel;
+        int             count;
+        const uint16_t* glyphs;
+        const SkPoint*  positions;
+        const uint32_t* utf8Starts;
+
+        TextRange fTextRange;
+        ClusterRange fClusterRange;
+
+        SkFont fFont;
+        size_t fPlaceholderIndex;
+        size_t fIndex;
+        SkVector fAdvance;
+        SkVector fOffset;
+        TextIndex fClusterStart;
+        SkShaper::RunHandler::Range fUtf8Range;
+        SkSTArray<128, SkGlyphID, true> fGlyphs;
+        SkSTArray<128, SkPoint, true> fPositions;
+        SkSTArray<128, SkPoint, true> fJustificationShifts; // For justification (current and prev shifts)
+        SkSTArray<128, uint32_t, true> fClusterIndexes;
+        SkSTArray<128, SkRect, true> fBounds;
+
+        SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing)
+#endif
+        Paragraph::VisitorInfo info = {
+            run->fFont,
+            run->fOffset,
+            run->fGlyphs.count(),
+            run->fGlyphs.begin(),
+            run->fPositions.begin(),
+            nullptr,    // utf8starts uint32_t*
+        };
+        visitor(info);
+    }
+}
+
 void TextLine::format(TextAlign align, SkScalar maxWidth) {
     SkScalar delta = maxWidth - this->width();
     if (delta <= 0) {
