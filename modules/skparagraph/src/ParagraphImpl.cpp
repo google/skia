@@ -1038,5 +1038,24 @@ void ParagraphImpl::ensureUTF16Mapping() {
     fUTF8IndexForUTF16Index.emplace_back(fText.size());
 }
 
+void ParagraphImpl::visit(const Visitor& visitor) {
+    for (auto& line : fLines) {
+        for (auto& rec : line.fTextBlobCache) {
+            SkTextBlob::Iter iter(*rec.fBlob.get());
+            SkTextBlob::Iter::Run2 run;
+            while (iter.next2(&run)) {
+                visitor({
+                    run.font,
+                    rec.fOffset,
+                    run.count,
+                    run.glyphs,
+                    run.positions,
+                    nullptr,
+                });
+            }
+        }
+    }
+}
+
 }  // namespace textlayout
 }  // namespace skia

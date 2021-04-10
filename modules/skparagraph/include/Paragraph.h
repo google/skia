@@ -73,6 +73,17 @@ public:
     virtual void updateForegroundPaint(size_t from, size_t to, SkPaint paint) = 0;
     virtual void updateBackgroundPaint(size_t from, size_t to, SkPaint paint) = 0;
 
+    struct VisitorInfo {
+        const SkFont&   font;
+        SkPoint         origin;
+        int             count;
+        const uint16_t* glyphs;
+        const SkPoint*  positions;
+        const uint32_t* utf8Starts;
+    };
+    using Visitor = std::function<void(const VisitorInfo&)>;
+    virtual void visit(const Visitor&) = 0;
+
 protected:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
