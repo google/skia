@@ -164,15 +164,11 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     SkASSERT(!op.isAssignment() || Analysis::IsAssignable(*left));
     SkASSERT(!op.isAssignment() || !left->type().componentType().isOpaque());
 
-    // If we can detect division-by-zero, we should synthesize an error, but our caller is still
-    // expecting to receive a binary expression back; don't return nullptr.
+    // Perform constant-folding on the expression.
     const int offset = left->fOffset;
-    if (!ConstantFolder::ErrorOnDivideByZero(context, offset, op, *right)) {
-        std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, offset, *left,
-                                                                      op, *right, *resultType);
-        if (result) {
-            return result;
-        }
+    if (std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, offset, *left,
+                                                                      op, *right, *resultType)) {
+        return result;
     }
 
     if (context.fConfig->fSettings.fOptimize) {
@@ -182,7 +178,7 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
         //                                        : mat * vec)
         if (is_low_precision_matrix_vector_multiply(*left, op, *right, *resultType)) {
             // Look up `sk_Caps.rewriteMatrixVectorMultiply`.
-            auto caps = Setting::Convert(context, left->fOffset, "rewriteMatrixVectorMultiply");
+            auto caps = Setting::Convert(context, offset, "rewriteMatrixVectorMultiply");
 
             bool capsBitIsTrue = caps->is<BoolLiteral>() && caps->as<BoolLiteral>().value();
             if (capsBitIsTrue || !caps->is<BoolLiteral>()) {
