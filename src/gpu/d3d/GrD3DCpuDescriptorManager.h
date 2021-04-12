@@ -32,7 +32,7 @@ public:
                                                             ID3D12Resource* resource);
     GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(GrD3DGpu*,
                                                              ID3D12Resource* resource);
-    void recycleCBVSRVUAV(const GrD3DDescriptorHeap::CPUHandle&);
+    void recycleShaderView(const GrD3DDescriptorHeap::CPUHandle&);
 
     GrD3DDescriptorHeap::CPUHandle createSampler(GrD3DGpu*,
                                                  D3D12_FILTER filter,
@@ -85,7 +85,7 @@ private:
 
     HeapPool fRTVDescriptorPool;
     HeapPool fDSVDescriptorPool;
-    HeapPool fCBVSRVUAVDescriptorPool;
+    HeapPool fShaderViewDescriptorPool;
     HeapPool fSamplerDescriptorPool;
 };
 

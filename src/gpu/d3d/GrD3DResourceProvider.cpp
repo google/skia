@@ -114,9 +114,9 @@ GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createUnorderedAccessView(
     return fCpuDescriptorManager.createUnorderedAccessView(fGpu, resource);
 }
 
-void GrD3DResourceProvider::recycleCBVSRVUAV(
+void GrD3DResourceProvider::recycleShaderView(
         const GrD3DDescriptorHeap::CPUHandle& view) {
-    fCpuDescriptorManager.recycleCBVSRVUAV(view);
+    fCpuDescriptorManager.recycleShaderView(view);
 }
 
 static D3D12_TEXTURE_ADDRESS_MODE wrap_mode_to_d3d_address_mode(GrSamplerState::WrapMode wrapMode) {
@@ -175,14 +175,13 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
     return sampler;
 }
 
-sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateShaderResourceTable(
-    const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& shaderResourceViews) {
+sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateShaderViewTable(
+    const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& shaderViews) {
 
     auto createFunc = [this](GrD3DGpu* gpu, unsigned int numDesc) {
-        return this->fDescriptorTableManager.createCBVSRVUAVTable(gpu, numDesc);
+        return this->fDescriptorTableManager.createShaderViewTable(gpu, numDesc);
     };
-    return fShaderResourceDescriptorTableCache.findOrCreateDescTable(shaderResourceViews,
-                                                                     createFunc);
+    return fShaderResourceDescriptorTableCache.findOrCreateDescTable(shaderViews, createFunc);
 }
 
 sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateSamplerTable(

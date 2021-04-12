@@ -42,7 +42,7 @@ class GrD3DDescriptorTableManager {
 public:
     GrD3DDescriptorTableManager(GrD3DGpu*);
 
-    sk_sp<GrD3DDescriptorTable> createCBVSRVUAVTable(GrD3DGpu*, unsigned int count);
+    sk_sp<GrD3DDescriptorTable> createShaderViewTable(GrD3DGpu*, unsigned int count);
     sk_sp<GrD3DDescriptorTable> createSamplerTable(GrD3DGpu*, unsigned int count);
 
     void prepForSubmit(GrD3DGpu* gpu);
@@ -115,7 +115,7 @@ private:
     void setHeaps(GrD3DGpu*);
     void recycle(Heap*);
 
-    HeapPool fCBVSRVUAVDescriptorPool;
+    HeapPool fShaderViewDescriptorPool;
     HeapPool fSamplerDescriptorPool;
 };
 
