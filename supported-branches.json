@@ -9,16 +9,16 @@
       "owner": "djsollen@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m89",
-      "owner": "hcm@google.com"
-    },
-    {
       "ref": "refs/heads/chrome/m90",
       "owner": "hcm@google.com"
     },
     {
       "ref": "refs/heads/chrome/m91",
       "owner": "hcm@google.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m92",
+      "owner": "borenet@google.com"
     },
     {
       "ref": "refs/heads/skqp/dev",
