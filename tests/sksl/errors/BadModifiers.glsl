@@ -16,7 +16,7 @@ error: 4: 'varying' is not permitted here
 error: 4: 'inline' is not permitted here
 error: 4: 'noinline' is not permitted here
 error: 6: 'in uniform' variables only permitted within fragment processors
-error: 6: 'varying' is only permitted in runtime effects
+error: 6: 'varying' is only permitted in runtime shaders
 error: 6: 'sk_has_side_effects' is not permitted here
 error: 6: 'inline' is not permitted here
 error: 6: 'noinline' is not permitted here
