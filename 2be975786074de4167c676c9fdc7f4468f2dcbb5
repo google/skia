@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c42b610_b82f56bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-12T14:34:41Z",
+      "side": 1,
+      "message": "can we do the save/restore outside of the switch, just for simplicity? save/restore are super super cheap",
+      "revId": "2be975786074de4167c676c9fdc7f4468f2dcbb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
