@@ -29,7 +29,9 @@
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
-        fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
+        if (!context->priv().caps()->reducedShaderMode()) {
+            fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
+        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
@@ -49,7 +51,9 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAALinearizing) {
-        fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
+        if (!context->priv().caps()->reducedShaderMode()) {
+            fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
+        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
         fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
