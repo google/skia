@@ -1,0 +1,5 @@
+half4 sample(shader s, float2 coords);
+
+// TODO(skbug.com/11813): Implement sample() that takes a color
+// half4 sample(colorFilter f, half4 color);
+// half4 sample(shader s, half4 color, float2 coords);

@@ -175,8 +175,8 @@ GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler,
                    const char* name,
                    sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
-                    effect->fAllowColorFilter ? kConstantOutputForConstantInput_OptimizationFlag
-                                              : kNone_OptimizationFlags)
+                    effect->allowColorFilter() ? kConstantOutputForConstantInput_OptimizationFlag
+                                               : kNone_OptimizationFlags)
         , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
