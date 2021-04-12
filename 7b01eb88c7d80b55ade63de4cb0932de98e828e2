@@ -16,6 +16,24 @@
       "message": "We will have to figure out what Chrome tests will be affected by this change before we can land it in Skia. I tried running some Chrome bots to figure that out but they failed because the latest patchset doesn\u0027t apply to tip of tree Skia without merge conflict.",
       "revId": "7b01eb88c7d80b55ade63de4cb0932de98e828e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59c21d0a_6876968c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17669
+      },
+      "writtenOn": "2021-04-12T18:37:42Z",
+      "side": 1,
+      "message": "Rebased. It looks like there are a bunch of image diffs that mismatch now",
+      "parentUuid": "1203a942_fd1a7fe7",
+      "revId": "7b01eb88c7d80b55ade63de4cb0932de98e828e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
