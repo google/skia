@@ -838,6 +838,66 @@ void Compute1DGaussianKernel(float* kernel, float sigma, int radius) {
     }
 }
 
+void Compute1DLinearGaussianKernel(float* kernel, float* offset, float sigma, int radius) {
+    // Given 2 adjacent gaussian points, they are blended as: Wi * Ci + Wj * Cj.
+    // The GPU will mix Ci and Cj as Ci * (1 - x) + Cj * x during sampling.
+    // Compute W', x such that W' * (Ci * (1 - x) + Cj * x) = Wi * Ci + Wj * Cj.
+    // Solving W' * x = Wj, W' * (1 - x) = Wi:
+    // W' = Wi + Wj
+    // x = Wj / (Wi + Wj)
+    auto get_new_weight = [](float* new_w, float* offset, float wi, float wj) {
+        *new_w = wi + wj;
+        *offset = wj / (wi + wj);
+    };
+
+    // Create a temporary standard kernel.
+    int size = KernelWidth(radius);
+    std::unique_ptr<float[]> temp_kernel(new float[size]);
+    Compute1DGaussianKernel(temp_kernel.get(), sigma, radius);
+
+    // Note that halfsize isn't just size / 2, but radius + 1. This is the size of the output array.
+    int halfsize = LinearKernelWidth(radius);
+    int halfradius = halfsize / 2;
+    int low_index = halfradius - 1;
+
+    // Compute1DGaussianKernel produces a full 2N + 1 kernel. Since the kernel can be mirrored,
+    // compute only the upper half and mirror to the lower half.
+
+    int index = radius;
+    if (radius & 1) {
+        // If N is odd, then use two samples.
+        // The centre texel gets sampled twice, so halve its influence for each sample.
+        // We essentially sample like this:
+        // Texel edges
+        // v    v    v    v
+        // |    |    |    |
+        // \-----^---/ Lower sample
+        //      \---^-----/ Upper sample
+        get_new_weight(&kernel[halfradius], &offset[halfradius],
+                       temp_kernel[index] * 0.5f, temp_kernel[index + 1]);
+        kernel[low_index] = kernel[halfradius];
+        offset[low_index] = -offset[halfradius];
+        index++;
+        low_index--;
+    } else {
+        // If N is even, then there are an even number of texels on either side of the centre texel.
+        // Sample the centre texel directly.
+        kernel[halfradius] = temp_kernel[index];
+        offset[halfradius] = 0.0f;
+    }
+    index++;
+
+    // Every other pair gets one sample.
+    for (int i = halfradius + 1; i < halfsize; index += 2, i++, low_index--) {
+        get_new_weight(&kernel[i], &offset[i], temp_kernel[index], temp_kernel[index + 1]);
+        offset[i] += static_cast<float>(index - radius);
+
+        // Mirror to lower half.
+        kernel[low_index] = kernel[i];
+        offset[low_index] = -offset[i];
+    }
+}
+
 }  // namespace SkGpuBlurUtils
 
 #endif

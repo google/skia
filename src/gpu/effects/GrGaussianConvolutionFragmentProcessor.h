@@ -74,11 +74,18 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
+#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
     static constexpr int kMaxKernelWidth = 2*kMaxKernelRadius + 1;
+#else
+    static constexpr int kMaxKernelWidth = kMaxKernelRadius + 1;
+#endif
 
     // The array size must be a multiple of 4 because we pass it as an array of float4 uniform
     // values.
     float                 fKernel[SkAlign4(kMaxKernelWidth)];
+#if !defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
+    float                 fOffsets[SkAlign4(kMaxKernelWidth)];
+#endif
     int                   fRadius;
     Direction             fDirection;
 
