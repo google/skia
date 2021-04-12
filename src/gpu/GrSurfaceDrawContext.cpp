@@ -629,7 +629,8 @@ void GrSurfaceDrawContext::drawTexture(const GrClip* clip,
                                        const SkMatrix& viewMatrix,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform) {
     // If we are using dmsaa then go through GrFillRRectOp (via fillRectToRect).
-    if (fContext->priv().alwaysAntialias() && aa == GrAA::kYes) {
+    if ((fContext->priv().alwaysAntialias() || this->caps()->reducedShaderMode()) &&
+        aa == GrAA::kYes) {
         GrPaint paint;
         paint.setColor4f(color);
         std::unique_ptr<GrFragmentProcessor> fp;
@@ -755,7 +756,8 @@ void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
                   aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
 
     // If we are using dmsaa then attempt to draw the rect with GrFillRRectOp.
-    if (fContext->priv().alwaysAntialias() && this->caps()->drawInstancedSupport() &&
+    if ((fContext->priv().caps()->reducedShaderMode() || fContext->priv().alwaysAntialias()) &&
+        this->caps()->drawInstancedSupport()                                                 &&
         aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
                              // GrFillRRectOp because it might require dual source blending.
                              // http://skbug.com/11756
@@ -1056,9 +1058,14 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->chooseAAType(aa);
+    bool preferFillRRectOverCircle = aaType == GrAAType::kCoverage        &&
+                                     this->caps()->drawInstancedSupport() &&
+                                     this->caps()->reducedShaderMode();
 
     GrOp::Owner op;
-    if (GrAAType::kCoverage == aaType && rrect.isSimple() &&
+    if (!preferFillRRectOverCircle                             &&
+        GrAAType::kCoverage == aaType                          &&
+        rrect.isSimple()                                       &&
         rrect.getSimpleRadii().fX == rrect.getSimpleRadii().fY &&
         viewMatrix.rectStaysRect() && viewMatrix.isSimilarity()) {
         // In coverage mode, we draw axis-aligned circular roundrects with the GrOvalOpFactory
@@ -1359,9 +1366,16 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
 
     GrAAType aaType = this->chooseAAType(aa);
 
+    bool preferFillRRectOverCircle = aaType == GrAAType::kCoverage        &&
+                                     this->caps()->drawInstancedSupport() &&
+                                     this->caps()->reducedShaderMode();
+
     GrOp::Owner op;
-    if (GrAAType::kCoverage == aaType && oval.width() > SK_ScalarNearlyZero &&
-        oval.width() == oval.height() && viewMatrix.isSimilarity()) {
+    if (!preferFillRRectOverCircle         &&
+        GrAAType::kCoverage == aaType      &&
+        oval.width() > SK_ScalarNearlyZero &&
+        oval.width() == oval.height()      &&
+        viewMatrix.isSimilarity()) {
         // We don't draw true circles as round rects in coverage mode, because it can
         // cause perf regressions on some platforms as compared to the dedicated circle Op.
         assert_alive(paint);
