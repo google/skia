@@ -40,6 +40,12 @@ declare_args() {
   ncli_gcc_version = "9.2.0"
   ncli_gcc_version_short = "9.2"
   ncli_llvm_version = "10"
+
+  min_ios_version = "8.0"
+  min_tvos_version = "9.0"
+  min_watchos_version = "2.0"
+  min_macos_version = "10.8"
+  min_maccatalyst_version = "13.0"
 }
 declare_args() {
   is_debug = !is_official_build
@@ -64,9 +70,10 @@ if (current_os == "") {
 
 is_android = current_os == "android"
 is_fuchsia = current_os == "fuchsia"
-is_ios = current_os == "ios" || current_os == "tvos" || current_os == "watchos"
+is_ios = current_os == "ios" || current_os == "tvos" || current_os == "watchos" || current_os == "maccatalyst"
 is_tvos = current_os == "tvos"
 is_watchos = current_os == "watchos"
+is_maccatalyst = current_os == "maccatalyst"
 is_linux = current_os == "linux" || current_os == "tizen"
 is_mac = current_os == "mac"
 is_win = current_os == "win" || current_os == "winrt"
