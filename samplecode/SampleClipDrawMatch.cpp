@@ -9,7 +9,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkTime.h"
-#include "include/utils/SkInterpolator.h"
 #include "samplecode/Sample.h"
 
 // This slide tests out the match up between BW clipping and rendering. It can

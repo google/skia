@@ -8,7 +8,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPictureRecorder.h"
-#include "include/utils/SkInterpolator.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkPointPriv.h"
@@ -40,75 +39,7 @@ static SkColor rand_opaque_color(uint32_t seed) {
     return rand.nextU() | (0xFF << 24);
 }
 
-class HTDrawable : public SkDrawable {
-    SkRect          fR;
-    SkColor         fColor;
-    SkInterpolator* fInterp;
-    SkMSec          fTime;
-
-public:
-    HTDrawable(SkRandom& rand) {
-        fR = SkRect::MakeXYWH(rand.nextRangeF(0, 640), rand.nextRangeF(0, 480),
-                              rand.nextRangeF(20, 200), rand.nextRangeF(20, 200));
-        fColor = rand_opaque_color(rand.nextU());
-        fInterp = nullptr;
-        fTime = 0;
-    }
-
-    void spawnAnimation(SkMSec now) {
-        this->setTime(now);
-
-        delete fInterp;
-        fInterp = new SkInterpolator(5, 3);
-        SkScalar values[5];
-        color_to_floats(fColor, values); values[4] = 0;
-        fInterp->setKeyFrame(0, now, values);
-        values[0] = 0; values[4] = 180;
-        fInterp->setKeyFrame(1, now + 1000, values);
-        color_to_floats(rand_opaque_color(fColor), values); values[4] = 360;
-        fInterp->setKeyFrame(2, now + 2000, values);
-
-        fInterp->setMirror(true);
-        fInterp->setRepeatCount(3);
-
-        this->notifyDrawingChanged();
-    }
-
-    bool hitTest(SkScalar x, SkScalar y) {
-        return oval_contains(fR, x, y);
-    }
-
-    void setTime(SkMSec time) { fTime = time; }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkAutoCanvasRestore acr(canvas, false);
-
-        SkPaint paint;
-        paint.setAntiAlias(true);
-
-        if (fInterp) {
-            SkScalar values[5];
-            SkInterpolator::Result res = fInterp->timeToValues(fTime, values);
-            fColor = floats_to_color(values);
-
-            canvas->save();
-            canvas->rotate(values[4], fR.centerX(), fR.centerY());
-
-            switch (res) {
-                case SkInterpolator::kFreezeEnd_Result:
-                    delete fInterp;
-                    fInterp = nullptr;
-                    break;
-                default:
-                    break;
-            }
-        }
-        paint.setColor(fColor);
-        canvas->drawRect(fR, paint);
-    }
-
-    SkRect onGetBounds() override { return fR; }
-};
+class HTDrawable : public SkDrawable ;
 
 class HTView : public Sample {
 public:
