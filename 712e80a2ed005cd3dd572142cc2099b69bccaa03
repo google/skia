@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32766c71_85575016",
+        "filename": "include/sksl/DSLType.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-12T16:47:33Z",
+      "side": 1,
+      "message": "tiny nit: it\u0027s true that there must be a matching vector type for every matrix type, but I think it would be easier to read if we removed this line and declared VECTOR_TYPE(Float) and VECTOR_TYPE(Half) below explicitly. It\u0027s not a big deal though.",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 99
+      },
+      "revId": "712e80a2ed005cd3dd572142cc2099b69bccaa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a09af25_b1e35950",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-12T16:47:33Z",
+      "side": 1,
+      "message": "Please add tests for impossible but syntactically-parsable matrix ctors, like not-enough arguments (`float2x2(1, 2, 3)` or `float3x3(myHalf2Var)`)",
+      "range": {
+        "startLine": 410,
+        "startChar": 4,
+        "endLine": 410,
+        "endChar": 5
+      },
+      "revId": "712e80a2ed005cd3dd572142cc2099b69bccaa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
