@@ -110,6 +110,7 @@ sksl_error_tests = [
   "/sksl/errors/DuplicateSymbol.sksl",
   "/sksl/errors/EmptyArray.sksl",
   "/sksl/errors/EmptyStruct.sksl",
+  "/sksl/errors/EnumTypeCoercion.sksl",
   "/sksl/errors/EnumValueMustBeConstInt.sksl",
   "/sksl/errors/ErrorsInDeadCode.sksl",
   "/sksl/errors/FloatRemainder.sksl",
