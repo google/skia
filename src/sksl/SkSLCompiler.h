@@ -190,6 +190,8 @@ private:
     const ParsedModule& loadGeometryModule();
     const ParsedModule& loadPublicModule();
     const ParsedModule& loadRuntimeEffectModule();
+    const ParsedModule& loadRuntimeColorFilterModule();
+    const ParsedModule& loadRuntimeShaderModule();
 
     /** Verifies that @if and @switch statements were actually optimized away. */
     void verifyStaticTests(const Program& program);
@@ -214,17 +216,19 @@ private:
     std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fPrivateSymbolTable;
 
-    ParsedModule fRootModule;           // Core types
+    ParsedModule fRootModule;                // Core types
 
-    ParsedModule fPrivateModule;        // [Root] + Internal types
-    ParsedModule fGPUModule;            // [Private] + GPU intrinsics, helper functions
-    ParsedModule fVertexModule;         // [GPU] + Vertex stage decls
-    ParsedModule fFragmentModule;       // [GPU] + Fragment stage decls
-    ParsedModule fGeometryModule;       // [GPU] + Geometry stage decls
-    ParsedModule fFPModule;             // [GPU] + FP features
+    ParsedModule fPrivateModule;             // [Root] + Internal types
+    ParsedModule fGPUModule;                 // [Private] + GPU intrinsics, helper functions
+    ParsedModule fVertexModule;              // [GPU] + Vertex stage decls
+    ParsedModule fFragmentModule;            // [GPU] + Fragment stage decls
+    ParsedModule fGeometryModule;            // [GPU] + Geometry stage decls
+    ParsedModule fFPModule;                  // [GPU] + FP features
 
-    ParsedModule fPublicModule;         // [Root] + Public features
-    ParsedModule fRuntimeEffectModule;  // [Public] + Runtime effect decls
+    ParsedModule fPublicModule;              // [Root] + Public features
+    ParsedModule fRuntimeEffectModule;       // [Public] + Runtime effect decls
+    ParsedModule fRuntimeColorFilterModule;  // [Public] + Runtime shader decls
+    ParsedModule fRuntimeShaderModule;       // [Public] + Runtime color filter decls
 
     // holds ModifiersPools belonging to the core includes for lifetime purposes
     std::vector<std::unique_ptr<ModifiersPool>> fModifiers;

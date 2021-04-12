@@ -578,6 +578,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/IllegalOperators.rte",
   "/sksl/runtime_errors/IllegalShaderUse.rte",
   "/sksl/runtime_errors/IllegalStatements.rte",
+  "/sksl/runtime_errors/InvalidColorFilter.rtcf",
   "/sksl/runtime_errors/LoopConditionErrors.rte",
   "/sksl/runtime_errors/LoopExpressionErrors.rte",
   "/sksl/runtime_errors/LoopInitializerErrors.rte",

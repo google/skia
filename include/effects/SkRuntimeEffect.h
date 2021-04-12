@@ -27,6 +27,7 @@ class SkShader;
 namespace SkSL {
 class FunctionDefinition;
 struct Program;
+enum class ProgramKind : int8_t;
 }  // namespace SkSL
 
 namespace skvm {
@@ -92,11 +93,25 @@ public:
         SkString errorText;
     };
 
-    static Result Make(SkString sksl, const Options& options);
+    // MakeForColorFilter and MakeForShader verify that the SkSL code is valid for those stages of
+    // the Skia pipeline.
+    static Result MakeForColorFilter(SkString sksl, const Options&);
+    static Result MakeForShader(SkString sksl, const Options&);
+
+    // [DEPRECATED] Make supports effects that can be either an SkShader or SkColorFilter.
+    static Result Make(SkString sksl, const Options&);
 
     // We can't use a default argument for `options` due to a bug in Clang.
     // https://bugs.llvm.org/show_bug.cgi?id=36684
-    static Result Make(SkString sksl) { return Make(std::move(sksl), Options{}); }
+    static Result MakeForColorFilter(SkString sksl) {
+        return MakeForColorFilter(std::move(sksl), Options{});
+    }
+    static Result MakeForShader(SkString sksl) {
+        return MakeForShader(std::move(sksl), Options{});
+    }
+    static Result Make(SkString sksl) {
+        return Make(std::move(sksl), Options{});
+    }
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
@@ -167,11 +182,14 @@ private:
                     std::vector<SkString>&& children,
                     std::vector<SkSL::SampleUsage>&& sampleUsages,
                     std::vector<Varying>&& varyings,
-                    bool usesSampleCoords,
-                    bool allowColorFilter);
+                    uint32_t flags);
+
+    static Result Make(SkString sksl, const Options& options, SkSL::ProgramKind kind);
 
     uint32_t hash() const { return fHash; }
-    bool usesSampleCoords() const { return fUsesSampleCoords; }
+    bool usesSampleCoords() const { return (fFlags & kUsesSampleCoords_Flag); }
+    bool allowShader()      const { return (fFlags & kAllowShader_Flag);      }
+    bool allowColorFilter() const { return (fFlags & kAllowColorFilter_Flag); }
 
     struct FilterColorInfo {
         const skvm::Program& program;
@@ -201,8 +219,12 @@ private:
     std::unique_ptr<skvm::Program> fColorFilterProgram;
     bool fColorFilterProgramLeavesAlphaUnchanged;
 
-    bool   fUsesSampleCoords;
-    bool   fAllowColorFilter;
+    enum Flags {
+        kUsesSampleCoords_Flag = 0x1,
+        kAllowColorFilter_Flag = 0x2,
+        kAllowShader_Flag      = 0x4,
+    };
+    uint32_t fFlags;
 };
 
 /** Base class for SkRuntimeShaderBuilder, defined below. */
