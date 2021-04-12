@@ -38,6 +38,7 @@ namespace PipelineStage {
      * to be declared programmatically and to rename those elements (mangling to avoid collisions).
      *
      * - Any reference to the main coords builtin variable will be replaced with 'sampleCoords'.
+     * - Any reference to the input color builtin variable will be replaced with 'inputColor'.
      * - Each uniform variable declaration triggers a call to 'declareUniform', which should emit
      *   the declaration, and return the (possibly different) name to use for the variable.
      * - Each function definition triggers a call to 'defineFunction', which should emit the
@@ -47,6 +48,7 @@ namespace PipelineStage {
      */
     void ConvertProgram(const Program& program,
                         const char* sampleCoords,
+                        const char* inputColor,
                         Callbacks* callbacks);
 }  // namespace PipelineStage
 
