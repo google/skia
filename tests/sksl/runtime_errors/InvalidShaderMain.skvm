@@ -1,0 +1,5 @@
+### Compilation failed:
+
+error: 6: 'main' parameters must be (float2, (vec4|float4|half4)?)
+error: 7: 'main' parameters must be (float2, (vec4|float4|half4)?)
+2 errors

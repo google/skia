@@ -133,15 +133,16 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     return false;
 }
 
-SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
+                                              const Options& options,
+                                              SkSL::ProgramKind kind) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
     settings.fInlineThreshold = 0;
     settings.fForceNoInline = options.forceNoInline;
     settings.fAllowNarrowingConversions = true;
-    auto program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
-                                            SkSL::String(sksl.c_str(), sksl.size()),
-                                            settings);
+    auto program =
+            compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
@@ -151,8 +152,17 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
     }
 
     const SkSL::FunctionDefinition* main = nullptr;
-    const bool usesSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
-    const bool usesFragCoords   = SkSL::Analysis::ReferencesFragCoords(*program);
+    uint32_t flags = 0;
+    switch (kind) {
+        case SkSL::ProgramKind::kRuntimeColorFilter: flags |= kAllowColorFilter_Flag; break;
+        case SkSL::ProgramKind::kRuntimeShader:      flags |= kAllowShader_Flag;      break;
+        case SkSL::ProgramKind::kRuntimeEffect:      flags |= (kAllowColorFilter_Flag |
+                                                               kAllowShader_Flag);    break;
+        default: SkUNREACHABLE;
+    }
+    if (SkSL::Analysis::ReferencesSampleCoords(*program)) {
+        flags |= kUsesSampleCoords_Flag;
+    }
 
     // Color filters are not allowed to depend on position (local or device) in any way, but they
     // can sample children with matrices or explicit coords. Because the children are color filters,
@@ -160,7 +170,13 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
     //
     // Further down, we also ensure that color filters can't use varyings or layout(marker), which
     // would allow them to change behavior based on the CTM.
-    bool allowColorFilter = !usesSampleCoords && !usesFragCoords;
+    // TODO(skbug.com/11813): When ProgramKind is always kRuntimeColorFilter or kRuntimeShader,
+    // this can be simpler. There is no way for color filters to refer to sk_FragCoord or sample
+    // coords in that mode.
+    if ((flags & kAllowColorFilter_Flag) &&
+        (SkSL::Analysis::ReferencesFragCoords(*program) || (flags & kUsesSampleCoords_Flag))) {
+        flags &= ~kAllowColorFilter_Flag;
+    }
 
     size_t offset = 0;
     std::vector<Uniform> uniforms;
@@ -181,7 +197,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
 
             // Varyings (only used in conjunction with drawVertices)
             if (var.modifiers().fFlags & SkSL::Modifiers::kVarying_Flag) {
-                allowColorFilter = false;
+                flags &= ~kAllowColorFilter_Flag;
                 varyings.push_back({var.name(),
                                     varType.typeKind() == SkSL::Type::TypeKind::kVector
                                             ? varType.columns()
@@ -213,7 +229,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
                 const SkSL::StringFragment& marker(var.modifiers().fLayout.fMarker);
                 if (marker.fLength) {
                     uni.flags |= Uniform::kMarker_Flag;
-                    allowColorFilter = false;
+                    flags &= ~kAllowColorFilter_Flag;
                     if (!parse_marker(marker, &uni.marker, &uni.flags)) {
                         RETURN_FAILURE("Invalid 'marker' string: '%.*s'", (int)marker.fLength,
                                         marker.fChars);
@@ -255,9 +271,24 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
                                                       std::move(children),
                                                       std::move(sampleUsages),
                                                       std::move(varyings),
-                                                      usesSampleCoords,
-                                                      allowColorFilter));
+                                                      flags));
     return Result{std::move(effect), SkString()};
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
+    return Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeEffect);
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(SkString sksl, const Options& options) {
+    auto result = Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeColorFilter);
+    SkASSERT(!result.effect || result.effect->allowColorFilter());
+    return result;
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(SkString sksl, const Options& options) {
+    auto result = Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeShader);
+    SkASSERT(!result.effect || result.effect->allowShader());
+    return result;
 }
 
 sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString sksl) {
@@ -332,8 +363,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::vector<SkString>&& children,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
                                  std::vector<Varying>&& varyings,
-                                 bool usesSampleCoords,
-                                 bool allowColorFilter)
+                                 uint32_t flags)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
@@ -342,8 +372,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         , fChildren(std::move(children))
         , fSampleUsages(std::move(sampleUsages))
         , fVaryings(std::move(varyings))
-        , fUsesSampleCoords(usesSampleCoords)
-        , fAllowColorFilter(allowColorFilter) {
+        , fFlags(flags) {
     SkASSERT(fBaseProgram);
     SkASSERT(fChildren.size() == fSampleUsages.size());
 
@@ -376,7 +405,7 @@ int SkRuntimeEffect::findChild(const char* name) const {
 }
 
 SkRuntimeEffect::FilterColorInfo SkRuntimeEffect::getFilterColorInfo() {
-    SkASSERT(fAllowColorFilter);
+    SkASSERT(this->allowColorFilter());
 
     fColorFilterProgramOnce([&] {
         // Runtime effects are often long lived & cached. So: build and save a program that can
@@ -853,6 +882,9 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                             size_t childCount,
                                             const SkMatrix* localMatrix,
                                             bool isOpaque) const {
+    if (!this->allowShader()) {
+        return nullptr;
+    }
     if (!uniforms) {
         uniforms = SkData::MakeEmpty();
     }
@@ -948,7 +980,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
                                                       sk_sp<SkColorFilter> children[],
                                                       size_t childCount) const {
-    if (!fAllowColorFilter) {
+    if (!this->allowColorFilter()) {
         return nullptr;
     }
     if (!uniforms) {
