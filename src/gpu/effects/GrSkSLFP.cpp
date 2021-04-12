@@ -174,8 +174,8 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect,
                    const char* name,
                    sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
-                    effect->fAllowColorFilter ? kConstantOutputForConstantInput_OptimizationFlag
-                                              : kNone_OptimizationFlags)
+                    effect->allowColorFilter() ? kConstantOutputForConstantInput_OptimizationFlag
+                                               : kNone_OptimizationFlags)
         , fEffect(std::move(effect))
         , fName(name)
         , fUniforms(std::move(uniforms)) {
