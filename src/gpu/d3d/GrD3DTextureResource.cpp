@@ -11,7 +11,8 @@
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
 void GrD3DTextureResource::setResourceState(const GrD3DGpu* gpu,
-                                            D3D12_RESOURCE_STATES newResourceState) {
+                                            D3D12_RESOURCE_STATES newResourceState,
+                                            unsigned int subresource) {
     D3D12_RESOURCE_STATES currentResourceState = this->currentState();
     if (newResourceState == currentResourceState) {
         return;
@@ -19,7 +20,7 @@ void GrD3DTextureResource::setResourceState(const GrD3DGpu* gpu,
 
     D3D12_RESOURCE_TRANSITION_BARRIER barrier;
     barrier.pResource = this->d3dResource();
-    barrier.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    barrier.Subresource = subresource;
     barrier.StateBefore = currentResourceState;
     barrier.StateAfter = newResourceState;
     gpu->addResourceBarriers(this->resource(), 1, &barrier);
