@@ -94,6 +94,30 @@
       },
       "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b200f510_f324dc78",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-12T16:54:33Z",
+      "side": 1,
+      "message": "... that may be more than you want to do in this CL, just thinking out-loud",
+      "parentUuid": "10f7e5b6_be89c409",
+      "range": {
+        "startLine": 10,
+        "startChar": 18,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
