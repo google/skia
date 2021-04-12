@@ -157,7 +157,7 @@ public:
     static DSLPossibleExpression Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type);
 
     static DSLPossibleExpression Construct(const SkSL::Type& type,
-                                           std::vector<DSLExpression> rawArgs);
+                                           SkTArray<DSLExpression> rawArgs);
 
     static std::unique_ptr<Expression> ConvertBinary(std::unique_ptr<Expression> left, Operator op,
                                                      std::unique_ptr<Expression> right);

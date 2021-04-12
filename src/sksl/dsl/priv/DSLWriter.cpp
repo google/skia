@@ -129,7 +129,7 @@ DSLPossibleExpression DSLWriter::Coerce(std::unique_ptr<Expression> left, const 
 }
 
 DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
-                                           std::vector<DSLExpression> rawArgs) {
+                                           SkTArray<DSLExpression> rawArgs) {
     SkSL::ExpressionArray args;
     args.reserve_back(rawArgs.size());
 

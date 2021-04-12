@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
+#include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
 
 #include <cstdint>
@@ -30,11 +31,29 @@ enum TypeConstant : uint8_t {
     kHalf2_Type,
     kHalf3_Type,
     kHalf4_Type,
+    kHalf2x2_Type,
+    kHalf3x2_Type,
+    kHalf4x2_Type,
+    kHalf2x3_Type,
+    kHalf3x3_Type,
+    kHalf4x3_Type,
+    kHalf2x4_Type,
+    kHalf3x4_Type,
+    kHalf4x4_Type,
     kFloat_Type,
     kFloat2_Type,
     kFloat3_Type,
     kFloat4_Type,
     kFragmentProcessor_Type,
+    kFloat2x2_Type,
+    kFloat3x2_Type,
+    kFloat4x2_Type,
+    kFloat2x3_Type,
+    kFloat3x3_Type,
+    kFloat4x3_Type,
+    kFloat2x4_Type,
+    kFloat3x4_Type,
+    kFloat4x4_Type,
     kInt_Type,
     kInt2_Type,
     kInt3_Type,
@@ -54,10 +73,36 @@ public:
     DSLType(const SkSL::Type* type)
         : fSkSLType(type) {}
 
+    template<typename... Args>
+    static DSLExpression Construct(TypeConstant type, Args&&... args) {
+        SkTArray<DSLExpression> argArray;
+        argArray.reserve_back(sizeof...(args));
+        CollectArgs(argArray, std::forward<Args>(args)...);
+        return Construct(type, std::move(argArray));
+    }
+
+    static DSLExpression Construct(TypeConstant type, SkTArray<DSLExpression> argArray);
+
 private:
     const SkSL::Type& skslType() const;
 
     const SkSL::Type* fSkSLType = nullptr;
+
+    static void CollectArgs(SkTArray<DSLExpression>& args) {}
+
+    template<class... RemainingArgs>
+    static void CollectArgs(SkTArray<DSLExpression>& args, DSLVar& var,
+                            RemainingArgs&&... remaining) {
+        args.push_back(var);
+        CollectArgs(args, std::forward<RemainingArgs>(remaining)...);
+    }
+
+    template<class... RemainingArgs>
+    static void CollectArgs(SkTArray<DSLExpression>& args, DSLExpression expr,
+                            RemainingArgs&&... remaining) {
+        args.push_back(std::move(expr));
+        CollectArgs(args, std::forward<RemainingArgs>(remaining)...);
+    }
 
     TypeConstant fTypeConstant;
 
@@ -69,24 +114,40 @@ private:
 };
 
 #define TYPE(T)                                                                                    \
-    DSLExpression T(DSLExpression expr);                                                           \
-    DSLExpression T##2(DSLExpression expr);                                                        \
-    DSLExpression T##2(DSLExpression x, DSLExpression y);                                          \
-    DSLExpression T##3(DSLExpression expr);                                                        \
-    DSLExpression T##3(DSLExpression x, DSLExpression y);                                          \
-    DSLExpression T##3(DSLExpression x, DSLExpression y, DSLExpression z);                         \
-    DSLExpression T##4(DSLExpression expr);                                                        \
-    DSLExpression T##4(DSLExpression x, DSLExpression y);                                          \
-    DSLExpression T##4(DSLExpression x, DSLExpression y, DSLExpression z);                         \
-    DSLExpression T##4(DSLExpression x, DSLExpression y, DSLExpression z, DSLExpression w);
+    template<typename... Args>                                                                     \
+    DSLExpression T(Args&&... args) {                                                              \
+        return DSLType::Construct(k ## T ## _Type, std::forward<Args>(args)...);                   \
+    }
 
-TYPE(Bool)
-TYPE(Float)
-TYPE(Half)
-TYPE(Int)
-TYPE(Short)
+#define VECTOR_TYPE(T)                                                                             \
+    TYPE(T)                                                                                        \
+    TYPE(T ## 2)                                                                                   \
+    TYPE(T ## 3)                                                                                   \
+    TYPE(T ## 4)
+
+#define MATRIX_TYPE(T)                                                                             \
+    TYPE(T ## 2x2)                                                                                 \
+    TYPE(T ## 3x2)                                                                                 \
+    TYPE(T ## 4x2)                                                                                 \
+    TYPE(T ## 2x3)                                                                                 \
+    TYPE(T ## 3x3)                                                                                 \
+    TYPE(T ## 4x3)                                                                                 \
+    TYPE(T ## 2x4)                                                                                 \
+    TYPE(T ## 3x4)                                                                                 \
+    TYPE(T ## 4x4)
+
+VECTOR_TYPE(Bool)
+VECTOR_TYPE(Float)
+VECTOR_TYPE(Half)
+VECTOR_TYPE(Int)
+VECTOR_TYPE(Short)
+
+MATRIX_TYPE(Float)
+MATRIX_TYPE(Half)
 
 #undef TYPE
+#undef VECTOR_TYPE
+#undef MATRIX_TYPE
 
 DSLType Array(const DSLType& base, int count);
 
