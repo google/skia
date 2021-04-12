@@ -269,9 +269,14 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
         return nullptr;
     }
 
-    return this->isScalar()
-                   ? ConstructorScalarCast::Make(context, offset, *this, std::move(expr))
-                   : ConstructorCompoundCast::Make(context, offset, *this, std::move(expr));
+    if (this->isScalar()) {
+        return ConstructorScalarCast::Make(context, offset, *this, std::move(expr));
+    }
+    if (this->isVector() || this->isMatrix()) {
+        return ConstructorCompoundCast::Make(context, offset, *this, std::move(expr));
+    }
+    context.fErrors.error(offset, "cannot construct '" + this->displayName() + "'");
+    return nullptr;
 }
 
 bool Type::isOrContainsArray() const {
