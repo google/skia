@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c799f1f7_ffd539bf",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Surface.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-12T13:47:02Z",
+      "side": 1,
+      "message": "Now that I added it, I have mixed feelings about release(): it allows clients to release a Surface while a related Canvas is still active.  I guess it\u0027s a case of dont-do-that, but maybe too much footgun?",
+      "range": {
+        "startLine": 24,
+        "startChar": 16,
+        "endLine": 24,
+        "endChar": 25
+      },
+      "revId": "54cb91e2668d92b205659ca15df784937798257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74e15914_493e77b4",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/MainActivity.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-12T13:47:02Z",
+      "side": 1,
+      "message": "Not sure whether this is the right idiom: per [1], if there\u0027s only one class with native methods, it makes senses to load the lib from that class.  If multiple, it seems the responsibility is punted to client code.\n\n[1] https://developer.android.com/training/articles/perf-jni#native-libraries",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "54cb91e2668d92b205659ca15df784937798257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
