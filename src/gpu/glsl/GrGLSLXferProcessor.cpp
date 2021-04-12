@@ -164,17 +164,13 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
         }
     } else if (srcCoverage) {
         if (proc.isLCD()) {
-            fragBuilder->codeAppendf("half lerpRed = mix(%s.a, %s.a, %s.r);",
-                                     dstColor, outColor, srcCoverage);
-            fragBuilder->codeAppendf("half lerpBlue = mix(%s.a, %s.a, %s.g);",
-                                     dstColor, outColor, srcCoverage);
-            fragBuilder->codeAppendf("half lerpGreen = mix(%s.a, %s.a, %s.b);",
+            fragBuilder->codeAppendf("half3 lerpRGB = mix(%s.aaa, %s.aaa, %s.rgb);",
                                      dstColor, outColor, srcCoverage);
         }
         fragBuilder->codeAppendf("%s = %s * %s + (half4(1.0) - %s) * %s;",
                                  outColor, srcCoverage, outColor, srcCoverage, dstColor);
         if (proc.isLCD()) {
-            fragBuilder->codeAppendf("%s.a = max(max(lerpRed, lerpBlue), lerpGreen);", outColor);
+            fragBuilder->codeAppendf("%s.a = max(max(lerpRGB.r, lerpRGB.b), lerpRGB.g);", outColor);
         }
     }
 }
