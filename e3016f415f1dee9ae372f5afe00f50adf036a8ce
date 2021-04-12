@@ -16,6 +16,24 @@
       "message": "LGTM, but I was thinking the GrOvalOpFactory with {DI}EllipseOp might allow us to use the same shader for both stroked and filled circular/elliptical/rrect shapes. Assuming it\u0027s not significantly slower, of course. It might require some tweaking to let the stroking shader also fill.",
       "revId": "e3016f415f1dee9ae372f5afe00f50adf036a8ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9c748a1_41e083e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-12T20:56:42Z",
+      "side": 1,
+      "message": "I had been thinking of falling all the way back to AALinearizingConvexPathRenderer for all rrect strokes. Though, I think it might need to be enhanced a bit.",
+      "parentUuid": "7ebe8382_399ff6e9",
+      "revId": "e3016f415f1dee9ae372f5afe00f50adf036a8ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
