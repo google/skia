@@ -1025,6 +1025,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         this->errorReporter().error(f.fOffset, "functions cannot be both 'inline' and 'noinline'");
     }
 
+    auto typeIsValidForColor = [&](const Type& type) {
+        return type == *fContext.fTypes.fHalf4 || type == *fContext.fTypes.fFloat4;
+    };
+
     // Check modifiers on each function parameter.
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
@@ -1058,10 +1062,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         Modifiers m = pd.fModifiers;
         if (isMain && (this->programKind() == ProgramKind::kRuntimeEffect ||
                        this->programKind() == ProgramKind::kFragmentProcessor)) {
-            if (i == 0) {
-                // We verify that the type is correct later, for now, if there is a parameter to
-                // a .fp or runtime-effect main(), it's supposed to be the coords:
+            // We verify that the signature is fully correct later. For now, if this is an .fp or
+            // runtime effect of any flavor, a float2 param is supposed to be the coords, and
+            // a half4/float parameter is supposed to be the input color:
+            if (*type == *fContext.fTypes.fFloat2) {
                 m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+            } else if(typeIsValidForColor(*type)) {
+                m.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
             }
         }
 
@@ -1077,22 +1084,37 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                parameters[idx]->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     };
 
+    auto paramIsInputColor = [&](int idx) {
+        return typeIsValidForColor(parameters[idx]->type()) &&
+               parameters[idx]->modifiers().fFlags == 0 &&
+               parameters[idx]->modifiers().fLayout.fBuiltin == SK_INPUT_COLOR_BUILTIN;
+    };
+
     // Check the function signature of `main`.
     if (isMain) {
         switch (this->programKind()) {
             case ProgramKind::kRuntimeEffect: {
-                // (half4|float4) main()  -or-  (half4|float4) main(float2)
-                if (*returnType != *fContext.fTypes.fHalf4 &&
-                    *returnType != *fContext.fTypes.fFloat4) {
+                // Legacy/generic runtime effects take a wide variety of main() signatures.
+                // TODO(skbug.com/11813): When we have dedicated program kinds for runtime shader
+                // vs color filter, those will only accept the suitable versions. Also, be even
+                // more restrictive: shaders must take coords, and color filters must take input
+                // color, even if unused.
+
+                // (half4|float4) main(float2?, (half4|float4)?)
+                if (!typeIsValidForColor(*returnType)) {
                     this->errorReporter().error(f.fOffset,
                                                 "'main' must return: 'vec4', 'float4', or 'half4'");
                     return;
                 }
-                bool validParams = (parameters.size() == 0) ||
-                                   (parameters.size() == 1 && paramIsCoords(0));
+                bool validParams =
+                        (parameters.size() == 0) ||
+                        (parameters.size() == 1 && paramIsCoords(0)) ||
+                        (parameters.size() == 1 && paramIsInputColor(0)) ||
+                        (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
                 if (!validParams) {
                     this->errorReporter().error(
-                            f.fOffset, "'main' parameters must be: (), (vec2), or (float2)");
+                            f.fOffset,
+                            "'main' parameters must be: ([float2 coords], [half4 color])");
                     return;
                 }
                 break;
@@ -1112,8 +1134,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 break;
             }
             case ProgramKind::kGeneric:
+                // No rules apply here
                 break;
-            default:
+            case ProgramKind::kFragment:
+            case ProgramKind::kVertex:
+            case ProgramKind::kGeometry:
                 if (parameters.size()) {
                     this->errorReporter().error(f.fOffset,
                                                 "shader 'main' must have zero parameters");
