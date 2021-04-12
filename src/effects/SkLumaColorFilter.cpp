@@ -12,13 +12,11 @@
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
     const char* code =
-        "uniform shader input;"
-        "half4 main() {"
-            "return saturate(dot(half3(0.2126, 0.7152, 0.0722), sample(input).rgb)).000r;"
+        "half4 main(half4 inColor) {"
+            "return saturate(dot(half3(0.2126, 0.7152, 0.0722), inColor.rgb)).000r;"
         "}";
     sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(code);
     SkASSERT(effect);
 
-    sk_sp<SkColorFilter> input = nullptr;
-    return effect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
+    return effect->makeColorFilter(SkData::MakeEmpty());
 }
