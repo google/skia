@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3451873_1186d097",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-12T15:54:41Z",
+      "side": 1,
+      "message": "nit: this line got a bit long, probably just want the \u0027colorLine\u0027 stuff on its own line.",
+      "revId": "79298bdc00264a4d7cbad831872aa791eb6a3495",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1678cbb1_4615f7d8",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-12T15:54:41Z",
+      "side": 1,
+      "message": "nit: this line got a bit long, probably just want the \u0027colorLine\u0027 stuff on its own line.",
+      "revId": "79298bdc00264a4d7cbad831872aa791eb6a3495",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
