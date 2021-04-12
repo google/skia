@@ -74,7 +74,10 @@ struct ProgramConfig {
     ProgramSettings fSettings;
 
     bool strictES2Mode() const {
-        return fKind == ProgramKind::kRuntimeEffect || fKind == ProgramKind::kGeneric;
+        return fKind == ProgramKind::kRuntimeEffect ||
+               fKind == ProgramKind::kRuntimeColorFilter ||
+               fKind == ProgramKind::kRuntimeShader ||
+               fKind == ProgramKind::kGeneric;
     }
 };
 
