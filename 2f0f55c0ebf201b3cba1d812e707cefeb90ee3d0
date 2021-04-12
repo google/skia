@@ -16,6 +16,46 @@
       "message": "Cleanup of now unused code to push pixmaps to GrBackendTextures in GrGpu subclasses. Pixmap data now goes through GrSurfaceContext to GrGpu::writePixels.",
       "revId": "2f0f55c0ebf201b3cba1d812e707cefeb90ee3d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2de89131_6e24350d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-12T17:32:11Z",
+      "side": 1,
+      "message": "lgtm but may want to jim to scan through the metal and d3d stuff to make sure I didn\u0027t miss something.",
+      "revId": "2f0f55c0ebf201b3cba1d812e707cefeb90ee3d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2b0a8bc_7518b194",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-12T17:32:11Z",
+      "side": 1,
+      "message": "Is this repetitive of the assert near the top of this function or can info.fFormat change between the calls?",
+      "range": {
+        "startLine": 1046,
+        "startChar": 0,
+        "endLine": 1046,
+        "endChar": 54
+      },
+      "revId": "2f0f55c0ebf201b3cba1d812e707cefeb90ee3d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
