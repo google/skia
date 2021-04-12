@@ -36,8 +36,9 @@ public:
         return new GLSLGP();
     }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        GLSLGP::GenKey(*this, b);
+    void getGLSLProcessorKey(const GrShaderCaps& shaderCaps,
+                             GrProcessorKeyBuilder* b) const override {
+        GLSLGP::GenKey(*this, shaderCaps, b);
     }
 
     bool wideColor() const { return fInColor.cpuType() != kUByte4_norm_GrVertexAttribType; }
@@ -46,13 +47,14 @@ private:
     class GLSLGP : public GrGLSLGeometryProcessor {
     public:
         void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
                      const GrGeometryProcessor& geomProc) override {
             const auto& gp = geomProc.cast<GP>();
-            this->setTransform(pdman, fLocalMatrixUni, gp.fLocalMatrix);
+            SetTransform(pdman, shaderCaps, fLocalMatrixUni, gp.fLocalMatrix);
         }
 
-        static void GenKey(const GP& gp, GrProcessorKeyBuilder* b) {
-            b->add32(ComputeMatrixKey(gp.fLocalMatrix));
+        static void GenKey(const GP& gp, const GrShaderCaps& shaderCaps, GrProcessorKeyBuilder* b) {
+            b->add32(ComputeMatrixKey(shaderCaps, gp.fLocalMatrix));
         }
 
     private:
@@ -66,10 +68,14 @@ private:
             args.fFragBuilder->codeAppendf("half4 %s = %s;",
                                            args.fOutputColor, colorVarying.fsIn());
             args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
-            this->writeOutputPosition(args.fVertBuilder, gpArgs, gp.fInPosition.name());
-            this->writeLocalCoord(args.fVertBuilder, args.fUniformHandler, gpArgs,
-                                  gp.fInLocalCoords.asShaderVar(), gp.fLocalMatrix,
-                                  &fLocalMatrixUni);
+            WriteOutputPosition(args.fVertBuilder, gpArgs, gp.fInPosition.name());
+            WriteLocalCoord(args.fVertBuilder,
+                            args.fUniformHandler,
+                            *args.fShaderCaps,
+                            gpArgs,
+                            gp.fInLocalCoords.asShaderVar(),
+                            gp.fLocalMatrix,
+                            &fLocalMatrixUni);
         }
 
         UniformHandle fLocalMatrixUni;

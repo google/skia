@@ -84,6 +84,10 @@ public:
 
     bool hasLowFragmentPrecision() const { return fHasLowFragmentPrecision; }
 
+    // Use a reduced set of rendering algorithms or less optimal effects in order to
+    // reduce the number of unique shaders generated.
+    bool reducedShaderMode() const { return fReducedShaderMode; }
+
     // SkSL only.
     bool builtinFMASupport() const { return fBuiltinFMASupport; }
 
@@ -282,6 +286,7 @@ private:
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
     bool fHasLowFragmentPrecision           : 1;
+    bool fReducedShaderMode                 : 1;
 
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport : 1;
