@@ -1,7 +1,7 @@
 AndroidKit is an AAR, or Android Library, that compiles Skia's native code, 
 JNI bindings, and Java wrapper classes into a shared library.
 
-There are two ways to build the library.
+BUILDING
 
 1) Through Android Studio
 -  Start a project by opening skia/platform_tools/android/apps with Android Studio.
@@ -22,4 +22,18 @@ There are two ways to build the library.
 2) Through the terminal
 -  Run: platform_tools/android/bin/android_build_app -C  out/[out_dir] androidkit
 -  If it builds with no errors, you’ll find the AAR in the out directory you were building from
+
+
+LOADING
+
+Before using AndroidKit classes, client applications must explicitly load the native library.
+This is usually accomplished via a static class initializer, e.g.
+
+  public class MyApp {
+      static {
+          System.loadLibrary("androidkit");
+      }
+
+      ...
+  }
 
