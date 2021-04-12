@@ -34,6 +34,24 @@
       "parentUuid": "1203a942_fd1a7fe7",
       "revId": "7b01eb88c7d80b55ade63de4cb0932de98e828e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0206df7c_2242800c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-12T18:46:15Z",
+      "side": 1,
+      "message": "Yep, though they look fine to me. In general we like to decouple rebaselining Chrome\u0027s image tests from rolling new versions of Skia into Chrome. I think the best way to proceed is:\n\n\n1) Land a macro definition in Chrome here:\nhttps://source.chromium.org/chromium/chromium/src/+/master:skia/config/SkUserConfig.h\ncalled something like SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION\n\n2) Update this change to use the old kNearest code if that macro is defined\n\n3) Land this change in Skia and wait for Skia to roll into Chrome\n\n4) Update Chrome to no longer define the macro and rebaseline all these tests.\n\n5) Remove use of macro from Skia.\n\nI\u0027d be happy to take on 4 and 5.",
+      "parentUuid": "59c21d0a_6876968c",
+      "revId": "7b01eb88c7d80b55ade63de4cb0932de98e828e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
