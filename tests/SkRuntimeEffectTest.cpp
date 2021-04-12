@@ -226,10 +226,6 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.build("half4 main(float2 p) { return float4(p - 0.5, 0, 1); }");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
-    // ... and support GLSL type names
-    effect.build("half4 main(float2 p) { return vec4(p - 0.5, 0, 1); }");
-    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
-
     // ... and support *returning* float4 (aka vec4), not just half4
     effect.build("float4 main(float2 p) { return float4(p - 0.5, 0, 1); }");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);

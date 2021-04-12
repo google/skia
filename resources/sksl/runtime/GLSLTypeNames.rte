@@ -1,0 +1,14 @@
+// Ensure that GLSL type aliases compile without error
+uniform float f;
+uniform int i;
+uniform bool b;
+
+vec4 main(vec2 coords) {
+    vec4  fv =  vec4( vec3( vec2(f), f), f);
+    ivec4 iv = ivec4(ivec3(ivec2(i), i), i);
+    bvec4 bv = bvec4(bvec3(bvec2(b), b), b);
+
+    mat4 m = mat4(mat3(mat2(f)));
+
+    return fv;
+}

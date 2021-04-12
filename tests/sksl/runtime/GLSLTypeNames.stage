@@ -1,0 +1,11 @@
+uniform float f;
+uniform int i;
+uniform bool b;
+float4 main(float2 coords)
+{
+	float4 fv = float4(float2(f), f, f);
+	;
+	;
+	;
+	return half4(fv);
+}

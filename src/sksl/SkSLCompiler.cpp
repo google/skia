@@ -251,6 +251,10 @@ const ParsedModule& Compiler::loadRuntimeEffectModule() {
         fRuntimeEffectModule.fSymbols->addAlias("vec3", fContext->fTypes.fFloat3.get());
         fRuntimeEffectModule.fSymbols->addAlias("vec4", fContext->fTypes.fFloat4.get());
 
+        fRuntimeEffectModule.fSymbols->addAlias("ivec2", fContext->fTypes.fInt2.get());
+        fRuntimeEffectModule.fSymbols->addAlias("ivec3", fContext->fTypes.fInt3.get());
+        fRuntimeEffectModule.fSymbols->addAlias("ivec4", fContext->fTypes.fInt4.get());
+
         fRuntimeEffectModule.fSymbols->addAlias("bvec2", fContext->fTypes.fBool2.get());
         fRuntimeEffectModule.fSymbols->addAlias("bvec3", fContext->fTypes.fBool3.get());
         fRuntimeEffectModule.fSymbols->addAlias("bvec4", fContext->fTypes.fBool4.get());
