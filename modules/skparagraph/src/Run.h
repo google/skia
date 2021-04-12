@@ -58,6 +58,7 @@ public:
         const SkShaper::RunHandler::RunInfo& info,
         size_t firstChar,
         SkScalar heightMultiplier,
+        bool useHalfLeading,
         size_t index,
         SkScalar shiftX);
     Run(const Run&) = default;
@@ -95,6 +96,7 @@ public:
     TextDirection getTextDirection() const { return leftToRight() ? TextDirection::kLtr : TextDirection::kRtl; }
     size_t index() const { return fIndex; }
     SkScalar heightMultiplier() const { return fHeightMultiplier; }
+    bool useHalfLeading() const { return fUseHalfLeading; }
     PlaceholderStyle* placeholderStyle() const;
     bool isPlaceholder() const { return fPlaceholderIndex != std::numeric_limits<size_t>::max(); }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
@@ -190,6 +192,7 @@ private:
 
     SkFontMetrics fFontMetrics;
     const SkScalar fHeightMultiplier;
+    const bool fUseHalfLeading;
     SkScalar fCorrectAscent;
     SkScalar fCorrectDescent;
     SkScalar fCorrectLeading;
@@ -382,7 +385,6 @@ public:
     }
 
     void add(Run* run) {
-
         if (fForceStrut) {
             return;
         }
@@ -406,11 +408,11 @@ public:
     }
 
     void clean() {
-        fAscent = 0;
-        fDescent = 0;
+        fAscent = SK_ScalarMax;
+        fDescent = SK_ScalarMin;
         fLeading = 0;
-        fRawAscent = 0;
-        fRawDescent = 0;
+        fRawAscent = SK_ScalarMax;
+        fRawDescent = SK_ScalarMin;
         fRawLeading = 0;
     }
 

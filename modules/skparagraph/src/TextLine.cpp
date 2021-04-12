@@ -139,6 +139,7 @@ TextLine::TextLine(ParagraphImpl* owner,
         runLevels[runLevelsIndex++] = run.fBidiLevel;
         fMaxRunMetrics.add(
             InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent, run.fFontMetrics.fLeading));
+        //fMaxRunMetrics.add(&run);
     }
     SkASSERT(runLevelsIndex == numRuns);
 
@@ -543,7 +544,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Run
 
         Buffer runBuffer(const RunInfo& info) override {
             SkASSERT(!fRun);
-            fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, 0, 0);
+            fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, false, 0, 0);
             return fRun->newRunBuffer();
         }
 
@@ -1008,13 +1009,12 @@ void TextLine::getRectsForRange(TextRange textRange0,
                 }
                 break;
                 case RectHeightStyle::kTight: {
-                    if (run->fHeightMultiplier > 0) {
-                        // This is a special case when we do not need to take in account this height multiplier
-                        auto correctedHeight = clip.height() / run->fHeightMultiplier;
-                        auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
-                        clip.fTop += verticalShift;
-                        clip.fBottom = clip.fTop + correctedHeight;
+                    if (run->fHeightMultiplier <= 0) {
+                        break;
                     }
+                    const auto effectiveBaseline = this->baseline() + this->sizes().delta();
+                    clip.fTop = effectiveBaseline + run->ascent();
+                    clip.fBottom = effectiveBaseline + run->descent();
                 }
                 break;
                 default:
