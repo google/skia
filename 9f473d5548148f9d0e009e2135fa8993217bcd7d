@@ -70,6 +70,30 @@
       },
       "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10f7e5b6_be89c409",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-12T16:53:53Z",
+      "side": 1,
+      "message": "meta: You *might* want to intro a picture-recorder in this same CL -- it will make it clear(er) that there are many \"targets\", but one Canvas... (since the recorder will also have a getCanvas() pattern)",
+      "parentUuid": "4490b426_887363b9",
+      "range": {
+        "startLine": 10,
+        "startChar": 18,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
