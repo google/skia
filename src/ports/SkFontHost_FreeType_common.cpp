@@ -747,6 +747,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
     // Keep track of failures to retrieve the FT_COLR_Paint from FreeType in the
     // recursion, cancel recursion when a paint retrieval fails.
     bool traverse_result = true;
+    SkAutoCanvasRestore autoRestore(canvas, true /* do_save */);
     switch (paint.format) {
         case FT_COLR_PAINTFORMAT_COLR_LAYERS: {
             FT_LayerIterator& layer_iterator = paint.u.colr_layers.layer_iterator;
@@ -758,45 +759,34 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             break;
         }
         case FT_COLR_PAINTFORMAT_GLYPH:
-            canvas->saveLayer(nullptr, nullptr);
             // Traverse / draw operation will clip layer.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.glyph.paint);
-            canvas->restore();
             break;
         case FT_COLR_PAINTFORMAT_COLR_GLYPH:
             traverse_result = colrv1_start_glyph(canvas, palette, face, paint.u.colr_glyph.glyphID,
                                                  FT_COLOR_NO_ROOT_TRANSFORM);
             break;
         case FT_COLR_PAINTFORMAT_TRANSFORMED:
-            canvas->saveLayer(nullptr, nullptr);
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result =
                     colrv1_traverse_paint(canvas, palette, face, paint.u.transformed.paint);
-            canvas->restore();
             break;
-      case FT_COLR_PAINTFORMAT_TRANSLATE:
-            canvas->saveLayer(nullptr, nullptr);
+        case FT_COLR_PAINTFORMAT_TRANSLATE:
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
-            traverse_result =
-                    colrv1_traverse_paint(canvas, palette, face, paint.u.translate.paint);
-            canvas->restore();
+            traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.translate.paint);
             break;
-      case FT_COLR_PAINTFORMAT_ROTATE:
-            canvas->saveLayer(nullptr, nullptr);
+        case FT_COLR_PAINTFORMAT_ROTATE:
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.rotate.paint);
-            canvas->restore();
             break;
         case FT_COLR_PAINTFORMAT_SKEW:
-            canvas->saveLayer(nullptr, nullptr);
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.skew.paint);
-            canvas->restore();
             break;
         case FT_COLR_PAINTFORMAT_COMPOSITE: {
             traverse_result =
