@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1640b257_dd870632",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 7708
+      },
+      "writtenOn": "2021-04-12T22:56:45Z",
+      "side": 1,
+      "message": "Pass this as a const reference to avoid copying the TextStyle within the Block",
+      "range": {
+        "startLine": 147,
+        "startChar": 5,
+        "endLine": 147,
+        "endChar": 18
+      },
+      "revId": "568cd62d1f36cada8d5d0484af5bbbe3e896afac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
