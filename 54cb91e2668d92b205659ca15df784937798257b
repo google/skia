@@ -45,6 +45,30 @@
       },
       "revId": "54cb91e2668d92b205659ca15df784937798257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb622e30_5dd982f8",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/MainActivity.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-12T17:09:42Z",
+      "side": 1,
+      "message": "I think this is fair, but we should think of ways to let the client know that this is their responsibility. Would adding a note to the README in our native src be sufficient or should we add one in the Android library?",
+      "parentUuid": "74e15914_493e77b4",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "54cb91e2668d92b205659ca15df784937798257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
