@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c02af26_13eb8561",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-12T15:23:07Z",
+      "side": 1,
+      "message": "Cleanup of now unused code to push pixmaps to GrBackendTextures in GrGpu subclasses. Pixmap data now goes through GrSurfaceContext to GrGpu::writePixels.",
+      "revId": "2f0f55c0ebf201b3cba1d812e707cefeb90ee3d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
