@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11472318_d2eb349c",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-12T13:43:58Z",
+      "side": 1,
+      "message": "The ProgramKind change was necessary because this CL references it from include/ and it was previously defined under src/.\n\nThanks for the heads up on the ColorFilter stuff.",
+      "parentUuid": "439d32b9_6f928b93",
+      "range": {
+        "startLine": 38,
+        "startChar": 36,
+        "endLine": 38,
+        "endChar": 90
+      },
+      "revId": "71d55326c581667bcb0a99f942a247fc89c13102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "30bb5053_62ea2365",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-12T13:20:17Z",
       "side": 1,
       "message": "Please add matrix-sampling tests for completeness\n\n     half4 sample(fragmentProcessor fp, float3x3 transform);\n     half4 sample(fragmentProcessor fp, half4 input, float3x3 transform);",
+      "range": {
+        "startLine": 1390,
+        "startChar": 0,
+        "endLine": 1390,
+        "endChar": 95
+      },
+      "revId": "71d55326c581667bcb0a99f942a247fc89c13102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5e67b9f_3517e3af",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1390,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-12T13:43:58Z",
+      "side": 1,
+      "message": "Matrices aren\u0027t supported in the DSL yet; that (along with the relevant tests) is coming in my next CL.",
+      "parentUuid": "30bb5053_62ea2365",
       "range": {
         "startLine": 1390,
         "startChar": 0,
