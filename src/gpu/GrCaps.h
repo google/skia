@@ -160,9 +160,8 @@ public:
         return fMustSyncGpuDuringAbandon;
     }
 
-    // Use a reduced set of rendering algorithms or less optimal effects in order to
-    // reduce the number of unique shaders generated.
-    bool reducedShaderMode() const { return fReducedShaderMode; }
+    // Shortcut for shaderCaps()->reducedShaderMode().
+    bool reducedShaderMode() const { return this->shaderCaps()->reducedShaderMode(); }
 
     /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
@@ -527,7 +526,6 @@ protected:
     bool fReadPixelsRowBytesSupport                  : 1;
     bool fShouldCollapseSrcOverToSrcWhenAble         : 1;
     bool fMustSyncGpuDuringAbandon                   : 1;
-    bool fReducedShaderMode : 1;
 
     // Driver workaround
     bool fDriverDisableMSAAClipAtlas                 : 1;

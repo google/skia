@@ -56,11 +56,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fReadPixelsRowBytesSupport = false;
     fShouldCollapseSrcOverToSrcWhenAble = false;
     fMustSyncGpuDuringAbandon = true;
-#if GR_TEST_UTILS
-    fReducedShaderMode = options.fReducedShaderVariations;
-#else
-    fReducedShaderMode = false;
-#endif
     fDriverDisableMSAAClipAtlas = false;
     fDisableTessellationPathRenderer = false;
 

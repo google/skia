@@ -54,6 +54,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFloatIs32Bits = true;
     fHalfIs32Bits = false;
     fHasLowFragmentPrecision = false;
+    fReducedShaderMode = false;
     fColorSpaceMathNeedsFloat = false;
     fBuiltinFMASupport = false;
     fBuiltinDeterminantSupport = false;
@@ -188,6 +189,9 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fMaxTessellationSegmentsOverride > 0) {
         fMaxTessellationSegments = std::min(options.fMaxTessellationSegmentsOverride,
                                             fMaxTessellationSegments);
+    }
+    if (options.fReducedShaderVariations) {
+        fReducedShaderMode = true;
     }
 #endif
 }
