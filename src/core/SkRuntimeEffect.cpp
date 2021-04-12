@@ -133,15 +133,16 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     return false;
 }
 
-SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
+                                              const Options& options,
+                                              SkSL::ProgramKind kind) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
     settings.fInlineThreshold = 0;
     settings.fForceNoInline = options.forceNoInline;
     settings.fAllowNarrowingConversions = true;
-    auto program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
-                                            SkSL::String(sksl.c_str(), sksl.size()),
-                                            settings);
+    auto program =
+            compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
@@ -258,6 +259,20 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
                                                       usesSampleCoords,
                                                       allowColorFilter));
     return Result{std::move(effect), SkString()};
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
+    return Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeEffect);
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(SkString sksl, const Options& options) {
+    auto result = Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeColorFilter);
+    SkASSERT(!result.effect || result.effect->fAllowColorFilter);
+    return result;
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(SkString sksl, const Options& options) {
+    return Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeShader);
 }
 
 sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString sksl) {
