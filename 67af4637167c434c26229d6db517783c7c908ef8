@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72b69d1a_d6b91311",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-12T16:01:13Z",
+      "side": 1,
+      "message": "Remove CQ since the one for m86 doesn\u0027t currently exist. Tested locally.",
+      "revId": "67af4637167c434c26229d6db517783c7c908ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
