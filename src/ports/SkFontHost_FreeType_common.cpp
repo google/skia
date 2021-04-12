@@ -758,7 +758,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             break;
         }
         case FT_COLR_PAINTFORMAT_GLYPH:
-            canvas->saveLayer(nullptr, nullptr);
+            canvas->save();
             // Traverse / draw operation will clip layer.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.glyph.paint);
@@ -769,30 +769,29 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                                                  FT_COLOR_NO_ROOT_TRANSFORM);
             break;
         case FT_COLR_PAINTFORMAT_TRANSFORMED:
-            canvas->saveLayer(nullptr, nullptr);
+            canvas->save();
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result =
                     colrv1_traverse_paint(canvas, palette, face, paint.u.transformed.paint);
             canvas->restore();
             break;
-      case FT_COLR_PAINTFORMAT_TRANSLATE:
-            canvas->saveLayer(nullptr, nullptr);
+        case FT_COLR_PAINTFORMAT_TRANSLATE:
+            canvas->save();
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
-            traverse_result =
-                    colrv1_traverse_paint(canvas, palette, face, paint.u.translate.paint);
+            traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.translate.paint);
             canvas->restore();
             break;
-      case FT_COLR_PAINTFORMAT_ROTATE:
-            canvas->saveLayer(nullptr, nullptr);
+        case FT_COLR_PAINTFORMAT_ROTATE:
+            canvas->save();
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.rotate.paint);
             canvas->restore();
             break;
         case FT_COLR_PAINTFORMAT_SKEW:
-            canvas->saveLayer(nullptr, nullptr);
+            canvas->save();
             // Traverse / draw operation will apply transform.
             colrv1_draw_paint(canvas, palette, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.skew.paint);
