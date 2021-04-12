@@ -69,6 +69,30 @@
       },
       "revId": "54cb91e2668d92b205659ca15df784937798257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c49cb43_b9a68ca1",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/MainActivity.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-12T17:42:37Z",
+      "side": 1,
+      "message": "Good idea, added some notes to the existing README.  We should probably add a markdown version for the Java side at some point.\n\nAnother initialization option would be to add an AndroidKit helper class and require clients to call AndroidKit.init() before touching anything else.  Not really sure about the best practices here, we can revisit later.",
+      "parentUuid": "cb622e30_5dd982f8",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "54cb91e2668d92b205659ca15df784937798257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
