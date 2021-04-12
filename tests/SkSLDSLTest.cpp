@@ -1398,7 +1398,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSample, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/true,
                            SkSL::ProgramKind::kFragmentProcessor);
-    DSLVar child(kUniform_Modifier, kFragmentProcessor_Type, "child");
+    DSLVar child(kUniform_Modifier, kShader_Type, "child");
     EXPECT_EQUAL(Sample(child), "sample(child)");
     EXPECT_EQUAL(Sample(child, Float2(0, 0)), "sample(child, float2(0.0, 0.0))");
     EXPECT_EQUAL(Sample(child, Half4(1)), "sample(child, half4(1.0))");

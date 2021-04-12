@@ -36,9 +36,15 @@ public:
 
     DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
+    DSLVar(const DSLVar& other);
+
     DSLVar(DSLVar&&) = delete;
 
     ~DSLVar();
+
+    const char* name() const {
+        return fName;
+    }
 
     DSLExpression x() {
         return DSLExpression(*this).x();
@@ -115,15 +121,11 @@ private:
      */
     DSLVar(const char* name);
 
-    const char* name() const {
-        return fName;
-    }
-
-    DSLModifiers fModifiers;
     // We only need to keep track of the type here so that we can create the SkSL::Variable. For
     // predefined variables this field is unnecessary, so we don't bother tracking it and just set
     // it to kVoid; in other words, you shouldn't generally be relying on this field to be correct.
     // If you need to determine the variable's type, look at DSLWriter::Var(...).type() instead.
+    DSLModifiers fModifiers;
     DSLType fType;
     int fUniformHandle;
     std::unique_ptr<SkSL::Statement> fDeclaration;
