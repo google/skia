@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ddb6dfe_92d66e56",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-12T15:45:19Z",
+      "side": 1,
+      "message": "this seems to imply that you could create N diff canvases with the same surface ...\n\nwhy not surface.getCanvas()?",
+      "range": {
+        "startLine": 10,
+        "startChar": 18,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
