@@ -22,6 +22,30 @@
       },
       "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19316e1b_77e2a2c5",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-12T16:05:28Z",
+      "side": 1,
+      "message": "\u003e this seems to imply that you could create N diff canvases with the same surface ...\n\nOne could, but they are shallow canvases sharing the same SkCanvas.\n\n\u003e why not surface.getCanvas()?\n\nThat implies there is only one Canvas owned by its parent Surface, right (same as Skia native)?  I was thinking that would introduce a reference cycle if we\u0027re trying to also keep the Surface alive from Canvas, but maybe that\u0027s not problematic with Java\u0027s GC.  My brain is still stuck on reference counting, gotta snap out of it...\n\nThe main use case I\u0027m trying to address is something like this:\n\n  Canvas make_canvas() {\n      Surface surface(...);\n\n      // The canvas outlives the local surface object.\n      return surface.getCanvas();\n  }\n\nSo if reference cycles are not problematic, let me try refactoring.",
+      "parentUuid": "9ddb6dfe_92d66e56",
+      "range": {
+        "startLine": 10,
+        "startChar": 18,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
