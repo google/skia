@@ -55,12 +55,12 @@ public:
                                                             size_t size);
     GrD3DDescriptorHeap::CPUHandle createShaderResourceView(ID3D12Resource* resource);
     GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(ID3D12Resource* resource);
-    void recycleCBVSRVUAV(const GrD3DDescriptorHeap::CPUHandle&);
+    void recycleShaderView(const GrD3DDescriptorHeap::CPUHandle&);
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
 
-    sk_sp<GrD3DDescriptorTable> findOrCreateShaderResourceTable(
-            const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& shaderResourceViews);
+    sk_sp<GrD3DDescriptorTable> findOrCreateShaderViewTable(
+            const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& shaderViews);
     sk_sp<GrD3DDescriptorTable> findOrCreateSamplerTable(
             const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& samplers);
     GrD3DDescriptorTableManager* descriptorTableMgr() {

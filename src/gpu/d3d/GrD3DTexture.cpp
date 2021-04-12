@@ -110,7 +110,7 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeWrappedTexture(GrD3DGpu* gpu,
 
 void GrD3DTexture::onRelease() {
     GrD3DGpu* gpu = this->getD3DGpu();
-    gpu->resourceProvider().recycleCBVSRVUAV(fShaderResourceView);
+    gpu->resourceProvider().recycleShaderView(fShaderResourceView);
     this->releaseResource(gpu);
 
     INHERITED::onRelease();
@@ -118,7 +118,7 @@ void GrD3DTexture::onRelease() {
 
 void GrD3DTexture::onAbandon() {
     GrD3DGpu* gpu = this->getD3DGpu();
-    gpu->resourceProvider().recycleCBVSRVUAV(fShaderResourceView);
+    gpu->resourceProvider().recycleShaderView(fShaderResourceView);
     this->releaseResource(gpu);
     INHERITED::onAbandon();
 }

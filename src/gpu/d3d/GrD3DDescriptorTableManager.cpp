@@ -10,13 +10,13 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 GrD3DDescriptorTableManager::GrD3DDescriptorTableManager(GrD3DGpu* gpu)
-    : fCBVSRVUAVDescriptorPool(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+    : fShaderViewDescriptorPool(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
     , fSamplerDescriptorPool(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) {}
 
 sk_sp<GrD3DDescriptorTable>
-        GrD3DDescriptorTableManager::createCBVSRVUAVTable(GrD3DGpu* gpu,
+        GrD3DDescriptorTableManager::createShaderViewTable(GrD3DGpu* gpu,
                                                                          unsigned int size) {
-    sk_sp<GrD3DDescriptorTable> table = fCBVSRVUAVDescriptorPool.allocateTable(gpu, size);
+    sk_sp<GrD3DDescriptorTable> table = fShaderViewDescriptorPool.allocateTable(gpu, size);
     this->setHeaps(gpu);
     return table;
 }
@@ -29,7 +29,7 @@ sk_sp<GrD3DDescriptorTable> GrD3DDescriptorTableManager::createSamplerTable(
 }
 
 void GrD3DDescriptorTableManager::setHeaps(GrD3DGpu* gpu) {
-    sk_sp<Heap>& currentCBVSRVHeap = fCBVSRVUAVDescriptorPool.currentDescriptorHeap();
+    sk_sp<Heap>& currentCBVSRVHeap = fShaderViewDescriptorPool.currentDescriptorHeap();
     sk_sp<Heap>& currentSamplerHeap = fSamplerDescriptorPool.currentDescriptorHeap();
     GrD3DDirectCommandList* commandList = gpu->currentCommandList();
     commandList->setDescriptorHeaps(currentCBVSRVHeap,
@@ -39,7 +39,7 @@ void GrD3DDescriptorTableManager::setHeaps(GrD3DGpu* gpu) {
 }
 
 void GrD3DDescriptorTableManager::prepForSubmit(GrD3DGpu* gpu) {
-    fCBVSRVUAVDescriptorPool.prepForSubmit(gpu);
+    fShaderViewDescriptorPool.prepForSubmit(gpu);
     fSamplerDescriptorPool.prepForSubmit(gpu);
 }
 
@@ -50,7 +50,7 @@ void GrD3DDescriptorTableManager::recycle(Heap* heap) {
     SkASSERT(heap);
     switch (heap->type()) {
         case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
-            fCBVSRVUAVDescriptorPool.recycle(std::move(wrappedHeap));
+            fShaderViewDescriptorPool.recycle(std::move(wrappedHeap));
             break;
         case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:
             fSamplerDescriptorPool.recycle(std::move(wrappedHeap));
