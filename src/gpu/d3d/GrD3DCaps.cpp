@@ -701,6 +701,10 @@ void GrD3DCaps::FormatInfo::InitFormatFlags(const D3D12_FEATURE_DATA_FORMAT_SUPP
     if (SkToBool(D3D12_FORMAT_SUPPORT1_MULTISAMPLE_RESOLVE & formatSupport.Support1)) {
         *flags = *flags | kResolve_Flag;
     }
+
+    if (SkToBool(D3D12_FORMAT_SUPPORT1_TYPED_UNORDERED_ACCESS_VIEW & formatSupport.Support1)) {
+        *flags = *flags | kUnorderedAccess_Flag;
+    }
 }
 
 static bool multisample_count_supported(ID3D12Device* device, DXGI_FORMAT format, int sampleCount) {
@@ -812,6 +816,11 @@ bool GrD3DCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCoun
 
 bool GrD3DCaps::isFormatRenderable(DXGI_FORMAT format, int sampleCount) const {
     return sampleCount <= this->maxRenderTargetSampleCount(format);
+}
+
+bool GrD3DCaps::isFormatUnorderedAccessible(DXGI_FORMAT format) const {
+    const FormatInfo& info = this->getFormatInfo(format);
+    return SkToBool(FormatInfo::kUnorderedAccess_Flag & info.fFlags);
 }
 
 int GrD3DCaps::getRenderTargetSampleCount(int requestedCount,
