@@ -2455,7 +2455,10 @@ if (skia_enable_tools) {
     test_app("androidkit") {
       is_shared_library = true
 
-      sources = [ "modules/androidkit/Canvas.cpp" ]
+      sources = [
+        "modules/androidkit/src/Canvas.cpp",
+        "modules/androidkit/src/Surface.cpp",
+      ]
       libs = [ "jnigraphics" ]
 
       deps = [ ":skia" ]
