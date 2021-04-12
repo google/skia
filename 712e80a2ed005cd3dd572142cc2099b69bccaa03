@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9abd1a4_7aed6a57",
+        "filename": "include/sksl/DSLType.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-12T21:05:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "32766c71_85575016",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 99
+      },
+      "revId": "712e80a2ed005cd3dd572142cc2099b69bccaa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2a09af25_b1e35950",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-12T16:47:33Z",
       "side": 1,
       "message": "Please add tests for impossible but syntactically-parsable matrix ctors, like not-enough arguments (`float2x2(1, 2, 3)` or `float3x3(myHalf2Var)`)",
+      "range": {
+        "startLine": 410,
+        "startChar": 4,
+        "endLine": 410,
+        "endChar": 5
+      },
+      "revId": "712e80a2ed005cd3dd572142cc2099b69bccaa03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa976de1_a087fdf1",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-12T21:05:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a09af25_b1e35950",
       "range": {
         "startLine": 410,
         "startChar": 4,
