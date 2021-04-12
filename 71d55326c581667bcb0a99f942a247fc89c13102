@@ -22,6 +22,29 @@
       },
       "revId": "71d55326c581667bcb0a99f942a247fc89c13102",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30bb5053_62ea2365",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1390,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-12T13:20:17Z",
+      "side": 1,
+      "message": "Please add matrix-sampling tests for completeness\n\n     half4 sample(fragmentProcessor fp, float3x3 transform);\n     half4 sample(fragmentProcessor fp, half4 input, float3x3 transform);",
+      "range": {
+        "startLine": 1390,
+        "startChar": 0,
+        "endLine": 1390,
+        "endChar": 95
+      },
+      "revId": "71d55326c581667bcb0a99f942a247fc89c13102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
