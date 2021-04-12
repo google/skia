@@ -133,15 +133,16 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     return false;
 }
 
-SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
+                                              const Options& options,
+                                              SkSL::ProgramKind kind) {
     SkSL::SharedCompiler compiler;
     SkSL::Program::Settings settings;
     settings.fInlineThreshold = 0;
     settings.fForceNoInline = options.forceNoInline;
     settings.fAllowNarrowingConversions = true;
-    auto program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
-                                            SkSL::String(sksl.c_str(), sksl.size()),
-                                            settings);
+    auto program =
+            compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
@@ -258,6 +259,20 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
                                                       usesSampleCoords,
                                                       allowColorFilter));
     return Result{std::move(effect), SkString()};
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
+    return Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeEffect);
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(SkString sksl, const Options& options) {
+    auto result = Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeColorFilter);
+    SkASSERT(!result.effect || result.effect->fAllowColorFilter);
+    return result;
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(SkString sksl, const Options& options) {
+    return Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeShader);
 }
 
 sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString sksl) {
@@ -384,17 +399,19 @@ const skvm::Program* SkRuntimeEffect::getFilterColorProgram() {
         // (uniforms or children).
         skvm::Builder p;
 
-        // We allocate a uniform color for each child in the SkSL. When we run this program
-        // later, these uniform values are replaced with either the results of the child,
-        // or the input color (if the child is nullptr). These Uniform ids are loads from the
-        // *first* arg ptr.
+        // We allocate a uniform color for the input color, and for each child in the SkSL.
+        // When we run this program later, these uniform values are replaced with either the
+        // results of the child, or the input color (if the child is nullptr). These Uniform ids
+        // are loads from the *first* arg ptr.
         skvm::Uniforms childColorUniforms{p.uniform(), 0};
         std::vector<skvm::Color> childColors;
+        childColors.push_back(
+                p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms));
         for (size_t i = 0; i < fChildren.size(); ++i) {
             childColors.push_back(
                     p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms));
         }
-        auto sampleChild = [&](int ix, skvm::Coord) { return childColors[ix]; };
+        auto sampleChild = [&](int ix, skvm::Coord) { return childColors[ix + 1]; };
 
         // For SkSL uniforms, we reserve space and allocate skvm Uniform ids for each one.
         // When we run the program, these ids will be loads from the *second* arg ptr, the
@@ -415,6 +432,7 @@ const skvm::Program* SkRuntimeEffect::getFilterColorProgram() {
                                                  uniform,
                                                  /*device=*/zeroCoord,
                                                  /*local=*/zeroCoord,
+                                                 childColors[0],
                                                  sampleChild);
 
         // Then store the result to the *third* arg ptr
@@ -575,7 +593,7 @@ public:
         }
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, uniform,
-                                   /*device=*/zeroCoord, /*local=*/zeroCoord, sampleChild);
+                                   /*device=*/zeroCoord, /*local=*/zeroCoord, c, sampleChild);
     }
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
@@ -589,9 +607,11 @@ public:
         SkASSERT(inputs && program);
 
         // 'program' defines sampling any child as returning a uniform color. Assemble a buffer
-        // containing those colors. For any null children, the sample result is just the input
-        // color. For non-null children, it's the result of that child filtering the input color.
+        // containing those colors. The first entry is always the input color. Subsequent entries
+        // are for children. For any null children, the sample result is just the input color.
+        // For non-null children, it's the result of that child filtering the input color.
         SkSTArray<1, SkPMColor4f, true> inputColors;
+        inputColors.push_back(color);
         for (const auto &child : fChildren) {
             inputColors.push_back(child ? as_CFB(child)->onFilterColor4f(color, dstCS) : color);
         }
@@ -756,7 +776,7 @@ public:
         }
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, uniform,
-                                   device, local, sampleChild);
+                                   device, local, paint, sampleChild);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

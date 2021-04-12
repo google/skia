@@ -284,8 +284,13 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         kind = SkSL::ProgramKind::kFragmentProcessor;
     } else if (inputPath.endsWith(".rte")) {
         kind = SkSL::ProgramKind::kRuntimeEffect;
+    } else if (inputPath.endsWith(".rtcf")) {
+        kind = SkSL::ProgramKind::kRuntimeColorFilter;
+    } else if (inputPath.endsWith(".rts")) {
+        kind = SkSL::ProgramKind::kRuntimeShader;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.rte', or '.sksl'\n");
+        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.rte', '.rtcf', "
+               "'.rts', or '.sksl'\n");
         return ResultCode::kInputError;
     }
 
@@ -444,7 +449,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                         String              fOutput;
                     };
                     Callbacks callbacks;
-                    SkSL::PipelineStage::ConvertProgram(program, "_coords", &callbacks);
+                    SkSL::PipelineStage::ConvertProgram(program, "_coords", "_inColor", &callbacks);
                     out.writeString(GrShaderUtils::PrettyPrint(callbacks.fOutput));
                     return true;
                 });
