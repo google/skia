@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a76ac39a_dfbb5af0",
+        "filename": "modules/skparagraph/include/Metrics.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-12T19:49:53Z",
+      "side": 1,
+      "message": "This change isn\u0027t consistent with libTxt. I\u0027ll try to backport this to libTxt if this makes sense.",
+      "revId": "3dd9086c4bb0d5cb62ceea79c83134b808a68d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a354a70c_ec04521b",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-12T19:49:53Z",
+      "side": 1,
+      "message": "(I\u0027ll remove the comment)\n\nQuestion: this doesn\u0027t seem to be consistent with libTxt: https://github.com/flutter/engine/blob/4bc41435fbab12bb549743cbfd61cc2ea707f6b9/third_party/txt/src/txt/paragraph_txt.cc#L1168-L1169",
+      "revId": "3dd9086c4bb0d5cb62ceea79c83134b808a68d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75bb5a82_70b1d110",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-12T19:49:53Z",
+      "side": 1,
+      "message": "Would it be possible to remove the delta here (and the one in the `kMax` case)?",
+      "revId": "3dd9086c4bb0d5cb62ceea79c83134b808a68d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
