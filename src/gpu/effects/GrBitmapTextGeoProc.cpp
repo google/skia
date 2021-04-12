@@ -55,7 +55,11 @@ public:
 
         // Setup position
         gpArgs->fPositionVar = btgp.inPosition().asShaderVar();
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, btgp.inPosition().asShaderVar(),
+        WriteLocalCoord(vertBuilder,
+                        uniformHandler,
+                        *args.fShaderCaps,
+                        gpArgs,
+                        btgp.inPosition().asShaderVar(),
                               btgp.localMatrix(), &fLocalMatrixUniform);
 
         fragBuilder->codeAppend("half4 texColor;");
@@ -72,6 +76,7 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps& shaderCaps,
                  const GrGeometryProcessor& geomProc) override {
         const GrBitmapTextGeoProc& btgp = geomProc.cast<GrBitmapTextGeoProc>();
         if (btgp.color() != fColor && !btgp.hasVertexColor()) {
@@ -89,17 +94,19 @@ public:
             fAtlasDimensions = atlasDimensions;
         }
 
-        this->setTransform(pdman, fLocalMatrixUniform, btgp.localMatrix(), &fLocalMatrix);
+        SetTransform(pdman, shaderCaps, fLocalMatrixUniform, btgp.localMatrix(), &fLocalMatrix);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrShaderCaps&,
+                              const GrShaderCaps& shaderCaps,
                               GrProcessorKeyBuilder* b) {
         const GrBitmapTextGeoProc& btgp = proc.cast<GrBitmapTextGeoProc>();
         b->addBool(btgp.usesW(), "usesW");
         static_assert(kLast_GrMaskFormat < (1u << 2));
         b->addBits(2, btgp.maskFormat(), "maskFormat");
-        b->addBits(kMatrixKeyBits, ComputeMatrixKey(btgp.localMatrix()), "localMatrixType");
+        b->addBits(kMatrixKeyBits,
+                   ComputeMatrixKey(shaderCaps, btgp.localMatrix()),
+                   "localMatrixType");
         b->add32(btgp.numTextureSamplers(),"numTextures");
     }
 
