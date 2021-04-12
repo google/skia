@@ -167,7 +167,6 @@ static sk_sp<SkColorFilter> MakeMatrix(const float array[20],
 
     struct { SkM44 m; SkV4 b; } uniforms;
     SkString code {
-        "uniform shader  input;"
         "uniform half4x4 m;"
         "uniform half4   b;"
     };
@@ -176,9 +175,9 @@ static sk_sp<SkColorFilter> MakeMatrix(const float array[20],
         code += kHSL_to_RGB_sksl;
     }
 
-    code += "half4 main() {";
+    code += "half4 main(half4 inColor) {";
     if (true) {
-        code += "half4 c = sample(input);";  // unpremul
+        code += "half4 c = inColor;";  // unpremul
     }
     if (alphaUnchanged) {
         code += "half a = c.a;";
@@ -207,10 +206,9 @@ static sk_sp<SkColorFilter> MakeMatrix(const float array[20],
     sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(std::move(code));
     SkASSERT(effect);
 
-    sk_sp<SkColorFilter> input = nullptr;
     SkAlphaType       unpremul = kUnpremul_SkAlphaType;
     return SkColorFilters::WithWorkingFormat(
-            effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms)), &input, 1),
+            effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms))),
             nullptr/*keep dst TF encoding*/,
             nullptr/*stay in dst gamut*/,
             &unpremul);

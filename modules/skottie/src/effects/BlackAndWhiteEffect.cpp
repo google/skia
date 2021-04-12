@@ -34,12 +34,9 @@ namespace  {
 
 static sk_sp<SkRuntimeEffect> make_effect() {
     static constexpr char BLACK_AND_WHITE_EFFECT[] = R"(
-        uniform shader input;
         uniform half kR, kY, kG, kC, kB, kM;
 
-        half4 main() {
-            half4 c = sample(input);
-
+        half4 main(half4 c) {
             half m = min(min(c.r, c.g), c.b),
 
                 dr = c.r - m,
@@ -115,10 +112,8 @@ private:
             (fCoeffs[5] ) / 100,
         };
 
-        sk_sp<SkColorFilter> input;
-
         this->node()->setColorFilter(
-            fEffect->makeColorFilter(SkData::MakeWithCopy(&coeffs, sizeof(coeffs)), &input, 1));
+                fEffect->makeColorFilter(SkData::MakeWithCopy(&coeffs, sizeof(coeffs))));
     }
 
     const sk_sp<SkRuntimeEffect> fEffect;

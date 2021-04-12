@@ -444,7 +444,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                         String              fOutput;
                     };
                     Callbacks callbacks;
-                    SkSL::PipelineStage::ConvertProgram(program, "_coords", &callbacks);
+                    SkSL::PipelineStage::ConvertProgram(program, "_coords", "_inColor", &callbacks);
                     out.writeString(GrShaderUtils::PrettyPrint(callbacks.fOutput));
                     return true;
                 });

@@ -42,9 +42,11 @@ class PipelineStageCodeGenerator {
 public:
     PipelineStageCodeGenerator(const Program& program,
                                const char* sampleCoords,
+                               const char* inputColor,
                                Callbacks* callbacks)
             : fProgram(program)
             , fSampleCoords(sampleCoords)
+            , fInputColor(inputColor)
             , fCallbacks(callbacks) {}
 
     void generateCode();
@@ -108,6 +110,7 @@ private:
 
     const Program& fProgram;
     const char*    fSampleCoords;
+    const char*    fInputColor;
     Callbacks*     fCallbacks;
 
     std::unordered_map<const Variable*, String>            fVariableNames;
@@ -202,6 +205,9 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
 
     if (modifiers.fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
         this->write(fSampleCoords);
+        return;
+    } else if (modifiers.fLayout.fBuiltin == SK_INPUT_COLOR_BUILTIN) {
+        this->write(fInputColor);
         return;
     }
 
@@ -680,8 +686,9 @@ void PipelineStageCodeGenerator::generateCode() {
 
 void ConvertProgram(const Program& program,
                     const char* sampleCoords,
+                    const char* inputColor,
                     Callbacks* callbacks) {
-    PipelineStageCodeGenerator generator(program, sampleCoords, callbacks);
+    PipelineStageCodeGenerator generator(program, sampleCoords, inputColor, callbacks);
     generator.generateCode();
 }
 

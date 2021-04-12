@@ -123,7 +123,7 @@ public:
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
 
-        SkSL::PipelineStage::ConvertProgram(program, coords, &callbacks);
+        SkSL::PipelineStage::ConvertProgram(program, coords, args.fInputColor, &callbacks);
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
@@ -232,7 +232,8 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
     const skvm::Program* program = fEffect->getFilterColorProgram();
     SkASSERT(program);
 
-    SkSTArray<2, SkPMColor4f, true> childColors;
+    SkSTArray<3, SkPMColor4f, true> childColors;
+    childColors.push_back(inputColor);
     for (int i = 0; i < this->numChildProcessors(); ++i) {
         childColors.push_back(ConstantOutputForConstantInput(this->childProcessor(i), inputColor));
     }

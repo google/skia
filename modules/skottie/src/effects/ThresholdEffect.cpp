@@ -19,11 +19,10 @@ namespace  {
 
 // Convert to black & white, based on input luminance and a threshold uniform.
 static constexpr char gThresholdSkSL[] = R"(
-    uniform shader input;
     uniform half   t;
 
-    half4 main() {
-        half4 c = unpremul(sample(input));
+    half4 main(half4 color) {
+        half4 c = unpremul(color);
 
         half lum = dot(c.rgb, half3(0.2126, 0.7152, 0.0722)),
               bw = step(t, lum);
@@ -57,9 +56,8 @@ public:
 
 private:
     void onSync() override {
-        sk_sp<SkColorFilter> input; // nullptr -> input color
-        auto cf = threshold_effect()
-                      ->makeColorFilter(SkData::MakeWithCopy(&fLevel, sizeof(fLevel)), &input, 1);
+        auto cf =
+                threshold_effect()->makeColorFilter(SkData::MakeWithCopy(&fLevel, sizeof(fLevel)));
 
         this->node()->setColorFilter(std::move(cf));
     }

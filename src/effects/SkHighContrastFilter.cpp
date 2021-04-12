@@ -19,14 +19,13 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
     struct Uniforms { float grayscale, invertStyle, contrast; };
 
     SkString code{R"(
-        uniform shader input;
         uniform half grayscale, invertStyle, contrast;
     )"};
     code += kRGB_to_HSL_sksl;
     code += kHSL_to_RGB_sksl;
     code += R"(
-        half4 main() {
-            half4 c = sample(input);  // linear unpremul RGBA in dst gamut.
+        half4 main(half4 inColor) {
+            half4 c = inColor;  // linear unpremul RGBA in dst gamut.
             if (grayscale == 1) {
                 c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;
             }
@@ -57,11 +56,10 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
         (1+c)/(1-c),
     };
 
-    sk_sp<SkColorFilter>    input = nullptr;
     skcms_TransferFunction linear = SkNamedTransferFn::kLinear;
     SkAlphaType          unpremul = kUnpremul_SkAlphaType;
     return SkColorFilters::WithWorkingFormat(
-            effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms)), &input, 1),
+            effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms))),
             &linear, nullptr/*use dst gamut*/, &unpremul);
 }
 

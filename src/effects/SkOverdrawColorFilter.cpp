@@ -19,10 +19,8 @@ sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeWithSkColors(const SkColor color
         uniform half4 color3;
         uniform half4 color4;
         uniform half4 color5;
-        uniform shader input;
 
-        half4 main() {
-            half4 color = sample(input);
+        half4 main(half4 color) {
             half alpha = 255.0 * color.a;
             color = alpha < 0.5 ? color0
                   : alpha < 1.5 ? color1
@@ -38,8 +36,7 @@ sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeWithSkColors(const SkColor color
         for (int i = 0; i < kNumColors; ++i) {
             premul[i] = SkColor4f::FromColor(colors[i]).premul();
         }
-        sk_sp<SkColorFilter> input = nullptr;
-        return effect->makeColorFilter(std::move(data), &input, 1);
+        return effect->makeColorFilter(std::move(data));
     }
     return nullptr;
 }
