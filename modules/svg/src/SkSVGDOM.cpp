@@ -46,6 +46,7 @@
 #include "modules/svg/include/SkSVGUse.h"
 #include "modules/svg/include/SkSVGValue.h"
 #include "src/core/SkTSearch.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/xml/SkDOM.h"
 
 namespace {
@@ -392,6 +393,7 @@ SkSVGDOM::Builder& SkSVGDOM::Builder::setResourceProvider(sk_sp<skresources::Res
 }
 
 sk_sp<SkSVGDOM> SkSVGDOM::Builder::make(SkStream& str) const {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     SkDOM xmlDom;
     if (!xmlDom.build(str)) {
         return nullptr;
@@ -429,6 +431,7 @@ SkSVGDOM::SkSVGDOM(sk_sp<SkSVGSVG> root, sk_sp<SkFontMgr> fmgr,
 }
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     if (fRoot) {
         SkSVGLengthContext       lctx(fContainerSize);
         SkSVGPresentationContext pctx;

@@ -1124,6 +1124,8 @@ void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
 }
 
 void SkCanvas::internalRestore() {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+
     SkASSERT(fMCStack.count() != 0);
 
     // now detach these from fMCRec so we can pop(). Gets freed after its drawn
