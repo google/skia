@@ -293,7 +293,9 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                                         "'key' is only permitted within fragment processors");
         }
     }
-    if (this->programKind() == ProgramKind::kRuntimeEffect) {
+    if (this->programKind() == ProgramKind::kRuntimeEffect ||
+        this->programKind() == ProgramKind::kRuntimeColorFilter ||
+        this->programKind() == ProgramKind::kRuntimeShader) {
         if (modifiers.fFlags & Modifiers::kIn_Flag) {
             this->errorReporter().error(offset, "'in' variables not permitted in runtime effects");
         }
@@ -307,9 +309,9 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         this->errorReporter().error(offset, "'key' is not permitted on 'uniform' variables");
     }
     if (modifiers.fLayout.fMarker.fLength) {
-        if (this->programKind() != ProgramKind::kRuntimeEffect) {
-            this->errorReporter().error(offset,
-                                        "'marker' is only permitted in runtime effects");
+        if (this->programKind() != ProgramKind::kRuntimeEffect &&
+            this->programKind() != ProgramKind::kRuntimeShader) {
+            this->errorReporter().error(offset, "'marker' is only permitted in runtime shaders");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
             this->errorReporter().error(offset,
@@ -321,7 +323,9 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         }
     }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
-        if (this->programKind() != ProgramKind::kRuntimeEffect) {
+        if (this->programKind() != ProgramKind::kRuntimeEffect &&
+            this->programKind() != ProgramKind::kRuntimeColorFilter &&
+            this->programKind() != ProgramKind::kRuntimeShader) {
             this->errorReporter().error(offset,
                                         "'srgb_unpremul' is only permitted in runtime effects");
         }
@@ -341,8 +345,9 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         }
     }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
-        if (this->programKind() != ProgramKind::kRuntimeEffect) {
-            this->errorReporter().error(offset, "'varying' is only permitted in runtime effects");
+        if (this->programKind() != ProgramKind::kRuntimeEffect &&
+            this->programKind() != ProgramKind::kRuntimeShader) {
+            this->errorReporter().error(offset, "'varying' is only permitted in runtime shaders");
         }
         if (!baseType->isFloat() &&
             !(baseType->isVector() && baseType->componentType().isFloat())) {
@@ -1057,10 +1062,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 
         Modifiers m = pd.fModifiers;
         if (isMain && (this->programKind() == ProgramKind::kRuntimeEffect ||
+                       this->programKind() == ProgramKind::kRuntimeShader ||
                        this->programKind() == ProgramKind::kFragmentProcessor)) {
-            if (i == 0) {
-                // We verify that the type is correct later, for now, if there is a parameter to
-                // a .fp or runtime-effect main(), it's supposed to be the coords:
+            if (*type == *fContext.fTypes.fFloat2) {
+                // We verify that the signature is correct later, for now, if there is a float2
+                // parameter to a .fp or runtime-effect main(), it's supposed to be the coords:
                 m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             }
         }
@@ -1077,23 +1083,56 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                parameters[idx]->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     };
 
+    auto typeIsValidForColor = [&](const Type& type) {
+        return type == *fContext.fTypes.fHalf4 || type == *fContext.fTypes.fFloat4;
+    };
+
     // Check the function signature of `main`.
     if (isMain) {
         switch (this->programKind()) {
             case ProgramKind::kRuntimeEffect: {
                 // (half4|float4) main()  -or-  (half4|float4) main(float2)
-                if (*returnType != *fContext.fTypes.fHalf4 &&
-                    *returnType != *fContext.fTypes.fFloat4) {
+                if (!typeIsValidForColor(*returnType)) {
                     this->errorReporter().error(f.fOffset,
                                                 "'main' must return: 'vec4', 'float4', or 'half4'");
                     return;
                 }
-                bool validParams = (parameters.size() == 0) ||
-                                   (parameters.size() == 1 && paramIsCoords(0));
+                bool validParams =
+                        (parameters.size() == 0) || (parameters.size() == 1 && paramIsCoords(0));
                 if (!validParams) {
                     this->errorReporter().error(
                             f.fOffset, "'main' parameters must be: (), (vec2), or (float2)");
                     return;
+                }
+                break;
+            }
+            case ProgramKind::kRuntimeColorFilter: {
+                // (half4|float4) main(half4|float4)
+                if (!typeIsValidForColor(*returnType)) {
+                    this->errorReporter().error(f.fOffset,
+                                                "'main' must return: 'vec4', 'float4', or 'half4'");
+                    return;
+                }
+                if (parameters.size() != 1 || !typeIsValidForColor(parameters[0]->type())) {
+                    this->errorReporter().error(
+                            f.fOffset, "'main' parameter must be 'vec4', 'float4', or 'half4'");
+                    return;
+                }
+                break;
+            }
+            case ProgramKind::kRuntimeShader: {
+                // (half4|float4) main(float2)  -or-  (half4|float4) main(half4|float4, float2)
+                if (!typeIsValidForColor(*returnType)) {
+                    this->errorReporter().error(f.fOffset,
+                                                "'main' must return: 'vec4', 'float4', or 'half4'");
+                    return;
+                }
+                bool validParams = (parameters.size() == 1 && paramIsCoords(0)) ||
+                                   (parameters.size() == 2 &&
+                                    typeIsValidForColor(parameters[0]->type()) && paramIsCoords(1));
+                if (!validParams) {
+                    this->errorReporter().error(
+                            f.fOffset, "'main' parameters must be ((vec4|float4|half4)?, float2)");
                 }
                 break;
             }
@@ -1112,8 +1151,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 break;
             }
             case ProgramKind::kGeneric:
+                // No rules apply here
                 break;
-            default:
+            case ProgramKind::kFragment:
+            case ProgramKind::kVertex:
+            case ProgramKind::kGeometry:
                 if (parameters.size()) {
                     this->errorReporter().error(f.fOffset,
                                                 "shader 'main' must have zero parameters");
