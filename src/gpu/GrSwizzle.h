@@ -103,7 +103,7 @@ constexpr float GrSwizzle::ComponentIndexToFloat(std::array<float, 4> color, int
         return 1.0f;
     }
     if (idx == CToI('0')) {
-        return 1.0f;
+        return 0.0f;
     }
     SkUNREACHABLE;
 }
