@@ -93,6 +93,30 @@
       },
       "revId": "54cb91e2668d92b205659ca15df784937798257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d68e798f_fe837320",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/MainActivity.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-12T19:14:04Z",
+      "side": 1,
+      "message": "Might want to do something similar to how SkottieRunner creates a singleton that has a static call to System.loadLibrary, but we can revisit later as the codebase gets bigger",
+      "parentUuid": "7c49cb43_b9a68ca1",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "54cb91e2668d92b205659ca15df784937798257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
