@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0793bb4_29764d76",
+        "filename": "resources/sksl/runtime/GLSLTypeNames.rte",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-12T16:32:28Z",
+      "side": 1,
+      "message": "What about non-square matrices?",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 33
+      },
+      "revId": "82ea6525d7db7c625b4bfdc67d0aba02a01f6952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
