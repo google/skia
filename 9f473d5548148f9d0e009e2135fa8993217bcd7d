@@ -118,6 +118,30 @@
       },
       "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29187fab_bc3d4b09",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-13T13:00:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b200f510_f324dc78",
+      "range": {
+        "startLine": 10,
+        "startChar": 18,
+        "endLine": 10,
+        "endChar": 25
+      },
+      "revId": "9f473d5548148f9d0e009e2135fa8993217bcd7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
