@@ -344,6 +344,7 @@ public:
     // provided but 'renderTarget' has a stencil buffer then that is a signal that the
     // render target's stencil buffer should be ignored.
     GrOpsRenderPass* getOpsRenderPass(GrRenderTarget* renderTarget,
+                                      bool useMSAASurface,
                                       GrAttachment* stencil,
                                       GrSurfaceOrigin,
                                       const SkIRect& bounds,
@@ -749,6 +750,7 @@ private:
 
     virtual GrOpsRenderPass* onGetOpsRenderPass(
             GrRenderTarget* renderTarget,
+            bool useMSAASurface,
             GrAttachment* stencil,
             GrSurfaceOrigin,
             const SkIRect& bounds,

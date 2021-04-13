@@ -631,6 +631,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
 
 GrOpsRenderPass* GrGpu::getOpsRenderPass(
         GrRenderTarget* renderTarget,
+        bool useMSAASurface,
         GrAttachment* stencil,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
@@ -642,8 +643,8 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
     fCurrentSubmitRenderPassCount++;
 #endif
     fStats.incRenderPasses();
-    return this->onGetOpsRenderPass(renderTarget, stencil, origin, bounds, colorInfo, stencilInfo,
-                                    sampledProxies, renderPassXferBarriers);
+    return this->onGetOpsRenderPass(renderTarget, useMSAASurface, stencil, origin, bounds,
+                                    colorInfo, stencilInfo, sampledProxies, renderPassXferBarriers);
 }
 
 bool GrGpu::submitToGpu(bool syncCpu) {

@@ -126,6 +126,7 @@ void GrD3DGpu::destroyResources() {
 
 GrOpsRenderPass* GrD3DGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
+        bool /*useMSAASurface*/,
         GrAttachment*,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,

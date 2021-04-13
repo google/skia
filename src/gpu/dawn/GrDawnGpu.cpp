@@ -158,6 +158,7 @@ sk_sp<GrThreadSafePipelineBuilder> GrDawnGpu::refPipelineBuilder() {
 
 GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
+        bool /*useMSAASurface*/,
         GrAttachment*,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
