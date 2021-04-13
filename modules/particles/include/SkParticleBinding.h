@@ -10,7 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "modules/particles/include/SkReflected.h"
-#include "src/sksl/SkSLExternalFunction.h"
+#include "src/sksl/ir/SkSLExternalFunction.h"
 
 #include <memory>
 
