@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b81330c0_5a6d6f6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-13T21:00:10Z",
+      "side": 1,
+      "message": "This compiles and runs, but gives weird edge artifacts on some samples (e.g., analytic_antialias_convex).\n\nBrandon, could you take a look and see if I\u0027m doing something obviously stupid in GrDawnProgramBuilder.cpp?",
+      "revId": "53be16ff315ce2ba6ac17debbafe2caaec379caa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
