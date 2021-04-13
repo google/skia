@@ -469,31 +469,10 @@ inline SkPoint SkVectorProjection(SkPoint a, SkPoint b) {
     return b_normalized;
 }
 
-void colrv1_draw_paint(SkCanvas* canvas,
-                       const FT_Color* palette,
-                       FT_Face face,
-                       FT_COLR_Paint colrv1_paint) {
-    SkPaint paint;
+void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
+                              FT_COLR_Paint colrv1_paint, SkPaint* paint) {
 
     switch (colrv1_paint.format) {
-        case FT_COLR_PAINTFORMAT_GLYPH: {
-            FT_UInt glyphID = colrv1_paint.u.glyph.glyphID;
-            SkPath path;
-            /* TODO: Currently this call retrieves the path at units_per_em size. If we want to get
-             * correct hinting for the scaled size under the transforms at this point in the color
-             * glyph graph, we need to extract at least the requested glyph width and height and
-             * pass that to the path generation. */
-            if (generateFacePathCOLRv1(face, glyphID, &path)) {
-
-#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-              SkPaint highlight_paint;
-              highlight_paint.setColor(0x33FF0000);
-              canvas->drawRect(path.getBounds(), highlight_paint);
-#endif
-              canvas->clipPath(path, true /* doAntiAlias */);
-            }
-            break;
-        }
         case FT_COLR_PAINTFORMAT_SOLID: {
             SkColor color =
                     SkColorSetARGB(palette[colrv1_paint.u.solid.color.palette_index].alpha *
@@ -501,9 +480,8 @@ void colrv1_draw_paint(SkCanvas* canvas,
                                    palette[colrv1_paint.u.solid.color.palette_index].red,
                                    palette[colrv1_paint.u.solid.color.palette_index].green,
                                    palette[colrv1_paint.u.solid.color.palette_index].blue);
-            paint.setShader(nullptr);
-            paint.setColor(color);
-            canvas->drawPaint(paint);
+            paint->setShader(nullptr);
+            paint->setColor(color);
             break;
         }
         case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT: {
@@ -560,11 +538,10 @@ void colrv1_draw_paint(SkCanvas* canvas,
                     ToSkTileMode(colrv1_paint.u.linear_gradient.colorline.extend)));
             SkASSERT(shader);
             // An opaque color is needed to ensure the gradient's not modulated by alpha.
-            paint.setColor(SK_ColorBLACK);
-            paint.setShader(shader);
+            paint->setColor(SK_ColorBLACK);
+            paint->setShader(shader);
 
 
-            canvas->drawPaint(paint);
             break;
         }
         case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT: {
@@ -599,12 +576,11 @@ void colrv1_draw_paint(SkCanvas* canvas,
             }
 
             // An opaque color is needed to ensure the gradient's not modulated by alpha.
-            paint.setColor(SK_ColorBLACK);
+            paint->setColor(SK_ColorBLACK);
 
-            paint.setShader(SkGradientShader::MakeTwoPointConical(
+            paint->setShader(SkGradientShader::MakeTwoPointConical(
                     start, radius, end, end_radius, colors.data(), stops.data(), num_color_stops,
                     ToSkTileMode(colrv1_paint.u.radial_gradient.colorline.extend)));
-            canvas->drawPaint(paint);
             break;
         }
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
@@ -636,7 +612,7 @@ void colrv1_draw_paint(SkCanvas* canvas,
             }
 
             // An opaque color is needed to ensure the gradient's not modulated by alpha.
-            paint.setColor(SK_ColorBLACK);
+            paint->setColor(SK_ColorBLACK);
 
             // Prepare angles to be within range for the shader.
             auto clampAngleToRange= [](SkScalar angle) {
@@ -659,10 +635,50 @@ void colrv1_draw_paint(SkCanvas* canvas,
             SkMatrix angle_adjust = SkMatrix::RotateDeg(-90.f, center);
             angle_adjust.postScale(-1, 1, center.x(), center.y());
 
-            paint.setShader(SkGradientShader::MakeSweep(
+            paint->setShader(SkGradientShader::MakeSweep(
                     center.x(), center.y(), colors.data(), stops.data(), num_color_stops,
                     SkTileMode::kDecal, startAngle, endAngle, 0, &angle_adjust));
-            canvas->drawPaint(paint);
+            break;
+        }
+        default: {
+            SkASSERT(false); /* not reached */
+        }
+    }
+}
+
+
+void colrv1_draw_paint(SkCanvas* canvas,
+                       const FT_Color* palette,
+                       FT_Face face,
+                       FT_COLR_Paint colrv1_paint) {
+    SkPaint paint;
+
+    switch (colrv1_paint.format) {
+        case FT_COLR_PAINTFORMAT_GLYPH: {
+            FT_UInt glyphID = colrv1_paint.u.glyph.glyphID;
+            SkPath path;
+            /* TODO: Currently this call retrieves the path at units_per_em size. If we want to get
+             * correct hinting for the scaled size under the transforms at this point in the color
+             * glyph graph, we need to extract at least the requested glyph width and height and
+             * pass that to the path generation. */
+            if (generateFacePathCOLRv1(face, glyphID, &path)) {
+
+#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
+              SkPaint highlight_paint;
+              highlight_paint.setColor(0x33FF0000);
+              canvas->drawRect(path.getBounds(), highlight_paint);
+#endif
+              canvas->clipPath(path, true /* doAntiAlias */);
+            }
+            break;
+        }
+        case FT_COLR_PAINTFORMAT_SOLID:
+        case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT:
+        case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT:
+        case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
+            SkPaint colrPaint;
+            colrv1_configure_skpaint(face, palette, colrv1_paint, &colrPaint);
+            canvas->drawPaint(colrPaint);
             break;
         }
         case FT_COLR_PAINTFORMAT_TRANSFORMED:
