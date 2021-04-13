@@ -19,6 +19,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/codegen/SkSLCPPCodeGenerator.h"
+#include "src/sksl/codegen/SkSLDSLCPPCodeGenerator.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLHCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
@@ -830,6 +831,13 @@ bool Compiler::toMetal(Program& program, String* out) {
 bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
     AutoSource as(this, program.fSource.get());
     CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
+    bool result = cg.generateCode();
+    return result;
+}
+
+bool Compiler::toDSLCPP(Program& program, String name, OutputStream& out) {
+    AutoSource as(this, program.fSource.get());
+    DSLCPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
     return result;
 }

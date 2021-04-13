@@ -182,6 +182,8 @@ skia_sksl_gpu_sources = [
   "$_src/sksl/codegen/SkSLCPPCodeGenerator.cpp",
   "$_src/sksl/codegen/SkSLCPPCodeGenerator.h",
   "$_src/sksl/codegen/SkSLCodeGenerator.h",
+  "$_src/sksl/codegen/SkSLDSLCPPCodeGenerator.cpp",
+  "$_src/sksl/codegen/SkSLDSLCPPCodeGenerator.h",
   "$_src/sksl/codegen/SkSLGLSLCodeGenerator.cpp",
   "$_src/sksl/codegen/SkSLGLSLCodeGenerator.h",
   "$_src/sksl/codegen/SkSLHCodeGenerator.cpp",
