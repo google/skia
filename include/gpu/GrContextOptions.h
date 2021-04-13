@@ -267,6 +267,16 @@ struct SK_API GrContextOptions {
      */
     bool fEnableExperimentalHardwareTessellation = false;
 
+    /**
+     * Specify the GPU resource cache limit. If the cache currently exceeds this limit,
+     * it will be purged (LRU) to keep the cache within the limit.
+     *
+     * Equivalent to calling `setResourceCacheLimit` on the context object after creation.
+     *
+     * A value of -1 means use the default limit value.
+     */
+    int fResourceCacheLimit = -1;
+
 #if GR_TEST_UTILS
     /**
      * Uses a reduced variety of shaders. May perform less optimally in steady state but can reduce

@@ -65,6 +65,9 @@ GrDirectContext::DirectContextID GrDirectContext::DirectContextID::Next() {
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
         : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options), false)
         , fDirectContextID(DirectContextID::Next()) {
+    if (options.fResourceCacheLimit != -1) {
+        this->setResourceCacheLimit(options.fResourceCacheLimit);
+    }
 }
 
 GrDirectContext::~GrDirectContext() {
