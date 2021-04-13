@@ -67,7 +67,7 @@ public:
                            bool                      testPrecompile,
                            bool                      useDDLSink,
                            bool                      OOPRish,
-                           bool reducedShaders,
+                           bool                      reducedShaders,
                            SurfType);
 
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }

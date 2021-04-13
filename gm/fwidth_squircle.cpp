@@ -126,6 +126,7 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
         const auto& proc = geomProc.cast<FwidthSquircleTestProcessor>();
         pdman.setSkMatrix(fViewMatrixHandle, proc.fViewMatrix);

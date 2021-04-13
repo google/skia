@@ -75,12 +75,13 @@ public:
                 fragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, varying.fsIn());
 
                 // Position
-                this->writeOutputPosition(args.fVertBuilder, gpArgs, gp.fInPosition.name());
+                WriteOutputPosition(args.fVertBuilder, gpArgs, gp.fInPosition.name());
 
                 // Coverage
                 fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             }
             void setData(const GrGLSLProgramDataManager& pdman,
+                         const GrShaderCaps&,
                          const GrGeometryProcessor& geomProc) override {
                 const GP& gp = geomProc.cast<GP>();
                 fColorSpaceHelper.setData(pdman, gp.fColorSpaceXform.get());

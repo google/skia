@@ -90,7 +90,9 @@ private:
 constexpr GrGeometryProcessor::Attribute GrPipelineDynamicStateTestProcessor::kAttributes[];
 
 class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrPipelineDynamicStateTestProcessor& mp =
