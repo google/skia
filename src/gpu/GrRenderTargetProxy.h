@@ -8,9 +8,11 @@
 #ifndef GrRenderTargetProxy_DEFINED
 #define GrRenderTargetProxy_DEFINED
 
+#include "include/gpu/GrContextOptions.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrNativeRect.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
 
@@ -32,6 +34,16 @@ public:
         return caps.mixedSamplesSupport() && !this->glRTFBOIDIs0() &&
                caps.internalMultisampleCount(this->backendFormat()) > 1 &&
                this->canChangeStencilAttachment();
+    }
+
+    bool hasDynamicMSAA(const GrCaps& caps) const {
+#if GR_TEST_UTILS
+        return caps.dynamicMSAASupport() &&
+               caps.internalMultisampleCount(this->backendFormat()) > 1 &&
+               this->asTextureProxy();
+#else
+        return false;
+#endif
     }
 
     /*

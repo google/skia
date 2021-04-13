@@ -56,7 +56,14 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushing(false)
-        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) { }
+        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) {
+#if GR_TEST_UTILS
+    if (context->priv().options().fAlwaysAntialias) {
+        // Don't use the triangulating path renderer if we have dmsaa.
+        fOptionsForPathRendererChain.fGpuPathRenderers &= ~GpuPathRenderers::kTriangulating;
+    }
+#endif
+}
 
 GrDrawingManager::~GrDrawingManager() {
     this->closeAllTasks();

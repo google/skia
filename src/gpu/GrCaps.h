@@ -69,6 +69,7 @@ public:
     }
     bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
     bool conservativeRasterSupport() const { return fConservativeRasterSupport; }
+    bool dynamicMSAASupport() const { return fDynamicMSAASupport; }
     bool wireframeSupport() const { return fWireframeSupport; }
     // This flag indicates that we never have to resolve MSAA. In practice, it means that we have
     // an MSAA-render-to-texture extension: Any render target we create internally will use the
@@ -505,6 +506,7 @@ protected:
     bool fUseClientSideIndirectBuffers               : 1;
     bool fMixedSamplesSupport                        : 1;
     bool fConservativeRasterSupport                  : 1;
+    bool fDynamicMSAASupport                         : 1;
     bool fWireframeSupport                           : 1;
     bool fMSAAResolvesAutomatically                  : 1;
     bool fUsePrimitiveRestart                        : 1;

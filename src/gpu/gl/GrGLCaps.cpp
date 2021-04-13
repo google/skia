@@ -998,9 +998,11 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = kStandard_MSFBOType;
+            fDynamicMSAASupport = true;
         } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
                    ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fMSFBOType = kStandard_MSFBOType;
+            fDynamicMSAASupport = true;
         }
     } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
         // We prefer multisampled-render-to-texture extensions over ES3 MSAA because we've observed
@@ -1008,15 +1010,20 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
         if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
             fMSAAResolvesAutomatically = true;
+            fDynamicMSAASupport = true;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
             fMSAAResolvesAutomatically = true;
+            fDynamicMSAASupport = true;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = kStandard_MSFBOType;
+            fDynamicMSAASupport = true;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
             fMSFBOType = kStandard_MSFBOType;
+            fDynamicMSAASupport = true;
         } else if (ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
             fMSFBOType = kStandard_MSFBOType;
+            fDynamicMSAASupport = true;
         } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
             fMSFBOType = kES_Apple_MSFBOType;
         }
@@ -1024,6 +1031,7 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
         // No support in WebGL 1, but there is for 2.0
         if (ctxInfo.version() >= GR_GL_VER(2,0)) {
             fMSFBOType = kStandard_MSFBOType;
+            fDynamicMSAASupport = true;
         } else {
             fMSFBOType = kNone_MSFBOType;
         }

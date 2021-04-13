@@ -389,6 +389,7 @@ void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 }
 
 void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
+                          GrDrawOp::FixedFunctionFlags fixedFunctionFlags,
                           const GrProcessorSet::Analysis& processorAnalysis,
                           GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                           GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
@@ -412,6 +413,19 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
         }
         SkASSERT(dstProxyView.dstSampleType() != GrDstSampleType::kAsInputAttachment ||
                  dstProxyView.offset().isZero());
+    }
+
+    if (!fUsesMSAASurface) {
+        GrRenderTargetProxy* rtProxy = this->target(0)->asRenderTargetProxy();
+        if (rtProxy->hasDynamicMSAA(caps)) {
+            // In dmsaa mode we only have a stencil buffer on the msaa surface. So there should
+            // either be 0 stencil samples or >1.
+            SkASSERT(rtProxy->numStencilSamples() != 1);
+            if ((fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA) ||
+                rtProxy->numStencilSamples() != 0) {
+                fUsesMSAASurface = true;  // Trigger dynamic msaa.
+            }
+        }
     }
 
     if (processorAnalysis.usesNonCoherentHWBlending()) {

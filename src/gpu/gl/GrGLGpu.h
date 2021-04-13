@@ -103,6 +103,13 @@ public:
     // Applies any necessary workarounds and returns the GL primitive type to use in draw calls.
     GrGLenum prepareToDraw(GrPrimitiveType primitiveType);
 
+    enum class ResolveDirection : bool {
+        kSingleToMSAA,
+        kMSAAToSingle
+    };
+
+    void resolveGLRenderTarget(GrGLRenderTarget*, const SkIRect& resolveRect, ResolveDirection);
+
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLOpsRenderPass.
