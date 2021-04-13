@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7aa56223_d77cd9fd",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-13T19:31:41Z",
+      "side": 1,
+      "message": "Is this a load-bearing scope? Why?",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 5
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
