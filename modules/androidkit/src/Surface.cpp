@@ -11,6 +11,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 
 namespace {
 
@@ -85,31 +86,36 @@ private:
     jobject fBitmap;
 };
 
-}  // namespace
-
-/*
- * Takes in a native instance of Bitmap and returns a pointer to the raster surface.
- */
-extern "C" JNIEXPORT jlong
-JNICALL
-Java_org_skia_androidkit_Surface_nCreateBitmap(JNIEnv* env, jobject, jobject bitmap) {
+static jlong Surface_CreateBitmap(JNIEnv* env, jobject, jobject bitmap) {
     return reinterpret_cast<jlong>(new BitmapSurface(env, bitmap));
 }
 
-extern "C" JNIEXPORT void
-JNICALL
-Java_org_skia_androidkit_Surface_nRelease(JNIEnv* env, jobject, jlong native_surface) {
+static void Surface_Release(JNIEnv* env, jobject, jlong native_surface) {
     if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
         surface->release(env);
         delete surface;
     }
 }
 
-extern "C" JNIEXPORT jlong
-JNICALL
-Java_org_skia_androidkit_Surface_nGetNativeCanvas(JNIEnv* env, jobject, jlong native_surface) {
+static jlong Surface_GetNativeCanvas(JNIEnv* env, jobject, jlong native_surface) {
     const auto* surface = reinterpret_cast<Surface*>(native_surface);
     return surface
         ? reinterpret_cast<jlong>(surface->getCanvas())
         : 0;
+}
+
+}  // namespace
+
+int register_androidkit_Surface(JNIEnv* env) {
+    static const JNINativeMethod methods[] = {
+        {"nCreateBitmap"   , "(Landroid/graphics/Bitmap;)J",
+            reinterpret_cast<void*>(Surface_CreateBitmap)},
+        {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)},
+        {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
+    };
+
+    const auto clazz = env->FindClass("org/skia/androidkit/Surface");
+    return clazz
+        ? env->RegisterNatives(clazz, methods, SK_ARRAY_COUNT(methods))
+        : JNI_ERR;
 }
