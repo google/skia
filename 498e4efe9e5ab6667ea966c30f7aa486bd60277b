@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d56080a7_15806f32",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-13T17:31:51Z",
+      "side": 1,
+      "message": "Bots complain that [[fallthrough]]; should come after this line.",
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f91414f3_55c477a9",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-13T17:31:51Z",
+      "side": 1,
+      "message": "nit: odd spacing. Seems like this should all fit on one line?",
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fea35f86_a02874d1",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-13T17:31:51Z",
+      "side": 1,
+      "message": "While colrv1_paint isn\u0027t usual naming for Skia, I\u0027m fine with it here and would prefer it to remain colrv1_paint to match colrv1_draw_paint (or colrv1_draw_paint change to colrV1Paint). Leaving it inconsistent is just a little bit more mental overhead.",
+      "range": {
+        "startLine": 683,
+        "startChar": 37,
+        "endLine": 683,
+        "endChar": 48
+      },
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "394d4626_2c047b30",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-13T17:31:51Z",
+      "side": 1,
+      "message": "Seems like this comment should also be removed?",
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
