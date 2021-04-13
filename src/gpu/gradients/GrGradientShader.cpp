@@ -245,7 +245,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
     if (args.fInputColorIsOpaque) {
         return GrFragmentProcessor::OverrideInput(std::move(gradient), SK_PMColor4fWHITE, false);
     }
-    return GrFragmentProcessor::MulChildByInputAlpha(std::move(gradient));
+    return GrFragmentProcessor::MulChildByInputAlpha(args.fContext, std::move(gradient));
 }
 
 namespace GrGradientShader {

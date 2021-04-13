@@ -183,7 +183,10 @@ public:
                          bool hasUserStencilSettings, GrAppliedClip* out,
                          SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-            out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
+            out->addCoverageFP(context, std::make_unique<ClipFP>(context,
+                                                                 proxyProvider,
+                                                                 fTest,
+                                                                 fAtlas));
             return Effect::kClipped;
         }
 

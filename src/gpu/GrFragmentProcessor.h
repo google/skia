@@ -22,11 +22,15 @@ class GrShaderCaps;
 class GrSwizzle;
 class GrTextureEffect;
 
-/** Provides custom fragment shader code. Fragment processors receive an input color (half4) and
-    produce an output color. They may reference textures and uniforms.
+/** Provides custom fragment shader code. Fragment processors receive an input position and
+    produce an output color. They may contain and uniforms and have may have children fragment
+    processors that they invoke.
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
+    /** Always returns 'color'. */
+    static std::unique_ptr<GrFragmentProcessor> MakeColor(GrRecordingContext*, SkPMColor4f color);
+
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
     *  only consider the input color's alpha. However, there is a competing desire to have reusable
@@ -36,7 +40,7 @@ public:
     *  input alpha. The passed in FP will not receive an input color.
     */
     static std::unique_ptr<GrFragmentProcessor> MulChildByInputAlpha(
-            std::unique_ptr<GrFragmentProcessor> child);
+            GrRecordingContext*, std::unique_ptr<GrFragmentProcessor> child);
 
     /**
      *  Like MulChildByInputAlpha(), but reverses the sense of src and dst. In this case, return
@@ -45,21 +49,25 @@ public:
      *  output = input * child.a
      */
     static std::unique_ptr<GrFragmentProcessor> MulInputByChildAlpha(
-            std::unique_ptr<GrFragmentProcessor> child);
+            GrRecordingContext*, std::unique_ptr<GrFragmentProcessor> child);
 
     /**
      *  Returns a fragment processor that generates the passed-in color, modulated by the child's
      *  alpha channel. (Pass a null FP to use the alpha from fInputColor instead of a child FP.)
      */
     static std::unique_ptr<GrFragmentProcessor> ModulateAlpha(
-            std::unique_ptr<GrFragmentProcessor> child, const SkPMColor4f& color);
+            GrRecordingContext*,
+            std::unique_ptr<GrFragmentProcessor> child,
+            const SkPMColor4f& color);
 
     /**
      *  Returns a fragment processor that generates the passed-in color, modulated by the child's
      *  RGBA color. (Pass a null FP to use the color from fInputColor instead of a child FP.)
      */
     static std::unique_ptr<GrFragmentProcessor> ModulateRGBA(
-            std::unique_ptr<GrFragmentProcessor> child, const SkPMColor4f& color);
+            GrRecordingContext*,
+            std::unique_ptr<GrFragmentProcessor> child,
+            const SkPMColor4f& color);
 
     /**
      *  This assumes that the input color to the returned processor will be unpremul and that the
@@ -83,7 +91,8 @@ public:
      *  Returns a fragment processor that premuls the input before calling the passed in fragment
      *  processor.
      */
-    static std::unique_ptr<GrFragmentProcessor> PremulInput(std::unique_ptr<GrFragmentProcessor>);
+    static std::unique_ptr<GrFragmentProcessor> PremulInput(GrRecordingContext*,
+                                                            std::unique_ptr<GrFragmentProcessor>);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
@@ -104,7 +113,8 @@ public:
      * This is equivalent to running them in series (`g`, then `f`). This is not the same as
      * transfer-mode composition; there is no blending step.
      */
-    static std::unique_ptr<GrFragmentProcessor> Compose(std::unique_ptr<GrFragmentProcessor> f,
+    static std::unique_ptr<GrFragmentProcessor> Compose(GrRecordingContext*,
+                                                        std::unique_ptr<GrFragmentProcessor> f,
                                                         std::unique_ptr<GrFragmentProcessor> g);
 
     /**

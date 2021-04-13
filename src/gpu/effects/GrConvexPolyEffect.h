@@ -50,7 +50,10 @@ public:
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
      * inverse filled, or has too many edges, creation will fail.
      */
-    static GrFPResult Make(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkPath&);
+    static GrFPResult Make(GrRecordingContext*,
+                           std::unique_ptr<GrFragmentProcessor>,
+                           GrClipEdgeType,
+                           const SkPath&);
 
     ~GrConvexPolyEffect() override;
 

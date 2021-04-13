@@ -255,7 +255,8 @@ static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc, bool su
                 static constexpr float kAlpha = 0.2f;
                 auto fp = GrTextureEffect::MakeSubset(src, kPremul_SkAlphaType, SkMatrix::I(),
                                                       sampler, SkRect::Make(srcRect), caps);
-                fp = GrFragmentProcessor::ModulateRGBA(std::move(fp),
+                fp = GrFragmentProcessor::ModulateRGBA(rContext,
+                                                       std::move(fp),
                                                        {kAlpha, kAlpha, kAlpha, kAlpha});
                 GrPaint paint;
                 paint.setColorFragmentProcessor(std::move(fp));
@@ -280,13 +281,16 @@ static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc, bool su
                                                     sampler,
                                                     caps);
                     // Compose against white (default paint color)
-                    fp = GrBlendFragmentProcessor::Make(std::move(fp),
+                    fp = GrBlendFragmentProcessor::Make(rContext,
+                                                        std::move(fp),
                                                         /*dst=*/nullptr,
                                                         SkBlendMode::kSrcOver);
                     GrPaint paint;
                     // Compose against white (default paint color) and then replace the dst
                     // (SkBlendMode::kSrc).
-                    fp = GrBlendFragmentProcessor::Make(std::move(fp), /*dst=*/nullptr,
+                    fp = GrBlendFragmentProcessor::Make(rContext,
+                                                        std::move(fp),
+                                                        /*dst=*/nullptr,
                                                         SkBlendMode::kSrcOver);
                     paint.setColorFragmentProcessor(std::move(fp));
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -384,7 +388,8 @@ static void do_very_large_blur_gm(GrSurfaceDrawContext* sdc,
                     if (result) {
                         std::unique_ptr<GrFragmentProcessor> fp =
                                 GrTextureEffect::Make(std::move(result), kPremul_SkAlphaType);
-                        fp = GrBlendFragmentProcessor::Make(std::move(fp),
+                        fp = GrBlendFragmentProcessor::Make(rContext,
+                                                            std::move(fp),
                                                             /*dst=*/nullptr,
                                                             SkBlendMode::kSrcOver);
                         sdc->fillRectToRectWithFP(SkIRect::MakeSize(dstB.size()),

@@ -45,7 +45,7 @@ private:
                                                       SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                       *context->priv().caps());
         if (success) {
-            out->addCoverageFP(std::move(fp));
+            out->addCoverageFP(context, std::move(fp));
             return Effect::kClipped;
         } else {
             return Effect::kClippedOut;

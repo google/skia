@@ -43,7 +43,6 @@
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrDitherEffect.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
@@ -262,7 +261,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
             SkPMColor4f shaderInput = origColor.makeOpaque().premul();
             paintFP = GrFragmentProcessor::OverrideInput(std::move(paintFP), shaderInput);
-            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
+            paintFP = GrBlendFragmentProcessor::Make(context,
+                                                     std::move(paintFP),
+                                                     /*dst=*/nullptr,
                                                      *primColorMode);
 
             // We can ignore origColor here - alpha is unchanged by gamma
@@ -271,7 +272,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
                 paintFP = GrFragmentProcessor::ModulateRGBA(
-                        std::move(paintFP), {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
+                        context,
+                        std::move(paintFP),
+                        {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
             }
         } else {
             grPaint->setColor4f(origColor.premul());
@@ -281,8 +284,10 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             // There is a blend between the primitive color and the paint color. The blend considers
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
             SkPMColor4f opaqueColor = origColor.makeOpaque().premul();
-            paintFP = GrConstColorProcessor::Make(opaqueColor);
-            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
+            paintFP = GrFragmentProcessor::MakeColor(context, opaqueColor);
+            paintFP = GrBlendFragmentProcessor::Make(context,
+                                                     std::move(paintFP),
+                                                     /*dst=*/nullptr,
                                                      *primColorMode);
             grPaint->setColor4f(opaqueColor);
 
@@ -292,7 +297,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
                 paintFP = GrFragmentProcessor::ModulateRGBA(
-                        std::move(paintFP), {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
+                        context,
+                        std::move(paintFP),
+                        {paintAlpha, paintAlpha, paintAlpha, paintAlpha});
             }
         } else {
             // No shader, no primitive color.
@@ -437,7 +444,7 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
             if (!shaderFP) {
                 return false;
             }
-            shaderFP = GrFragmentProcessor::Compose(std::move(fp), std::move(shaderFP));
+            shaderFP = GrFragmentProcessor::Compose(context, std::move(fp), std::move(shaderFP));
         } else {
             shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
         }
@@ -445,7 +452,7 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
         if (paint.getColor4f().isOpaque()) {
             shaderFP = GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
         } else {
-            shaderFP = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
+            shaderFP = GrFragmentProcessor::MulChildByInputAlpha(context, std::move(fp));
         }
     }
 
