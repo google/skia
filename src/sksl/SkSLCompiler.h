@@ -135,6 +135,8 @@ public:
 #if defined(SKSL_STANDALONE) || GR_TEST_UTILS
     bool toCPP(Program& program, String name, OutputStream& out);
 
+    bool toDSLCPP(Program& program, String name, OutputStream& out);
+
     bool toH(Program& program, String name, OutputStream& out);
 #endif
 

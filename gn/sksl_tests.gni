@@ -15,6 +15,8 @@ sksl_fp_error_tests = [
   "/sksl/errors/GrRecursion.fp",
 ]
 
+sksl_dsl_fp_tests = [ "/sksl/fp/GrDSLHelloWorld.fp" ]
+
 sksl_fp_tests = [
   "/sksl/fp/GrChildProcessorAndGlobal.fp",
   "/sksl/fp/GrChildProcessorSampleCoords.fp",
@@ -588,6 +590,10 @@ sksl_rte_error_tests = [
 # Tests in sksl_fp_tests_sources will be compiled with --settings on, and are expected to generate
 # a .cpp and a .h output file.
 sksl_fp_tests_sources = sksl_fp_error_tests + sksl_fp_tests
+
+# Tests in sksl_dsl_fp_tests_sources will be compiled with --settings on, and are expected to
+# generate a _dsl.cpp and a .h output file.
+sksl_dsl_fp_tests_sources = sksl_dsl_fp_tests
 
 # Tests in sksl_glsl_tests_sources will be compiled with --settings on, and are expected to generate
 # a .glsl output file.
