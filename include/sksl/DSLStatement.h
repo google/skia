@@ -42,7 +42,7 @@ public:
 
     DSLStatement(DSLBlock block);
 
-    DSLStatement(DSLStatement&&) = default;
+    DSLStatement(DSLStatement&&);
 
     ~DSLStatement();
 
