@@ -665,44 +665,58 @@ void colrv1_draw_paint(SkCanvas* canvas,
             canvas->drawPaint(paint);
             break;
         }
-        case FT_COLR_PAINTFORMAT_TRANSFORMED: {
-            SkMatrix transform = ToSkMatrix(colrv1_paint.u.transformed.affine);
+        case FT_COLR_PAINTFORMAT_TRANSFORMED:
+        case FT_COLR_PAINTFORMAT_TRANSLATE:
+        case FT_COLR_PAINTFORMAT_ROTATE:
+        case FT_COLR_PAINTFORMAT_SKEW:
+          SkASSERT(false); // Transforms handled in colrv1_transform.
+          break;
+        default:
+            paint.setShader(nullptr);
+            paint.setColor(SK_ColorCYAN);
+            break;
+    }
+}
 
-            canvas->concat(transform);
+
+void colrv1_transform(SkCanvas* canvas,
+                       FT_Face face,
+                       FT_COLR_Paint colrV1Paint) {
+    SkMatrix transform;
+
+    switch (colrV1Paint.format) {
+        case FT_COLR_PAINTFORMAT_TRANSFORMED: {
+            transform = ToSkMatrix(colrV1Paint.u.transformed.affine);
             break;
         }
         case FT_COLR_PAINTFORMAT_TRANSLATE: {
-            SkMatrix translate = SkMatrix::Translate(
-                SkFixedToScalar(colrv1_paint.u.translate.dx),
-                -SkFixedToScalar(colrv1_paint.u.translate.dy));
-
-            canvas->concat(translate);
+            transform = SkMatrix::Translate(
+                SkFixedToScalar(colrV1Paint.u.translate.dx),
+                -SkFixedToScalar(colrV1Paint.u.translate.dy));
             break;
         }
         case FT_COLR_PAINTFORMAT_ROTATE: {
-            SkMatrix rotation = SkMatrix::RotateDeg(
-                    SkFixedToScalar(colrv1_paint.u.rotate.angle),
-                    SkPoint::Make(SkFixedToScalar(colrv1_paint.u.rotate.center_x),
-                                  -SkFixedToScalar(colrv1_paint.u.rotate.center_y)));
-
-            canvas->concat(rotation);
+            transform = SkMatrix::RotateDeg(
+                    SkFixedToScalar(colrV1Paint.u.rotate.angle),
+                    SkPoint::Make(SkFixedToScalar(colrV1Paint.u.rotate.center_x),
+                                  -SkFixedToScalar(colrV1Paint.u.rotate.center_y)));
             break;
         }
         case FT_COLR_PAINTFORMAT_SKEW: {
             // In the PAINTFORMAT_ROTATE implementation, SkMatrix setRotate
             // snaps to 0 for values very close to 0. Do the same here.
 
-            SkScalar rad_x = SkDegreesToRadians(-SkFixedToFloat(colrv1_paint.u.skew.x_skew_angle));
+            SkScalar rad_x = SkDegreesToRadians(-SkFixedToFloat(colrV1Paint.u.skew.x_skew_angle));
             float tan_x = SkScalarTan(rad_x);
             tan_x = SkScalarNearlyZero(tan_x) ? 0.0f : tan_x;
 
-            SkScalar rad_y = SkDegreesToRadians(-SkFixedToFloat(colrv1_paint.u.skew.y_skew_angle));
+            SkScalar rad_y = SkDegreesToRadians(-SkFixedToFloat(colrV1Paint.u.skew.y_skew_angle));
             float tan_y = SkScalarTan(rad_y);
             tan_y = SkScalarNearlyZero(tan_y) ? 0.0f : tan_y;
 
             SkMatrix translate_to_origin = SkMatrix::Translate(
-                    SkFixedToScalar(SkFixedToFloat(colrv1_paint.u.skew.center_x)),
-                    SkFixedToScalar(-SkFixedToFloat(colrv1_paint.u.skew.center_y)));
+                    SkFixedToScalar(SkFixedToFloat(colrV1Paint.u.skew.center_x)),
+                    SkFixedToScalar(-SkFixedToFloat(colrV1Paint.u.skew.center_y)));
 
             SkMatrix translate_from_origin;
             SkASSERT(translate_to_origin.invert(&translate_from_origin));
@@ -717,17 +731,17 @@ void colrv1_draw_paint(SkCanvas* canvas,
                 tan_y, 1, 0,
                 0, 0, 1);
 
-            SkMatrix skew = translate_from_origin.postConcat(skew_x).postConcat(skew_y).postConcat(translate_to_origin);
-
-            canvas->concat(skew);
+            transform = translate_from_origin.postConcat(skew_x).postConcat(skew_y).postConcat(translate_to_origin);
             break;
         }
-        default:
-            paint.setShader(nullptr);
-            paint.setColor(SK_ColorCYAN);
-            break;
+        default: {
+            // Only transforms are handled in this function.
+            SkASSERT(false);
+        }
     }
+    canvas->concat(transform);
 }
+
 
 bool colrv1_start_glyph(SkCanvas* canvas,
                         const FT_Color* palette,
@@ -769,23 +783,20 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             break;
         case FT_COLR_PAINTFORMAT_TRANSFORMED:
             // Traverse / draw operation will apply transform.
-            colrv1_draw_paint(canvas, palette, face, paint);
+            colrv1_transform(canvas, face, paint);
             traverse_result =
                     colrv1_traverse_paint(canvas, palette, face, paint.u.transformed.paint);
             break;
         case FT_COLR_PAINTFORMAT_TRANSLATE:
-            // Traverse / draw operation will apply transform.
-            colrv1_draw_paint(canvas, palette, face, paint);
+            colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.translate.paint);
             break;
         case FT_COLR_PAINTFORMAT_ROTATE:
-            // Traverse / draw operation will apply transform.
-            colrv1_draw_paint(canvas, palette, face, paint);
+            colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.rotate.paint);
             break;
         case FT_COLR_PAINTFORMAT_SKEW:
-            // Traverse / draw operation will apply transform.
-            colrv1_draw_paint(canvas, palette, face, paint);
+            colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.skew.paint);
             break;
         case FT_COLR_PAINTFORMAT_COMPOSITE: {
