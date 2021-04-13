@@ -153,8 +153,7 @@ public:
 
 #if SK_SUPPORT_GPU
     // For internal use.
-    std::unique_ptr<GrFragmentProcessor> makeFP(GrRecordingContext*,
-                                                sk_sp<SkData> uniforms,
+    std::unique_ptr<GrFragmentProcessor> makeFP(sk_sp<SkData> uniforms,
                                                 std::unique_ptr<GrFragmentProcessor> children[],
                                                 size_t childCount) const;
 #endif

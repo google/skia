@@ -161,23 +161,21 @@ public:
     std::vector<UniformHandle> fUniformHandles;
 };
 
-std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,
-                                         const char* name, sk_sp<SkData> uniforms) {
+std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
+                                         const char* name,
+                                         sk_sp<SkData> uniforms) {
     if (uniforms->size() != effect->uniformSize()) {
         return nullptr;
     }
-    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().getShaderErrorHandler(),
-                                                  std::move(effect), name, std::move(uniforms)));
+    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(std::move(effect), name, std::move(uniforms)));
 }
 
-GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler,
-                   sk_sp<SkRuntimeEffect> effect,
+GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect,
                    const char* name,
                    sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
                     effect->fAllowColorFilter ? kConstantOutputForConstantInput_OptimizationFlag
                                               : kNone_OptimizationFlags)
-        , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
         , fUniforms(std::move(uniforms)) {
@@ -188,7 +186,6 @@ GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler,
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, other.optimizationFlags())
-        , fShaderErrorHandler(other.fShaderErrorHandler)
         , fEffect(other.fEffect)
         , fName(other.fName)
         , fUniforms(other.fUniforms) {
@@ -278,10 +275,8 @@ GrRuntimeFPBuilder::GrRuntimeFPBuilder(sk_sp<SkRuntimeEffect> effect)
 
 GrRuntimeFPBuilder::~GrRuntimeFPBuilder() = default;
 
-std::unique_ptr<GrFragmentProcessor> GrRuntimeFPBuilder::makeFP(
-        GrRecordingContext* recordingContext) {
-    return this->effect()->makeFP(recordingContext,
-                                  this->uniforms(),
+std::unique_ptr<GrFragmentProcessor> GrRuntimeFPBuilder::makeFP() {
+    return this->effect()->makeFP(this->uniforms(),
                                   this->children(),
                                   this->numChildren());
 }

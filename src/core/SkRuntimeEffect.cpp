@@ -517,7 +517,7 @@ public:
             return GrFPFailure(nullptr);
         }
 
-        auto fp = GrSkSLFP::Make(context, fEffect, "Runtime_Color_Filter", std::move(uniforms));
+        auto fp = GrSkSLFP::Make(fEffect, "Runtime_Color_Filter", std::move(uniforms));
         for (const auto& child : fChildren) {
             std::unique_ptr<GrFragmentProcessor> childFP;
             if (child) {
@@ -687,7 +687,7 @@ public:
             return nullptr;
         }
 
-        auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime_shader", std::move(uniforms));
+        auto fp = GrSkSLFP::Make(fEffect, "runtime_shader", std::move(uniforms));
         for (const auto& child : fChildren) {
             auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
             fp->addChild(std::move(childFP));
@@ -837,14 +837,13 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkRuntimeEffect::makeFP(
-        GrRecordingContext* recordingContext,
         sk_sp<SkData> uniforms,
         std::unique_ptr<GrFragmentProcessor> children[],
         size_t childCount) const {
     if (!uniforms) {
         uniforms = SkData::MakeEmpty();
     }
-    auto fp = GrSkSLFP::Make(recordingContext, sk_ref_sp(this), "make_fp", std::move(uniforms));
+    auto fp = GrSkSLFP::Make(sk_ref_sp(this), "make_fp", std::move(uniforms));
     for (size_t i = 0; i < childCount; ++i) {
         fp->addChild(std::move(children[i]));
     }
@@ -895,8 +894,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
             return nullptr;
         }
 
-        auto fp = GrSkSLFP::Make(recordingContext,
-                                 sk_ref_sp(this),
+        auto fp = GrSkSLFP::Make(sk_ref_sp(this),
                                  "runtime_image",
                                  std::move(uniforms));
         GrColorInfo colorInfo(resultInfo.colorInfo());
