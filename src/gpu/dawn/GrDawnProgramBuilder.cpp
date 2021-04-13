@@ -208,13 +208,13 @@ static wgpu::StencilStateFaceDescriptor to_stencil_state_face(const GrStencilSet
      return desc;
 }
 
-static wgpu::DepthStencilStateDescriptor create_depth_stencil_state(
+static wgpu::DepthStencilState create_depth_stencil_state(
         const GrProgramInfo& programInfo,
         wgpu::TextureFormat depthStencilFormat) {
     GrStencilSettings stencilSettings = programInfo.nonGLStencilSettings();
     GrSurfaceOrigin origin = programInfo.origin();
 
-    wgpu::DepthStencilStateDescriptor state;
+    wgpu::DepthStencilState state;
     state.format = depthStencilFormat;
     if (!stencilSettings.isDisabled()) {
         if (stencilSettings.isTwoSided()) {
@@ -295,7 +295,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         wgpu::BindGroupLayoutEntry entry;
         entry.binding = GrSPIRVUniformHandler::kUniformBinding;
         entry.visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-        entry.type = wgpu::BindingType::UniformBuffer;
+        entry.buffer.type = wgpu::BufferBindingType::Uniform;
         uniformLayoutEntries.push_back(std::move(entry));
     }
     wgpu::BindGroupLayoutDescriptor uniformBindGroupLayoutDesc;
@@ -312,14 +312,14 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                 wgpu::BindGroupLayoutEntry entry;
                 entry.binding = binding++;
                 entry.visibility = wgpu::ShaderStage::Fragment;
-                entry.type = wgpu::BindingType::Sampler;
+                entry.sampler.type = wgpu::SamplerBindingType::Filtering;
                 textureLayoutEntries.push_back(std::move(entry));
             }
             {
                 wgpu::BindGroupLayoutEntry entry;
                 entry.binding = binding++;
                 entry.visibility = wgpu::ShaderStage::Fragment;
-                entry.type = wgpu::BindingType::SampledTexture;
+                entry.sampler.type = wgpu::SamplerBindingType::Filtering;
                 textureLayoutEntries.push_back(std::move(entry));
             }
         }
@@ -336,7 +336,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     result->fBuiltinUniformHandles = builder.fUniformHandles;
     const GrPipeline& pipeline = programInfo.pipeline();
     auto colorState = create_color_state(gpu, pipeline, colorFormat);
-    wgpu::DepthStencilStateDescriptor depthStencilState;
+    wgpu::DepthStencilState depthStencilState;
 
 #ifdef SK_DEBUG
     if (programInfo.isStencilEnabled()) {
@@ -387,34 +387,35 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         input.attributes = &instanceAttributes.front();
         inputs.push_back(input);
     }
-    wgpu::VertexStateDescriptor vertexState;
-    if (programInfo.primitiveType() == GrPrimitiveType::kTriangleStrip ||
-        programInfo.primitiveType() == GrPrimitiveType::kLineStrip) {
-        vertexState.indexFormat = wgpu::IndexFormat::Uint16;
-    }
-    vertexState.vertexBufferCount = inputs.size();
-    vertexState.vertexBuffers = &inputs.front();
+    wgpu::VertexState vertexState;
+    vertexState.module = vsModule;
+    vertexState.entryPoint = "main";
+    vertexState.bufferCount = inputs.size();
+    vertexState.buffers = &inputs.front();
 
-    wgpu::ProgrammableStageDescriptor vsDesc;
-    vsDesc.module = vsModule;
-    vsDesc.entryPoint = "main";
+    wgpu::ColorTargetState colorTargetState;
+    colorTargetState.format = colorFormat;
 
-    wgpu::ProgrammableStageDescriptor fsDesc;
-    fsDesc.module = fsModule;
-    fsDesc.entryPoint = "main";
+    wgpu::FragmentState fragmentState;
+    fragmentState.module = fsModule;
+    fragmentState.entryPoint = "main";
+    fragmentState.targetCount = 1;
+    fragmentState.targets = &colorTargetState;
 
-    wgpu::RenderPipelineDescriptor rpDesc;
+    wgpu::RenderPipelineDescriptor2 rpDesc;
     rpDesc.layout = pipelineLayout;
-    rpDesc.vertexStage = vsDesc;
-    rpDesc.fragmentStage = &fsDesc;
-    rpDesc.vertexState = &vertexState;
-    rpDesc.primitiveTopology = to_dawn_primitive_topology(programInfo.primitiveType());
-    if (hasDepthStencil) {
-        rpDesc.depthStencilState = &depthStencilState;
+    rpDesc.vertex = vertexState;
+    rpDesc.primitive.topology = to_dawn_primitive_topology(programInfo.primitiveType());
+    GrPrimitiveType primitiveType = programInfo.primitiveType();
+    if (primitiveType == GrPrimitiveType::kTriangleStrip ||
+        primitiveType == GrPrimitiveType::kLineStrip) {
+        rpDesc.primitive.stripIndexFormat = wgpu::IndexFormat::Uint16;
     }
-    rpDesc.colorStateCount = 1;
-    rpDesc.colorStates = &colorState;
-    result->fRenderPipeline = gpu->device().CreateRenderPipeline(&rpDesc);
+    if (hasDepthStencil) {
+        rpDesc.depthStencil = &depthStencilState;
+    }
+    rpDesc.fragment = &fragmentState;
+    result->fRenderPipeline = gpu->device().CreateRenderPipeline2(&rpDesc);
     return result;
 }
 
