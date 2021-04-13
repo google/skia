@@ -3526,11 +3526,8 @@ export type FlattenedPointArray = Float32Array;
  * be the top, left, right, bottom point for each rectangle.
  */
 export type FlattenedRectangleArray = Float32Array;
-/**
- * Regardless of the format we use internally for GlyphID (16 bit unsigned atm), we expose them
- * as 32 bit unsigned.
- */
-export type GlyphIDArray = Uint32Array;
+
+export type GlyphIDArray = Uint16Array;
 /**
  * PathCommand contains a verb and then any arguments needed to fulfill that path verb.
  * Examples:
@@ -3575,7 +3572,7 @@ export type InputColorMatrix = MallocObj | ColorMatrix | number[];
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as glyph IDs.
  * Length n for n glyph IDs.
  */
-export type InputGlyphIDArray = MallocObj | GlyphIDArray | number[];
+export type InputGlyphIDArray = MallocObj | GlyphIDArray | Uint32Array | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as flattened points.
  * Length 2 * n for n points.
