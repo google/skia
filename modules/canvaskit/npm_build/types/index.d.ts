@@ -1104,6 +1104,20 @@ export interface Canvas extends EmbindObject<Canvas> {
     drawDRRect(outer: InputRRect, inner: InputRRect, paint: Paint): void;
 
     /**
+     * Draws a run of glyphs, at corresponding positions, in a given font.
+     * @param glyphs the array of glyph IDs (Uint16TypedArray) 
+     * @param positions the array of x,y floats to position each glyph
+     * @param x x-coordinate of the origin of the entire run
+     * @param x y-coordinate of the origin of the entire run
+     * @param font the font that contains the glyphs
+     * @param paint
+     */
+     drawGlyphs(glyphs: NewInputGlyphIDArray,
+                positions: InputFlattenedPointArray,
+                x: number, y: number,
+                font: Font, paint: Paint): void;
+
+    /**
      * Draws the given image with its top-left corner at (left, top) using the current clip,
      * the current matrix, and optionally-provided paint.
      * @param img
@@ -3531,6 +3545,9 @@ export type FlattenedRectangleArray = Float32Array;
  * as 32 bit unsigned.
  */
 export type GlyphIDArray = Uint32Array;
+
+export type NewGlyphIDArray = Uint16Array;
+
 /**
  * PathCommand contains a verb and then any arguments needed to fulfill that path verb.
  * Examples:
@@ -3576,6 +3593,9 @@ export type InputColorMatrix = MallocObj | ColorMatrix | number[];
  * Length n for n glyph IDs.
  */
 export type InputGlyphIDArray = MallocObj | GlyphIDArray | number[];
+
+export type NewInputGlyphIDArray = MallocObj | NewGlyphIDArray | number[];
+
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as flattened points.
  * Length 2 * n for n points.
