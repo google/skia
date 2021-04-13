@@ -694,6 +694,35 @@ void colrv1_draw_paint(SkCanvas* canvas,
     }
 }
 
+void colrv1_draw_glyph_with_path(SkCanvas* canvas, const FT_Color* palette, FT_Face face,
+                                 FT_COLR_Paint glyphPaint, FT_COLR_Paint fillPaint) {
+    SkASSERT(glyphPaint.format == FT_COLR_PAINTFORMAT_GLYPH);
+    SkASSERT(fillPaint.format == FT_COLR_PAINTFORMAT_SOLID ||
+             fillPaint.format == FT_COLR_PAINTFORMAT_LINEAR_GRADIENT ||
+             fillPaint.format == FT_COLR_PAINTFORMAT_RADIAL_GRADIENT ||
+             fillPaint.format == FT_COLR_PAINTFORMAT_SWEEP_GRADIENT);
+
+    SkPaint skiaFillPaint;
+    skiaFillPaint.setAntiAlias(true);
+    colrv1_configure_skpaint(face, palette, fillPaint, &skiaFillPaint);
+
+    FT_UInt glyphID = glyphPaint.u.glyph.glyphID;
+    SkPath path;
+    /* TODO: Currently this call retrieves the path at units_per_em size. If we want to get
+     * correct hinting for the scaled size under the transforms at this point in the color
+     * glyph graph, we need to extract at least the requested glyph width and height and
+     * pass that to the path generation. */
+    if (generateFacePathCOLRv1(face, glyphID, &path)) {
+#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
+        SkPaint highlight_paint;
+        highlight_paint.setColor(0x33FF0000);
+        canvas->drawRect(path.getBounds(), highlight_paint);
+#endif
+        {
+            canvas->drawPath(path, skiaFillPaint);
+        }
+    }
+}
 
 void colrv1_transform(SkCanvas* canvas, FT_Face face, FT_COLR_Paint colrv1_paint) {
     SkMatrix transform;
@@ -787,9 +816,24 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             break;
         }
         case FT_COLR_PAINTFORMAT_GLYPH:
-            // Traverse / draw operation will clip layer.
-            colrv1_draw_paint(canvas, palette, face, paint);
-            traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.glyph.paint);
+            // Special case paint graph leaf situations to improve
+            // performance. These are situations in the graph where a GlyphPaint
+            // is followed by either a solid or a gradient fill. Here we can use
+            // drawPath() + SkPaint directly which is faster than setting a
+            // clipPath() followed by a drawPaint().
+            FT_COLR_Paint fillPaint;
+            if (!FT_Get_Paint(face, paint.u.glyph.paint, &fillPaint)) {
+                return false;
+            }
+            if (fillPaint.format == FT_COLR_PAINTFORMAT_SOLID ||
+                fillPaint.format == FT_COLR_PAINTFORMAT_LINEAR_GRADIENT ||
+                fillPaint.format == FT_COLR_PAINTFORMAT_RADIAL_GRADIENT ||
+                fillPaint.format == FT_COLR_PAINTFORMAT_SWEEP_GRADIENT) {
+                colrv1_draw_glyph_with_path(canvas, palette, face, paint, fillPaint);
+            } else {
+                colrv1_draw_paint(canvas, palette, face, paint);
+                traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.glyph.paint);
+            }
             break;
         case FT_COLR_PAINTFORMAT_COLR_GLYPH:
             traverse_result = colrv1_start_glyph(canvas, palette, face, paint.u.colr_glyph.glyphID,
