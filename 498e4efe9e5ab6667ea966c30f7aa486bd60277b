@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4646f854_aae74c4d",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-13T17:53:25Z",
+      "side": 1,
+      "message": "Thanks, saw that now too.",
+      "parentUuid": "d56080a7_15806f32",
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f91414f3_55c477a9",
@@ -58,6 +76,48 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "51ef8aa1_933c2461",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-13T17:53:25Z",
+      "side": 1,
+      "message": "Done. Somehow thinking in FreeType conventions now :)",
+      "parentUuid": "f91414f3_55c477a9",
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29df00c7_4af2c3d5",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-13T17:53:25Z",
+      "side": 1,
+      "message": "Ack, changed back.",
+      "parentUuid": "fea35f86_a02874d1",
+      "range": {
+        "startLine": 683,
+        "startChar": 37,
+        "endLine": 683,
+        "endChar": 48
+      },
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "394d4626_2c047b30",
@@ -71,6 +131,24 @@
       "writtenOn": "2021-04-13T17:31:51Z",
       "side": 1,
       "message": "Seems like this comment should also be removed?",
+      "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "974e5253_5e827ae9",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-13T17:53:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "394d4626_2c047b30",
       "revId": "498e4efe9e5ab6667ea966c30f7aa486bd60277b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
