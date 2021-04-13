@@ -1445,7 +1445,7 @@ public:
 
         /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in
             path. If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
-            open contour. path is not altered.
+            open contour, and skip contours consisting only of kMove_Verbs. path is not altered.
 
             @param path        SkPath to iterate
             @param forceClose  true if open contours generate kClose_Verb
@@ -1457,7 +1457,7 @@ public:
 
         /** Sets SkPath::Iter to return elements of verb array, SkPoint array, and conic weight in
             path. If forceClose is true, SkPath::Iter will add kLine_Verb and kClose_Verb after each
-            open contour. path is not altered.
+            open contour, and skip contours consisting only of kMove_Verbs. path is not altered.
 
             @param path        SkPath to iterate
             @param forceClose  true if open contours generate kClose_Verb

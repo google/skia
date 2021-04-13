@@ -6,7 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 92
 ------------
-  *
+  * SkPath::Iter with forceClose=true automatically skips over consecutive move verbs that don't
+    otherwise contribute to filling the path.
+    https://review.skia.org/396056
 
 * * *
 

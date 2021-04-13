@@ -1984,9 +1984,9 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.moveTo(0, 0);
     path.lineTo(SkIntToScalar(100), 0);
     path.lineTo(0, SkIntToScalar(100));
-    // Convexity logic is now more conservative, so that multiple (non-trailing) moveTos make a
-    // path non-convex.
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
+    // Convexity logic treats a path as filled and closed, so that multiple (non-trailing) moveTos
+    // have no effect on convexity
+    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(
         SkRect::MakeXYWH(SkIntToScalar(50), 0,
                          SkIntToScalar(10),
                          SkIntToScalar(10))));
@@ -5816,4 +5816,89 @@ DEF_TEST(path_convexity_scale_way_down, r) {
     path.transform(SkMatrix::Scale(scale, scale), &path2);
     SkPathPriv::ForceComputeConvexity(path2);
     REPORTER_ASSERT(r, path2.isConvex());
+}
+
+DEF_TEST(path_iter_collapse_movetos, r) {
+    SkPath path;
+    path.moveTo(0.f, 0.f); // skipped
+    path.moveTo(1.f, 1.f); // skipped
+    path.moveTo(2.f, 2.f);
+    path.lineTo(3.f, 3.f);
+    path.lineTo(4.f, 4.f);
+    path.close(); // goes back to (2,2)
+    path.moveTo(5.f, 5.f); // skipped
+    path.moveTo(6.f, 6.f);
+    path.lineTo(7.f, 7.f);
+    path.lineTo(8.f, 8.f);
+    path.close(); // goes back to (6, 6)
+    path.moveTo(9.f, 9.f); // skipped
+    path.moveTo(10.f, 10.f); // skipped (by both iterator modes)
+
+    SkPoint noForceClosePts[] = {{0.f, 0.f}, {1.f, 1.f}, {2.f, 2.f}, {3.f, 3.f}, {4.f, 4.f},
+                                 {2.f, 2.f}, {2.f, 2.f}, {5.f, 5.f}, {6.f, 6.f}, {7.f, 7.f},
+                                 {8.f, 8.f}, {6.f, 6.f}, {6.f, 6.f}, {9.f, 9.f}};
+    SkPath::Verb noForceCloseVerbs[] = {SkPath::kMove_Verb, SkPath::kMove_Verb, SkPath::kMove_Verb,
+                                        SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                                        SkPath::kClose_Verb, SkPath::kMove_Verb, SkPath::kMove_Verb,
+                                        SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                                        SkPath::kClose_Verb, SkPath::kMove_Verb};
+    SkPath::Verb verb;
+    SkPoint pts[4];
+    int i = 0;
+    SkPath::Iter iter(path, /*forceClose=*/false);
+    while((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        REPORTER_ASSERT(r, verb == noForceCloseVerbs[i]);
+        REPORTER_ASSERT(r, pts[verb == SkPath::kLine_Verb ? 1 : 0] == noForceClosePts[i]);
+        i++;
+    }
+    REPORTER_ASSERT(r, i == SK_ARRAY_COUNT(noForceCloseVerbs));
+
+    SkPoint forceClosePts[] = {{2.f, 2.f}, {3.f, 3.f}, {4.f, 4.f}, {2.f, 2.f}, {2.f, 2.f},
+                               {6.f, 6.f}, {7.f, 7.f}, {8.f, 8.f}, {6.f, 6.f}, {6.f, 6.f}};
+    SkPath::Verb forceCloseVerbs[] = {SkPath::kMove_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                                      SkPath::kLine_Verb, SkPath::kClose_Verb, SkPath::kMove_Verb,
+                                      SkPath::kLine_Verb, SkPath::kLine_Verb, SkPath::kLine_Verb,
+                                      SkPath::kClose_Verb};
+
+    i = 0;
+    iter.setPath(path, /*forceClose=*/true);
+    while((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        REPORTER_ASSERT(r, verb == forceCloseVerbs[i]);
+        REPORTER_ASSERT(r, pts[verb == SkPath::kLine_Verb ? 1 : 0] == forceClosePts[i]);
+        i++;
+    }
+    REPORTER_ASSERT(r, i == SK_ARRAY_COUNT(forceCloseVerbs));
+}
+
+// crbug.com/1187385
+DEF_TEST(path_moveto_addrect, r) {
+    // Test both an empty and non-empty rect passed to SkPath::addRect
+    SkRect rects[] = {{207.0f, 237.0f, 300.0f, 237.0f},
+                      {207.0f, 237.0f, 300.0f, 267.0f}};
+
+    for (SkRect rect: rects) {
+        for (int numExtraMoveTos : {0, 1, 2, 3}) {
+            SkPath path;
+            // Convexity and contains functions treat the path as a simple fill, so consecutive
+            // moveTos are collapsed together.
+            for (int i = 0; i < numExtraMoveTos; ++i) {
+                path.moveTo(i, i);
+            }
+            path.addRect(rect);
+
+            REPORTER_ASSERT(r, (numExtraMoveTos + 1) == SkPathPriv::LeadingMoveToCount(path));
+
+            // addRect should mark the path as known convex automatically (i.e. it wasn't set
+            // to unknown after edits)
+            SkPathConvexity origConvexity = SkPathPriv::GetConvexityOrUnknown(path);
+            REPORTER_ASSERT(r, origConvexity == SkPathConvexity::kConvex);
+
+            // but it should also agree with the regular convexity computation
+            SkPathPriv::ForceComputeConvexity(path);
+            REPORTER_ASSERT(r, path.isConvex());
+
+            SkRect query = rect.makeInset(10.f, 0.f);
+            REPORTER_ASSERT(r, path.conservativelyContainsRect(query));
+        }
+    }
 }
