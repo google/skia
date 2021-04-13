@@ -13,7 +13,7 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(strPtr);
   };
 
-  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
+  // Glyphs should be a Uint16Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
   // The return value will be a Float32Array that is 4 times as long as the input array. For each
   // glyph, there will be 4 floats for left, top, right, bottom (relative to 0, 0) for that glyph.
@@ -62,12 +62,12 @@ CanvasKit._extraInitializations.push(function() {
       CanvasKit._free(glyphPtr);
       return optionalOutputArray;
     }
-    var rv = Uint32Array.from(glyphs);
+    var rv = Uint16Array.from(glyphs);
     CanvasKit._free(glyphPtr);
     return rv;
   };
 
-  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
+  // Glyphs should be a Uint16Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
   // The return value will be a Float32Array that has one width per input glyph.
   CanvasKit.Font.prototype.getGlyphWidths = function(glyphs, paint, optionalOutputArray) {
