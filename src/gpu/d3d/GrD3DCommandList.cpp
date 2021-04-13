@@ -110,6 +110,21 @@ void GrD3DCommandList::resourceBarrier(sk_sp<GrManagedResource> resource,
     }
 }
 
+void GrD3DCommandList::uavBarrier(sk_sp<GrManagedResource> resource,
+                                  ID3D12Resource* uavResource) {
+    SkASSERT(fIsActive);
+    // D3D will apply barriers in order so we can just add onto the end
+    D3D12_RESOURCE_BARRIER& newBarrier = fResourceBarriers.push_back();
+    newBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+    newBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    newBarrier.UAV.pResource = uavResource;
+
+    fHasWork = true;
+    if (resource) {
+        this->addResource(std::move(resource));
+    }
+}
+
 void GrD3DCommandList::submitResourceBarriers() {
     SkASSERT(fIsActive);
 
