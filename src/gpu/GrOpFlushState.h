@@ -58,12 +58,14 @@ public:
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
         // TODO: why does OpArgs have the op we're going to pass it to as a member? Remove it.
-        explicit OpArgs(GrOp* op, const GrSurfaceProxyView& surfaceView, GrAppliedClip* appliedClip,
+        explicit OpArgs(GrOp* op, const GrSurfaceProxyView& surfaceView, bool usesMSAASurface,
+                        GrAppliedClip* appliedClip,
                         const GrXferProcessor::DstProxyView& dstProxyView,
                         GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp)
                 : fOp(op)
                 , fSurfaceView(surfaceView)
                 , fRenderTargetProxy(surfaceView.asRenderTargetProxy())
+                , fUsesMSAASurface(usesMSAASurface)
                 , fAppliedClip(appliedClip)
                 , fDstProxyView(dstProxyView)
                 , fRenderPassXferBarriers(renderPassXferBarriers)
@@ -74,6 +76,8 @@ public:
         GrOp* op() { return fOp; }
         const GrSurfaceProxyView& writeView() const { return fSurfaceView; }
         GrRenderTargetProxy* rtProxy() const { return fRenderTargetProxy; }
+        // True if the op under consideration belongs to an opsTask that renders to an MSAA buffer.
+        bool usesMSAASurface() const { return fUsesMSAASurface; }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
@@ -91,6 +95,7 @@ public:
         GrOp*                         fOp;
         const GrSurfaceProxyView&     fSurfaceView;
         GrRenderTargetProxy*          fRenderTargetProxy;
+        bool                          fUsesMSAASurface;
         GrAppliedClip*                fAppliedClip;
         GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
         GrXferBarrierFlags            fRenderPassXferBarriers;
@@ -151,6 +156,7 @@ public:
     }
     const GrSurfaceProxyView& writeView() const final { return this->drawOpArgs().writeView(); }
     GrRenderTargetProxy* rtProxy() const final { return this->drawOpArgs().rtProxy(); }
+    bool usesMSAASurface() const final { return this->drawOpArgs().usesMSAASurface(); }
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
     const GrAppliedHardClip& appliedHardClip() const {
         return (fOpArgs->appliedClip()) ?

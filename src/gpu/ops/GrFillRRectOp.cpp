@@ -461,7 +461,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 void FillRRectOp::onPrepareDraws(Target* target) {
     // We request no multisample, but some platforms don't support disabling it on MSAA targets.
-    if (target->rtProxy()->numSamples() > 1 && !target->caps().multisampleDisableSupport()) {
+    if (target->usesMSAASurface() && !target->caps().multisampleDisableSupport()) {
         fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
     }
 

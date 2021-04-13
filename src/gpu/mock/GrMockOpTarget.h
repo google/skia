@@ -105,6 +105,7 @@ public:
     UNIMPL(GrRenderTargetProxy* rtProxy() const)
     UNIMPL(const GrSurfaceProxyView& writeView() const)
     UNIMPL(const GrAppliedClip* appliedClip() const)
+    UNIMPL(bool usesMSAASurface() const)
     UNIMPL(GrStrikeCache* strikeCache() const)
     UNIMPL(GrAtlasManager* atlasManager() const)
     UNIMPL(SkTArray<GrSurfaceProxy*, true>* sampledProxyArray())

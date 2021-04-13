@@ -26,7 +26,7 @@ public:
 
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override {}
 
-    bool set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
+    bool set(GrRenderTarget*, bool useMSAASurface, GrSurfaceOrigin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo&,
         const GrOpsRenderPass::StencilLoadAndStoreInfo&,
         const SkTArray<GrSurfaceProxy*, true>& sampledProxies);

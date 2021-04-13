@@ -20,7 +20,7 @@ struct GrDawnProgram;
 
 class GrDawnOpsRenderPass : public GrOpsRenderPass {
 public:
-    GrDawnOpsRenderPass(GrDawnGpu*, GrRenderTarget*, GrSurfaceOrigin,
+    GrDawnOpsRenderPass(GrDawnGpu*, GrRenderTarget*, bool useMSAASurface, GrSurfaceOrigin,
                         const LoadAndStoreInfo&, const StencilLoadAndStoreInfo&);
 
     ~GrDawnOpsRenderPass() override;

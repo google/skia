@@ -230,6 +230,7 @@ public:
     virtual GrAppliedClip detachAppliedClip() = 0;
 
     virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;
+    virtual bool usesMSAASurface() const = 0;
 
     virtual GrXferBarrierFlags renderPassBarriers() const = 0;
 

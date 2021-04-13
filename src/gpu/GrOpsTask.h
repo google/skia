@@ -248,6 +248,7 @@ private:
 
     GrAuditTrail* fAuditTrail;
 
+    bool fUsesMSAASurface;
     GrSwizzle fTargetSwizzle;
     GrSurfaceOrigin fTargetOrigin;
 

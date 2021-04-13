@@ -22,10 +22,11 @@
 
 GR_NORETAIN_BEGIN
 
-GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, bool useMultisampleFBO,
+                                       GrSurfaceOrigin origin,
                                        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
-        : INHERITED(rt, origin)
+        : INHERITED(rt, useMultisampleFBO, origin)
         , fGpu(gpu) {
     this->setupRenderPass(colorInfo, stencilInfo);
 }
