@@ -16,12 +16,7 @@
 class GrMatrixEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(const SkMatrix& matrix,
-                                                     std::unique_ptr<GrFragmentProcessor> child) {
-        if (matrix.isIdentity()) {
-            return child;
-        }
-        return std::unique_ptr<GrFragmentProcessor>(new GrMatrixEffect(matrix, std::move(child)));
-    }
+                                                     std::unique_ptr<GrFragmentProcessor> child);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MatrixEffect"; }
