@@ -16,6 +16,23 @@
       "message": "Thanks for the quick review.",
       "revId": "881df9ada48ec57e52200ec883ee11444cee24b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbf5c397_8c31bc50",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-13T18:48:47Z",
+      "side": 1,
+      "message": "nit: inconsistent indentation here",
+      "revId": "881df9ada48ec57e52200ec883ee11444cee24b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
