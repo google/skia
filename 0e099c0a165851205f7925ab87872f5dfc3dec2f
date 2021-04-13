@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f90cf212_4c94d732",
+        "filename": "src/gpu/effects/GrMatrixEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-13T15:03:22Z",
+      "side": 1,
+      "message": "Modifying \u0027child\u0027 felt a little wrong to me, since FPs are usually considered immutable. But \u0027child\u0027 is consumed either way so we could think of this more as a super optimized in-place initialize. In that framing, could we not just push down the flag updates for the new sample usage?",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 50,
+        "endChar": 9
+      },
+      "revId": "0e099c0a165851205f7925ab87872f5dfc3dec2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
