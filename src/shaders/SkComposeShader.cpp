@@ -234,6 +234,6 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
     builder.uniform("w") = fWeight;
     builder.child("a") = std::move(fpA);
     builder.child("b") = std::move(fpB);
-    return builder.makeFP(args.fContext);
+    return builder.makeFP();
 }
 #endif
