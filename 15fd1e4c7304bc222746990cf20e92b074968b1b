@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e42c11b_e776ea05",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 793,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-13T15:52:38Z",
+      "side": 1,
+      "message": "Strangely, gn failed with an error saying that `ext` was unused in `dsl_fp_tests` until I made this change. I\u0027m not entirely sure why this was necessary.",
+      "range": {
+        "startLine": 793,
+        "startChar": 14,
+        "endLine": 793,
+        "endChar": 28
+      },
+      "revId": "15fd1e4c7304bc222746990cf20e92b074968b1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
