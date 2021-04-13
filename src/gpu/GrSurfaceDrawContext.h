@@ -206,6 +206,11 @@ public:
     void fillRectWithEdgeAA(const GrClip* clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkRect& rect,
                             const SkRect* optionalLocalRect = nullptr) {
+        if (edgeAA == GrQuadAAFlags::kAll) {
+            this->fillRectToRect(clip, std::move(paint), aa, viewMatrix, rect,
+                                 (optionalLocalRect) ? *optionalLocalRect : rect);
+            return;
+        }
         const SkRect& localRect = optionalLocalRect ? *optionalLocalRect : rect;
         DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(localRect), edgeAA};
         this->drawFilledQuad(clip, std::move(paint), aa, &quad);
