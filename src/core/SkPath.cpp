@@ -61,7 +61,7 @@ static void joinNoEmptyChecks(SkRect* dst, const SkRect& src) {
 }
 
 static bool is_degenerate(const SkPath& path) {
-    return path.countVerbs() <= 1;
+    return (path.countVerbs() - SkPathPriv::LeadingMoveToCount(path)) == 0;
 }
 
 class SkAutoDisableDirectionCheck {
@@ -1793,6 +1793,13 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
                 }
                 return (Verb)verb;
             }
+            // skip over leading move tos if we're cleaning up degeneracies
+            if (fForceClose) {
+                while(fVerbs != fVerbStop && *fVerbs == kMove_Verb) {
+                    fVerbs++;
+                    srcPts += 1;
+                }
+            }
             if (fVerbs == fVerbStop) {    // might be a trailing moveto
                 return kDone_Verb;
             }
@@ -2236,10 +2243,10 @@ SkPathConvexity SkPath::computeConvexity() const {
         const SkPoint* points = fPathRef->points();
         const SkPoint* last = &points[pointCount];
         // only consider the last of the initial move tos
-        while (SkPath::kMove_Verb == iter.next(pts)) {
-            ++points;
+        int skipCount = SkPathPriv::LeadingMoveToCount(*this) - 1;
+        if (skipCount > 0) {
+            points += skipCount;
         }
-        --points;
         SkPathConvexity convexity = Convexicator::BySign(points, (int) (last - points));
         if (SkPathConvexity::kConvex != convexity) {
             return setComputedConvexity(SkPathConvexity::kConcave);
