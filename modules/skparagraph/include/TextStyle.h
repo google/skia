@@ -221,6 +221,9 @@ public:
     void setHeightOverride(bool heightOverride) { fHeightOverride = heightOverride; }
     bool getHeightOverride() const { return fHeightOverride; }
 
+    void setHalfLeading(bool halfLeading) { fHalfLeading = halfLeading; }
+    bool getHalfLeading() const { return fHalfLeading; }
+
     void setLetterSpacing(SkScalar letterSpacing) { fLetterSpacing = letterSpacing; }
     SkScalar getLetterSpacing() const { return fLetterSpacing; }
 
@@ -262,6 +265,9 @@ private:
     SkScalar fFontSize = 14.0;
     SkScalar fHeight = 1.0;
     bool fHeightOverride = false;
+    // true: half leading.
+    // false: scale ascent/descent with fHeight.
+    bool fHalfLeading = false;
     SkString fLocale = {};
     SkScalar fLetterSpacing = 0.0;
     SkScalar fWordSpacing = 0.0;

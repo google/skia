@@ -18,6 +18,7 @@ Run::Run(ParagraphImpl* owner,
          const SkShaper::RunHandler::RunInfo& info,
          size_t firstChar,
          SkScalar heightMultiplier,
+         bool useHalfLeading,
          size_t index,
          SkScalar offsetX)
     : fOwner(owner)
@@ -26,6 +27,7 @@ Run::Run(ParagraphImpl* owner,
     , fFont(info.fFont)
     , fClusterStart(firstChar)
     , fHeightMultiplier(heightMultiplier)
+    , fUseHalfLeading(useHalfLeading)
 {
     fBidiLevel = info.fBidiLevel;
     fAdvance = info.fAdvance;
@@ -53,9 +55,17 @@ void Run::calculateMetrics() {
     fCorrectAscent = fFontMetrics.fAscent - fFontMetrics.fLeading * 0.5;
     fCorrectDescent = fFontMetrics.fDescent + fFontMetrics.fLeading * 0.5;
     fCorrectLeading = 0;
-    if (!SkScalarNearlyZero(fHeightMultiplier)) {
-        auto multiplier = fHeightMultiplier * fFont.getSize() /
-                             (fFontMetrics.fDescent - fFontMetrics.fAscent + fFontMetrics.fLeading);
+    if (SkScalarNearlyZero(fHeightMultiplier)) {
+        return;
+    }
+    const auto runHeight = fHeightMultiplier * fFont.getSize();
+    const auto fontIntrinsicHeight = fCorrectDescent - fCorrectAscent;
+    if (fUseHalfLeading) {
+        const auto extraLeading = (runHeight - fontIntrinsicHeight) / 2;
+        fCorrectAscent -= extraLeading;
+        fCorrectDescent += extraLeading;
+    } else {
+        const auto multiplier = runHeight / fontIntrinsicHeight;
         fCorrectAscent *= multiplier;
         fCorrectDescent *= multiplier;
     }

@@ -1267,6 +1267,293 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.bottom(), 165.495f, EPSILON5));
 }
 
+DEF_TEST(SkParagraph_BasicHalfLeading, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+
+    if (!fontCollection->fontsFound()) {
+      return;
+    }
+
+    const char* text = "01234満毎冠行来昼本可\nabcd\n満毎冠行来昼本可";
+    const size_t len = strlen(text);
+
+    TestCanvas canvas("SkParagraph_BasicHalfLeading.png");
+
+    ParagraphStyle paragraph_style;
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setLetterSpacing(0.0f);
+    text_style.setWordSpacing(0.0f);
+    text_style.setHeightOverride(true);
+    text_style.setHeight(3.6345f);
+    text_style.setHalfLeading(true);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(550);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
+    REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
+
+    paragraph->paint(canvas.get(), 0, 0);
+
+    const RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    std::vector<TextBox> boxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kTight, rect_width_style);
+    std::vector<TextBox> lineBoxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kMax, rect_width_style);
+
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 3ull);
+    REPORTER_ASSERT(reporter, lineBoxes.size() == boxes.size());
+
+    const auto line_spacing1 = boxes[1].rect.top() - boxes[0].rect.bottom();
+    const auto line_spacing2 = boxes[2].rect.top() - boxes[1].rect.bottom();
+
+    // Uniform line spacing.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(line_spacing1, line_spacing2));
+
+    // line spacing is distributed evenly over and under the text.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[0].rect.bottom() - boxes[0].rect.bottom(), boxes[0].rect.top() - lineBoxes[0].rect.top()));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[1].rect.bottom() - boxes[1].rect.bottom(), boxes[1].rect.top() - lineBoxes[1].rect.top()));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[2].rect.bottom() - boxes[2].rect.bottom(), boxes[2].rect.top() - lineBoxes[2].rect.top()));
+
+    // Half leading does not move the text horizontally.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.right(), 43.843f, EPSILON100));
+}
+
+DEF_TEST(SkParagraph_NearZeroHeightMixedDistribution, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+
+    if (!fontCollection->fontsFound()) {
+      return;
+    }
+
+    const char* text = "Cookies need love";
+    const size_t len = strlen(text);
+
+    TestCanvas canvas("SkParagraph_ZeroHeightHalfLeading.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextHeightBehavior(TextHeightBehavior::kAll);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setLetterSpacing(0.0f);
+    text_style.setWordSpacing(0.0f);
+    text_style.setHeightOverride(true);
+    text_style.setHeight(0.001f);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    // First run, half leading.
+    text_style.setHalfLeading(true);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    // Second run, no half leading.
+    text_style.setHalfLeading(false);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(550);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->runs().size() == 2);
+    REPORTER_ASSERT(reporter, impl->styles().size() == 2);  // paragraph style does not count
+    REPORTER_ASSERT(reporter, impl->lines().size() == 1ull);
+
+    const RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    std::vector<TextBox> boxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kTight, rect_width_style);
+    std::vector<TextBox> lineBoxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kMax, rect_width_style);
+
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1ull);
+    REPORTER_ASSERT(reporter, lineBoxes.size() == boxes.size());
+
+    // From font metrics.
+    const auto metricsAscent = -18.5546875f;
+    const auto metricsDescent = 4.8828125f;
+
+    // As the height multiplier converges to 0 (but not 0 since 0 is used as a
+    // magic value to indicate there's no height multiplier), the `Run`s top
+    // edge and bottom edge will converge to a horizontal line:
+    // - When half leading is used the vertical line is roughly the center of
+    //   of the glyphs in the run ((fontMetrics.descent - fontMetrics.ascent) / 2)
+    // - When half leading is disabled the line is the alphabetic baseline.
+
+    // Expected values in baseline coordinate space:
+    const auto run1_ascent = (metricsAscent + metricsDescent) / 2;
+    const auto run1_descent = (metricsAscent + metricsDescent) / 2;
+    const auto run2_ascent = 0.0f;
+    const auto run2_descent = 0.0f;
+    const auto line_top = std::min(run1_ascent, run2_ascent);
+    const auto line_bottom = std::max(run1_descent, run2_descent);
+
+    // Expected glyph height in linebox coordinate space:
+    const auto glyphs_top = metricsAscent - line_top;
+    const auto glyphs_bottom = metricsDescent - line_top;
+
+    // kTight reports the glyphs' bounding box in the linebox's coordinate
+    // space.
+    const auto actual_glyphs_top = boxes[0].rect.top() - lineBoxes[0].rect.top();
+    const auto actual_glyphs_bottom = boxes[0].rect.bottom() - lineBoxes[0].rect.top();
+
+    // Use a relatively large epsilon since the heightMultiplier is not actually
+    // 0.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(glyphs_top, actual_glyphs_top, EPSILON20));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(glyphs_bottom, actual_glyphs_bottom, EPSILON20));
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[0].rect.height(), line_bottom - line_top, EPSILON2));
+    REPORTER_ASSERT(reporter, lineBoxes[0].rect.height() > 1);
+
+    // Half leading does not move the text horizontally.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
+}
+
+DEF_TEST(SkParagraph_StrutHalfLeading, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+
+    if (!fontCollection->fontsFound()) {
+      return;
+    }
+
+    const char* text = "01234満毎冠行来昼本可\nabcd\n満毎冠行来昼本可";
+    const size_t len = strlen(text);
+
+    TestCanvas canvas("SkParagraph_StrutHalfLeading.png");
+
+    ParagraphStyle paragraph_style;
+    // Tiny font and height multiplier to ensure the height is entirely decided
+    // by the strut.
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(1.0f);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setLetterSpacing(0.0f);
+    text_style.setWordSpacing(0.0f);
+    text_style.setHeight(0.1f);
+
+    StrutStyle strut_style;
+    strut_style.setFontFamilies({SkString("Roboto")});
+    strut_style.setFontSize(20.0f);
+    strut_style.setHeight(3.6345f);
+    strut_style.setHalfLeading(true);
+    strut_style.setStrutEnabled(true);
+    strut_style.setForceStrutHeight(true);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(550);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
+
+    paragraph->paint(canvas.get(), 0, 0);
+
+    const RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    std::vector<TextBox> boxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kTight, rect_width_style);
+    std::vector<TextBox> lineBoxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kMax, rect_width_style);
+
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 3ull);
+    REPORTER_ASSERT(reporter, lineBoxes.size() == boxes.size());
+
+    const auto line_spacing1 = boxes[1].rect.top() - boxes[0].rect.bottom();
+    const auto line_spacing2 = boxes[2].rect.top() - boxes[1].rect.bottom();
+
+    // Uniform line spacing.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(line_spacing1, line_spacing2));
+
+    // line spacing is distributed evenly over and under the text.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[0].rect.bottom() - boxes[0].rect.bottom(), boxes[0].rect.top() - lineBoxes[0].rect.top()));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[1].rect.bottom() - boxes[1].rect.bottom(), boxes[1].rect.top() - lineBoxes[1].rect.top()));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[2].rect.bottom() - boxes[2].rect.bottom(), boxes[2].rect.top() - lineBoxes[2].rect.top()));
+
+    // Half leading does not move the text horizontally.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 0, EPSILON100));
+}
+
+DEF_TEST(SkParagraph_TrimLeadingDistribution, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+
+    if (!fontCollection->fontsFound()) {
+      return;
+    }
+
+    const char* text = "01234満毎冠行来昼本可\nabcd\n満毎冠行来昼本可";
+    const size_t len = strlen(text);
+
+    TestCanvas canvas("SkParagraph_TrimHalfLeading.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextHeightBehavior(TextHeightBehavior::kDisableAll);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setLetterSpacing(0.0f);
+    text_style.setWordSpacing(0.0f);
+    text_style.setHeightOverride(true);
+    text_style.setHeight(3.6345f);
+    text_style.setHalfLeading(true);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(550);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    const RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+
+    std::vector<TextBox> boxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kTight, rect_width_style);
+    std::vector<TextBox> lineBoxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kMax, rect_width_style);
+
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 3ull);
+    REPORTER_ASSERT(reporter, lineBoxes.size() == boxes.size());
+
+    const auto line_spacing1 = boxes[1].rect.top() - boxes[0].rect.bottom();
+    const auto line_spacing2 = boxes[2].rect.top() - boxes[1].rect.bottom();
+
+    // Uniform line spacing. The delta is introduced by the height rounding.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(line_spacing1, line_spacing2, 1));
+
+    // Trim the first line's top leading.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[0].rect.top(), boxes[0].rect.top()));
+    // Trim the last line's bottom leading.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[2].rect.bottom(), boxes[2].rect.bottom()));
+
+    const auto halfLeading =  lineBoxes[0].rect.bottom() - boxes[0].rect.bottom();
+    // Large epsilon because of rounding.
+    const auto epsilon = EPSILON10;
+    // line spacing is distributed evenly over and under the text.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.top() - lineBoxes[1].rect.top(), halfLeading, epsilon));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[1].rect.bottom() - boxes[1].rect.bottom(),  halfLeading));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[2].rect.top() - lineBoxes[2].rect.top(), halfLeading, epsilon));
+
+    // Half leading does not move the text horizontally.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.right(), 43.843f, EPSILON100));
+}
+
 DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;

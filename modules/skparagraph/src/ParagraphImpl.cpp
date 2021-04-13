@@ -914,11 +914,20 @@ void ParagraphImpl::computeEmptyMetrics() {
             fEmptyMetrics.leading());
     } else if (!paragraphStyle().getStrutStyle().getForceStrutHeight() &&
         textStyle.getHeightOverride()) {
-        auto multiplier = textStyle.getHeight() * textStyle.getFontSize() / fEmptyMetrics.height();
-        fEmptyMetrics.update(
-            fEmptyMetrics.ascent() * multiplier,
-            fEmptyMetrics.descent() * multiplier,
-            fEmptyMetrics.leading() * multiplier);
+        const auto intrinsicHeight = fEmptyMetrics.height();
+        const auto strutHeight = textStyle.getHeight() * textStyle.getFontSize();
+        if (paragraphStyle().getStrutStyle().getHalfLeading()) {
+            fEmptyMetrics.update(
+                fEmptyMetrics.ascent(),
+                fEmptyMetrics.descent(),
+                fEmptyMetrics.leading() + strutHeight - intrinsicHeight);
+        } else {
+            const auto multiplier = strutHeight / intrinsicHeight;
+            fEmptyMetrics.update(
+                fEmptyMetrics.ascent() * multiplier,
+                fEmptyMetrics.descent() * multiplier,
+                fEmptyMetrics.leading() * multiplier);
+        }
     }
 
     if (fParagraphStyle.getStrutStyle().getStrutEnabled()) {

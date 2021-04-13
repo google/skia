@@ -531,8 +531,8 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Run
 
     class ShapeHandler final : public SkShaper::RunHandler {
     public:
-        ShapeHandler(SkScalar lineHeight, const SkString& ellipsis)
-            : fRun(nullptr), fLineHeight(lineHeight), fEllipsis(ellipsis) {}
+        ShapeHandler(SkScalar lineHeight, bool useHalfLeading, const SkString& ellipsis)
+            : fRun(nullptr), fLineHeight(lineHeight), fUseHalfLeading(useHalfLeading), fEllipsis(ellipsis) {}
         Run* run() & { return fRun.get(); }
         std::unique_ptr<Run> run() && { return std::move(fRun); }
 
@@ -545,7 +545,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Run
 
         Buffer runBuffer(const RunInfo& info) override {
             SkASSERT(!fRun);
-            fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, 0, 0);
+            fRun = std::make_unique<Run>(nullptr, info, 0, fLineHeight, fUseHalfLeading, 0, 0);
             return fRun->newRunBuffer();
         }
 
@@ -560,10 +560,11 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Run
 
         std::unique_ptr<Run> fRun;
         SkScalar fLineHeight;
+        bool fUseHalfLeading;
         SkString fEllipsis;
     };
 
-    ShapeHandler handler(run.heightMultiplier(), ellipsis);
+    ShapeHandler handler(run.heightMultiplier(), run.useHalfLeading(), ellipsis);
     std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder();
     SkASSERT_RELEASE(shaper != nullptr);
     shaper->shape(ellipsis.c_str(), ellipsis.size(), run.font(), true,
@@ -1010,13 +1011,12 @@ void TextLine::getRectsForRange(TextRange textRange0,
                 }
                 break;
                 case RectHeightStyle::kTight: {
-                    if (run->fHeightMultiplier > 0) {
-                        // This is a special case when we do not need to take in account this height multiplier
-                        auto correctedHeight = clip.height() / run->fHeightMultiplier;
-                        auto verticalShift =  this->sizes().runTop(context.run, LineMetricStyle::Typographic);
-                        clip.fTop += verticalShift;
-                        clip.fBottom = clip.fTop + correctedHeight;
+                    if (run->fHeightMultiplier <= 0) {
+                        break;
                     }
+                    const auto effectiveBaseline = this->baseline() + this->sizes().delta();
+                    clip.fTop = effectiveBaseline + run->ascent();
+                    clip.fBottom = effectiveBaseline + run->descent();
                 }
                 break;
                 default:
