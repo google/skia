@@ -23,12 +23,25 @@ public:
     static GrVkFramebuffer* Create(GrVkGpu* gpu,
                                    int width, int height,
                                    const GrVkRenderPass* renderPass,
-                                   const GrVkAttachment* colorAttachment,
-                                   const GrVkAttachment* resolveAttachment,
-                                   const GrVkAttachment* stencilAttachment,
+                                   GrVkAttachment* colorAttachment,
+                                   GrVkAttachment* resolveAttachment,
+                                   GrVkAttachment* stencilAttachment,
                                    GrVkResourceProvider::CompatibleRPHandle);
 
+    // Used for wrapped external secondary command buffers
+    GrVkFramebuffer(const GrVkGpu* gpu,
+                    sk_sp<GrVkAttachment> colorAttachment,
+                    sk_sp<const GrVkRenderPass> renderPass,
+                    VkCommandBuffer secondaryCommandBuffer);
+
     VkFramebuffer framebuffer() const { return fFramebuffer; }
+
+    VkCommandBuffer externalSecondaryCommandBuffer() const {
+        return fExternalSecondaryCommandBuffer;
+    }
+    const GrVkRenderPass* externalRenderPass() const { return fExternalRenderPass.get(); }
+
+    void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer);
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
@@ -40,33 +53,47 @@ public:
         return fCompatibleRenderPassHandle;
     }
 
+    GrVkAttachment* colorAttachment() { return fColorAttachment.get(); }
+    GrVkAttachment* resolveAttachment() { return fResolveAttachment.get(); }
+    GrVkAttachment* stencilAttachment() { return fStencilAttachment.get(); }
+
 private:
     GrVkFramebuffer(const GrVkGpu* gpu,
                     VkFramebuffer framebuffer,
                     sk_sp<GrVkAttachment> colorAttachment,
                     sk_sp<GrVkAttachment> resolveAttachment,
                     sk_sp<GrVkAttachment> stencilAttachment,
-                    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle)
-        : INHERITED(gpu)
-        , fFramebuffer(framebuffer)
-        , fColorAttachment(std::move(colorAttachment))
-        , fResolveAttachment(std::move(resolveAttachment))
-        , fStencilAttachment(std::move(stencilAttachment))
-        , fCompatibleRenderPassHandle(compatibleRenderPassHandle) {}
+                    GrVkResourceProvider::CompatibleRPHandle);
 
     ~GrVkFramebuffer() override;
 
+    bool isExternal() const { return fExternalSecondaryCommandBuffer != VK_NULL_HANDLE; }
+
     void freeGPUData() const override;
+    void releaseResources();
 
-    VkFramebuffer  fFramebuffer;
+    VkFramebuffer  fFramebuffer = VK_NULL_HANDLE;
 
-    sk_sp<const GrVkAttachment> fColorAttachment;
-    sk_sp<const GrVkAttachment> fResolveAttachment;
-    sk_sp<const GrVkAttachment> fStencilAttachment;
+    sk_sp<GrVkAttachment> fColorAttachment;
+    sk_sp<GrVkAttachment> fResolveAttachment;
+    sk_sp<GrVkAttachment> fStencilAttachment;
 
     GrVkResourceProvider::CompatibleRPHandle fCompatibleRenderPassHandle;
 
-    using INHERITED = GrVkManagedResource;
+    sk_sp<const GrVkRenderPass> fExternalRenderPass;
+    VkCommandBuffer fExternalSecondaryCommandBuffer = VK_NULL_HANDLE;
+
+    // When we wrap a secondary command buffer, we will record GrManagedResources onto it which need
+    // to be kept alive till the command buffer gets submitted and the GPU has finished. However, in
+    // the wrapped case, we don't know when the command buffer gets submitted and when it is
+    // finished on the GPU since the client is in charge of that. However, we do require that the
+    // client keeps the GrVkSecondaryCBDrawContext alive and call releaseResources on it once the
+    // GPU is finished all the work. Thus we can use this to manage the lifetime of our
+    // GrVkSecondaryCommandBuffers. By storing them on the external GrVkFramebuffer owned by the
+    // GrVkRenderTarget, which is owned by the SkGpuDevice on the GrVkSecondaryCBDrawContext, we
+    // assure that the GrManagedResources held by the GrVkSecondaryCommandBuffer don't get deleted
+    // before they are allowed to.
+    SkTArray<std::unique_ptr<GrVkCommandBuffer>> fGrSecondaryCommandBuffers;
 };
 
 #endif

@@ -975,10 +975,10 @@ void GrVkSecondaryCommandBuffer::end(GrVkGpu* gpu) {
     SkASSERT(fIsActive);
     if (!this->isWrapped()) {
         GR_VK_CALL_ERRCHECK(gpu, EndCommandBuffer(fCmdBuffer));
+        this->invalidateState();
+        fHasWork = false;
     }
-    this->invalidateState();
     fIsActive = false;
-    fHasWork = false;
 }
 
 void GrVkSecondaryCommandBuffer::recycle(GrVkCommandPool* cmdPool) {
