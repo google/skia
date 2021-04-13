@@ -150,6 +150,8 @@ public:
         // TODO: Implement
     }
 
+    TextRun& run(const size_t index) { return fRuns[index]; }
+
     // Simplification (using default font manager, default font family and default everything possible)
     static bool drawText(const char* text, SkCanvas* canvas, SkScalar x, SkScalar y);
 
@@ -159,18 +161,15 @@ public:
     void iterateStylesByRunsByLines(DecorBlockVisitor visitor);
     void iterateStylesInTextRange(const TextRun* run, Range textRange, SkScalar* runOffset, SkScalar textOffset, DecorBlockVisitor visitor);
 
-    using RunVisitor = std::function<bool(const TextRun* run, Range textRange)>;
-    void iterateLineByRuns(const Line* line, RunVisitor);
-
     bool computeCodeUnitProperties();
 
     void markGlyphemeClusters();
 
     template<typename Visitor>
-    void iterateByLogicalOrder(Visitor visitor, CodeUnitFlags units);
+    void iterateByLogicalOrder(CodeUnitFlags units, Visitor visitor);
 
     template<typename Visitor>
-    void iterateByVisualOrder(Visitor visitor, CodeUnitFlags units);
+    void iterateByVisualOrder(CodeUnitFlags units, Visitor visitor);
 
 private:
     friend class TextIterator;

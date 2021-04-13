@@ -58,16 +58,27 @@ bool Processor::decorate(SkTArray<DecorBlock, true>& decorBlocks) {
 
     this->sortDecorBlocks(decorBlocks);
 
-    this->iterateStylesByRunsByLines([&](const TextRun* run, Range glyphRange, SkSize offset, const SkPaint* foreground){
+    SkPaint dummy;
+    dummy.setColor(SK_ColorBLACK);
 
+    const Line* prevLine = nullptr;
+    SkSize offset = SkSize::MakeEmpty();
+    this->iterateByVisualOrder(CodeUnitFlags::kNonExistingFlag,
+       [&](const Line* line, const TextRun* run, Range textRange, Range glyphRange, CodeUnitFlags flags) {
+        if (prevLine != line) {
+            prevLine = line;
+            offset.fWidth = 0.0f;
+            // TODO: Line is shifted by height but the text only by baseline
+            offset.fHeight += line->fTextMetrics.height();
+        }
         SkTextBlobBuilder builder;
         const auto& blobBuffer = builder.allocRunPos(run->fFont, SkToInt(glyphRange.width()));
         sk_careful_memcpy(blobBuffer.glyphs, run->fGlyphs.data() + glyphRange.fStart, glyphRange.width() * sizeof(SkGlyphID));
         sk_careful_memcpy(blobBuffer.points(), run->fPositions.data() + glyphRange.fStart, glyphRange.width() * sizeof(SkPoint));
 
-        fTextOutputs.emplace_back(builder.make(), *foreground, offset);
-        return true;
+        fTextOutputs.emplace_back(builder.make(), dummy, offset);
     });
+
     return true;
 }
 
@@ -138,20 +149,6 @@ void Processor::sortDecorBlocks(SkTArray<DecorBlock, true>& decorBlocks) {
     }
 }
 
-void Processor::iterateStylesByRunsByLines(DecorBlockVisitor visitor) {
-    // Iterate through all the lines
-    SkScalar lineOffset = 0;
-    for (auto& line : fLines) {
-
-        SkScalar runOffset = 0.0f;
-        lineOffset += line.fTextMetrics.height();
-        iterateLineByRuns(&line, [&](const TextRun* run, Range textRange) {
-            iterateStylesInTextRange(run, textRange, &runOffset, lineOffset, visitor);
-            return true;
-        });
-    }
-}
-
 void Processor::iterateStylesInTextRange(const TextRun* run, Range textRange, SkScalar* runOffset, SkScalar textOffset, DecorBlockVisitor visitor) {
     // TODO: Take in account text direction so we always move in glyph order
     for (size_t blockIndex = 0; blockIndex < fDecorBlocks.size(); ++blockIndex) {
@@ -166,17 +163,6 @@ void Processor::iterateStylesInTextRange(const TextRun* run, Range textRange, Sk
         // TODO: Somewhere we should adjust all ranges to grapheme edges
         visitor(run, glyphIntersect, {*runOffset, textOffset}, block.fForegroundColor);
         *runOffset = run->calculateWidth(glyphIntersect);
-    }
-}
-
-void Processor::iterateLineByRuns(const Line* line, RunVisitor visitor) {
-    // TODO: Take in account visual order for RTL
-    for (size_t runIndex = line->fTextStart.fRunIndex; runIndex <= line->fTextEnd.fRunIndex; ++runIndex) {
-        const auto& run = fRuns[runIndex];
-        auto start = runIndex == line->fTextStart.fRunIndex ? line->fTextStart.fGlyphIndex : 0;
-        auto end = runIndex == line->fTextEnd.fRunIndex ? line->fTextEnd.fGlyphIndex : run.fGlyphs.size();
-        auto runTextRange = Wrapper::textRange(&run, {start, end}); // This is the grapheme-edged text of the run on the line
-        visitor(&run, runTextRange);
     }
 }
 
@@ -231,7 +217,7 @@ void Processor::markGlyphemeClusters() {
 }
 
 template<typename Visitor>
-void Processor::iterateByLogicalOrder(Visitor visitor, CodeUnitFlags units) {
+void Processor::iterateByLogicalOrder(CodeUnitFlags units, Visitor visitor) {
     Range range(0, 0);
     for (size_t index = 0; index < fCodeUnitProperties.size(); ++index) {
         if (this->hasProperty(index, units)) {
@@ -243,23 +229,27 @@ void Processor::iterateByLogicalOrder(Visitor visitor, CodeUnitFlags units) {
 }
 
 template<typename Visitor>
-void Processor::iterateByVisualOrder(Visitor visitor, CodeUnitFlags units) {
+void Processor::iterateByVisualOrder(CodeUnitFlags units, Visitor visitor) {
     for (auto& line : fLines) {
         for (auto& runIndex : line.fRunsInVisualOrder) {
             auto& run = fRuns[runIndex];
-            Range textRange = { run.fUtf8Range.begin(), run.fUtf8Range.end() };
-            Range range = textRange;
-            SkScalar start = 0.0f;
-            for (auto glyphIndex = 0; glyphIndex < run.fClusters.size(); ++glyphIndex) {
+
+            auto startGlyph = runIndex == line.fTextStart.fRunIndex == runIndex ? line.fTextStart.fGlyphIndex : 0;
+            auto endGlyph = runIndex == line.fTextEnd.fRunIndex ? line.fTextEnd.fGlyphIndex : run.fGlyphs.size();
+
+            Range textRange(run.fUtf8Range.begin(), run.fUtf8Range.end());
+            Range glyphRange(startGlyph, endGlyph);
+            for (auto glyphIndex = startGlyph; glyphIndex <= endGlyph; ++glyphIndex) {
                 auto textIndex = run.fClusters[glyphIndex];
-                auto position = run.fPositions[glyphIndex].fX;
-                if (this->hasProperty(textIndex, units)) {
-                    range.fEnd = textIndex;
-                    visitor(range, this->fCodeUnitProperties[textIndex], start, position);
-                    range.fStart = textIndex;
-                    start = position;
+                if (glyphIndex < endGlyph && !this->hasProperty(textIndex, units)) {
+                    continue;
                 }
-            };
+                textRange.fEnd = textIndex;
+                glyphRange.fEnd = glyphIndex;
+                visitor(&line, &run, textRange, glyphRange, this->fCodeUnitProperties[textIndex]);
+                textRange.fStart = textIndex;
+                glyphRange.fStart = glyphIndex;
+            }
         }
     }
 }

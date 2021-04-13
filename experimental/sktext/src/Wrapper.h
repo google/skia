@@ -16,7 +16,7 @@ public:
     bool process();
 
     void addLine(Stretch& stretch, Stretch& spaces) {
-        fProcessor->fLines.emplace_back(stretch, spaces);
+        fProcessor->fLines.emplace_back(fProcessor, stretch, spaces);
         stretch.clean();
         spaces.clean();
     }

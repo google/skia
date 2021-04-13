@@ -28,7 +28,7 @@ enum class LineBreakType {
   kHardLineBreakBefore,
 };
 
-enum CodeUnitFlags : uint32_t {
+enum CodeUnitFlags : uint64_t {
     kNoCodeUnitFlag = 0x0,
     kPartOfWhiteSpace = 0x1,
     kGraphemeStart = 0x2,
@@ -37,6 +37,7 @@ enum CodeUnitFlags : uint32_t {
     // This information we get from SkShaper
     kGlyphStart = 0x16,
     kGlyphClusterStart = 0x32,
+    kNonExistingFlag = 0x64,
 };
 
 class Range {
@@ -81,7 +82,7 @@ public:
         }
     }
 
-    Range intersect(Range other) {
+    void intersect(Range other) {
         auto ltr = this->leftToRight();
 
         this->normalize();

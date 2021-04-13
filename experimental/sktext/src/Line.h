@@ -5,7 +5,6 @@
 #include "experimental/sktext/include/Types.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
-#include "TextRun.h"
 
 namespace skia {
 namespace text {
@@ -42,7 +41,7 @@ public:
       this->fLeading = 0;
   }
 
-  SkScalar height() {
+  SkScalar height() const {
       return this->fDescent - this->fAscent + this->fLeading;
   }
 
@@ -136,26 +135,7 @@ public:
 
 class Line {
 public:
-    Line(const Stretch& stretch, const Stretch& spaces)
-        : fTextStart(stretch.fGlyphStart)
-        , fTextEnd(stretch.fGlyphEnd)
-        , fWhitespacesEnd (spaces.fGlyphEnd)
-        , fText(stretch.fTextRange)
-        , fWhitespaces(spaces.fTextRange)
-        , fTextWidth(stretch.fWidth)
-        , fSpacesWidth(spaces.fWidth) {
-
-        SkASSERT(stretch.isEmpty() ||
-                        spaces.isEmpty() ||
-            (stretch.fGlyphEnd == spaces.fGlyphStart));
-
-        if (!stretch.isEmpty()) {
-            this->fTextMetrics.merge(stretch.fTextMetrics);
-        }
-        if (!spaces.isEmpty()) {
-            this->fTextMetrics.merge(spaces.fTextMetrics);
-        }
-    }
+    Line(Processor* processor, const Stretch& stretch, const Stretch& spaces);
     ~Line() = default;
 
 private:
@@ -170,6 +150,7 @@ private:
     SkScalar fSpacesWidth;
     TextMetrics fTextMetrics;
     SkSTArray<1, size_t, true> fRunsInVisualOrder;
+    Processor* fProcessor;
 };
 
 }

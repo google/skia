@@ -21,6 +21,7 @@ class TextRun {
   SkScalar calculateWidth(Range glyphRange) const;
 
   bool leftToRight() const { return fBidiLevel % 2 == 0; }
+  uint8_t bidiLevel() const { return fBidiLevel; }
 
  private:
   friend class Wrapper;
