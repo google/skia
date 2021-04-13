@@ -53,8 +53,11 @@ public:
     GrD3DDescriptorHeap::CPUHandle createConstantBufferView(ID3D12Resource* bufferResource,
                                                             size_t offset,
                                                             size_t size);
-    GrD3DDescriptorHeap::CPUHandle createShaderResourceView(ID3D12Resource* resource);
-    GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(ID3D12Resource* resource);
+    GrD3DDescriptorHeap::CPUHandle createShaderResourceView(ID3D12Resource* resource,
+                                                            unsigned int mostDetailedMip = 0,
+                                                            unsigned int mipLevels = -1);
+    GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(ID3D12Resource* resource,
+                                                             unsigned int mipSlice);
     void recycleShaderView(const GrD3DDescriptorHeap::CPUHandle&);
 
     D3D12_CPU_DESCRIPTOR_HANDLE findOrCreateCompatibleSampler(const GrSamplerState& params);
