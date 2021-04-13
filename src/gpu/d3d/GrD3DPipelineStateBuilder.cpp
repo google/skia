@@ -72,6 +72,10 @@ void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outp
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }
 
+// Print the source code for all shaders generated.
+static const bool gPrintSKSL = false;
+static const bool gPrintHLSL = false;
+
 static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
                                            const SkSL::String& hlsl,
                                            SkSL::ProgramKind kind) {
@@ -139,19 +143,32 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         const SkSL::Program::Settings& settings,
         SkSL::Program::Inputs* outInputs,
         SkSL::String* outHLSL) {
+#ifdef SK_DEBUG
+    SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
+#else
+    SkSL::String& src = sksl;
+#endif
+
     auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
     std::unique_ptr<SkSL::Program> program = fGpu->shaderCompiler()->convertProgram(
-            kind, sksl, settings);
-    if (!program) {
+            kind, src, settings);
+    if (!program || !fGpu->shaderCompiler()->toHLSL(*program, outHLSL)) {
         errorHandler->compileError(sksl.c_str(),
                                    fGpu->shaderCompiler()->errorText().c_str());
         return gr_cp<ID3DBlob>();
     }
     *outInputs = program->fInputs;
-    if (!fGpu->shaderCompiler()->toHLSL(*program, outHLSL)) {
-        errorHandler->compileError(sksl.c_str(),
-                                   fGpu->shaderCompiler()->errorText().c_str());
-        return gr_cp<ID3DBlob>();
+
+    if (gPrintSKSL || gPrintHLSL) {
+        GrShaderUtils::PrintShaderBanner(kind);
+        if (gPrintSKSL) {
+            SkDebugf("SKSL:\n");
+            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
+        }
+        if (gPrintHLSL) {
+            SkDebugf("HLSL:\n");
+            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(*outHLSL));
+        }
     }
 
     if (program->fInputs.fRTHeight) {
@@ -669,3 +686,49 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
                                                             geomProc.vertexStride(),
                                                             geomProc.instanceStride()));
 }
+
+
+sk_sp<GrD3DPipeline> GrD3DPipelineStateBuilder::MakeComputePipeline(GrD3DGpu* gpu,
+                                                                    GrD3DRootSignature* rootSig,
+                                                                    const char* shader) {
+    D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
+    psoDesc.pRootSignature = rootSig->rootSignature();
+
+    // compile shader
+    gr_cp<ID3DBlob> shaderBlob;
+    {
+        TRACE_EVENT0("skia.shaders", "driver_compile_shader");
+        uint32_t compileFlags = 0;
+#ifdef SK_DEBUG
+        // Enable better shader debugging with the graphics debugging tools.
+        compileFlags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+        gr_cp<ID3DBlob> errors;
+        HRESULT hr = D3DCompile(shader, strlen(shader), nullptr, nullptr, nullptr, "main",
+                                "cs_5_1", compileFlags, 0, &shaderBlob, &errors);
+        if (!SUCCEEDED(hr)) {
+            gpu->getContext()->priv().getShaderErrorHandler()->compileError(
+                shader, reinterpret_cast<char*>(errors->GetBufferPointer()));
+            return nullptr;
+        }
+        psoDesc.CS = { reinterpret_cast<UINT8*>(shaderBlob->GetBufferPointer()),
+                       shaderBlob->GetBufferSize() };
+    }
+
+    // Only used for multi-adapter systems.
+    psoDesc.NodeMask = 0;
+
+    psoDesc.CachedPSO = { nullptr, 0 };
+    psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+    gr_cp<ID3D12PipelineState> pipelineState;
+    {
+        TRACE_EVENT0("skia.shaders", "CreateComputePipelineState");
+        GR_D3D_CALL_ERRCHECK(
+            gpu->device()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+    }
+
+    return GrD3DPipeline::Make(std::move(pipelineState));
+}
+

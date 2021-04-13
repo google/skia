@@ -15,18 +15,20 @@ class GrD3DGpu;
 
 class GrD3DRootSignature : public GrManagedResource {
 public:
-    static sk_sp<GrD3DRootSignature> Make(GrD3DGpu* gpu, int numTextureSamplers);
+    static sk_sp<GrD3DRootSignature> Make(GrD3DGpu* gpu, int numTextureSamplers,
+                                          int numUnorderedAccessViews);
 
     enum class ParamIndex {
         kConstantBufferView = 0,
-        kSamplerDescriptorTable = 1,
-        kTextureDescriptorTable = 2,
+        kShaderViewDescriptorTable = 1,
+        kSamplerDescriptorTable = 2,
+//        kUAVDescriptorTable = 3, //*** what if we don't have samplers or textures?
 
-        kLast = kTextureDescriptorTable
+        kLast = kSamplerDescriptorTable
     };
     static constexpr unsigned int kParamIndexCount = (unsigned int)(ParamIndex::kLast) + 1;
 
-    bool isCompatible(int numTextureSamplers) const;
+    bool isCompatible(int numTextureSamplers, int numUnorderedAccessViews) const;
 
     ID3D12RootSignature* rootSignature() const { return fRootSignature.get(); }
 
@@ -40,7 +42,8 @@ public:
 #endif
 
 private:
-    GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int numTextureSamplers);
+    GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int numTextureSamplers,
+                       int numUnorderedAccessViews);
 
     // This will be called right before this class is destroyed and there is no reason to explicitly
     // release the fRootSignature cause the gr_cp will handle that in the dtor.
@@ -48,6 +51,7 @@ private:
 
     gr_cp<ID3D12RootSignature> fRootSignature;
     int fNumTextureSamplers;
+    int fNumUnorderedAccessViews;
 };
 
 #endif

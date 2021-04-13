@@ -134,7 +134,7 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu,
         sk_sp<GrD3DDescriptorTable> srvTable =
                 gpu->resourceProvider().findOrCreateShaderViewTable(shaderResourceViews);
         gpu->currentCommandList()->setGraphicsRootDescriptorTable(
-                static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kTextureDescriptorTable),
+                static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kShaderViewDescriptorTable),
                 srvTable->baseGpuDescriptor());
 
         // set up and bind sampler table

@@ -33,6 +33,10 @@
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
 
+#ifdef SK_DIRECT3D
+#include "include/gpu/d3d/GrD3DTypes.h"
+#endif
+
 static constexpr int kSize = 8;
 
 // Test that the correct mip map states are on the GrTextures when wrapping GrBackendTextures in
@@ -230,6 +234,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                     }
                 } else {
                     ERRORF(reporter, "Failed to get GrMtlTextureInfo");
+                }
+#endif
+#ifdef SK_DIRECT3D
+            } else if (GrBackendApi::kDirect3D == genBackendTex.backend()) {
+                GrD3DTextureResourceInfo genImageInfo;
+                GrD3DTextureResourceInfo origImageInfo;
+                if (genBackendTex.getD3DTextureResourceInfo(&genImageInfo) &&
+                    backendTex.getD3DTextureResourceInfo(&origImageInfo)) {
+                    if (requestMipmapped == GrMipmapped::kYes && betMipmapped == GrMipmapped::kNo) {
+                        // We did a copy so the texture IDs should be different
+                        REPORTER_ASSERT(reporter, origImageInfo.fResource != genImageInfo.fResource);
+                    } else {
+                        REPORTER_ASSERT(reporter, origImageInfo.fResource == genImageInfo.fResource);
+                    }
+                } else {
+                    ERRORF(reporter, "Failed to get GrD3DTextureResourceInfo");
                 }
 #endif
 #ifdef SK_DAWN
