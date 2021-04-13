@@ -385,36 +385,40 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // sksl variables defined in earlier sksl code.
         this->newExtraEmitCodeBlock();
 
+        // inputColor is an optional argument that always appears last
         String inputColor;
-        if (arguments.size() > 1 && arguments[1]->type().name() == "half4") {
+        if (arguments.back()->type().name() == "half4") {
             // Use the invokeChild() variant that accepts an input color, so convert the 2nd
             // argument's expression into C++ code that produces sksl stored in an SkString.
             String inputColorName = this->getSampleVarName("_input", sampleCounter);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments[1], inputColorName));
+            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments.back(), inputColorName));
 
             // invokeChild() needs a char* and a pre-pended comma
             inputColor = ", " + inputColorName + ".c_str()";
         }
 
+        // coords can be float2, float3x3, or not there at all. They appear right after the fp.
         String inputCoord;
         String invokeFunction = "invokeChild";
-        if (arguments.back()->type().name() == "float2") {
-            // Invoking child with explicit coordinates at this call site
-            inputCoord = this->getSampleVarName("_coords", sampleCounter);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments.back(), inputCoord));
-            inputCoord.append(".c_str()");
-        } else if (arguments.back()->type().name() == "float3x3") {
-            // Invoking child with a matrix, sampling relative to the input coords.
-            invokeFunction = "invokeChildWithMatrix";
-            SampleUsage usage = Analysis::GetSampleUsage(fProgram, child);
-
-            if (!usage.hasUniformMatrix()) {
-                inputCoord = this->getSampleVarName("_matrix", sampleCounter);
-                addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments.back(), inputCoord));
+        if (arguments.size() > 1) {
+            if (arguments[1]->type().name() == "float2") {
+                // Invoking child with explicit coordinates at this call site
+                inputCoord = this->getSampleVarName("_coords", sampleCounter);
+                addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments[1], inputCoord));
                 inputCoord.append(".c_str()");
+            } else if (arguments[1]->type().name() == "float3x3") {
+                // Invoking child with a matrix, sampling relative to the input coords.
+                invokeFunction = "invokeChildWithMatrix";
+                SampleUsage usage = Analysis::GetSampleUsage(fProgram, child);
+
+                if (!usage.hasUniformMatrix()) {
+                    inputCoord = this->getSampleVarName("_matrix", sampleCounter);
+                    addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments[1], inputCoord));
+                    inputCoord.append(".c_str()");
+                }
+                // else pass in the empty string to rely on invokeChildWithMatrix's automatic
+                // uniform resolution
             }
-            // else pass in the empty string to rely on invokeChildWithMatrix's automatic uniform
-            // resolution
         }
         if (!inputCoord.empty()) {
             inputCoord = ", " + inputCoord;
