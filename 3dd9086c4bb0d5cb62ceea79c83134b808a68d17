@@ -71,6 +71,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2aa74a84_76c06858",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-13T23:07:47Z",
+      "side": 1,
+      "message": "the `fMaxRunMetrics.add(\u0026run)` line does not exist on HEAD, I added it to see if it breaks any test. On HEAD it currently looks like this: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/modules/skparagraph/src/TextLine.cpp;l\u003d137-142?q\u003dtextline.cpp\u0026ss\u003dchromium%2Fchromium%2Fsrc:third_party%2Fskia%2F.\n\nThe line above it seems to be adding the font metrics instead of the run metrics? Anyway it has very little to do with half leading, I\u0027ll remove the commented-out line.",
+      "parentUuid": "28c1ca08_2711ac47",
+      "revId": "3dd9086c4bb0d5cb62ceea79c83134b808a68d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75bb5a82_70b1d110",
