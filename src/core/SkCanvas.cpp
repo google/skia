@@ -2278,12 +2278,13 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst,
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
-    const SkRect bounds = blob->bounds().makeOffset(x, y);
-    if (this->internalQuickReject(bounds, paint)) {
+    const SkRect bloBounds = blob->bounds().makeOffset(x, y);
+    if (this->internalQuickReject(bloBounds, paint)) {
         return;
     }
 
     auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(*blob, {x, y});
+    SkRect bounds = glyphRunList.sourceBounds();
     AutoLayerForImageFilter layer(this, paint, &bounds);
     this->topDevice()->drawGlyphRunList(glyphRunList, layer.paint());
 }
