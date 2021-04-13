@@ -144,7 +144,8 @@ void OneLineShaper::fillGaps(size_t startingCount) {
     }
 }
 
-void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advanceX) {
+void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanceX) {
+    auto blockText = block.fRange;
 
     // Add all unresolved blocks to resolved blocks
     while (!fUnresolvedBlocks.empty()) {
@@ -165,30 +166,30 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
 
     // Go through all of them
     size_t lastTextEnd = blockText.start;
-    for (auto& block : fResolvedBlocks) {
+    for (auto& resolvedBlock : fResolvedBlocks) {
 
-        if (block.fText.end <= blockText.start) {
+        if (resolvedBlock.fText.end <= blockText.start) {
             continue;
         }
 
-        if (block.fRun != nullptr) {
-            fParagraph->fFontSwitches.emplace_back(block.fText.start, block.fRun->fFont);
+        if (resolvedBlock.fRun != nullptr) {
+            fParagraph->fFontSwitches.emplace_back(resolvedBlock.fText.start, resolvedBlock.fRun->fFont);
         }
 
-        auto run = block.fRun;
-        auto glyphs = block.fGlyphs;
-        auto text = block.fText;
+        auto run = resolvedBlock.fRun;
+        auto glyphs = resolvedBlock.fGlyphs;
+        auto text = resolvedBlock.fText;
         if (lastTextEnd != text.start) {
             SkDEBUGF("Text ranges mismatch: ...:%d] - [%d:%d] (%d-%d)\n", lastTextEnd, text.start, text.end,  glyphs.start, glyphs.end);
             SkASSERT(false);
         }
         lastTextEnd = text.end;
 
-        if (block.isFullyResolved()) {
+        if (resolvedBlock.isFullyResolved()) {
             // Just move the entire run
-            block.fRun->fIndex = this->fParagraph->fRuns.size();
-            this->fParagraph->fRuns.emplace_back(*block.fRun);
-            block.fRun.reset();
+            resolvedBlock.fRun->fIndex = this->fParagraph->fRuns.size();
+            this->fParagraph->fRuns.emplace_back(*resolvedBlock.fRun);
+            resolvedBlock.fRun.reset();
             continue;
         } else if (run == nullptr) {
             continue;
@@ -207,6 +208,7 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
                     info,
                     run->fClusterStart,
                     height,
+                    block.fStyle.getHalfLeading(),
                     this->fParagraph->fRuns.count(),
                     advanceX
                 );
@@ -598,6 +600,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                                        runInfo,
                                        0,
                                        0.0f,
+                                       false,
                                        fParagraph->fRuns.count(),
                                        advanceX);
 
@@ -633,6 +636,7 @@ bool OneLineShaper::shape() {
 
             // Start from the beginning (hoping that it's a simple case one block - one run)
             fHeight = block.fStyle.getHeightOverride() ? block.fStyle.getHeight() : 0;
+            fUseHalfLeading = block.fStyle.getHalfLeading();
             fAdvance = SkVector::Make(advanceX, 0);
             fCurrentText = block.fRange;
             fUnresolvedBlocks.emplace_back(RunBlock(block.fRange));
@@ -696,7 +700,7 @@ bool OneLineShaper::shape() {
                 }
             });
 
-            this->finish(block.fRange, fHeight, advanceX);
+            this->finish(block, fHeight, advanceX);
         });
 
         return true;
