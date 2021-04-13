@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "133dc07d_3d5ab09f",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-13T18:23:44Z",
+      "side": 1,
+      "message": "Most/all of these external calls here will go away with my change to have GrVkOpsRenderpass use GrVkFramebuffer instead of GrVkRT. For now we need these to pass through to the the framebuffer.",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 103,
+        "endChar": 51
+      },
+      "revId": "9d48e6016a029534c7fa906039871fde59055011",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
