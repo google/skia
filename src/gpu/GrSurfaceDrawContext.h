@@ -651,7 +651,7 @@ private:
     GrAAType chooseAAType(GrAA);
 
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
-    void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
+    void setNeedsStencil(bool drawUsesHWAA);
 
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
 
@@ -714,6 +714,8 @@ private:
                                                  GrXferProcessor::DstProxyView* result);
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
+
+    bool hasDynamicMSAA() const { return this->asRenderTargetProxy()->hasDynamicMSAA(fContext); }
 
     SkSurfaceProps fSurfaceProps;
 

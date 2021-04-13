@@ -55,7 +55,10 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
-        fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
+        // Don't use the triangulating path renderer if we have dmsaa.
+        if (!context->priv().options().fAlwaysAntialias) {
+            fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
+        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
         if (GrTessellationPathRenderer::IsSupported(caps)) {
