@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c53a21eb_81857d09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-13T19:49:47Z",
+      "side": 1,
+      "message": "In theory this could make things worse by inserting an identity matrix mul in the fragment shader, but I haven\u0027t seen that happen. Thus, this is isn\u0027t guarded by the \"reduced shaders\" cap.",
+      "revId": "c16678c54f81c891f01fb1607dc34a60879e9eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
