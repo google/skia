@@ -51,6 +51,24 @@
       "parentUuid": "ab8a906b_21a6be5a",
       "revId": "300131a0d3ff964da2063ab38c69ae4fe5d46588",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b56521c_04a0e4e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-13T18:41:35Z",
+      "side": 1,
+      "message": "The GM is already in with landing initial support for COLRv1, compare https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/gm/colrv1.cpp?q\u003dcolrv1.cpp it exercises the major COLRv1 paint formats.",
+      "parentUuid": "644e8f12_e070c5b7",
+      "revId": "300131a0d3ff964da2063ab38c69ae4fe5d46588",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
