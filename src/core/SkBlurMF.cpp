@@ -657,7 +657,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         }
         srcProxyRect.outset(outsetX, outsetY);
 
-        surfaceDrawContext->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
+        surfaceDrawContext->fillPixelsWithLocalMatrix(clip, std::move(paint),
+                                                      srcProxyRect.roundOut(), viewMatrix);
         return true;
     }
     if (!viewMatrix.isScaleTranslate()) {
@@ -790,8 +791,8 @@ GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* conte
             paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
-        surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                     SkRect::Make(clipRect));
+        surfaceDrawContext->fillPixelsWithLocalMatrix(nullptr, std::move(paint), clipRect,
+                                                      SkMatrix::I());
     }
 
     return surfaceDrawContext->readSurfaceView();
