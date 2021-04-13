@@ -291,12 +291,10 @@ bool GrVkOpsRenderPass::initWrapped() {
     SkASSERT(fCurrentRenderPass);
     fCurrentRenderPass->ref();
 
-    fCurrentSecondaryCommandBuffer.reset(
-            GrVkSecondaryCommandBuffer::Create(vkRT->getExternalSecondaryCommandBuffer()));
+    fCurrentSecondaryCommandBuffer = vkRT->externalCommandBuffer();
     if (!fCurrentSecondaryCommandBuffer) {
         return false;
     }
-    fCurrentSecondaryCommandBuffer->begin(fGpu, nullptr, fCurrentRenderPass);
     return true;
 }
 
@@ -344,7 +342,7 @@ void GrVkOpsRenderPass::submit() {
         // We pass the ownership of the GrVkSecondaryCommandBuffer to the special wrapped
         // GrVkRenderTarget since it's lifetime matches the lifetime we need to keep the
         // GrManagedResources on the GrVkSecondaryCommandBuffer alive.
-        static_cast<GrVkRenderTarget*>(fRenderTarget)->addWrappedGrSecondaryCommandBuffer(
+        static_cast<GrVkRenderTarget*>(fRenderTarget)->returnExternalGrSecondaryCommandBuffer(
                 std::move(fCurrentSecondaryCommandBuffer));
         return;
     }
@@ -652,7 +650,7 @@ void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUpl
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkOpsRenderPass::onEnd() {
-    if (fCurrentSecondaryCommandBuffer) {
+    if (fCurrentSecondaryCommandBuffer && !this->wrapsSecondaryCommandBuffer()) {
         fCurrentSecondaryCommandBuffer->end(fGpu);
     }
 }
