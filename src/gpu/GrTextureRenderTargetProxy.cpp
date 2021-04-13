@@ -102,7 +102,7 @@ void GrTextureRenderTargetProxy::initSurfaceFlags(const GrCaps& caps) {
     }
 }
 
-size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
+size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps&) const {
     int colorSamplesPerPixel = this->numSamples();
     if (colorSamplesPerPixel > 1) {
         // Add one to account for the resolve buffer.

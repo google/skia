@@ -143,11 +143,11 @@ bool SkImage_GpuYUVA::onHasMipmaps() const {
 
 size_t SkImage_GpuYUVA::onTextureSize() const {
     if (fRGBView) {
-        return fRGBView.asTextureProxy()->gpuMemorySize();
+        return fRGBView.asTextureProxy()->gpuMemorySize(*fContext->priv().caps());
     }
     size_t size = 0;
     for (int i = 0; i < fYUVAProxies.numPlanes(); ++i) {
-        size += fYUVAProxies.proxy(i)->gpuMemorySize();
+        size += fYUVAProxies.proxy(i)->gpuMemorySize(*fContext->priv().caps());
     }
     return size;
 }
