@@ -1462,8 +1462,8 @@ void Viewer::drawSlide(SkSurface* surface) {
         fShowZoomWindow ||
         Window::kRaster_BackendType == fBackendType ||
         colorSpace != nullptr ||
-        FLAGS_offscreen) {
-
+        FLAGS_offscreen ||
+        FLAGS_dmsaa) {
         offscreenSurface = make_surface(fWindow->width(), fWindow->height());
         slideSurface = offscreenSurface.get();
         slideCanvas = offscreenSurface->getCanvas();
