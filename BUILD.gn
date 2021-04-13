@@ -2456,6 +2456,7 @@ if (skia_enable_tools) {
       is_shared_library = true
 
       sources = [
+        "modules/androidkit/src/AndroidKit.cpp",
         "modules/androidkit/src/Canvas.cpp",
         "modules/androidkit/src/Surface.cpp",
       ]
