@@ -33,6 +33,24 @@
       "message": "nit: inconsistent indentation here",
       "revId": "881df9ada48ec57e52200ec883ee11444cee24b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73d77171_09ecd2e4",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-13T18:50:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbf5c397_8c31bc50",
+      "revId": "881df9ada48ec57e52200ec883ee11444cee24b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
