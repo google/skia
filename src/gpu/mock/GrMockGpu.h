@@ -164,9 +164,9 @@ private:
                                             GrMipmapped,
                                             GrProtected) override;
 
-    bool onClearBackendTexture(const GrBackendTexture&,
-                               sk_sp<GrRefCntedCallback> finishedCallback,
-                               std::array<float, 4> color) override {
+    bool onUpdateBackendTexture(const GrBackendTexture&,
+                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                const BackendTextureData*) override {
         return true;
     }
 
@@ -177,8 +177,7 @@ private:
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
                                           sk_sp<GrRefCntedCallback> finishedCallback,
-                                          const void*,
-                                          size_t) override {
+                                          const BackendTextureData*) override {
         return true;
     }
 

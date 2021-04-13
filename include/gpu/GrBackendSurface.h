@@ -280,7 +280,6 @@ public:
     SkISize dimensions() const { return {fWidth, fHeight}; }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
-    GrMipmapped mipmapped() const { return fMipmapped; }
     bool hasMipmaps() const { return fMipmapped == GrMipmapped::kYes; }
     /** deprecated alias of hasMipmaps(). */
     bool hasMipMaps() const { return this->hasMipmaps(); }

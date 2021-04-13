@@ -39,7 +39,7 @@ void GrFillInCompressedData(SkImage::CompressionType, SkISize dimensions, GrMipm
 bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY = false);
 
 /** Clears the dst image to a constant color. */
-bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::array<float, 4> color);
+bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f color);
 
 #if GR_TEST_UTILS
 /**

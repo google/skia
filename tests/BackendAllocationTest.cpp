@@ -222,7 +222,7 @@ static void check_solid_pixmap(skiatest::Reporter* reporter,
 static SkColor4f get_expected_color(SkColor4f orig, GrColorType ct) {
     GrImageInfo ii(ct, kUnpremul_SkAlphaType, nullptr, {1, 1});
     std::unique_ptr<char[]> data(new char[ii.minRowBytes()]);
-    GrClearImage(ii, data.get(), ii.minRowBytes(), orig.array());
+    GrClearImage(ii, data.get(), ii.minRowBytes(), orig);
 
     // Read back to SkColor4f.
     SkColor4f result;
