@@ -169,6 +169,7 @@ private:
     SkScalar fTextWidth;
     SkScalar fSpacesWidth;
     TextMetrics fTextMetrics;
+    SkSTArray<1, size_t, true> fRunsInVisualOrder;
 };
 
 }

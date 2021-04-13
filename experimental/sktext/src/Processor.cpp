@@ -190,13 +190,14 @@ bool Processor::computeCodeUnitProperties() {
     }
 
     // Get white spaces
-    std::vector<SkUnicode::Position> whitespaces;
-    if (!fUnicode->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
-        return false;
-    }
-    for (auto whitespace : whitespaces) {
-        fCodeUnitProperties[whitespace] |= CodeUnitFlags::kPartOfWhiteSpace;
-    }
+    fUnicode->forEachCodepoint(fText.c_str(), fText.size(),
+       [this](SkUnichar unichar, int32_t start, int32_t end) {
+            if (fUnicode->isWhitespace(unichar)) {
+                for (auto i = start; i < end; ++i) {
+                    fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfWhiteSpace;
+                }
+            }
+       });
 
     // Get line breaks
     std::vector<SkUnicode::LineBreakBefore> lineBreaks;
@@ -224,7 +225,41 @@ bool Processor::computeCodeUnitProperties() {
 void Processor::markGlyphemeClusters() {
     for (auto& run : fRuns) {
         for (auto index : run.fClusters) {
-            fCodeUnitProperties[index] |= CodeUnitFlags::kGlyphClusterStart;
+            fCodeUnitProperties[index] |= CodeUnitFlags::kGlyphStart;
+        }
+    }
+}
+
+template<typename Visitor>
+void Processor::iterateByLogicalOrder(Visitor visitor, CodeUnitFlags units) {
+    Range range(0, 0);
+    for (size_t index = 0; index < fCodeUnitProperties.size(); ++index) {
+        if (this->hasProperty(index, units)) {
+            range.fEnd = index;
+            visitor(range, this->fCodeUnitProperties[index]);
+            range.fStart = index;
+        }
+    }
+}
+
+template<typename Visitor>
+void Processor::iterateByVisualOrder(Visitor visitor, CodeUnitFlags units) {
+    for (auto& line : fLines) {
+        for (auto& runIndex : line.fRunsInVisualOrder) {
+            auto& run = fRuns[runIndex];
+            Range textRange = { run.fUtf8Range.begin(), run.fUtf8Range.end() };
+            Range range = textRange;
+            SkScalar start = 0.0f;
+            for (auto glyphIndex = 0; glyphIndex < run.fClusters.size(); ++glyphIndex) {
+                auto textIndex = run.fClusters[glyphIndex];
+                auto position = run.fPositions[glyphIndex].fX;
+                if (this->hasProperty(textIndex, units)) {
+                    range.fEnd = textIndex;
+                    visitor(range, this->fCodeUnitProperties[textIndex], start, position);
+                    range.fStart = textIndex;
+                    start = position;
+                }
+            };
         }
     }
 }

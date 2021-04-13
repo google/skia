@@ -1,6 +1,6 @@
 // Copyright 2021 Google LLC.
-#ifndef Text_DEFINED
-#define Text_DEFINED
+#ifndef Processor_DEFINED
+#define Processor_DEFINED
 
 #include <string>
 #include "include/core/SkCanvas.h"
@@ -142,7 +142,7 @@ public:
 
     bool isClusterEdge(size_t index) {
         return this->hasProperty(index, CodeUnitFlags::kGraphemeStart) ||
-               this->hasProperty(index, CodeUnitFlags::kGlyphClusterStart);
+               this->hasProperty(index, CodeUnitFlags::kGlyphStart);
     }
 
     void adjustLeft(size_t* index) {
@@ -166,7 +166,14 @@ public:
 
     void markGlyphemeClusters();
 
+    template<typename Visitor>
+    void iterateByLogicalOrder(Visitor visitor, CodeUnitFlags units);
+
+    template<typename Visitor>
+    void iterateByVisualOrder(Visitor visitor, CodeUnitFlags units);
+
 private:
+    friend class TextIterator;
     friend class Shaper;
     friend class Wrapper;
 
@@ -186,4 +193,4 @@ private:
 }  // namespace textlayout
 }  // namespace skia
 
-#endif  // Text_DEFINED
+#endif  // Processor_DEFINED

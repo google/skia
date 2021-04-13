@@ -28,13 +28,15 @@ enum class LineBreakType {
   kHardLineBreakBefore,
 };
 
-enum CodeUnitFlags {
+enum CodeUnitFlags : uint32_t {
     kNoCodeUnitFlag = 0x0,
     kPartOfWhiteSpace = 0x1,
     kGraphemeStart = 0x2,
     kSoftLineBreakBefore = 0x4,
     kHardLineBreakBefore = 0x8,
-    kGlyphClusterStart = 0x16,  // This information we get from SkShaper
+    // This information we get from SkShaper
+    kGlyphStart = 0x16,
+    kGlyphClusterStart = 0x32,
 };
 
 class Range {
@@ -42,8 +44,19 @@ public:
     Range() : fStart(0), fEnd(0) { }
     Range(size_t start, size_t end) : fStart(start) , fEnd(end) { }
 
-    int width() {
-        return fEnd >= fStart ? SkToInt(fEnd - fStart) : - SkToInt(fStart - fEnd);
+    bool leftToRight() const {
+        return fEnd >= fStart;
+    }
+
+    void normalize() {
+        if (!this->leftToRight()) {
+            std::swap(this->fStart, this->fEnd);
+        }
+    }
+
+    // For RTL ranges start >= end
+    int width() const {
+        return leftToRight() ? SkToInt(fEnd - fStart) : SkToInt(fStart - fEnd);
     }
 
     void clean() {
@@ -51,18 +64,49 @@ public:
         fEnd = 0;
     }
 
-    bool isEmpty() {
+    bool isEmpty() const {
         return fEnd == fStart;
     }
 
     void merge(Range tail) {
-        SkASSERT(this->fEnd == tail.fStart);
-        fStart = std::min(this->fStart, tail.fStart);
-        fEnd = std::max(this->fEnd, tail.fEnd);
+        auto ltr = this->leftToRight();
+
+        this->normalize();
+        tail.normalize();
+        SkASSERT(this->fEnd == tail.fStart || this->fStart == tail.fEnd);
+        this->fStart = std::min(this->fStart, tail.fStart);
+        this->fEnd = std::max(this->fEnd, tail.fEnd);
+        if (!ltr) {
+            std::swap(this->fStart, this->fEnd);
+        }
     }
 
     Range intersect(Range other) {
-        return Range(std::max(this->fStart, other.fStart), std::min(this->fEnd, other.fEnd));
+        auto ltr = this->leftToRight();
+
+        this->normalize();
+        other.normalize();
+        this->fStart = std::max(this->fStart, other.fStart);
+        this->fEnd = std::min(this->fEnd, other.fEnd);
+        if (this->fStart > this->fEnd) {
+            // There is nothing in the intersection; make it empty
+            this->fEnd = this->fStart;
+        } else if (!ltr) {
+            std::swap(this->fStart, this->fEnd);
+        }
+    }
+
+    template<typename Visitor>
+    void iterate(Visitor visitor) {
+        if (this->leftToRight()) {
+            for (auto index = this->fStart; index < this->fEnd; ++index) {
+                visitor(index);
+            }
+        } else {
+            for (auto index = this->fStart; index < this->fEnd; --index) {
+                visitor(index);
+            }
+        }
     }
 
     size_t fStart;
