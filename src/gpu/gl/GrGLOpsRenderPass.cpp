@@ -24,27 +24,26 @@ void GrGLOpsRenderPass::set(GrRenderTarget* rt, bool useMSAASurface, const SkIRe
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
-    this->INHERITED::set(rt, origin);
-    fUseMultisampleFBO = useMSAASurface;
+    this->INHERITED::set(rt, useMSAASurface, origin);
     fContentBounds = contentBounds;
     fColorLoadAndStoreInfo = colorInfo;
     fStencilLoadAndStoreInfo = stencilInfo;
 }
 
 void GrGLOpsRenderPass::onBegin() {
-    fGpu->beginCommandBuffer(fRenderTarget, fUseMultisampleFBO, fContentBounds, fOrigin,
+    fGpu->beginCommandBuffer(fRenderTarget, fUseMSAASurface, fContentBounds, fOrigin,
                              fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
 }
 
 void GrGLOpsRenderPass::onEnd() {
-    fGpu->endCommandBuffer(fRenderTarget, fUseMultisampleFBO, fColorLoadAndStoreInfo,
+    fGpu->endCommandBuffer(fRenderTarget, fUseMSAASurface, fColorLoadAndStoreInfo,
                            fStencilLoadAndStoreInfo);
 }
 
 bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                                        const SkRect& drawBounds) {
     fPrimitiveType = programInfo.primitiveType();
-    return fGpu->flushGLState(fRenderTarget, fUseMultisampleFBO, programInfo);
+    return fGpu->flushGLState(fRenderTarget, fUseMSAASurface, programInfo);
 }
 
 void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
@@ -386,7 +385,7 @@ void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndire
 }
 
 void GrGLOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float, 4> color) {
-    fGpu->clear(scissor, color, fRenderTarget, fUseMultisampleFBO, fOrigin);
+    fGpu->clear(scissor, color, fRenderTarget, fUseMSAASurface, fOrigin);
 }
 
 void GrGLOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
