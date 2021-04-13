@@ -56,7 +56,7 @@ void GrVkCommandBuffer::freeGPUData(const GrGpu* gpu, VkCommandPool cmdPool) con
 
 void GrVkCommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    SkASSERT(!fIsActive);
+    SkASSERT(!fIsActive || this->isWrapped());
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->notifyFinishedWithWorkOnGpu();
     }
@@ -933,52 +933,52 @@ GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(GrVkGpu* gpu,
     if (err) {
         return nullptr;
     }
-    return new GrVkSecondaryCommandBuffer(cmdBuffer, false);
+    return new GrVkSecondaryCommandBuffer(cmdBuffer, /*externalRenderPass=*/nullptr);
 }
 
-GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(VkCommandBuffer cmdBuffer) {
-    return new GrVkSecondaryCommandBuffer(cmdBuffer, true);
+GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(
+        VkCommandBuffer cmdBuffer, const GrVkRenderPass* externalRenderPass) {
+    return new GrVkSecondaryCommandBuffer(cmdBuffer, externalRenderPass);
 }
 
 void GrVkSecondaryCommandBuffer::begin(GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
                                        const GrVkRenderPass* compatibleRenderPass) {
     SkASSERT(!fIsActive);
+    SkASSERT(!this->isWrapped());
     SkASSERT(compatibleRenderPass);
     fActiveRenderPass = compatibleRenderPass;
 
-    if (!this->isWrapped()) {
-        VkCommandBufferInheritanceInfo inheritanceInfo;
-        memset(&inheritanceInfo, 0, sizeof(VkCommandBufferInheritanceInfo));
-        inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-        inheritanceInfo.pNext = nullptr;
-        inheritanceInfo.renderPass = fActiveRenderPass->vkRenderPass();
-        inheritanceInfo.subpass = 0; // Currently only using 1 subpass for each render pass
-        inheritanceInfo.framebuffer = framebuffer ? framebuffer->framebuffer() : VK_NULL_HANDLE;
-        inheritanceInfo.occlusionQueryEnable = false;
-        inheritanceInfo.queryFlags = 0;
-        inheritanceInfo.pipelineStatistics = 0;
+    VkCommandBufferInheritanceInfo inheritanceInfo;
+    memset(&inheritanceInfo, 0, sizeof(VkCommandBufferInheritanceInfo));
+    inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    inheritanceInfo.pNext = nullptr;
+    inheritanceInfo.renderPass = fActiveRenderPass->vkRenderPass();
+    inheritanceInfo.subpass = 0; // Currently only using 1 subpass for each render pass
+    inheritanceInfo.framebuffer = framebuffer ? framebuffer->framebuffer() : VK_NULL_HANDLE;
+    inheritanceInfo.occlusionQueryEnable = false;
+    inheritanceInfo.queryFlags = 0;
+    inheritanceInfo.pipelineStatistics = 0;
 
-        VkCommandBufferBeginInfo cmdBufferBeginInfo;
-        memset(&cmdBufferBeginInfo, 0, sizeof(VkCommandBufferBeginInfo));
-        cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        cmdBufferBeginInfo.pNext = nullptr;
-        cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT |
-                VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        cmdBufferBeginInfo.pInheritanceInfo = &inheritanceInfo;
+    VkCommandBufferBeginInfo cmdBufferBeginInfo;
+    memset(&cmdBufferBeginInfo, 0, sizeof(VkCommandBufferBeginInfo));
+    cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmdBufferBeginInfo.pNext = nullptr;
+    cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT |
+            VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    cmdBufferBeginInfo.pInheritanceInfo = &inheritanceInfo;
 
-        GR_VK_CALL_ERRCHECK(gpu, BeginCommandBuffer(fCmdBuffer, &cmdBufferBeginInfo));
-    }
+    GR_VK_CALL_ERRCHECK(gpu, BeginCommandBuffer(fCmdBuffer, &cmdBufferBeginInfo));
+
     fIsActive = true;
 }
 
 void GrVkSecondaryCommandBuffer::end(GrVkGpu* gpu) {
     SkASSERT(fIsActive);
-    if (!this->isWrapped()) {
-        GR_VK_CALL_ERRCHECK(gpu, EndCommandBuffer(fCmdBuffer));
-    }
+    SkASSERT(!this->isWrapped());
+    GR_VK_CALL_ERRCHECK(gpu, EndCommandBuffer(fCmdBuffer));
     this->invalidateState();
-    fIsActive = false;
     fHasWork = false;
+    fIsActive = false;
 }
 
 void GrVkSecondaryCommandBuffer::recycle(GrVkCommandPool* cmdPool) {
