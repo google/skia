@@ -790,9 +790,9 @@ if (skia_compile_sksl_tests) {
 
         foreach(outExtension, invoker.outExtensions) {
           # SPIR-V uses separate extensions for .vert and .geom shaders.
-          if (outExtension == ".asm.frag" && ext == "vert") {
+          if (ext == "vert" && outExtension == ".asm.frag") {
             outExtension = ".asm.vert"
-          } else if (outExtension == ".asm.frag" && ext == "geom") {
+          } else if (ext == "geom" && outExtension == ".asm.frag") {
             outExtension = ".asm.geom"
           }
           outputs +=
@@ -809,6 +809,15 @@ if (skia_compile_sksl_tests) {
       ".h",
     ]
     lang = "--fp"
+    settings = "--settings"
+  }
+  compile_sksl("dsl_fp_tests") {
+    sources = sksl_dsl_fp_tests_sources
+    outExtensions = [
+      "_dsl.cpp",
+      ".h",
+    ]
+    lang = "--dslfp"
     settings = "--settings"
   }
   compile_sksl("glsl_tests") {
