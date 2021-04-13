@@ -382,23 +382,35 @@ void GrDawnGpu::uploadTextureData(GrColorType srcColorType, const GrMipLevel tex
     }
 }
 
-bool GrDawnGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
-                                      sk_sp<GrRefCntedCallback> finishedCallback,
-                                      std::array<float, 4> color) {
+bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
+                                       sk_sp<GrRefCntedCallback> finishedCallback,
+                                       const BackendTextureData* data) {
     GrDawnTextureInfo info;
     SkAssertResult(backendTexture.getDawnTextureInfo(&info));
 
+    size_t bpp = GrDawnBytesPerBlock(info.fFormat);
+    size_t baseLayerSize = bpp * backendTexture.width() * backendTexture.height();
+    const void* pixels;
+    SkAutoMalloc defaultStorage(baseLayerSize);
+    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+        int numMipLevels = info.fLevelCount;
+        SkAutoTArray<GrMipLevel> texels(numMipLevels);
+        GrColorType colorType = data->pixmap(0).colorType();
+        for (int i = 0; i < numMipLevels; ++i) {
+            texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes(), nullptr};
+        }
+        SkIRect dstRect = SkIRect::MakeSize(backendTexture.dimensions());
+        this->uploadTextureData(colorType, texels.get(), numMipLevels, dstRect, info.fTexture);
+        return true;
+    }
+    pixels = defaultStorage.get();
     GrColorType colorType;
     if (!GrDawnFormatToGrColorType(info.fFormat, &colorType)) {
         return false;
     }
-
-    size_t bpp = GrDawnBytesPerBlock(info.fFormat);
-    size_t baseLayerSize = bpp * backendTexture.width() * backendTexture.height();
-    SkAutoMalloc defaultStorage(baseLayerSize);
-    GrImageInfo imageInfo(colorType, kUnpremul_SkAlphaType, nullptr, backendTexture.dimensions());
-    GrClearImage(imageInfo, defaultStorage.get(), bpp * backendTexture.width(), color);
-
+    SkISize size{backendTexture.width(), backendTexture.height()};
+    GrImageInfo imageInfo(colorType, kUnpremul_SkAlphaType, nullptr, size);
+    GrClearImage(imageInfo, defaultStorage.get(), bpp * backendTexture.width(), data->color());
     wgpu::Device device = this->device();
     wgpu::CommandEncoder copyEncoder = this->getCopyEncoder();
     int w = backendTexture.width(), h = backendTexture.height();
@@ -409,9 +421,9 @@ bool GrDawnGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
         GrStagingBufferManager::Slice stagingBuffer =
                 this->stagingBufferManager()->allocateStagingBufferSlice(size);
         if (rowBytes == origRowBytes) {
-            memcpy(stagingBuffer.fOffsetMapPtr, defaultStorage.get(), size);
+            memcpy(stagingBuffer.fOffsetMapPtr, pixels, size);
         } else {
-            const char* src = static_cast<const char*>(defaultStorage.get());
+            const char* src = static_cast<const char*>(pixels);
             char* dst = static_cast<char*>(stagingBuffer.fOffsetMapPtr);
             for (int row = 0; row < h; row++) {
                 memcpy(dst, src, origRowBytes);
@@ -443,8 +455,7 @@ GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(
 
 bool GrDawnGpu::onUpdateCompressedBackendTexture(const GrBackendTexture&,
                                                  sk_sp<GrRefCntedCallback> finishedCallback,
-                                                 const void* data,
-                                                 size_t size) {
+                                                 const BackendTextureData*) {
     return false;
 }
 

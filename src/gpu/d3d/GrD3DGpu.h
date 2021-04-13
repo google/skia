@@ -218,9 +218,9 @@ private:
                                             GrMipmapped,
                                             GrProtected) override;
 
-    bool onClearBackendTexture(const GrBackendTexture&,
-                               sk_sp<GrRefCntedCallback> finishedCallback,
-                               std::array<float, 4> color) override;
+    bool onUpdateBackendTexture(const GrBackendTexture&,
+                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                const BackendTextureData*) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
@@ -229,8 +229,7 @@ private:
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
                                           sk_sp<GrRefCntedCallback> finishedCallback,
-                                          const void* data,
-                                          size_t size) override;
+                                          const BackendTextureData*) override;
 
     bool submitDirectCommandList(SyncQueue sync);
 

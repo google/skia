@@ -980,7 +980,7 @@ bool GrGLGpu::uploadColorTypeTexData(GrGLFormat textureFormat,
 bool GrGLGpu::uploadColorToTex(GrGLFormat textureFormat,
                                SkISize texDims,
                                GrGLenum target,
-                               std::array<float, 4> color,
+                               SkColor4f color,
                                uint32_t levelMask) {
     GrColorType colorType;
     GrGLenum externalFormat, externalType;
@@ -1386,11 +1386,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
             fHWBoundRenderTargetUniqueID.makeInvalid();
         } else {
             this->bindTextureToScratchUnit(texDesc.fTarget, tex->textureID());
-            std::array<float, 4> zeros = {};
-            this->uploadColorToTex(texDesc.fFormat,
-                                   texDesc.fSize,
-                                   texDesc.fTarget,
-                                   zeros,
+            static constexpr SkColor4f kZeroColor = {0, 0, 0, 0};
+            this->uploadColorToTex(texDesc.fFormat, texDesc.fSize, texDesc.fTarget, kZeroColor,
                                    levelClearMask);
         }
     }
@@ -1485,8 +1482,11 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
 
 bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,
                                                sk_sp<GrRefCntedCallback> finishedCallback,
-                                               const void* data,
-                                               size_t length) {
+                                               const BackendTextureData* data) {
+    SkASSERT(data && data->type() != BackendTextureData::Type::kPixmaps);
+
+    this->handleDirtyContext();
+
     GrGLTextureInfo info;
     SkAssertResult(backendTexture.getGLTextureInfo(&info));
 
@@ -1498,6 +1498,27 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
     SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 
     GrMipmapped mipMapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
+
+    const char* rawData = nullptr;
+    size_t rawDataSize = 0;
+    SkAutoMalloc am;
+    if (data->type() == BackendTextureData::Type::kCompressed) {
+        rawData = (const char*)data->compressedData();
+        rawDataSize = data->compressedSize();
+    } else {
+        SkASSERT(data->type() == BackendTextureData::Type::kColor);
+        SkASSERT(compression != SkImage::CompressionType::kNone);
+
+        rawDataSize = SkCompressedDataSize(compression, backendTexture.dimensions(), nullptr,
+                                           backendTexture.hasMipmaps());
+
+        am.reset(rawDataSize);
+
+        GrFillInCompressedData(compression, backendTexture.dimensions(), mipMapped, (char*)am.get(),
+                               data->color());
+
+        rawData = (const char*)am.get();
+    }
 
     this->bindTextureToScratchUnit(info.fTarget, info.fID);
 
@@ -1519,13 +1540,9 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
         params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
     }
 
-    bool result = this->uploadCompressedTexData(compression,
-                                                glFormat,
-                                                backendTexture.dimensions(),
-                                                mipMapped,
-                                                GR_GL_TEXTURE_2D,
-                                                data,
-                                                length);
+    bool result = this->uploadCompressedTexData(
+            compression, glFormat, backendTexture.dimensions(),  mipMapped, GR_GL_TEXTURE_2D,
+            rawData, rawDataSize);
 
     // Unbind this texture from the scratch texture unit.
     this->bindTextureToScratchUnit(info.fTarget, 0);
@@ -3601,9 +3618,9 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                             std::move(parameters));
 }
 
-bool GrGLGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
-                                    sk_sp<GrRefCntedCallback> finishedCallback,
-                                    std::array<float, 4> color) {
+bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
+                                     sk_sp<GrRefCntedCallback> finishedCallback,
+                                     const BackendTextureData* data) {
     this->handleDirtyContext();
 
     GrGLTextureInfo info;
@@ -3635,12 +3652,26 @@ bool GrGLGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
         params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
     }
 
-    uint32_t levelMask = (1 << numMipLevels) - 1;
-    bool result = this->uploadColorToTex(glFormat,
-                                         backendTexture.dimensions(),
-                                         info.fTarget,
-                                         color,
-                                         levelMask);
+    SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
+    bool result = false;
+    if (data->type() == BackendTextureData::Type::kPixmaps) {
+        SkTArray<GrMipLevel> texels;
+        texels.push_back_n(numMipLevels);
+        GrColorType colorType = data->pixmap(0).colorType();
+        for (int i = 0; i < numMipLevels; ++i) {
+            texels[i] = {data->pixmap(i).addr(),
+                         data->pixmap(i).rowBytes(),
+                         data->pixmap(i).pixelStorage()};
+        }
+        SkIRect dstRect = SkIRect::MakeSize(backendTexture.dimensions());
+        result = this->uploadColorTypeTexData(glFormat, colorType, backendTexture.dimensions(),
+                                              info.fTarget, dstRect, colorType, texels.begin(),
+                                              texels.count());
+    } else if (data->type() == BackendTextureData::Type::kColor) {
+        uint32_t levelMask = (1 << numMipLevels) - 1;
+        result = this->uploadColorToTex(glFormat, backendTexture.dimensions(), info.fTarget,
+                                        data->color(), levelMask);
+    }
 
     // Unbind this texture from the scratch texture unit.
     this->bindTextureToScratchUnit(info.fTarget, 0);

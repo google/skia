@@ -686,7 +686,7 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
     return true;
 }
 
-bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::array<float, 4> color) {
+bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f color) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     if (!dstInfo.isValid()) {
@@ -700,7 +700,7 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::arra
     }
     if (dstInfo.colorType() == GrColorType::kRGB_888) {
         // SkRasterPipeline doesn't handle writing to RGB_888. So we handle that specially here.
-        uint32_t rgba = SkColor4f{color[0], color[1], color[2], color[3]}.toBytes_RGBA();
+        uint32_t rgba = color.toBytes_RGBA();
         for (int y = 0; y < dstInfo.height(); ++y) {
             char* d = static_cast<char*>(dst) + y * dstRB;
             for (int x = 0; x < dstInfo.width(); ++x, d += 3) {
@@ -719,7 +719,7 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::arra
     char block[64];
     SkArenaAlloc alloc(block, sizeof(block), 1024);
     SkRasterPipeline_<256> pipeline;
-    pipeline.append_constant_color(&alloc, color.data());
+    pipeline.append_constant_color(&alloc, color);
     switch (lumMode) {
         case LumMode::kNone:
             break;

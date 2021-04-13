@@ -212,14 +212,13 @@ private:
                                                       GrMipmapped,
                                                       GrProtected) override;
 
-    bool onClearBackendTexture(const GrBackendTexture&,
-                               sk_sp<GrRefCntedCallback> finishedCallback,
-                               std::array<float, 4> color) override;
+    bool onUpdateBackendTexture(const GrBackendTexture&,
+                                sk_sp<GrRefCntedCallback> finishedCallback,
+                                const BackendTextureData*) override;
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
                                           sk_sp<GrRefCntedCallback> finishedCallback,
-                                          const void* data,
-                                          size_t length) override;
+                                          const BackendTextureData*) override;
 
     void onResetContext(uint32_t resetBits) override;
 
@@ -455,7 +454,7 @@ private:
     bool uploadColorToTex(GrGLFormat textureFormat,
                           SkISize texDims,
                           GrGLenum target,
-                          std::array<float, 4> color,
+                          SkColor4f color,
                           uint32_t levelMask);
 
     // Pushes data to the currently bound texture to the currently active unit. 'dstRect' must be
