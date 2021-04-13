@@ -346,7 +346,7 @@ public:
     SkColorType colorType() const override { return GrColorTypeToSkColorType(fColorType); }
 
     size_t getSize() const override {
-        return fView.proxy()->gpuMemorySize();
+        return fView.proxy()->gpuMemorySize(*fContext->priv().caps());
     }
 
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions& sampling,

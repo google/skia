@@ -113,11 +113,11 @@ inline bool SkImage_Gpu::ProxyChooser::surfaceMustCopyOnWrite(GrSurfaceProxy* su
     return surfaceProxy->underlyingUniqueID() == fStableProxy->underlyingUniqueID();
 }
 
-inline size_t SkImage_Gpu::ProxyChooser::gpuMemorySize() const {
+inline size_t SkImage_Gpu::ProxyChooser::gpuMemorySize(const GrCaps& caps) const {
     SkAutoSpinlock hold(fLock);
-    size_t size = fStableProxy->gpuMemorySize();
+    size_t size = fStableProxy->gpuMemorySize(caps);
     if (fVolatileProxy) {
-        SkASSERT(fVolatileProxy->gpuMemorySize() == size);
+        SkASSERT(fVolatileProxy->gpuMemorySize(caps) == size);
     }
     return size;
 }
@@ -292,7 +292,9 @@ GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
     return GrBackendTexture();  // invalid
 }
 
-size_t SkImage_Gpu::onTextureSize() const { return fChooser.gpuMemorySize(); }
+size_t SkImage_Gpu::onTextureSize() const {
+    return fChooser.gpuMemorySize(*fContext->priv().caps());
+}
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS,

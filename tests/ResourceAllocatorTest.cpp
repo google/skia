@@ -361,6 +361,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
                                const TestCase& test) {
     // Reset cache.
     auto cache = dContext->priv().getResourceCache();
+    const GrCaps& caps = *dContext->priv().caps();
     cache->releaseAll();
     cache->setLimit(test.fBudget);
 
@@ -371,7 +372,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
         SkASSERT(params.fKind == kInstantiated);
         sk_sp<GrSurfaceProxy> proxy = make_proxy(dContext, params);
         REPORTER_ASSERT(reporter, proxy->peekSurface());
-        expectedPurgeableBytes += proxy->gpuMemorySize();
+        expectedPurgeableBytes += proxy->gpuMemorySize(caps);
         purgeableSurfaces.push_back(sk_ref_sp(proxy->peekSurface()));
     }
     purgeableSurfaces.reset();
@@ -385,7 +386,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
         SkASSERT(params.fKind == kInstantiated);
         sk_sp<GrSurfaceProxy> proxy = make_proxy(dContext, params);
         REPORTER_ASSERT(reporter, proxy->peekSurface());
-        expectedUnpurgeableBytes += proxy->gpuMemorySize();
+        expectedUnpurgeableBytes += proxy->gpuMemorySize(caps);
         unpurgeableSurfaces.push_back(sk_ref_sp(proxy->peekSurface()));
     }
 
