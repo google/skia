@@ -12,7 +12,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/gl/GrGLContext.h"
-#include "src/sksl/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLGpu* gpu,
                                             SkSL::ProgramKind programKind,

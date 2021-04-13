@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"

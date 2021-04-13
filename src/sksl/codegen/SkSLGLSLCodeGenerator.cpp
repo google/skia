@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 
 #include <memory>
 

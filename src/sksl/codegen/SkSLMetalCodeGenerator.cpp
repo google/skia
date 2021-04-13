@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLMetalCodeGenerator.h"
+#include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 
 #include "src/core/SkScopeExit.h"
 #include "src/sksl/SkSLCompiler.h"

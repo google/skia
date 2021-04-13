@@ -8,8 +8,8 @@
 #include "src/sksl/SkSLCPPUniformCTypes.h"
 
 #include "include/private/SkMutex.h"
-#include "src/sksl/SkSLHCodeGenerator.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/codegen/SkSLHCodeGenerator.h"
 
 #include <map>
 #include <vector>

@@ -11,7 +11,7 @@
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/skresources/include/SkResources.h"
-#include "src/sksl/SkSLVMGenerator.h"
+#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 
 #include <string>
 
