@@ -33,6 +33,24 @@
       "message": "Do we need to rush this before having gms or benches?",
       "revId": "03420c1af9fde01b292fcf2a8b146ad2f464e7f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c72c795d_d0a9ae6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-13T19:06:14Z",
+      "side": 1,
+      "message": "We have a gm, gm/colrv1.cpp. Most of these changes here are specifically because Dominik started writing a bench and it immediately pointed out several improvements that should be made. I believe we will end up landing some form of this bench.",
+      "parentUuid": "7d835c11_7f01c452",
+      "revId": "03420c1af9fde01b292fcf2a8b146ad2f464e7f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
