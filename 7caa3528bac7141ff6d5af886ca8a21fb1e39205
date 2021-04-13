@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29d2d9da_31712185",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-13T14:04:47Z",
+      "side": 1,
+      "message": "Good idea/bad idea?\n\nThis is supposed to be more efficient, especially with lots of native methods, at the expense of some  boilerplate.",
+      "revId": "7caa3528bac7141ff6d5af886ca8a21fb1e39205",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
