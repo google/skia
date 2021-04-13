@@ -448,7 +448,7 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphR
                                                     const SkPaint& paint) {
     for (const SkGlyphRun& run : glyphRunList) {
         if (run.scaledRotations().empty()) {
-            this->drawGlyphRunList(SkGlyphRunList{run}, paint);
+            this->drawGlyphRunList(SkGlyphRunList{run, run.sourceBounds(paint)}, paint);
         } else {
             SkPoint origin = glyphRunList.origin();
             SkPoint sharedPos{0, 0};    // we're at the origin
@@ -477,7 +477,8 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(const SkGlyphRunList& glyphR
                 SkPaint invertingPaint{paint};
                 invertingPaint.setShader(make_post_inverse_lm(paint.getShader(), glyphToLocal));
                 this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToLocal));
-                this->drawGlyphRunList(SkGlyphRunList{glyphRun}, invertingPaint);
+                this->drawGlyphRunList(
+                        SkGlyphRunList{glyphRun, glyphRun.sourceBounds(paint)}, invertingPaint);
             }
             this->setLocalToDevice(originalLocalToDevice);
         }
