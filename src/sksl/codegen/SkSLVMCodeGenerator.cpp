@@ -1278,6 +1278,8 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
         // This merges currentFunction().fReturned into fConditionMask. Lanes that conditionally
         // returned in the current function would otherwise resume execution within the child.
         ScopedCondition m(this, ~currentFunction().fReturned);
+        SkASSERTF(f.function().definition(), "no definition for function '%s'",
+                  f.function().description().c_str());
         this->writeFunction(*f.function().definition(), argVals, result.asSpan());
     }
 

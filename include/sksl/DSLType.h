@@ -58,6 +58,7 @@ enum TypeConstant : uint8_t {
     kInt2_Type,
     kInt3_Type,
     kInt4_Type,
+    kShader_Type,
     kShort_Type,
     kShort2_Type,
     kShort3_Type,
