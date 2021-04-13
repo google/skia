@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31cfed4c_2f77180b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-13T15:40:39Z",
+      "side": 1,
+      "message": "So, at the moment, this huge hack is adding 2 ptr-sized fields to each TextBlobCache record. Is this acceptable (from flutter\u0027s perspective)?",
+      "revId": "332a9f3069ec63e0faac7f58a2a1d6927d39f235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

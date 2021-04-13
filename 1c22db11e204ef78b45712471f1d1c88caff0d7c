@@ -33,6 +33,24 @@
       "message": "If we only provide a user with this iterator we may consider adding:\n1. bounds for a glyph (I think it was Adobe ask)\n2. A bounding rectangle for a given block (which we calculate in SkParagraph and use a lot). Just to help a user a little bit...",
       "revId": "1c22db11e204ef78b45712471f1d1c88caff0d7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b324f4d_6c761b73",
+        "filename": "modules/skparagraph/include/Paragraph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-13T15:40:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "baced334_699fa119",
+      "revId": "1c22db11e204ef78b45712471f1d1c88caff0d7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
