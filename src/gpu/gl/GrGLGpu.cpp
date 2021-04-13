@@ -760,8 +760,16 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     sampleCnt = caps.getRenderTargetSampleCount(sampleCnt, desc.fFormat);
     SkASSERT(sampleCnt);
 
+    int internalSampleCnt = sampleCnt;
+    if (this->caps()->dynamicMSAASupport() &&
+        this->getContext()->priv().options().fAlwaysAntialias && internalSampleCnt == 1) {
+        // Create dmsaa objects (as long as internalMultisampleCount > 1).
+        internalSampleCnt = this->caps()->internalMultisampleCount(backendTex.getBackendFormat());
+    }
+    SkASSERT(internalSampleCnt >= 1);
+
     GrGLRenderTarget::IDs rtIDs;
-    if (!this->createRenderTargetObjects(desc, sampleCnt, &rtIDs)) {
+    if (!this->createRenderTargetObjects(desc, internalSampleCnt, &rtIDs)) {
         return nullptr;
     }
 
@@ -1344,7 +1352,15 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
         GL_CALL(BindTexture(texDesc.fTarget, 0));
         GrGLRenderTarget::IDs rtIDDesc;
 
-        if (!this->createRenderTargetObjects(texDesc, renderTargetSampleCnt, &rtIDDesc)) {
+        int internalSampleCnt = renderTargetSampleCnt;
+        if (this->caps()->dynamicMSAASupport() &&
+            this->getContext()->priv().options().fAlwaysAntialias && internalSampleCnt == 1) {
+            // Create dmsaa objects (as long as internalMultisampleCount > 1).
+            internalSampleCnt = this->caps()->internalMultisampleCount(format);
+        }
+        SkASSERT(internalSampleCnt >= 1);
+
+        if (!this->createRenderTargetObjects(texDesc, internalSampleCnt, &rtIDDesc)) {
             GL_CALL(DeleteTextures(1, &texDesc.fID));
             return return_null_texture();
         }
@@ -2311,19 +2327,32 @@ GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
+    this->resolveGLRenderTarget(static_cast<GrGLRenderTarget*>(target), resolveRect,
+                                ResolveDirection::kMSAAToSingle);
+}
+
+void GrGLGpu::resolveGLRenderTarget(GrGLRenderTarget* rt, const SkIRect& resolveRect,
+                                    ResolveDirection resolveDirection) {
+    this->handleDirtyContext();
+
     // Some extensions automatically resolves the texture when it is read.
     SkASSERT(this->glCaps().usesMSAARenderBuffers());
-
-    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
-    SkASSERT(rt->requiresManualMSAAResolve());
     SkASSERT(rt->singleSampleFBOID() != 0 && rt->multisampleFBOID() != 0);
-    this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->multisampleFBOID());
-    this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
+    if (resolveDirection == ResolveDirection::kMSAAToSingle) {
+        this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->multisampleFBOID());
+        this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
+    } else {
+        SkASSERT(resolveDirection == ResolveDirection::kSingleToMSAA);
+        this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->singleSampleFBOID());
+        this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->multisampleFBOID());
+    }
 
     // make sure we go through flushRenderTarget() since we've modified
     // the bound DRAW FBO ID.
     fHWBoundRenderTargetUniqueID.makeInvalid();
     if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
+        // Apple's extension doesn't support blitting from single to multisample.
+        SkASSERT(resolveDirection != ResolveDirection::kSingleToMSAA);
         // Apple's extension uses the scissor as the blit bounds.
         // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
         // happens inside flushScissor since resolveRect is already in native device coordinates.
@@ -2338,8 +2367,8 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
             this->glCaps().blitFramebufferSupportFlags()) {
             l = 0;
             b = 0;
-            r = target->width();
-            t = target->height();
+            r = rt->width();
+            t = rt->height();
         } else {
             l = resolveRect.x();
             b = resolveRect.y();
@@ -2443,11 +2472,10 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     SkASSERT(rt || !useHWAA);
 #ifdef SK_DEBUG
     if (useHWAA && rt->numSamples() <= 1) {
-        SkASSERT(this->caps()->mixedSamplesSupport());
         auto glRT = static_cast<GrGLRenderTarget*>(rt);
-        SkASSERT(glRT->singleSampleFBOID() != 0);
-        SkASSERT(glRT->multisampleFBOID() == 0);
-        SkASSERT(rt->getStencilAttachment());
+        SkASSERT(glRT->singleSampleFBOID());
+        SkASSERT((this->caps()->mixedSamplesSupport() && rt->getStencilAttachment()) ||
+                 glRT->multisampleFBOID() /* dmsaa */);
     }
 #endif
 
