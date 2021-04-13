@@ -37,9 +37,6 @@ private:
 
 std::unique_ptr<GrFragmentProcessor> GrMatrixEffect::Make(
         const SkMatrix& matrix, std::unique_ptr<GrFragmentProcessor> child) {
-    if (matrix.isIdentity()) {
-        return child;
-    }
     if (child->classID() == kGrMatrixEffect_ClassID) {
         auto me = static_cast<GrMatrixEffect*>(child.get());
         // registerChild's sample usage records whether the matrix used has perspective or not,
