@@ -29,9 +29,12 @@ public:
                                                             size_t offset,
                                                             size_t size);
     GrD3DDescriptorHeap::CPUHandle createShaderResourceView(GrD3DGpu*,
-                                                            ID3D12Resource* resource);
+                                                            ID3D12Resource* resource,
+                                                            unsigned int mostDetailedMip,
+                                                            unsigned int mipLevels);
     GrD3DDescriptorHeap::CPUHandle createUnorderedAccessView(GrD3DGpu*,
-                                                             ID3D12Resource* resource);
+                                                             ID3D12Resource* resource,
+                                                             unsigned int mipSlice);
     void recycleShaderView(const GrD3DDescriptorHeap::CPUHandle&);
 
     GrD3DDescriptorHeap::CPUHandle createSampler(GrD3DGpu*,

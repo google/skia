@@ -51,21 +51,36 @@ GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createConstantBufferVi
 }
 
 GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createShaderResourceView(
-        GrD3DGpu* gpu, ID3D12Resource* resource) {
+        GrD3DGpu* gpu, ID3D12Resource* resource,
+        unsigned int mostDetailedMip, unsigned int mipLevels) {
     const GrD3DDescriptorHeap::CPUHandle& descriptor =
             fShaderViewDescriptorPool.allocateHandle(gpu);
     // TODO: for 4:2:0 YUV formats we'll need to map two different views, one for Y and one for UV.
     // For now map the entire resource.
-    gpu->device()->CreateShaderResourceView(resource, nullptr, descriptor.fHandle);
+    D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
+    desc.Format = resource->GetDesc().Format;
+    desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    desc.Texture2D.MostDetailedMip = mostDetailedMip;
+    desc.Texture2D.MipLevels = mipLevels;
+    desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    gpu->device()->CreateShaderResourceView(resource, &desc, descriptor.fHandle);
     return descriptor;
 }
 
 GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createUnorderedAccessView(
-        GrD3DGpu* gpu, ID3D12Resource* resource) {
+        GrD3DGpu* gpu, ID3D12Resource* resource, unsigned int mipSlice) {
     const GrD3DDescriptorHeap::CPUHandle& descriptor =
             fShaderViewDescriptorPool.allocateHandle(gpu);
-    // TODO: might need more granularity here for textures (specify miplevels, etc.)
-    gpu->device()->CreateUnorderedAccessView(resource, nullptr, nullptr, descriptor.fHandle);
+    if (resource->GetDesc().Dimension == D3D12_RESOURCE_DIMENSION_BUFFER) {
+        // TODO: figure out buffer setup
+        gpu->device()->CreateUnorderedAccessView(resource, nullptr, nullptr, descriptor.fHandle);
+    } else {
+        D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+        desc.Format = resource->GetDesc().Format;
+        desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+        desc.Texture2D.MipSlice = mipSlice;
+        gpu->device()->CreateUnorderedAccessView(resource, nullptr, &desc, descriptor.fHandle);
+    }
     return descriptor;
 }
 
