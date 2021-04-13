@@ -33,6 +33,24 @@
       "message": "... and along with a bench, do we already have gm\u0027s to exercise these formats, so we know we\u0027re continuing to draw them correctly?",
       "revId": "300131a0d3ff964da2063ab38c69ae4fe5d46588",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b553fdd9_8df31264",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-13T18:40:22Z",
+      "side": 1,
+      "message": "Yes, I prototyped this in https://skia-review.googlesource.com/c/skia/+/395616 - to measure performance of COLRv1 against SVG and recorded traces. With this change, COLRv1 becomes faster than SVG. Without this change, we would be slightly behind. In this comparison I found clipPath() plus unbounded drawPaint() to be the culprit in comparison to a glyph drawn as SVG. I can share more numbers internally once I run the benchmark again based on updated upstream Skia.",
+      "parentUuid": "ab8a906b_21a6be5a",
+      "revId": "300131a0d3ff964da2063ab38c69ae4fe5d46588",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
