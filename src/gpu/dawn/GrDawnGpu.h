@@ -189,6 +189,7 @@ private:
                          GrGpuFinishedContext finishedContext) override;
 
     GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
+                                        bool useMSAASurface,
                                         GrAttachment*,
                                         GrSurfaceOrigin,
                                         const SkIRect&,
