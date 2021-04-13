@@ -34,6 +34,24 @@
       "parentUuid": "e4219ca3_fffee073",
       "revId": "599a5dae0fecc19bfc7a0814d1e28f16865ef125",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d2e6eae_700241f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-13T19:01:46Z",
+      "side": 1,
+      "message": "Talked about in person but worth putting here: It seems like what android.graphics does now is store objects that we\u0027d want to \u0027get\u0027 as member variables on the java side. Non-objects like color (int) are passed through native code. We can take the same approach moving forward.",
+      "parentUuid": "ffe8c1c2_a848fd06",
+      "revId": "599a5dae0fecc19bfc7a0814d1e28f16865ef125",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
