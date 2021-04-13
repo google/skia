@@ -1,6 +1,13 @@
+/*
+ * Copyright 2021 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 package org.skia.androidkit;
 
-import android.graphics.Paint;
+import org.skia.androidkit.Paint;
 import org.skia.androidkit.Surface;
 
 public class Canvas {
@@ -8,7 +15,7 @@ public class Canvas {
     private Surface mSurface;
 
     public void drawRect(float left, float right, float top, float bottom, Paint paint) {
-        nDrawRect(mNativeInstance, left, right, top, bottom, paint);
+        nDrawRect(mNativeInstance, left, right, top, bottom, paint.getNativeInstance());
     }
 
     // package private
@@ -18,5 +25,6 @@ public class Canvas {
     }
 
     private static native void nDrawRect(long nativeInstance,
-                                         float left, float right, float top, float bottom, Paint p);
+                                         float left, float right, float top, float bottom,
+                                         long nativePaint);
 }
