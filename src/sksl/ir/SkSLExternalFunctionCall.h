@@ -9,8 +9,8 @@
 #define SKSL_EXTERNALFUNCTIONCALL
 
 #include "include/private/SkTArray.h"
-#include "src/sksl/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
 namespace SkSL {

@@ -7,8 +7,8 @@
 
 #include "include/core/SkM44.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLExternalFunction.h"
 #include "src/sksl/SkSLVMGenerator.h"
+#include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/utils/SkJSON.h"
 
 #include "tests/Test.h"
