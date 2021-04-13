@@ -159,7 +159,7 @@ std::pair<SkScalar, SkScalar> GrSDFTControl::computeSDFMinMaxScale(
     // we look at the delta in scale between the new viewmatrix and the old viewmatrix, and test
     // against these values to decide if we can reuse or not(ie, will a given scale change our mip
     // level)
-    SkASSERT(dfMaskScaleFloor <= scaledTextSize && scaledTextSize <= dfMaskScaleCeil);
+    //SkASSERT(dfMaskScaleFloor <= scaledTextSize && scaledTextSize <= dfMaskScaleCeil);
 
     return std::make_pair(dfMaskScaleFloor / scaledTextSize, dfMaskScaleCeil / scaledTextSize);
 }

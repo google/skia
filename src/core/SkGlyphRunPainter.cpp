@@ -139,6 +139,9 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 // differences.
 // extra_cflags = ["-D", "SK_TRACE_GLYPH_RUN_PROCESS"]
 
+bool gForceSDF = false;
+bool gOverridePaint = false;
+
 #if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
                                             const SkMatrix& drawMatrix,
@@ -159,6 +162,10 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
     const SkFont& runFont = glyphRun.font();
 
     GrSDFTControl::DrawingType drawingType = control.drawingType(runFont, runPaint, drawMatrix);
+
+    if (gForceSDF) {
+        drawingType = GrSDFTControl::kSDFT;
+    }
 
     if (drawingType == GrSDFTControl::kSDFT) {
         // Process SDFT - This should be the .009% case.
@@ -191,8 +198,13 @@ void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
     if (drawingType != GrSDFTControl::kPath && !fRejects.source().empty()) {
         // Process masks including ARGB - this should be the 99.99% case.
 
+        SkPaint tempPaint = runPaint;
+        if (gOverridePaint) {
+            tempPaint.setColor(SK_ColorBLACK);
+        }
+
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
-                runFont, runPaint, fDeviceProps, fScalerContextFlags, drawMatrix);
+                runFont, tempPaint, fDeviceProps, fScalerContextFlags, drawMatrix);
 
         #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
             msg.appendf("  Mask case:\n%s", strikeSpec.dump().c_str());

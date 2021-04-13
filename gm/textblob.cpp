@@ -22,6 +22,8 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkGlyphRun.h"
 #include "tools/ToolUtils.h"
 
 #include <cstring>
@@ -201,3 +203,145 @@ private:
 };
 
 DEF_GM(return new TextBlobGM("hamburgefons");)
+
+static const char text[] = "Call me Ishmael. Some years ago—never mind how long precisely";
+extern bool gForceSDF;
+extern bool gOverridePaint;
+class TextStylesGM : public skiagm::GM {
+protected:
+    void onOnceBeforeDraw() override {
+        fTypeface = SkTypeface::MakeFromName("Palatino", SkFontStyle());
+        SkString familyName;
+        fTypeface->getFamilyName(&familyName);
+        SkDebugf("typeface name: %s\n", familyName.c_str());
+    }
+
+    SkString onShortName() override {
+        return SkString("textstyle");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(640, 480);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+
+        auto tag = [&](const char* tag, SkScalar y) {
+            auto face = SkTypeface::MakeFromName("Helvetica", SkFontStyle());
+            SkFont font{face};
+            font.setSize(12);
+            canvas->drawString(tag, 475, y, font, SkPaint{});
+        };
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kAlias);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            canvas->drawTextBlob(blob, 40.75, 100, SkPaint{});
+            tag("Black and white", 100);
+        }
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kAntiAlias);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            canvas->drawTextBlob(blob, 40.50, 120, SkPaint{});
+            tag("Anti aliased", 120);
+        }
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kAntiAlias);
+            font.setSubpixel(true);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            canvas->drawTextBlob(blob, 40.50, 140, SkPaint{});
+            tag("Anti aliased & sub pixel", 140);
+        }
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+            font.setSubpixel(true);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            canvas->drawTextBlob(blob, 40.50, 160, SkPaint{});
+            tag("Anti aliased & sub pixel & lcd", 160);
+        }
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kAntiAlias);
+            font.setSubpixel(true);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            SkGlyphRunBuilder builder;
+            auto glyphRunList = builder.blobToGlyphRunList(*blob, {40.50, 180});
+
+            for (auto& run : glyphRunList) {
+                for (auto [glyphID, pos] : run.source()) {
+                    SkPath path;
+                    font.getPath(glyphID, &path);
+                    SkMatrix translate = SkMatrix::Translate(pos + glyphRunList.origin());
+                    path.transform(translate);
+                    SkPaint paint;
+                    paint.setAntiAlias(true);
+                    canvas->drawPath(path, paint);
+                }
+            }
+            tag("Path", 180);
+        }
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kAntiAlias);
+            font.setSubpixel(true);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            gForceSDF = true;
+            canvas->drawTextBlob(blob, 40.50, 200, SkPaint{});
+            gForceSDF = false;
+            tag("SDF", 200);
+        }
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kAntiAlias);
+            font.setSubpixel(true);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            SkPaint background;
+            background.setColor(SK_ColorGREEN);
+            canvas->drawRect(blob->bounds().makeOffset(40.50, 240), background);
+            SkPaint foreground;
+            foreground.setColor(SK_ColorWHITE);
+            canvas->drawTextBlob(blob, 40.50, 240, foreground);
+            tag("Color compensated", 240);
+        }
+
+        {
+            SkFont font{fTypeface};
+            font.setSize(14);
+            font.setEdging(SkFont::Edging::kAntiAlias);
+            font.setSubpixel(true);
+            auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+            SkPaint background;
+            background.setColor(SK_ColorGREEN);
+            canvas->drawRect(blob->bounds().makeOffset(40.50, 260), background);
+            SkPaint foreground;
+            foreground.setColor(SK_ColorWHITE);
+            gOverridePaint = true;
+            canvas->drawTextBlob(blob, 40.50, 260, foreground);
+            gOverridePaint = false;
+            tag("Black mask", 260);
+        }
+    }
+
+private:
+    sk_sp<SkTypeface>   fTypeface;
+    using INHERITED = skiagm::GM;
+};
+
+DEF_GM(return new TextStylesGM{};)
