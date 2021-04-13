@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLCPPCodeGenerator.h"
+#include "src/sksl/codegen/SkSLCPPCodeGenerator.h"
 
 #include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCPPUniformCTypes.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLHCodeGenerator.h"
+#include "src/sksl/codegen/SkSLHCodeGenerator.h"
 #include "src/sksl/ir/SkSLEnum.h"
 
 #include <algorithm>
