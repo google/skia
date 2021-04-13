@@ -20,6 +20,7 @@ class GrPipeline;
 class GrProcessorKeyBuilder;
 class GrShaderCaps;
 class GrSwizzle;
+class GrMatrixEffect;
 class GrTextureEffect;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (half4) and
