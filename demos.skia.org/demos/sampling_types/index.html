@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<title>Custom Image Upscaling</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
+
+<style>
+    figcaption {
+        max-width: 800px;
+    }
+</style>
+
+<body>
+  <h1>Custom Image Upscaling</h1>
+
+  <div class="slidecontainer">
+      <input type="range" min="-10" max="10" value="0" step="0.01" class="slider" id="scale_slider"
+             title="Scale.">
+      <input type="range" min="0" max="1" value="0.3" step="0.01" class="slider" id="cubic_B"
+             title="cubic B">
+      <input type="range" min="0" max="1" value="0.3" step="0.01" class="slider" id="cubic_C"
+             title="cubic C">
+  </div>
+
+  <figure>
+      <div ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+          <canvas id=draw width=820 height=580></canvas>
+      </div>
+    <figcaption>
+        This demo shows off a various image sampling techiques
+    </figcaption>
+  </figure>
+
+</body>
+
+<script type="text/javascript" charset="utf-8">
+    function dragOverHandler(ev) { ev.preventDefault(); }
+
+    function dropHandler(ev) {
+      ev.preventDefault();
+
+      let file = null;
+      if (ev.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+          // If dropped items aren't files, reject them
+          if (ev.dataTransfer.items[i].kind === 'file') {
+            file = ev.dataTransfer.items[i].getAsFile();
+          }
+          break;
+        }
+      } else {
+        // Use DataTransfer interface to access the file(s)
+        for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+          file = ev.dataTransfer.files[i];
+          break;
+        }
+      }
+      console.log(file);
+      file.arrayBuffer().then(buffer => {
+          image = CK.MakeImageFromEncoded(buffer);
+          console.log(file);
+      });
+    }
+
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/' + file });
+
+  ckLoaded.then((CK) => {
+    const surface = CK.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+
+    const paint = new CK.Paint();
+    // image is a 4x4 image of 16 random colors. This very small image will be upscaled
+    // through various techniques.
+    const image = function() {
+        const surf = CK.MakeSurface(4, 4);
+        const c = surf.getCanvas();
+        for (let y = 0; y < 4; y++) {
+            for (let x = 0; x < 4; x++) {
+                paint.setColor([Math.random(), Math.random(), Math.random(), 1]);
+                c.drawRect(CK.LTRBRect(x, y, x+1, y+1), paint);
+            }
+        }
+        return surf.makeImageSnapshot();
+    }();
+
+    const imageShader = image.makeShaderOptions(CK.TileMode.Clamp,
+                                                CK.TileMode.Clamp,
+                                                CK.FilterMode.Nearest,
+                                                CK.MipmapMode.None);
+
+    scale_slider.oninput = () => { surface.requestAnimationFrame(drawFrame); };
+    cubic_B.oninput = () => { surface.requestAnimationFrame(drawFrame); };
+    cubic_C.oninput = () => { surface.requestAnimationFrame(drawFrame); };
+
+    const drawFrame = function(canvas) {
+        const scale = scale_slider.valueAsNumber < 0 ? 1.0 / (1 - scale_slider.valueAsNumber)
+                                                            : (1 + scale_slider.valueAsNumber);
+
+        console.log(scale_slider.valueAsNumber, scale);
+
+        const bounds = [0, 0, 256, 256];
+
+        const lm = [scale, 0, 0,
+                    0, scale, 0,
+                    0, 0, 1];
+
+       const samplings = [
+            [CK.FilterMode.Nearest, CK.MipmapMode.None, 0, 0],
+            [CK.FilterMode.Linear,  CK.MipmapMode.None, 0, 0],
+            [CK.FilterMode.Linear,  CK.MipmapMode.Linear, 0, 0],
+            [null, null,     0,   0.5],
+            [null, null, 1/3.0, 1/3.0],
+            [null, null,  null,  null], // use sliders for B,C
+        ];
+
+        const tile = CK.TileMode.Repeat;
+
+        canvas.save();
+        canvas.translate(20, 20);
+        canvas.save();
+        for (i in samplings) {
+            if (i == 3) {
+                canvas.restore();
+                canvas.translate(0, bounds[3] - bounds[1] + 20);
+                canvas.save();
+            }
+
+            const s = samplings[i];
+            const shader = s[0] ? image.makeShaderOptions(tile, tile, s[0], s[1], lm)
+                                : s[2] ? image.makeShaderCubic(tile, tile, s[2], s[3], lm)
+                                       : image.makeShaderCubic(tile, tile,
+                                                               cubic_B.valueAsNumber,
+                                                               cubic_B.valueAsNumber, lm)
+            paint.setShader(shader);
+            canvas.drawRect(bounds, paint);
+       //     shader.release();
+
+            canvas.translate(bounds[2] - bounds[0] + 20, 0);
+        }
+        canvas.restore();
+        canvas.restore();
+    };
+
+    surface.requestAnimationFrame(drawFrame);
+  });
+
+</script>
