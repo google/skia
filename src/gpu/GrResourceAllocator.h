@@ -68,7 +68,7 @@ class GrDirectContext;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrDirectContext* dContext SkDEBUGCODE(, int numOpsTasks))
+    GrResourceAllocator(GrDirectContext* dContext)
             : fDContext(dContext) {}
 
     ~GrResourceAllocator();

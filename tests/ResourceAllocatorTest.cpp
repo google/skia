@@ -155,7 +155,7 @@ static sk_sp<GrSurfaceProxy> make_proxy(GrDirectContext* dContext, const ProxyPa
 static void overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
                          sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
                          bool expectedResult) {
-    GrResourceAllocator alloc(dContext SkDEBUGCODE(, 1));
+    GrResourceAllocator alloc(dContext);
 
     alloc.addInterval(p1.get(), 0, 4, GrResourceAllocator::ActualUse::kYes);
     alloc.incOps();
@@ -177,7 +177,7 @@ static void overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext
 static void non_overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
                              sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
                              bool expectedResult) {
-    GrResourceAllocator alloc(dContext SkDEBUGCODE(, 1));
+    GrResourceAllocator alloc(dContext);
 
     alloc.incOps();
     alloc.incOps();
@@ -394,7 +394,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
                     "%zu", unpurgeableBytes);
 
     // Add intervals and test.
-    GrResourceAllocator alloc(dContext SkDEBUGCODE(, 1));
+    GrResourceAllocator alloc(dContext);
     for (auto& interval : test.fIntervals) {
         for (int i = interval.fStart; i <= interval.fEnd; i++) {
             alloc.incOps();

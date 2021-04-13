@@ -142,6 +142,8 @@ bool GrDrawingManager::flush(
     if (fReduceOpsTaskSplitting) {
         this->reorderTasks();
     }
+    // TODO: Can we bail earlier if this allocation fails?
+    bool allocatedResources = this->allocateResources(fDAG);
 
     if (!fCpuBufferCache) {
         // We cache more buffers when the backend is using client side arrays. Otherwise, we
@@ -202,25 +204,7 @@ bool GrDrawingManager::flush(
     }
 #endif
 
-    bool flushed = false;
-
-    {
-        GrResourceAllocator alloc(dContext SkDEBUGCODE(, fDAG.count()));
-        for (const auto& task : fDAG) {
-            SkASSERT(task);
-            task->gatherProxyIntervals(&alloc);
-        }
-
-        if (alloc.planAssignment()) {
-            if (fReduceOpsTaskSplitting) {
-                if (!alloc.makeBudgetHeadroom()) {
-                    // TODO: Switch to the original DAG in this case.
-                    gpu->stats()->incNumReorderedDAGsOverBudget();
-                }
-            }
-            flushed = alloc.assign() && this->executeRenderTasks(&flushState);
-        }
-    }
+    bool flushed = allocatedResources && this->executeRenderTasks(&flushState);
     this->removeRenderTasks();
 
     gpu->executeFlushInfo(proxies, access, info, newState);
@@ -416,6 +400,27 @@ void GrDrawingManager::reorderTasks() {
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);
+}
+
+bool GrDrawingManager::allocateResources(SkSpan<sk_sp<GrRenderTask>> tasks) {
+    auto dContext = fContext->asDirectContext();
+    SkASSERT(dContext);
+    GrResourceAllocator alloc(dContext);
+    for (const auto& task : tasks) {
+        SkASSERT(task);
+        task->gatherProxyIntervals(&alloc);
+    }
+    if (!alloc.planAssignment()) {
+        return false;
+    }
+
+    if (fReduceOpsTaskSplitting) {
+        if (!alloc.makeBudgetHeadroom()) {
+            // TODO: Switch to the original DAG in this case.
+            dContext->priv().getGpu()->stats()->incNumReorderedDAGsOverBudget();
+        }
+    }
+    return alloc.assign();
 }
 
 void GrDrawingManager::closeAllTasks() {

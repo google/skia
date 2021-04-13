@@ -156,6 +156,7 @@ private:
 
     void sortTasks();
     void reorderTasks();
+    bool allocateResources(SkSpan<sk_sp<GrRenderTask>>);
 
     void closeAllTasks();
 
