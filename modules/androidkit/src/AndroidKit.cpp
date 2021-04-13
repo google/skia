@@ -24,6 +24,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     }
 
     REGISTER_NATIVES(Canvas)
+    REGISTER_NATIVES(Paint)
     REGISTER_NATIVES(Surface)
 
     return JNI_VERSION_1_6;
