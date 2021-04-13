@@ -16,6 +16,24 @@
       "message": "For new runtime effects, I\u0027m pushing for the color filter signature to be:\n\n  half4 main(half4)\n\nand shaders to be:\n\n  half4 main(float2)  -or-  half4 main(float2, half4 inColor)\n\nThe sample variants I want to expose line up with those. In any case, I find the coords right after the child really make sense, and the input color (which feels \"more\" optional) at the end.",
       "revId": "ba1edbec0b8669843deeb16293c819775aefe83c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "153b0dd6_7c2479e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-13T16:32:41Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "bd57f3e9_76d42b83",
+      "revId": "ba1edbec0b8669843deeb16293c819775aefe83c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
