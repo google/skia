@@ -16,6 +16,24 @@
       "message": "So, at the moment, this huge hack is adding 2 ptr-sized fields to each TextBlobCache record. Is this acceptable (from flutter\u0027s perspective)?",
       "revId": "332a9f3069ec63e0faac7f58a2a1d6927d39f235",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a66a73b4_6b17a140",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-04-13T18:03:25Z",
+      "side": 1,
+      "message": "It adds some small percentage to the memory. The only case when it matters in an Arabic (RTL) text with English (LTR) spaces. That, by the way, is the default edit text case. It breaks the text into many runs but even then these 2 fields will not be the main concern.",
+      "parentUuid": "31cfed4c_2f77180b",
+      "revId": "332a9f3069ec63e0faac7f58a2a1d6927d39f235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
