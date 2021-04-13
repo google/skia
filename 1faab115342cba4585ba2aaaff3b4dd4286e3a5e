@@ -16,6 +16,23 @@
       "message": "PTAL, only a few more of these.",
       "revId": "1faab115342cba4585ba2aaaff3b4dd4286e3a5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a380490b_ad200c72",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-13T18:20:02Z",
+      "side": 1,
+      "message": "Helps if you add the reviewer...",
+      "revId": "1faab115342cba4585ba2aaaff3b4dd4286e3a5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
