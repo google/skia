@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4219ca3_fffee073",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-13T15:33:16Z",
+      "side": 1,
+      "message": " A meta consideration as we go further into the rabbit hole:\n\n- setters are easy\n- getters are not (or at least are not always efficient)\n\nexample:\n\nsetColor(Color) - easy: we extract the floats and send them to the native instance\nColor getColor() - icky:\n    - Do we allocate a new Color each time?\n    - Do we store the user\u0027s obj on the java side?\n        - if we do, is Color immutable?\n\nNot impossible to reason about for colors, but moving to complex objects like \"shader\", this gets interesting...",
+      "revId": "599a5dae0fecc19bfc7a0814d1e28f16865ef125",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
