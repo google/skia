@@ -366,8 +366,8 @@ DSLExpression Sample(DSLExpression target, DSLExpression x, PositionInfo pos = P
 
 /**
  * Implements the following functions:
- *     half4 sample(fragmentProcessor fp, half4 input, float3x3 transform);
- *     half4 sample(fragmentProcessor fp, half4 input, float2 coords);
+ *     half4 sample(fragmentProcessor fp, float3x3 transform, half4 input);
+ *     half4 sample(fragmentProcessor fp, float2 coords, half4 input);
  */
 DSLExpression Sample(DSLExpression childProcessor, DSLExpression x, DSLExpression y,
                      PositionInfo pos = PositionInfo());
