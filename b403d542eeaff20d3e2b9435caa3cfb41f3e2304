@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8fcb094_f99476e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-13T14:11:34Z",
+      "side": 1,
+      "message": "+1 in general -- this is certainly how android.graphics decided to do the bindings...",
+      "revId": "b403d542eeaff20d3e2b9435caa3cfb41f3e2304",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
