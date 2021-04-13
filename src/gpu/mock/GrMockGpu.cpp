@@ -56,7 +56,7 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
 }
 
 GrOpsRenderPass* GrMockGpu::onGetOpsRenderPass(GrRenderTarget* rt,
-                                               bool /*useMSAASurface*/,
+                                               bool useMSAASurface,
                                                GrAttachment*,
                                                GrSurfaceOrigin origin,
                                                const SkIRect& bounds,
@@ -64,7 +64,7 @@ GrOpsRenderPass* GrMockGpu::onGetOpsRenderPass(GrRenderTarget* rt,
                                                const GrOpsRenderPass::StencilLoadAndStoreInfo&,
                                                const SkTArray<GrSurfaceProxy*,true>& sampledProxies,
                                                GrXferBarrierFlags renderPassXferBarriers) {
-    return new GrMockOpsRenderPass(this, rt, origin, colorInfo);
+    return new GrMockOpsRenderPass(this, rt, useMSAASurface, origin, colorInfo);
 }
 
 void GrMockGpu::submit(GrOpsRenderPass* renderPass) {
