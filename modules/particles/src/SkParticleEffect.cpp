@@ -19,7 +19,7 @@
 #include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/sksl/SkSLVMGenerator.h"
+#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 
 // Cached state for a single program (either all Effect code, or all Particle code)
 struct SkParticleProgram {

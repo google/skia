@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLSPIRVtoHLSL.h"
+#include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
 
 #if defined(SK_DIRECT3D)
 
