@@ -91,6 +91,8 @@ const SkSL::Type& DSLType::skslType() const {
             return *context.fTypes.fInt3;
         case kInt4_Type:
             return *context.fTypes.fInt4;
+        case kShader_Type:
+            return *context.fTypes.fShader;
         case kShort_Type:
             return *context.fTypes.fShort;
         case kShort2_Type:
