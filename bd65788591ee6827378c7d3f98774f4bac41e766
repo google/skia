@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8daca114_f677580a",
+        "filename": "tests/sksl/shared/ForLoopMultipleInit.metal",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T20:37:02Z",
+      "side": 1,
+      "message": "I just realized we\u0027re emitting a scope here despite the fact that it only contains one initializer...",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 5
+      },
+      "revId": "bd65788591ee6827378c7d3f98774f4bac41e766",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
