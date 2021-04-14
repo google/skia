@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f91700d_4a5b0148",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-14T16:05:14Z",
+      "side": 1,
+      "message": "Hi Ben and Florin,\n\nI would like to get an indication of how drawing from SVG compares to drawing from COLRv1 color fonts in terms of performance.\n\nI am not planning to land this as is, but it\u0027d be great to have your feedback on whether you think this is a suitable comparison.  \n\nI tried to make sure this is a fair comparison and to that end loaded font and glyphs into memory up-front. I am also performing glyph lookups up-front as finding the glyphs does not need to be part of the comparison. \n\n\n",
+      "revId": "cfc0ae65f6b1003f0266ea2a8f5bba5f71ffbc1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
