@@ -29,7 +29,6 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -93,7 +92,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
         GrPaint paint;
 
         const SkPMColor4f color = { 1.0f, 0.0f, 0.0f, 1.0f };
-        auto fp = GrConstColorProcessor::Make(color);
+        auto fp = GrFragmentProcessor::MakeColor(color);
         paint.setColorFragmentProcessor(std::move(fp));
 
         rtc->drawPath(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), invPath, style);
@@ -110,7 +109,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
         GrPaint paint;
 
         const SkPMColor4f color = { 0.0f, 1.0f, 0.0f, 1.0f };
-        auto fp = GrConstColorProcessor::Make(color);
+        auto fp = GrFragmentProcessor::MakeColor(color);
         paint.setColorFragmentProcessor(std::move(fp));
 
         rtc->drawPath(nullptr, std::move(paint), GrAA::kNo,

@@ -43,7 +43,6 @@
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrDitherEffect.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
@@ -281,7 +280,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             // There is a blend between the primitive color and the paint color. The blend considers
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
             SkPMColor4f opaqueColor = origColor.makeOpaque().premul();
-            paintFP = GrConstColorProcessor::Make(opaqueColor);
+            paintFP = GrFragmentProcessor::MakeColor(opaqueColor);
             paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP), /*dst=*/nullptr,
                                                      *primColorMode);
             grPaint->setColor4f(opaqueColor);

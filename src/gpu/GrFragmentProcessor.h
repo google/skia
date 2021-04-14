@@ -22,11 +22,15 @@ class GrShaderCaps;
 class GrSwizzle;
 class GrTextureEffect;
 
-/** Provides custom fragment shader code. Fragment processors receive an input color (half4) and
-    produce an output color. They may reference textures and uniforms.
+/** Provides custom fragment shader code. Fragment processors receive an input position and
+    produce an output color. They may contain uniforms and may have children fragment processors
+    that are sampled.
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
+    /** Always returns 'color'. */
+    static std::unique_ptr<GrFragmentProcessor> MakeColor(SkPMColor4f color);
+
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
     *  only consider the input color's alpha. However, there is a competing desire to have reusable

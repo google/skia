@@ -25,7 +25,6 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "tools/Resources.h"
 #include "tools/gpu/TestOps.h"
 
