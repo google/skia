@@ -780,8 +780,15 @@ if (skia_compile_sksl_tests) {
         src = resourcesDir + partialPath
 
         dir = get_path_info(dst, "dir")
-        name = get_path_info(dst, "name")
-        ext = get_path_info(dst, "extension")
+
+        # We want to support double-extensions (for '.dsl.cpp') but GN doesn't natively handle this.
+        # Workaround: http://go/ggroup/a/chromium.org/g/gn-dev/c/RdEpjeYtb-4
+        # For input path "file.aa.bb", name will contain "file" and ext will contain ".aa.bb".
+        # For input path "file.cc", name will contain "file" and ext will contain ".cc".
+        nameTmp = get_path_info(dst, "name")
+        name = get_path_info(nameTmp, "name")
+        ext = get_path_info(nameTmp, "extension")
+        ext += get_path_info(dst, "extension")
         response_file_contents += rebase_path([
                                                 src,
                                                 dir,
@@ -814,7 +821,7 @@ if (skia_compile_sksl_tests) {
   compile_sksl("dsl_fp_tests") {
     sources = sksl_dsl_fp_tests_sources
     outExtensions = [
-      "_dsl.cpp",
+      ".dsl.cpp",
       ".h",
     ]
     lang = "--dslfp"
