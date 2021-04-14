@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4550a833_8c3332ac",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T18:49:49Z",
+      "side": 1,
+      "message": "Ah, what is the difference? I see other \u0027prototype\u0027 calls like drawPatch are here, and not below. Are those also incorrect?",
+      "parentUuid": "03697e7c_e0397345",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 14
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb98a672_b79d7a44",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fb7e427d_a804b2ce",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T18:49:49Z",
+      "side": 1,
+      "message": "ok, but why?",
+      "parentUuid": "eb98a672_b79d7a44",
+      "range": {
+        "startLine": 587,
+        "startChar": 14,
+        "endLine": 587,
+        "endChar": 15
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "49c69054_6bc72be0",
         "filename": "modules/canvaskit/npm_build/types/index.d.ts",
         "patchSetId": 6
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-14T17:55:11Z",
       "side": 1,
       "message": "Probably want to remove this as a valid type.",
+      "range": {
+        "startLine": 3589,
+        "startChar": 59,
+        "endLine": 3589,
+        "endChar": 70
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b15a74e9_eef4b844",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 3589,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T18:49:49Z",
+      "side": 1,
+      "message": "ok, assuming this won\u0027t confuse existing clients like flutter. I didn\u0027t know of they already were creating 32bit arrays.",
+      "parentUuid": "49c69054_6bc72be0",
       "range": {
         "startLine": 3589,
         "startChar": 59,
