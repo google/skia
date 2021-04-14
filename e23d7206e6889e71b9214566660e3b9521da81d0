@@ -16,6 +16,23 @@
       "message": "PTAL. Thanks!",
       "revId": "e23d7206e6889e71b9214566660e3b9521da81d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1742022_60f7c266",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-04-14T13:59:43Z",
+      "side": 1,
+      "message": "LGTM. I assume you ran Skia tests with the Dawn backend and didn\u0027t find deprecation warnings?",
+      "revId": "e23d7206e6889e71b9214566660e3b9521da81d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
