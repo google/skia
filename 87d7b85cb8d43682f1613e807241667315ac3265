@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98ccd726_885d20bb",
+        "filename": "gn/sksl_tests.gni",
+        "patchSetId": 12
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T21:00:59Z",
+      "side": 1,
+      "message": "Yup. Added .rts and .rtcf files that specifically test the main signatures, and renamed this one to emphasize that it\u0027s testing other features not allowed in color filters.",
+      "parentUuid": "48a4041c_55bed242",
+      "range": {
+        "startLine": 581,
+        "startChar": 43,
+        "endLine": 581,
+        "endChar": 47
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "72059286_856924ed",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c4e3e44_d36b914a",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T21:00:59Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s wise. It\u0027s strange, because internally the color is half4, no matter what you say here - so you\u0027re not getting extra precision, but that\u0027s a detail for advanced users.",
+      "parentUuid": "72059286_856924ed",
+      "range": {
+        "startLine": 98,
+        "startChar": 28,
+        "endLine": 99,
+        "endChar": 38
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba1579d2_eeca7a0d",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-14T18:47:20Z",
       "side": 1,
       "message": "This sentence feels like there\u0027s some subject/object confusion?\n\n`makeColorFilter might return nullptr when the resulting effect is passed in,\nif the effect is dependent on position in any way.`",
+      "range": {
+        "startLine": 114,
+        "startChar": 7,
+        "endLine": 114,
+        "endChar": 79
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bbc20b5_92ca5ac0",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T21:00:59Z",
+      "side": 1,
+      "message": "Sort of. makeColorFilter is a method call on the effect you get back here. I decided to be slightly more terse, and switch around the subject, though.",
+      "parentUuid": "ba1579d2_eeca7a0d",
       "range": {
         "startLine": 114,
         "startChar": 7,
@@ -95,6 +167,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c39a2ee9_46926a67",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T21:00:59Z",
+      "side": 1,
+      "message": "I moved the enum up with the constructor, and commented the field declaration.",
+      "parentUuid": "e874cc90_5df6c901",
+      "range": {
+        "startLine": 236,
+        "startChar": 4,
+        "endLine": 241,
+        "endChar": 20
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0f1f09a4_f3aa94db",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 12
@@ -106,6 +202,30 @@
       "writtenOn": "2021-04-14T18:47:20Z",
       "side": 1,
       "message": "Consider skipping this check if kAllowColorFilter_Flag is not set. You don\u0027t want to do an analysis pass to zero out a bit which isn\u0027t set anyway.\n\nAlso, if you move this check below the program-elements loop below, you may get to skip it in more circumstances, since that loop also zeros out the color filter flag in some cases.",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 0
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ba075c2_99e5e0db",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T21:00:59Z",
+      "side": 1,
+      "message": "Added the extra check, but left the code up here to put most of the flag logic together. The conditions in the loop that turn it off are *incredibly* rare, and all relate to features that I\u0027m strongly considering deleting.",
+      "parentUuid": "0f1f09a4_f3aa94db",
       "range": {
         "startLine": 175,
         "startChar": 0,
@@ -139,6 +259,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d31704a7_a78f24ec",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T21:00:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e24ded80_a9dbe20f",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 3
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1fe12e6a_e6412bf5",
@@ -152,6 +296,30 @@
       "writtenOn": "2021-04-14T18:51:00Z",
       "side": 1,
       "message": "Is this to-done?",
+      "range": {
+        "startLine": 1105,
+        "startChar": 19,
+        "endLine": 1108,
+        "endChar": 41
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c58cc20_98d93e9f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T21:00:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fe12e6a_e6412bf5",
       "range": {
         "startLine": 1105,
         "startChar": 19,
