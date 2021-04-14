@@ -16,8 +16,7 @@
   {
     "cmd": [
       "flutter/tools/gn",
-      "--runtime-mode=release",
-      "--android"
+      "--runtime-mode=release"
     ],
     "cwd": "[START_DIR]/cache/work/src",
     "env": {

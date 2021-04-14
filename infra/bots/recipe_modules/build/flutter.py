@@ -21,8 +21,8 @@ def compile_fn(api, checkout_root, out_dir):
 
   # Setup GN args.
   gn_args = ['--runtime-mode=%s' % configuration,]
-  if 'Android' in extra_tokens:
-    gn_args.append('--android')
+  # if 'Android' in extra_tokens:
+  #   gn_args.append('--android')
 
   if os_name == 'Debian9' and 'Docker' in builder_name:
     script = api.build.resource('docker-flutter-compile.sh')
