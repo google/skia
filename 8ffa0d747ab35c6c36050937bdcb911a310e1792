@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0369419_9797d008",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-14T14:38:11Z",
+      "side": 1,
+      "message": "Since the SkGlyphRunList isn\u0027t persisted here (or above in the no scaled rotations case), this is always (re)calculating bounds. It\u0027s actually a little bit difficult to keep straight that SkGlyphRunList::sourceBounds are cached bounds, but SkGlyphRun::sourceBounds are not cached and always computed.\n\nIt isn\u0027t clear here how these values are to be used, since they don\u0027t appear to be used yet.",
+      "revId": "8ffa0d747ab35c6c36050937bdcb911a310e1792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b174844e_bcc9cc60",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-14T14:38:11Z",
+      "side": 1,
+      "message": "nit: extra space",
+      "range": {
+        "startLine": 119,
+        "startChar": 59,
+        "endLine": 119,
+        "endChar": 60
+      },
+      "revId": "8ffa0d747ab35c6c36050937bdcb911a310e1792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
