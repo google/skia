@@ -141,23 +141,20 @@ public:
 protected:
     GrOpsRenderPass() : fOrigin(kTopLeft_GrSurfaceOrigin), fRenderTarget(nullptr) {}
 
-    GrOpsRenderPass(GrRenderTarget* rt, bool useMSAASurface, GrSurfaceOrigin origin)
+    GrOpsRenderPass(GrRenderTarget* rt, GrSurfaceOrigin origin)
             : fOrigin(origin)
-            , fRenderTarget(rt)
-            , fUseMSAASurface(useMSAASurface) {
+            , fRenderTarget(rt) {
     }
 
-    void set(GrRenderTarget* rt, bool useMSAASurface, GrSurfaceOrigin origin) {
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin) {
         SkASSERT(!fRenderTarget);
 
         fRenderTarget = rt;
-        fUseMSAASurface = useMSAASurface;
         fOrigin = origin;
     }
 
     GrSurfaceOrigin fOrigin;
     GrRenderTarget* fRenderTarget;
-    bool fUseMSAASurface;
 
     // Backends may defer binding of certain buffers if their draw API requires a buffer, or if
     // their bind methods don't support base values.

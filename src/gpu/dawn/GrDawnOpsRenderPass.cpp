@@ -40,10 +40,10 @@ static wgpu::LoadOp to_dawn_load_op(GrLoadOp loadOp) {
     }
 }
 
-GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, bool useMSAASurface,
-                                         GrSurfaceOrigin origin, const LoadAndStoreInfo& colorInfo,
+GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                         const LoadAndStoreInfo& colorInfo,
                                          const StencilLoadAndStoreInfo& stencilInfo)
-        : INHERITED(rt, useMSAASurface, origin)
+        : INHERITED(rt, origin)
         , fGpu(gpu)
         , fColorInfo(colorInfo) {
     fEncoder = fGpu->device().CreateCommandEncoder();

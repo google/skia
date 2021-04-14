@@ -32,7 +32,6 @@ public:
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
     bool set(GrRenderTarget*,
-             bool useMSAASurface,
              GrAttachment*,
              GrSurfaceOrigin,
              const SkIRect& bounds,

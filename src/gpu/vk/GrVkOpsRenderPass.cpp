@@ -356,7 +356,6 @@ void GrVkOpsRenderPass::submit() {
 }
 
 bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
-                            bool useMSAASurface,
                             GrAttachment* stencil,
                             GrSurfaceOrigin origin,
                             const SkIRect& bounds,
@@ -378,7 +377,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
         return false;
     }
 
-    this->INHERITED::set(rt, useMSAASurface, origin);
+    this->INHERITED::set(rt, origin);
 
     for (int i = 0; i < sampledProxies.count(); ++i) {
         if (sampledProxies[i]->isInstantiated()) {
