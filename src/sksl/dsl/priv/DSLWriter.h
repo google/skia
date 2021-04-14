@@ -199,17 +199,19 @@ public:
         return Instance().fMangle;
     }
 
+    static std::unique_ptr<SkSL::Program> ReleaseProgram();
+
     static DSLWriter& Instance();
 
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
 
 private:
-    SkSL::ProgramConfig fConfig;
+    std::unique_ptr<SkSL::ProgramConfig> fConfig;
     SkSL::Compiler* fCompiler;
     std::unique_ptr<Pool> fPool;
-    std::shared_ptr<SkSL::SymbolTable> fOldSymbolTable;
     SkSL::ProgramConfig* fOldConfig;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
+    std::vector<const SkSL::ProgramElement*> fSharedElements;
     ErrorHandler* fErrorHandler = nullptr;
     bool fMangle = true;
     bool fMarkVarsDeclared = false;
