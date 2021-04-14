@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcd4e344_f24774d4",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f34ce381_62badf9f",
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "997d4dd5_9f9e3477",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-04-14T14:28:05Z",
       "side": 1,
       "message": "Moving this out of line so includers don\u0027t need ~SkSL::Statement visible?",
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3f25b55_b7aa1f74",
+        "filename": "include/sksl/DSLStatement.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "That was definitely the original reason I changed this, but it\u0027s not actually necessary with the way things ended up. Undone.",
+      "parentUuid": "997d4dd5_9f9e3477",
       "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -58,6 +94,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a27758eb_ff7258a3",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Left over from debugging, fixed.",
+      "parentUuid": "7aa56223_d77cd9fd",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 5
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11783cf9_a21df400",
@@ -71,6 +131,24 @@
       "writtenOn": "2021-04-14T14:28:05Z",
       "side": 1,
       "message": "Are you now able to trigger this assert somehow?",
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "765fdbdc_f0e54c9f",
+        "filename": "src/sksl/codegen/SkSLVMCodeGenerator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "I sure hope not... isn\u0027t the whole point of assertions that they shouldn\u0027t ever trigger?\n\nOf course this had been broken during development, and I added the assert while debugging it. Seemed worth leaving in.",
+      "parentUuid": "11783cf9_a21df400",
       "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -122,6 +200,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8d35edc_846f1f6f",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51271a10_6d70ba8e",
+      "range": {
+        "startLine": 41,
+        "startChar": 22,
+        "endLine": 41,
+        "endChar": 33
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fb38543b_22de10b8",
@@ -145,6 +247,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f616b61_11eaa75b",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb38543b_22de10b8",
+      "range": {
+        "startLine": 43,
+        "startChar": 17,
+        "endLine": 43,
+        "endChar": 36
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8865f2b4_cf2e94df",
@@ -158,6 +284,30 @@
       "writtenOn": "2021-04-13T19:52:09Z",
       "side": 1,
       "message": "`fDecl` is already this type.",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 55
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9725bb3_06f8aeb1",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Well, it wasn\u0027t when I wrote this code :-). Fixed.",
+      "parentUuid": "8865f2b4_cf2e94df",
       "range": {
         "startLine": 74,
         "startChar": 4,
@@ -204,6 +354,30 @@
       "writtenOn": "2021-04-14T14:28:05Z",
       "side": 1,
       "message": "Agree. For hand-written (C++) effects, I can see asserting success. But if someone is using the API in response to user input, or another format (eg, as their backend), we can\u0027t always assume things will compile correctly.",
+      "parentUuid": "b55afdd4_f93c5be0",
+      "range": {
+        "startLine": 39,
+        "startChar": 11,
+        "endLine": 39,
+        "endChar": 24
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f66beb6_50da29c3",
+        "filename": "src/sksl/dsl/DSLRuntimeEffects.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Since I haven\u0027t converted any of the error handling tests yet, I just left it an assertion failure for now. Proper error handling will come along with the error handling tests.",
       "parentUuid": "b55afdd4_f93c5be0",
       "range": {
         "startLine": 39,
@@ -262,6 +436,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b59d1bcf_2f62679e",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f3fee266_a54b24b9",
+      "range": {
+        "startLine": 42,
+        "startChar": 40,
+        "endLine": 42,
+        "endChar": 52
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "829a7e17_27abea2d",
@@ -309,6 +507,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "293d9099_9f1254a3",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "I\u0027m not 100% sure that\u0027s the right divide, but let\u0027s go with it and see.",
+      "parentUuid": "829a7e17_27abea2d",
+      "range": {
+        "startLine": 76,
+        "startChar": 12,
+        "endLine": 76,
+        "endChar": 48
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e489bb16_a841974e",
@@ -332,6 +554,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "889ee37c_b0928295",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e489bb16_a841974e",
+      "range": {
+        "startLine": 243,
+        "startChar": 50,
+        "endLine": 243,
+        "endChar": 57
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "608113a5_c50d4866",
@@ -345,6 +591,30 @@
       "writtenOn": "2021-04-13T19:52:09Z",
       "side": 1,
       "message": "This should be fConfig, right?\n\nRight now fConfig is a non-allocated class member var, but ideally should probably be more like Compiler where we make_unique\u003cProgramConfig\u003e at the start of compilation and then move it into the Program when compilation succeeds. Alternatively, we can probably just copy fConfig here via `std::make_unique\u003cProgramConfig\u003e(fConfig)`.",
+      "range": {
+        "startLine": 244,
+        "startChar": 50,
+        "endLine": 244,
+        "endChar": 83
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72684bb5_f4d79349",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Good catch.",
+      "parentUuid": "608113a5_c50d4866",
       "range": {
         "startLine": 244,
         "startChar": 50,
@@ -395,6 +665,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fead06b0_94b2ea38",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3a8ec9d_10c4f31f",
+      "range": {
+        "startLine": 196,
+        "startChar": 29,
+        "endLine": 196,
+        "endChar": 37
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6dff200b_1e0f3cda",
@@ -418,6 +712,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7e0dd34_df4bb545",
+        "filename": "tests/SkDSLRuntimeEffectTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Oops.",
+      "parentUuid": "6dff200b_1e0f3cda",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 14
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61cadbed_de4935e2",
@@ -431,6 +749,30 @@
       "writtenOn": "2021-04-13T19:52:09Z",
       "side": 1,
       "message": "tiny nit: prefer make_unique (to avoid looking like an unpaired new)",
+      "range": {
+        "startLine": 36,
+        "startChar": 20,
+        "endLine": 36,
+        "endChar": 23
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed003687_5ed20b25",
+        "filename": "tests/SkDSLRuntimeEffectTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-14T15:31:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "61cadbed_de4935e2",
       "range": {
         "startLine": 36,
         "startChar": 20,
