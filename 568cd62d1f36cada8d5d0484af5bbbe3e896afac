@@ -22,6 +22,30 @@
       },
       "revId": "568cd62d1f36cada8d5d0484af5bbbe3e896afac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b575850_4bb2eaee",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-14T22:02:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1640b257_dd870632",
+      "range": {
+        "startLine": 147,
+        "startChar": 5,
+        "endLine": 147,
+        "endChar": 18
+      },
+      "revId": "568cd62d1f36cada8d5d0484af5bbbe3e896afac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

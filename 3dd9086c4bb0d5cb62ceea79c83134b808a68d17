@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6c98ec2_fdf29683",
+        "filename": "modules/skparagraph/include/Metrics.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-14T22:02:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09e34185_037208cc",
+      "revId": "3dd9086c4bb0d5cb62ceea79c83134b808a68d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a354a70c_ec04521b",
@@ -120,6 +138,24 @@
       "side": 1,
       "message": "I would be happy to remove it but as far as I know the tests don\u0027t pass without it.",
       "parentUuid": "75bb5a82_70b1d110",
+      "revId": "3dd9086c4bb0d5cb62ceea79c83134b808a68d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79e233d0_49c29129",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-14T22:02:24Z",
+      "side": 1,
+      "message": "SG. Mark as resolved since it\u0027s not directly related to the CL.",
+      "parentUuid": "642a14c7_58000789",
       "revId": "3dd9086c4bb0d5cb62ceea79c83134b808a68d17",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
