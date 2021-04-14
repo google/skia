@@ -1151,10 +1151,10 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
     }
 
     // 1/scale
-    SkScalar devToSrcScale = viewMatrix.isScaleTranslate() ?
-        SkScalarInvert(SkScalarAbs(viewMatrix[SkMatrix::kMScaleX])) :
-        sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
-                       viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
+    SkScalar devToSrcScale = viewMatrix.isScaleTranslate()
+        ? SkScalarInvert(SkScalarAbs(viewMatrix[SkMatrix::kMScaleX]))
+        : 1.0f / sk_float_sqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
+                               viewMatrix[SkMatrix::kMSkewX ] * viewMatrix[SkMatrix::kMSkewX ] );
 
     SkScalar occluderHeight = rec.fZPlaneParams.fZ;
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);

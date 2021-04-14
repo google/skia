@@ -99,46 +99,6 @@ private:
     using INHERITED = MathBench;
 };
 
-class SkRSqrtMathBench : public MathBench {
-public:
-    SkRSqrtMathBench() : INHERITED("sk_float_rsqrt") {}
-protected:
-    void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = sk_float_rsqrt(src[i]);
-        }
-    }
-private:
-    using INHERITED = MathBench;
-};
-
-
-class SlowISqrtMathBench : public MathBench {
-public:
-    SlowISqrtMathBench() : INHERITED("slowIsqrt") {}
-protected:
-    void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = 1.0f / sk_float_sqrt(src[i]);
-        }
-    }
-private:
-    using INHERITED = MathBench;
-};
-
-class FastISqrtMathBench : public MathBench {
-public:
-    FastISqrtMathBench() : INHERITED("fastIsqrt") {}
-protected:
-    void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = sk_float_rsqrt(src[i]);
-        }
-    }
-private:
-    using INHERITED = MathBench;
-};
-
 static inline uint32_t QMul64(uint32_t value, U8CPU alpha) {
     SkASSERT((uint8_t)alpha == alpha);
     const uint32_t mask = 0xFF00FF;
