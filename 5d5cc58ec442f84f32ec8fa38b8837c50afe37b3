@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcf91e7a_c1135ea4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T15:49:24Z",
+      "side": 1,
+      "message": "In preparation for exposing the \"text api\", which will want this to draw its results.",
+      "revId": "5d5cc58ec442f84f32ec8fa38b8837c50afe37b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
