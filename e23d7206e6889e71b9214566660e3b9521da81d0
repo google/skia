@@ -70,6 +70,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4a39567_a1caafaf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-14T14:48:37Z",
+      "side": 1,
+      "message": "Vertex buffer count fixed. The remaining validation errors are on Fences; will fix in a followup.",
+      "parentUuid": "11d92168_959e1d5e",
+      "revId": "e23d7206e6889e71b9214566660e3b9521da81d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "037f2d17_59963113",
@@ -83,6 +101,30 @@
       "writtenOn": "2021-04-14T14:12:46Z",
       "side": 1,
       "message": "nit 100 chars",
+      "range": {
+        "startLine": 394,
+        "startChar": 100,
+        "endLine": 394,
+        "endChar": 101
+      },
+      "revId": "e23d7206e6889e71b9214566660e3b9521da81d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7694bf1_27584df2",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-14T14:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "037f2d17_59963113",
       "range": {
         "startLine": 394,
         "startChar": 100,
