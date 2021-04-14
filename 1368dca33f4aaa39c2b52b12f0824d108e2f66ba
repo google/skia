@@ -46,6 +46,30 @@
       },
       "revId": "1368dca33f4aaa39c2b52b12f0824d108e2f66ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2423abd0_9efb6954",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-14T13:52:32Z",
+      "side": 1,
+      "message": "\"Drop the \u0027*\u0027...\"\n\n:)",
+      "parentUuid": "e3459683_4c73aea7",
+      "range": {
+        "startLine": 177,
+        "startChar": 8,
+        "endLine": 177,
+        "endChar": 28
+      },
+      "revId": "1368dca33f4aaa39c2b52b12f0824d108e2f66ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
