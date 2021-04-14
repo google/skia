@@ -21,8 +21,8 @@ class GrMtlRenderTarget;
 
 class GrMtlOpsRenderPass : public GrOpsRenderPass {
 public:
-    GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, bool useMSAASurface,
-                       GrSurfaceOrigin origin, const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+    GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                       const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
     ~GrMtlOpsRenderPass() override;

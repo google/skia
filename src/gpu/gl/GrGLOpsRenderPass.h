@@ -79,6 +79,7 @@ private:
 
     GrGLGpu* const fGpu;
 
+    bool fUseMultisampleFBO;
     SkIRect fContentBounds;
     LoadAndStoreInfo fColorLoadAndStoreInfo;
     StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
