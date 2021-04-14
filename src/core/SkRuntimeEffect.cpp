@@ -375,7 +375,7 @@ int SkRuntimeEffect::findChild(const char* name) const {
     return iter == fChildren.end() ? -1 : static_cast<int>(iter - fChildren.begin());
 }
 
-const skvm::Program* SkRuntimeEffect::getFilterColorProgram() {
+SkRuntimeEffect::FilterColorInfo SkRuntimeEffect::getFilterColorInfo() {
     SkASSERT(fAllowColorFilter);
 
     fColorFilterProgramOnce([&] {
@@ -423,12 +423,16 @@ const skvm::Program* SkRuntimeEffect::getFilterColorProgram() {
         // Then store the result to the *third* arg ptr
         p.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96}, p.arg(16), result);
 
+        // This is conservative. If a filter gets the input color by sampling a null child, we'll
+        // return an (acceptable) false negative. All internal runtime color filters should work.
+        fColorFilterProgramLeavesAlphaUnchanged = (inputColor.a.id == result.a.id);
+
         // We'll use this program to filter one color at a time, don't bother with jit
         fColorFilterProgram = std::make_unique<skvm::Program>(
                 p.done(/*debug_name=*/nullptr, /*allow_jit=*/false));
     });
 
-    return fColorFilterProgram.get();
+    return {*fColorFilterProgram, fColorFilterProgramLeavesAlphaUnchanged};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -507,8 +511,7 @@ public:
                          size_t childCount)
             : fEffect(std::move(effect))
             , fUniforms(std::move(uniforms))
-            , fChildren(children, children + childCount)
-            , fIsAlphaUnchanged(this->computeIsAlphaUnchanged()) {}
+            , fChildren(children, children + childCount) {}
 
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -583,13 +586,13 @@ public:
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
         // Get the generic program for filtering a single color
-        const skvm::Program* program = fEffect->getFilterColorProgram();
+        const skvm::Program& program = fEffect->getFilterColorInfo().program;
 
         // Get our specific uniform values
         sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, nullptr, dstCS);
 
         // There should be no way for a color filter (which can't use "marker") to fail here
-        SkASSERT(inputs && program);
+        SkASSERT(inputs);
 
         // 'program' defines sampling any child as returning a uniform color. Assemble a buffer
         // containing those colors. The first entry is always the input color. Subsequent entries
@@ -602,22 +605,12 @@ public:
         }
 
         SkPMColor4f result;
-        program->eval(1, inputColors.begin(), inputs->data(), result.vec());
+        program.eval(1, inputColors.begin(), inputs->data(), result.vec());
         return result;
     }
 
-    bool onIsAlphaUnchanged() const override { return fIsAlphaUnchanged; }
-
-    bool computeIsAlphaUnchanged() const {
-        skvm::Builder  p;
-        SkColorSpace*  dstCS = sk_srgb_singleton();  // This _shouldn't_ matter for alpha.
-        skvm::Uniforms uniforms{p.uniform(), 0};
-        SkArenaAlloc   alloc{16};
-
-        skvm::Color in = p.load({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96}, p.arg(16)),
-                   out = this->onProgram(&p,in,dstCS,&uniforms,&alloc);
-
-        return out.a.id == in.a.id;
+    bool onIsAlphaUnchanged() const override {
+        return fEffect->getFilterColorInfo().alphaUnchanged;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -639,7 +632,6 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkData> fUniforms;
     std::vector<sk_sp<SkColorFilter>> fChildren;
-    const bool fIsAlphaUnchanged;
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {

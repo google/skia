@@ -418,19 +418,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeStructNameReuse_GPU, r, ctxInfo) {
 DEF_TEST(SkRuntimeColorFilterFlags, r) {
     {   // Here's a non-trivial filter that doesn't change alpha.
         auto [effect, err] = SkRuntimeEffect::Make(SkString{
-                "uniform shader input; half4 main() { return sample(input) + half4(1,1,1,0); }"});
+                "half4 main(half4 color) { return color + half4(1,1,1,0); }"});
         REPORTER_ASSERT(r, effect && err.isEmpty());
-        sk_sp<SkColorFilter> input = nullptr,
-                            filter = effect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
+        sk_sp<SkColorFilter> filter = effect->makeColorFilter(SkData::MakeEmpty());
         REPORTER_ASSERT(r, filter && filter->isAlphaUnchanged());
     }
 
     {  // Here's one that definitely changes alpha.
         auto [effect, err] = SkRuntimeEffect::Make(SkString{
-                "uniform shader input; half4 main() { return sample(input) + half4(0,0,0,4); }"});
+                "half4 main(half4 color) { return color + half4(0,0,0,4); }"});
         REPORTER_ASSERT(r, effect && err.isEmpty());
-        sk_sp<SkColorFilter> input = nullptr,
-                            filter = effect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
+        sk_sp<SkColorFilter> filter = effect->makeColorFilter(SkData::MakeEmpty());
         REPORTER_ASSERT(r, filter && !filter->isAlphaUnchanged());
     }
 }
