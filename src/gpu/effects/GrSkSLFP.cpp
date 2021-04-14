@@ -229,7 +229,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
 }
 
 SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputColor) const {
-    const skvm::Program* program = fEffect->getFilterColorProgram();
+    const skvm::Program* program = fEffect->getFilterColorInfo().program;
     SkASSERT(program);
 
     SkSTArray<3, SkPMColor4f, true> childColors;
