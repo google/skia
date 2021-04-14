@@ -22,6 +22,30 @@
       },
       "revId": "bd65788591ee6827378c7d3f98774f4bac41e766",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba5a8eab_874b3be0",
+        "filename": "tests/sksl/shared/ForLoopMultipleInit.metal",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-14T20:43:43Z",
+      "side": 1,
+      "message": "This line originally contained a `d` variable which was later eliminated since it is dead. From the sksl:\n\n    // Two variables, one dead\n    for (int c \u003d 0, d \u003d 0; c \u003c 10; ++c) {\n        result.b +\u003d 1;\n    }",
+      "parentUuid": "8daca114_f677580a",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 5
+      },
+      "revId": "bd65788591ee6827378c7d3f98774f4bac41e766",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
