@@ -22,6 +22,30 @@
       },
       "revId": "261e9f9eb915a4a6dbf4846bc3b3ad9f27a39c15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72042afa_25a9bb30",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-14T13:10:00Z",
+      "side": 1,
+      "message": "I think you need to compute the dst rect from viewMatrix, and then pass in view^-1 as the local matrix.",
+      "parentUuid": "bc59564d_4bc433d8",
+      "range": {
+        "startLine": 661,
+        "startChar": 54,
+        "endLine": 661,
+        "endChar": 77
+      },
+      "revId": "261e9f9eb915a4a6dbf4846bc3b3ad9f27a39c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
