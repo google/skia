@@ -629,13 +629,13 @@ CanvasKit.onRuntimeInitialized = function() {
 
   CanvasKit.Canvas.prototype.drawPatch = function(cubics, colors, texs, mode, paint) {
     if (cubics.length < 24) {
-        throw "Need 12 cubic points";
+        throw 'Need 12 cubic points';
     }
     if (colors && colors.length < 4) {
-        throw "Need 4 colors";
+        throw 'Need 4 colors';
     }
     if (texs && texs.length < 8) {
-        throw "Need 4 shader coordinates";
+        throw 'Need 4 shader coordinates';
     }
 
     const cubics_ptr =          copy1dArray(cubics, 'HEAPF32');
