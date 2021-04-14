@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4661b2a4_2381d363",
+        "filename": "demos.skia.org/demos/sampling_types/index.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T19:02:22Z",
+      "side": 1,
+      "message": "Good catch. I grabbed this code for the web. Changed to for-of",
+      "parentUuid": "374f8d82_875ebd2b",
+      "range": {
+        "startLine": 59,
+        "startChar": 13,
+        "endLine": 59,
+        "endChar": 16
+      },
+      "revId": "8922dcb9b23bb8cc081daad42df4701f14bdd5db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "14faab39_b9e1eb10",
         "filename": "demos.skia.org/demos/sampling_types/index.html",
         "patchSetId": 8
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-14T18:49:09Z",
       "side": 1,
       "message": "0.25.1 is the latest version.",
+      "range": {
+        "startLine": 79,
+        "startChar": 91,
+        "endLine": 79,
+        "endChar": 97
+      },
+      "revId": "8922dcb9b23bb8cc081daad42df4701f14bdd5db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf267f6b_55d336e4",
+        "filename": "demos.skia.org/demos/sampling_types/index.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T19:02:22Z",
+      "side": 1,
+      "message": "That didn\u0027t succeed for me. Perhaps we update all our demos\u0027 versions in a separate CL...",
+      "parentUuid": "14faab39_b9e1eb10",
       "range": {
         "startLine": 79,
         "startChar": 91,
