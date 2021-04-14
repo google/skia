@@ -329,6 +329,14 @@ struct SK_API GrContextOptions {
      * Include or exclude specific GPU path renderers.
      */
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
+
+    /**
+     * Specify the GPU resource cache limit. Equivalent to calling `setResourceCacheLimit` on the
+     * context at construction time.
+     *
+     * A value of -1 means use the default limit value.
+     */
+    int fResourceCacheLimitOverride = -1;
 #endif
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;

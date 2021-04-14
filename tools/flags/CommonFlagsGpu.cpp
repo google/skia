@@ -39,6 +39,10 @@ static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
 static DEFINE_bool(reduceOpsTaskSplitting, false, "Improve opsTask sorting");
 static DEFINE_bool(dontReduceOpsTaskSplitting, false, "Allow more opsTask splitting");
 
+static DEFINE_int(gpuResourceCacheLimit, -1,
+                  "Maximum number of bytes to use for budgeted GPU resources. "
+                  "Default is -1, which means GrResourceCache::kDefaultMaxSize.");
+
 static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     if (!strcmp(name, "none")) {
         return GpuPathRenderers::kNone;
@@ -98,6 +102,7 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fInternalMultisampleCount            = FLAGS_internalSamples;
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
+    ctxOptions->fResourceCacheLimitOverride          = FLAGS_gpuResourceCacheLimit;
 
     if (FLAGS_reduceOpsTaskSplitting) {
         SkASSERT(!FLAGS_dontReduceOpsTaskSplitting);
