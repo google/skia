@@ -350,6 +350,7 @@ sksl_shared_tests = [
   "/sksl/shared/EmptyBlocksES3.sksl",
   "/sksl/shared/Enum.sksl",
   "/sksl/shared/ForLoopControlFlow.sksl",
+  "/sksl/shared/ForLoopMultipleInit.sksl",
   "/sksl/shared/FragCoordsFlipY.sksl",
   "/sksl/shared/FragCoordsNew.sksl",
   "/sksl/shared/FragCoordsOld.sksl",
