@@ -72,12 +72,6 @@ public:
         vst4_f32((float*) dst, abcd);
     }
 
-    AI SkNx invert() const {
-        float32x2_t est0 = vrecpe_f32(fVec),
-                    est1 = vmul_f32(vrecps_f32(est0, fVec), est0);
-        return est1;
-    }
-
     AI SkNx operator - () const { return vneg_f32(fVec); }
 
     AI SkNx operator + (const SkNx& o) const { return vadd_f32(fVec, o.fVec); }
@@ -194,12 +188,6 @@ public:
             a.fVec,
         }};
         vst4q_f32((float*) dst, rgba);
-    }
-
-    AI SkNx invert() const {
-        float32x4_t est0 = vrecpeq_f32(fVec),
-                    est1 = vmulq_f32(vrecpsq_f32(est0, fVec), est0);
-        return est1;
     }
 
     AI SkNx operator - () const { return vnegq_f32(fVec); }
