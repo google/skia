@@ -25,6 +25,30 @@ public:
     bool generateCode() override;
 
 private:
+    void writeBlock(const Block& b);
+
+    void writeTopLevelBlock(const Block& b);
+
+    void writeDoStatement(const DoStatement& d);
+
+    void writeForStatement(const ForStatement& f);
+
+    void writeIfStatement(const IfStatement& r) override;
+
+    void writeReturnStatement(const ReturnStatement& r) override;
+
+    void writeStatement(const Statement& s);
+
+    void writeSwitchStatement(const SwitchStatement& s) override;
+
+    void writeVarDeclaration(const VarDeclaration& var, bool global);
+
+    void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence) override;
+
+    void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence) override;
+
+
+
     using Precedence = Operator::Precedence;
 
     void writef(const char* s, va_list va) SK_PRINTF_LIKE(2, 0);
@@ -39,21 +63,15 @@ private:
 
     String getTypeName(const Type& type) override;
 
-    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
+    String getDSLType(const Type& type);
 
-    void writeIntLiteral(const IntLiteral& i) override;
+    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
 
     void writeSwizzle(const Swizzle& swizzle) override;
 
     void writeVariableReference(const VariableReference& ref) override;
 
     String getSamplerHandle(const Variable& var);
-
-    void writeIfStatement(const IfStatement& s) override;
-
-    void writeReturnStatement(const ReturnStatement& s) override;
-
-    void writeSwitchStatement(const SwitchStatement& s) override;
 
     String getSampleVarName(const char* prefix, int sampleCounter);
 
@@ -135,6 +153,7 @@ private:
     std::vector<String> fExtraEmitCodeBlocks;
 
     std::vector<String> fFormatArgs;
+
     // true if the sksl declared its main() function with a float2 parameter AND referenced that
     // parameter in its body.
     bool fAccessSampleCoordsDirectly = false;

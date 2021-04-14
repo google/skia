@@ -17,17 +17,39 @@ class GrGLSLDSLHelloWorld : public GrGLSLFragmentProcessor {
 public:
     GrGLSLDSLHelloWorld() {}
     void emitCode(EmitArgs& args) override {
+        using namespace SkSL::dsl;
+        StartFragmentProcessor(this, &args);
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDSLHelloWorld& _outer = args.fFp.cast<GrDSLHelloWorld>();
-        (void) _outer;
-        fragBuilder->codeAppendf(
-R"SkSL(return half4(1.0);
-)SkSL"
-);
+        (void)_outer;
+        Var h(DSLType(kHalf_Type), "h");
+        Var h4(DSLType(kHalf4_Type), "h4", Half4(1.0, 2.0, 3.0, h));
+        Var x(DSLType(kInt_Type), "x", 0);
+        Var y(DSLType(kInt_Type), "y", 1);
+        Declare(h);
+        h = 123.0;
+        Declare(h4);
+        h4 *= Half4(2.0);
+        h4 *= Half4(0.5, 0.5, 0.5, 0.5);
+        If(h > h4.x, Block(h4.y += 1.0), If(h > h4.y, Block(h4.y /= h4.z), Block(h4.y -= h4.w)));
+        If(h > h4.x, h4.y += 1.0, If(h > h4.y, h4.y /= h4.z, h4.y -= h4.w));
+        For(Declare(x), x < 5, ++x, Block(h4.z *= h));
+        Declare(y);
+        While(y < 5, (++h4.x, y += 1));
+        Do(Block(h4.y--, y++, Continue()), y < 10);
+        Switch(y,
+               Case(5, Block(Return(h4))),
+               Case(9),
+               Case(10, ++y),
+               Case(11, --y, Break()),
+               Default(++y));
+        Return(Half4(1.0));
+        EndFragmentProcessor();
     }
+
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
-    }
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& _proc) override {}
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLHelloWorld::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLHelloWorld>();
