@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be48df43_6da10b26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-14T17:23:47Z",
+      "side": 1,
+      "message": "Greg, would you mind submitting this?\n\nNot sure autosubmit is gonna work, and I\u0027m away from my corp devices ATM.",
+      "revId": "02e545d8d13fc950ebf2cff5430d2e30e2c352fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
