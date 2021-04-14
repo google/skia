@@ -415,6 +415,7 @@ private:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
         const auto& shader = geomProc.cast<GrStrokeTessellateShader>();
         const auto& stroke = shader.fStroke;
@@ -1254,6 +1255,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
         const auto& shader = geomProc.cast<GrStrokeTessellateShader>();
         const auto& stroke = shader.fStroke;
