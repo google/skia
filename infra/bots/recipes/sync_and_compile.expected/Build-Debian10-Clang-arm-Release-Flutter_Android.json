@@ -205,7 +205,7 @@
   {
     "cmd": [
       "flutter/tools/gn",
-      "--runtime-mode=release",
+      "--runtime-mode=debug",
       "--android"
     ],
     "cwd": "[START_DIR]/cache/work/flutter/src",
@@ -271,7 +271,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\n\nif not os.path.isdir(os.path.dirname(dst)):\n  os.makedirs(os.path.dirname(dst))\n\nshutil.copyfile(src, dst)\n",
+      "\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\nsrc = src.replace('release', 'debug')\ndst = sys.argv[2]\n\nif not os.path.isdir(os.path.dirname(dst)):\n  os.makedirs(os.path.dirname(dst))\n\nshutil.copyfile(src, dst)\n",
       "[START_DIR]/cache/work/flutter/src/out/android_release/lib.stripped/libflutter.so",
       "[START_DIR]/[SWARM_OUT_DIR]/libflutter_stripped.so"
     ],
@@ -284,6 +284,7 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = src.replace('release', 'debug')@@@",
       "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(os.path.dirname(dst)):@@@",

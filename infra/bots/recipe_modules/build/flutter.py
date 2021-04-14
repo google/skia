@@ -20,13 +20,15 @@ def compile_fn(api, checkout_root, out_dir):
   builder_name = api.vars.builder_name
 
   # Setup GN args.
-  gn_args = ['--runtime-mode=%s' % configuration,]
+  # gn_args = ['--runtime-mode=%s' % configuration,]
+  gn_args = ['--runtime-mode=debug']
   if 'Android' in extra_tokens:
     gn_args.append('--android')
 
   if os_name == 'Debian9' and 'Docker' in builder_name:
     script = api.build.resource('docker-flutter-compile.sh')
     image_hash = IMAGES[os_name]
+    out_dir = '/mnt/pd0/s/w/ir/cache/work/flutter/src/out/android_debug';
     api.docker.run('Run build script in Docker', image_hash,
                    api.path['start_dir'], out_dir, script,
                    [api.path['start_dir'], flutter_dir, out_dir] + gn_args,
@@ -67,6 +69,7 @@ import shutil
 import sys
 
 src = sys.argv[1]
+src = src.replace('release', 'debug')
 dst = sys.argv[2]
 
 if not os.path.isdir(os.path.dirname(dst)):
