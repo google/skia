@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d4e0f18_69566ab2",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-14T14:51:13Z",
+      "side": 1,
+      "message": "Right, while processing the RSXForm, each glyph is turned into a SkGlyphRunList, and the device processing happens on each of the glyphs. This calculates the bounds for the single glyph. It is never used, I calculate it to maintain the invariant. The above seems somewhat redundant, but is needed when there are mixed RSXForm and ordinary runs. I think having mixed runs is a very rare case.",
+      "parentUuid": "a0369419_9797d008",
+      "revId": "8ffa0d747ab35c6c36050937bdcb911a310e1792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b174844e_bcc9cc60",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-04-14T14:38:11Z",
       "side": 1,
       "message": "nit: extra space",
+      "range": {
+        "startLine": 119,
+        "startChar": 59,
+        "endLine": 119,
+        "endChar": 60
+      },
+      "revId": "8ffa0d747ab35c6c36050937bdcb911a310e1792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1dff6079_4494d69d",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-14T14:51:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b174844e_bcc9cc60",
       "range": {
         "startLine": 119,
         "startChar": 59,
