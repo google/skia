@@ -16,6 +16,52 @@
       "message": "I think we might have a problem here. We\u0027re treating dynamic MSAA as a global (and then adding MSAA buffers to RTs based on it) but when this goes to ship in Chrome we\u0027ll want DMSAA for c2d but not for SkiaRenderer or Raster. I think we need to selectively enable for SkSurfaces.",
       "revId": "1d2c3e256ec74007d12c04cdabd67d13927407fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffbd2050_478e61d7",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-14T14:55:05Z",
+      "side": 1,
+      "message": "Relate to Brian\u0027s comment about doing it per surface, should we just a single caps call like:\n\nbool supportsDynamicMSAA(const GrSurfaceProxy*);\n\nAlso don\u0027t think we need this hasDynamicMSAA helper function in that case. The GR_TEST_UTILS check can also move into the caps function",
+      "range": {
+        "startLine": 41,
+        "startChar": 15,
+        "endLine": 43,
+        "endChar": 38
+      },
+      "revId": "1d2c3e256ec74007d12c04cdabd67d13927407fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e4b2733_9a838f77",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-14T14:55:05Z",
+      "side": 1,
+      "message": "Can we just do at the end here:\nfDynamicMSAASupport \u003d fMSFBOType !\u003d kNone_MSFBOType \u0026\u0026 fMSFBOType !\u003d kES_Apple_MSFBOType;\n\nCan drop the apply part if we remove support for that extension in general.",
+      "range": {
+        "startLine": 1038,
+        "startChar": 4,
+        "endLine": 1038,
+        "endChar": 5
+      },
+      "revId": "1d2c3e256ec74007d12c04cdabd67d13927407fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
