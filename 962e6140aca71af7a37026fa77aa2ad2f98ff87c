@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db706792_6db0b126",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2239,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-14T20:31:23Z",
+      "side": 0,
+      "message": "Could we just keep this loop and make LeadingMoveToCount a helper in the test file?",
+      "range": {
+        "startLine": 2239,
+        "startChar": 8,
+        "endLine": 2239,
+        "endChar": 13
+      },
+      "revId": "962e6140aca71af7a37026fa77aa2ad2f98ff87c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

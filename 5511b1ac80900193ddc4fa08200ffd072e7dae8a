@@ -68,6 +68,29 @@
       },
       "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a073155_e747ea7e",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-14T20:31:23Z",
+      "side": 1,
+      "message": "Could this just be a helper function in the test file, then we keep the loop above? Then it wouldn\u0027t need to be in SkPathPriv.",
+      "range": {
+        "startLine": 81,
+        "startChar": 15,
+        "endLine": 81,
+        "endChar": 33
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
