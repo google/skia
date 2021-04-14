@@ -126,7 +126,9 @@ public:
      * The range will iterate over the transforms in the same order as the TransformHandler passed
      * to emitCode.
      */
-    virtual void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) = 0;
+    virtual void setData(const GrGLSLProgramDataManager&,
+                         const GrShaderCaps&,
+                         const GrGeometryProcessor&) = 0;
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -137,8 +139,11 @@ protected:
     // A helper for setting the matrix on a uniform handle initialized through
     // writeOutputPosition or writeLocalCoord. Automatically handles elided uniforms,
     // scale+translate matrices, and state tracking (if provided state pointer is non-null).
-    void setTransform(const GrGLSLProgramDataManager& pdman, const UniformHandle& uniform,
-                      const SkMatrix& matrix, SkMatrix* state=nullptr) const;
+    static void SetTransform(const GrGLSLProgramDataManager&,
+                             const GrShaderCaps&,
+                             const UniformHandle& uniform,
+                             const SkMatrix& matrix,
+                             SkMatrix* state = nullptr);
 
     struct GrGPArgs {
         // Used to specify the output variable used by the GP to store its device position. It can
@@ -158,42 +163,56 @@ protected:
     // view matrix and the output variable is 2D or 3D depending on whether the view matrix is
     // perspective. Both versions declare the output position variable and will set
     // GrGPArgs::fPositionVar.
-    void writeOutputPosition(GrGLSLVertexBuilder*, GrGPArgs*, const char* posName);
-    void writeOutputPosition(GrGLSLVertexBuilder*,
-                             GrGLSLUniformHandler* uniformHandler,
-                             GrGPArgs*,
-                             const char* posName,
-                             const SkMatrix& mat,
-                             UniformHandle* viewMatrixUniform);
+    static void WriteOutputPosition(GrGLSLVertexBuilder*, GrGPArgs*, const char* posName);
+    static void WriteOutputPosition(GrGLSLVertexBuilder*,
+                                    GrGLSLUniformHandler*,
+                                    const GrShaderCaps&,
+                                    GrGPArgs*,
+                                    const char* posName,
+                                    const SkMatrix& viewMatrix,
+                                    UniformHandle* viewMatrixUniform);
 
     // Helper to transform an existing variable by a given local matrix (e.g. the inverse view
     // matrix). It will declare the transformed local coord variable and will set
     // GrGPArgs::fLocalCoordVar.
-    void writeLocalCoord(GrGLSLVertexBuilder*, GrGLSLUniformHandler*, GrGPArgs*,
-                         GrShaderVar localVar, const SkMatrix& localMatrix,
-                         UniformHandle* localMatrixUniform);
+    static void WriteLocalCoord(GrGLSLVertexBuilder*,
+                                GrGLSLUniformHandler*,
+                                const GrShaderCaps&,
+                                GrGPArgs*,
+                                GrShaderVar localVar,
+                                const SkMatrix& localMatrix,
+                                UniformHandle* localMatrixUniform);
 
     // GPs that use writeOutputPosition and/or writeLocalCoord must incorporate the matrix type
     // into their key, and should use this function or one of the other related helpers.
-    static uint32_t ComputeMatrixKey(const SkMatrix& mat) {
-        if (mat.isIdentity()) {
-            return 0b00;
-        } else if (mat.isScaleTranslate()) {
-            return 0b01;
-        } else if (!mat.hasPerspective()) {
-            return 0b10;
-        } else {
-            return 0b11;
+    static uint32_t ComputeMatrixKey(const GrShaderCaps& caps, const SkMatrix& mat) {
+        if (!caps.reducedShaderMode()) {
+            if (mat.isIdentity()) {
+                return 0b00;
+            }
+            if (mat.isScaleTranslate()) {
+                return 0b01;
+            }
         }
+        if (!mat.hasPerspective()) {
+            return 0b10;
+        }
+        return 0b11;
     }
-    static uint32_t ComputeMatrixKeys(const SkMatrix& viewMatrix, const SkMatrix& localMatrix) {
-        return (ComputeMatrixKey(viewMatrix) << kMatrixKeyBits) | ComputeMatrixKey(localMatrix);
+    static uint32_t ComputeMatrixKeys(const GrShaderCaps& shaderCaps,
+                                      const SkMatrix& viewMatrix,
+                                      const SkMatrix& localMatrix) {
+        return (ComputeMatrixKey(shaderCaps, viewMatrix) << kMatrixKeyBits) |
+               ComputeMatrixKey(shaderCaps, localMatrix);
     }
-    static uint32_t AddMatrixKeys(uint32_t flags, const SkMatrix& viewMatrix,
+    static uint32_t AddMatrixKeys(const GrShaderCaps& shaderCaps,
+                                  uint32_t flags,
+                                  const SkMatrix& viewMatrix,
                                   const SkMatrix& localMatrix) {
         // Shifting to make room for the matrix keys shouldn't lose bits
         SkASSERT(((flags << (2 * kMatrixKeyBits)) >> (2 * kMatrixKeyBits)) == flags);
-        return (flags << (2 * kMatrixKeyBits)) | ComputeMatrixKeys(viewMatrix, localMatrix);
+        return (flags << (2 * kMatrixKeyBits)) |
+               ComputeMatrixKeys(shaderCaps, viewMatrix, localMatrix);
     }
     static constexpr int kMatrixKeyBits = 2;
 

@@ -34,7 +34,7 @@ public:
         varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
 
         // Setup position
-        this->writeOutputPosition(vertBuilder, gpArgs, rsgp.inPosition().name());
+        WriteOutputPosition(vertBuilder, gpArgs, rsgp.inPosition().name());
         // No need for local coordinates, this GP does not combine with fragment processors
 
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
@@ -45,7 +45,9 @@ public:
         fragBuilder->codeAppendf("half4 %s = half4(factor);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) override {}
 
 private:
     using INHERITED = GrGLSLGeometryProcessor;

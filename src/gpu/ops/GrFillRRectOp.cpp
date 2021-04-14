@@ -671,7 +671,9 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) override {}
 };
 
 
