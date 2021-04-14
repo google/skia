@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009898270",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/375134?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "84d4c0ab_90338407",
+        "filename": "experimental/sktext/src/Processor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-14T18:08:16Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 17
+      },
+      "revId": "1f81f8e23a04eb7851b84631aa657a493da46d5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009898270",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/375134?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a6f393db_d3bab937",
+        "filename": "experimental/sktext/src/Processor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-14T18:08:16Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 62,
+        "startChar": 4,
+        "endLine": 62,
+        "endChar": 9
+      },
+      "revId": "1f81f8e23a04eb7851b84631aa657a493da46d5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009898270",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/375134?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ed8a29f2_499e94ea",
+        "filename": "experimental/sktext/src/Processor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-14T18:08:16Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 79,
+        "startChar": 50,
+        "endLine": 79,
+        "endChar": 55
+      },
+      "revId": "1f81f8e23a04eb7851b84631aa657a493da46d5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
