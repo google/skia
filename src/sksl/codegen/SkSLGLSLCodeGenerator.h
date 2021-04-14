@@ -115,6 +115,8 @@ protected:
 
     void writeVarDeclaration(const VarDeclaration& var, bool global);
 
+    void writeVarDeclWithoutBaseType(const VarDeclaration& var);
+
     void writeFragCoord();
 
     virtual void writeVariableReference(const VariableReference& ref);
@@ -171,6 +173,8 @@ protected:
     virtual void writeIfStatement(const IfStatement& stmt);
 
     void writeForStatement(const ForStatement& f);
+
+    void writeForInitializer(const Statement& i);
 
     void writeDoStatement(const DoStatement& d);
 
