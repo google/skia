@@ -31,6 +31,7 @@ bench_sources = [
   "$_bench/CodecBench.cpp",
   "$_bench/ColorFilterBench.cpp",
   "$_bench/ColorPrivBench.cpp",
+  "$_bench/ColrV1vsSVGBench.cpp",
   "$_bench/CompositingImagesBench.cpp",
   "$_bench/ControlBench.cpp",
   "$_bench/CoverageBench.cpp",
