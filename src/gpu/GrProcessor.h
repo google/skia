@@ -69,7 +69,6 @@ public:
         kGrColorSpaceXformEffect_ClassID,
         kGrConfigConversionEffect_ClassID,
         kGrConicEffect_ClassID,
-        kGrConstColorProcessor_ClassID,
         kGrConvexPolyEffect_ClassID,
         kGrDeviceSpaceEffect_ClassID,
         kGrDiffuseLightingEffect_ClassID,

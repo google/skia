@@ -12,7 +12,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 #if GR_TEST_UTILS
 
@@ -147,7 +146,7 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static constexpr int kFPFactoryCount = 35;
+static constexpr int kFPFactoryCount = 34;
 static constexpr int kGPFactoryCount = 14;
 static constexpr int kXPFactoryCount = 4;
 
@@ -183,7 +182,7 @@ std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcesso
         // We've gone too deep, but we can't necessarily return null without risking an assertion.
         // Instead, return a known-simple zero-child FP. This limits the recursion, and the
         // generated FP will be rejected by the numNonNullChildProcessors check below.
-        fp = GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT);
+        fp = GrFragmentProcessor::MakeColor(SK_PMColor4fTRANSPARENT);
     } else {
         for (;;) {
             fp = GrFragmentProcessorTestFactory::Make(data);

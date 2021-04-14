@@ -9,7 +9,6 @@
 
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -328,7 +327,7 @@ std::unique_ptr<GrFragmentProcessor> GrBlendFragmentProcessor::Make(
         SkBlendMode mode, BlendBehavior behavior) {
     switch (mode) {
         case SkBlendMode::kClear:
-            return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT);
+            return GrFragmentProcessor::MakeColor(SK_PMColor4fTRANSPARENT);
         case SkBlendMode::kSrc:
             return GrFragmentProcessor::OverrideInput(std::move(src), SK_PMColor4fWHITE,
                                                       /*useUniform=*/false);

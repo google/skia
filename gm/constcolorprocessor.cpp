@@ -34,7 +34,6 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
@@ -44,7 +43,7 @@
 
 namespace skiagm {
 /**
- * This GM directly exercises GrConstColorProcessor, ModulateRGBA and ModulateAlpha.
+ * This GM directly exercises Color, ModulateRGBA and ModulateAlpha.
  */
 class ColorProcessor : public GpuGM {
 public:
@@ -114,7 +113,7 @@ protected:
                     GrFPArgs args(context, SkSimpleMatrixProvider(SkMatrix::I()), &colorInfo);
                     baseFP = as_SB(fShader)->asFragmentProcessor(args);
                 } else {
-                    baseFP = GrConstColorProcessor::Make(
+                    baseFP = GrFragmentProcessor::MakeColor(
                             SkPMColor4f::FromBytes_RGBA(kPaintColors[paintType]));
                 }
 
@@ -122,7 +121,7 @@ protected:
                 std::unique_ptr<GrFragmentProcessor> colorFP;
                 switch (fMode) {
                     case TestMode::kConstColor:
-                        colorFP = GrConstColorProcessor::Make(
+                        colorFP = GrFragmentProcessor::MakeColor(
                                 SkPMColor4f::FromBytes_RGBA(kColors[procColor]));
                         break;
 
