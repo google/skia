@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6898dea9_b6d96f3b",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1796,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-14T20:43:37Z",
+      "side": 1,
+      "message": "yes, I thought I\u0027d seen similar language in the public docs regarding what forceClose was doing.",
+      "parentUuid": "12bb7411_f8da0ea8",
+      "range": {
+        "startLine": 1796,
+        "startChar": 42,
+        "endLine": 1796,
+        "endChar": 75
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "38c28ec0_d5b3a9be",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-14T17:18:07Z",
       "side": 1,
       "message": "Doing this here, after \u0027every\u0027 kMove, is that necessary? Could we not just trim off leading moves once, when the Iterator was first initialized?",
+      "range": {
+        "startLine": 1798,
+        "startChar": 0,
+        "endLine": 1798,
+        "endChar": 69
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cf58a91_0174c145",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1798,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-14T20:43:37Z",
+      "side": 1,
+      "message": "we could, but then we lose the semantics that forceClose\u003dtrue for the iterator matches what you\u0027d get by rasterizing a simple fill. It also makes it so we clean up all trailing moveTos, not just the last one. I don\u0027t think this will hurt performance since most verbs will be non-move anyways.",
+      "parentUuid": "38c28ec0_d5b3a9be",
       "range": {
         "startLine": 1798,
         "startChar": 0,
@@ -83,6 +131,54 @@
       "writtenOn": "2021-04-14T20:31:23Z",
       "side": 1,
       "message": "Could this just be a helper function in the test file, then we keep the loop above? Then it wouldn\u0027t need to be in SkPathPriv.",
+      "range": {
+        "startLine": 81,
+        "startChar": 15,
+        "endLine": 81,
+        "endChar": 33
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "300d1907_08d3761f",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-14T20:43:37Z",
+      "side": 1,
+      "message": "That\u0027s correct; but this way the calling code works regardless of if the first verb is not a moveTo (unless that\u0027s guaranteed?). So is_degenerate subtracts leading moveToCount from the verb total. count([M, M, L])-2 \u003d\u003d 1 is not degenerate, but count[M, M, M]) - 3 \u003d\u003d 0 is degenerate.  The skipping done in computeConvexity does subtract 1, but then checks to make sure the verb skip \u003e 0.",
+      "parentUuid": "a7a431a5_e56fe139",
+      "range": {
+        "startLine": 81,
+        "startChar": 15,
+        "endLine": 81,
+        "endChar": 33
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86402035_9355c479",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-14T20:43:37Z",
+      "side": 1,
+      "message": "It\u0027s used 2 places in SkPath, so I could have it be a private function or similar and not test its return value in the test file at all, if you prefer, but if it\u0027s not in SkPathPriv, it\u0027ll be in SkPath.cpp not PathTest.cpp",
+      "parentUuid": "6a073155_e747ea7e",
       "range": {
         "startLine": 81,
         "startChar": 15,

@@ -22,6 +22,30 @@
       },
       "revId": "962e6140aca71af7a37026fa77aa2ad2f98ff87c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00a5c6d2_c39114a1",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2239,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-14T20:43:37Z",
+      "side": 0,
+      "message": "It gets pretty awkward to mix direct access of points (e.g. \u0027last\u0027) and counting verbs using the forceClosed iterator, since next() only reports the last moveTo now. We also use LeadingMoveToCount elsewhere in SkPath to compute is_degenerate() for the auto-bounds-update. \n\nWhat I ought to do is just move the iter declaration to below this, since it\u0027s not used at all until after we try the BySign fast path.",
+      "parentUuid": "db706792_6db0b126",
+      "range": {
+        "startLine": 2239,
+        "startChar": 8,
+        "endLine": 2239,
+        "endChar": 13
+      },
+      "revId": "962e6140aca71af7a37026fa77aa2ad2f98ff87c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
