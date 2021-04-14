@@ -1,0 +1,9 @@
+half4 main() {
+    half4 result = half4(0);
+    for (int a = 0, b = 0; a < 10 && b < 10; ++a, ++b) {
+        result.r += 1;
+        result.g += 2;
+    }
+
+    return result;
+}
