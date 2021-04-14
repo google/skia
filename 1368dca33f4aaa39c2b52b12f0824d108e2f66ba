@@ -22,6 +22,30 @@
       },
       "revId": "1368dca33f4aaa39c2b52b12f0824d108e2f66ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3459683_4c73aea7",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T13:50:49Z",
+      "side": 1,
+      "message": "No, that\u0027s cleaner.",
+      "parentUuid": "5d59b6f4_1132794f",
+      "range": {
+        "startLine": 177,
+        "startChar": 8,
+        "endLine": 177,
+        "endChar": 28
+      },
+      "revId": "1368dca33f4aaa39c2b52b12f0824d108e2f66ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
