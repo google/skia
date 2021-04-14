@@ -126,7 +126,7 @@ GrDawnGpu::GrDawnGpu(GrDirectContext* direct, const GrContextOptions& options,
                      const wgpu::Device& device)
         : INHERITED(direct)
         , fDevice(device)
-        , fQueue(device.GetDefaultQueue())
+        , fQueue(device.GetQueue())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
         , fStagingBufferManager(this)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
@@ -715,28 +715,26 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     SkSL::String fsSPIRV =
         this->SkSLToSPIRV(fs, SkSL::ProgramKind::kFragment, false, 0, nullptr);
 
-    wgpu::ProgrammableStageDescriptor vsDesc;
-    vsDesc.module = this->createShaderModule(vsSPIRV);
-    vsDesc.entryPoint = "main";
+    wgpu::VertexState vertexState;
+    vertexState.module = this->createShaderModule(vsSPIRV);
+    vertexState.entryPoint = "main";
+    vertexState.bufferCount = 0;
 
-    wgpu::ProgrammableStageDescriptor fsDesc;
-    fsDesc.module = this->createShaderModule(fsSPIRV);
-    fsDesc.entryPoint = "main";
+    wgpu::ColorTargetState colorTargetState;
+    colorTargetState.format = static_cast<GrDawnTexture*>(tex)->format();
 
-    wgpu::VertexStateDescriptor vertexStateDesc;
-    vertexStateDesc.indexFormat = wgpu::IndexFormat::Uint32;
+    wgpu::FragmentState fragmentState;
+    fragmentState.module = this->createShaderModule(fsSPIRV);
+    fragmentState.entryPoint = "main";
+    fragmentState.targetCount = 1;
+    fragmentState.targets = &colorTargetState;
 
-    wgpu::ColorStateDescriptor csDesc;
-    csDesc.format = static_cast<GrDawnTexture*>(tex)->format();
-
-    wgpu::RenderPipelineDescriptor renderPipelineDesc;
-    renderPipelineDesc.vertexStage = vsDesc;
-    renderPipelineDesc.fragmentStage = &fsDesc;
-    renderPipelineDesc.vertexState = &vertexStateDesc;
-    renderPipelineDesc.primitiveTopology = wgpu::PrimitiveTopology::TriangleStrip;
-    renderPipelineDesc.colorStateCount = 1;
-    renderPipelineDesc.colorStates = &csDesc;
-    wgpu::RenderPipeline pipeline = fDevice.CreateRenderPipeline(&renderPipelineDesc);
+    wgpu::RenderPipelineDescriptor2 renderPipelineDesc;
+    renderPipelineDesc.vertex = vertexState;
+    renderPipelineDesc.primitive.topology = wgpu::PrimitiveTopology::TriangleStrip;
+    renderPipelineDesc.primitive.stripIndexFormat = wgpu::IndexFormat::Uint16;
+    renderPipelineDesc.fragment = &fragmentState;
+    wgpu::RenderPipeline pipeline = fDevice.CreateRenderPipeline2(&renderPipelineDesc);
 
     wgpu::BindGroupLayout bgl = pipeline.GetBindGroupLayout(0);
     wgpu::TextureViewDescriptor srcViewDesc;
