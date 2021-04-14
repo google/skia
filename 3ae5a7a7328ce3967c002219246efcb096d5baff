@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5bcc163_7a3a7a3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-14T13:39:32Z",
+      "side": 1,
+      "message": "Optional from my point of view to land this, but I found it helpful to analyze COLRv1 color fonts vs. SVG performance.\n",
+      "revId": "3ae5a7a7328ce3967c002219246efcb096d5baff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
