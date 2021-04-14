@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "30d5d1a5_6f9b7831",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-14T18:54:56Z",
+      "side": 1,
+      "message": "If we define them in the interface code, we need to specify them under the prototype. If we are defining them via the C++ code (and don\u0027t have any extra JS glue), then we can just define them here.",
+      "parentUuid": "4550a833_8c3332ac",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 14
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb98a672_b79d7a44",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 6
@@ -97,6 +121,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bb26b7e7_44efc993",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-14T18:54:56Z",
+      "side": 1,
+      "message": "go/js-style#features-strings-use-single-quotes",
+      "parentUuid": "fb7e427d_a804b2ce",
+      "range": {
+        "startLine": 587,
+        "startChar": 14,
+        "endLine": 587,
+        "endChar": 15
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "49c69054_6bc72be0",
         "filename": "modules/canvaskit/npm_build/types/index.d.ts",
         "patchSetId": 6
@@ -132,6 +180,30 @@
       "side": 1,
       "message": "ok, assuming this won\u0027t confuse existing clients like flutter. I didn\u0027t know of they already were creating 32bit arrays.",
       "parentUuid": "49c69054_6bc72be0",
+      "range": {
+        "startLine": 3589,
+        "startChar": 59,
+        "endLine": 3589,
+        "endChar": 70
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9e05d9b_dd2a8d8d",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 3589,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-14T18:54:56Z",
+      "side": 1,
+      "message": "32 bit arrays will still work, so we won\u0027t mess them up in that regard. I\u0027m not sure if Flutter exactly uses the TS types, since they write in Dart.",
+      "parentUuid": "b15a74e9_eef4b844",
       "range": {
         "startLine": 3589,
         "startChar": 59,
