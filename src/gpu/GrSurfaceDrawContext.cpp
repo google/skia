@@ -308,6 +308,12 @@ GrSurfaceDrawContext::~GrSurfaceDrawContext() {
 }
 
 inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
+    if (this->hasDynamicMSAA()) {
+        // Trigger dmsaa by default if the render target has it. Coverage ops that know how to
+        // handle both single and multisample targets without popping will do so without calling
+        // chooseAAType.
+        return GrAAType::kMSAA;
+    }
     if (GrAA::kNo == aa) {
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
         // that.
@@ -606,8 +612,15 @@ void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
     if (opt >= QuadOptimization::kClipApplied) {
         // These optimizations require caller to add an op themselves
         const GrClip* finalClip = opt == QuadOptimization::kClipApplied ? nullptr : clip;
-        GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
-                             : this->chooseAAType(aa);
+        GrAAType aaType;
+        if (ss) {
+            aaType = (aa == GrAA::kYes) ? GrAAType::kMSAA : GrAAType::kNone;
+        } else if (quad->fDevice.quadType() == GrQuad::Type::kAxisAligned &&
+                   SkRect::Make(quad->fDevice.bounds().roundOut()) == quad->fDevice.bounds()) {
+            aaType = GrAAType::kNone;  // Don't trigger dmsaa for pixel-aligned rects.
+        } else {
+            aaType = this->chooseAAType(aa);
+        }
         this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType,
                                                       quad, ss));
     }
@@ -833,14 +846,16 @@ GrOpsTask::CanDiscardPreviousOps GrSurfaceDrawContext::canDiscardPreviousOpsOnFu
     return GrOpsTask::CanDiscardPreviousOps(!fNumStencilSamples);
 }
 
-void GrSurfaceDrawContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
+void GrSurfaceDrawContext::setNeedsStencil(bool drawUsesHWAA) {
     // Don't clear stencil until after we've changed fNumStencilSamples. This ensures we don't loop
     // forever in the event that there are driver bugs and we need to clear as a draw.
     bool hasInitializedStencil = fNumStencilSamples > 0;
 
     int numRequiredSamples = this->numSamples();
-    if (useMixedSamplesIfNotMSAA && 1 == numRequiredSamples) {
-        SkASSERT(this->asRenderTargetProxy()->canUseMixedSamples(*this->caps()));
+    if (numRequiredSamples == 1 &&
+        (this->hasDynamicMSAA() /* In dmsaa, stencil is only attached to the msaa surface.*/ ||
+         drawUsesHWAA /* Mixed samples.*/)) {
+        SkASSERT(this->hasDynamicMSAA() || this->caps()->mixedSamplesSupport());
         numRequiredSamples =
                 this->caps()->internalMultisampleCount(this->asSurfaceProxy()->backendFormat());
     }
@@ -864,7 +879,7 @@ void GrSurfaceDrawContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
 }
 
 void GrSurfaceDrawContext::internalStencilClear(const SkIRect* scissor, bool insideStencilMask) {
-    this->setNeedsStencil(/* useMixedSamplesIfNotMSAA = */ false);
+    this->setNeedsStencil(/* drawUsesHWAA = */ false);
 
     GrScissorState scissorState(this->asSurfaceProxy()->backingStoreDimensions());
     if (scissor && !scissorState.set(*scissor)) {
@@ -1927,8 +1942,8 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     // If stencil is enabled and the framebuffer is mixed sampled, then the graphics pipeline will
     // have mixed sampled coverage, regardless of whether HWAA is enabled. (e.g., a non-aa draw
     // that uses a stencil test when the stencil buffer is multisampled.)
-    bool hasMixedSampledCoverage = (
-            willUseStencil && fNumStencilSamples > this->numSamples());
+    bool hasMixedSampledCoverage = willUseStencil && (fNumStencilSamples > this->numSamples()) &&
+                                   !this->hasDynamicMSAA();
     SkASSERT(!hasMixedSampledCoverage ||
              this->asRenderTargetProxy()->canUseMixedSamples(*this->caps()));
 
@@ -1950,9 +1965,9 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
-    opsTask->addDrawOp(this->drawingManager(), std::move(op), analysis, std::move(appliedClip),
-                       dstProxyView, GrTextureResolveManager(this->drawingManager()),
-                       *this->caps());
+    opsTask->addDrawOp(this->drawingManager(), std::move(op), fixedFunctionFlags, willUseStencil,
+                       analysis, std::move(appliedClip), dstProxyView,
+                       GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
 bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,

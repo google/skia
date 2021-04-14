@@ -109,8 +109,11 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
     return surface;
 }
 
-size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps&) const {
+size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
     int colorSamplesPerPixel = this->numSamples();
+    if (this->hasDynamicMSAA(caps)) {
+        colorSamplesPerPixel = caps.internalMultisampleCount(this->backendFormat());
+    }
     if (colorSamplesPerPixel > 1) {
         // Add one for the resolve buffer.
         ++colorSamplesPerPixel;

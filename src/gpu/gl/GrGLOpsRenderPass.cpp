@@ -31,6 +31,16 @@ void GrGLOpsRenderPass::set(GrRenderTarget* rt, bool useMSAASurface, const SkIRe
 }
 
 void GrGLOpsRenderPass::onBegin() {
+    if (fUseMSAASurface && !fGpu->glCaps().msaaResolvesAutomatically() &&
+        fRenderTarget->numSamples() == 1 && fColorLoadAndStoreInfo.fLoadOp == GrLoadOp::kLoad) {
+        // dmsaa: blit the single sample fbo into the msaa buffer.
+        auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, fRenderTarget->height(),
+                                                         fContentBounds);
+        fGpu->resolveGLRenderTarget(static_cast<GrGLRenderTarget*>(fRenderTarget),
+                                    nativeBounds.asSkIRect(),
+                                    GrGLGpu::ResolveDirection::kSingleToMSAA);
+    }
+
     fGpu->beginCommandBuffer(fRenderTarget, fUseMSAASurface, fContentBounds, fOrigin,
                              fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
 }
@@ -38,6 +48,16 @@ void GrGLOpsRenderPass::onBegin() {
 void GrGLOpsRenderPass::onEnd() {
     fGpu->endCommandBuffer(fRenderTarget, fUseMSAASurface, fColorLoadAndStoreInfo,
                            fStencilLoadAndStoreInfo);
+
+    if (fUseMSAASurface && !fGpu->glCaps().msaaResolvesAutomatically() &&
+        fRenderTarget->numSamples() == 1 && fColorLoadAndStoreInfo.fStoreOp == GrStoreOp::kStore) {
+        // dmsaa: blit the msaa buffer into the single sample fbo.
+        auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, fRenderTarget->height(),
+                                                         fContentBounds);
+        fGpu->resolveGLRenderTarget(static_cast<GrGLRenderTarget*>(fRenderTarget),
+                                    nativeBounds.asSkIRect(),
+                                    GrGLGpu::ResolveDirection::kMSAAToSingle);
+    }
 }
 
 bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,

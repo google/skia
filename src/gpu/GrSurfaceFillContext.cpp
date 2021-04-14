@@ -309,6 +309,8 @@ void GrSurfaceFillContext::addDrawOp(GrOp::Owner owner) {
     GrXferProcessor::DstProxyView dstProxyView;
     this->getOpsTask()->addDrawOp(fContext->priv().drawingManager(),
                                   std::move(owner),
+                                  op->fixedFunctionFlags(),
+                                  false,  // usesStencil
                                   analysis,
                                   std::move(clip),
                                   dstProxyView,
