@@ -20,6 +20,10 @@
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkPicture.cpp"
+#include "src/core/SkPictureRecord.cpp"
+#include "src/core/SkPictureRecorder.cpp"
+#include "src/core/SkPictureFlat.cpp"
 
 #include <emscripten/emscripten.h>
 #include <emscripten/bind.h>

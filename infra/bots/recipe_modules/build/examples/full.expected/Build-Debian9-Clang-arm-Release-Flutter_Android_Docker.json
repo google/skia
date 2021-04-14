@@ -88,7 +88,7 @@
       "[START_DIR]",
       "[START_DIR]/cache/work/src",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release",
-      "--runtime-mode=release",
+      "--runtime-mode=debug",
       "--android"
     ],
     "env": {

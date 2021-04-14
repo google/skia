@@ -20,7 +20,8 @@ def compile_fn(api, checkout_root, out_dir):
   builder_name = api.vars.builder_name
 
   # Setup GN args.
-  gn_args = ['--runtime-mode=%s' % configuration,]
+  # gn_args = ['--runtime-mode=%s' % configuration,]
+  gn_args = ['--runtime-mode=debug']
   if 'Android' in extra_tokens:
     gn_args.append('--android')
 
