@@ -19,6 +19,9 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#include "include/core/SkStream.h"
+#include "modules/svg/include/SkSVGDOM.h"
+
 #include <string.h>
 #include <initializer_list>
 
@@ -39,6 +42,10 @@ protected:
     void onOnceBeforeDraw() override {
         fEmojiFont.fTypeface =
           MakeResourceAsTypeface("fonts/colrv1_samples.ttf");
+
+        std::unique_ptr<SkStreamAsset> svg_file_stream = SkStream::MakeFromFile("emoji_u1f9fa.svg");
+        fSvgDom = SkSVGDOM::MakeFromStream(*svg_file_stream);
+        fSvgDom->setContainerSize(SkSize::Make(400, 400));
     }
 
     SkString onShortName() override {
@@ -80,6 +87,10 @@ protected:
                                    10, y, font, paint);
             y += metrics.fDescent + metrics.fLeading;
         }
+
+        canvas->translate(100, 100);
+        fSvgDom->render(canvas);
+
         return DrawResult::kOk;
     }
 
@@ -87,6 +98,8 @@ private:
     using INHERITED = GM;
     SkScalar fSkewX;
     SkScalar fRotateDeg;
+
+  sk_sp<SkSVGDOM> fSvgDom;
 };
 
 DEF_GM(return new ColrV1GM(0.f, 0.f);)
