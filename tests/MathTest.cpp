@@ -251,41 +251,6 @@ static void unittest_half(skiatest::Reporter* reporter) {
 
 }
 
-template <typename RSqrtFn>
-static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
-    const float maxRelativeError = 6.50196699e-4f;
-
-    // test close to 0 up to 1
-    float input = 0.000001f;
-    for (int i = 0; i < 1000; ++i) {
-        float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = rsqrt(input);
-        float relativeError = sk_float_abs(exact - estimate)/exact;
-        REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
-        input += 0.001f;
-    }
-
-    // test 1 to ~100
-    input = 1.0f;
-    for (int i = 0; i < 1000; ++i) {
-        float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = rsqrt(input);
-        float relativeError = sk_float_abs(exact - estimate)/exact;
-        REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
-        input += 0.01f;
-    }
-
-    // test some big numbers
-    input = 1000000.0f;
-    for (int i = 0; i < 100; ++i) {
-        float exact = 1.0f/sk_float_sqrt(input);
-        float estimate = rsqrt(input);
-        float relativeError = sk_float_abs(exact - estimate)/exact;
-        REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
-        input += 754326.f;
-    }
-}
-
 static void test_nextlog2(skiatest::Reporter* r) {
     REPORTER_ASSERT(r, sk_float_nextlog2(-std::numeric_limits<float>::infinity()) == 0);
     REPORTER_ASSERT(r, sk_float_nextlog2(-std::numeric_limits<float>::max()) == 0);
@@ -481,8 +446,6 @@ DEF_TEST(Math, reporter) {
     huge_vector_normalize(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
-    test_rsqrt(reporter, sk_float_rsqrt);
-    test_rsqrt(reporter, sk_float_rsqrt_portable);
     test_nextlog2(reporter);
 
     for (i = 0; i < 10000; i++) {
