@@ -3,6 +3,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f34ce381_62badf9f",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "This factory should be private, right?",
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "997d4dd5_9f9e3477",
+        "filename": "include/sksl/DSLStatement.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "Moving this out of line so includers don\u0027t need ~SkSL::Statement visible?",
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7aa56223_d77cd9fd",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 11
@@ -26,6 +60,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "11783cf9_a21df400",
+        "filename": "src/sksl/codegen/SkSLVMCodeGenerator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "Are you now able to trigger this assert somehow?",
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "51271a10_6d70ba8e",
         "filename": "src/sksl/dsl/DSLFunction.cpp",
         "patchSetId": 11
@@ -37,6 +88,30 @@
       "writtenOn": "2021-04-13T19:52:09Z",
       "side": 1,
       "message": "tiny nit: \n  paramVars.empty()",
+      "range": {
+        "startLine": 41,
+        "startChar": 22,
+        "endLine": 41,
+        "endChar": 33
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfee5800_1f0544d9",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "Alternatively, my most recent change reworked this logic slightly in the IR generator version. I\u0027m just checking types, not positions. (Also, we now have to attach the in-color builtin id to any float4/half4):\n\nhttps://skia-review.googlesource.com/c/skia/+/395838/7/src/sksl/SkSLIRGenerator.cpp",
+      "parentUuid": "51271a10_6d70ba8e",
       "range": {
         "startLine": 41,
         "startChar": 22,
@@ -118,6 +193,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "56df596b_0a1fc43c",
+        "filename": "src/sksl/dsl/DSLRuntimeEffects.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "Agree. For hand-written (C++) effects, I can see asserting success. But if someone is using the API in response to user input, or another format (eg, as their backend), we can\u0027t always assume things will compile correctly.",
+      "parentUuid": "b55afdd4_f93c5be0",
+      "range": {
+        "startLine": 39,
+        "startChar": 11,
+        "endLine": 39,
+        "endChar": 24
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f3fee266_a54b24b9",
         "filename": "src/sksl/dsl/DSLVar.cpp",
         "patchSetId": 11
@@ -141,6 +240,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9ef84f9f_10fdb9b9",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "Yeah. We could do the chained method call trick to make it look like named parameters, so this just becomes:\n\n  SkSL::Layout().builtin(SK_MAIN_COORDS_BUILTIN)  (or .withBuiltin() to be clearer)",
+      "parentUuid": "f3fee266_a54b24b9",
+      "range": {
+        "startLine": 42,
+        "startChar": 40,
+        "endLine": 42,
+        "endChar": 52
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "829a7e17_27abea2d",
         "filename": "src/sksl/dsl/DSLVar.cpp",
         "patchSetId": 11
@@ -152,6 +275,30 @@
       "writtenOn": "2021-04-13T19:52:09Z",
       "side": 1,
       "message": "Would `fType.isOpaque()` work here?",
+      "range": {
+        "startLine": 76,
+        "startChar": 12,
+        "endLine": 76,
+        "endChar": 48
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4146aa30_298da210",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "That\u0027s a good approach. It will cover \"colorFilter\", too, and there are no other opaque types exposed to runtime effects today. Or you could be more specific and use fType.isEffectChild(), which is true for exactly those two types.",
+      "parentUuid": "829a7e17_27abea2d",
       "range": {
         "startLine": 76,
         "startChar": 12,
@@ -204,6 +351,23 @@
         "endLine": 244,
         "endChar": 83
       },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45193157_e1187478",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:28:05Z",
+      "side": 1,
+      "message": "Hooray, we\u0027re finally officially adding this function. (I think I\u0027ve had this locally several times for debugging...)",
       "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
