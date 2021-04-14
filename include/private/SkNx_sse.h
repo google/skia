@@ -101,7 +101,6 @@ public:
 
     AI SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
     AI SkNx  rsqrt() const { return _mm_rsqrt_ps(fVec); }
-    AI SkNx invert() const { return _mm_rcp_ps(fVec); }
 
     AI float operator[](int k) const {
         SkASSERT(0 <= k && k < 2);
@@ -194,7 +193,6 @@ public:
 
     AI SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
     AI SkNx  rsqrt() const { return _mm_rsqrt_ps(fVec); }
-    AI SkNx invert() const { return _mm_rcp_ps(fVec); }
 
     AI float operator[](int k) const {
         SkASSERT(0 <= k && k < 4);
