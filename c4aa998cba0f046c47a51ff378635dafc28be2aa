@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03697e7c_e0397345",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-14T17:55:11Z",
+      "side": 1,
+      "message": "This needs to go under \"prototype\" (after line 232)",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 14
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb98a672_b79d7a44",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-14T17:55:11Z",
+      "side": 1,
+      "message": "nit: use single quotes",
+      "range": {
+        "startLine": 587,
+        "startChar": 14,
+        "endLine": 587,
+        "endChar": 15
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49c69054_6bc72be0",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 3589,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-14T17:55:11Z",
+      "side": 1,
+      "message": "Probably want to remove this as a valid type.",
+      "range": {
+        "startLine": 3589,
+        "startChar": 59,
+        "endLine": 3589,
+        "endChar": 70
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
