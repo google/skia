@@ -72,6 +72,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e01cd224_99fd9b9b",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T19:04:00Z",
+      "side": 1,
+      "message": "I believe you :) Interesting that it worked when I had it wrong (wrong for drawPatch as well). Should something have not worked? Is there a test we can add for this sort of distinction?",
+      "parentUuid": "30d5d1a5_6f9b7831",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 14
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb98a672_b79d7a44",
@@ -143,6 +167,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30a15184_86193df3",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T19:04:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bb26b7e7_44efc993",
+      "range": {
+        "startLine": 587,
+        "startChar": 14,
+        "endLine": 587,
+        "endChar": 15
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "49c69054_6bc72be0",
@@ -204,6 +252,30 @@
       "side": 1,
       "message": "32 bit arrays will still work, so we won\u0027t mess them up in that regard. I\u0027m not sure if Flutter exactly uses the TS types, since they write in Dart.",
       "parentUuid": "b15a74e9_eef4b844",
+      "range": {
+        "startLine": 3589,
+        "startChar": 59,
+        "endLine": 3589,
+        "endChar": 70
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62704c8b_9c61f3df",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 3589,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T19:04:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e9e05d9b_dd2a8d8d",
       "range": {
         "startLine": 3589,
         "startChar": 59,
