@@ -911,6 +911,18 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      uintptr_t /* float* */ innerPtr, const SkPaint& paint) {
             self.drawDRRect(ptrToSkRRect(outerPtr), ptrToSkRRect(innerPtr), paint);
         }))
+        .function("_drawGlyphs", optional_override([](SkCanvas& self,
+                                                      int count,
+                                                      uintptr_t /* uint16_t* */ glyphs,
+                                                      uintptr_t /* SkPoint*  */ positions,
+                                                      float x, float y,
+                                                      const SkFont& font,
+                                                      const SkPaint& paint)->void {
+            self.drawGlyphs(count,
+                            reinterpret_cast<const uint16_t*>(glyphs),
+                            reinterpret_cast<const SkPoint*>(positions),
+                            {x, y}, font, paint);
+        }))
         // TODO: deprecate this version, and require sampling
         .function("drawImage", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                     SkScalar x, SkScalar y, const SkPaint* paint) {

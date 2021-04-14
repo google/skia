@@ -42,6 +42,7 @@
 
 <h2> CanvasKit can allow for text measurement/placement (e.g. breaking, kerning)</h2>
 <canvas id=textonpath width=300 height=300></canvas>
+<canvas id=drawGlyphs width=300 height=300></canvas>
 
 <h2> Interactive drawPatch</h2>
 <canvas id=interdrawpatch width=512 height=512></canvas>
@@ -68,6 +69,7 @@
     VertexAPI1(CanvasKit);
     GradiantAPI1(CanvasKit);
     TextOnPathAPI1(CanvasKit);
+    DrawGlyphsAPI1(CanvasKit);
     SurfaceAPI1(CanvasKit);
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
@@ -1071,6 +1073,32 @@
     font.delete();
     fontPaint.delete();
   }
+
+    function DrawGlyphsAPI1(CanvasKit) {
+        const surface = CanvasKit.MakeSWCanvasSurface('drawGlyphs');
+        if (!surface) {
+            console.error('Could not make surface');
+            return;
+        }
+        const canvas = surface.getCanvas();
+        const paint = new CanvasKit.Paint();
+        const font = new CanvasKit.Font(null, 16);
+        paint.setAntiAlias(true);
+
+        let glyphs = [];
+        let positions = [];
+        for (let i = 0; i < 256; ++i) {
+            glyphs.push(i);
+            positions.push((i % 16) * 16);
+            positions.push(Math.round(i/16) * 16);
+        }
+        canvas.drawGlyphs(glyphs, positions, 16, 20, font, paint);
+
+        surface.flush();
+
+        paint.delete();
+        font.delete();
+    }
 
   function SurfaceAPI1(CanvasKit) {
     const surface = CanvasKit.MakeCanvasSurface('surfaces');

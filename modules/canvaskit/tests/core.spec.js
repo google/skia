@@ -375,6 +375,28 @@ describe('Core canvas behavior', () => {
         paint.delete();
     }, '/assets/mandrill_16.png');
 
+    gm('draw_glyphs', (canvas, fetchedByteBuffers) => {
+        canvas.clear(CanvasKit.WHITE);
+
+        const paint = new CanvasKit.Paint();
+        const font = new CanvasKit.Font(null, 24);
+        paint.setAntiAlias(true);
+
+        const DIM = 16; // row/col count for the grid
+        const GAP = 32; // spacing between each glyph
+        const glyphs = new Uint16Array(256);
+        const positions = new Float32Array(256*2);
+        for (let i = 0; i < 256; ++i) {
+            glyphs[i] = i;
+            positions[2*i+0] = (i%DIM) * GAP;
+            positions[2*i+1] = Math.round(i/DIM) * GAP;
+        }
+        canvas.drawGlyphs(glyphs, positions, 16, 20, font, paint);
+
+        font.delete();
+        paint.delete();
+    });
+
     gm('image_decoding_methods', async (canvas) => {
         canvas.clear(CanvasKit.WHITE);
 

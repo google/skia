@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+ - Add 'drawGlyphs' to 'Canvas'
  - Add `drawPatch` to `Canvas`.
  - Add `Strut` as a `RectHeightStyle` enum.
  - `CanvasKit.RuntimeEffect` now supports integer uniforms in the SkSL. These are still passed
