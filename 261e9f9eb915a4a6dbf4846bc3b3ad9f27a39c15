@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc59564d_4bc433d8",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-14T01:35:51Z",
+      "side": 1,
+      "message": "This actually seems wrong. Was it a mistake to round this out?",
+      "range": {
+        "startLine": 661,
+        "startChar": 54,
+        "endLine": 661,
+        "endChar": 77
+      },
+      "revId": "261e9f9eb915a4a6dbf4846bc3b3ad9f27a39c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
