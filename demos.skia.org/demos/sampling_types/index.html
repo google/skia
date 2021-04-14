@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<title>Image sampling techniques</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
+
+<style>
+    figcaption {
+        max-width: 800px;
+    }
+</style>
+
+<body>
+  <h1>Custom Image Upscaling</h1>
+
+  <div class="slidecontainer">
+      <input style="width:400px;" type="range" min="-10" max="10" value="0" step="0.01"
+             class="slider" id="scale_slider" title="Scale">
+  </div>
+
+  <figure>
+      <div ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+          <canvas id="draw" width=2048 height=1600></canvas>
+      </div>
+    <figcaption>
+        Drop an Image onto the page (above)
+    </figcaption>
+  </figure>
+
+</body>
+
+<script type="text/javascript" charset="utf-8">
+    function preventScrolling(elem) {
+        elem.addEventListener('touchmove', (e) => {
+        // Prevents touch events in the element from scrolling.
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
+
+    function dragOverHandler(ev) { ev.preventDefault(); }
+
+    // these can be changed with click/drag on the primary rectangle
+    let cell_width = 256,
+        cell_height = 256;
+
+    let image = null;
+    let CK = null;
+    let surface = null;
+    let drawFrame = null;
+
+    function dropHandler(ev) {
+      ev.preventDefault();
+
+      let file = null;
+      if (ev.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+          // If dropped items aren't files, reject them
+          if (ev.dataTransfer.items[i].kind === 'file') {
+            file = ev.dataTransfer.items[i].getAsFile();
+          }
+          break;
+        }
+      } else {
+        // Use DataTransfer interface to access the file(s)
+        for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+          file = ev.dataTransfer.files[i];
+          break;
+        }
+      }
+      file.arrayBuffer().then(buffer => {
+          image = CK.MakeImageFromEncoded(buffer);
+          surface.requestAnimationFrame(drawFrame);
+      });
+    }
+
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/' + file });
+
+  ckLoaded.then((_CK) => {
+    CK = _CK;
+    surface = CK.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+
+    const paint = new CK.Paint();
+    const TX = 20,
+          TY = 20;  // where we start the first rectangle
+
+    scale_slider.oninput = () => { surface.requestAnimationFrame(drawFrame); };
+
+    m33_scaled = function(sx, sy) {
+        if (!sy) sy = sx;
+        let m = new Float32Array(9);
+        m[0] = sx; m[4] = sy; m[8] = 1;
+        return m;
+    }
+
+    drawFrame = function(canvas) {
+        if (!image) return;
+
+        const scale = scale_slider.valueAsNumber < 0 ? 1 / (1 - scale_slider.valueAsNumber)
+                                                     : (1 + scale_slider.valueAsNumber);
+
+        const bounds = [0, 0, cell_width, cell_height];
+
+        const lm = m33_scaled(scale, scale);
+
+       const samplings = [
+            [CK.FilterMode.Nearest, CK.MipmapMode.None, 0, 0],
+            [CK.FilterMode.Linear,  CK.MipmapMode.None, 0, 0],
+            [CK.FilterMode.Linear,  CK.MipmapMode.Linear, 0, 0],
+            [null, null,     0,   0.5],
+            [null, null, 1/3.0, 1/3.0],
+        ];
+
+        const tile = CK.TileMode.Repeat;
+
+        canvas.save();
+        canvas.translate(TX, TY);
+        canvas.save();
+        for (i in samplings) {
+            if (i == 3) {
+                canvas.restore();
+                canvas.translate(0, bounds[3] - bounds[1] + 20);
+                canvas.save();
+            }
+
+            const s = samplings[i];
+            const shader = s[0] ? image.makeShaderOptions(tile, tile, s[0], s[1], lm)
+                                : image.makeShaderCubic(  tile, tile, s[2], s[3], lm);
+            paint.setShader(shader);
+            canvas.drawRect(bounds, paint);
+       //     shader.release();
+
+            canvas.translate(bounds[2] - bounds[0] + 20, 0);
+        }
+        canvas.restore();
+        canvas.restore();
+    };
+
+    // register our mouse handler
+    {
+        function len2(x, y) {
+            return x*x + y*y;
+        }
+        function hit_test(x,y, x1,y1) {
+            return len2(x-x1, y-y1) <= 10*10;
+        }
+
+        let do_drag = false;
+        function pointer_up(e) {
+            do_drag = false;
+         }
+        function pointer_down(e) {
+            do_drag = hit_test(TX+cell_width, TY+cell_height, e.offsetX, e.offsetY);
+         }
+        function pointer_move(e) {
+          if (e.pressure && do_drag) {
+              cell_width  = Math.max(e.offsetX - TX, 32);
+              cell_height = Math.max(e.offsetY - TY, 32);
+              surface.requestAnimationFrame(drawFrame);
+           }
+        }
+
+        const elem = document.getElementById('draw');
+        elem.addEventListener('pointermove', pointer_move);
+        elem.addEventListener('pointerdown', pointer_down);
+        elem.addEventListener('pointerup', pointer_up);
+        preventScrolling(elem);
+    }
+
+    surface.requestAnimationFrame(drawFrame);
+  });
+
+</script>
