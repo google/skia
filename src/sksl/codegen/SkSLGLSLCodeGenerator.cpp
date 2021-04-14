@@ -1178,12 +1178,17 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
     this->writeTypePrecision(var.baseType());
     this->writeType(var.baseType());
     this->write(" ");
+    this->writeVarDeclWithoutBaseType(var);
+    this->write(";");
+}
+
+void GLSLCodeGenerator::writeVarDeclWithoutBaseType(const VarDeclaration& var) {
     this->write(var.var().name());
     if (var.arraySize() > 0) {
         this->write("[");
         this->write(to_string(var.arraySize()));
         this->write("]");
-    } else if (var.arraySize() == Type::kUnsizedArray){
+    } else if (var.arraySize() == Type::kUnsizedArray) {
         this->write("[]");
     }
     if (var.value()) {
@@ -1202,7 +1207,6 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
     if (!fFoundRectSamplerDecl && var.var().type() == *fContext.fTypes.fSampler2DRect) {
         fFoundRectSamplerDecl = true;
     }
-    this->write(";");
 }
 
 void GLSLCodeGenerator::writeStatement(const Statement& s) {
@@ -1282,6 +1286,58 @@ void GLSLCodeGenerator::writeIfStatement(const IfStatement& stmt) {
     }
 }
 
+void GLSLCodeGenerator::writeForInitializer(const Statement& i) {
+    if (!i.is<Block>()) {
+        this->writeStatement(i);
+        return;
+    }
+
+    // If the for-initializer is a non-empty Block, it is expected to contain multiple
+    // VarDeclarations, all of the same base type. (The variables could hypothetically be arrays of
+    // differing size, so the variable's Types may actually differ!)
+    const Block& b = i.as<Block>();
+
+    // Strip out empty statements from the block (since some Variables may have been eliminated).
+    std::vector<const VarDeclaration*> decls;
+    decls.reserve(b.children().size());
+    for (const std::unique_ptr<Statement>& stmt : b.children()) {
+        if (stmt->is<VarDeclaration>()) {
+            decls.push_back(&stmt->as<VarDeclaration>());
+        } else {
+            // Every non-empty statement in the Block should be a VarDeclaration.
+            SkASSERT(stmt->isEmpty());
+        }
+    }
+
+    if (decls.empty()) {
+        // If the Block was actually empty, we are done.
+        this->write("; ");
+        return;
+    }
+
+    // Find the base type and modifiers to be shared by all variables declared in the block.
+    const Type& baseType = decls.front()->baseType();
+    const Modifiers& modifiers = decls.front()->var().modifiers();
+    SkASSERT(std::all_of(decls.begin(), decls.end(), [&](const VarDeclaration* decl) {
+        // Every variable declaration must share the same base type and modifiers.
+        return decl->baseType() == baseType && decl->var().modifiers() == modifiers;
+    }));
+
+    // Write the shared modifiers and type.
+    this->writeModifiers(modifiers, /*globalContext=*/false);
+    this->writeTypePrecision(baseType);
+    this->writeType(baseType);
+
+    const char* separator = " ";
+    for (const VarDeclaration* decl : decls) {
+        this->write(separator);
+        separator = ", ";
+        this->writeVarDeclWithoutBaseType(*decl);
+    }
+
+    this->write("; ");
+}
+
 void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     // Emit loops of the form 'for(;test;)' as 'while(test)', which is probably how they started
     if (!f.initializer() && f.test() && !f.next()) {
@@ -1294,7 +1350,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
 
     this->write("for (");
     if (f.initializer() && !f.initializer()->isEmpty()) {
-        this->writeStatement(*f.initializer());
+        this->writeForInitializer(*f.initializer());
     } else {
         this->write("; ");
     }
