@@ -205,7 +205,7 @@
   {
     "cmd": [
       "flutter/tools/gn",
-      "--runtime-mode=release",
+      "--runtime-mode=debug",
       "--android"
     ],
     "cwd": "[START_DIR]/cache/work/flutter/src",

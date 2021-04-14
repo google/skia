@@ -27,7 +27,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release"
+      "/mnt/pd0/s/w/ir/cache/work/flutter/src/out/android_debug"
     ],
     "infra_step": true,
     "name": "Docker setup.mkdirs out_dir",
@@ -39,10 +39,10 @@
     "cmd": [
       "chmod",
       "777",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release"
+      "/mnt/pd0/s/w/ir/cache/work/flutter/src/out/android_debug"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 777 [START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release",
+    "name": "Docker setup.chmod 777 /mnt/pd0/s/w/ir/cache/work/flutter/src/out/android_debug",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -82,13 +82,13 @@
       "--mount",
       "type=bind,source=[START_DIR],target=[START_DIR]",
       "--mount",
-      "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release,target=[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release",
+      "type=bind,source=/mnt/pd0/s/w/ir/cache/work/flutter/src/out/android_debug,target=/mnt/pd0/s/w/ir/cache/work/flutter/src/out/android_debug",
       "gcr.io/skia-public/debian9@sha256:f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569",
       "RECIPE_MODULE[skia::build]/resources/docker-flutter-compile.sh",
       "[START_DIR]",
       "[START_DIR]/cache/work/src",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-arm-Release-Flutter_Android_Docker/Release",
-      "--runtime-mode=release",
+      "/mnt/pd0/s/w/ir/cache/work/flutter/src/out/android_debug",
+      "--runtime-mode=debug",
       "--android"
     ],
     "env": {
