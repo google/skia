@@ -16,6 +16,8 @@
 #include "src/core/SkFDot6.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 
+#include "src/core/SkTraceEvent.h"
+
 #include <utility>
 
 #include <ft2build.h>
@@ -796,6 +798,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                            const FT_Color* palette,
                            FT_Face face,
                            FT_OpaquePaint opaque_paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     FT_COLR_Paint paint;
     if (!FT_Get_Paint(face, opaque_paint, &paint)) {
       return false;
@@ -804,6 +807,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
     // Keep track of failures to retrieve the FT_COLR_Paint from FreeType in the
     // recursion, cancel recursion when a paint retrieval fails.
     bool traverse_result = true;
+    TRACE_EVENT1("skia", "colrv1_traverse_paint, format", "format", paint.format);
     SkAutoCanvasRestore autoRestore(canvas, true /* do_save */);
     switch (paint.format) {
         case FT_COLR_PAINTFORMAT_COLR_LAYERS: {
@@ -887,6 +891,7 @@ bool colrv1_start_glyph(SkCanvas* canvas,
                         FT_Face ft_face,
                         uint16_t glyph_id,
                         FT_Color_Root_Transform root_transform) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     FT_OpaquePaint opaque_paint;
     opaque_paint.p = nullptr;
     bool has_colrv1_layers = false;
@@ -1330,6 +1335,7 @@ bool generateFacePathStatic(FT_Face face, SkGlyphID glyphID, SkPath* path) {
 
 #ifdef TT_SUPPORT_COLRV1
 bool generateFacePathCOLRv1(FT_Face face, SkGlyphID glyphID, SkPath* path) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     uint32_t flags = 0;
     flags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
     flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
