@@ -51,6 +51,46 @@
       "parentUuid": "d1742022_60f7c266",
       "revId": "e23d7206e6889e71b9214566660e3b9521da81d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21b97121_fae91a17",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-14T14:12:46Z",
+      "side": 1,
+      "message": "lgtm modulo minor nit",
+      "revId": "e23d7206e6889e71b9214566660e3b9521da81d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "037f2d17_59963113",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-14T14:12:46Z",
+      "side": 1,
+      "message": "nit 100 chars",
+      "range": {
+        "startLine": 394,
+        "startChar": 100,
+        "endLine": 394,
+        "endChar": 101
+      },
+      "revId": "e23d7206e6889e71b9214566660e3b9521da81d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
