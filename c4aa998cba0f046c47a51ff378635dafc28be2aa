@@ -96,6 +96,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8174d1df_ca1db099",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-14T19:13:25Z",
+      "side": 1,
+      "message": "Sometimes the closure compiler does the right thing, even if the externs file is wrong. At least for a while.",
+      "parentUuid": "e01cd224_99fd9b9b",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 14
+      },
+      "revId": "c4aa998cba0f046c47a51ff378635dafc28be2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb98a672_b79d7a44",
