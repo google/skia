@@ -82,7 +82,7 @@ for input, targetDir in pairwise(inputs):
         worklist.write(settings + "\n\n")
     elif lang == "--dslfp":
         worklist.write(input + "\n")
-        worklist.write(target + "_dsl.cpp\n")
+        worklist.write(target + ".dsl.cpp\n")
         worklist.write(settings + "\n\n")
         worklist.write(input + "\n")
         worklist.write(target + ".h\n")
@@ -127,7 +127,7 @@ else:
 # `### Compilation failed`, its sibling should be replaced by an empty file. This improves clarity
 # during code review; a failure on either file means that success on the sibling is irrelevant.
 if lang == "--fp" or lang == "--dslfp":
-    cppExtension = ("_dsl.cpp" if lang == "--dslfp" else ".cpp")
+    cppExtension = (".dsl.cpp" if lang == "--dslfp" else ".cpp")
     hExtension = ".h"
 
     for target in targets:
