@@ -345,8 +345,6 @@ skia_gpu_sources = [
   "$_src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h",
   "$_src/gpu/effects/generated/GrConfigConversionEffect.cpp",
   "$_src/gpu/effects/generated/GrConfigConversionEffect.h",
-  "$_src/gpu/effects/generated/GrConstColorProcessor.cpp",
-  "$_src/gpu/effects/generated/GrConstColorProcessor.h",
   "$_src/gpu/effects/generated/GrDeviceSpaceEffect.cpp",
   "$_src/gpu/effects/generated/GrDeviceSpaceEffect.h",
   "$_src/gpu/effects/generated/GrDitherEffect.cpp",
