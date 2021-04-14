@@ -16,6 +16,24 @@
       "message": "Some nice perf wins!\n\nhttps://perf.skia.org/e/?begin\u003d1618323436\u0026end\u003d1618351270\u0026keys\u003dX9ed687c8733b87d6ec5cdc01b35d18c2\u0026num_commits\u003d50\u0026request_type\u003d1\u0026xbaroffset\u003d54584",
       "revId": "52b9e815ebeace145f5a94880d583ae26e6139f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59c60376_443ada89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T14:00:52Z",
+      "side": 1,
+      "message": "Yes. Although strangely, there are also some (smaller) perf losses:\n\nhttps://perf.skia.org/e/?begin\u003d1618323436\u0026end\u003d1618351270\u0026keys\u003dXb1e1c4641f1628f4bb2db7f8f7fdbbf2\u0026num_commits\u003d50\u0026request_type\u003d1\u0026xbaroffset\u003d54584",
+      "parentUuid": "9c4e1859_31bb339f",
+      "revId": "52b9e815ebeace145f5a94880d583ae26e6139f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
