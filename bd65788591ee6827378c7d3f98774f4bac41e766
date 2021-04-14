@@ -46,6 +46,30 @@
       },
       "revId": "bd65788591ee6827378c7d3f98774f4bac41e766",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "804cc980_14d9ded9",
+        "filename": "tests/sksl/shared/ForLoopMultipleInit.metal",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-14T20:47:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba5a8eab_874b3be0",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 5
+      },
+      "revId": "bd65788591ee6827378c7d3f98774f4bac41e766",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
