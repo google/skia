@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "56a41a56_3f22331a",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-14T15:27:23Z",
+      "side": 1,
+      "message": "Yeah, I suppose it isn\u0027t actually that much extra work, since the idea is that this glyph is about to be drawn anyway.",
+      "parentUuid": "7d4e0f18_69566ab2",
+      "revId": "8ffa0d747ab35c6c36050937bdcb911a310e1792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b174844e_bcc9cc60",
