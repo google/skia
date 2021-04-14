@@ -1179,6 +1179,25 @@ static void exec_ops(const Op* ops, const void** args,
                 b = Z * 0.8249f;
             } break;
 
+            // As above, in reverse.
+            case Op_xyz_to_lab:{
+                F X = r * (1/0.9642f),
+                  Y = g,
+                  Z = b * (1/0.8249f);
+
+                X = if_then_else(X > 0.008856f, approx_pow(X, 1/3.0f), X*7.787f + (16/116.0f));
+                Y = if_then_else(Y > 0.008856f, approx_pow(Y, 1/3.0f), Y*7.787f + (16/116.0f));
+                Z = if_then_else(Z > 0.008856f, approx_pow(Z, 1/3.0f), Z*7.787f + (16/116.0f));
+
+                F L = Y*116.0f - 16.0f,
+                  A = (X-Y)*500.0f,
+                  B = (Y-Z)*200.0f;
+
+                r = L * (1/100.f);
+                g = (A + 128.0f) * (1/255.0f);
+                b = (B + 128.0f) * (1/255.0f);
+            } break;
+
             case Op_tf_r:{ r = apply_tf((const skcms_TransferFunction*)*args++, r); } break;
             case Op_tf_g:{ g = apply_tf((const skcms_TransferFunction*)*args++, g); } break;
             case Op_tf_b:{ b = apply_tf((const skcms_TransferFunction*)*args++, b); } break;
