@@ -202,7 +202,7 @@ SkVector SkFindBisector(SkVector a, SkVector b) {
     // Return "normalize(v[0]) + normalize(v[1])".
     Sk2f x0_x1, y0_y1;
     Sk2f::Load2(v.data(), &x0_x1, &y0_y1);
-    Sk2f invLengths = (x0_x1 * x0_x1 + y0_y1 * y0_y1).rsqrt();
+    Sk2f invLengths = 1.0f / (x0_x1 * x0_x1 + y0_y1 * y0_y1).sqrt();
     x0_x1 *= invLengths;
     y0_y1 *= invLengths;
     return SkPoint{x0_x1[0] + x0_x1[1], y0_y1[0] + y0_y1[1]};
