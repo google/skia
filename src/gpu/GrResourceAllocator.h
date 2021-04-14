@@ -68,7 +68,7 @@ class GrDirectContext;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrDirectContext* dContext SkDEBUGCODE(, int numOpsTasks))
+    GrResourceAllocator(GrDirectContext* dContext)
             : fDContext(dContext) {}
 
     ~GrResourceAllocator();
@@ -91,6 +91,8 @@ public:
     void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
+    bool failedInstantiation() const { return fFailedInstantiation; }
+
     // Generate an internal plan for resource allocation. After this you can optionally call
     // `makeBudgetHeadroom` to check whether that plan would go over our memory budget.
     // Fully-lazy proxies are also instantiated at this point so that their size can
@@ -100,6 +102,9 @@ public:
     // Figure out how much VRAM headroom this plan requires. If there's enough purgeable resources,
     // purge them and return true. Otherwise return false.
     bool makeBudgetHeadroom();
+
+    // Clear all internal state in preparation for a new set of intervals.
+    void reset();
 
     // Instantiate and assign resources to all proxies.
     bool assign();
@@ -275,8 +280,8 @@ private:
     SkDEBUGCODE(bool             fPlanned = false;)
     SkDEBUGCODE(bool             fAssigned = false;)
 
-    SkSTArenaAlloc<kInitialArenaSize>   fInternalAllocator; // intervals & registers live here
-    bool                                fFailedInstantiation = false;
+    SkSTArenaAllocWithReset<kInitialArenaSize>   fInternalAllocator; // intervals & registers
+    bool                                         fFailedInstantiation = false;
 };
 
 #endif // GrResourceAllocator_DEFINED

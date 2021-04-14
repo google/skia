@@ -387,7 +387,23 @@ bool GrResourceAllocator::makeBudgetHeadroom() {
     return fDContext->priv().getResourceCache()->purgeToMakeHeadroom(additionalBytesNeeded);
 }
 
+void GrResourceAllocator::reset() {
+    // NOTE: We do not reset the failedInstantiation flag because we currently do not attempt
+    // to recover from failed instantiations. The user should check this flag and bail e
+    SkDEBUGCODE(fPlanned = false;)
+    SkDEBUGCODE(fAssigned = false;)
+    SkASSERT(fActiveIntvls.empty());
+    fFinishedIntvls = IntervalList();
+    fIntvlList = IntervalList();
+    fIntvlHash = IntvlHash();
+    fUniqueKeyRegisters = UniqueKeyRegisterHash();
+    fInternalAllocator.reset();
+}
+
 bool GrResourceAllocator::assign() {
+    if (fFailedInstantiation) {
+        return false;
+    }
     SkASSERT(fPlanned && !fAssigned);
     SkDEBUGCODE(fAssigned = true;)
     auto resourceProvider = fDContext->priv().resourceProvider();
