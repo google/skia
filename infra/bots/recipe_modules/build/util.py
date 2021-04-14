@@ -61,6 +61,7 @@ import shutil
 import sys
 
 src = sys.argv[1]
+src = src.replace('release', 'debug')
 dst = sys.argv[2]
 build_products = %s
 
