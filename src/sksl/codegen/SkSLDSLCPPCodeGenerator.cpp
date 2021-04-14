@@ -12,7 +12,9 @@
 #include "src/sksl/SkSLCPPUniformCTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLHCodeGenerator.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLEnum.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
 
 #include <algorithm>
 
@@ -23,6 +25,21 @@ namespace SkSL {
 static bool needs_uniform_var(const Variable& var) {
     return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
             var.type().typeKind() != Type::TypeKind::kSampler;
+}
+
+static const char* get_scalar_type_name(const Context& context, const Type& type) {
+    if (type == *context.fTypes.fHalf) {
+        return "Half";
+    } else if (type == *context.fTypes.fFloat) {
+        return "Float";
+    } else if (type.isSigned()) {
+        return "Int";
+    } else if (type.isBoolean()) {
+        return "Bool";
+    }
+    // TODO: support for unsigned types
+    SkDEBUGFAIL("unsupported scalar type");
+    return "Float";
 }
 
 DSLCPPCodeGenerator::DSLCPPCodeGenerator(const Context* context, const Program* program,
@@ -65,30 +82,9 @@ bool DSLCPPCodeGenerator::usesPrecisionModifiers() const {
     return false;
 }
 
-String DSLCPPCodeGenerator::getTypeName(const Type& type) {
-    return type.name();
-}
-
 void DSLCPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                              Precedence parentPrecedence) {
-    const Expression& left = *b.left();
-    const Expression& right = *b.right();
-    Operator op = b.getOperator();
-    if (op.kind() == Token::Kind::TK_PERCENT) {
-        // need to use "%%" instead of "%" b/c the code will be inside of a printf
-        Precedence precedence = op.getBinaryPrecedence();
-        if (precedence >= parentPrecedence) {
-            this->write("(");
-        }
-        this->writeExpression(left, precedence);
-        this->write(" %% ");
-        this->writeExpression(right, precedence);
-        if (precedence >= parentPrecedence) {
-            this->write(")");
-        }
-    } else {
-        INHERITED::writeBinaryExpression(b, parentPrecedence);
-    }
+    INHERITED::writeBinaryExpression(b, parentPrecedence);
 }
 
 static String default_value(const Type& type) {
@@ -257,10 +253,6 @@ String DSLCPPCodeGenerator::getSamplerHandle(const Variable& var) {
     SK_ABORT("should have found sampler in parameters\n");
 }
 
-void DSLCPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    this->write(to_string(i.value()));
-}
-
 void DSLCPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     if (fCPPMode) {
         // no support for multiple swizzle components yet
@@ -321,24 +313,6 @@ void DSLCPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     }
 }
 
-void DSLCPPCodeGenerator::writeIfStatement(const IfStatement& s) {
-    if (s.isStatic()) {
-        this->write("@");
-    }
-    INHERITED::writeIfStatement(s);
-}
-
-void DSLCPPCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
-    INHERITED::writeReturnStatement(s);
-}
-
-void DSLCPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
-    if (s.isStatic()) {
-        this->write("@");
-    }
-    INHERITED::writeSwitchStatement(s);
-}
-
 int DSLCPPCodeGenerator::getChildFPIndex(const Variable& var) const {
     int index = 0;
     for (const ProgramElement* p : fProgram.elements()) {
@@ -362,101 +336,14 @@ String DSLCPPCodeGenerator::getSampleVarName(const char* prefix, int sampleCount
 
 void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
-    const ExpressionArray& arguments = c.arguments();
-    if (function.isBuiltin() && function.name() == "sample" &&
-        arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
-        int sampleCounter = fSampleCounter++;
-
-        // Validity checks that are detected by function definition in sksl_fp.inc
-        SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
-        SkASSERT(arguments[0]->type().isFragmentProcessor());
-
-        // Actually fail during compilation if arguments with valid types are
-        // provided that are not variable references, since sample() is a
-        // special function that impacts code emission.
-        if (!arguments[0]->is<VariableReference>()) {
-            fErrors.error(arguments[0]->fOffset,
-                    "sample()'s fragmentProcessor argument must be a variable reference\n");
-            return;
-        }
-        const Variable& child = *arguments[0]->as<VariableReference>().variable();
-
-        // Start a new extra emit code section so that the emitted child processor can depend on
-        // sksl variables defined in earlier sksl code.
-        this->newExtraEmitCodeBlock();
-
-        // inputColor is an optional argument that always appears last
-        String inputColor;
-        if (arguments.back()->type().name() == "half4") {
-            // Use the invokeChild() variant that accepts an input color, so convert the 2nd
-            // argument's expression into C++ code that produces sksl stored in an SkString.
-            String inputColorName = this->getSampleVarName("_input", sampleCounter);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments.back(), inputColorName));
-
-            // invokeChild() needs a char* and a pre-pended comma
-            inputColor = ", " + inputColorName + ".c_str()";
-        }
-
-        // coords can be float2, float3x3, or not there at all. They appear right after the fp.
-        String inputCoord;
-        String invokeFunction = "invokeChild";
-        if (arguments.size() > 1) {
-            if (arguments[1]->type().name() == "float2") {
-                // Invoking child with explicit coordinates at this call site
-                inputCoord = this->getSampleVarName("_coords", sampleCounter);
-                addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments[1], inputCoord));
-                inputCoord.append(".c_str()");
-            } else if (arguments[1]->type().name() == "float3x3") {
-                // Invoking child with a matrix, sampling relative to the input coords.
-                invokeFunction = "invokeChildWithMatrix";
-                SampleUsage usage = Analysis::GetSampleUsage(fProgram, child);
-
-                if (!usage.hasUniformMatrix()) {
-                    inputCoord = this->getSampleVarName("_matrix", sampleCounter);
-                    addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments[1], inputCoord));
-                    inputCoord.append(".c_str()");
-                }
-                // else pass in the empty string to rely on invokeChildWithMatrix's automatic
-                // uniform resolution
-            }
-        }
-        if (!inputCoord.empty()) {
-            inputCoord = ", " + inputCoord;
-        }
-
-        // Write the output handling after the possible input handling
-        String childName = this->getSampleVarName("_sample", sampleCounter);
-        String childIndexStr = to_string(this->getChildFPIndex(child));
-        addExtraEmitCodeLine("SkString " + childName + " = this->" + invokeFunction + "(" +
-                             childIndexStr + inputColor + ", args" + inputCoord + ");");
-
-        this->write("%s");
-        fFormatArgs.push_back(childName + ".c_str()");
-        return;
+    if (function.isBuiltin() && function.name() == "sample") {
+        SK_ABORT("not yet implemented: sample() for DSL");
     }
     if (function.isBuiltin()) {
-        INHERITED::writeFunctionCall(c);
-    } else {
-        this->write("%s");
-        fFormatArgs.push_back((String(function.name()) + "_name.c_str()").c_str());
-        this->write("(");
-        const char* separator = "";
-        for (const auto& arg : arguments) {
-            this->write(separator);
-            separator = ", ";
-            this->writeExpression(*arg, Precedence::kSequence);
-        }
-        this->write(")");
+        SK_ABORT("not yet implemented: built-in function support for DSL");
     }
-    if (function.isBuiltin() && function.name() == "sample") {
-        this->write(".%s");
-        SkASSERT(arguments.size() >= 1);
-        SkASSERT(arguments[0]->is<VariableReference>());
-        String sampler =
-                this->getSamplerHandle(*arguments[0]->as<VariableReference>().variable());
-        fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerSwizzle(" + sampler +
-                              ").asString().c_str()");
-    }
+
+    SK_ABORT("not yet implemented: helper function support for DSL");
 }
 
 static const char* glsltype_string(const Context& context, const Type& type) {
@@ -537,13 +424,7 @@ void DSLCPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl)
 }
 
 void DSLCPPCodeGenerator::prototypeHelperFunction(const FunctionDeclaration& decl) {
-    String funcName = decl.name();
-    this->addExtraEmitCodeLine(String::printf(
-            "fragBuilder->emitFunctionPrototype(%s, %s_name.c_str(), {%s_args, %zu});",
-            glsltype_string(fContext, decl.returnType()),
-            funcName.c_str(),
-            funcName.c_str(),
-            decl.parameters().size()));
+    SK_ABORT("implement function prototypes in DSL");
 }
 
 void DSLCPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
@@ -557,40 +438,281 @@ void DSLCPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fOut = &buffer;
     if (decl.isMain()) {
         fInMain = true;
-        for (const std::unique_ptr<Statement>& s : f.body()->as<Block>().children()) {
-            this->writeStatement(*s);
-            this->writeLine();
-        }
+        this->writeTopLevelBlock(f.body()->as<Block>());
         fInMain = false;
 
         fOut = oldOut;
         this->write(fFunctionHeader);
         this->write(buffer.str());
     } else {
-        for (const std::unique_ptr<Statement>& s : f.body()->as<Block>().children()) {
-            this->writeStatement(*s);
-            this->writeLine();
+        SK_ABORT("not yet implemented: helper functions in DSL");
+    }
+}
+
+void DSLCPPCodeGenerator::writeTopLevelBlock(const Block& b) {
+    // This is meant to be used at the top level of a function, when DSL statements need to be
+    // emitted as individual C++ statements instead of being comma-separated expressions in a Block.
+    for (const std::unique_ptr<Statement>& stmt : b.children()) {
+        if (!stmt->isEmpty()) {
+            this->writeStatement(*stmt);
+            this->write(";\n");
+        }
+    }
+}
+
+void DSLCPPCodeGenerator::writeBlock(const Block& b) {
+    // Write scope markers if this block is a scope, or if the block is empty (since we need to emit
+    // something here to make the code valid).
+    bool isScope = b.isScope() || b.isEmpty();
+    if (isScope) {
+        this->write("Block(");
+    }
+
+    const char* separator = "";
+    for (const std::unique_ptr<Statement>& stmt : b.children()) {
+        if (!stmt->isEmpty()) {
+            this->write(separator);
+            separator = ", ";
+
+            this->writeStatement(*stmt);
+        }
+    }
+
+    if (isScope) {
+        this->write(")");
+    }
+}
+
+void DSLCPPCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
+    this->write("Return(");
+    if (r.expression()) {
+        this->writeExpression(*r.expression(), Precedence::kTopLevel);
+    }
+    this->write(")");
+}
+
+void DSLCPPCodeGenerator::writeIfStatement(const IfStatement& stmt) {
+    this->write("If(");
+    this->writeExpression(*stmt.test(), Precedence::kTopLevel);
+    this->write(", ");
+    this->writeStatement(*stmt.ifTrue());
+    if (stmt.ifFalse()) {
+        this->write(", ");
+        this->writeStatement(*stmt.ifFalse());
+    }
+    this->write(")");
+}
+
+void DSLCPPCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, bool global) {
+    if (!global) {
+        const Variable& var = varDecl.var();
+
+        {
+            // We want to divert our output into fFunctionHeader, but fFunctionHeader is just a
+            // String, not a StringStream. So instead, we divert into a temporary stream and append
+            // that stream into fFunctionHeader afterwards.
+            StringStream stream;
+            AutoOutputStream divert(this, &stream);
+
+            // Write the Var() at the header of the function.
+            // TODO: modifiers
+            this->write("Var ");
+            this->write(var.name());
+            this->write("(");
+            this->write(this->getDSLType(var.type()));
+            this->write(", \"");
+            this->write(var.name());
+            this->write("\"");
+            if (var.initialValue()) {
+                this->write(", ");
+                this->writeExpression(*var.initialValue(), Precedence::kTopLevel);
+            }
+            this->write(");\n");
+
+            fFunctionHeader += stream.str();
         }
 
-        fOut = oldOut;
-        String funcName = decl.name();
+        this->write("Declare(");
+        this->write(var.name());
+        this->write(")");
+    }
+}
 
-        String funcImpl;
-        if (!fFormatArgs.empty()) {
-            this->addExtraEmitCodeLine("const String " + funcName + "_impl = String::printf(" +
-                                       assembleCodeAndFormatArgPrintf(buffer.str()).c_str() + ");");
-            funcImpl = String::printf(" %s_impl.c_str()", funcName.c_str());
+void DSLCPPCodeGenerator::writeForStatement(const ForStatement& f) {
+    // Emit loops of the form 'for (; test;)' as 'while (test)', which is probably how they started.
+    if (!f.initializer() && f.test() && !f.next()) {
+        this->write("While(");
+        this->writeExpression(*f.test(), Precedence::kTopLevel);
+        this->write(", ");
+        this->writeStatement(*f.statement());
+        this->write(")");
+        return;
+    }
+
+    this->write("For(");
+    if (f.initializer() && !f.initializer()->isEmpty()) {
+        this->writeStatement(*f.initializer());
+        this->write(", ");
+    } else {
+        this->write("Statement(), ");
+    }
+    if (f.test()) {
+        this->writeExpression(*f.test(), Precedence::kTopLevel);
+        this->write(", ");
+    } else {
+        this->write("Expression(), ");
+    }
+    if (f.next()) {
+        this->writeExpression(*f.next(), Precedence::kTopLevel);
+        this->write(", ");
+    } else {
+        this->write("Expression(), ");
+    }
+    this->writeStatement(*f.statement());
+    this->write(")");
+}
+
+void DSLCPPCodeGenerator::writeDoStatement(const DoStatement& d) {
+    this->write("Do(");
+    this->writeStatement(*d.statement());
+    this->write(", ");
+    this->writeExpression(*d.test(), Precedence::kTopLevel);
+    this->write(")");
+}
+
+void DSLCPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    this->write("Switch(");
+    this->writeExpression(*s.value(), Precedence::kTopLevel);
+    for (const std::unique_ptr<Statement>& stmt : s.cases()) {
+        const SwitchCase& c = stmt->as<SwitchCase>();
+        if (c.value()) {
+            this->write(",\n  Case(");
+            this->writeExpression(*c.value(), Precedence::kTopLevel);
+            if (!c.statement()->isEmpty()) {
+                this->write(", ");
+                this->writeStatement(*c.statement());
+            }
         } else {
-            funcImpl = "\nR\"SkSL(" + buffer.str() + ")SkSL\"";
+            this->write(",\n  Default(");
+            if (!c.statement()->isEmpty()) {
+                this->writeStatement(*c.statement());
+            }
         }
+        this->write(")");
+    }
+    this->write(")");
+}
 
-        this->addExtraEmitCodeLine(String::printf(
-                "fragBuilder->emitFunction(%s, %s_name.c_str(), {%s_args, %zu},%s);",
-                glsltype_string(fContext, decl.returnType()),
-                funcName.c_str(),
-                funcName.c_str(),
-                decl.parameters().size(),
-                funcImpl.c_str()));
+void DSLCPPCodeGenerator::writeCastConstructor(const AnyConstructor& c,
+                                               Precedence parentPrecedence) {
+    return this->writeAnyConstructor(c, parentPrecedence);
+}
+
+void DSLCPPCodeGenerator::writeAnyConstructor(const AnyConstructor& c,
+                                              Precedence parentPrecedence) {
+    if (c.type().isArray() || c.type().isStruct()) {
+        SK_ABORT("not yet supported: array/struct construction in DSL");
+    }
+
+    INHERITED::writeAnyConstructor(c, parentPrecedence);
+}
+
+String DSLCPPCodeGenerator::getTypeName(const Type& type) {
+    switch (type.typeKind()) {
+        case Type::TypeKind::kScalar:
+            return get_scalar_type_name(fContext, type);
+
+        case Type::TypeKind::kVector: {
+            const Type& component = type.componentType();
+            const char* baseName = get_scalar_type_name(fContext, component);
+            return String::printf("%s%d", baseName, type.columns());
+        }
+        case Type::TypeKind::kMatrix: {
+            const Type& component = type.componentType();
+            const char* baseName = get_scalar_type_name(fContext, component);
+            return String::printf("%s%dx%d", baseName, type.columns(), type.rows());
+        }
+        case Type::TypeKind::kEnum:
+            return "Int";
+
+        default:
+            SK_ABORT("getTypeName: unsupported type %s", type.displayName().c_str());
+            return type.name();
+    }
+}
+
+String DSLCPPCodeGenerator::getDSLType(const Type& type) {
+    switch (type.typeKind()) {
+        case Type::TypeKind::kScalar:
+            return String::printf("DSLType(k%s_Type)", get_scalar_type_name(fContext, type));
+
+        case Type::TypeKind::kVector: {
+            const Type& component = type.componentType();
+            const char* baseName = get_scalar_type_name(fContext, component);
+            return String::printf("DSLType(k%s%d_Type)", baseName, type.columns());
+        }
+        case Type::TypeKind::kMatrix: {
+            const Type& component = type.componentType();
+            const char* baseName = get_scalar_type_name(fContext, component);
+            return String::printf("DSLType(k%s%dx%d_Type)", baseName, type.columns(), type.rows());
+        }
+        case Type::TypeKind::kEnum:
+            return "DSLType(kInt_Type)";
+
+        case Type::TypeKind::kArray: {
+            const Type& component = type.componentType();
+            SkASSERT(type.columns() != Type::kUnsizedArray);
+            return String::printf("Array(%s, %d)", this->getDSLType(component).c_str(),
+                                                   type.columns());
+        }
+        default:
+            SK_ABORT("getDSLType: unsupported type %s", type.displayName().c_str());
+            return type.name();
+    }
+}
+
+void DSLCPPCodeGenerator::writeStatement(const Statement& s) {
+    switch (s.kind()) {
+        case Statement::Kind::kBlock:
+            this->writeBlock(s.as<Block>());
+            break;
+        case Statement::Kind::kExpression:
+            this->writeExpression(*s.as<ExpressionStatement>().expression(), Precedence::kTopLevel);
+            break;
+        case Statement::Kind::kReturn:
+            this->writeReturnStatement(s.as<ReturnStatement>());
+            break;
+        case Statement::Kind::kVarDeclaration:
+            this->writeVarDeclaration(s.as<VarDeclaration>(), false);
+            break;
+        case Statement::Kind::kIf:
+            this->writeIfStatement(s.as<IfStatement>());
+            break;
+        case Statement::Kind::kFor:
+            this->writeForStatement(s.as<ForStatement>());
+            break;
+        case Statement::Kind::kDo:
+            this->writeDoStatement(s.as<DoStatement>());
+            break;
+        case Statement::Kind::kSwitch:
+            this->writeSwitchStatement(s.as<SwitchStatement>());
+            break;
+        case Statement::Kind::kBreak:
+            this->write("Break()");
+            break;
+        case Statement::Kind::kContinue:
+            this->write("Continue()");
+            break;
+        case Statement::Kind::kDiscard:
+            this->write("Discard()");
+            break;
+        case Statement::Kind::kInlineMarker:
+        case Statement::Kind::kNop:
+            this->write("Statement()");
+            break;
+        default:
+            SkDEBUGFAILF("unsupported statement: %s", s.description().c_str());
+            break;
     }
 }
 
@@ -722,18 +844,6 @@ static bool is_accessible(const Variable& var) {
            Type::TypeKind::kOther != type.typeKind();
 }
 
-void DSLCPPCodeGenerator::newExtraEmitCodeBlock() {
-    // This should only be called when emitting SKSL for emitCode(), which can be detected if the
-    // cpp buffer is not null, and the cpp buffer is not the current output.
-    SkASSERT(fCPPBuffer && fCPPBuffer != fOut);
-
-    // Start a new block as an empty string
-    fExtraEmitCodeBlocks.push_back("");
-    // Mark its location in the output buffer, uses ${\d} for the token since ${} will not occur in
-    // valid sksl and makes detection trivial.
-    this->writef("${%zu}", fExtraEmitCodeBlocks.size() - 1);
-}
-
 void DSLCPPCodeGenerator::addExtraEmitCodeLine(const String& toAppend) {
     SkASSERT(fExtraEmitCodeBlocks.size() > 0);
     String& currentBlock = fExtraEmitCodeBlocks[fExtraEmitCodeBlocks.size() - 1];
@@ -819,46 +929,16 @@ void DSLCPPCodeGenerator::flushEmittedCode() {
 }
 
 String DSLCPPCodeGenerator::assembleCodeAndFormatArgPrintf(const String& code) {
-    // Count % format specifiers.
-    size_t argCount = 0;
-    for (size_t index = 0; index < code.size(); ++index) {
-        if ('%' == code[index]) {
-            if (index == code.size() - 1) {
-                SkDEBUGFAIL("found a dangling format specifier at the end of a string");
-                break;
-            }
-            if (code[index + 1] == '%') {
-                // %% indicates a literal % sign, not a format argument. Skip over the next
-                // character to avoid mistakenly counting that one as an argument.
-                ++index;
-            } else {
-                // Count the format argument that we found.
-                ++argCount;
-            }
-        }
-    }
+    // TODO: reimplement everything that relies on format args
+    SkASSERT(fFormatArgs.empty());
+    fFormatArgs.clear();
 
-    // Assemble the printf arguments.
-    String result = String::printf("R\"SkSL(%s)SkSL\"\n", code.c_str());
-    for (size_t i = 0; i < argCount; ++i) {
-        result += ", ";
-        result += fFormatArgs[i].c_str();
-    }
-
-    // argCount is equal to the number of fFormatArgs that were consumed, so they should be
-    // removed from the list.
-    if (argCount > 0) {
-        fFormatArgs.erase(fFormatArgs.begin(), fFormatArgs.begin() + argCount);
-    }
-
-    return result;
+    return code;
 }
 
 void DSLCPPCodeGenerator::writeCodeAppend(const String& code) {
     if (!code.empty()) {
-        this->write("        fragBuilder->codeAppendf(\n");
         this->write(assembleCodeAndFormatArgPrintf(code));
-        this->write(");\n");
     }
 }
 
@@ -927,9 +1007,11 @@ String DSLCPPCodeGenerator::convertSKSLExpressionToCPP(const Expression& e,
 }
 
 bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
-    this->write("    void emitCode(EmitArgs& args) override {\n"
-                "        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;\n");
-    this->writef("        const %s& _outer = args.fFp.cast<%s>();\n"
+    this->writef("    void emitCode(EmitArgs& args) override {\n"
+                 "        using namespace SkSL::dsl;\n"
+                 "        StartFragmentProcessor(this, &args);\n"
+                 "        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;\n"
+                 "        const %s& _outer = args.fFp.cast<%s>();\n"
                  "        (void) _outer;\n",
                  fFullName.c_str(), fFullName.c_str());
     for (const ProgramElement* p : fProgram.elements()) {
@@ -956,8 +1038,6 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
     fCPPBuffer = fOut;
     StringStream skslBuffer;
     fOut = &skslBuffer;
-
-    this->newExtraEmitCodeBlock();
 
     // Generate mangled names and argument lists for helper functions.
     std::unordered_set<const FunctionDeclaration*> definedHelpers;
@@ -986,7 +1066,8 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
     // Then restore the original CPP buffer and close the function
     fOut = fCPPBuffer;
     fCPPBuffer = nullptr;
-    this->write("    }\n");
+    this->write("        EndFragmentProcessor();\n"
+                "    }\n");
     return result;
 }
 

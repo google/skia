@@ -135,9 +135,9 @@ protected:
 
     virtual void writeFunctionCall(const FunctionCall& c);
 
-    void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+    virtual void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
-    void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+    virtual void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
     virtual void writeFieldAccess(const FieldAccess& f);
 
