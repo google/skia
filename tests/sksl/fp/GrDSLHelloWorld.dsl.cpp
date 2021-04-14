@@ -17,13 +17,24 @@ class GrGLSLDSLHelloWorld : public GrGLSLFragmentProcessor {
 public:
     GrGLSLDSLHelloWorld() {}
     void emitCode(EmitArgs& args) override {
+        using namespace SkSL::dsl;
+        StartFragmentProcessor(this, &args);
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDSLHelloWorld& _outer = args.fFp.cast<GrDSLHelloWorld>();
         (void) _outer;
-        fragBuilder->codeAppendf(
-R"SkSL(return half4(1.0);
-)SkSL"
-);
+Block(Declare(h),
+Declare(h4),
+h4 *= Half4(2.0),
+h4 *= Half4(0.5, 0.5, 0.5, 0.5),
+If(h > h4.x, Block(h4.y += 1.0), If(h > h4.y, Block(h4.y /= h4.z), Block(h4.y -= h4.w))),
+If(h > h4.x, h4.y += 1.0, If(h > h4.y, h4.y /= h4.z, h4.y -= h4.w)),
+For(Declare(x), x < 5, ++x, Block(h4.z *= h)),
+Declare(y),
+While(y < 5, (++h4.x , y += 1)),
+Do(Block(h4.y--,
+y++), y < 10),
+Return(Half4(1.0)));
+        EndFragmentProcessor();
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

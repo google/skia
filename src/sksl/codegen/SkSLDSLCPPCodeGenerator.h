@@ -25,6 +25,23 @@ public:
     bool generateCode() override;
 
 private:
+    void writeBlock(const Block& b);
+
+    void writeDoStatement(const DoStatement& d);
+
+    void writeForStatement(const ForStatement& f);
+
+    void writeIfStatement(const IfStatement& r) override;
+
+    void writeReturnStatement(const ReturnStatement& r) override;
+
+    void writeStatement(const Statement& s);
+
+    void writeSwitchStatement(const SwitchStatement& s) override;
+
+    void writeVarDeclaration(const VarDeclaration& var, bool global);
+
+
     using Precedence = Operator::Precedence;
 
     void writef(const char* s, va_list va) SK_PRINTF_LIKE(2, 0);
@@ -41,19 +58,11 @@ private:
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
 
-    void writeIntLiteral(const IntLiteral& i) override;
-
     void writeSwizzle(const Swizzle& swizzle) override;
 
     void writeVariableReference(const VariableReference& ref) override;
 
     String getSamplerHandle(const Variable& var);
-
-    void writeIfStatement(const IfStatement& s) override;
-
-    void writeReturnStatement(const ReturnStatement& s) override;
-
-    void writeSwitchStatement(const SwitchStatement& s) override;
 
     String getSampleVarName(const char* prefix, int sampleCounter);
 
