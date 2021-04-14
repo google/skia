@@ -109,11 +109,6 @@ public:
     #endif
     }
 
-    AI SkNx rsqrt() const {
-        float32x2_t est0 = vrsqrte_f32(fVec);
-        return vmul_f32(vrsqrts_f32(fVec, vmul_f32(est0, est0)), est0);
-    }
-
     AI SkNx sqrt() const {
     #if defined(SK_CPU_ARM64)
         return vsqrt_f32(fVec);
@@ -227,11 +222,6 @@ public:
     #endif
     }
 
-
-    AI SkNx rsqrt() const {
-        float32x4_t est0 = vrsqrteq_f32(fVec);
-        return vmulq_f32(vrsqrtsq_f32(fVec, vmulq_f32(est0, est0)), est0);
-    }
 
     AI SkNx sqrt() const {
     #if defined(SK_CPU_ARM64)

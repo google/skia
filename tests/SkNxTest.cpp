@@ -53,7 +53,6 @@ static void test_Nf(skiatest::Reporter* r) {
     SkNx<N,float> fours(4);
 
     assert_eq(fours.sqrt(), 2,2,2,2);
-    assert_nearly_eq(0.001f, fours.rsqrt(), 0.5, 0.5, 0.5, 0.5);
 
     assert_eq(SkNx<N,float>::Min(a, fours), 3, 4, 4, 4);
     assert_eq(SkNx<N,float>::Max(a, fours), 4, 4, 5, 6);

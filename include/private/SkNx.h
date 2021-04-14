@@ -112,7 +112,6 @@ struct SkNx {
 
     AI SkNx    abs() const { return { fLo.   abs(), fHi.   abs() }; }
     AI SkNx   sqrt() const { return { fLo.  sqrt(), fHi.  sqrt() }; }
-    AI SkNx  rsqrt() const { return { fLo. rsqrt(), fHi. rsqrt() }; }
     AI SkNx  floor() const { return { fLo. floor(), fHi. floor() }; }
 
     AI SkNx operator!() const { return { !fLo, !fHi }; }
@@ -221,7 +220,6 @@ struct SkNx<1,T> {
 
     AI SkNx    abs() const { return Abs(fVal); }
     AI SkNx   sqrt() const { return Sqrt(fVal); }
-    AI SkNx  rsqrt() const { return T(1) / this->sqrt(); }
     AI SkNx  floor() const { return Floor(fVal); }
 
     AI SkNx operator!() const { return !fVal; }
