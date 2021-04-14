@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ee83e50_a4fb3ed6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-14T14:24:06Z",
+      "side": 1,
+      "message": "I think we might have a problem here. We\u0027re treating dynamic MSAA as a global (and then adding MSAA buffers to RTs based on it) but when this goes to ship in Chrome we\u0027ll want DMSAA for c2d but not for SkiaRenderer or Raster. I think we need to selectively enable for SkSurfaces.",
+      "revId": "1d2c3e256ec74007d12c04cdabd67d13927407fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
