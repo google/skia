@@ -58,8 +58,13 @@ public:
 
         // Setup position
         gpArgs->fPositionVar = dfTexEffect.inPosition().asShaderVar();
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, gpArgs->fPositionVar,
-                              dfTexEffect.localMatrix(), &fLocalMatrixUniform);
+        WriteLocalCoord(vertBuilder,
+                        uniformHandler,
+                        *args.fShaderCaps,
+                        gpArgs,
+                        gpArgs->fPositionVar,
+                        dfTexEffect.localMatrix(),
+                        &fLocalMatrixUniform);
 
         // add varyings
         GrGLSLVarying uv, texIdx, st;
@@ -157,6 +162,7 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps& shaderCaps,
                  const GrGeometryProcessor& geomProc) override {
         const GrDistanceFieldA8TextGeoProc& dfa8gp = geomProc.cast<GrDistanceFieldA8TextGeoProc>();
 
@@ -177,15 +183,15 @@ public:
                         1.0f / atlasDimensions.fHeight);
             fAtlasDimensions = atlasDimensions;
         }
-        this->setTransform(pdman, fLocalMatrixUniform, dfa8gp.localMatrix(), &fLocalMatrix);
+        SetTransform(pdman, shaderCaps, fLocalMatrixUniform, dfa8gp.localMatrix(), &fLocalMatrix);
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrShaderCaps&,
+                              const GrShaderCaps& shaderCaps,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= ComputeMatrixKey(dfTexEffect.localMatrix()) << 16;
+        key |= ComputeMatrixKey(shaderCaps, dfTexEffect.localMatrix()) << 16;
         b->add32(key);
         b->add32(dfTexEffect.numTextureSamplers());
     }
@@ -349,19 +355,24 @@ public:
 
         if (dfPathEffect.matrix().hasPerspective()) {
             // Setup position (output position is transformed, local coords are pass through)
-            this->writeOutputPosition(vertBuilder,
-                                      uniformHandler,
-                                      gpArgs,
-                                      dfPathEffect.inPosition().name(),
-                                      dfPathEffect.matrix(),
-                                      &fMatrixUniform);
+            WriteOutputPosition(vertBuilder,
+                                uniformHandler,
+                                *args.fShaderCaps,
+                                gpArgs,
+                                dfPathEffect.inPosition().name(),
+                                dfPathEffect.matrix(),
+                                &fMatrixUniform);
             gpArgs->fLocalCoordVar = dfPathEffect.inPosition().asShaderVar();
         } else {
             // Setup position (output position is pass through, local coords are transformed)
-            this->writeOutputPosition(vertBuilder, gpArgs, dfPathEffect.inPosition().name());
-            this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
-                                  dfPathEffect.inPosition().asShaderVar(), dfPathEffect.matrix(),
-                                  &fMatrixUniform);
+            WriteOutputPosition(vertBuilder, gpArgs, dfPathEffect.inPosition().name());
+            WriteLocalCoord(vertBuilder,
+                            uniformHandler,
+                            *args.fShaderCaps,
+                            gpArgs,
+                            dfPathEffect.inPosition().asShaderVar(),
+                            dfPathEffect.matrix(),
+                            &fMatrixUniform);
         }
 
         // Use highp to work around aliasing issues
@@ -443,12 +454,13 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps& shaderCaps,
                  const GrGeometryProcessor& geomProc) override {
         const GrDistanceFieldPathGeoProc& dfpgp = geomProc.cast<GrDistanceFieldPathGeoProc>();
 
         // We always set the matrix uniform; it's either used to transform from local to device
         // for the output position, or from device to local for the local coord variable.
-        this->setTransform(pdman, fMatrixUniform, dfpgp.matrix(), &fMatrix);
+        SetTransform(pdman, shaderCaps, fMatrixUniform, dfpgp.matrix(), &fMatrix);
 
         const SkISize& atlasDimensions = dfpgp.atlasDimensions();
         SkASSERT(SkIsPow2(atlasDimensions.fWidth) && SkIsPow2(atlasDimensions.fHeight));
@@ -461,12 +473,12 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrShaderCaps&,
+                              const GrShaderCaps& shaderCaps,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= ComputeMatrixKey(dfTexEffect.matrix()) << 16;
+        key |= ComputeMatrixKey(shaderCaps, dfTexEffect.matrix()) << 16;
         b->add32(key);
         b->add32(dfTexEffect.matrix().hasPerspective());
         b->add32(dfTexEffect.numTextureSamplers());
@@ -613,9 +625,13 @@ public:
 
         // Setup position
         gpArgs->fPositionVar = dfTexEffect.inPosition().asShaderVar();
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
-                              dfTexEffect.inPosition().asShaderVar(), dfTexEffect.localMatrix(),
-                              &fLocalMatrixUniform);
+        WriteLocalCoord(vertBuilder,
+                        uniformHandler,
+                        *args.fShaderCaps,
+                        gpArgs,
+                        dfTexEffect.inPosition().asShaderVar(),
+                        dfTexEffect.localMatrix(),
+                        &fLocalMatrixUniform);
 
         // set up varyings
         GrGLSLVarying uv, texIdx, st;
@@ -751,6 +767,7 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps& shaderCaps,
                  const GrGeometryProcessor& geomProc) override {
         SkASSERT(fDistanceAdjustUni.isValid());
 
@@ -772,16 +789,16 @@ public:
                         1.0f / atlasDimensions.fHeight);
             fAtlasDimensions = atlasDimensions;
         }
-        this->setTransform(pdman, fLocalMatrixUniform, dflcd.localMatrix(), &fLocalMatrix);
+        SetTransform(pdman, shaderCaps, fLocalMatrixUniform, dflcd.localMatrix(), &fLocalMatrix);
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrShaderCaps&,
+                              const GrShaderCaps& shaderCaps,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
         uint32_t key = (dfTexEffect.getFlags() << 16) |
-                       ComputeMatrixKey(dfTexEffect.localMatrix());
+                       ComputeMatrixKey(shaderCaps, dfTexEffect.localMatrix());
         b->add32(key);
         b->add32(dfTexEffect.numTextureSamplers());
     }

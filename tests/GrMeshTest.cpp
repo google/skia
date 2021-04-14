@@ -494,7 +494,9 @@ private:
 };
 
 class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrMeshTestProcessor& mp = args.fGeomProc.cast<GrMeshTestProcessor>();
