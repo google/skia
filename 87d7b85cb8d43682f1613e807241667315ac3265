@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72059286_856924ed",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-14T18:47:20Z",
+      "side": 1,
+      "message": "Maybe we should use `vec2` and `vec4` in the sample comments below so that GLSL-savvy readers will feel more at home?",
+      "range": {
+        "startLine": 98,
+        "startChar": 28,
+        "endLine": 99,
+        "endChar": 38
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba1579d2_eeca7a0d",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-14T18:47:20Z",
+      "side": 1,
+      "message": "This sentence feels like there\u0027s some subject/object confusion?\n\n`makeColorFilter might return nullptr when the resulting effect is passed in,\nif the effect is dependent on position in any way.`",
+      "range": {
+        "startLine": 114,
+        "startChar": 7,
+        "endLine": 114,
+        "endChar": 79
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e874cc90_5df6c901",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-14T18:47:20Z",
+      "side": 1,
+      "message": "Is there any way to make it more clear that these Flags are associated with `uint32_t flags` in the constructor? Right now they aren\u0027t located near one another in the code, and the type doesn\u0027t make it obvious that these two things are actually intended to be the same Flags.",
+      "range": {
+        "startLine": 236,
+        "startChar": 4,
+        "endLine": 241,
+        "endChar": 20
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f1f09a4_f3aa94db",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-14T18:47:20Z",
+      "side": 1,
+      "message": "Consider skipping this check if kAllowColorFilter_Flag is not set. You don\u0027t want to do an analysis pass to zero out a bit which isn\u0027t set anyway.\n\nAlso, if you move this check below the program-elements loop below, you may get to skip it in more circumstances, since that loop also zeros out the color filter flag in some cases.",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 0
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e24ded80_a9dbe20f",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-14T18:47:20Z",
+      "side": 1,
+      "message": "nit: weird indent?",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 3
+      },
+      "revId": "87d7b85cb8d43682f1613e807241667315ac3265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
