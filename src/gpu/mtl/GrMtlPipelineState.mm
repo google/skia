@@ -56,7 +56,7 @@ GrMtlPipelineState::GrMtlPipelineState(
 void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
-    fGeometryProcessor->setData(fDataManager, programInfo.geomProc());
+    fGeometryProcessor->setData(fDataManager, *fGpu->caps()->shaderCaps(), programInfo.geomProc());
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& fp = programInfo.pipeline().getFragmentProcessor(i);

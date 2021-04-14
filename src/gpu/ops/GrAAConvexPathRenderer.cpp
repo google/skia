@@ -586,11 +586,15 @@ public:
             varyingHandler->addPassThroughAttribute(qe.fInColor, args.fOutputColor);
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition.name());
+            WriteOutputPosition(vertBuilder, gpArgs, qe.fInPosition.name());
             if (qe.fUsesLocalCoords) {
-                this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
-                                      qe.fInPosition.asShaderVar(), qe.fLocalMatrix,
-                                      &fLocalMatrixUniform);
+                WriteLocalCoord(vertBuilder,
+                                uniformHandler,
+                                *args.fShaderCaps,
+                                gpArgs,
+                                qe.fInPosition.asShaderVar(),
+                                qe.fLocalMatrix,
+                                &fLocalMatrixUniform);
             }
 
             fragBuilder->codeAppendf("half edgeAlpha;");
@@ -615,17 +619,20 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps&,
+                                  const GrShaderCaps& shaderCaps,
                                   GrProcessorKeyBuilder* b) {
             const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
             b->addBool(qee.fUsesLocalCoords, "usesLocalCoords");
-            b->addBits(kMatrixKeyBits, ComputeMatrixKey(qee.fLocalMatrix), "localMatrixType");
+            b->addBits(kMatrixKeyBits,
+                       ComputeMatrixKey(shaderCaps, qee.fLocalMatrix),
+                       "localMatrixType");
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
                      const GrGeometryProcessor& geomProc) override {
             const QuadEdgeEffect& qe = geomProc.cast<QuadEdgeEffect>();
-            this->setTransform(pdman, fLocalMatrixUniform, qe.fLocalMatrix, &fLocalMatrix);
+            SetTransform(pdman, shaderCaps, fLocalMatrixUniform, qe.fLocalMatrix, &fLocalMatrix);
         }
 
     private:

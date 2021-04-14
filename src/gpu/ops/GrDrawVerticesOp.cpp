@@ -179,12 +179,13 @@ public:
             }
 
             // Setup position
-            this->writeOutputPosition(vertBuilder,
-                                      uniformHandler,
-                                      gpArgs,
-                                      gp.positionAttr().name(),
-                                      gp.viewMatrix(),
-                                      &fViewMatrixUniform);
+            WriteOutputPosition(vertBuilder,
+                                uniformHandler,
+                                *args.fShaderCaps,
+                                gpArgs,
+                                gp.positionAttr().name(),
+                                gp.viewMatrix(),
+                                &fViewMatrixUniform);
 
             // emit transforms using either explicit local coords or positions
             const auto& coordsAttr = gp.localCoordsAttr().isInitialized() ? gp.localCoordsAttr()
@@ -300,12 +301,12 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps&,
+                                  const GrShaderCaps& shaderCaps,
                                   GrProcessorKeyBuilder* b) {
             const VerticesGP& vgp = gp.cast<VerticesGP>();
             uint32_t key = 0;
             key |= (vgp.fColorArrayType == ColorArrayType::kSkColor) ? 0x1 : 0;
-            key |= ComputeMatrixKey(vgp.viewMatrix()) << 20;
+            key |= ComputeMatrixKey(shaderCaps, vgp.viewMatrix()) << 20;
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
 
@@ -318,10 +319,11 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
                      const GrGeometryProcessor& geomProc) override {
             const VerticesGP& vgp = geomProc.cast<VerticesGP>();
 
-            this->setTransform(pdman, fViewMatrixUniform, vgp.viewMatrix(), &fViewMatrix);
+            SetTransform(pdman, shaderCaps, fViewMatrixUniform, vgp.viewMatrix(), &fViewMatrix);
 
             if (!vgp.colorAttr().isInitialized() && vgp.color() != fColor) {
                 pdman.set4fv(fColorUniform, 1, vgp.color().vec());

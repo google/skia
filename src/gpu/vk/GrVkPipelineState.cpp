@@ -78,7 +78,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                            GrVkCommandBuffer* commandBuffer) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
-    fGeometryProcessor->setData(fDataManager, programInfo.geomProc());
+    fGeometryProcessor->setData(fDataManager, *gpu->caps()->shaderCaps(), programInfo.geomProc());
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& fp = programInfo.pipeline().getFragmentProcessor(i);
         for (auto [fp, impl] : GrGLSLFragmentProcessor::ParallelRange(fp, *fFPImpls[i])) {

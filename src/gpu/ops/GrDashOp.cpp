@@ -867,7 +867,9 @@ public:
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) override;
 
 private:
     UniformHandle fParamUniform;
@@ -916,10 +918,15 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->writeOutputPosition(vertBuilder, gpArgs, dce.fInPosition.name());
+    WriteOutputPosition(vertBuilder, gpArgs, dce.fInPosition.name());
     if (dce.usesLocalCoords()) {
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, dce.fInPosition.asShaderVar(),
-                              dce.localMatrix(), &fLocalMatrixUniform);
+        WriteLocalCoord(vertBuilder,
+                        uniformHandler,
+                        *args.fShaderCaps,
+                        gpArgs,
+                        dce.fInPosition.asShaderVar(),
+                        dce.localMatrix(),
+                        &fLocalMatrixUniform);
     }
 
     // transforms all points so that we can compare them to our test circle
@@ -942,23 +949,24 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
+                                    const GrShaderCaps& shaderCaps,
                                     const GrGeometryProcessor& geomProc) {
     const DashingCircleEffect& dce = geomProc.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, dce.color().vec());
         fColor = dce.color();
     }
-    this->setTransform(pdman, fLocalMatrixUniform, dce.localMatrix(), &fLocalMatrix);
+    SetTransform(pdman, shaderCaps, fLocalMatrixUniform, dce.localMatrix(), &fLocalMatrix);
 }
 
 void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
-                                   const GrShaderCaps&,
+                                   const GrShaderCaps& shaderCaps,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
     uint32_t key = 0;
     key |= dce.usesLocalCoords() ? 0x1 : 0x0;
     key |= static_cast<uint32_t>(dce.aaMode()) << 1;
-    key |= ComputeMatrixKey(dce.localMatrix()) << 3;
+    key |= ComputeMatrixKey(shaderCaps, dce.localMatrix()) << 3;
     b->add32(key);
 }
 
@@ -1079,7 +1087,9 @@ public:
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrGeometryProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) override;
 
 private:
     SkPMColor4f   fColor;
@@ -1120,10 +1130,15 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->writeOutputPosition(vertBuilder, gpArgs, de.fInPosition.name());
+    WriteOutputPosition(vertBuilder, gpArgs, de.fInPosition.name());
     if (de.usesLocalCoords()) {
-        this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs, de.fInPosition.asShaderVar(),
-                              de.localMatrix(), &fLocalMatrixUniform);
+        WriteLocalCoord(vertBuilder,
+                        uniformHandler,
+                        *args.fShaderCaps,
+                        gpArgs,
+                        de.fInPosition.asShaderVar(),
+                        de.localMatrix(),
+                        &fLocalMatrixUniform);
     }
 
     // transforms all points so that we can compare them to our test rect
@@ -1170,23 +1185,24 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
+                                  const GrShaderCaps& shaderCaps,
                                   const GrGeometryProcessor& geomProc) {
     const DashingLineEffect& de = geomProc.cast<DashingLineEffect>();
     if (de.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, de.color().vec());
         fColor = de.color();
     }
-    this->setTransform(pdman, fLocalMatrixUniform, de.localMatrix(), &fLocalMatrix);
+    SetTransform(pdman, shaderCaps, fLocalMatrixUniform, de.localMatrix(), &fLocalMatrix);
 }
 
 void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
-                                 const GrShaderCaps&,
+                                 const GrShaderCaps& shaderCaps,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineEffect& de = gp.cast<DashingLineEffect>();
     uint32_t key = 0;
     key |= de.usesLocalCoords() ? 0x1 : 0x0;
     key |= static_cast<int>(de.aaMode()) << 1;
-    key |= ComputeMatrixKey(de.localMatrix()) << 3;
+    key |= ComputeMatrixKey(shaderCaps, de.localMatrix()) << 3;
     b->add32(key);
 }
 

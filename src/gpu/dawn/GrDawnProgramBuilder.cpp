@@ -498,7 +498,7 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     this->setRenderTargetState(renderTarget, programInfo.origin());
     const GrPipeline& pipeline = programInfo.pipeline();
     const GrGeometryProcessor& geomProc = programInfo.geomProc();
-    fGeometryProcessor->setData(fDataManager, geomProc);
+    fGeometryProcessor->setData(fDataManager, *gpu->caps()->shaderCaps(), geomProc);
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& fp = programInfo.pipeline().getFragmentProcessor(i);

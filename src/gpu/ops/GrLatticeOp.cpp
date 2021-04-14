@@ -49,6 +49,7 @@ public:
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
+                         const GrShaderCaps&,
                          const GrGeometryProcessor& geomProc) override {
                 const auto& latticeGP = geomProc.cast<LatticeGP>();
                 fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());
@@ -62,7 +63,7 @@ public:
                                                 latticeGP.fColorSpaceXform.get());
 
                 args.fVaryingHandler->emitAttributes(latticeGP);
-                this->writeOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fInPosition.name());
+                WriteOutputPosition(args.fVertBuilder, gpArgs, latticeGP.fInPosition.name());
                 gpArgs->fLocalCoordVar = latticeGP.fInTextureCoords.asShaderVar();
 
                 args.fFragBuilder->codeAppend("float2 textureCoords;");

@@ -106,7 +106,9 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     // We must bind to texture units in the same order in which we set the uniforms in
     // GrGLProgramDataManager. That is, we bind textures for processors in this order:
     // primProc, fragProcs, XP.
-    fGeometryProcessor->setData(fProgramDataManager, programInfo.geomProc());
+    fGeometryProcessor->setData(fProgramDataManager,
+                                *fGpu->caps()->shaderCaps(),
+                                programInfo.geomProc());
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         auto& fp = programInfo.pipeline().getFragmentProcessor(i);

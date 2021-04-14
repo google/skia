@@ -94,6 +94,7 @@ protected:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
         const auto& shader = geomProc.cast<GrStencilPathShader>();
         if (!shader.viewMatrix().isIdentity()) {

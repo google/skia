@@ -107,21 +107,26 @@ public:
             }
 
             // Setup position
-            this->writeOutputPosition(vertBuilder,
-                                      uniformHandler,
-                                      gpArgs,
-                                      gp.fInPosition.name(),
-                                      gp.viewMatrix(),
-                                      &fViewMatrixUniform);
+            WriteOutputPosition(vertBuilder,
+                                uniformHandler,
+                                *args.fShaderCaps,
+                                gpArgs,
+                                gp.fInPosition.name(),
+                                gp.viewMatrix(),
+                                &fViewMatrixUniform);
 
             // emit transforms using either explicit local coords or positions
             if (gp.fInLocalCoords.isInitialized()) {
                 SkASSERT(gp.localMatrix().isIdentity());
                 gpArgs->fLocalCoordVar = gp.fInLocalCoords.asShaderVar();
             } else if (gp.fLocalCoordsWillBeRead) {
-                this->writeLocalCoord(vertBuilder, uniformHandler, gpArgs,
-                                      gp.fInPosition.asShaderVar(), gp.localMatrix(),
-                                      &fLocalMatrixUniform);
+                WriteLocalCoord(vertBuilder,
+                                uniformHandler,
+                                *args.fShaderCaps,
+                                gpArgs,
+                                gp.fInPosition.asShaderVar(),
+                                gp.localMatrix(),
+                                &fLocalMatrixUniform);
             }
 
             // Setup coverage as pass through
@@ -144,7 +149,7 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps&,
+                                  const GrShaderCaps& shaderCaps,
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
@@ -153,17 +158,24 @@ public:
 
             bool usesLocalMatrix = def.localCoordsWillBeRead() &&
                                    !def.fInLocalCoords.isInitialized();
-            key = AddMatrixKeys(key, def.viewMatrix(),
+            key = AddMatrixKeys(shaderCaps,
+                                key,
+                                def.viewMatrix(),
                                 usesLocalMatrix ? def.localMatrix() : SkMatrix::I());
             b->add32(key);
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
                      const GrGeometryProcessor& geomProc) override {
             const DefaultGeoProc& dgp = geomProc.cast<DefaultGeoProc>();
 
-            this->setTransform(pdman, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrixPrev);
-            this->setTransform(pdman, fLocalMatrixUniform, dgp.localMatrix(), &fLocalMatrixPrev);
+            SetTransform(pdman, shaderCaps, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrixPrev);
+            SetTransform(pdman,
+                         shaderCaps,
+                         fLocalMatrixUniform,
+                         dgp.localMatrix(),
+                         &fLocalMatrixPrev);
 
             if (!dgp.hasVertexColor() && dgp.color() != fColor) {
                 pdman.set4fv(fColorUniform, 1, dgp.color().vec());

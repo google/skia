@@ -38,6 +38,7 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
         const GrFillPathShader& shader = geomProc.cast<GrFillPathShader>();
         pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());

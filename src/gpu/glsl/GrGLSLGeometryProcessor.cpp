@@ -260,10 +260,11 @@ void GrGLSLGeometryProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBui
     }
 }
 
-void GrGLSLGeometryProcessor::setTransform(const GrGLSLProgramDataManager& pdman,
+void GrGLSLGeometryProcessor::SetTransform(const GrGLSLProgramDataManager& pdman,
+                                           const GrShaderCaps& shaderCaps,
                                            const UniformHandle& uniform,
                                            const SkMatrix& matrix,
-                                           SkMatrix* state) const {
+                                           SkMatrix* state) {
     if (!uniform.isValid() || (state && SkMatrixPriv::CheapEqual(*state, matrix))) {
         // No update needed
         return;
@@ -271,7 +272,7 @@ void GrGLSLGeometryProcessor::setTransform(const GrGLSLProgramDataManager& pdman
     if (state) {
         *state = matrix;
     }
-    if (matrix.isScaleTranslate()) {
+    if (matrix.isScaleTranslate() && !shaderCaps.reducedShaderMode()) {
         // ComputeMatrixKey and writeX() assume the uniform is a float4 (can't assert since nothing
         // is exposed on a handle, but should be caught lower down).
         float values[4] = {matrix.getScaleX(), matrix.getTranslateX(),
@@ -282,8 +283,21 @@ void GrGLSLGeometryProcessor::setTransform(const GrGLSLProgramDataManager& pdman
     }
 }
 
+static void write_passthrough_vertex_position(GrGLSLVertexBuilder* vertBuilder,
+                                              const GrShaderVar& inPos,
+                                              GrShaderVar* outPos) {
+    SkASSERT(inPos.getType() == kFloat3_GrSLType || inPos.getType() == kFloat2_GrSLType);
+    SkString outName = vertBuilder->newTmpVarName(inPos.getName().c_str());
+    outPos->set(inPos.getType(), outName.c_str());
+    vertBuilder->codeAppendf("float%d %s = %s;",
+                             GrSLTypeVecLength(inPos.getType()),
+                             outName.c_str(),
+                             inPos.getName().c_str());
+}
+
 static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
                                   GrGLSLUniformHandler* uniformHandler,
+                                  const GrShaderCaps& shaderCaps,
                                   const GrShaderVar& inPos,
                                   const SkMatrix& matrix,
                                   const char* matrixName,
@@ -292,85 +306,105 @@ static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
     SkASSERT(inPos.getType() == kFloat3_GrSLType || inPos.getType() == kFloat2_GrSLType);
     SkString outName = vertBuilder->newTmpVarName(inPos.getName().c_str());
 
-    if (matrix.isIdentity()) {
-        // Direct assignment, we won't use a uniform for the matrix.
-        outPos->set(inPos.getType(), outName.c_str());
-        vertBuilder->codeAppendf("float%d %s = %s;", GrSLTypeVecLength(inPos.getType()),
-                                                     outName.c_str(), inPos.getName().c_str());
-    } else {
-        SkASSERT(matrixUniform);
-
-        bool useCompactTransform = matrix.isScaleTranslate();
-        const char* mangledMatrixName;
-        *matrixUniform = uniformHandler->addUniform(nullptr,
-                                                        kVertex_GrShaderFlag,
-                                                        useCompactTransform ? kFloat4_GrSLType
-                                                                            : kFloat3x3_GrSLType,
-                                                        matrixName,
-                                                        &mangledMatrixName);
-
-        if (inPos.getType() == kFloat3_GrSLType) {
-            // A float3 stays a float3 whether or not the matrix adds perspective
-            if (useCompactTransform) {
-                vertBuilder->codeAppendf("float3 %s = %s.xz1 * %s + %s.yw0;\n",
-                                         outName.c_str(), mangledMatrixName,
-                                         inPos.getName().c_str(), mangledMatrixName);
-            } else {
-                vertBuilder->codeAppendf("float3 %s = %s * %s;\n", outName.c_str(),
-                                         mangledMatrixName, inPos.getName().c_str());
-            }
-            outPos->set(kFloat3_GrSLType, outName.c_str());
-        } else if (matrix.hasPerspective()) {
-            // A float2 is promoted to a float3 if we add perspective via the matrix
-            SkASSERT(!useCompactTransform);
-            vertBuilder->codeAppendf("float3 %s = (%s * %s.xy1);",
-                                     outName.c_str(), mangledMatrixName, inPos.getName().c_str());
-            outPos->set(kFloat3_GrSLType, outName.c_str());
-        } else {
-            if (useCompactTransform) {
-                vertBuilder->codeAppendf("float2 %s = %s.xz * %s + %s.yw;\n",
-                                         outName.c_str(), mangledMatrixName,
-                                         inPos.getName().c_str(), mangledMatrixName);
-            } else {
-                vertBuilder->codeAppendf("float2 %s = (%s * %s.xy1).xy;\n",
-                                         outName.c_str(), mangledMatrixName,
-                                         inPos.getName().c_str());
-            }
-            outPos->set(kFloat2_GrSLType, outName.c_str());
-        }
+    if (matrix.isIdentity() && !shaderCaps.reducedShaderMode()) {
+        write_passthrough_vertex_position(vertBuilder, inPos, outPos);
+        return;
     }
+    SkASSERT(matrixUniform);
+
+    bool useCompactTransform = matrix.isScaleTranslate() && !shaderCaps.reducedShaderMode();
+    const char* mangledMatrixName;
+    *matrixUniform = uniformHandler->addUniform(nullptr,
+                                                kVertex_GrShaderFlag,
+                                                useCompactTransform ? kFloat4_GrSLType
+                                                                    : kFloat3x3_GrSLType,
+                                                matrixName,
+                                                &mangledMatrixName);
+
+    if (inPos.getType() == kFloat3_GrSLType) {
+        // A float3 stays a float3 whether or not the matrix adds perspective
+        if (useCompactTransform) {
+            vertBuilder->codeAppendf("float3 %s = %s.xz1 * %s + %s.yw0;\n",
+                                     outName.c_str(),
+                                     mangledMatrixName,
+                                     inPos.getName().c_str(),
+                                     mangledMatrixName);
+        } else {
+            vertBuilder->codeAppendf("float3 %s = %s * %s;\n",
+                                     outName.c_str(),
+                                     mangledMatrixName,
+                                     inPos.getName().c_str());
+        }
+        outPos->set(kFloat3_GrSLType, outName.c_str());
+        return;
+    }
+    if (matrix.hasPerspective()) {
+        // A float2 is promoted to a float3 if we add perspective via the matrix
+        SkASSERT(!useCompactTransform);
+        vertBuilder->codeAppendf("float3 %s = (%s * %s.xy1);",
+                                 outName.c_str(),
+                                 mangledMatrixName,
+                                 inPos.getName().c_str());
+        outPos->set(kFloat3_GrSLType, outName.c_str());
+        return;
+    }
+    if (useCompactTransform) {
+        vertBuilder->codeAppendf("float2 %s = %s.xz * %s + %s.yw;\n",
+                                 outName.c_str(),
+                                 mangledMatrixName,
+                                 inPos.getName().c_str(),
+                                 mangledMatrixName);
+    } else {
+        vertBuilder->codeAppendf("float2 %s = (%s * %s.xy1).xy;\n",
+                                 outName.c_str(),
+                                 mangledMatrixName,
+                                 inPos.getName().c_str());
+    }
+    outPos->set(kFloat2_GrSLType, outName.c_str());
 }
 
-void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuilder,
+void GrGLSLGeometryProcessor::WriteOutputPosition(GrGLSLVertexBuilder* vertBuilder,
                                                   GrGPArgs* gpArgs,
                                                   const char* posName) {
     // writeOutputPosition assumes the incoming pos name points to a float2 variable
     GrShaderVar inPos(posName, kFloat2_GrSLType);
-    write_vertex_position(vertBuilder, nullptr, inPos, SkMatrix::I(), "viewMatrix",
-                          &gpArgs->fPositionVar, nullptr);
+    write_passthrough_vertex_position(vertBuilder, inPos, &gpArgs->fPositionVar);
 }
 
-void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuilder,
+void GrGLSLGeometryProcessor::WriteOutputPosition(GrGLSLVertexBuilder* vertBuilder,
                                                   GrGLSLUniformHandler* uniformHandler,
+                                                  const GrShaderCaps& shaderCaps,
                                                   GrGPArgs* gpArgs,
                                                   const char* posName,
                                                   const SkMatrix& mat,
                                                   UniformHandle* viewMatrixUniform) {
     GrShaderVar inPos(posName, kFloat2_GrSLType);
-    write_vertex_position(vertBuilder, uniformHandler, inPos, mat, "viewMatrix",
-                          &gpArgs->fPositionVar, viewMatrixUniform);
+    write_vertex_position(vertBuilder,
+                          uniformHandler,
+                          shaderCaps,
+                          inPos,
+                          mat,
+                          "viewMatrix",
+                          &gpArgs->fPositionVar,
+                          viewMatrixUniform);
 }
 
-void GrGLSLGeometryProcessor::writeLocalCoord(GrGLSLVertexBuilder* vertBuilder,
+void GrGLSLGeometryProcessor::WriteLocalCoord(GrGLSLVertexBuilder* vertBuilder,
                                               GrGLSLUniformHandler* uniformHandler,
+                                              const GrShaderCaps& shaderCaps,
                                               GrGPArgs* gpArgs,
                                               GrShaderVar localVar,
                                               const SkMatrix& localMatrix,
                                               UniformHandle* localMatrixUniform) {
-    write_vertex_position(vertBuilder, uniformHandler, localVar, localMatrix, "localMatrix",
-                          &gpArgs->fLocalCoordVar, localMatrixUniform);
+    write_vertex_position(vertBuilder,
+                          uniformHandler,
+                          shaderCaps,
+                          localVar,
+                          localMatrix,
+                          "localMatrix",
+                          &gpArgs->fLocalCoordVar,
+                          localMatrixUniform);
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 
