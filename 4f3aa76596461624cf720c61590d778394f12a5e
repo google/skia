@@ -16,6 +16,24 @@
       "message": "I\u0027m confused, the other CL hasn\u0027t landed yet and this CL isn\u0027t a child of that other CL. Should it be? Or should those changes just be a part of that other CL?",
       "revId": "4f3aa76596461624cf720c61590d778394f12a5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e4dd64f_f473eca5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-14T19:05:38Z",
+      "side": 1,
+      "message": "I\u0027m also confused, cause my tip-of-tree has drawPatch already landed",
+      "parentUuid": "7024c7d4_30385931",
+      "revId": "4f3aa76596461624cf720c61590d778394f12a5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
