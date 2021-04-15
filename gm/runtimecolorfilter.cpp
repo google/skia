@@ -32,12 +32,6 @@ const char* gLumaSrc = R"(
     }
 )";
 
-const char* gLumaSrcWithCoords = R"(
-    half4 main(float2 p, half4 color) {
-        return dot(color.rgb, half3(0.3, 0.6, 0.1)).000r;
-    }
-)";
-
 // Build up the same effect with increasingly complex control flow syntax.
 // All of these are semantically equivalent and can be reduced in principle to one basic block.
 
@@ -92,7 +86,7 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256 * 2) {
     sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_256.png");
 
     auto draw_filter = [&](const char* src) {
-        auto [effect, err] = SkRuntimeEffect::Make(SkString(src));
+        auto [effect, err] = SkRuntimeEffect::MakeForColorFilter(SkString(src));
         if (!effect) {
             SkDebugf("%s\n%s\n", src, err.c_str());
         }
@@ -103,10 +97,10 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256 * 2) {
         canvas->translate(256, 0);
     };
 
-    for (const char* src : { gNoop, gLumaSrc, gLumaSrcWithCoords}) {
+    for (const char* src : { gNoop, gLumaSrc }) {
         draw_filter(src);
     }
-    canvas->translate(-256*3, 256);
+    canvas->translate(-256*2, 256);
     for (const char* src : { gTernary, gIfs, gEarlyReturn}) {
         draw_filter(src);
     }
