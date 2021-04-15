@@ -304,6 +304,51 @@ JSArray GetLineMetrics(para::Paragraph& self) {
     return result;
 }
 
+/*
+ *  Returns Runs[K]
+ *
+ *  Run --> { font: ???, glyphs[N], positions[N*2], offsets[N], origin: x,y }
+ *
+ *  K = number of runs
+ *  N = number of glyphs in a given run
+ */
+JSObject GetShaperArrays(para::Paragraph& self) {
+    struct Run {
+        SkFont  font;
+        SkPoint origin;
+        int     index;
+        int     count;
+    };
+    std::vector<Run>      runs;
+    std::vector<uint16_t> glyphs;
+    std::vector<SkPoint>  positions;
+    std::vector<uint32_t> offsets;
+
+    self.visit([&](const para::Paragraph::VisitorInfo& info) {
+        // add 1 Run
+        runs.push_back({info.font, info.origin, (int)glyphs.size(), info.count});
+        // append the arrays
+        glyphs.insert(glyphs.end(), info.glyphs, info.glyphs + info.count);
+        positions.insert(positions.end(), info.positions, info.positions + info.count);
+        offsets.insert(offsets.end(), info.utf8Starts, info.utf8Starts + info.count);
+    });
+
+    JSArray jruns = emscripten::val::array();
+    for (const auto& crun : runs) {
+        JSObject jrun = emscripten::val::object();
+
+        jrun.set("font", nullptr);
+        jrun.set("glyphs"    , Uint16Array(typed_memory_view(crun.count, &glyphs[crun.index])));
+        jrun.set("positions" , Float32Array(typed_memory_view(crun.count*2, &positions[crun.index].fX)));
+        jrun.set("offsets"   , Uint32Array(typed_memory_view(crun.count, &offsets[crun.index])));
+        jrun.set("origin_x"  , crun.origin.fX);
+        jrun.set("origin_y"  , crun.origin.fY);
+
+        jruns.call<void>("push", jrun);
+    }
+    return jruns;
+}
+
 EMSCRIPTEN_BINDINGS(Paragraph) {
 
     class_<para::Paragraph>("Paragraph")
