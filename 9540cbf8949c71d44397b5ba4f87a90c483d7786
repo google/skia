@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21550723_1221daad",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-15T20:38:14Z",
+      "side": 1,
+      "message": "(nit, nothing to change in this CL)\n\nInteresting--we\u0027re using `getMangledFunctionName` to get mangled variable names, and the actual implementation of the method is\n \n    return fProgramBuilder-\u003enameVariable(...)\n\nMaybe we should call it getMangledSymbolName?",
+      "range": {
+        "startLine": 125,
+        "startChar": 54,
+        "endLine": 125,
+        "endChar": 76
+      },
+      "revId": "9540cbf8949c71d44397b5ba4f87a90c483d7786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
