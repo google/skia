@@ -59,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b170e9fb_8f9ac6b1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 2312,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-15T19:01:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25eaa6b3_0fdea724",
+      "range": {
+        "startLine": 2312,
+        "startChar": 8,
+        "endLine": 2312,
+        "endChar": 12
+      },
+      "revId": "747ccc1675214a11478aff34b714173fc818e82a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6184af2_859221a2",
@@ -72,6 +96,30 @@
       "writtenOn": "2021-04-15T18:20:31Z",
       "side": 1,
       "message": "?",
+      "range": {
+        "startLine": 119,
+        "startChar": 59,
+        "endLine": 119,
+        "endChar": 60
+      },
+      "revId": "747ccc1675214a11478aff34b714173fc818e82a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52059f76_23375030",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-15T19:01:25Z",
+      "side": 1,
+      "message": "Yep. Forgot to remove it from may main CL which this now is.",
+      "parentUuid": "a6184af2_859221a2",
       "range": {
         "startLine": 119,
         "startChar": 59,
