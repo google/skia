@@ -26,6 +26,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "98df672e_6fe87669",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-15T12:49:24Z",
+      "side": 1,
+      "message": "The other comment thread got closed, but this chunk of code needs an update to match what happens in IR generator now. (Main can also take a float4/half4 color input). Because we fully validate the order and number of parameters later, I took the route of just type-checking each parameter to main:\n  - If it\u0027s float2, attach SK_MAIN_COORDS_BUILTIN\n  - If it\u0027s float4 or half4, attach SK_INPUT_COLOR_BUILTIN\n\nhttps://skia-review.googlesource.com/c/skia/+/395838/7/src/sksl/SkSLIRGenerator.cpp",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 0
+      },
+      "revId": "80d6a53af0ec912b6d8b54162620144d01089338",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "619aeedb_bad9cff6",
         "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
         "patchSetId": 12
