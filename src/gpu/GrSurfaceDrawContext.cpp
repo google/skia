@@ -763,10 +763,7 @@ void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
 
     // If we are using dmsaa then attempt to draw the rect with GrFillRRectOp.
     if ((fContext->priv().caps()->reducedShaderMode() || this->hasDMSAA()) &&
-        this->caps()->drawInstancedSupport()                               &&
-        aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
-                             // GrFillRRectOp because it might require dual source blending.
-                             // http://skbug.com/11756
+        this->caps()->drawInstancedSupport()) {
         QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &aa, &quad,
                                                              &paint);
         if (opt < QuadOptimization::kClipApplied) {
