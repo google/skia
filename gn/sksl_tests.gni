@@ -27,6 +27,7 @@ sksl_fp_tests = [
   "/sksl/fp/GrChildProcessorSampleMatrixSingleInUniform.fp",
   "/sksl/fp/GrChildProcessorSampleMatrixSingleUniform.fp",
   "/sksl/fp/GrChildProcessorSampleMatrixSingleUniformExpr.fp",
+  "/sksl/fp/GrChildProcessorSampleWithColor.fp",
   "/sksl/fp/GrChildProcessorWithInputExpression.fp",
   "/sksl/fp/GrChildProcessors.fp",
   "/sksl/fp/GrChildProcessorsWithInput.fp",
