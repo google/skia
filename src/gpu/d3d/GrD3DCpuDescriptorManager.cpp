@@ -71,6 +71,9 @@ GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::createUnorderedAccessV
         GrD3DGpu* gpu, ID3D12Resource* resource, unsigned int mipSlice) {
     const GrD3DDescriptorHeap::CPUHandle& descriptor =
             fShaderViewDescriptorPool.allocateHandle(gpu);
+
+    D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+    desc.Format = resource->GetDesc().Format;
     if (resource->GetDesc().Dimension == D3D12_RESOURCE_DIMENSION_BUFFER) {
         // TODO: figure out buffer setup
         gpu->device()->CreateUnorderedAccessView(resource, nullptr, nullptr, descriptor.fHandle);
