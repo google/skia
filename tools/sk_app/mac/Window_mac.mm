@@ -142,12 +142,12 @@ bool Window_mac::attach(BackendType attachType) {
         default:
             fWindowContext = MakeGLForMac(info, fRequestedDisplayParams);
             break;
-#else
-        default:
-#endif
         case kRaster_BackendType:
             fWindowContext = MakeRasterForMac(info, fRequestedDisplayParams);
             break;
+#endif
+        default:
+            SkASSERT_RELEASE(false);
     }
     this->onBackendCreated();
 
