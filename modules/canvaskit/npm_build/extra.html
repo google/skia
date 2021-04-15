@@ -262,6 +262,10 @@
       let posA = paragraph.getGlyphPositionAtCoordinate(X, Y);
       canvas.drawText(`At (${X.toFixed(2)}, ${Y.toFixed(2)}) glyph is ${posA.pos}`, 5, 450, fontPaint, font);
 
+      {
+          let runs = paragraph.getShapedRuns();
+      }
+
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);

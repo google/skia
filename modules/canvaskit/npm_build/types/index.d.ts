@@ -1349,9 +1349,19 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param y
      * @param paint
      */
-    drawTextBlob(blob: TextBlob, x: number, y: number, paint: Paint): void;
+     drawTextBlob(blob: TextBlob, x: number, y: number, paint: Paint): void;
 
     /**
+     * Draws an array of glyphs at (x,y) positions in a given font and paint.
+     * @param count Number of glyphs to draw (also the number of (x,y) positions)
+     * @param glyphs Array of glyph IDs
+     * @param pos Array of (x,y) positions
+     * @param font
+     * @param paint
+     */
+     drawGlyphRun(count: number, glyphs: InputGlyphIDArray, pos: InputPoint, font: Font, paint: Paint): void;
+
+     /**
      * Draws the given vertices (a triangle mesh) using the current clip, current matrix, and the
      * provided paint.
      *  If paint contains an Shader and vertices does not contain texCoords, the shader

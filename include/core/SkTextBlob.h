@@ -214,6 +214,14 @@ public:
          */
         bool next(Run*);
 
+        struct Run2 {
+            SkFont          font;
+            int             count;
+            const uint16_t* glyphs;
+            const SkPoint*  positions;
+        };
+        bool next2(Run2*);
+
     private:
         const RunRecord* fRunRecord;
     };
