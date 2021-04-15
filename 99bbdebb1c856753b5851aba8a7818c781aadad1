@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82b549bf_eac7ebfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17135
+      },
+      "writtenOn": "2021-04-15T23:54:07Z",
+      "side": 1,
+      "message": "PTAL. Rationale: https://crbug.com/1148836#c6",
+      "revId": "99bbdebb1c856753b5851aba8a7818c781aadad1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
