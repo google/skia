@@ -33,6 +33,46 @@
       "message": "LGTM FWIW",
       "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3120b677_42ec25f5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-15T16:34:19Z",
+      "side": 1,
+      "message": "LGTM. Comment is just for discussion and not actually blocking this change at all.",
+      "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "457ca0e6_f48144c3",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-15T16:34:19Z",
+      "side": 1,
+      "message": "So independent of this change (just reminded because of change here), but what are the plans or thoughts on how to remove this and other Tick calls from the backend? If I\u0027m recalling right these are dawn specific calls and not actually part of the WebGPU spec. From the Skia POV we need this backend to be a WebGPU backend and not strictly dawn.",
+      "range": {
+        "startLine": 562,
+        "startChar": 20,
+        "endLine": 562,
+        "endChar": 24
+      },
+      "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
