@@ -205,7 +205,7 @@ bool GrDrawingManager::flush(
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(dContext SkDEBUGCODE(, fDAG.count()));
+        GrResourceAllocator alloc(dContext);
         for (const auto& task : fDAG) {
             SkASSERT(task);
             task->gatherProxyIntervals(&alloc);
