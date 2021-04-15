@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9349a017_8346fb5d",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-15T20:30:09Z",
+      "side": 1,
+      "message": "out of date, right?",
+      "range": {
+        "startLine": 92,
+        "startChar": 30,
+        "endLine": 92,
+        "endChar": 47
+      },
+      "revId": "4e536a3e130720402bacb70d71615a5316ef5e8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
