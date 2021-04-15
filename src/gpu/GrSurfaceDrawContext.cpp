@@ -301,6 +301,13 @@ GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fGlyphPainter(*this) {
     SkDEBUGCODE(this->validate();)
+    if ((fSurfaceProps.flags() & kDMSAA_SkSurfacePropsPrivateFlag) && this->numSamples() == 1) {
+        int internalMultisampleCount =
+                this->caps()->internalMultisampleCount(this->asSurfaceProxy()->backendFormat());
+        if (internalMultisampleCount > 1) {
+            fNumDMSAASamples = internalMultisampleCount;
+        }
+    }
 }
 
 GrSurfaceDrawContext::~GrSurfaceDrawContext() {
@@ -629,8 +636,7 @@ void GrSurfaceDrawContext::drawTexture(const GrClip* clip,
                                        const SkMatrix& viewMatrix,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform) {
     // If we are using dmsaa then go through GrFillRRectOp (via fillRectToRect).
-    if ((fContext->priv().alwaysAntialias() || this->caps()->reducedShaderMode()) &&
-        aa == GrAA::kYes) {
+    if ((this->hasDMSAA() || this->caps()->reducedShaderMode()) && aa == GrAA::kYes) {
         GrPaint paint;
         paint.setColor4f(color);
         std::unique_ptr<GrFragmentProcessor> fp;
@@ -756,8 +762,8 @@ void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
                   aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
 
     // If we are using dmsaa then attempt to draw the rect with GrFillRRectOp.
-    if ((fContext->priv().caps()->reducedShaderMode() || fContext->priv().alwaysAntialias()) &&
-        this->caps()->drawInstancedSupport()                                                 &&
+    if ((fContext->priv().caps()->reducedShaderMode() || this->hasDMSAA()) &&
+        this->caps()->drawInstancedSupport()                               &&
         aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
                              // GrFillRRectOp because it might require dual source blending.
                              // http://skbug.com/11756

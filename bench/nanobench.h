@@ -25,7 +25,6 @@ struct Config {
     SkAlphaType alpha;
     sk_sp<SkColorSpace> colorSpace;
     int samples;
-    bool useDMSAA;
     sk_gpu_test::GrContextFactory::ContextType ctxType;
     sk_gpu_test::GrContextFactory::ContextOverrides ctxOverrides;
     uint32_t surfaceFlags;
