@@ -122,7 +122,7 @@ private:
         bool surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const SK_EXCLUDES(fLock);
 
         // Queries that should be independent of which proxy is in use.
-        size_t gpuMemorySize() const SK_EXCLUDES(fLock);
+        size_t gpuMemorySize(const GrCaps&) const SK_EXCLUDES(fLock);
         GrMipmapped mipmapped() const SK_EXCLUDES(fLock);
 #ifdef SK_DEBUG
         GrBackendFormat backendFormat() SK_EXCLUDES(fLock);

@@ -133,7 +133,7 @@ protected:
 private:
     bool canChangeStencilAttachment() const;
 
-    size_t onUninstantiatedGpuMemorySize() const override;
+    size_t onUninstantiatedGpuMemorySize(const GrCaps&) const override;
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 
             LazySurfaceDesc callbackDesc() const override;

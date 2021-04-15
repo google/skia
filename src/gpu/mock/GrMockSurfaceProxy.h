@@ -25,7 +25,7 @@ public:
 
     bool instantiate(GrResourceProvider*) override { return false; }
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override {} )
-    size_t onUninstantiatedGpuMemorySize() const override { return 0; }
+    size_t onUninstantiatedGpuMemorySize(const GrCaps&) const override { return 0; }
 
 protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override { return nullptr; }

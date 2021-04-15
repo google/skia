@@ -374,12 +374,12 @@ bool GrResourceAllocator::makeBudgetHeadroom() {
 
         // N.B Fully-lazy proxies were already instantiated in planAssignment
         if (proxy->isLazy()) {
-            additionalBytesNeeded += proxy->gpuMemorySize();
+            additionalBytesNeeded += proxy->gpuMemorySize(*fDContext->priv().caps());
         } else {
             Register* r = cur->getRegister();
             SkASSERT(r);
             if (!r->accountedForInBudget() && !r->existingSurface()) {
-                additionalBytesNeeded += proxy->gpuMemorySize();
+                additionalBytesNeeded += proxy->gpuMemorySize(*fDContext->priv().caps());
             }
             r->setAccountedForInBudget();
         }
