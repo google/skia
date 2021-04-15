@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6128d0ba_8f54d1ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-15T18:24:31Z",
+      "side": 1,
+      "message": "Filed a bug and updated the CL description, FYI.",
+      "revId": "e586ec2bc73156aa4ddddb3a906c3a93f01c3c35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
