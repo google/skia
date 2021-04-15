@@ -16,6 +16,23 @@
       "message": "I was concerned about the DMSAA flag not propogating, But it\u0027s looking like the only places where that wasn\u0027t happening were image filters on blurs, which we don\u0027t want DMSAA on anyway.",
       "revId": "67d608d881c5ebaaeed6c3e915d70617f86e9d94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3798fa0e_6578cda7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-15T06:57:51Z",
+      "side": 1,
+      "message": "savelayer_f16 becomes non-aa because fp16 can\u0027t have msaa on android, which causes fNumDMSAASamles to be 0.\n\nThink we should always force antialiasing when kDMSAA_SkSurfacePropsPrivateFlag is on? Or just not worry about it if the backendFormat can\u0027t have MSAA?",
+      "revId": "67d608d881c5ebaaeed6c3e915d70617f86e9d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
