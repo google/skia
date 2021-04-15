@@ -640,6 +640,9 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
     GrMipmapped mipmapped() const;
 
+    bool hasDMSAA() const { return fNumDMSAASamples != 0; }
+    GrAA chooseAA(const SkPaint& paint) { return GrAA(paint.isAntiAlias() || this->hasDMSAA()); }
+
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
@@ -723,6 +726,7 @@ private:
     SkSurfaceProps fSurfaceProps;
 
     int fNumStencilSamples = 0;
+    int fNumDMSAASamples = 0;
 
     GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
 
