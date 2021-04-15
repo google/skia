@@ -22,6 +22,30 @@
       },
       "revId": "2726b6a36f394c5a45bdf9d8b213f1a090f6a575",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d291878_d1901d6e",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-15T19:37:28Z",
+      "side": 1,
+      "message": "Done. FWIW, it appears that the SRV, sampler and UAV ranges can overlap (so for example you can use t0, s0, and u0 in the same shader) so I\u0027m not sure why we don\u0027t allow that. As far as I can tell it\u0027s because GLSL and by extension SkSL doesn\u0027t make those semantic distinctions.",
+      "parentUuid": "ed602e59_3732b5e5",
+      "range": {
+        "startLine": 58,
+        "startChar": 66,
+        "endLine": 58,
+        "endChar": 69
+      },
+      "revId": "2726b6a36f394c5a45bdf9d8b213f1a090f6a575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
