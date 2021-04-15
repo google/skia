@@ -2557,7 +2557,6 @@ if (skia_enable_tools) {
       ]
     } else if (is_mac) {
       sources += [
-        "tools/sk_app/mac/RasterWindowContext_mac.mm",
         "tools/sk_app/mac/WindowContextFactory_mac.h",
         "tools/sk_app/mac/Window_mac.h",
         "tools/sk_app/mac/Window_mac.mm",
@@ -2592,7 +2591,10 @@ if (skia_enable_tools) {
           sources += [ "tools/sk_app/win/ANGLEWindowContext_win.cpp" ]
         }
       } else if (is_mac) {
-        sources += [ "tools/sk_app/mac/GLWindowContext_mac.mm" ]
+        sources += [
+          "tools/sk_app/mac/GLWindowContext_mac.mm",
+          "tools/sk_app/mac/RasterWindowContext_mac.mm",
+        ]
       } else if (is_ios) {
         sources += [ "tools/sk_app/ios/GLWindowContext_ios.mm" ]
       }
@@ -2863,7 +2865,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (skia_use_gl && skia_use_icu && skia_use_harfbuzz) {
+  if (skia_use_icu && skia_use_harfbuzz) {
     test_app("editor") {
       is_shared_library = is_android
       deps = [ "modules/skplaintexteditor:editor_app" ]
