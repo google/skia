@@ -28,11 +28,9 @@ public:
         SkString _coords1 = SkStringPrintf("%s / 2.0", args.fSampleCoord);
         SkString _sample1 = this->invokeChild(1, _input1.c_str(), args, _coords1.c_str());
         SkString _input2(args.fUniformHandler->getUniformCStr(CVar));
-        SkString _matrix2("float3x3(2.0)");
-        SkString _sample2 = this->invokeChildWithMatrix(2, _input2.c_str(), args, _matrix2.c_str());
+        SkString _sample2 = this->invokeChildWithMatrix(2, _input2.c_str(), args);
         SkString _input3(args.fUniformHandler->getUniformCStr(CVar));
-        SkString _matrix3(args.fUniformHandler->getUniformCStr(M0Var));
-        SkString _sample3 = this->invokeChildWithMatrix(3, _input3.c_str(), args, _matrix3.c_str());
+        SkString _sample3 = this->invokeChildWithMatrix(3, _input3.c_str(), args);
         SkString _input4(args.fUniformHandler->getUniformCStr(CVar));
         SkString _matrix4(args.fUniformHandler->getUniformCStr(M0Var));
         SkString _sample4 = this->invokeChildWithMatrix(4, _input4.c_str(), args, _matrix4.c_str());
