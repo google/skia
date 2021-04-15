@@ -29,12 +29,13 @@ class GrOnFlushCallbackObject;
 class GrOpFlushState;
 class GrOpsTask;
 class GrRecordingContext;
-class GrSurfaceDrawContext;
 class GrRenderTargetProxy;
 class GrRenderTask;
+class GrResourceAllocator;
 class GrSemaphore;
 class GrSoftwarePathRenderer;
 class GrSurfaceContext;
+class GrSurfaceDrawContext;
 class GrSurfaceProxyView;
 class GrTextureResolveRenderTask;
 class SkDeferredDisplayList;
@@ -155,7 +156,11 @@ private:
     void removeRenderTasks();
 
     void sortTasks();
-    void reorderTasks();
+
+    // Attempt to reorder tasks to reduce render passes, and check the memory budget of the
+    // resulting intervals. Returns whether the reordering was successful & the memory budget
+    // acceptable. If it returns true, fDAG has been updated to reflect the reordered tasks.
+    bool reorderTasks(GrResourceAllocator*);
 
     void closeAllTasks();
 
