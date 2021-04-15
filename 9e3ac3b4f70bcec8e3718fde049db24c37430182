@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61165b4e_9fc9d495",
+        "filename": "tests/sksl/fp/GrChildProcessorSampleWithColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-15T18:21:30Z",
+      "side": 1,
+      "message": "Doh.",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 95
+      },
+      "revId": "9e3ac3b4f70bcec8e3718fde049db24c37430182",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
