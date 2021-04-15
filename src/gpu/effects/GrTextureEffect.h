@@ -100,6 +100,12 @@ public:
 
     const GrSurfaceProxyView& view() const { return fView; }
 
+    // Gets a matrix that is concat'ed by wrapping GrMatrixEffect that handles y-flip and coord
+    // normalization if required. This matrix is not always known when we make the GrTextureEffect
+    // because of fully-lazy proxies. Hence, this method  exists to allow this concat to happen
+    // after proxy instantiation with coordination from GrMatrixEffect.
+    SkMatrix coordAdjustmentMatrix() const;
+
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs&) override;
@@ -112,7 +118,7 @@ public:
     private:
         UniformHandle fSubsetUni;
         UniformHandle fClampUni;
-        UniformHandle fNormUni;
+        UniformHandle fIDimsUni;
         UniformHandle fBorderUni;
         GrGLSLShaderBuilder::SamplerHandle fSamplerHandle;
     };
@@ -139,6 +145,12 @@ private:
                                     GrSamplerState::Filter,
                                     GrSamplerState::MipmapMode);
     static bool ShaderModeIsClampToBorder(ShaderMode);
+    // To keep things a little simpler, when we have filtering logic in the shader we
+    // operate on unnormalized texture coordinates. We will add a uniform that stores
+    // {w, h, 1/w, 1/h} in a float4 and normalizes after the mode is handled.
+    static bool ShaderModeRequiresUnormCoord(ShaderMode);
+
+    static bool MatrixEffectShouldNormalize(const GrSurfaceProxyView& view, const ShaderMode[2]);
 
     GrSurfaceProxyView fView;
     GrSamplerState fSamplerState;
@@ -146,8 +158,9 @@ private:
     SkRect fSubset;
     SkRect fClamp;
     ShaderMode fShaderModes[2];
-    // true if we are dealing with a fully lazy proxy which can't be normalized until runtime
-    bool fLazyProxyNormalization;
+    // true if owning GrMatrixEffect should adjust its matrix to account for normalization and
+    // origin of our texture.
+    bool fAdjustMatrix;
 
     inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const Sampling&, bool);
 
