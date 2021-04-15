@@ -56,8 +56,9 @@ for root in roots:
       for file_name in files:
         if file_name.endswith('.h'):
           if file_name in headers:
-            print(path, file_name, headers[file_name])
-          assert file_name not in headers
+            message = ('Header filename is used more than once!\n- ' + path + '/' + file_name +
+                       '\n- ' + headers[file_name])
+            assert file_name not in headers, message
           headers[file_name] = os.path.abspath(os.path.join(path, file_name))
 
 def to_rewrite():
