@@ -33,6 +33,24 @@
       "message": "One quick poll about naming: Do we like \u0027MakeForFoo\u0027? The alternative is probably \u0027MakeFooEffect\u0027. Using just \u0027MakeFoo\u0027 seems really confusing, because then we have SkRuntimeEffect::MakeShader, which actually returns an effect (not a shader), and *that* object has a `makeShader` that *does* return a shader.\n\nHaving separate C++ types would also work, but I\u0027ve found that\u0027s going to be the most disruptive refactor, so I was saving that for later.",
       "revId": "42cfa8bbacdb76fb3b9589c731cf55c29fce5e2a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b71e30f5_03d26dba",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-15T13:16:49Z",
+      "side": 1,
+      "message": "MakeFor in this context MakesSenseToMe.",
+      "parentUuid": "9d041ca6_8219c638",
+      "revId": "42cfa8bbacdb76fb3b9589c731cf55c29fce5e2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
