@@ -34,6 +34,24 @@
       "parentUuid": "3fcd8849_89203198",
       "revId": "bc595d04fb4eefd01e8da85135fbd1c78d016366",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9eade9f5_930fe369",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-15T20:46:45Z",
+      "side": 1,
+      "message": "So, when OpTasks are merged and the other ops task is discarded, then the arena on the RenderTargetProxy is reset. This is caused by the clearArena call on the OpsTask dtor. I have removed the dtor behavior, and I have GrDrawingManager::flush clear the arenas on the proxies at the end of the routine.",
+      "parentUuid": "84a9137a_2c2d6222",
+      "revId": "bc595d04fb4eefd01e8da85135fbd1c78d016366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
