@@ -33,7 +33,7 @@ static constexpr char gThresholdSkSL[] = R"(
 
 static sk_sp<SkRuntimeEffect> threshold_effect() {
     static const SkRuntimeEffect* effect =
-        SkRuntimeEffect::Make(SkString(gThresholdSkSL), {}).effect.release();
+        SkRuntimeEffect::MakeForColorFilter(SkString(gThresholdSkSL), {}).effect.release();
     SkASSERT(effect);
 
     return sk_ref_sp(effect);

@@ -402,7 +402,7 @@ public:
                 return sample(color_map, p) * scale.xxx1;
             }
         )";
-        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        auto [effect, error] = SkRuntimeEffect::MakeForShader(SkString(code));
         if (!effect) {
             SkDebugf("runtime error %s\n", error.c_str());
         }
