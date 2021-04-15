@@ -69,6 +69,24 @@
       "parentUuid": "87892dd4_12b49a29",
       "revId": "a571ecb0f7a8cc09428482872dde953af4fe100e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15407688_da3262c7",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-15T14:00:12Z",
+      "side": 1,
+      "message": "Yeah, you\u0027re right. It should work. It\u0027s known in the sense that we keep hitting it and working around it. I\u0027m guessing it has been identified as a bug and fixed since it compiles and runs without complaints for me locally with ASAN on clang 13 with patchset 3 applied.",
+      "parentUuid": "19323034_68803162",
+      "revId": "a571ecb0f7a8cc09428482872dde953af4fe100e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
