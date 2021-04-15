@@ -16,6 +16,24 @@
       "message": "Don\u0027t we have to guard this in case the above planAssignment fails?",
       "revId": "fc01579b9453cc4cb122a2d5ced8d6135b820192",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98464508_abdc6872",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-15T19:04:18Z",
+      "side": 1,
+      "message": "No, because `assign()` insta-bails if there was a failed instantiation.",
+      "parentUuid": "87611c2e_5769d653",
+      "revId": "fc01579b9453cc4cb122a2d5ced8d6135b820192",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
