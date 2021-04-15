@@ -15,7 +15,16 @@ sksl_fp_error_tests = [
   "/sksl/errors/GrRecursion.fp",
 ]
 
-sksl_dsl_fp_tests = [ "/sksl/fp/GrDSLHelloWorld.fp" ]
+sksl_dsl_fp_tests = [
+  "/sksl/dslfp/GrDSLHelloWorld.fp",
+  "/sksl/dslfp/GrDSLDoStatement.fp",
+  "/sksl/dslfp/GrDSLForStatement.fp",
+  "/sksl/dslfp/GrDSLIfStatement.fp",
+  "/sksl/dslfp/GrDSLSwitchStatement.fp",
+  "/sksl/dslfp/GrDSLSwizzle.fp",
+  "/sksl/dslfp/GrDSLTernary.fp",
+  "/sksl/dslfp/GrDSLWhileStatement.fp",
+]
 
 sksl_fp_tests = [
   "/sksl/fp/GrChildProcessorAndGlobal.fp",
