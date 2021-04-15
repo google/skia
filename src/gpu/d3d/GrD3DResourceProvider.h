@@ -39,7 +39,8 @@ public:
 
     void recycleDirectCommandList(std::unique_ptr<GrD3DDirectCommandList>);
 
-    sk_sp<GrD3DRootSignature> findOrCreateRootSignature(int numTextureSamplers);
+    sk_sp<GrD3DRootSignature> findOrCreateRootSignature(int numTextureSamplers,
+                                                        int numUAVs = 0);
 
     sk_sp<GrD3DCommandSignature> findOrCreateCommandSignature(GrD3DCommandSignature::ForIndexed,
                                                               unsigned int slot);
