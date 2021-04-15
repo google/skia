@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed602e59_3732b5e5",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-15T17:23:54Z",
+      "side": 1,
+      "message": "why the 2 * here? Maybe add comment",
+      "range": {
+        "startLine": 58,
+        "startChar": 66,
+        "endLine": 58,
+        "endChar": 69
+      },
+      "revId": "2726b6a36f394c5a45bdf9d8b213f1a090f6a575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
