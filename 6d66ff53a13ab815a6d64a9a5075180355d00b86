@@ -114,6 +114,30 @@
       },
       "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ac3b9c3_5e3caf7b",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2021-04-15T16:52:51Z",
+      "side": 1,
+      "message": "That wouldn\u0027t work. The equivalent of Tick() when running in WASM is yielding to the browser. Instead of you running the WebGPU event loop, it is the browser doing it for you, but only when you yield to its event loop. Emscripten\u0027s ASYNCIFY can help if you really need to do a spinloop.",
+      "parentUuid": "f7261c80_1cf9f2d6",
+      "range": {
+        "startLine": 562,
+        "startChar": 20,
+        "endLine": 562,
+        "endChar": 24
+      },
+      "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
