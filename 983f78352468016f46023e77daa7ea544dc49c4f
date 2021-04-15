@@ -16,6 +16,24 @@
       "message": "What\u0027s up with \u0027fNumOps\u0027 ?",
       "revId": "983f78352468016f46023e77daa7ea544dc49c4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ba14873_def371e2",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-15T16:47:39Z",
+      "side": 1,
+      "message": "It\u0027s kind of useful in that, GrOpsTask uses `curOp()` (which is the same) to figure out where its interval starts. So if the resourceAllocator has 3 ops right now, I know that I am e.g. ops [3…5]. There\u0027s got to be a better way, but it works fine and is orthogonal to the completely-unused `numOpsTasks` from this CL.",
+      "parentUuid": "82dbf8d9_03051991",
+      "revId": "983f78352468016f46023e77daa7ea544dc49c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
