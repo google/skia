@@ -40,7 +40,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
             samplerRanges[i].RegisterSpace = GrSPIRVUniformHandler::kSamplerTextureDescriptorSet;
             // In the descriptor table the descriptors will all be contiguous.
             samplerRanges[i].OffsetInDescriptorsFromTableStart =
-                D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                    D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
             shaderViewRanges[i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
             shaderViewRanges[i].NumDescriptors = 1;
@@ -49,7 +49,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
             shaderViewRanges[i].RegisterSpace = GrSPIRVUniformHandler::kSamplerTextureDescriptorSet;
             // In the descriptor table the descriptors will all be contiguous.
             shaderViewRanges[i].OffsetInDescriptorsFromTableStart =
-                D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                    D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
         }
     }
     if (numUAVs) {
@@ -63,7 +63,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
             GrSPIRVUniformHandler::kSamplerTextureDescriptorSet;
         // In the descriptor table the descriptors will all be contiguous.
         shaderViewRanges[numTextureSamplers].OffsetInDescriptorsFromTableStart =
-            D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     }
 
     if (numShaderViews) {
@@ -89,7 +89,6 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
     rootDesc.NumStaticSamplers = 0;
     rootDesc.pStaticSamplers = nullptr;
     rootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
     gr_cp<ID3DBlob> rootSigBinary;
     gr_cp<ID3DBlob> error;
     // TODO: D3D Static Function
