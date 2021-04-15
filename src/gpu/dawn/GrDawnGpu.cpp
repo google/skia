@@ -46,11 +46,11 @@ namespace {
 class Fence {
 public:
     Fence(const wgpu::Device& device, const wgpu::Fence& fence)
-      : fDevice(device), fFence(fence), fCalled(false) {
-        fFence.OnCompletion(0, callback, this);
+      : fDevice(device), fCalled(false) {
+        device.GetQueue().OnSubmittedWorkDone(0, callback, this);
     }
 
-    static void callback(WGPUFenceCompletionStatus status, void* userData) {
+    static void callback(WGPUQueueWorkDoneStatus status, void* userData) {
         Fence* fence = static_cast<Fence*>(userData);
         fence->fCalled = true;
     }
@@ -60,11 +60,8 @@ public:
         return fCalled;
     }
 
-    wgpu::Fence fence() { return fFence; }
-
 private:
     wgpu::Device            fDevice;
-    wgpu::Fence             fFence;
     bool                    fCalled;
 };
 
@@ -546,7 +543,7 @@ void GrDawnGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
 }
 
 
-static void callback(WGPUFenceCompletionStatus status, void* userData) {
+static void callback(WGPUQueueWorkDoneStatus status, void* userData) {
     *static_cast<bool*>(userData) = true;
 }
 
@@ -559,10 +556,8 @@ bool GrDawnGpu::onSubmitToGpu(bool syncCpu) {
 
     this->moveStagingBuffersToBusyAndMapAsync();
     if (syncCpu) {
-        wgpu::FenceDescriptor desc;
-        wgpu::Fence fence = fQueue.CreateFence(&desc);
         bool called = false;
-        fence.OnCompletion(0, callback, &called);
+        fDevice.GetQueue().OnSubmittedWorkDone(0, callback, &called);
         while (!called) {
             fDevice.Tick();
         }
