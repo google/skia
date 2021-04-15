@@ -16,6 +16,24 @@
       "message": "lgtm, but isn\u0027t this also just...\n\n  ptr-\u003e~T();\n  new (ptr) T;\n\n... for all T?",
       "revId": "9eb13e2781ed0d05b59ff2fe20a14668fbea66a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86cb6697_74a4a69f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-15T16:04:20Z",
+      "side": 1,
+      "message": "could you elaborate? are you saying that we should implement `reset()` by keeping the ValueLists intact? instead of destroying everything?",
+      "parentUuid": "4a2dc239_d518c3fa",
+      "revId": "9eb13e2781ed0d05b59ff2fe20a14668fbea66a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
