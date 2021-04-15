@@ -48,14 +48,15 @@ void GrD3DResourceProvider::recycleDirectCommandList(
     fAvailableDirectCommandLists.push_back(std::move(commandList));
 }
 
-sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int numTextureSamplers) {
+sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int numTextureSamplers,
+                                                                           int numUAVs) {
     for (int i = 0; i < fRootSignatures.count(); ++i) {
-        if (fRootSignatures[i]->isCompatible(numTextureSamplers)) {
+        if (fRootSignatures[i]->isCompatible(numTextureSamplers, numUAVs)) {
             return fRootSignatures[i];
         }
     }
 
-    auto rootSig = GrD3DRootSignature::Make(fGpu, numTextureSamplers);
+    auto rootSig = GrD3DRootSignature::Make(fGpu, numTextureSamplers, numUAVs);
     if (!rootSig) {
         return nullptr;
     }

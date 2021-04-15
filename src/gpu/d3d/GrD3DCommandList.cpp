@@ -498,7 +498,7 @@ void GrD3DDirectCommandList::setGraphicsRootDescriptorTable(
     SkASSERT(rootParameterIndex ==
                     (unsigned int)GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable ||
              rootParameterIndex ==
-                    (unsigned int)GrD3DRootSignature::ParamIndex::kTextureDescriptorTable);
+                    (unsigned int)GrD3DRootSignature::ParamIndex::kShaderViewDescriptorTable);
     if (fCurrentGraphicsRootDescTable[rootParameterIndex].ptr != baseDescriptor.ptr) {
         fCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
         fCurrentGraphicsRootDescTable[rootParameterIndex] = baseDescriptor;
@@ -510,7 +510,7 @@ void GrD3DDirectCommandList::setComputeRootDescriptorTable(
     SkASSERT(rootParameterIndex ==
              (unsigned int)GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable ||
              rootParameterIndex ==
-             (unsigned int)GrD3DRootSignature::ParamIndex::kTextureDescriptorTable);
+             (unsigned int)GrD3DRootSignature::ParamIndex::kShaderViewDescriptorTable);
     if (fCurrentComputeRootDescTable[rootParameterIndex].ptr != baseDescriptor.ptr) {
         fCommandList->SetComputeRootDescriptorTable(rootParameterIndex, baseDescriptor);
         fCurrentComputeRootDescTable[rootParameterIndex] = baseDescriptor;
