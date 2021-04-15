@@ -19,5 +19,5 @@ set -e
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
-BUILD_DIR=/OUT $CANVASKIT_DIR/compile.sh $@
+BUILD_DIR=/OUT $CANVASKIT_DIR/compile.sh no_skottie $@
 
