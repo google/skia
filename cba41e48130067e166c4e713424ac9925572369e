@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db4fdb01_7057e2a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-15T19:30:23Z",
+      "side": 1,
+      "message": "OK, pretty clear (to me) that I shouldn\u0027t land the SK and CK changes at the same time, but I kept them all together so far so I could just make it all work.\n\nIt seems to work (modulo knowing how to return the \u0027font\u0027).",
+      "revId": "cba41e48130067e166c4e713424ac9925572369e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
