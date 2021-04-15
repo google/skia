@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19700b01_a5aed30c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-15T16:36:56Z",
+      "side": 1,
+      "message": "PTAL. I tried putting the UAVs in a separate descriptor table, but that made the parameter indexing a little more complicated if there weren\u0027t any textures.",
+      "revId": "4dc981a2fc697da5a7bfc94dc06be99756639398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
