@@ -47,6 +47,8 @@ public:
     // the pool can be destroyed.
     static void FreeMemory(void* ptr);
 
+    static bool IsAttached();
+
 private:
     void checkForLeaks();
 
