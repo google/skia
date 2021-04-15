@@ -16,6 +16,7 @@
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 
+class GrVkFramebuffer;
 class GrVkGpu;
 class GrVkImage;
 class GrVkRenderTarget;
@@ -32,13 +33,15 @@ public:
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
     bool set(GrRenderTarget*,
-             GrAttachment*,
+             sk_sp<GrVkFramebuffer>,
              GrSurfaceOrigin,
              const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-             GrXferBarrierFlags renderPassXferBarriers);
+             const GrOpsRenderPass::LoadAndStoreInfo& resolveInfo,
+             GrVkRenderPass::SelfDependencyFlags selfDepFlags,
+             GrVkRenderPass::LoadFromResolve loadFromResolve,
+             const SkTArray<GrSurfaceProxy*, true>& sampledProxies);
     void reset();
 
     void submit();
@@ -50,10 +53,7 @@ public:
 private:
     bool init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
               const GrOpsRenderPass::LoadAndStoreInfo& resolveInfo,
-              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-              std::array<float, 4> clearColor,
-              bool withResolve,
-              bool withStencil);
+              const GrOpsRenderPass::StencilLoadAndStoreInfo&);
 
     // Called instead of init when we are drawing to a render target that already wraps a secondary
     // command buffer.
@@ -105,6 +105,7 @@ private:
 
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
 
+    sk_sp<GrVkFramebuffer>                      fFramebuffer;
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;
     SkIRect                                     fCurrentPipelineBounds;
