@@ -688,7 +688,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                         proj = false;
                         break;
                 }
-                if (fTextureFunctionOverride != "") {
+                if (!fTextureFunctionOverride.empty()) {
                     this->write(fTextureFunctionOverride.c_str());
                 } else {
                     this->write("texture");
