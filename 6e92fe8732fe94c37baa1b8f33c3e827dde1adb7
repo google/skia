@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0bfb22d_be7d403f",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-15T20:34:39Z",
+      "side": 1,
+      "message": "Now that I\u0027ve read through I see this is copy and pasted from various places. But I think it could use a comment or two here explaining what\u0027s going on, because at first this is just a big wall of text.",
+      "range": {
+        "startLine": 320,
+        "startChar": 4,
+        "endLine": 349,
+        "endChar": 0
+      },
+      "revId": "6e92fe8732fe94c37baa1b8f33c3e827dde1adb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
