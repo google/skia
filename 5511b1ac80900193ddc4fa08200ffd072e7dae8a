@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d175f99_b715e50a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-15T21:03:43Z",
+      "side": 1,
+      "message": "Good chat -- proceed as you see fit.",
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "12bb7411_f8da0ea8",
@@ -203,6 +220,30 @@
       "side": 1,
       "message": "Ack. Makes sense. Seems like a good idea to test it.",
       "parentUuid": "86402035_9355c479",
+      "range": {
+        "startLine": 81,
+        "startChar": 15,
+        "endLine": 81,
+        "endChar": 33
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62f8a1c0_8f56f9db",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-15T21:03:43Z",
+      "side": 1,
+      "message": "My bad -- good name, it should return the # of moves",
+      "parentUuid": "300d1907_08d3761f",
       "range": {
         "startLine": 81,
         "startChar": 15,
