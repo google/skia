@@ -174,4 +174,21 @@ private:
 
 DEF_GM(return new PolygonsGM;)
 
+// see crbug.com/1197461
+DEF_SIMPLE_GM(conjoined_polygons, canvas, 400, 400) {
+    SkPathBuilder b;
+    b.moveTo(0.f, 120.f);
+    b.lineTo(0.f, 0.f);
+    b.lineTo(50.f, 330.f);
+    b.lineTo(90.f, 0.f);
+    b.lineTo(340.f, 0.f);
+    b.lineTo(90.f, 330.f);
+    b.lineTo(50.f, 330.f);
+    b.close();
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawPath(b.detach(), paint);
+}
+
 }  // namespace skiagm
