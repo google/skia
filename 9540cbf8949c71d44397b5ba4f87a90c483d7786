@@ -22,6 +22,30 @@
       },
       "revId": "9540cbf8949c71d44397b5ba4f87a90c483d7786",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6c92ed6_fb2e9166",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-15T20:41:42Z",
+      "side": 1,
+      "message": "Ah yeah. Note that we\u0027re using it earlier (line 79) for things that also aren\u0027t necessarily functions. It just needs to be renamed in another CL.",
+      "parentUuid": "21550723_1221daad",
+      "range": {
+        "startLine": 125,
+        "startChar": 54,
+        "endLine": 125,
+        "endChar": 76
+      },
+      "revId": "9540cbf8949c71d44397b5ba4f87a90c483d7786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
