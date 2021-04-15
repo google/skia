@@ -366,8 +366,17 @@ struct EditorLayer : public sk_app::Window::Layer {
     }
 };
 
-//static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kRaster_BackendType;
+#ifdef SK_VULKAN
+static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kVulkan_BackendType;
+#elif SK_METAL
+static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kMetal_BackendType;
+#elif SK_GL
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kNativeGL_BackendType;
+#elif SK_DAWN
+static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kDawn_BackendType;
+#else
+static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kRaster_BackendType;
+#endif
 
 struct EditorApplication : public sk_app::Application {
     std::unique_ptr<sk_app::Window> fWindow;
