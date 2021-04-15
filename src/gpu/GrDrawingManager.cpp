@@ -139,8 +139,13 @@ bool GrDrawingManager::flush(
 
     this->sortTasks();
 
+    bool usingReorderedDAG = false;
+    GrResourceAllocator resourceAllocator(dContext);
     if (fReduceOpsTaskSplitting) {
-        this->reorderTasks();
+        usingReorderedDAG = this->reorderTasks(&resourceAllocator);
+        if (!usingReorderedDAG) {
+            resourceAllocator.reset();
+        }
     }
 
     if (!fCpuBufferCache) {
@@ -202,25 +207,18 @@ bool GrDrawingManager::flush(
     }
 #endif
 
-    bool flushed = false;
-
-    {
-        GrResourceAllocator alloc(dContext);
-        for (const auto& task : fDAG) {
-            SkASSERT(task);
-            task->gatherProxyIntervals(&alloc);
-        }
-
-        if (alloc.planAssignment()) {
-            if (fReduceOpsTaskSplitting) {
-                if (!alloc.makeBudgetHeadroom()) {
-                    // TODO: Switch to the original DAG in this case.
-                    gpu->stats()->incNumReorderedDAGsOverBudget();
-                }
+    if (!resourceAllocator.failedInstantiation()) {
+        if (!usingReorderedDAG) {
+            for (const auto& task : fDAG) {
+                SkASSERT(task);
+                task->gatherProxyIntervals(&resourceAllocator);
             }
-            flushed = alloc.assign() && this->executeRenderTasks(&flushState);
+            resourceAllocator.planAssignment();
         }
+        resourceAllocator.assign();
     }
+    bool flushed = !resourceAllocator.failedInstantiation() &&
+                    this->executeRenderTasks(&flushState);
     this->removeRenderTasks();
 
     gpu->executeFlushInfo(proxies, access, info, newState);
@@ -390,12 +388,25 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
     SkASSERT(i == array->count());
 }
 
-void GrDrawingManager::reorderTasks() {
+bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     SkASSERT(fReduceOpsTaskSplitting);
     SkTInternalLList<GrRenderTask> llist;
     bool clustered = GrClusterRenderTasks(fDAG, &llist);
     if (!clustered) {
-        return;
+        return false;
+    }
+
+    for (GrRenderTask* task : llist) {
+        task->gatherProxyIntervals(resourceAllocator);
+    }
+    if (!resourceAllocator->planAssignment()) {
+        return false;
+    }
+    if (!resourceAllocator->makeBudgetHeadroom()) {
+        auto dContext = fContext->asDirectContext();
+        SkASSERT(dContext);
+        dContext->priv().getGpu()->stats()->incNumReorderedDAGsOverBudget();
+        return false;
     }
     // TODO: Handle case where proposed order would blow our memory budget.
     // Such cases are currently pathological, so we could just return here and keep current order.
@@ -416,6 +427,7 @@ void GrDrawingManager::reorderTasks() {
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);
+    return true;
 }
 
 void GrDrawingManager::closeAllTasks() {
