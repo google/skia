@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a2dc239_d518c3fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-15T15:54:15Z",
+      "side": 1,
+      "message": "lgtm, but isn\u0027t this also just...\n\n  ptr-\u003e~T();\n  new (ptr) T;\n\n... for all T?",
+      "revId": "9eb13e2781ed0d05b59ff2fe20a14668fbea66a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
