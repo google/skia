@@ -37,8 +37,11 @@ public:
 
         class FPCallbacks : public SkSL::PipelineStage::Callbacks {
         public:
-            FPCallbacks(GrGLSLSkSLFP* self, EmitArgs& args, const SkSL::Context& context)
-                    : fSelf(self), fArgs(args), fContext(context) {}
+            FPCallbacks(GrGLSLSkSLFP* self,
+                        EmitArgs& args,
+                        const char* inputColor,
+                        const SkSL::Context& context)
+                    : fSelf(self), fArgs(args), fInputColor(inputColor), fContext(context) {}
 
             using String = SkSL::String;
 
@@ -93,7 +96,7 @@ public:
             }
 
             String sampleChild(int index, String coords) override {
-                return String(fSelf->invokeChild(index, fArgs, coords).c_str());
+                return String(fSelf->invokeChild(index, fInputColor, fArgs, coords).c_str());
             }
 
             String sampleChildWithMatrix(int index, String matrix) override {
@@ -104,16 +107,25 @@ public:
                 const GrFragmentProcessor* child = fArgs.fFp.childProcessor(index);
                 const bool hasUniformMatrix = child && child->sampleUsage().hasUniformMatrix();
                 return String(
-                        fSelf->invokeChildWithMatrix(index, fArgs, hasUniformMatrix ? "" : matrix)
+                        fSelf->invokeChildWithMatrix(
+                                     index, fInputColor, fArgs, hasUniformMatrix ? "" : matrix)
                                 .c_str());
             }
 
             GrGLSLSkSLFP*        fSelf;
             EmitArgs&            fArgs;
+            const char*          fInputColor;
             const SkSL::Context& fContext;
         };
 
-        FPCallbacks callbacks(this, args, *program.fContext);
+        // Snap off a global copy of the input color at the start of main. We need this when
+        // we call child processors (particularly from helper functions, which can't "see" the
+        // parameter to main). Even from within main, if the code mutates the parameter, calls to
+        // sample should still be passing the original color (by default).
+        GrShaderVar inputColorCopy(args.fFragBuilder->getMangledFunctionName("inColor"),
+                                   kHalf4_GrSLType);
+        args.fFragBuilder->declareGlobal(inputColorCopy);
+        args.fFragBuilder->codeAppendf("%s = %s;\n", inputColorCopy.c_str(), args.fInputColor);
 
         // Callback to define a function (and return its mangled name)
         SkString coordsVarName = args.fFragBuilder->newTmpVarName("coords");
@@ -123,6 +135,7 @@ public:
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
 
+        FPCallbacks callbacks(this, args, inputColorCopy.c_str(), *program.fContext);
         SkSL::PipelineStage::ConvertProgram(program, coords, args.fInputColor, &callbacks);
     }
 
