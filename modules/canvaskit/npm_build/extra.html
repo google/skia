@@ -246,7 +246,8 @@
     let X = 100;
     let Y = 100;
 
-    const font = new CanvasKit.Font(null, 18);
+    const tf = fontMgr.MakeTypefaceFromData(fontData);
+    const font = new CanvasKit.Font(tf, 50);
     const fontPaint = new CanvasKit.Paint();
     fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
     fontPaint.setAntiAlias(true);
@@ -259,8 +260,15 @@
 
       canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
 
-      let posA = paragraph.getGlyphPositionAtCoordinate(X, Y);
-      canvas.drawText(`At (${X.toFixed(2)}, ${Y.toFixed(2)}) glyph is ${posA.pos}`, 5, 450, fontPaint, font);
+      {
+          let runs = paragraph.getShapedRuns();
+
+          fontPaint.setColor(CanvasKit.RED);
+          for (let r of runs) {
+              canvas.drawGlyphs(r.glyphs, r.positions, r.origin_x, r.origin_y, font, fontPaint);
+          }
+          fontPaint.setColor(CanvasKit.BLACK);
+      }
 
       surface.requestAnimationFrame(drawFrame);
     }
