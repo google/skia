@@ -72,6 +72,10 @@ void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outp
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }
 
+// Print the source code for all shaders generated.
+static const bool gPrintSKSL = false;
+static const bool gPrintHLSL = false;
+
 static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
                                            const SkSL::String& hlsl,
                                            SkSL::ProgramKind kind) {
@@ -139,19 +143,32 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         const SkSL::Program::Settings& settings,
         SkSL::Program::Inputs* outInputs,
         SkSL::String* outHLSL) {
-    auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
+#ifdef SK_DEBUG
+    SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
+#else
+    const SkSL::String& src = sksl;
+#endif
+
     std::unique_ptr<SkSL::Program> program = fGpu->shaderCompiler()->convertProgram(
-            kind, sksl, settings);
-    if (!program) {
-        errorHandler->compileError(sksl.c_str(),
+            kind, src, settings);
+    if (!program || !fGpu->shaderCompiler()->toHLSL(*program, outHLSL)) {
+        auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
+        errorHandler->compileError(src.c_str(),
                                    fGpu->shaderCompiler()->errorText().c_str());
         return gr_cp<ID3DBlob>();
     }
     *outInputs = program->fInputs;
-    if (!fGpu->shaderCompiler()->toHLSL(*program, outHLSL)) {
-        errorHandler->compileError(sksl.c_str(),
-                                   fGpu->shaderCompiler()->errorText().c_str());
-        return gr_cp<ID3DBlob>();
+
+    if (gPrintSKSL || gPrintHLSL) {
+        GrShaderUtils::PrintShaderBanner(kind);
+        if (gPrintSKSL) {
+            SkDebugf("SKSL:\n");
+            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
+        }
+        if (gPrintHLSL) {
+            SkDebugf("HLSL:\n");
+            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(*outHLSL));
+        }
     }
 
     if (program->fInputs.fRTHeight) {
