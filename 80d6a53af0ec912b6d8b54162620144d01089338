@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5207e99a_f5829cb5",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-15T15:41:33Z",
+      "side": 1,
+      "message": "Derp. Brain fart.",
+      "parentUuid": "4810e236_cec51271",
+      "range": {
+        "startLine": 25,
+        "startChar": 9,
+        "endLine": 25,
+        "endChar": 38
+      },
+      "revId": "80d6a53af0ec912b6d8b54162620144d01089338",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98df672e_6fe87669",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "059bb0e5_7170674c",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-15T15:41:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98df672e_6fe87669",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 0
+      },
+      "revId": "80d6a53af0ec912b6d8b54162620144d01089338",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "619aeedb_bad9cff6",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-14T21:41:08Z",
       "side": 1,
       "message": "We don\u0027t clear the instance\u0027s fPool here; seems like ~DSLWriter would double free the pool (which I\u0027d have expected to crash). Is something else cleaning this up?",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 5
+      },
+      "revId": "80d6a53af0ec912b6d8b54162620144d01089338",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "943c92ee_56191e48",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-15T15:41:33Z",
+      "side": 1,
+      "message": "We std::move the instance\u0027s pool a few lines up from here; the Program\u0027s responsible for its lifetime after this.",
+      "parentUuid": "619aeedb_bad9cff6",
       "range": {
         "startLine": 253,
         "startChar": 0,

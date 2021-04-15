@@ -413,6 +413,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "087c850e_601c6b55",
+        "filename": "src/sksl/dsl/DSLRuntimeEffects.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-15T15:41:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "989894ce_fb87873b",
+      "range": {
+        "startLine": 39,
+        "startChar": 11,
+        "endLine": 39,
+        "endChar": 24
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3fee266_a54b24b9",
@@ -687,6 +711,30 @@
       "side": 1,
       "message": "The DSLWriter instance\u0027s fConfig is now null. Is there any way for the user to reasonably continue using the DSLWriter past the call to ReleaseProgram, and somehow trip on that null fConfig?",
       "parentUuid": "72684bb5_f4d79349",
+      "range": {
+        "startLine": 244,
+        "startChar": 50,
+        "endLine": 244,
+        "endChar": 83
+      },
+      "revId": "7e4dc24ee7d2664b1e3e219fe122ff83bf301ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6c06196_9fe36833",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-15T15:41:33Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be. EndFragmentProcessor() follows the call to ReleaseProgram() with End(), which sets the DSLWriter instance to null, so there\u0027s no way to end up with a null config and non-null DSLWriter instance (at least not without doing shady things using private APIs).",
+      "parentUuid": "541ed4ad_ff7fd646",
       "range": {
         "startLine": 244,
         "startChar": 50,
