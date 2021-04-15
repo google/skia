@@ -316,10 +316,10 @@ DEF_SIMPLE_GM(sksl_sample_chaining, canvas, 380, 306) {
     SkBitmap bmp = make_test_bitmap();
 
     sk_sp<SkRuntimeEffect> effects[4] = {
-        SkRuntimeEffect::Make(SkString(gConstantMatrixSkSL)).effect,
-        SkRuntimeEffect::Make(SkString(gUniformMatrixSkSL)).effect,
-        SkRuntimeEffect::Make(SkString(gVariableMatrixSkSL)).effect,
-        SkRuntimeEffect::Make(SkString(gExplicitCoordSkSL)).effect,
+        SkRuntimeEffect::MakeForShader(SkString(gConstantMatrixSkSL)).effect,
+        SkRuntimeEffect::MakeForShader(SkString(gUniformMatrixSkSL)).effect,
+        SkRuntimeEffect::MakeForShader(SkString(gVariableMatrixSkSL)).effect,
+        SkRuntimeEffect::MakeForShader(SkString(gExplicitCoordSkSL)).effect,
     };
 
     canvas->translate(10, 10);

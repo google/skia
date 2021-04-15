@@ -40,7 +40,7 @@ class RuntimeFunctions : public skiagm::GM {
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkRuntimeEffect> gEffect =
-                SkRuntimeEffect::Make(SkString(RUNTIME_FUNCTIONS_SRC)).effect;
+                SkRuntimeEffect::MakeForShader(SkString(RUNTIME_FUNCTIONS_SRC)).effect;
         SkASSERT(gEffect);
 
         SkMatrix localM;

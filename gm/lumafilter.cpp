@@ -185,7 +185,7 @@ DEF_SIMPLE_GM(AlternateLuma, canvas, 384,128) {
     canvas->translate(128,0);
 
     // Splatting the Y channel of XYZ on the right should result in (near) greyscale.
-    auto [effect, err] = SkRuntimeEffect::Make(SkString{
+    auto [effect, err] = SkRuntimeEffect::MakeForColorFilter(SkString{
             "half4 main(half4 inColor) { return inColor.yyya; }"});
     SkASSERT(effect && err.isEmpty());
 
