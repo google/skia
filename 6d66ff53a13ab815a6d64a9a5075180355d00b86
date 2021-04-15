@@ -138,6 +138,30 @@
       },
       "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1574e3e2_5ebca41a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2021-04-15T23:39:16Z",
+      "side": 1,
+      "message": "This particular case occurs when \"syncCpu\" is true. Essentially it\u0027s implementing glFinish(). I doubt there\u0027s any way to do that in a blocking fashion in the browser, nor would you want to AFAIK. I can\u0027t recall when Skia sets this to true, but I\u0027m hoping it\u0027s only for tests.",
+      "parentUuid": "1ac3b9c3_5e3caf7b",
+      "range": {
+        "startLine": 562,
+        "startChar": 20,
+        "endLine": 562,
+        "endChar": 24
+      },
+      "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
