@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87611c2e_5769d653",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-15T18:12:04Z",
+      "side": 1,
+      "message": "Don\u0027t we have to guard this in case the above planAssignment fails?",
+      "revId": "fc01579b9453cc4cb122a2d5ced8d6135b820192",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
