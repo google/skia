@@ -23,7 +23,8 @@ public:
 private:
     GrChildProcessorSampleMatrixSingleUniformExpr(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorSampleMatrixSingleUniformExpr_ClassID, kNone_OptimizationFlags) {
-        this->registerChild(std::move(child), SkSL::SampleUsage::VariableMatrix(true));    }
+        this->registerChild(std::move(child), SkSL::SampleUsage::VariableMatrix(true));
+    }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

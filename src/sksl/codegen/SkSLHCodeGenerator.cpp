@@ -290,13 +290,13 @@ void HCodeGenerator::writeConstructor() {
             }
             std::string usageArg = usage.constructor(std::move(perspExpression));
 
-            this->writef("        this->registerChild(std::move(%s), %s);",
+            this->writef("        this->registerChild(std::move(%s), %s);\n",
                          String(param->name()).c_str(),
                          usageArg.c_str());
         }
     }
     if (samplerCount) {
-        this->writef("        this->setTextureSamplerCnt(%d);", samplerCount);
+        this->writef("        this->setTextureSamplerCnt(%d);\n", samplerCount);
     }
     this->writef("    }\n");
 }
