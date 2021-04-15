@@ -34,6 +34,24 @@
       "parentUuid": "4a2dc239_d518c3fa",
       "revId": "9eb13e2781ed0d05b59ff2fe20a14668fbea66a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0509912e_df8ac9d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-15T16:14:57Z",
+      "side": 1,
+      "message": "I\u0027m suggesting that you don\u0027t really _need_ to add reset() methods to most types.  If you want to reset an object you can always just destruct it and use placement new to reconstruct it again.\n\n$ cat foo.cc\n#include \u003cnew\u003e\n#include \u003cstdio.h\u003e\n\ntemplate \u003ctypename K, typename V\u003e\nstruct Map {\n     Map() { printf(\"hello\\n\"); }\n    ~Map() { printf(\"bye\\n\"); }\n};\n\nint main(void) {\n    using M \u003d Map\u003cint,float\u003e;\n\n    M map;\n    map.~M();\n    new (\u0026map) M;\n\n    return 0;\n}\n\n$ clang++ -std\u003dc++11 foo.cc \u0026\u0026 ./a.out\nhello\nbye\nhello\nbye",
+      "parentUuid": "86cb6697_74a4a69f",
+      "revId": "9eb13e2781ed0d05b59ff2fe20a14668fbea66a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
