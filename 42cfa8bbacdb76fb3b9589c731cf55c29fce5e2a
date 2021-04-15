@@ -51,6 +51,24 @@
       "parentUuid": "9d041ca6_8219c638",
       "revId": "42cfa8bbacdb76fb3b9589c731cf55c29fce5e2a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a13d2d56_8fcfce7d",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-15T13:30:41Z",
+      "side": 1,
+      "message": "Ack. And luckily - this is C++ API, so even if we change our mind, it only impacts our direct clients, not their users of SkSL.",
+      "parentUuid": "b71e30f5_03d26dba",
+      "revId": "42cfa8bbacdb76fb3b9589c731cf55c29fce5e2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
