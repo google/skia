@@ -25,7 +25,8 @@ private:
     GrChildProcessorSampleMatrixSingleInUniform(std::unique_ptr<GrFragmentProcessor> child, SkMatrix matrix)
     : INHERITED(kGrChildProcessorSampleMatrixSingleInUniform_ClassID, kNone_OptimizationFlags)
     , matrix(matrix) {
-        this->registerChild(std::move(child), SkSL::SampleUsage::UniformMatrix("matrix", matrix.hasPerspective()));    }
+        this->registerChild(std::move(child), SkSL::SampleUsage::UniformMatrix("matrix", matrix.hasPerspective()));
+    }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

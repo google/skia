@@ -23,7 +23,8 @@ public:
 private:
     GrNestedCall(std::unique_ptr<GrFragmentProcessor> fp)
     : INHERITED(kGrNestedCall_ClassID, kNone_OptimizationFlags) {
-        this->registerChild(std::move(fp), SkSL::SampleUsage::PassThrough());    }
+        this->registerChild(std::move(fp), SkSL::SampleUsage::PassThrough());
+    }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
