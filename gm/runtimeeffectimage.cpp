@@ -42,7 +42,7 @@ protected:
                 return result;
             }
         )");
-        auto [effect, error] = SkRuntimeEffect::Make(sksl);
+        auto [effect, error] = SkRuntimeEffect::MakeForShader(sksl);
         if (!effect) {
             SkDebugf("RuntimeShader error: %s\n", error.c_str());
         }
