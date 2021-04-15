@@ -45,7 +45,7 @@ static constexpr char gDisplacementSkSL[] = R"(
     uniform half4   selector_offset;
 
     half4 main(float2 xy) {
-        half4 d = sample(displ);
+        half4 d = sample(displ, xy);
 
         d = selector_matrix*unpremul(d) + selector_offset;
 
@@ -55,9 +55,9 @@ static constexpr char gDisplacementSkSL[] = R"(
 
 static sk_sp<SkRuntimeEffect> displacement_effect_singleton() {
     static const SkRuntimeEffect* effect =
-            SkRuntimeEffect::Make(SkString(gDisplacementSkSL)).effect.release();
+            SkRuntimeEffect::MakeForShader(SkString(gDisplacementSkSL)).effect.release();
     if (0 && !effect) {
-        auto err = SkRuntimeEffect::Make(SkString(gDisplacementSkSL)).errorText;
+        auto err = SkRuntimeEffect::MakeForShader(SkString(gDisplacementSkSL)).errorText;
         printf("!!! %s\n", err.c_str());
     }
     SkASSERT(effect);

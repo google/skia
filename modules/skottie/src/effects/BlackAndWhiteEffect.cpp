@@ -61,7 +61,7 @@ static sk_sp<SkRuntimeEffect> make_effect() {
     )";
 
     static const SkRuntimeEffect* effect =
-            SkRuntimeEffect::Make(SkString(BLACK_AND_WHITE_EFFECT)).effect.release();
+            SkRuntimeEffect::MakeForColorFilter(SkString(BLACK_AND_WHITE_EFFECT)).effect.release();
     SkASSERT(effect);
 
     return sk_ref_sp(effect);

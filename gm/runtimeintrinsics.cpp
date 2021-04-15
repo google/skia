@@ -114,7 +114,7 @@ static void plot(SkCanvas* canvas,
 
     draw_label(canvas, label ? label : fn);
 
-    auto [effect, error] = SkRuntimeEffect::Make(make_unary_sksl_1d(fn));
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(make_unary_sksl_1d(fn));
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;
@@ -339,7 +339,7 @@ static void plot_matrix_comp_mult(SkCanvas* canvas,
 
     draw_label(canvas, label);
 
-    auto [effect, error] = SkRuntimeEffect::Make(make_matrix_comp_mult_sksl(N));
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(make_matrix_comp_mult_sksl(N));
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;
@@ -376,7 +376,7 @@ static void plot_matrix_inverse(SkCanvas* canvas, std::array<float, N*N> mtx, co
 
     draw_label(canvas, label);
 
-    auto [effect, error] = SkRuntimeEffect::Make(make_matrix_inverse_sksl(N));
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(make_matrix_inverse_sksl(N));
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;
@@ -465,7 +465,7 @@ static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label) {
     draw_label(canvas, label);
 
     const char* type = std::is_integral<T>::value ? "int" : "float";
-    auto [effect, error] = SkRuntimeEffect::Make(make_bvec_sksl(type, fn));
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(make_bvec_sksl(type, fn));
     if (!effect) {
         SkDebugf("Error: %s\n", error.c_str());
         return;

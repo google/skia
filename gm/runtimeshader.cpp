@@ -30,7 +30,7 @@ public:
             : fName(name), fSize(size), fFlags(flags), fSkSL(sksl) {}
 
     void onOnceBeforeDraw() override {
-        auto [effect, error] = SkRuntimeEffect::Make(fSkSL);
+        auto [effect, error] = SkRuntimeEffect::MakeForShader(fSkSL);
         if (!effect) {
             SkDebugf("RuntimeShader error: %s\n", error.c_str());
         }
@@ -300,12 +300,10 @@ DEF_GM(return new ColorCubeRT;)
 
 class DefaultColorRT : public RuntimeShaderGM {
 public:
-    // This test also *explicitly* doesn't include coords in main's parameter list, to test that
-    // runtime shaders work without them being declared (when they're not used).
     DefaultColorRT() : RuntimeShaderGM("default_color_rt", {512, 256}, R"(
         uniform shader input;
-        half4 main() {
-            return sample(input);
+        half4 main(float2 xy) {
+            return sample(input, xy);
         }
     )") {}
 
@@ -513,7 +511,7 @@ DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     surf->getCanvas()->drawLine(0, 0, 100, 100, p);
     auto shader = surf->makeImageSnapshot()->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
 
-    SkRuntimeShaderBuilder builder(SkRuntimeEffect::Make(SkString(scale)).effect);
+    SkRuntimeShaderBuilder builder(SkRuntimeEffect::MakeForShader(SkString(scale)).effect);
     builder.child("child") = shader;
     p.setShader(builder.makeShader(nullptr, false));
 
