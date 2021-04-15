@@ -52,6 +52,24 @@
       "parentUuid": "86cb6697_74a4a69f",
       "revId": "9eb13e2781ed0d05b59ff2fe20a14668fbea66a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e4f014e_9df724e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-15T16:43:43Z",
+      "side": 1,
+      "message": "Oh, yeah. Question of style. Your call Mike – add reset or manually reset as caller?",
+      "parentUuid": "0509912e_df8ac9d3",
+      "revId": "9eb13e2781ed0d05b59ff2fe20a14668fbea66a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
