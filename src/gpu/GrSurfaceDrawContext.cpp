@@ -629,7 +629,7 @@ void GrSurfaceDrawContext::drawTexture(const GrClip* clip,
                                        const SkMatrix& viewMatrix,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform) {
     // If we are using dmsaa then go through GrFillRRectOp (via fillRectToRect).
-    if ((this->alwaysAntialias() || this->caps()->reducedShaderMode()) && aa == GrAA::kYes) {
+    if (this->alwaysAntialias() || this->caps()->reducedShaderMode()) {
         GrPaint paint;
         paint.setColor4f(color);
         std::unique_ptr<GrFragmentProcessor> fp;
@@ -756,10 +756,7 @@ void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
 
     // If we are using dmsaa then attempt to draw the rect with GrFillRRectOp.
     if ((fContext->priv().caps()->reducedShaderMode() || this->alwaysAntialias()) &&
-        this->caps()->drawInstancedSupport()                                      &&
-        aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
-                             // GrFillRRectOp because it might require dual source blending.
-                             // http://skbug.com/11756
+        this->caps()->drawInstancedSupport()) {
         QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &aa, &quad,
                                                              &paint);
         if (opt < QuadOptimization::kClipApplied) {
