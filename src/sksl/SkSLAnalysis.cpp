@@ -89,39 +89,44 @@ protected:
     SampleUsage fUsage;
 
     bool visitExpression(const Expression& e) override {
-        // Looking for sample(fp, inColor?, ...)
-        if (e.kind() == Expression::Kind::kFunctionCall) {
+        // Looking for sample(fp, ...)
+        if (e.is<FunctionCall>()) {
             const FunctionCall& fc = e.as<FunctionCall>();
             if (is_sample_call_to_fp(fc, fFP)) {
                 // Determine the type of call at this site, and merge it with the accumulated state
-                const Expression* lastArg = fc.arguments().back().get();
-
-                if (lastArg->type() == *fContext.fTypes.fFloat2) {
-                    fUsage.merge(SampleUsage::Explicit());
-                } else if (lastArg->type() == *fContext.fTypes.fFloat3x3) {
-                    // Determine the type of matrix for this call site
-                    if (lastArg->isConstantOrUniform()) {
-                        if (lastArg->is<VariableReference>() || lastArg->isAnyConstructor()) {
-                            // FIXME if this is a constant, we should parse the float3x3 constructor
-                            // and determine if the resulting matrix introduces perspective.
-                            fUsage.merge(SampleUsage::UniformMatrix(lastArg->description()));
+                if (fc.arguments().size() >= 2) {
+                    const Expression* coords = fc.arguments()[1].get();
+                    if (coords->type() == *fContext.fTypes.fFloat2) {
+                        fUsage.merge(SampleUsage::Explicit());
+                    } else if (coords->type() == *fContext.fTypes.fFloat3x3) {
+                        // Determine the type of matrix for this call site
+                        if (coords->isConstantOrUniform()) {
+                            if (coords->is<VariableReference>() || coords->isAnyConstructor()) {
+                                // FIXME if this is a constant, we should parse the float3x3
+                                // constructor and determine if the resulting matrix introduces
+                                // perspective.
+                                fUsage.merge(SampleUsage::UniformMatrix(coords->description()));
+                            } else {
+                                // FIXME this is really to workaround a restriction of the
+                                // downstream code that relies on the SampleUsage's fExpression to
+                                // identify uniform names. Once they are tracked separately, any
+                                // uniform expression can work, but right now this avoids issues
+                                // from '0.5 * matrix' that is both a constant AND a uniform.
+                                fUsage.merge(SampleUsage::VariableMatrix());
+                            }
                         } else {
-                            // FIXME this is really to workaround a restriction of the downstream
-                            // code that relies on the SampleUsage's fExpression to identify uniform
-                            // names. Once they are tracked separately, any uniform expression can
-                            // work, but right now this avoids issues from '0.5 * matrix' that is
-                            // both a constant AND a uniform.
                             fUsage.merge(SampleUsage::VariableMatrix());
                         }
                     } else {
-                        fUsage.merge(SampleUsage::VariableMatrix());
+                        // sample(fp, half4 inputColor) -> PassThrough
+                        fUsage.merge(SampleUsage::PassThrough());
                     }
                 } else {
-                    // The only other signatures do pass-through sampling
+                    // sample(fp) -> PassThrough
                     fUsage.merge(SampleUsage::PassThrough());
                 }
                 // NOTE: we don't return true here just because we found a sample call. We need to
-                //  process the entire program and merge across all encountered calls.
+                // process the entire program and merge across all encountered calls.
             }
         }
 

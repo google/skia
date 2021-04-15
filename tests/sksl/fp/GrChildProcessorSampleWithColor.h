@@ -25,10 +25,10 @@ private:
     : INHERITED(kGrChildProcessorSampleWithColor_ClassID, kNone_OptimizationFlags) {
         this->setUsesSampleCoordsDirectly();
         this->registerChild(std::move(passthrough), SkSL::SampleUsage::PassThrough());
-        this->registerChild(std::move(explicit), SkSL::SampleUsage::PassThrough());
-        this->registerChild(std::move(matrix_const), SkSL::SampleUsage::PassThrough());
-        this->registerChild(std::move(matrix_uniform), SkSL::SampleUsage::PassThrough());
-        this->registerChild(std::move(matrix_uniform_multi), SkSL::SampleUsage::PassThrough());
+        this->registerChild(std::move(explicit), SkSL::SampleUsage::Explicit());
+        this->registerChild(std::move(matrix_const), SkSL::SampleUsage::UniformMatrix("float3x3(2.0)", true));
+        this->registerChild(std::move(matrix_uniform), SkSL::SampleUsage::UniformMatrix("M0", true));
+        this->registerChild(std::move(matrix_uniform_multi), SkSL::SampleUsage::VariableMatrix(true));
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
