@@ -46,6 +46,30 @@
       },
       "revId": "2726b6a36f394c5a45bdf9d8b213f1a090f6a575",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f31ed9f9_3609e508",
+        "filename": "src/gpu/d3d/GrD3DRootSignature.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-15T19:41:04Z",
+      "side": 1,
+      "message": "Oh I think it might actually be a spirv-cross thing now that I think about it. They may require different bindings when going from spir-v to hlsl.",
+      "parentUuid": "8d291878_d1901d6e",
+      "range": {
+        "startLine": 58,
+        "startChar": 66,
+        "endLine": 58,
+        "endChar": 69
+      },
+      "revId": "2726b6a36f394c5a45bdf9d8b213f1a090f6a575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
