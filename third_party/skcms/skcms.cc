@@ -636,11 +636,11 @@ static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_B2A* b2a) {
     b2a->output_channels = mftTag->output_channels[0];
 
 
-    // For B2A, exactly 3 *input* channels and 1-4 *output* channels.
+    // For B2A, exactly 3 input channels (XYZ) and 3 (RGB) or 4 (CMYK) output channels.
     if (b2a->input_channels != ARRAY_COUNT(b2a->input_curves)) {
         return false;
     }
-    if (b2a->output_channels < 1 || b2a->output_channels > ARRAY_COUNT(b2a->output_curves)) {
+    if (b2a->output_channels < 3 || b2a->output_channels > ARRAY_COUNT(b2a->output_curves)) {
         return false;
     }
 
@@ -936,11 +936,11 @@ static bool read_tag_mba(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xy
     b2a->input_channels  = mBATag->input_channels[0];
     b2a->output_channels = mBATag->output_channels[0];
 
-    // Input and output arity requirements swapped... |inputs|==3, |outputs|<=4.
+    // Require exactly 3 inputs (XYZ) and 3 (RGB) or 4 (CMYK) outputs.
     if (b2a->input_channels != ARRAY_COUNT(b2a->input_curves)) {
         return false;
     }
-    if (b2a->output_channels > ARRAY_COUNT(b2a->output_curves)) {
+    if (b2a->output_channels < 3 || b2a->output_channels > ARRAY_COUNT(b2a->output_curves)) {
         return false;
     }
 
@@ -964,7 +964,7 @@ static bool read_tag_mba(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xy
         if (0 == matrix_offset) {
             return false;
         }
-        // Matrix channels is tied to input_channels (3), not output_channels (1-4).
+        // Matrix channels is tied to input_channels (3), not output_channels.
         b2a->matrix_channels = b2a->input_channels;
 
         if (!read_curves(tag->buf, tag->size, m_curve_offset, b2a->matrix_channels,
