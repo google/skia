@@ -395,15 +395,15 @@ bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
     return true;
 }
 
-bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target,
+bool GrVkRenderPass::isCompatible(GrVkRenderTarget* target,
                                   SelfDependencyFlags selfDepFlags,
                                   LoadFromResolve loadFromResolve) const {
     SkASSERT(!(fAttachmentFlags & kExternal_AttachmentFlag));
 
     AttachmentsDescriptor desc;
     AttachmentFlags flags;
-    target.getAttachmentsDescriptor(&desc, &flags, this->hasResolveAttachment(),
-                                    this->hasStencilAttachment());
+    target->getAttachmentsDescriptor(&desc, &flags, this->hasResolveAttachment(),
+                                     this->hasStencilAttachment());
 
     return this->isCompatible(desc, flags, selfDepFlags, loadFromResolve);
 }

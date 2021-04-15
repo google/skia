@@ -59,7 +59,7 @@ public:
     }
     const GrVkImageView* colorAttachmentView() const {
         SkASSERT(!this->wrapsSecondaryCommandBuffer());
-        return fColorAttachment->framebufferView();
+        return this->colorAttachment()->framebufferView();
     }
 
     GrVkAttachment* resolveAttachment() const {
@@ -98,9 +98,7 @@ public:
             LoadFromResolve);
 
     bool wrapsSecondaryCommandBuffer() const { return SkToBool(fExternalFramebuffer); }
-    std::unique_ptr<GrVkSecondaryCommandBuffer> externalCommandBuffer() const;
-    void returnExternalGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>);
-    const GrVkRenderPass* externalRenderPass() const;
+    sk_sp<GrVkFramebuffer> externalFramebuffer() const;
 
     bool canAttemptStencilAttachment() const override {
         // We don't know the status of the stencil attachment for wrapped external secondary command
@@ -113,7 +111,7 @@ public:
     void getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                   GrVkRenderPass::AttachmentFlags* flags,
                                   bool withResolve,
-                                  bool withStencil) const;
+                                  bool withStencil);
 
     // Reconstruct the render target attachment information from the programInfo. This includes
     // which attachments the render target will have (color, stencil) and the attachments' formats
@@ -157,6 +155,9 @@ private:
 
     GrVkGpu* getVkGpu() const;
 
+    GrVkAttachment* dynamicMSAAAttachment();
+    GrVkAttachment* msaaAttachment();
+
     const GrVkRenderPass* createSimpleRenderPass(bool withResolve,
                                                  bool withStencil,
                                                  SelfDependencyFlags selfDepFlags,
@@ -182,6 +183,7 @@ private:
 
     sk_sp<GrVkAttachment> fColorAttachment;
     sk_sp<GrVkAttachment> fResolveAttachment;
+    sk_sp<GrVkAttachment> fDynamicMSAAAttachment;
 
     // We can have a renderpass with and without resolve attachment, stencil attachment,
     // input attachment dependency, advanced blend dependency, and loading from resolve. All 5 of
