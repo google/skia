@@ -55,6 +55,9 @@ public:
                          int numBarriers,
                          const D3D12_RESOURCE_TRANSITION_BARRIER* barriers);
 
+    void uavBarrier(sk_sp<GrManagedResource> managedResource,
+                    ID3D12Resource* uavResource);
+
     // Helper method that calls copyTextureRegion multiple times, once for each subresource
     // The srcBuffer comes from a staging buffer so we don't need to take any refs to it. Instead,
     // we ref the whole buffer during sumbit.

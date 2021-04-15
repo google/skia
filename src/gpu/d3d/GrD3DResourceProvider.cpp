@@ -48,14 +48,15 @@ void GrD3DResourceProvider::recycleDirectCommandList(
     fAvailableDirectCommandLists.push_back(std::move(commandList));
 }
 
-sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int numTextureSamplers) {
+sk_sp<GrD3DRootSignature> GrD3DResourceProvider::findOrCreateRootSignature(int numTextureSamplers,
+                                                                           int numUAVs) {
     for (int i = 0; i < fRootSignatures.count(); ++i) {
-        if (fRootSignatures[i]->isCompatible(numTextureSamplers)) {
+        if (fRootSignatures[i]->isCompatible(numTextureSamplers, numUAVs)) {
             return fRootSignatures[i];
         }
     }
 
-    auto rootSig = GrD3DRootSignature::Make(fGpu, numTextureSamplers);
+    auto rootSig = GrD3DRootSignature::Make(fGpu, numTextureSamplers, numUAVs);
     if (!rootSig) {
         return nullptr;
     }
@@ -105,13 +106,13 @@ GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createConstantBufferView(
 }
 
 GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createShaderResourceView(
-        ID3D12Resource* resource) {
-    return fCpuDescriptorManager.createShaderResourceView(fGpu, resource);
+        ID3D12Resource* resource, unsigned int mipLevel) {
+    return fCpuDescriptorManager.createShaderResourceView(fGpu, resource, mipLevel);
 }
 
 GrD3DDescriptorHeap::CPUHandle GrD3DResourceProvider::createUnorderedAccessView(
-        ID3D12Resource* resource) {
-    return fCpuDescriptorManager.createUnorderedAccessView(fGpu, resource);
+        ID3D12Resource* resource, unsigned int mipLevel) {
+    return fCpuDescriptorManager.createUnorderedAccessView(fGpu, resource, mipLevel);
 }
 
 void GrD3DResourceProvider::recycleShaderView(
@@ -195,6 +196,36 @@ sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateSamplerTable(
 GrD3DPipelineState* GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
+}
+
+sk_sp<GrD3DPipeline> GrD3DResourceProvider::findOrCreateMipmapPipeline(MipmapType pipelineType) {
+    unsigned int index = (unsigned int)pipelineType;
+    if (!fMipmapPipelines[index]) {
+        const char* shader =
+            "SamplerState textureSampler : register(s0, space1);\n"
+            "Texture2D<float4> inputTexture : register(t1, space1);\n"
+            "RWTexture2D<float4> outUAV : register(u2, space1);\n"
+            "\n"
+            "cbuffer UniformBuffer : register(b0, space0) {\n"
+            "    uint mipLevel;\n"
+            "    float2 inverseDims;\n"
+            "}\n"
+            "\n"
+            "[numthreads(8, 8, 1)]\n"
+            "void main(uint groupIndex : SV_GroupIndex, uint3 threadID : SV_DispatchThreadID) {\n"
+            "    float2 uv = inverseDims * (threadID.xy + 0.5);\n"
+            "    float4 mipVal = inputTexture.SampleLevel(textureSampler, uv, mipLevel);\n"
+            "\n"
+            "    outUAV[threadID.xy] = mipVal;\n"
+            "}\n";
+
+        sk_sp<GrD3DRootSignature> rootSig = this->findOrCreateRootSignature(1, 1);
+
+        fMipmapPipelines[index] =
+                GrD3DPipelineStateBuilder::MakeComputePipeline(fGpu, rootSig.get(), shader);
+    }
+
+    return fMipmapPipelines[index];
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, size_t size) {

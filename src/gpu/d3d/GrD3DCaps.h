@@ -38,6 +38,8 @@ public:
     bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
     bool isFormatRenderable(DXGI_FORMAT, int sampleCount) const;
 
+    bool isFormatUnorderedAccessible(DXGI_FORMAT) const;
+
     int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const override;
     int getRenderTargetSampleCount(int requestedCount, DXGI_FORMAT) const;
 
@@ -175,6 +177,7 @@ private:
             kRenderable_Flag = 0x2, // Rendertarget and blendable
             kMSAA_Flag = 0x4,
             kResolve_Flag = 0x8,
+            kUnorderedAccess_Flag = 0x10,
         };
 
         uint16_t fFlags = 0;
