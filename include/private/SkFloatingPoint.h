@@ -174,6 +174,7 @@ static inline float sk_double_to_float(double x) {
 // Returns true if count is 0
 bool sk_floats_are_unit(const float array[], size_t count);
 
+#if defined(SK_LEGACY_FLOAT_RSQRT)
 static inline float sk_float_rsqrt_portable(float x) {
     // Get initial estimate.
     int i;
@@ -213,6 +214,12 @@ static inline float sk_float_rsqrt(float x) {
     return sk_float_rsqrt_portable(x);
 #endif
 }
+#else
+
+static inline float sk_float_rsqrt_portable(float x) { return 1.0f / sk_float_sqrt(x); }
+static inline float sk_float_rsqrt         (float x) { return 1.0f / sk_float_sqrt(x); }
+
+#endif
 
 // Returns the log2 of the provided value, were that value to be rounded up to the next power of 2.
 // Returns 0 if value <= 0:
