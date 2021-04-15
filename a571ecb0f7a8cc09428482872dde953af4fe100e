@@ -33,6 +33,24 @@
       "message": "I think the issue is that this class has to end on a 16 byte boundary and this is making fPlaceholder be at a 16 byte boundary.",
       "revId": "a571ecb0f7a8cc09428482872dde953af4fe100e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87892dd4_12b49a29",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-15T13:33:33Z",
+      "side": 1,
+      "message": "In theory, this should force the size to be 16 byte boundaries. Is this know compiler brokenness?",
+      "parentUuid": "f65d7c66_79474d64",
+      "revId": "a571ecb0f7a8cc09428482872dde953af4fe100e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
