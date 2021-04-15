@@ -8,6 +8,7 @@
 #ifndef SkSurfacePriv_DEFINED
 #define SkSurfacePriv_DEFINED
 
+#include "include/core/SkMath.h"
 #include "include/core/SkSurfaceProps.h"
 
 struct SkImageInfo;
@@ -15,6 +16,12 @@ struct SkImageInfo;
 static inline SkSurfaceProps SkSurfacePropsCopyOrDefault(const SkSurfaceProps* props) {
     return props ? *props : SkSurfaceProps();
 }
+
+enum SkSurfacePropsPrivateFlags {
+    // Use internal MSAA to render to non-MSAA GPU surfaces.
+    kDMSAA_SkSurfacePropsPrivateFlag = SkSurfaceProps::kAll_Flags + 1
+};
+static_assert(SkIsPow2(kDMSAA_SkSurfacePropsPrivateFlag));
 
 constexpr size_t kIgnoreRowBytesValue = static_cast<size_t>(~0);
 

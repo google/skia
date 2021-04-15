@@ -11,6 +11,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkSurfacePriv.h"
 
 #include <stdlib.h>
 
@@ -479,7 +480,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                bool                      fakeGLESVersion2,
                                                uint32_t                  surfaceFlags,
                                                int                       samples,
-                                               bool                      useDMSAA,
                                                SkColorType               colorType,
                                                SkAlphaType               alphaType,
                                                sk_sp<SkColorSpace>       colorSpace,
@@ -496,7 +496,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         , fContextOverrides(ContextOverrides::kNone)
         , fSurfaceFlags(surfaceFlags)
         , fSamples(samples)
-        , fUseDMSAA(useDMSAA)
         , fColorType(colorType)
         , fAlphaType(alphaType)
         , fColorSpace(std::move(colorSpace))
@@ -569,6 +568,9 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     if (useDIText) {
         surfaceFlags |= SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
     }
+    if (useDMSAA) {
+        surfaceFlags |= kDMSAA_SkSurfacePropsPrivateFlag;
+    }
 
     return new SkCommandLineConfigGpu(tag,
                                       vias,
@@ -576,7 +578,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
                                       fakeGLESVersion2,
                                       surfaceFlags,
                                       samples,
-                                      useDMSAA,
                                       colorType,
                                       alphaType,
                                       colorSpace,
