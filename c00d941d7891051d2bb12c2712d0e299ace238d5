@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "169072ba_89f9ce4c",
+        "filename": "resources/sksl/fp/GrChildProcessorSampleWithColor.fp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-15T20:32:24Z",
+      "side": 1,
+      "message": "tiny nit: it took me a second to realize this was `color`; maybe just name it color.",
+      "range": {
+        "startLine": 1,
+        "startChar": 17,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "c00d941d7891051d2bb12c2712d0e299ace238d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
