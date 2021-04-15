@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79a3c283_eff428f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-15T17:22:47Z",
+      "side": 1,
+      "message": "Can be a separate CL/idea, but seems like blobs need not exist internally after this...? i.e. if we changed our recorder to know how to \"serialize\" a GlyphRunList, then we wouldn\u0027t need blobs anywhere (other than compatibility for a while)...?",
+      "revId": "747ccc1675214a11478aff34b714173fc818e82a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
