@@ -16,6 +16,24 @@
       "message": "This assert loos scary:\n\n  start gl gm  rectangle_texture\n  ../../../../../../skia/src/gpu/GrOpsTask.cpp:694: fatal error: \"assert(this-\u003efArenas \u003d\u003d opsTask-\u003efArenas)\"",
       "revId": "bc595d04fb4eefd01e8da85135fbd1c78d016366",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84a9137a_2c2d6222",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-15T19:15:24Z",
+      "side": 1,
+      "message": "It\u0027s hard to understand this. Do you merge OpsTasks from different targets together? Or, do you merge OpsTasks across flushes?",
+      "parentUuid": "3fcd8849_89203198",
+      "revId": "bc595d04fb4eefd01e8da85135fbd1c78d016366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
