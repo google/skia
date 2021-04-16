@@ -57,12 +57,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
         const SkRect* subset,
         const SkRect* domain,
         GrSamplerState samplerState) {
-    // Check whether it's already been flattened.
-    if (fImage->fRGBView.proxy()) {
-        return this->INHERITED::createFragmentProcessor(textureMatrix, subset, domain,
-                                                        samplerState);
-    }
-
     // Check to see if the client has given us pre-mipped textures or if we can generate them
     // If not disable mip mapping.
     if (samplerState.mipmapped() == GrMipmapped::kYes &&

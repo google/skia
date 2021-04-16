@@ -34,11 +34,7 @@ public:
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
 
-    bool onIsTextureBacked() const override {
-        // We should have YUVA proxies or a RGBA proxy,but not both.
-        SkASSERT(fYUVAProxies.isValid() != SkToBool(fRGBView));
-        return true;
-    }
+    bool onIsTextureBacked() const override { return true; }
 
     size_t onTextureSize() const override;
 
@@ -51,14 +47,6 @@ public:
 
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
 
-#if GR_TEST_UTILS
-    bool testingOnly_IsFlattened() const {
-        // We should only have the flattened proxy or the planar proxies at one point in time.
-        SkASSERT(SkToBool(fRGBView) != fYUVAProxies.isValid());
-        return SkToBool(fRGBView.proxy());
-    }
-#endif
-
 private:
     SkImage_GpuYUVA(sk_sp<GrImageContext>, const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
 
@@ -66,14 +54,9 @@ private:
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
 
-    bool flattenToRGB(GrRecordingContext*, GrMipmapped) const;
+    GrSurfaceProxyView flattenToRGB(GrRecordingContext*, GrMipmapped) const;
 
     mutable GrYUVATextureProxies     fYUVAProxies;
-
-    // This is only allocated when the image needs to be flattened rather than
-    // using the separate YUVA planes. From thence forth we will only use the
-    // the RGBView.
-    mutable GrSurfaceProxyView       fRGBView;
 
     // If this is non-null then the planar data should be converted from fFromColorSpace to
     // this->colorSpace(). Otherwise we assume the planar data (post YUV->RGB conversion) is already
