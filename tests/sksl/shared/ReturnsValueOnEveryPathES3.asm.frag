@@ -264,9 +264,9 @@ OpBranch %133
 %133 = OpLabel
 OpReturnValue %true
 %134 = OpLabel
-OpBranchConditional %true %135 %136
+OpBranch %135
 %135 = OpLabel
-OpBranch %132
+OpBranchConditional %true %132 %136
 %136 = OpLabel
 OpUnreachable
 OpFunctionEnd
@@ -294,9 +294,9 @@ OpBranch %145
 %145 = OpLabel
 OpBranch %148
 %146 = OpLabel
-OpBranchConditional %true %147 %148
+OpBranch %147
 %147 = OpLabel
-OpBranch %144
+OpBranchConditional %true %144 %148
 %148 = OpLabel
 OpReturnValue %true
 OpFunctionEnd

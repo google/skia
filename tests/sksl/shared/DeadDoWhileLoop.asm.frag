@@ -33,9 +33,9 @@ OpBranch %14
 OpStore %sk_FragColor %19
 OpBranch %15
 %15 = OpLabel
-OpBranchConditional %false %16 %17
+OpBranch %16
 %16 = OpLabel
-OpBranch %13
+OpBranchConditional %false %13 %17
 %17 = OpLabel
 OpReturn
 OpFunctionEnd
