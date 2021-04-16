@@ -1038,5 +1038,40 @@ void ParagraphImpl::ensureUTF16Mapping() {
     fUTF8IndexForUTF16Index.emplace_back(fText.size());
 }
 
+void ParagraphImpl::visit(const Visitor& visitor) {
+    for (auto& line : fLines) {
+        for (auto& rec : line.fTextBlobCache) {
+            SkTextBlob::Iter iter(*rec.fBlob);
+            SkTextBlob::Iter::ExperimentalRun run;
+
+            SkSTArray<128, uint32_t> clusterStorage;
+            const Run* R = rec.fVisitor_Run;
+            const uint32_t* clusterPtr = &R->fClusterIndexes[0];
+
+            if (R->fClusterStart > 0) {
+                int count = R->fClusterIndexes.count();
+                clusterStorage.reset(count);
+                for (int i = 0; i < count; ++i) {
+                    clusterStorage[i] = R->fClusterStart + R->fClusterIndexes[i];
+                }
+                clusterPtr = &clusterStorage[0];
+            }
+            clusterPtr += rec.fVisitor_Pos;
+
+            while (iter.experimentalNext(&run)) {
+                visitor({
+                    run.font,
+                    rec.fOffset,
+                    run.count,
+                    run.glyphs,
+                    run.positions,
+                    clusterPtr,
+                });
+                clusterPtr += run.count;
+            }
+        }
+    }
+}
+
 }  // namespace textlayout
 }  // namespace skia
