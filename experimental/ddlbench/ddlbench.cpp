@@ -1,21 +1,30 @@
 // Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
+#include "Cmds.h"
+#include "Fake.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkSLDefines.h"
 #include "src/core/SkOSFile.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/DDLPromiseImageHelper.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
+
+#include <algorithm>
+
+using sk_gpu_test::GrContextFactory;
+
+#if 0
+#include "include/core/SkPicture.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkSLDefines.h"
+#include "tools/DDLPromiseImageHelper.h"
 #include "tools/gpu/TestContext.h"
 
 #include <chrono>
@@ -26,13 +35,14 @@ using hires_clock = std::chrono::high_resolution_clock;
 using duration = std::chrono::nanoseconds;
 
 using sk_gpu_test::ContextInfo;
-using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
 
 static DEFINE_int(numRecordingThreads, 1, "number of DDL recording threads");
 static DEFINE_int(numTilesX, 3, "number of tiles horizontally");
 static DEFINE_int(numTilesY, 3, "number of tiles vertically");
 static DEFINE_int(numSamples, 1, "number of MSAA samples");
+#endif
+
 static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 static DEFINE_string(src, "", "input .skp file");
 
@@ -45,6 +55,7 @@ static void exitf(const char* format, ...) {
     exit(1);
 }
 
+#if 0
 // Each thread holds this chunk of data thread_locally
 struct ThreadInfo {
     ThreadInfo() = default;
@@ -283,6 +294,7 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
 
     return promiseImageHelper->recreateSKP(dContext, skp.get());
 }
+#endif
 
 static void check_params(GrDirectContext* dContext,
                          int width, int height, SkColorType ct, SkAlphaType at, int numSamples) {
@@ -329,12 +341,72 @@ static void maybe_save_file(SkSurface* surface) {
     }
 }
 
+// unit test - exercise sorting behavior
+void key_test() {
+    Key k;
+    k.dump();
+
+    Key k2(2, 1);
+    k2.dump();
+
+}
+
+static void sort_test1() {
+    std::vector<const Cmd*> test;
+
+    test.push_back(new RectCmd(0, { 10, 10 , 100, 100 }, SK_ColorRED));
+    test.push_back(new RectCmd(1, { 10, 10 , 100, 100 }, SK_ColorGREEN));
+
+    std::vector<int> expected_order { 0, 1 };
+
+    SkBitmap expectedBM;
+    expectedBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    expectedBM.eraseColor(SK_ColorBLACK);
+    SkCanvas real(expectedBM);
+
+    FakeCanvas fake;
+    for (auto c : test) {
+        c->execute(&fake);
+        c->execute(&real);
+    }
+
+    fake.finalize();
+
+    std::vector<int> actual_order = fake.getOrder();
+    if (expected_order.size() != actual_order.size()) {
+        exitf("Op count mismatch. Expected %d - got %d\n",
+              expected_order.size(),
+              actual_order.size());
+    }
+
+    if (expected_order != actual_order) {
+        SkDebugf("order mismatch:\n");
+        SkDebugf("E %d: ", expected_order.size());
+        for (auto t : expected_order) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
+
+        SkDebugf("A %d: ", actual_order.size());
+        for (auto t : actual_order) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
+    }
+
+    SkBitmap actualBM;
+    actualBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    actualBM.eraseColor(SK_ColorBLACK);
+
+    fake.replay(&actualBM);
+}
+
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_src.count() != 1) {
-        exitf("Missing input file");
-    }
+//    if (FLAGS_src.count() != 1) {
+//        exitf("Missing input file");
+//    }
 
     // TODO: get these from the command line flags
     const GrContextFactory::ContextType kContextType = GrContextFactory::kGL_ContextType;
@@ -347,6 +419,11 @@ int main(int argc, char** argv) {
 
     GrContextFactory factory(kContextOptions);
 
+    key_test();
+    sort_test1();
+
+    SkDebugf("done\n");
+#if 0
     std::unique_ptr<ThreadInfo> mainContext(new ThreadInfo);
     std::unique_ptr<ThreadInfo[]> utilityContexts(new ThreadInfo[FLAGS_numRecordingThreads]);
 
@@ -435,6 +512,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
         utilityContexts[i].dump();
     }
+#endif
 
     return 0;
 }
