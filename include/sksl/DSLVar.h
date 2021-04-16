@@ -40,6 +40,10 @@ public:
 
     ~DSLVar();
 
+    const char* name() const {
+        return fName;
+    }
+
     DSLExpression x() {
         return DSLExpression(*this).x();
     }
@@ -114,10 +118,6 @@ private:
      * internally to reference built-in vars.
      */
     DSLVar(const char* name);
-
-    const char* name() const {
-        return fName;
-    }
 
     DSLModifiers fModifiers;
     // We only need to keep track of the type here so that we can create the SkSL::Variable. For

@@ -70,6 +70,10 @@ std::unique_ptr<Pool> Pool::Create() {
     return pool;
 }
 
+bool Pool::IsAttached() {
+    return get_thread_local_memory_pool();
+}
+
 void Pool::attachToThread() {
     VLOG("ATTACH Pool:0x%016llX\n", (uint64_t)fMemPool.get());
     SkASSERT(get_thread_local_memory_pool() == nullptr);
