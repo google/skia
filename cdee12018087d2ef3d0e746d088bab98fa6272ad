@@ -22,6 +22,30 @@
       },
       "revId": "cdee12018087d2ef3d0e746d088bab98fa6272ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "498d84d1_b0991b4e",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-16T20:58:09Z",
+      "side": 0,
+      "message": "It\u0027s already handled in base class asView().",
+      "parentUuid": "e4548d20_3a356107",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 20
+      },
+      "revId": "cdee12018087d2ef3d0e746d088bab98fa6272ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
