@@ -8,6 +8,7 @@
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkIPoint16.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
