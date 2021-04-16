@@ -17,6 +17,15 @@ namespace dsl {
 DSLBlock::DSLBlock(SkSL::StatementArray statements)
     : fStatements(std::move(statements)) {}
 
+DSLBlock::~DSLBlock() {
+    if (!fStatements.empty()) {
+        // This will convert our Block into a DSLStatement, which is then immediately freed.
+        // If an FP is being generated, this will naturally incorporate the Block's Statement into
+        // our FP. If not, this will assert that unused code wasn't incorporated into the program.
+        DSLStatement(this->release());
+    }
+}
+
 std::unique_ptr<SkSL::Statement> DSLBlock::release() {
     return std::make_unique<SkSL::Block>(/*offset=*/-1, std::move(fStatements));
 }
