@@ -805,6 +805,8 @@ export interface Paragraph extends EmbindObject<Paragraph> {
      */
     getWordBoundary(offset: number): URange;
 
+    getShapedRuns(): any;
+
     /**
      * Lays out the text in the paragraph so it is wrapped to the given width.
      * @param width
