@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43606975_170c53af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-16T20:09:58Z",
+      "side": 1,
+      "message": "Random thought: what if we passed the position as a const float2?\nSeems like we could save the analysis pass entirely.\nUsers who want to modify it can always copy it.",
+      "revId": "64606c6f20055aceb5475847628794ffe7552646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
