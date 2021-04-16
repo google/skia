@@ -29,6 +29,7 @@ namespace {
 enum ParaFlags {
     kTimeLayout     = 1 << 0,
     kUseUnderline   = 1 << 1,
+    kShowVisitor    = 1 << 2,
 };
 }  // namespace
 
@@ -79,15 +80,49 @@ protected:
         name.printf("paragraph%s_%s",
                     fFlags & kTimeLayout   ? "_layout"    : "",
                     fFlags & kUseUnderline ? "_underline" : "");
+        if (fFlags & kShowVisitor) {
+            name.append("_visitor");
+        }
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(412, 420); }
+    SkISize onISize() override {
+        if (fFlags & kShowVisitor) {
+            return SkISize::Make(1620, 820);
+        }
+        return SkISize::Make(412, 420);
+    }
+
+    void drawFromVisitor(SkCanvas* canvas, skia::textlayout::Paragraph* para) const {
+        SkPaint p;
+        p.setColor(0xFF0000FF);
+        para->visit([canvas, p](const skia::textlayout::Paragraph::VisitorInfo& info) {
+            canvas->drawGlyphs(info.count, info.glyphs, info.positions, info.origin, info.font, p);
+
+            if (info.utf8Starts && false) {
+                SkString str;
+                for (int i = 0; i < info.count; ++i) {
+                    str.appendUnichar(gSpeach[info.utf8Starts[i]]);
+                }
+                SkDebugf("'%s'\n", str.c_str());
+            }
+        });
+    }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (nullptr == fPara) {
             return DrawResult::kSkip;
         }
+
+        if (fFlags & kShowVisitor) {
+            canvas->clear(SK_ColorWHITE);
+            fPara->layout(400);
+            fPara->paint(canvas, 10, 10);
+            canvas->translate(400+10, 10);
+            this->drawFromVisitor(canvas, fPara.get());
+            return DrawResult::kOk;
+        }
+
         const int loop = (this->getMode() == kGM_Mode) ? 1 : 50;
 
         int parity = 0;
@@ -125,3 +160,4 @@ private:
 DEF_GM(return new ParagraphGM(0);)
 DEF_GM(return new ParagraphGM(kTimeLayout);)
 DEF_GM(return new ParagraphGM(kUseUnderline);)
+DEF_GM(return new ParagraphGM(kShowVisitor);)

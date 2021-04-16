@@ -85,6 +85,7 @@ public:
 
     void format(TextAlign align, SkScalar maxWidth);
     SkRect paint(SkCanvas* canvas, SkScalar x, SkScalar y);
+    void visit(SkScalar x, SkScalar y);
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
@@ -159,8 +160,13 @@ private:
         SkRect fBounds = SkRect::MakeEmpty();
         bool fClippingNeeded = false;
         SkRect fClipRect = SkRect::MakeEmpty();
+
+        // Extra fields only used for the (experimental) visitor
+        const Run* fVisitor_Run;
+        size_t     fVisitor_Pos;
     };
     bool fTextBlobCachePopulated;
+public:
     std::vector<TextBlobRecord> fTextBlobCache;
 };
 }  // namespace textlayout
