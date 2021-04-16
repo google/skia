@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54e9f499_c883d00c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-16T12:42:25Z",
+      "side": 1,
+      "message": "I don\u0027t love having GrMatrixEffect know about GrTextureEffect but at the same time I think GrTextureEffect is a little easier to reason about (doesn\u0027t care if proxy is lazy, never unnorms and then re-norms coords).",
+      "revId": "93f08306b80cbd77f6ee792631035a5cff71e829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
