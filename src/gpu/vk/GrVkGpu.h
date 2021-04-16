@@ -24,6 +24,7 @@ class GrPipeline;
 
 class GrVkBuffer;
 class GrVkCommandPool;
+class GrVkFramebuffer;
 class GrVkMemoryAllocator;
 class GrVkPipeline;
 class GrVkPipelineState;
@@ -185,6 +186,7 @@ public:
     void storeVkPipelineCacheData() override;
 
     bool beginRenderPass(const GrVkRenderPass*,
+                         sk_sp<const GrVkFramebuffer>,
                          const VkClearValue* colorClear,
                          GrVkRenderTarget*,
                          const SkIRect& renderPassBounds,

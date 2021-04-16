@@ -125,7 +125,7 @@ public:
     // this object. Specifically this compares that the number of attachments, format of
     // attachments, and sample counts are all the same. This function is used in the creation of
     // basic RenderPasses that can be used when creating a VkFrameBuffer object.
-    bool isCompatible(const GrVkRenderTarget& target,
+    bool isCompatible(GrVkRenderTarget* target,
                       SelfDependencyFlags selfDepFlags,
                       LoadFromResolve) const;
 

@@ -107,7 +107,7 @@ sk_sp<const GrVkPipeline> GrVkResourceProvider::makePipeline(
 // only used for framebuffer creation. When we actually render we will create
 // RenderPasses as needed that are compatible with the framebuffer.
 const GrVkRenderPass*
-GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
+GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderTarget* target,
                                                CompatibleRPHandle* compatibleHandle,
                                                bool withResolve,
                                                bool withStencil,
@@ -117,7 +117,7 @@ GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
     // target has (color, stencil) and the attachments format and sample count.
     GrVkRenderPass::AttachmentFlags attachmentFlags;
     GrVkRenderPass::AttachmentsDescriptor attachmentsDesc;
-    target.getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags, withResolve, withStencil);
+    target->getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags, withResolve, withStencil);
 
     return this->findCompatibleRenderPass(&attachmentsDesc, attachmentFlags, selfDepFlags,
                                           loadFromResolve, compatibleHandle);

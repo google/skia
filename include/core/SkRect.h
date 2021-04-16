@@ -275,6 +275,13 @@ struct SK_API SkIRect {
         fBottom = height;
     }
 
+    void setSize(SkISize size) {
+        fLeft = 0;
+        fTop = 0;
+        fRight = size.width();
+        fBottom = size.height();
+    }
+
     /** Returns SkIRect offset by (dx, dy).
 
         If dx is negative, SkIRect returned is moved to the left.

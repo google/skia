@@ -199,27 +199,44 @@ GrVkAttachment* GrVkRenderTarget::nonMSAAAttachment() const {
     }
 }
 
+GrVkAttachment* GrVkRenderTarget::dynamicMSAAAttachment() {
+    if (fDynamicMSAAAttachment) {
+        return fDynamicMSAAAttachment.get();
+    }
+    const GrVkAttachment* nonMSAAColorAttachment = this->colorAttachment();
+    SkASSERT(nonMSAAColorAttachment->numSamples() == 1);
+
+    GrVkGpu* gpu = this->getVkGpu();
+    auto rp = gpu->getContext()->priv().resourceProvider();
+
+    const GrBackendFormat& format = nonMSAAColorAttachment->backendFormat();
+
+    sk_sp<GrAttachment> msaaAttachment =
+            rp->makeMSAAAttachment(nonMSAAColorAttachment->dimensions(),
+                                   format,
+                                   gpu->caps()->internalMultisampleCount(format),
+                                   GrProtected(nonMSAAColorAttachment->isProtected()));
+    if (!msaaAttachment) {
+        return nullptr;
+    }
+    fDynamicMSAAAttachment =
+            sk_sp<GrVkAttachment>(static_cast<GrVkAttachment*>(msaaAttachment.release()));
+    return fDynamicMSAAAttachment.get();
+}
+
+GrVkAttachment* GrVkRenderTarget::msaaAttachment() {
+    return this->colorAttachment()->numSamples() == 1 ? this->dynamicMSAAAttachment()
+                                                      : this->colorAttachment();
+}
+
 bool GrVkRenderTarget::completeStencilAttachment() {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     return true;
 }
 
-std::unique_ptr<GrVkSecondaryCommandBuffer>
-GrVkRenderTarget::externalCommandBuffer() const {
-    SkASSERT(this->wrapsSecondaryCommandBuffer());
-    return fExternalFramebuffer->externalCommandBuffer();
+sk_sp<GrVkFramebuffer> GrVkRenderTarget::externalFramebuffer() const {
+    return fExternalFramebuffer;
 }
-
-const GrVkRenderPass* GrVkRenderTarget::externalRenderPass() const {
-    SkASSERT(this->wrapsSecondaryCommandBuffer());
-    return fExternalFramebuffer->externalRenderPass();
-}
-
-void GrVkRenderTarget::returnExternalGrSecondaryCommandBuffer(
-        std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
-    fExternalFramebuffer->returnExternalGrSecondaryCommandBuffer(std::move(cmdBuffer));
-}
-
 
 GrVkResourceProvider::CompatibleRPHandle GrVkRenderTarget::compatibleRenderPassHandle(
         bool withResolve,
@@ -285,7 +302,7 @@ const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass(bool withResolve,
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
     SkASSERT(!fCachedRenderPasses[cacheIndex]);
     fCachedRenderPasses[cacheIndex] = rp.findCompatibleRenderPass(
-            *this, &fCompatibleRPHandles[cacheIndex], withResolve, withStencil, selfDepFlags,
+            this, &fCompatibleRPHandles[cacheIndex], withResolve, withStencil, selfDepFlags,
             loadFromResolve);
     return fCachedRenderPasses[cacheIndex];
 }
@@ -323,14 +340,16 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
 
     GrVkAttachment* resolve = withResolve ? this->resolveAttachment() : nullptr;
+    GrVkAttachment* colorAttachment =
+            withResolve ? this->msaaAttachment() : this->colorAttachment();
 
     // Stencil attachment view is stored in the base RT stencil attachment
     GrVkAttachment* stencil =
             withStencil ? static_cast<GrVkAttachment*>(this->getStencilAttachment())
                         : nullptr;
     fCachedFramebuffers[cacheIndex] =
-            GrVkFramebuffer::Create(gpu, this->width(), this->height(), renderPass,
-                                    this->colorAttachment(), resolve, stencil, compatibleHandle);
+            GrVkFramebuffer::Create(gpu, this->dimensions(), renderPass,
+                                    colorAttachment, resolve, stencil, compatibleHandle);
 
     return fCachedFramebuffers[cacheIndex];
 }
@@ -338,10 +357,13 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
 void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                                 GrVkRenderPass::AttachmentFlags* attachmentFlags,
                                                 bool withResolve,
-                                                bool withStencil) const {
+                                                bool withStencil) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    desc->fColor.fFormat = fColorAttachment->imageFormat();
-    desc->fColor.fSamples = fColorAttachment->numSamples();
+    const GrVkAttachment* colorAttachment =
+            withResolve ? this->msaaAttachment() : this->colorAttachment();
+
+    desc->fColor.fFormat = colorAttachment->imageFormat();
+    desc->fColor.fSamples = colorAttachment->numSamples();
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
