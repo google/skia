@@ -65,11 +65,6 @@ GrDirectContext::DirectContextID GrDirectContext::DirectContextID::Next() {
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
         : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options), false)
         , fDirectContextID(DirectContextID::Next()) {
-#if GR_TEST_UTILS
-    if (options.fResourceCacheLimitOverride != -1) {
-        this->setResourceCacheLimit(options.fResourceCacheLimitOverride);
-    }
-#endif
 }
 
 GrDirectContext::~GrDirectContext() {
@@ -221,6 +216,11 @@ bool GrDirectContext::init() {
                                                        this->contextID());
     fResourceCache->setProxyProvider(this->proxyProvider());
     fResourceCache->setThreadSafeCache(this->threadSafeCache());
+#if GR_TEST_UTILS
+    if (this->options().fResourceCacheLimitOverride != -1) {
+        this->setResourceCacheLimit(this->options().fResourceCacheLimitOverride);
+    }
+#endif
     fResourceProvider = std::make_unique<GrResourceProvider>(fGpu.get(), fResourceCache.get(),
                                                              this->singleOwner());
     fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->directContextID());
