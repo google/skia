@@ -69,6 +69,24 @@
       "parentUuid": "50c1e995_80be87ce",
       "revId": "64606c6f20055aceb5475847628794ffe7552646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48d43d83_677b9a33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-16T20:27:41Z",
+      "side": 1,
+      "message": "Oh, I definitely wouldn\u0027t suggest silently adding it. :) That sounds like a bad experience for sure.\n\nHowever, I\u0027m not sure why just requiring a `const` on this parameter would be confusing. If it\u0027s missing, main() is malformed and we report an error \"please add const here\". That\u0027s different than how Skia worked yesterday, but that only affects us on the Skia team, and our team can adapt to this easily. For Runtime Effect users, they\u0027ll learn from Day 1 that coords are passed as `const float2 p`, and it\u0027ll just be \"that\u0027s how it is.\" They\u0027ll probably just copy-and-paste the signature from an example somewhere.",
+      "parentUuid": "3892d7a1_3c95c433",
+      "revId": "64606c6f20055aceb5475847628794ffe7552646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
