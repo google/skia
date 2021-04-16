@@ -1474,15 +1474,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     // Flushing image 2 should flush.
     i2->flushAndSubmit(dContext);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
-    // Since we just did a simple image draw it should not have been flattened.
-    REPORTER_ASSERT(reporter,
-                    !static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
-    REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
-
-    // Flatten it and repeat.
-    as_IB(i2.get())->asView(dContext, GrMipmapped::kNo);
-    REPORTER_ASSERT(reporter,
-                    static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
     REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
     s->getCanvas()->drawImage(i2, 0, 0);
     // Flushing image 0 should do nothing, but submit is still called.
@@ -1492,28 +1483,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
     i1->flushAndSubmit(dContext);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     // Flushing image 2 should flush.
-    i2->flushAndSubmit(dContext);
-    REPORTER_ASSERT(reporter, numSubmits() == 1);
-
-    // Test case where flatten happens before the first flush.
-    i2 = make_yuva_image(dContext);
-    // On some systems where preferVRAMUseOverFlushes is false (ANGLE on Windows) the above may
-    // actually flush in order to make textures for the YUV planes. TODO: Remove this when we
-    // make the YUVA planes from backend textures rather than pixmaps that the context must upload.
-    // Calling numSubmits rebases the flush count from here.
-    numSubmits();
-    as_IB(i2.get())->asView(dContext, GrMipmapped::kNo);
-    REPORTER_ASSERT(reporter,
-                    static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->testingOnly_IsFlattened());
-    REPORTER_ASSERT(reporter, static_cast<SkImage_GpuYUVA*>(as_IB(i2.get()))->isTextureBacked());
-    s->getCanvas()->drawImage(i2, 0, 0);
-    // Flushing image 0 should do nothing, but submit is still called.
-    i0->flushAndSubmit(dContext);
-    REPORTER_ASSERT(reporter, numSubmits() == 1);
-    // Flushing image 1 do nothing, but submit is still called.
-    i1->flushAndSubmit(dContext);
-    REPORTER_ASSERT(reporter, numSubmits() == 1);
-    // Flushing image 2 should flush, but submit is still called.
     i2->flushAndSubmit(dContext);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 }

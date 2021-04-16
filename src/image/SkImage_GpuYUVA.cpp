@@ -62,17 +62,12 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                     image->alphaType(),
                     std::move(targetCS))
         , fYUVAProxies(image->fYUVAProxies)
-        , fRGBView(image->fRGBView)
         // Since null fFromColorSpace means no GrColorSpaceXform, we turn a null
         // image->refColorSpace() into an explicit SRGB.
         , fFromColorSpace(image->colorSpace() ? image->refColorSpace() : SkColorSpace::MakeSRGB()) {
-    // We should either have a RGB proxy *or* a set of YUVA proxies.
-    SkASSERT(fYUVAProxies.isValid() != SkToBool(image->fRGBView));
 }
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
-    // We shouldn't get here if the planes were already flattened to RGBA.
-    SkASSERT(fYUVAProxies.isValid() && !fRGBView);
     if (!context || !fContext->priv().matches(context)) {
         return false;
     }
@@ -116,35 +111,18 @@ GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrDirectContext* dContext, const 
     }
 
     GrSurfaceProxy* proxies[SkYUVAInfo::kMaxPlanes] = {};
-    size_t numProxies;
-    if (fRGBView) {
-        // Either we've already flushed the flattening draw or the flattening is unflushed. In the
-        // latter case it should still be ok to just pass fRGBView proxy because it in turn depends
-        // on the planar proxies and will cause all of their work to flush as well.
-        proxies[0] = fRGBView.proxy();
-        numProxies = 1;
-    } else {
-        numProxies = fYUVAProxies.numPlanes();
-        for (size_t i = 0; i < numProxies; ++i) {
-            proxies[i] = fYUVAProxies.proxy(i);
-        }
+    size_t numProxies = fYUVAProxies.numPlanes();
+    for (size_t i = 0; i < numProxies; ++i) {
+        proxies[i] = fYUVAProxies.proxy(i);
     }
     return dContext->priv().flushSurfaces({proxies, numProxies},
                                           SkSurface::BackendSurfaceAccess::kNoAccess,
                                           info);
 }
 
-bool SkImage_GpuYUVA::onHasMipmaps() const {
-    if (fRGBView) {
-        return fRGBView.asTextureProxy()->mipmapped() == GrMipmapped::kYes;
-    }
-    return fYUVAProxies.mipmapped() == GrMipmapped::kYes;
-}
+bool SkImage_GpuYUVA::onHasMipmaps() const { return fYUVAProxies.mipmapped() == GrMipmapped::kYes; }
 
 size_t SkImage_GpuYUVA::onTextureSize() const {
-    if (fRGBView) {
-        return fRGBView.asTextureProxy()->gpuMemorySize();
-    }
     size_t size = 0;
     for (int i = 0; i < fYUVAProxies.numPlanes(); ++i) {
         size += fYUVAProxies.proxy(i)->gpuMemorySize();
@@ -174,97 +152,35 @@ sk_sp<SkImage> SkImage_GpuYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newC
     return sk_sp<SkImage>(new SkImage_GpuYUVA(fContext, this, std::move(newCS)));
 }
 
-static GrSurfaceProxyView render_to_rgb(GrRecordingContext* context,
-                                        const SkColorInfo& colorInfo,
-                                        const GrYUVATextureProxies& proxies,
-                                        SkColorSpace* fromColorSpace,
-                                        GrMipmapped mipmapped,
-                                        SkBudgeted budgeted) {
-    GrImageInfo ii(colorInfo, proxies.yuvaInfo().dimensions());
-    auto surfaceFillContext = GrSurfaceFillContext::Make(context,
-                                                         std::move(ii),
-                                                         SkBackingFit::kExact,
-                                                         /*sample count*/ 1,
-                                                         mipmapped,
-                                                         GrProtected::kNo,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         budgeted);
-    if (!surfaceFillContext) {
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
+        GrRecordingContext* context,
+        GrMipmapped mipmapped,
+        GrImageTexGenPolicy) const {
+    if (!fContext->priv().matches(context)) {
+        return {};
+    }
+    auto sfc = GrSurfaceFillContext::Make(context,
+                                          this->imageInfo(),
+                                          SkBackingFit::kExact,
+                                          /*sample count*/ 1,
+                                          mipmapped,
+                                          GrProtected::kNo,
+                                          kTopLeft_GrSurfaceOrigin,
+                                          SkBudgeted::kYes);
+    if (!sfc) {
         return {};
     }
 
     const GrCaps& caps = *context->priv().caps();
-
-    auto fp = GrYUVtoRGBEffect::Make(proxies, GrSamplerState::Filter::kNearest, caps);
-    if (fromColorSpace) {
+    auto fp = GrYUVtoRGBEffect::Make(fYUVAProxies, GrSamplerState::Filter::kNearest, caps);
+    if (fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                           fromColorSpace,         colorInfo.alphaType(),
-                                           colorInfo.colorSpace(), colorInfo.alphaType());
+                                           fFromColorSpace.get(), this->alphaType(),
+                                           this->colorSpace()   , this->alphaType());
     }
+    sfc->fillWithFP(std::move(fp));
 
-    surfaceFillContext->fillWithFP(std::move(fp));
-
-    return surfaceFillContext->readSurfaceView();
-}
-
-bool SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context, GrMipmapped mipmapped) const {
-    if (fRGBView.proxy()) {
-        if (mipmapped                                       == GrMipmapped::kYes &&
-            fRGBView.proxy()->asTextureProxy()->mipmapped() == GrMipmapped::kNo) {
-            GrSurfaceProxyView mippedView = GrCopyBaseMipMapToView(context, fRGBView);
-            if (!mippedView) {
-                return false;
-            }
-            fRGBView = std::move(mippedView);
-            return true;
-        }
-        return true;
-    }
-
-    if (!context || !fContext->priv().matches(context)) {
-        return false;
-    }
-
-    GrSurfaceProxyView rgbView = render_to_rgb(context,
-                                               this->imageInfo().colorInfo(),
-                                               fYUVAProxies,
-                                               fFromColorSpace.get(),
-                                               mipmapped,
-                                               SkBudgeted::kYes);
-    if (!rgbView) {
-        return false;
-    }
-    fRGBView = std::move(rgbView);
-    fYUVAProxies = {};
-    return true;
-}
-
-std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
-        GrRecordingContext* context,
-        GrMipmapped mipmapped,
-        GrImageTexGenPolicy policy) const {
-    if (!fContext->priv().matches(context)) {
-        return {};
-    }
-    if (policy != GrImageTexGenPolicy::kDraw) {
-        SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
-                                      ? SkBudgeted::kYes
-                                      : SkBudgeted::kNo;
-        if (fRGBView) {
-            return {CopyView(context, fRGBView, mipmapped, policy), GrColorType::kRGBA_8888};
-        }
-        auto view = render_to_rgb(context,
-                                  this->imageInfo().colorInfo(),
-                                  fYUVAProxies,
-                                  fFromColorSpace.get(),
-                                  mipmapped,
-                                  budgeted);
-        return {std::move(view), GrColorType::kRGBA_8888};
-    }
-    if (!this->flattenToRGB(context, mipmapped)) {
-        return {};
-    }
-    return {fRGBView, GrColorType::kRGBA_8888};
+    return {sfc->readSurfaceView(), sfc->imageInfo().colorType()};
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
