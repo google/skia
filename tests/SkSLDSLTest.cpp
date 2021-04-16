@@ -1392,6 +1392,29 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBulk, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+
+    Var color(DSLModifiers(), DSLType(kHalf4_Type), "color", Half4(0.0));
+    Statement s = Block(
+        Declare(color),
+        Switch(Int(color.x()),
+               Case(0, ++color.y()),
+               Case(1, Break()),
+               Case(2, Return(Half4(0.0))),
+               Case(3),
+               Case(4, ++color.x()),
+               Case(5, Block(++color.z(), Break())),
+               Default((Block(--color.y()), Break()))),
+        Switch(Int(color.y()), Case(1, Break()), Case(0, color.x() = (color.z() = 1.0))),
+        Block((color.w() = color.y())),
+        Return(color)
+        );
+
+    EXPECT_EQUAL(s, "??");
+}
+
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     // There is a Fract type on Mac which can conflict with our Fract builtin
