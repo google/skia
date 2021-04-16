@@ -39,6 +39,30 @@
       },
       "revId": "69552d5b72178db44aa01c289b82e96599dbdfe0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f22e938_b1262909",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-16T18:18:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a887903_1c30f507",
+      "range": {
+        "startLine": 438,
+        "startChar": 5,
+        "endLine": 439,
+        "endChar": 90
+      },
+      "revId": "69552d5b72178db44aa01c289b82e96599dbdfe0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
