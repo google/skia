@@ -673,6 +673,8 @@ def WriteProject(project):
   out.write('include("')
   out.write(CMakeStringEscape(extName))
   out.write('")\n')
+  # This lets Clion find the emscripten header files when working with CanvasKit.
+  out.write('include_directories(SYSTEM $ENV{EMSDK}/upstream/emscripten/system/include/)\n')
   out.close()
 
   out = open(extName, 'w+')
