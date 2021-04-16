@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa54ff10_baedb8a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-04-16T18:09:45Z",
+      "side": 1,
+      "message": "LGTM with nit",
+      "revId": "69552d5b72178db44aa01c289b82e96599dbdfe0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a887903_1c30f507",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-04-16T18:09:45Z",
+      "side": 1,
+      "message": "Nit: is there some combination of other terms which would make this more flexible, eg. b.gpu(\"IntelIris640\") \u0026\u0026 b.extraConfig(\"ASAN\") ?",
+      "range": {
+        "startLine": 438,
+        "startChar": 5,
+        "endLine": 439,
+        "endChar": 90
+      },
+      "revId": "69552d5b72178db44aa01c289b82e96599dbdfe0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

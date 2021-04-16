@@ -63,6 +63,30 @@
       },
       "revId": "e2efc4397597e11a96fb14de52a1d968f9908746",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbb76f11_a6c6fa67",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-04-16T18:09:45Z",
+      "side": 1,
+      "message": "If goimports is happy, I\u0027m happy.",
+      "parentUuid": "e5c37c82_c43bb535",
+      "range": {
+        "startLine": 439,
+        "startChar": 2,
+        "endLine": 439,
+        "endChar": 3
+      },
+      "revId": "e2efc4397597e11a96fb14de52a1d968f9908746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
