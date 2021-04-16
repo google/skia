@@ -182,6 +182,8 @@ private:
     bool fBuiltin;
     bool fIsMain;
 
+    friend class SkSL::dsl::DSLFunction;
+
     using INHERITED = Symbol;
 };
 

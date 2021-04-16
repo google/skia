@@ -34,25 +34,28 @@ namespace dsl {
 DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind)
     : fCompiler(compiler) {
     SkSL::ParsedModule module = fCompiler->moduleForProgramKind(kind);
-    fConfig.fKind = kind;
+    fConfig = std::make_unique<ProgramConfig>();
+    fConfig->fKind = kind;
 
     SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
-    fOldSymbolTable = ir.fSymbolTable;
     fOldConfig = fCompiler->fContext->fConfig;
-    ir.fSymbolTable = module.fSymbols;
-    fCompiler->fContext->fConfig = &fConfig;
-    ir.pushSymbolTable();
+    fCompiler->fContext->fConfig = fConfig.get();
     if (compiler->context().fCaps.useNodePools()) {
         fPool = Pool::Create();
         fPool->attachToThread();
     }
+    ir.start(module, false, nullptr, &fProgramElements, &fSharedElements);
 }
 
 DSLWriter::~DSLWriter() {
-    SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
-    ir.fSymbolTable = fOldSymbolTable;
+    if (SymbolTable()) {
+        fCompiler->fIRGenerator->finish();
+        fProgramElements.clear();
+    } else {
+        // We should only be here with a null symbol table if ReleaseProgram was called
+        SkASSERT(fProgramElements.empty());
+    }
     fCompiler->fContext->fConfig = fOldConfig;
-    fProgramElements.clear();
     if (fPool) {
         fPool->detachFromThread();
     }
@@ -198,8 +201,10 @@ void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
 
 const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
     if (!var.fVar) {
-        DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, var.fModifiers.fModifiers,
-                                                     &var.fType.skslType(), var.fStorage);
+        if (var.fStorage != SkSL::VariableStorage::kParameter) {
+            DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, var.fModifiers.fModifiers,
+                                                         &var.fType.skslType(), var.fStorage);
+        }
         std::unique_ptr<SkSL::Variable> skslvar = DSLWriter::IRGenerator().convertVar(
                                                                           /*offset=*/-1,
                                                                           var.fModifiers.fModifiers,
@@ -214,6 +219,10 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                        std::move(skslvar),
                                                                        var.fInitialValue.release());
+        if (var.fStorage == Variable::Storage::kGlobal) {
+            DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
+                                                                      std::move(var.fDeclaration)));
+        }
     }
     return *var.fVar;
 }
@@ -226,6 +235,27 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
 void DSLWriter::MarkDeclared(DSLVar& var) {
     SkASSERT(!var.fDeclared);
     var.fDeclared = true;
+}
+
+std::unique_ptr<SkSL::Program> DSLWriter::ReleaseProgram() {
+    SkSL::IRGenerator& ir = IRGenerator();
+    IRGenerator::IRBundle bundle = ir.finish();
+    Pool* pool = Instance().fPool.get();
+    auto result = std::make_unique<SkSL::Program>(/*source=*/nullptr,
+                                                  std::move(DSLWriter::Instance().fConfig),
+                                                  Compiler().fContext,
+                                                  std::move(bundle.fElements),
+                                                  std::move(bundle.fSharedElements),
+                                                  std::move(bundle.fModifiers),
+                                                  std::move(bundle.fSymbolTable),
+                                                  std::move(Instance().fPool),
+                                                  bundle.fInputs);
+    if (pool) {
+        pool->detachFromThread();
+    }
+    SkASSERT(ProgramElements().empty());
+    SkASSERT(!SymbolTable());
+    return result;
 }
 
 #if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)

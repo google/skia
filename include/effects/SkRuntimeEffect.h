@@ -126,6 +126,10 @@ public:
         return Make(std::move(sksl), Options{});
     }
 
+    static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program);
+
+    static Result MakeForShader(std::unique_ptr<SkSL::Program> program);
+
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
                                size_t childCount,
@@ -203,7 +207,12 @@ private:
                     std::vector<Varying>&& varyings,
                     uint32_t flags);
 
+    static Result Make(std::unique_ptr<SkSL::Program> program, SkSL::ProgramKind kind);
+
     static Result Make(SkString sksl, const Options& options, SkSL::ProgramKind kind);
+
+    static Result Make(SkString sksl, std::unique_ptr<SkSL::Program> program,
+                       const Options& options, SkSL::ProgramKind kind);
 
     uint32_t hash() const { return fHash; }
     bool usesSampleCoords() const { return (fFlags & kUsesSampleCoords_Flag); }

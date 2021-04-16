@@ -105,8 +105,8 @@ class GlobalVarDeclaration final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
 
-    GlobalVarDeclaration(int offset, std::unique_ptr<Statement> decl)
-            : INHERITED(offset, kProgramElementKind)
+    GlobalVarDeclaration(std::unique_ptr<Statement> decl)
+            : INHERITED(decl->fOffset, kProgramElementKind)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
     }
@@ -120,7 +120,7 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<GlobalVarDeclaration>(fOffset, this->declaration()->clone());
+        return std::make_unique<GlobalVarDeclaration>(this->declaration()->clone());
     }
 
     String description() const override {

@@ -332,7 +332,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();
-            return std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl));
+            return std::make_unique<GlobalVarDeclaration>(std::move(decl));
         }
         case Rehydrator::kStructDefinition_Command: {
             const Symbol* type = this->symbol();

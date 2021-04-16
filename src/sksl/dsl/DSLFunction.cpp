@@ -22,6 +22,11 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
                        std::vector<DSLVar*> params) {
     std::vector<const Variable*> paramVars;
     paramVars.reserve(params.size());
+    bool isMain = !strcmp(name, "main");
+    auto typeIsValidForColor = [&](const SkSL::Type& type) {
+        return type == *DSLWriter::Context().fTypes.fHalf4 ||
+               type == *DSLWriter::Context().fTypes.fFloat4;
+    };
     for (DSLVar* param : params) {
         // This counts as declaring the variable; make sure it hasn't been previously declared and
         // then kill its pending declaration statement. Otherwise the statement will hang around
@@ -37,6 +42,22 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
                                    "initial values\n");
         }
         param->fDeclared = true;
+        param->fStorage = SkSL::VariableStorage::kParameter;
+        if (paramVars.empty()) {
+            SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
+            if (isMain && (kind == ProgramKind::kRuntimeEffect ||
+                           kind == ProgramKind::kFragmentProcessor)) {
+                const SkSL::Type& type = param->fType.skslType();
+                // We verify that the signature is fully correct later. For now, if this is an .fp
+                // or runtime effect of any flavor, a float2 param is supposed to be the coords, and
+                // a half4/float parameter is supposed to be the input color:
+                if (type == *DSLWriter::Context().fTypes.fFloat2) {
+                    param->fModifiers.fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+                } else if (typeIsValidForColor(type)) {
+                    param->fModifiers.fModifiers.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
+                }
+            }
+        }
         paramVars.push_back(&DSLWriter::Var(*param));
         param->fDeclaration = nullptr;
     }
@@ -44,7 +65,7 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
     fDecl = symbols.add(std::make_unique<SkSL::FunctionDeclaration>(
                                              /*offset=*/-1,
                                              DSLWriter::Modifiers(SkSL::Modifiers()),
-                                             DSLWriter::Name(name),
+                                             isMain ? name : DSLWriter::Name(name),
                                              std::move(paramVars), fReturnType,
                                              /*builtin=*/false));
 }
@@ -61,6 +82,7 @@ void DSLFunction::define(DSLBlock block) {
         DSLWriter::Compiler().setErrorCount(0);
         SkASSERT(!DSLWriter::Compiler().errorCount());
     }
+    fDecl->fDefinition = function.get();
     DSLWriter::ProgramElements().push_back(std::move(function));
 }
 

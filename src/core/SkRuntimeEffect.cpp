@@ -109,31 +109,67 @@ static bool init_uniform_type(const SkSL::Context& ctx,
                               const SkSL::Type* type,
                               SkRuntimeEffect::Uniform* v) {
     using Type = SkRuntimeEffect::Uniform::Type;
+    if (*type == *ctx.fTypes.fFloat)    { v->type = Type::kFloat;    return true; }
+    if (*type == *ctx.fTypes.fHalf)     { v->type = Type::kFloat;    return true; }
+    if (*type == *ctx.fTypes.fFloat2)   { v->type = Type::kFloat2;   return true; }
+    if (*type == *ctx.fTypes.fHalf2)    { v->type = Type::kFloat2;   return true; }
+    if (*type == *ctx.fTypes.fFloat3)   { v->type = Type::kFloat3;   return true; }
+    if (*type == *ctx.fTypes.fHalf3)    { v->type = Type::kFloat3;   return true; }
+    if (*type == *ctx.fTypes.fFloat4)   { v->type = Type::kFloat4;   return true; }
+    if (*type == *ctx.fTypes.fHalf4)    { v->type = Type::kFloat4;   return true; }
+    if (*type == *ctx.fTypes.fFloat2x2) { v->type = Type::kFloat2x2; return true; }
+    if (*type == *ctx.fTypes.fHalf2x2)  { v->type = Type::kFloat2x2; return true; }
+    if (*type == *ctx.fTypes.fFloat3x3) { v->type = Type::kFloat3x3; return true; }
+    if (*type == *ctx.fTypes.fHalf3x3)  { v->type = Type::kFloat3x3; return true; }
+    if (*type == *ctx.fTypes.fFloat4x4) { v->type = Type::kFloat4x4; return true; }
+    if (*type == *ctx.fTypes.fHalf4x4)  { v->type = Type::kFloat4x4; return true; }
 
-    if (type == ctx.fTypes.fFloat.get())    { v->type = Type::kFloat;    return true; }
-    if (type == ctx.fTypes.fHalf.get())     { v->type = Type::kFloat;    return true; }
-    if (type == ctx.fTypes.fFloat2.get())   { v->type = Type::kFloat2;   return true; }
-    if (type == ctx.fTypes.fHalf2.get())    { v->type = Type::kFloat2;   return true; }
-    if (type == ctx.fTypes.fFloat3.get())   { v->type = Type::kFloat3;   return true; }
-    if (type == ctx.fTypes.fHalf3.get())    { v->type = Type::kFloat3;   return true; }
-    if (type == ctx.fTypes.fFloat4.get())   { v->type = Type::kFloat4;   return true; }
-    if (type == ctx.fTypes.fHalf4.get())    { v->type = Type::kFloat4;   return true; }
-    if (type == ctx.fTypes.fFloat2x2.get()) { v->type = Type::kFloat2x2; return true; }
-    if (type == ctx.fTypes.fHalf2x2.get())  { v->type = Type::kFloat2x2; return true; }
-    if (type == ctx.fTypes.fFloat3x3.get()) { v->type = Type::kFloat3x3; return true; }
-    if (type == ctx.fTypes.fHalf3x3.get())  { v->type = Type::kFloat3x3; return true; }
-    if (type == ctx.fTypes.fFloat4x4.get()) { v->type = Type::kFloat4x4; return true; }
-    if (type == ctx.fTypes.fHalf4x4.get())  { v->type = Type::kFloat4x4; return true; }
-
-    if (type == ctx.fTypes.fInt.get())  { v->type = Type::kInt;  return true; }
-    if (type == ctx.fTypes.fInt2.get()) { v->type = Type::kInt2; return true; }
-    if (type == ctx.fTypes.fInt3.get()) { v->type = Type::kInt3; return true; }
-    if (type == ctx.fTypes.fInt4.get()) { v->type = Type::kInt4; return true; }
+    if (*type == *ctx.fTypes.fInt)  { v->type = Type::kInt;  return true; }
+    if (*type == *ctx.fTypes.fInt2) { v->type = Type::kInt2; return true; }
+    if (*type == *ctx.fTypes.fInt3) { v->type = Type::kInt3; return true; }
+    if (*type == *ctx.fTypes.fInt4) { v->type = Type::kInt4; return true; }
 
     return false;
 }
 
+// TODO: Many errors aren't caught until we process the generated Program here. Catching those
+// in the IR generator would provide better errors messages (with locations).
+#define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
+
+SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options,
+                                              SkSL::ProgramKind kind) {
+    std::unique_ptr<SkSL::Program> program;
+    {
+        // We keep this SharedCompiler in a separate scope to make sure it's destroyed before
+        // calling the Make overload at the end, which creates its own (non-reentrant)
+        // SharedCompiler instance
+        SkSL::SharedCompiler compiler;
+        SkSL::Program::Settings settings;
+        settings.fInlineThreshold = 0;
+        settings.fForceNoInline = options.forceNoInline;
+        settings.fAllowNarrowingConversions = true;
+        program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
+                                           SkSL::String(sksl.c_str(), sksl.size()),
+                                           settings);
+        // TODO: Many errors aren't caught until we process the generated Program here. Catching those
+        // in the IR generator would provide better errors messages (with locations).
+        #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
+
+        if (!program) {
+            RETURN_FAILURE("%s", compiler->errorText().c_str());
+        }
+    }
+    return Make(std::move(sksl), std::move(program), options, kind);
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::Make(std::unique_ptr<SkSL::Program> program,
+                                              SkSL::ProgramKind kind) {
+    SkString source(program->description().c_str());
+    return Make(std::move(source), std::move(program), Options{}, kind);
+}
+
 SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
+                                              std::unique_ptr<SkSL::Program> program,
                                               const Options& options,
                                               SkSL::ProgramKind kind) {
     SkSL::SharedCompiler compiler;
@@ -141,15 +177,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     settings.fInlineThreshold = 0;
     settings.fForceNoInline = options.forceNoInline;
     settings.fAllowNarrowingConversions = true;
-    auto program =
-            compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
-    // TODO: Many errors aren't caught until we process the generated Program here. Catching those
-    // in the IR generator would provide better errors messages (with locations).
-    #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
-
-    if (!program) {
-        RETURN_FAILURE("%s", compiler->errorText().c_str());
-    }
 
     const SkSL::FunctionDefinition* main = nullptr;
     uint32_t flags = 0;
@@ -287,6 +314,18 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(SkString sksl, const
 
 SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(SkString sksl, const Options& options) {
     auto result = Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeShader);
+    SkASSERT(!result.effect || result.effect->allowShader());
+    return result;
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(std::unique_ptr<SkSL::Program> program) {
+    auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeColorFilter);
+    SkASSERT(!result.effect || result.effect->allowColorFilter());
+    return result;
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Program> program) {
+    auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeShader);
     SkASSERT(!result.effect || result.effect->allowShader());
     return result;
 }
