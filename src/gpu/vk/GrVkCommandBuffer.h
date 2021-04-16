@@ -216,7 +216,8 @@ public:
     // Begins render pass on this command buffer. The framebuffer from GrVkRenderTarget will be used
     // in the render pass.
     bool beginRenderPass(GrVkGpu* gpu,
-                         const GrVkRenderPass* renderPass,
+                         const GrVkRenderPass*,
+                         sk_sp<const GrVkFramebuffer>,
                          const VkClearValue clearValues[],
                          GrVkRenderTarget* target,
                          const SkIRect& bounds,

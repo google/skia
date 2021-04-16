@@ -458,19 +458,15 @@ void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu, bool abandoningBuffer) {
 
 bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
                                                const GrVkRenderPass* renderPass,
+                                               sk_sp<const GrVkFramebuffer> framebuffer,
                                                const VkClearValue clearValues[],
                                                GrVkRenderTarget* target,
                                                const SkIRect& bounds,
                                                bool forSecondaryCB) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
-    SkASSERT(renderPass->isCompatible(*target, renderPass->selfDependencyFlags(),
-                                      renderPass->loadFromResolve()));
 
-    const GrVkFramebuffer* framebuffer = target->getFramebuffer(*renderPass);
-    if (!framebuffer) {
-        return false;
-    }
+    SkASSERT(framebuffer);
 
     this->addingWork(gpu);
 
@@ -494,7 +490,7 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
     GR_VK_CALL(gpu->vkInterface(), CmdBeginRenderPass(fCmdBuffer, &beginInfo, contents));
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);
-    this->addResource(framebuffer);
+    this->addResource(std::move(framebuffer));
     this->addGrSurface(sk_ref_sp(target));
     return true;
 }

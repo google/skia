@@ -15,7 +15,7 @@
 
 GrVkFramebuffer* GrVkFramebuffer::Create(
         GrVkGpu* gpu,
-        int width, int height,
+        SkISize dimensions,
         const GrVkRenderPass* renderPass,
         GrVkAttachment* colorAttachment,
         GrVkAttachment* resolveAttachment,
@@ -43,8 +43,8 @@ GrVkFramebuffer* GrVkFramebuffer::Create(
     createInfo.renderPass = renderPass->vkRenderPass();
     createInfo.attachmentCount = numAttachments;
     createInfo.pAttachments = attachments;
-    createInfo.width = width;
-    createInfo.height = height;
+    createInfo.width = dimensions.width();
+    createInfo.height = dimensions.height();
     createInfo.layers = 1;
 
     VkFramebuffer framebuffer;
@@ -71,7 +71,9 @@ GrVkFramebuffer::GrVkFramebuffer(const GrVkGpu* gpu,
         , fColorAttachment(std::move(colorAttachment))
         , fResolveAttachment(std::move(resolveAttachment))
         , fStencilAttachment(std::move(stencilAttachment))
-        , fCompatibleRenderPassHandle(compatibleRPHandle) {}
+        , fCompatibleRenderPassHandle(compatibleRPHandle) {
+    SkASSERT(fCompatibleRenderPassHandle.isValid());
+}
 
 GrVkFramebuffer::GrVkFramebuffer(const GrVkGpu* gpu,
                                  sk_sp<GrVkAttachment> colorAttachment,

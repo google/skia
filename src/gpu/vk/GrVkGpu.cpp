@@ -32,6 +32,7 @@
 #include "src/gpu/vk/GrVkBuffer.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
+#include "src/gpu/vk/GrVkFramebuffer.h"
 #include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkInterface.h"
 #include "src/gpu/vk/GrVkMemory.h"
@@ -302,7 +303,7 @@ sk_sp<GrThreadSafePipelineBuilder> GrVkGpu::refPipelineBuilder() {
 
 GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
-        bool /*useMSAASurface*/,
+        bool useMSAASurface,
         GrAttachment* stencil,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
@@ -314,8 +315,61 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
-    if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds, colorInfo, stencilInfo,
-                                   sampledProxies, renderPassXferBarriers)) {
+    // For the given render target and requested render pass features we need to find a compatible
+    // framebuffer to use for the render pass. Technically it is the underlying VkRenderPass that
+    // is compatible, but that is part of the framebuffer that we get here.
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
+
+    SkASSERT(!useMSAASurface ||
+             (rt->numSamples() > 1 ||
+              (this->vkCaps().preferDiscardableMSAAAttachment() && vkRT->resolveAttachment() &&
+               vkRT->resolveAttachment()->supportsInputAttachmentUsage())));
+
+    // Covert the GrXferBarrierFlags into render pass self dependency flags
+    GrVkRenderPass::SelfDependencyFlags selfDepFlags = GrVkRenderPass::SelfDependencyFlags::kNone;
+    if (renderPassXferBarriers & GrXferBarrierFlags::kBlend) {
+        selfDepFlags |= GrVkRenderPass::SelfDependencyFlags::kForNonCoherentAdvBlend;
+    }
+    if (renderPassXferBarriers & GrXferBarrierFlags::kTexture) {
+        selfDepFlags |= GrVkRenderPass::SelfDependencyFlags::kForInputAttachment;
+    }
+
+    // Figure out if we need a resolve attachment for this render pass. A resolve attachment is
+    // needed if we are using msaa to draw with a discardable msaa attachment. If we are in this
+    // case we also need to update the color load/store ops since we don't want to ever load or
+    // store the msaa color attachment, but may need to for the resolve attachment.
+    GrOpsRenderPass::LoadAndStoreInfo localColorInfo = colorInfo;
+    bool withResolve = false;
+    GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
+    GrOpsRenderPass::LoadAndStoreInfo resolveInfo{GrLoadOp::kLoad, GrStoreOp::kStore, {}};
+    if (useMSAASurface && this->vkCaps().preferDiscardableMSAAAttachment() &&
+        vkRT->resolveAttachment() && vkRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+        withResolve = true;
+        localColorInfo.fStoreOp = GrStoreOp::kDiscard;
+        if (colorInfo.fLoadOp == GrLoadOp::kLoad) {
+            loadFromResolve = GrVkRenderPass::LoadFromResolve::kLoad;
+            localColorInfo.fLoadOp = GrLoadOp::kDiscard;
+        } else {
+            resolveInfo.fLoadOp = GrLoadOp::kDiscard;
+        }
+    }
+
+    // Get the framebuffer to use for the render pass
+   sk_sp<GrVkFramebuffer> framebuffer;
+    if (vkRT->wrapsSecondaryCommandBuffer()) {
+        framebuffer = vkRT->externalFramebuffer();
+    } else {
+        auto fb = vkRT->getFramebuffer(withResolve, SkToBool(stencil), selfDepFlags,
+                                       loadFromResolve);
+        framebuffer = sk_ref_sp(fb);
+    }
+    if (!framebuffer) {
+        return nullptr;
+    }
+
+    if (!fCachedOpsRenderPass->set(rt, std::move(framebuffer), origin, bounds, localColorInfo,
+                                   stencilInfo, resolveInfo, selfDepFlags, loadFromResolve,
+                                   sampledProxies)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
@@ -2381,6 +2435,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 }
 
 bool GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
+                              sk_sp<const GrVkFramebuffer> framebuffer,
                               const VkClearValue* colorClear,
                               GrVkRenderTarget* target,
                               const SkIRect& renderPassBounds,
@@ -2405,8 +2460,8 @@ bool GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
     clears[stencilIndex].depthStencil.depth = 0.0f;
     clears[stencilIndex].depthStencil.stencil = 0;
 
-   return this->currentCommandBuffer()->beginRenderPass(this, renderPass, clears, target,
-                                                        renderPassBounds, forSecondaryCB);
+   return this->currentCommandBuffer()->beginRenderPass(
+        this, renderPass, std::move(framebuffer), clears, target, renderPassBounds, forSecondaryCB);
 }
 
 void GrVkGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
