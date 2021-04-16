@@ -39,6 +39,30 @@
       },
       "revId": "e2efc4397597e11a96fb14de52a1d968f9908746",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5c37c82_c43bb535",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-16T17:57:01Z",
+      "side": 1,
+      "message": "Shockingly, I don\u0027t think so – the other long multiline if statements in this file use this indentation scheme.",
+      "parentUuid": "37d9dca0_ce214e24",
+      "range": {
+        "startLine": 439,
+        "startChar": 2,
+        "endLine": 439,
+        "endChar": 3
+      },
+      "revId": "e2efc4397597e11a96fb14de52a1d968f9908746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
