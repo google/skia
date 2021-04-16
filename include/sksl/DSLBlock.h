@@ -34,7 +34,18 @@ public:
         static_cast<void>(unused);
     }
 
+    DSLBlock(DSLBlock&& other) {
+        fStatements = std::move(other.fStatements);
+    }
+
+    DSLBlock& operator=(DSLBlock&& other) {
+        fStatements = std::move(other.fStatements);
+        return *this;
+    }
+
     DSLBlock(SkSL::StatementArray statements);
+
+    ~DSLBlock();
 
     void append(DSLStatement stmt);
 
