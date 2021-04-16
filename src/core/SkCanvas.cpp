@@ -2285,7 +2285,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBounds();
     if (this->internalQuickReject(bounds, paint)) {
-        return;
+//        return;
     }
     AutoLayerForImageFilter layer(this, paint, &bounds);
     this->topDevice()->drawGlyphRunList(glyphRunList, layer.paint());
