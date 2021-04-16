@@ -34,10 +34,8 @@ describe('Core canvas behavior', () => {
 
         canvas.drawPicture(pic);
 
-        // test that file saving functionality throws no errors
-        // Unfortunately jasmine spy objects can't fake their type so we can't verify it downloads
-        // a nonzero sized file.
-        pic.saveAsFile('foo.skp');
+        const bytes = pic.serialize();
+        expect(bytes).toBeTruthy();
 
         pic.delete();
     });

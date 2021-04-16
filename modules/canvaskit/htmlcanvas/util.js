@@ -12,7 +12,7 @@ function allAreFinite(args) {
 }
 
 function toBase64String(bytes) {
-  if (isNode) {
+  if (typeof Buffer !== 'undefined') { // Are we on node?
     return Buffer.from(bytes).toString('base64');
   } else {
     // From https://stackoverflow.com/a/25644409

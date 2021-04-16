@@ -14,16 +14,4 @@ CanvasKit._extraInitializations.push(function() {
     }
     return pic;
   };
-
-  // The serialized format of an Picture (informally called an "skp"), is not something
-  // that clients should ever rely on. The format may change at anytime and no promises
-  // are made for backwards or forward compatibility.
-  CanvasKit.Picture.prototype.saveAsFile = function(skpName) {
-    var bytes = this.serialize();
-    if (!bytes) {
-      Debug('Could not serialize to skpicture.');
-      return;
-    }
-    saveBytesToFile(bytes, skpName);
-  }
 });
