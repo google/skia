@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "149e9b5b_ce8d466f",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-16T17:27:52Z",
+      "side": 1,
+      "message": "What do you think about moving this check in ForStatement::Convert? Ideally the parser wouldn\u0027t let any through anyway, but a big part of Convert\u0027s role is to properly report errors, so I think it would be more consistent to keep error-checking there. (And we could remove the check from the parser, I guess?)",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 100,
+        "endChar": 9
+      },
+      "revId": "0a08d55996b2bc00265231f429cb600cbf54ee7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
