@@ -1,11 +1,7 @@
 layout(builtin=15) float4 sk_FragCoord;
 
-half4 sample(shader s);
-half4 sample(shader s, float3x3 transform);
 half4 sample(shader s, float2 coords);
 
 // TODO(skbug.com/11813): Implement sample() that takes a color
 // half4 sample(colorFilter f, half4 color);
-// half4 sample(shader s, half4 color);
-// half4 sample(shader s, half4 color, float3x3 transform);
 // half4 sample(shader s, half4 color, float2 coords);
