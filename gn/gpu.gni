@@ -224,6 +224,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrStencilSettings.h",
   "$_src/gpu/GrStyle.cpp",
   "$_src/gpu/GrStyle.h",
+  "$_src/gpu/GrSubRunAllocator.cpp",
+  "$_src/gpu/GrSubRunAllocator.h",
   "$_src/gpu/GrSurface.cpp",
   "$_src/gpu/GrSurface.h",
   "$_src/gpu/GrSurfaceContext.cpp",
