@@ -67,8 +67,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrClip.h",
   "$_src/gpu/GrClipStack.cpp",
   "$_src/gpu/GrClipStack.h",
-  "$_src/gpu/GrClipStackClip.cpp",
-  "$_src/gpu/GrClipStackClip.h",
   "$_src/gpu/GrColor.h",
   "$_src/gpu/GrColorInfo.cpp",
   "$_src/gpu/GrColorInfo.h",
@@ -547,9 +545,6 @@ skia_gpu_sources = [
   "$_src/gpu/mock/GrMockTypes.cpp",
 
   # Sk files
-  "$_src/gpu/SkGpuDevice.cpp",
-  "$_src/gpu/SkGpuDevice.h",
-  "$_src/gpu/SkGpuDevice_drawTexture.cpp",
   "$_src/gpu/SkGr.cpp",
   "$_src/gpu/SkGr.h",
   "$_src/image/SkImage_Gpu.cpp",
@@ -638,6 +633,21 @@ skia_ccpr_sources = [
 skia_gpu_sources += skia_ccpr_sources
 
 skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
+
+skia_nga_sources = [
+  "$_src/gpu/SkGpuDevice_nga.cpp",
+  "$_src/gpu/SkGpuDevice_nga.h",
+]
+
+skia_oga_sources = [
+  "$_src/gpu/GrClipStackClip.cpp",
+  "$_src/gpu/GrClipStackClip.h",
+
+  # Sk files
+  "$_src/gpu/SkGpuDevice.cpp",
+  "$_src/gpu/SkGpuDevice.h",
+  "$_src/gpu/SkGpuDevice_drawTexture.cpp",
+]
 
 skia_vk_sources = [
   "$_include/gpu/vk/GrVkBackendContext.h",

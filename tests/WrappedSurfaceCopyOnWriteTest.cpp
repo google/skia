@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#if 0
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/gpu/GrDirectContext.h"
@@ -160,3 +161,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo) {
             });
     CheckSolidPixels(SkColor4f{1, 0, 0, 1}, pixels, kTol, errorReporter);
 }
+#endif

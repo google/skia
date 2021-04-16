@@ -19,23 +19,22 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGpuDevice.h"
 
-sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingContext* ctx,
+sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingContext* rContext,
                                                                    const SkImageInfo& imageInfo,
                                                                    const GrVkDrawableInfo& vkInfo,
                                                                    const SkSurfaceProps* props) {
-    if (!ctx) {
+    if (!rContext) {
         return nullptr;
     }
 
-    if (ctx->backend() != GrBackendApi::kVulkan) {
+    if (rContext->backend() != GrBackendApi::kVulkan) {
         return nullptr;
     }
 
-    auto rtc = GrSurfaceDrawContext::MakeFromVulkanSecondaryCB(ctx, imageInfo, vkInfo, props);
+    auto rtc = GrSurfaceDrawContext::MakeFromVulkanSecondaryCB(rContext, imageInfo, vkInfo, props);
     SkASSERT(rtc->asSurfaceProxy()->isInstantiated());
 
-    sk_sp<SkGpuDevice> device(
-            SkGpuDevice::Make(ctx, std::move(rtc), SkGpuDevice::kUninit_InitContents));
+    sk_sp<SkFooDevice> device = rContext->foo1();
     if (!device) {
         return nullptr;
     }
@@ -44,7 +43,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
                                                                             props));
 }
 
-GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<SkGpuDevice> device,
+GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<SkFooDevice> device,
                                                        const SkSurfaceProps* props)
     : fDevice(device)
     , fProps(SkSurfacePropsCopyOrDefault(props)) {}

@@ -14,11 +14,11 @@
 #if SK_SUPPORT_GPU
 
 class GrBackendFormat;
-class SkGpuDevice;
+class SkFooDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:
-    SkSurface_Gpu(sk_sp<SkGpuDevice>);
+    SkSurface_Gpu(sk_sp<SkFooDevice>);
     ~SkSurface_Gpu() override;
 
     // This is an internal-only factory
@@ -61,10 +61,10 @@ public:
                 const SkPaint* paint) override;
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
-    SkGpuDevice* getDevice() { return fDevice.get(); }
+    SkFooDevice* getDevice() { return fDevice.get(); }
 
 private:
-    sk_sp<SkGpuDevice> fDevice;
+    sk_sp<SkFooDevice> fDevice;
 
     using INHERITED = SkSurface_Base;
 };
