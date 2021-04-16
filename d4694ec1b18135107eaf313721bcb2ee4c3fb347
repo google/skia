@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca7e5395_648d5f81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-16T13:06:45Z",
+      "side": 1,
+      "message": "Toggling between 2 \u0026 3.5 is really pleasing.",
+      "revId": "d4694ec1b18135107eaf313721bcb2ee4c3fb347",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
