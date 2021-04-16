@@ -2318,7 +2318,7 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint pos
     };
     SkGlyphRunList glyphRunList {
         glyphRun,
-        glyphRun.sourceBounds(paint),
+        glyphRun.sourceBounds(paint).makeOffset(origin),
         origin
     };
     this->onDrawGlyphRunList(glyphRunList, paint);
@@ -2339,7 +2339,7 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* pos
     };
     SkGlyphRunList glyphRunList {
         glyphRun,
-        glyphRun.sourceBounds(paint),
+        glyphRun.sourceBounds(paint).makeOffset(origin),
         origin
     };
     this->onDrawGlyphRunList(glyphRunList, paint);
