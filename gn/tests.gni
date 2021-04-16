@@ -54,6 +54,7 @@ tests_sources = [
   "$_tests/CompressedBackendAllocationTest.cpp",
   "$_tests/CopySurfaceTest.cpp",
   "$_tests/CubicMapTest.cpp",
+  "$_tests/DSLFPTest.cpp",
   "$_tests/DashPathEffectTest.cpp",
   "$_tests/DataRefTest.cpp",
   "$_tests/DebugLayerManagerTest.cpp",
@@ -328,6 +329,20 @@ tests_sources = [
   "$_tests/Writer32Test.cpp",
   "$_tests/YUVCacheTest.cpp",
   "$_tests/YUVTest.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestDoStatement.dsl.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestDoStatement.h",
+  "$_tests/sksl/dslfp/GrDSLTestForStatement.dsl.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestForStatement.h",
+  "$_tests/sksl/dslfp/GrDSLTestIfStatement.dsl.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestIfStatement.h",
+  "$_tests/sksl/dslfp/GrDSLTestSwitchStatement.dsl.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestSwitchStatement.h",
+  "$_tests/sksl/dslfp/GrDSLTestSwizzle.dsl.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestSwizzle.h",
+  "$_tests/sksl/dslfp/GrDSLTestTernary.dsl.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestTernary.h",
+  "$_tests/sksl/dslfp/GrDSLTestWhileStatement.dsl.cpp",
+  "$_tests/sksl/dslfp/GrDSLTestWhileStatement.h",
 ]
 
 gl_tests_sources = [
