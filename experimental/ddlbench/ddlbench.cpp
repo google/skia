@@ -3,19 +3,25 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkSLDefines.h"
 #include "src/core/SkOSFile.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/DDLPromiseImageHelper.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
+
+#include <algorithm>
+
+using sk_gpu_test::GrContextFactory;
+
+#if 0
+#include "include/core/SkPicture.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkSLDefines.h"
+#include "tools/DDLPromiseImageHelper.h"
 #include "tools/gpu/TestContext.h"
 
 #include <chrono>
@@ -26,13 +32,14 @@ using hires_clock = std::chrono::high_resolution_clock;
 using duration = std::chrono::nanoseconds;
 
 using sk_gpu_test::ContextInfo;
-using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
 
 static DEFINE_int(numRecordingThreads, 1, "number of DDL recording threads");
 static DEFINE_int(numTilesX, 3, "number of tiles horizontally");
 static DEFINE_int(numTilesY, 3, "number of tiles vertically");
 static DEFINE_int(numSamples, 1, "number of MSAA samples");
+#endif
+
 static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 static DEFINE_string(src, "", "input .skp file");
 
@@ -45,6 +52,7 @@ static void exitf(const char* format, ...) {
     exit(1);
 }
 
+#if 0
 // Each thread holds this chunk of data thread_locally
 struct ThreadInfo {
     ThreadInfo() = default;
@@ -283,6 +291,7 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
 
     return promiseImageHelper->recreateSKP(dContext, skp.get());
 }
+#endif
 
 static void check_params(GrDirectContext* dContext,
                          int width, int height, SkColorType ct, SkAlphaType at, int numSamples) {
@@ -329,12 +338,243 @@ static void maybe_save_file(SkSurface* surface) {
     }
 }
 
+class FakeCanvas;
+
+class Cmd {
+public:
+    Cmd(int id) : fID(id) {}
+
+    int id() const { return fID; }
+
+    virtual void execute(FakeCanvas*) const = 0;
+    virtual void execute(SkCanvas*) const = 0;
+    virtual void dump() const = 0;
+
+protected:
+    const int fID;
+
+private:
+};
+
+class Key {
+public:
+    static const uint32_t kNumDepthBits = 3;
+    static const uint32_t kDepthMask = (0x1 << kNumDepthBits) - 1;
+    static const uint32_t kDepthShift = 4;
+
+    static const uint32_t kNumMaterialBits = 4;
+    static const uint32_t kMaterialMask = (0x1 << kNumMaterialBits) - 1;
+    static const uint32_t kMaterialShift = 0;
+
+    Key() : fKey(0) {}
+    Key(uint32_t depth, uint32_t material) {
+        SkASSERT(!(depth & ~kDepthMask));
+        SkASSERT(!(material & ~kMaterialMask));
+
+        fKey = (depth & kDepthMask) << kDepthShift |
+               (material & kMaterialMask) << kMaterialShift;
+    }
+
+    void dump() const {
+        SkDebugf("depth: %d mat %d\n",
+                 (fKey >> kDepthShift) & kDepthMask,
+                 (fKey >> kMaterialShift) & kMaterialMask);
+    }
+
+    bool operator>(const Key& other) const {
+        return fKey > other.fKey;
+    }
+
+private:
+    uint64_t fKey;
+};
+
+class FakePaint {
+public:
+    FakePaint() {}
+
+    void setColor(SkColor c) { fColor = c; }
+
+protected:
+
+private:
+    SkColor fColor;
+};
+
+class FakeDevice {
+public:
+
+protected:
+
+private:
+};
+
+class FakeCanvas {
+public:
+    FakeCanvas() {
+        fStateStack.push_back(State());
+    }
+
+    void saveLayer() {
+        SkASSERT(!fFinalized);
+
+    }
+
+    void drawRect(SkRect r, FakePaint p) {
+        SkASSERT(!fFinalized);
+
+    }
+
+    void clipRect(SkRect r) {
+        SkASSERT(!fFinalized);
+
+    }
+
+    void translate(SkVector trans) {
+        SkASSERT(!fFinalized);
+
+    }
+
+    void finalize() {
+        SkASSERT(!fFinalized);
+        fFinalized = true;
+
+        std::sort(fSortedCmds.begin(), fSortedCmds.end(),
+                  [](const KeyAndCmd& a, const KeyAndCmd& b) {
+                      return a.fKey > b.fKey;
+                  });
+    }
+
+    std::vector<int> getOrder() const {
+        std::vector<int> ops;
+        ops.reserve(fSortedCmds.size());
+
+        for (auto f : fSortedCmds) {
+            ops.push_back(f.fCmd->id());
+        }
+
+        return ops;
+    }
+
+    void replay(SkBitmap* dstBM) const {
+        SkCanvas replayCanvas(*dstBM);
+
+        for (auto f : fSortedCmds) {
+            f.fCmd->execute(&replayCanvas);
+        }
+    }
+
+protected:
+
+private:
+    class State {
+    public:
+        FakeDevice fDevice;
+        SkMatrix   fCTM;
+    };
+
+    class KeyAndCmd {
+    public:
+        Key  fKey;
+        Cmd* fCmd;
+    };
+
+    bool                   fFinalized = false;
+    std::vector<State>     fStateStack;
+    std::vector<KeyAndCmd> fSortedCmds;
+};
+
+// unit test - exercise sorting behavior
+void key_test() {
+    Key k;
+    k.dump();
+
+    Key k2(2, 1);
+    k2.dump();
+
+}
+
+class RectCmd : public Cmd {
+public:
+    RectCmd(int id, SkRect r, SkColor c) : Cmd(id), fRect(r), fColor(c) {}
+
+    void execute(FakeCanvas* c) const override {
+        FakePaint p;
+        p.setColor(fColor);
+        c->drawRect(fRect, p);
+    }
+
+    void execute(SkCanvas* c) const override {
+        SkPaint p;
+        p.setColor(fColor);
+        c->drawRect(fRect, p);
+    }
+
+    void dump() const override {
+        SkDebugf("%d: drawRect", fID);
+    }
+
+protected:
+
+private:
+    SkRect  fRect;
+    SkColor fColor;
+};
+
+static void sort_test1() {
+    std::vector<const Cmd*> test;
+
+    test.push_back(new RectCmd(0, { 10, 10 , 100, 100 }, SK_ColorRED));
+    test.push_back(new RectCmd(1, { 10, 10 , 100, 100 }, SK_ColorGREEN));
+
+    std::vector<int> expected_order { 0, 1 };
+
+    SkBitmap expectedBM;
+    expectedBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    expectedBM.eraseColor(SK_ColorBLACK);
+    SkCanvas real(expectedBM);
+
+    FakeCanvas fake;
+    for (auto c : test) {
+        c->execute(&fake);
+        c->execute(&real);
+    }
+
+    fake.finalize();
+
+    std::vector<int> actual_order = fake.getOrder();
+    if (expected_order.size() != actual_order.size()) {
+        exitf("Missing Op!\n");
+    }
+
+    if (expected_order != actual_order) {
+        SkDebugf("order mismatch:\n");
+        SkDebugf("E %d: ", expected_order.size());
+        for (auto t : expected_order) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
+
+        SkDebugf("A %d: ", actual_order.size());
+        for (auto t : actual_order) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
+    }
+
+    SkBitmap actualBM;
+    actualBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    actualBM.eraseColor(SK_ColorBLACK);
+
+    fake.replay(&actualBM);
+}
+
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_src.count() != 1) {
-        exitf("Missing input file");
-    }
+//    if (FLAGS_src.count() != 1) {
+//        exitf("Missing input file");
+//    }
 
     // TODO: get these from the command line flags
     const GrContextFactory::ContextType kContextType = GrContextFactory::kGL_ContextType;
@@ -347,6 +587,11 @@ int main(int argc, char** argv) {
 
     GrContextFactory factory(kContextOptions);
 
+    key_test();
+    sort_test1();
+
+    SkDebugf("done\n");
+#if 0
     std::unique_ptr<ThreadInfo> mainContext(new ThreadInfo);
     std::unique_ptr<ThreadInfo[]> utilityContexts(new ThreadInfo[FLAGS_numRecordingThreads]);
 
@@ -435,6 +680,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
         utilityContexts[i].dump();
     }
+#endif
 
     return 0;
 }
