@@ -29,7 +29,13 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& proc) override {
         const GrMatrixEffect& mtx = proc.cast<GrMatrixEffect>();
-        pdman.setSkMatrix(fMatrixVar, mtx.matrix());
+        if (auto te = mtx.childProcessor(0)->asTextureEffect()) {
+            SkMatrix m = te->coordAdjustmentMatrix();
+            m.preConcat(mtx.matrix());
+            pdman.setSkMatrix(fMatrixVar, m);
+        } else {
+            pdman.setSkMatrix(fMatrixVar, mtx.matrix());
+        }
     }
 
     UniformHandle fMatrixVar;
