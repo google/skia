@@ -333,11 +333,12 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrRecordingContext* 
                                                             int widthHeight) {
     if (rContext) {
         return SkSpecialSurface::MakeRenderTarget(rContext, widthHeight, widthHeight,
-                                                  GrColorType::kRGBA_8888, nullptr);
+                                                  GrColorType::kRGBA_8888, nullptr,
+                                                  SkSurfaceProps());
     } else {
         const SkImageInfo info = SkImageInfo::MakeN32(widthHeight, widthHeight,
                                                       kOpaque_SkAlphaType);
-        return SkSpecialSurface::MakeRaster(info);
+        return SkSpecialSurface::MakeRaster(info, SkSurfaceProps());
     }
 }
 
@@ -519,7 +520,8 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
 
     sk_sp<SkImage> gradient = make_gradient_circle(kWidth, kHeight).asImage();
     sk_sp<SkSpecialImage> imgSrc(
-            SkSpecialImage::MakeFromImage(dContext, SkIRect::MakeWH(kWidth, kHeight), gradient));
+            SkSpecialImage::MakeFromImage(dContext, SkIRect::MakeWH(kWidth, kHeight), gradient,
+                                          SkSurfaceProps()));
 
     SkIPoint offset;
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
@@ -611,7 +613,8 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
                     paint);
     sk_sp<SkImage> image = bitmap.asImage();
     sk_sp<SkSpecialImage> imgSrc(
-            SkSpecialImage::MakeFromImage(dContext, SkIRect::MakeWH(kWidth, kHeight), image));
+            SkSpecialImage::MakeFromImage(dContext, SkIRect::MakeWH(kWidth, kHeight), image,
+                                          SkSurfaceProps()));
 
     SkIPoint offset;
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,

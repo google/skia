@@ -647,7 +647,7 @@ public:
     SkColorSpace* colorSpace() const { return fColorSpace; }
     sk_sp<SkColorSpace> refColorSpace() const { return sk_ref_sp(fColorSpace); }
     // The default surface properties to use when making transient surfaces during filtering.
-    const SkSurfaceProps* surfaceProps() const { return &fSource.image()->props(); }
+    const SkSurfaceProps& surfaceProps() const { return fSource.image()->props(); }
 
     // This is the image to use whenever an expected input filter has been set to null. In the
     // majority of cases, this is the original source image for the image filter DAG so it comes
@@ -678,8 +678,11 @@ public:
     // image.
     sk_sp<SkSpecialSurface> makeSurface(const SkISize& size,
                                         const SkSurfaceProps* props = nullptr) const {
+        if (!props) {
+             props = &this->surfaceProps();
+        }
         return fSource.image()->makeSurface(fColorType, fColorSpace, size,
-                                            kPremul_SkAlphaType, props);
+                                            kPremul_SkAlphaType, *props);
     }
 
     // Create a new context that matches this context, but with an overridden layer space.

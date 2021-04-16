@@ -55,7 +55,8 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                sk_sp<GrThreadSafeCache::Trampoline> trampoline,
                                const SkRRect& rrectToDraw,
                                const SkISize& dimensions,
-                               float xformedSigma) {
+                               float xformedSigma,
+                               const SkSurfaceProps& props) {
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
     std::unique_ptr<GrSurfaceDrawContext> rtc =
             GrSurfaceDrawContext::MakeWithFallback(dContext,
@@ -63,6 +64,7 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                                    nullptr,
                                                    SkBackingFit::kExact,
                                                    dimensions,
+                                                   props,
                                                    1,
                                                    GrMipmapped::kNo,
                                                    GrProtected::kNo,
@@ -239,7 +241,8 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
         GrRecordingContext* rContext,
         const SkRRect& rrectToDraw,
         const SkISize& dimensions,
-        float xformedSigma) {
+        float xformedSigma,
+        const SkSurfaceProps& props) {
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
     GrUniqueKey key;
     make_blurred_rrect_key(&key, rrectToDraw, xformedSigma);
@@ -280,7 +283,8 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
                                 std::move(trampoline),
                                 rrectToDraw,
                                 dimensions,
-                                xformedSigma)) {
+                                xformedSigma,
+                                props)) {
             // In this case something has gone disastrously wrong so set up to drop the draw
             // that needed this resource and reduce future pollution of the cache.
             threadSafeCache->remove(key);
@@ -313,7 +317,8 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
         float sigma,
         float xformedSigma,
         const SkRRect& srcRRect,
-        const SkRRect& devRRect) {
+        const SkRRect& devRRect,
+        const SkSurfaceProps& props) {
 // Should've been caught up-stream
 #ifdef SK_DEBUG
     SkASSERTF(!SkRRectPriv::IsCircle(devRRect),
@@ -357,8 +362,8 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
         return nullptr;
     }
 
-    std::unique_ptr<GrFragmentProcessor> maskFP =
-            find_or_create_rrect_blur_mask_fp(context, rrectToDraw, dimensions, xformedSigma);
+    std::unique_ptr<GrFragmentProcessor> maskFP = find_or_create_rrect_blur_mask_fp(
+            context, rrectToDraw, dimensions, xformedSigma, props);
     if (!maskFP) {
         return nullptr;
     }
@@ -495,6 +500,7 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTe
     SkScalar sigma = d->fRandom->nextRangeF(1.f, 10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->inputFP(), d->context(), sigma, sigma, rrect, rrect);
+    return GrRRectBlurEffect::Make(
+            d->inputFP(), d->context(), sigma, sigma, rrect, rrect, SkSurfaceProps());
 }
 #endif

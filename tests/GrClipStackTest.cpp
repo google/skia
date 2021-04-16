@@ -1640,7 +1640,7 @@ DEF_TEST(GrClipStack_DiffRects, r) {
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&options);
     std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
-            SkBackingFit::kExact, kDeviceBounds.size());
+            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
 
     GrClipStack cs(kDeviceBounds, &matrixProvider, false);
 
@@ -1787,7 +1787,7 @@ DEF_TEST(GrClipStack_Shader, r) {
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
-            SkBackingFit::kExact, kDeviceBounds.size());
+            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
 
     GrClipStack cs(kDeviceBounds, &matrixProvider, false);
     cs.save();
@@ -1837,7 +1837,7 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
     std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
-            SkBackingFit::kExact, kDeviceBounds.size());
+            SkBackingFit::kExact, kDeviceBounds.size(), SkSurfaceProps());
 
     GrClipStack cs(kDeviceBounds, &matrixProvider, false);
 
@@ -1966,7 +1966,8 @@ DEF_GPUTEST_FOR_CONTEXTS(GrClipStack_SWMask,
                          r, ctxInfo, only_allow_default) {
     GrDirectContext* context = ctxInfo.directContext();
     std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, kDeviceBounds.size());
+            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, kDeviceBounds.size(),
+            SkSurfaceProps());
 
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
     std::unique_ptr<GrClipStack> cs(new GrClipStack(kDeviceBounds, &matrixProvider, false));

@@ -183,7 +183,8 @@ static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext*
                                                              const SkIRect& maskRect,
                                                              const SkMatrix& origViewMatrix,
                                                              const GrStyledShape& shape,
-                                                             int sampleCnt) {
+                                                             int sampleCnt,
+                                                             const SkSurfaceProps& surfaceProps) {
     // Use GrResourceProvider::MakeApprox to implement our own approximate size matching, but demand
     // a "SkBackingFit::kExact" size match on the actual render target. We do this because the
     // filter will reach outside the src bounds, so we need to pre-clear these values to ensure a
@@ -195,8 +196,8 @@ static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext*
     // to guarantee at least 1px of padding on all sides.
     auto approxSize = GrResourceProvider::MakeApprox(maskRect.size());
     auto rtContext = GrSurfaceDrawContext::MakeWithFallback(
-            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, approxSize, sampleCnt,
-            GrMipmapped::kNo, GrProtected::kNo, kMaskOrigin);
+            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, approxSize, surfaceProps,
+            sampleCnt, GrMipmapped::kNo, GrProtected::kNo, kMaskOrigin);
     if (!rtContext) {
         return nullptr;
     }
@@ -405,7 +406,8 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
                                                             *maskRect,
                                                             viewMatrix,
                                                             shape,
-                                                            surfaceDrawContext->numSamples()));
+                                                            surfaceDrawContext->numSamples(),
+                                                            surfaceDrawContext->surfaceProps()));
     if (!maskRTC) {
         if (key->isValid()) {
             // It is very unlikely that 'create_mask_GPU' will fail after 'CreateLazyView'

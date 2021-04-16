@@ -92,7 +92,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
 
     auto rtc = std::make_unique<GrSurfaceDrawContext>(rContext, std::move(readView),
                                                       std::move(writeView), grColorType, colorSpace,
-                                                      surfaceProps);
+                                                      SkSurfacePropsCopyOrDefault(surfaceProps));
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(rContext, std::move(rtc));
     return surface;
@@ -162,7 +162,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
 
     auto rtc = std::make_unique<GrSurfaceDrawContext>(rContext, std::move(readView),
                                                       std::move(writeView), grColorType, colorSpace,
-                                                      surfaceProps);
+                                                      SkSurfacePropsCopyOrDefault(surfaceProps));
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(rContext, std::move(rtc));
     return surface;

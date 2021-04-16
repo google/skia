@@ -97,7 +97,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(GrRecordingCont
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  sk_sp<GrSurfaceProxy> proxy,
                                                                  GrSurfaceOrigin origin,
-                                                                 const SkSurfaceProps* surfaceProps,
+                                                                 const SkSurfaceProps& surfaceProps,
                                                                  bool flushTimeOpsTask) {
     if (!proxy) {
         return nullptr;
@@ -135,7 +135,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
         GrSwizzle writeSwizzle,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
-        const SkSurfaceProps* surfaceProps) {
+        const SkSurfaceProps& surfaceProps) {
     // It is probably not necessary to check if the context is abandoned here since uses of the
     // GrSurfaceDrawContext which need the context will mostly likely fail later on without an
     // issue. However having this hear adds some reassurance in case there is a path doesn't handle
@@ -176,12 +176,12 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
         SkISize dimensions,
+        const SkSurfaceProps& surfaceProps,
         int sampleCnt,
         GrMipmapped mipMapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        const SkSurfaceProps* surfaceProps) {
+        SkBudgeted budgeted) {
     auto format = context->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
     if (!format.isValid()) {
         return nullptr;
@@ -212,18 +212,18 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeWithFallback(
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
         SkISize dimensions,
+        const SkSurfaceProps& surfaceProps,
         int sampleCnt,
         GrMipmapped mipMapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        const SkSurfaceProps* surfaceProps) {
+        SkBudgeted budgeted) {
     auto [ct, format] = GetFallbackColorTypeAndFormat(context, colorType, sampleCnt);
     if (ct == GrColorType::kUnknown) {
         return nullptr;
     }
-    return GrSurfaceDrawContext::Make(context, ct, colorSpace, fit, dimensions, sampleCnt,
-                                      mipMapped, isProtected, origin, budgeted, surfaceProps);
+    return GrSurfaceDrawContext::Make(context, ct, colorSpace, fit, dimensions, surfaceProps,
+                                      sampleCnt, mipMapped, isProtected, origin, budgeted);
 }
 
 std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTexture(
@@ -233,7 +233,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTextu
         const GrBackendTexture& tex,
         int sampleCnt,
         GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps,
+        const SkSurfaceProps& surfaceProps,
         sk_sp<GrRefCntedCallback> releaseHelper) {
     SkASSERT(sampleCnt > 0);
     sk_sp<GrTextureProxy> proxy(context->priv().proxyProvider()->wrapRenderableBackendTexture(
@@ -253,7 +253,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendRende
         sk_sp<SkColorSpace> colorSpace,
         const GrBackendRenderTarget& rt,
         GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps,
+        const SkSurfaceProps& surfaceProps,
         sk_sp<GrRefCntedCallback> releaseHelper) {
     sk_sp<GrSurfaceProxy> proxy(
             context->priv().proxyProvider()->wrapBackendRenderTarget(rt, std::move(releaseHelper)));
@@ -269,7 +269,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromVulkanSecond
         GrRecordingContext* context,
         const SkImageInfo& imageInfo,
         const GrVkDrawableInfo& vkInfo,
-        const SkSurfaceProps* props) {
+        const SkSurfaceProps& props) {
     sk_sp<GrSurfaceProxy> proxy(
             context->priv().proxyProvider()->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
                                                                                  vkInfo));
@@ -291,14 +291,14 @@ GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
                                            GrSurfaceProxyView writeView,
                                            GrColorType colorType,
                                            sk_sp<SkColorSpace> colorSpace,
-                                           const SkSurfaceProps* surfaceProps,
+                                           const SkSurfaceProps& surfaceProps,
                                            bool flushTimeOpsTask)
         : GrSurfaceFillContext(context,
                                std::move(readView),
                                std::move(writeView),
                                {colorType, kPremul_SkAlphaType, std::move(colorSpace)},
                                flushTimeOpsTask)
-        , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
+        , fSurfaceProps(surfaceProps)
         , fGlyphPainter(*this) {
     SkDEBUGCODE(this->validate();)
 }

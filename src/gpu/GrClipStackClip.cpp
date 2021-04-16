@@ -358,8 +358,8 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
 
     auto rtc = GrSurfaceDrawContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox,
-            {reducedClip.width(), reducedClip.height()}, 1, GrMipmapped::kNo, GrProtected::kNo,
-            kMaskOrigin);
+            {reducedClip.width(), reducedClip.height()}, SkSurfaceProps(), 1, GrMipmapped::kNo,
+            GrProtected::kNo, kMaskOrigin);
     if (!rtc) {
         return {};
     }
