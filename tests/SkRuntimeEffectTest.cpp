@@ -16,6 +16,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "tests/Test.h"
 
 #include <algorithm>
@@ -431,4 +432,52 @@ DEF_TEST(SkRuntimeColorFilterFlags, r) {
         sk_sp<SkColorFilter> filter = effect->makeColorFilter(SkData::MakeEmpty());
         REPORTER_ASSERT(r, filter && !filter->isAlphaUnchanged());
     }
+}
+
+DEF_TEST(SkRuntimeShaderSampleUsage, r) {
+    auto test = [&](const char* src, bool expectExplicit) {
+        auto [effect, err] =
+                SkRuntimeEffect::MakeForShader(SkStringPrintf("uniform shader child; %s", src));
+        REPORTER_ASSERT(r, effect);
+
+        auto child = GrFragmentProcessor::MakeColor({ 1, 1, 1, 1 });
+        auto fp = effect->makeFP(nullptr, &child, 1);
+        REPORTER_ASSERT(r, fp);
+
+        REPORTER_ASSERT(r, fp->childProcessor(0)->isSampledWithExplicitCoords() == expectExplicit);
+    };
+
+    // This test verifies that we detect calls to sample where the coords are the same as those
+    // passed to main. In those cases, it's safe to turn the "explicit" sampling into "passthrough"
+    // sampling. This optimization is implemented very conservatively.
+
+    // Cases where our optimization is valid, and works:
+
+    // Direct use of passed-in coords
+    test("half4 main(float2 xy) { return sample(child, xy); }", false);
+    // Sample with passed-in coords, read (but don't write) sample coords elsewhere
+    test("half4 main(float2 xy) { return sample(child, xy) + sin(xy.x); }", false);
+
+    // Cases where our optimization is not valid, and does not happen:
+
+    // Sampling with values completely unrelated to passed-in coords
+    test("half4 main(float2 xy) { return sample(child, float2(0, 0)); }", true);
+    // Use of expression involving passed in coords
+    test("half4 main(float2 xy) { return sample(child, xy * 0.5); }", true);
+    // Use of coords after modification
+    test("half4 main(float2 xy) { xy *= 2; return sample(child, xy); }", true);
+    // Use of coords after modification via out-param call
+    test("void adjust(inout float2 xy) { xy *= 2; }"
+         "half4 main(float2 xy) { adjust(xy); return sample(child, xy); }", true);
+
+    // There should (must) not be any false-positive cases. There are false-negatives.
+    // In all of these cases, our optimization would be valid, but does not happen:
+
+    // Direct use of passed-in coords, modified after use
+    test("half4 main(float2 xy) { half4 c = sample(child, xy); xy *= 2; return c; }", true);
+    // Passed-in coords copied to a temp variable
+    test("half4 main(float2 xy) { float2 p = xy; return sample(child, p); }", true);
+    // Use of coords passed to helper function
+    test("half4 helper(float2 xy) { return sample(child, xy); }"
+         "half4 main(float2 xy) { return helper(xy); }", true);
 }
