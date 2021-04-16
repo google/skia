@@ -87,12 +87,12 @@ OpBranch %41
 OpStore %sk_FragColor %48
 OpBranch %42
 %42 = OpLabel
+OpBranch %43
+%43 = OpLabel
 %49 = OpLoad %v4float %sk_FragColor
 %50 = OpCompositeExtract %float %49 0
 %51 = OpFOrdLessThan %bool %50 %float_0_75
-OpBranchConditional %51 %43 %44
-%43 = OpLabel
-OpBranch %40
+OpBranchConditional %51 %40 %44
 %44 = OpLabel
 OpStore %i_0 %int_0
 OpBranch %53
