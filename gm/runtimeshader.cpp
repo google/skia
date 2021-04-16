@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
@@ -335,71 +336,165 @@ public:
 };
 DEF_GM(return new DefaultColorRT;)
 
-// Emits coverage for a general superellipse defined by the boundary:
+// Emits coverage for a rounded rectangle whose corners are superellipses defined by the boundary:
 //
-//   x^m + y^n == 1
+//   x^n + y^n == 1
 //
-// Where x and y are normalized coordinates ranging from -1..+1 inside the squircle's bounding box.
+// Where x and y are normalized, clamped coordinates ranging from 0..1 inside the nearest corner's
+// bounding box.
 //
-// See: https://en.wikipedia.org/wiki/Superellipse#Generalizations
-class ClipSquircle : public RuntimeShaderGM {
+// See: https://en.wikipedia.org/wiki/Superellipse
+class ClipSuperRRect : public RuntimeShaderGM {
 public:
-    ClipSquircle() : RuntimeShaderGM("clip_squircle", {512, 256}, R"(
-        uniform float2 exponentsMinus1;
+    ClipSuperRRect(const char* name, float power) : RuntimeShaderGM(name, {500, 500}, R"(
+        uniform float power_minus1;
+        uniform float2 stretch_factor;
         uniform float2x2 derivatives;
         half4 main(float2 xy) {
-            xy = abs(xy);
-            float2 expMinus1 = pow(xy, exponentsMinus1);
-            float f = dot(expMinus1, xy) - 1;  // f = x^m + y^n - 1
-            float2 grad = expMinus1 * derivatives;
-            float fwidth = abs(grad.x) + abs(grad.y);
+            xy = max(abs(xy) + stretch_factor, 0);
+            float2 exp_minus1 = pow(xy, power_minus1.xx);  // If power == 3.5: xy * xy * sqrt(xy)
+            float f = dot(exp_minus1, xy) - 1;  // f = x^n + y^n - 1
+            float2 grad = exp_minus1 * derivatives;
+            float fwidth = abs(grad.x) + abs(grad.y) + 1e-12;  // 1e-12 to avoid a divide by zero.
             return half4(saturate(.5 - f/fwidth)); // Approx coverage by riding the gradient to f=0.
         }
-    )") {}
+    )"), fPower(power) {}
 
-    void onDraw(SkCanvas* canvas) override {
-        SkRect squircle = SkRect::MakeXYWH(7, 3, 300, 185.41f);
-        float m = 5.32f;
-        float n = 3.14f;
+    void drawSuperRRect(SkCanvas* canvas, const SkRect& superRRect, float radX, float radY,
+                        SkColor color) {
+        SkPaint paint;
+        paint.setColor(color);
 
-        canvas->save();
-        canvas->rotate(9.2f, 5, 185);
+        if (fPower == 2) {
+            // Draw a normal round rect for the sake of testing.
+            SkRRect rrect = SkRRect::MakeRectXY(superRRect, radX, radY);
+            paint.setAntiAlias(true);
+            canvas->drawRRect(rrect, paint);
+            return;
+        }
 
         SkRuntimeShaderBuilder builder(fEffect);
-        builder.uniform("exponentsMinus1") = SkV2{m - 1, n - 1};
+        builder.uniform("power_minus1") = fPower - 1;
+
+        // Size the corners such that the "apex" of our "super" rounded corner is in the same
+        // location that the apex of a circular rounded corner would be with the given radii. We
+        // define the apex as the point on the rounded corner that is 45 degrees between the
+        // horizontal and vertical edges.
+        float scale = (1 - SK_ScalarRoot2Over2) / (1 - exp2f(-1/fPower));
+        float cornerWidth = radX * scale;
+        float cornerHeight = radY * scale;
+        cornerWidth = std::min(cornerWidth, superRRect.width() * .5f);
+        cornerHeight = std::min(cornerHeight, superRRect.height() * .5f);
+        // The stretch factor controls how long the flat edge should be between rounded corners.
+        builder.uniform("stretch_factor") = SkV2{1 - superRRect.width()*.5f / cornerWidth,
+                                                 1 - superRRect.height()*.5f / cornerHeight};
 
         // Calculate a 2x2 "derivatives" matrix that the shader will use to find the gradient.
         //
-        //     f = s^m + t^n - 1   [s,t are "squircle" coordinates in normalized -1..+1 space]
+        //     f = s^n + t^n - 1   [s,t are "super" rounded corner coords in normalized 0..1 space]
         //
-        //     gradient = [df/dx  df/dy] = [ms^(m-1)  nt^(n-1)] * |ds/dx  ds/dy|
+        //     gradient = [df/dx  df/dy] = [ns^(n-1)  nt^(n-1)] * |ds/dx  ds/dy|
         //                                                        |dt/dx  dt/dy|
         //
-        //              = [s^(m-1)  t^(n-1)] * |m  0| * |ds/dx  ds/dy|
+        //              = [s^(n-1)  t^(n-1)] * |n  0| * |ds/dx  ds/dy|
         //                                     |0  n|   |dt/dx  dt/dy|
         //
-        //              = [s^(m-1)  t^(n-1)] * |2m/squircleWidth   0| * mat2x2(canvasMatrix)^-1
-        //                                     |0  2n/squricleHeight|
+        //              = [s^(n-1)  t^(n-1)] * |2n/cornerWidth   0| * mat2x2(canvasMatrix)^-1
+        //                                     |0  2n/cornerHeight|
         //
-        //              = [s^(m-1)  t^(n-1)] * "derivatives"
+        //              = [s^(n-1)  t^(n-1)] * "derivatives"
         //
         const SkMatrix& M = canvas->getTotalMatrix();
         float a=M.getScaleX(), b=M.getSkewX(), c=M.getSkewY(), d=M.getScaleY();
-        float determinantTimesHalf = (a*d - b*c) * .5f;
-        float dx = m / (squircle.width() * determinantTimesHalf);
-        float dy = n / (squircle.height() * determinantTimesHalf);
+        float determinant = a*d - b*c;
+        float dx = fPower / (cornerWidth * determinant);
+        float dy = fPower / (cornerHeight * determinant);
         builder.uniform("derivatives") = SkV4{d*dx, -c*dy, -b*dx, a*dy};
 
-        SkMatrix squircleToLocal;
-        squircleToLocal.setScaleTranslate(squircle.width()*.5f, squircle.height()*.5f,
-                                          squircle.centerX(), squircle.centerY());
-        canvas->clipShader(builder.makeShader(&squircleToLocal, false));
-        canvas->clear(SkColorSetARGB(255, 144, 123, 189));
+        // This matrix will be inverted by the effect system, giving a matrix that converts local
+        // coordinates to (almost) coner coordinates. To get the rest of the way to the nearest
+        // corner's space, the shader will have to take the absolute value, add the stretch_factor,
+        // then clamp above zero.
+        SkMatrix cornerToLocal;
+        cornerToLocal.setScaleTranslate(cornerWidth, cornerHeight, superRRect.centerX(),
+                                        superRRect.centerY());
+        canvas->clipShader(builder.makeShader(&cornerToLocal, false));
+
+        // Bloat the outer edges of the rect we will draw so it contains all the antialiased pixels.
+        // Bloat by a full pixel instead of half in case Skia is in a mode that draws this rect with
+        // unexpected AA of its own.
+        float inverseDet = 1 / fabsf(determinant);
+        float bloatX = (fabsf(d) + fabsf(c)) * inverseDet;
+        float bloatY = (fabsf(b) + fabsf(a)) * inverseDet;
+        canvas->drawRect(superRRect.makeOutset(bloatX, bloatY), paint);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkRandom rand(2);
+
+        canvas->save();
+        canvas->translate(canvas->imageInfo().width() / 2.f, canvas->imageInfo().height() / 2.f);
+
+        canvas->save();
+        canvas->rotate(21);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(-5, 25, 175, 100), 50, 30,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
+
+        canvas->save();
+        canvas->rotate(94);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(95, 75, 125, 100), 30, 30,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
+
+        canvas->save();
+        canvas->rotate(132);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(0, 75, 150, 100), 40, 30,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
+
+        canvas->save();
+        canvas->rotate(282);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(15, -20, 100, 100), 20, 20,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
+
+        canvas->save();
+        canvas->rotate(0);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(140, -50, 90, 110), 25, 25,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
+
+        canvas->save();
+        canvas->rotate(-35);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(160, -60, 60, 90), 18, 18,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
+
+        canvas->save();
+        canvas->rotate(65);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(220, -120, 60, 90), 18, 18,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
+
+        canvas->save();
+        canvas->rotate(265);
+        this->drawSuperRRect(canvas, SkRect::MakeXYWH(150, -129, 80, 160), 24, 39,
+                             rand.nextU() | 0xff808080);
+        canvas->restore();
 
         canvas->restore();
     }
+
+private:
+    const float fPower;
 };
-DEF_GM(return new ClipSquircle;)
+DEF_GM(return new ClipSuperRRect("clip_super_rrect_pow2", 2);)
+// DEF_GM(return new ClipSuperRRect("clip_super_rrect_pow3", 3);)
+DEF_GM(return new ClipSuperRRect("clip_super_rrect_pow3.5", 3.5);)
+// DEF_GM(return new ClipSuperRRect("clip_super_rrect_pow4", 4);)
+// DEF_GM(return new ClipSuperRRect("clip_super_rrect_pow4.5", 4.5);)
+// DEF_GM(return new ClipSuperRRect("clip_super_rrect_pow5", 5);)
 
 DEF_SIMPLE_GM(child_sampling_rt, canvas, 256,256) {
     static constexpr char scale[] =
