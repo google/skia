@@ -88,7 +88,7 @@ public:
     }
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
-                                    DSLExpression next, DSLStatement stmt) {
+                                    DSLExpression next, DSLStatement stmt, PositionInfo pos) {
         return ForStatement::Convert(DSLWriter::Context(), /*offset=*/-1, initializer.release(),
                                      test.release(), next.release(), stmt.release(),
                                      DSLWriter::SymbolTable());
@@ -192,7 +192,7 @@ DSLStatement Do(DSLStatement stmt, DSLExpression test, PositionInfo pos) {
 DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
                  DSLStatement stmt, PositionInfo pos) {
     return DSLStatement(DSLCore::For(std::move(initializer), std::move(test), std::move(next),
-                                     std::move(stmt)), pos);
+                                     std::move(stmt), pos), pos);
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, PositionInfo pos) {

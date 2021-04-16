@@ -1114,6 +1114,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
         ExpectError error(r, "error: expected 'bool', but found 'int'\n");
         For(i = 0, i + 10, ++i, i += 5).release();
     }
+
+    {
+        ExpectError error(r, "error: invalid for loop initializer\n");
+        For(If(i == 0, i = 1), i < 10, ++i, i += 5).release();
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
