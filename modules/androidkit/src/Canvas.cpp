@@ -21,6 +21,12 @@ SkPaint skpaint(JNIEnv* env, jobject jpaint) {
     return paint;
 }
 
+void Canvas_Clear(JNIEnv* env, jobject, jlong native_instance, jint color) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        canvas->clear(SkColor(color));
+    }
+}
+
 void Canvas_DrawRect(JNIEnv* env, jobject, jlong native_instance,
                      jfloat left, jfloat top, jfloat right, jfloat bottom, jobject paint) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
@@ -32,6 +38,7 @@ void Canvas_DrawRect(JNIEnv* env, jobject, jlong native_instance,
 
 int register_androidkit_Canvas(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
+        {"nClear"   , "(JI)V"                           , reinterpret_cast<void*>(Canvas_Clear)},
         {"nDrawRect", "(JFFFFLandroid/graphics/Paint;)V", reinterpret_cast<void*>(Canvas_DrawRect)},
     };
 

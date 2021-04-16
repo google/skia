@@ -7,23 +7,12 @@
 
 #include <android/bitmap.h>
 #include <android/log.h>
-#include <jni.h>
 
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkSurface.h"
+#include "modules/androidkit/src/Surface.h"
+
 #include "include/core/SkTypes.h"
 
 namespace {
-
-class Surface : public SkRefCnt {
-public:
-    virtual void release(JNIEnv*) = 0;
-
-    SkCanvas* getCanvas() const { return fSurface->getCanvas(); }
-
-protected:
-    sk_sp<SkSurface> fSurface;
-};
 
 class BitmapSurface final : public Surface {
 public:
@@ -51,6 +40,10 @@ public:
     }
 
 private:
+    void swapBuffers() override {
+        // single buffer
+    }
+
     void release(JNIEnv* env) override {
         if (fSurface) {
             AndroidBitmap_unlockPixels(env, fBitmap);
@@ -90,6 +83,12 @@ static jlong Surface_CreateBitmap(JNIEnv* env, jobject, jobject bitmap) {
     return reinterpret_cast<jlong>(new BitmapSurface(env, bitmap));
 }
 
+static void Surface_SwapBuffers(JNIEnv* env, jobject, jlong native_surface) {
+    if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
+        surface->swapBuffers();
+    }
+}
+
 static void Surface_Release(JNIEnv* env, jobject, jlong native_surface) {
     if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
         surface->release(env);
@@ -106,10 +105,15 @@ static jlong Surface_GetNativeCanvas(JNIEnv* env, jobject, jlong native_surface)
 
 }  // namespace
 
+jlong Surface_CreateGL(JNIEnv*, jobject, jobject);
+
 int register_androidkit_Surface(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
         {"nCreateBitmap"   , "(Landroid/graphics/Bitmap;)J",
             reinterpret_cast<void*>(Surface_CreateBitmap)},
+        {"nCreateGL"       , "(Landroid/view/Surface;)J",
+            reinterpret_cast<void*>(Surface_CreateGL)},
+        {"nSwapBuffers"    , "(J)V", reinterpret_cast<void*>(Surface_SwapBuffers)},
         {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)},
         {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
     };

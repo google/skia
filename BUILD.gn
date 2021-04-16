@@ -2477,8 +2477,12 @@ if (skia_enable_tools) {
         "modules/androidkit/src/AndroidKit.cpp",
         "modules/androidkit/src/Canvas.cpp",
         "modules/androidkit/src/Surface.cpp",
+        "modules/androidkit/src/Surface_GL.cpp",
       ]
-      libs = [ "jnigraphics" ]
+      libs = [
+        "android",
+        "jnigraphics",
+      ]
 
       deps = [ ":skia" ]
     }

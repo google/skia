@@ -7,6 +7,10 @@ public class Canvas {
     private long mNativeInstance;
     private Surface mSurface;
 
+    public void clear(int color) {
+        nClear(mNativeInstance, color);
+    }
+
     public void drawRect(float left, float right, float top, float bottom, Paint paint) {
         nDrawRect(mNativeInstance, left, right, top, bottom, paint);
     }
@@ -17,6 +21,7 @@ public class Canvas {
         mSurface = surface;
     }
 
+    private static native void nClear(long nativeInstance, int color);
     private static native void nDrawRect(long nativeInstance,
                                          float left, float right, float top, float bottom, Paint p);
 }
