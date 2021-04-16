@@ -51,6 +51,24 @@
       "parentUuid": "6c7338cb_a88ba1fe",
       "revId": "64606c6f20055aceb5475847628794ffe7552646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3892d7a1_3c95c433",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-16T20:23:33Z",
+      "side": 1,
+      "message": "Yeah, you can have const parameters in GLSL (which behave like C++ const, and have different rules from local or glboal const variables). It does seem like it would be a little confusing for users? We\u0027d either have to enforce that they use \u0027const float2 coords\u0027 in their declaration, or we\u0027d silently add it to the declaration. In the latter case, it would look like you should be able to change it, but it would be immutable (and trigger surprising errors).",
+      "parentUuid": "50c1e995_80be87ce",
+      "revId": "64606c6f20055aceb5475847628794ffe7552646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
