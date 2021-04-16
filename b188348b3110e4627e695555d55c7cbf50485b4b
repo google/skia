@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45730c54_badc08c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-16T16:22:34Z",
+      "side": 1,
+      "message": "At 16MB, my desktop falls back on the following SKPs: desk_carsvg, desk_twitter, desk_yahoosports, desk_linkedin, desk_facebook",
+      "revId": "b188348b3110e4627e695555d55c7cbf50485b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
