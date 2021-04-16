@@ -191,6 +191,13 @@ void SkPaintFilterCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* m
     }
 }
 
+void SkPaintFilterCanvas::onDrawGlyphRunList(const SkGlyphRunList& list, const SkPaint& paint) {
+    AutoPaintFilter apf(this, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawGlyphRunList(list, apf.paint());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                          const SkPaint& paint) {
     AutoPaintFilter apf(this, paint);

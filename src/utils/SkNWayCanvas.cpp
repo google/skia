@@ -277,6 +277,13 @@ void SkNWayCanvas::onDrawAtlas2(const SkImage* image, const SkRSXform xform[], c
     }
 }
 
+void SkNWayCanvas::onDrawGlyphRunList(const SkGlyphRunList& list, const SkPaint &paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->onDrawGlyphRunList(list, paint);
+    }
+}
+
 void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                   const SkPaint &paint) {
     Iter iter(fList);
