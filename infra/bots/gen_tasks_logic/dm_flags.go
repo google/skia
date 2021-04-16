@@ -340,13 +340,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("_ test _ GLBackendAllocationTest")
 		}
 
-		// skbug.com/9033 - these devices run out of memory on this test
-		// when opList splitting reduction is enabled
-		if b.gpu() && (b.model("Nexus7", "NVIDIA_Shield", "Nexus5x") ||
-			(b.os("Win10") && b.gpu("GTX660") && b.extraConfig("Vulkan"))) {
-			skip("_", "gm", "_", "savelayer_clipmask")
-		}
-
 		// skbug.com/9043 - these devices render this test incorrectly
 		// when opList splitting reduction is enabled
 		if b.gpu() && b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X", "RadeonHD7770")) {
@@ -439,6 +432,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 			args = append(args, "--reduceOpsTaskSplitting", "true")
+		}
+
+		// Test reduceOpsTaskSplitting fallback when over budget.
+		if b.model("NUC7i5BNK") && b.extraConfig("ASAN") {
+			args = append(args, "--gpuResourceCacheLimit", "16777216")
 		}
 
 		// Test rendering to wrapped dsts on a few bots
