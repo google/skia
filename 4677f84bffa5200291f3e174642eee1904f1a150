@@ -16,6 +16,29 @@
       "message": "This look better?",
       "revId": "4677f84bffa5200291f3e174642eee1904f1a150",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4dd43520_d1a034fe",
+        "filename": "src/sksl/ir/SkSLForStatement.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-16T19:44:57Z",
+      "side": 1,
+      "message": "nit: initializer-\u003efOffset",
+      "range": {
+        "startLine": 56,
+        "startChar": 30,
+        "endLine": 56,
+        "endChar": 36
+      },
+      "revId": "4677f84bffa5200291f3e174642eee1904f1a150",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
