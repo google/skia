@@ -33,6 +33,24 @@
       "message": "The changes LGTM, but if we can pass a `const float2 coords` it seems like we would get the same benefit for less work? Not sure how much existing Skia code would need fixup.",
       "revId": "64606c6f20055aceb5475847628794ffe7552646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50c1e995_80be87ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-16T20:19:18Z",
+      "side": 1,
+      "message": "Hmm, a passed-in variable might not meet the bar for a GLSL `const` expression. I feel like we should still be able to mark a variable as immutable in SkSL but it might not be the const keyword that does it, and we may not have a mechanism for that today.",
+      "parentUuid": "6c7338cb_a88ba1fe",
+      "revId": "64606c6f20055aceb5475847628794ffe7552646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
