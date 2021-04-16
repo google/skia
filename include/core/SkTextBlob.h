@@ -214,6 +214,15 @@ public:
          */
         bool next(Run*);
 
+        // Experimental, DO NO USE, will change/go-away
+        struct ExperimentalRun {
+            SkFont          font;
+            int             count;
+            const uint16_t* glyphs;
+            const SkPoint*  positions;
+        };
+        bool experimentalNext(ExperimentalRun*);
+
     private:
         const RunRecord* fRunRecord;
     };

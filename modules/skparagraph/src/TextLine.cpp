@@ -314,6 +314,8 @@ void TextLine::buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange
     } else {
         record.fPaint.setColor(style.getColor());
     }
+    record.fRun = context.run;
+    record.fPos = context.pos;
 
     // TODO: This is the change for flutter, must be removed later
     SkTextBlobBuilder builder;
