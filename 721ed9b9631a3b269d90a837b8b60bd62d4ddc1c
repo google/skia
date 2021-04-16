@@ -16,6 +16,24 @@
       "message": "Thanks, binding stuff lgtm",
       "revId": "721ed9b9631a3b269d90a837b8b60bd62d4ddc1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4e93628_bc561686",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-16T21:10:02Z",
+      "side": 1,
+      "message": "Ok, discovering that I could write GlyphRun {} in the .ts file makes me love typescript",
+      "parentUuid": "7ad97daf_6989cf84",
+      "revId": "721ed9b9631a3b269d90a837b8b60bd62d4ddc1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
