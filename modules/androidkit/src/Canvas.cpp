@@ -25,6 +25,7 @@ void Canvas_DrawRect(JNIEnv* env, jobject, jlong native_instance,
                      jfloat left, jfloat top, jfloat right, jfloat bottom, jobject paint) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
         canvas->drawRect(SkRect::MakeLTRB(left, top, right, bottom), skpaint(env, paint));
+        canvas->flush();
     }
 }
 
