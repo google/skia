@@ -16,6 +16,23 @@
       "message": "This was needed after an update to Clion 2020.2.5 for me.",
       "revId": "e2c6fadd8989073764d486ae5bcef6bf2d5dff6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3438cbef_737c245c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-16T15:51:46Z",
+      "side": 1,
+      "message": "Cool!",
+      "revId": "e2c6fadd8989073764d486ae5bcef6bf2d5dff6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
