@@ -3254,13 +3254,13 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     SpvId header = this->nextId(nullptr);
     SpvId start = this->nextId(nullptr);
     SpvId next = this->nextId(nullptr);
-    SpvId continueTarget = this->nextId(nullptr);
-    fContinueTarget.push(continueTarget);
+    fContinueTarget.push(next);
+    SpvId loopExit = this->nextId(nullptr);
     SpvId end = this->nextId(nullptr);
     fBreakTarget.push(end);
     this->writeInstruction(SpvOpBranch, header, out);
     this->writeLabel(header, out);
-    this->writeInstruction(SpvOpLoopMerge, end, continueTarget, SpvLoopControlMaskNone, out);
+    this->writeInstruction(SpvOpLoopMerge, end, loopExit, SpvLoopControlMaskNone, out);
     this->writeInstruction(SpvOpBranch, start, out);
     this->writeLabel(start, out);
     this->writeStatement(*d.statement(), out);
@@ -3269,8 +3269,8 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     }
     this->writeLabel(next, out);
     SpvId test = this->writeExpression(*d.test(), out);
-    this->writeInstruction(SpvOpBranchConditional, test, continueTarget, end, out);
-    this->writeLabel(continueTarget, out);
+    this->writeInstruction(SpvOpBranchConditional, test, loopExit, end, out);
+    this->writeLabel(loopExit, out);
     this->writeInstruction(SpvOpBranch, header, out);
     this->writeLabel(end, out);
     fBreakTarget.pop();

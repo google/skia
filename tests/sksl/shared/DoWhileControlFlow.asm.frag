@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: SPIR-V validation error: block <ID> 55 branches to the selection construct, but not to the selection header <ID> 43
+  %55 = OpLabel
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -98,7 +103,7 @@ OpStore %47 %50
 OpSelectionMerge %55 None
 OpBranchConditional %53 %54 %55
 %54 = OpLabel
-OpBranch %45
+OpBranch %44
 %55 = OpLabel
 %56 = OpAccessChain %_ptr_Function_float %x %int_1
 OpStore %56 %float_0
@@ -114,3 +119,5 @@ OpBranch %42
 %61 = OpLoad %v4float %x
 OpReturnValue %61
 OpFunctionEnd
+
+1 error
