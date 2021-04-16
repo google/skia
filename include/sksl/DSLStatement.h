@@ -26,6 +26,7 @@ namespace dsl {
 
 class DSLBlock;
 class DSLExpression;
+class DSLForLoopInitializer;
 class DSLPossibleExpression;
 class DSLPossibleStatement;
 class DSLVar;
@@ -62,6 +63,7 @@ private:
     friend class DSLExpression;
     friend class DSLPossibleStatement;
     friend class DSLWriter;
+    friend DSLForLoopInitializer operator,(DSLForLoopInitializer left, DSLForLoopInitializer right);
 };
 
 /**
@@ -89,6 +91,32 @@ private:
 
     friend class DSLStatement;
 };
+
+/**
+ * Represents the results of applying the comma operator to statements, which is only legal in for
+ * loop initializers. This is to prevent comma from appearing outside of a for loop initializer; the
+ * opposite problem (things that are not legal in for loop initializers appearing in loop
+ * initializers) is already error checked in ForStatement::Convert, so DSLForLoopInitializer does
+ * not bother checking that its contents are in fact a legal for loop initializer.
+ */
+class DSLForLoopInitializer {
+public:
+    DSLForLoopInitializer(DSLStatement stmt);
+
+    DSLForLoopInitializer(DSLPossibleStatement stmt, PositionInfo pos = PositionInfo());
+
+    DSLForLoopInitializer(DSLExpression expr);
+
+    DSLForLoopInitializer(DSLPossibleExpression expr, PositionInfo pos = PositionInfo());
+
+private:
+    DSLStatement fStatement;
+
+    friend class DSLCore;
+    friend DSLForLoopInitializer operator,(DSLForLoopInitializer left, DSLForLoopInitializer right);
+};
+
+DSLForLoopInitializer operator,(DSLForLoopInitializer left, DSLForLoopInitializer right);
 
 } // namespace dsl
 
