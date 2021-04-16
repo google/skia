@@ -19,7 +19,10 @@ using JSArray = emscripten::val;
 using JSObject = emscripten::val;
 using JSString = emscripten::val;
 using SkPathOrNull = emscripten::val;
+using TypedArray = emscripten::val;
 using Uint8Array = emscripten::val;
+using Uint16Array = emscripten::val;
+using Uint32Array = emscripten::val;
 using Float32Array = emscripten::val;
 
 #endif
