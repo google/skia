@@ -21,7 +21,7 @@ class GrVkRenderPass;
 class GrVkFramebuffer : public GrVkManagedResource {
 public:
     static GrVkFramebuffer* Create(GrVkGpu* gpu,
-                                   int width, int height,
+                                   SkISize dimensions,
                                    const GrVkRenderPass* renderPass,
                                    GrVkAttachment* colorAttachment,
                                    GrVkAttachment* resolveAttachment,
@@ -34,8 +34,12 @@ public:
                     sk_sp<const GrVkRenderPass> renderPass,
                     std::unique_ptr<GrVkSecondaryCommandBuffer>);
 
-    VkFramebuffer framebuffer() const { return fFramebuffer; }
+    VkFramebuffer framebuffer() const {
+        SkASSERT(!this->isExternal());
+        return fFramebuffer;
+    }
 
+    bool isExternal() const { return fExternalRenderPass.get(); }
     const GrVkRenderPass* externalRenderPass() const { return fExternalRenderPass.get(); }
     std::unique_ptr<GrVkSecondaryCommandBuffer> externalCommandBuffer();
 
@@ -74,8 +78,6 @@ private:
                     GrVkResourceProvider::CompatibleRPHandle);
 
     ~GrVkFramebuffer() override;
-
-    bool isExternal() const { return fExternalCommandBuffer.get(); }
 
     void freeGPUData() const override;
     void releaseResources();

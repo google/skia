@@ -68,7 +68,7 @@ public:
     // and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle. If this is
     // non null it will be set to a handle that can be used in the furutre to quickly return a
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
-    const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
+    const GrVkRenderPass* findCompatibleRenderPass(GrVkRenderTarget* target,
                                                    CompatibleRPHandle* compatibleHandle,
                                                    bool withResolve,
                                                    bool withStencil,
