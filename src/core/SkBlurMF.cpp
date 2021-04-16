@@ -668,7 +668,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
     }
 
     fp = GrRRectBlurEffect::Make(/*inputFP=*/nullptr, context, fSigma, xformedSigma,
-                                 srcRRect, devRRect);
+                                 srcRRect, devRRect, surfaceDrawContext->surfaceProps());
     if (!fp) {
         return false;
     }

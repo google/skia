@@ -30,7 +30,8 @@ uniform half blurRadius;
                                                      float sigma,
                                                      float xformedSigma,
                                                      const SkRRect& srcRRect,
-                                                     const SkRRect& devRRect);
+                                                     const SkRRect& devRRect,
+                                                     const SkSurfaceProps&);
 }
 
 @cpp {
@@ -79,11 +80,12 @@ uniform half blurRadius;
                             sk_sp<GrThreadSafeCache::Trampoline> trampoline,
                             const SkRRect& rrectToDraw,
                             const SkISize& dimensions,
-                            float xformedSigma) {
+                            float xformedSigma,
+                            const SkSurfaceProps& props) {
         SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
         std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::MakeWithFallback(
-                dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
-                GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
+                dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, props,
+                1, GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
         if (!rtc) {
             return false;
         }
@@ -243,7 +245,8 @@ uniform half blurRadius;
             GrRecordingContext* rContext,
             const SkRRect& rrectToDraw,
             const SkISize& dimensions,
-            float xformedSigma) {
+            float xformedSigma,
+            const SkSurfaceProps& props) {
         SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
         GrUniqueKey key;
         make_blurred_rrect_key(&key, rrectToDraw, xformedSigma);
@@ -278,7 +281,7 @@ uniform half blurRadius;
             }
 
             if (!fillin_view_on_gpu(dContext, lazyView, std::move(trampoline),
-                                    rrectToDraw, dimensions, xformedSigma)) {
+                                    rrectToDraw, dimensions, xformedSigma, props)) {
                 // In this case something has gone disastrously wrong so set up to drop the draw
                 // that needed this resource and reduce future pollution of the cache.
                 threadSafeCache->remove(key);
@@ -311,7 +314,8 @@ uniform half blurRadius;
             float sigma,
             float xformedSigma,
             const SkRRect& srcRRect,
-            const SkRRect& devRRect) {
+            const SkRRect& devRRect,
+            const SkSurfaceProps& props) {
         // Should've been caught up-stream
 #ifdef SK_DEBUG
         SkASSERTF(!SkRRectPriv::IsCircle(devRRect), "Unexpected circle. %d\n\t%s\n\t%s",
@@ -347,7 +351,7 @@ uniform half blurRadius;
         }
 
         std::unique_ptr<GrFragmentProcessor> maskFP = find_or_create_rrect_blur_mask_fp(
-                context, rrectToDraw, dimensions, xformedSigma);
+                context, rrectToDraw, dimensions, xformedSigma, props);
         if (!maskFP) {
             return nullptr;
         }
@@ -365,7 +369,8 @@ uniform half blurRadius;
     SkScalar sigma = d->fRandom->nextRangeF(1.f,10.f);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-    return GrRRectBlurEffect::Make(d->inputFP(), d->context(), sigma, sigma, rrect, rrect);
+    return GrRRectBlurEffect::Make(d->inputFP(), d->context(), sigma, sigma, rrect, rrect,
+                                   SkSurfaceProps());
 }
 
 half4 main() {

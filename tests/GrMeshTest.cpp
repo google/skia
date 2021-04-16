@@ -112,7 +112,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 
     auto rtc = GrSurfaceDrawContext::Make(
             dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kImageWidth, kImageHeight});
+            {kImageWidth, kImageHeight}, SkSurfaceProps());
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;

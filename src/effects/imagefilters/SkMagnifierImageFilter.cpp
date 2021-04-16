@@ -151,7 +151,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(const Context& ctx,
         }
 
         return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
-                          isProtected);
+                          ctx.surfaceProps(), isProtected);
     }
 #endif
 
@@ -220,5 +220,5 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(const Context& ctx,
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                          dst);
+                                          dst, ctx.surfaceProps());
 }

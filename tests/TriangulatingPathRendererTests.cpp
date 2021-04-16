@@ -742,8 +742,8 @@ static void test_path(GrRecordingContext* rContext,
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) {
     auto ctx = ctxInfo.directContext();
     auto rtc = GrSurfaceDrawContext::Make(
-            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,
-            GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800},
+            SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtc) {
         return;
     }

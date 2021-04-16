@@ -84,8 +84,8 @@ static void test_path(skiatest::Reporter* reporter,
     GrResourceCache* cache = dContext->priv().getResourceCache();
 
     auto rtc = GrSurfaceDrawContext::Make(
-            dContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,
-            GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            dContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800},
+            SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtc) {
         return;
     }

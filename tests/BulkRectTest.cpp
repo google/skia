@@ -16,7 +16,8 @@
 
 static std::unique_ptr<GrSurfaceDrawContext> new_RTC(GrRecordingContext* rContext) {
     return GrSurfaceDrawContext::Make(
-            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {128, 128});
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {128, 128},
+            SkSurfaceProps());
 }
 
 static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
