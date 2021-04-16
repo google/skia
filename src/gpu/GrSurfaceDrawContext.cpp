@@ -335,7 +335,7 @@ void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
     const SkPoint drawOrigin = glyphRunList.origin();
     SkMatrix drawMatrix = viewMatrix.localToDevice();
     drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    GrSubRunAllocator* const alloc = this->recordingContext()->priv().recordTimeSubRunAllocator();
+    GrSubRunAllocator* const alloc = this->subRunAlloc();
 
     for (auto& glyphRun : glyphRunList) {
         GrSubRunNoCachePainter painter{this, alloc, clip, viewMatrix, glyphRunList, paint};

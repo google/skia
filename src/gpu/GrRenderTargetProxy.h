@@ -12,6 +12,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrNativeRect.h"
+#include "src/gpu/GrSubRunAllocator.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
 
@@ -28,13 +29,16 @@ public:
         SkDEBUGCODE(if (fIsFlushed) SK_ABORT("Using a flushed arena");)
         return &fArenaAlloc;
     }
-
     void flush() {
         SkDEBUGCODE(fIsFlushed = true;)
     }
+    GrSubRunAllocator* subRunAlloc() { return &fSubRunAllocator; }
 
 private:
     SkArenaAlloc fArenaAlloc{1024};
+    // An allocator specifically designed to minimize the overhead of sub runs. It provides a
+    // different dtor semantics than SkArenaAlloc.
+    GrSubRunAllocator fSubRunAllocator{1024};
     SkDEBUGCODE(bool fIsFlushed = false;)
 };
 

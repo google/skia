@@ -196,6 +196,7 @@ public:
     GrMipmapped mipmapped() const;
 
     SkArenaAlloc* arenaAlloc() { return this->arenas()->arenaAlloc(); }
+    GrSubRunAllocator* subRunAlloc() { return this->arenas()->subRunAlloc(); }
 
 #if GR_TEST_UTILS
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
