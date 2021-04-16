@@ -53,6 +53,8 @@ public:
                                            std::unique_ptr<Statement> statement,
                                            std::shared_ptr<SymbolTable> symbolTable);
 
+    static bool IsValidInitializer(const Statement* stmt);
+
     std::unique_ptr<Statement>& initializer() {
         return fInitializer;
     }
