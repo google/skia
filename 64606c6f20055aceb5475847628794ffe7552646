@@ -16,6 +16,23 @@
       "message": "Random thought: what if we passed the position as a const float2?\nSeems like we could save the analysis pass entirely.\nUsers who want to modify it can always copy it.",
       "revId": "64606c6f20055aceb5475847628794ffe7552646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c7338cb_a88ba1fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-16T20:11:26Z",
+      "side": 1,
+      "message": "The changes LGTM, but if we can pass a `const float2 coords` it seems like we would get the same benefit for less work? Not sure how much existing Skia code would need fixup.",
+      "revId": "64606c6f20055aceb5475847628794ffe7552646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
