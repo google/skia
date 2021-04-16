@@ -16,6 +16,24 @@
       "message": "I think this CL may have broken Android roll:\nhttps://android-build.googleplex.com/builds/pending/P21875341/aosp_crosshatch-userdebug/latest/view/logs/build_error.log\nMF out/soong/.intermediates/external/skia/libskia/android_arm64_armv8-a_static/obj/external/skia/src/gpu/vk/GrVkOpsRenderPass.o.d -o out/soong/.intermediates/external/skia/libskia/android_arm64_armv8-a_static/obj/external/skia/src/gpu/vk/GrVkOpsRenderPass.o external/skia/src/gpu/vk/GrVkOpsRenderPass.cpp\nexternal/skia/src/gpu/vk/GrVkOpsRenderPass.cpp:854:21: error: use of undeclared identifier \u0027targetImage\u0027\n    vkInfo.fImage \u003d targetImage-\u003eimage();",
       "revId": "60ec617eaa17160db38a873668e75b032f52d224",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7d40df1_d3969ed9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-16T18:18:05Z",
+      "side": 1,
+      "message": "thanks. fix incoming",
+      "parentUuid": "8ad614b1_47881556",
+      "revId": "60ec617eaa17160db38a873668e75b032f52d224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
