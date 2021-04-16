@@ -12,6 +12,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrNativeRect.h"
+#include "src/gpu/GrSubRunAllocator.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
 
@@ -20,9 +21,11 @@ class GrResourceProvider;
 class GrArenas : public SkNVRefCnt<GrArenas> {
 public:
     SkArenaAlloc* arenaAlloc() { return &fArenaAlloc; }
+    GrSubRunAllocator* subRunAlloc() { return &fSubRunAllocator; }
 
 private:
     SkArenaAlloc fArenaAlloc{1024};
+    GrSubRunAllocator fSubRunAllocator{1024};
 };
 
 // This class delays the acquisition of RenderTargets until they are actually
