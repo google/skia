@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c8faeb3_38182bc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-16T17:41:44Z",
+      "side": 1,
+      "message": "lgtm but I always defer to Eric on these",
+      "revId": "e2efc4397597e11a96fb14de52a1d968f9908746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37d9dca0_ce214e24",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-16T17:41:44Z",
+      "side": 1,
+      "message": "rm extra \u0027\\t\u0027 ?",
+      "range": {
+        "startLine": 439,
+        "startChar": 2,
+        "endLine": 439,
+        "endChar": 3
+      },
+      "revId": "e2efc4397597e11a96fb14de52a1d968f9908746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
