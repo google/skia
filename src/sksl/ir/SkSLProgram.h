@@ -191,6 +191,8 @@ struct Program {
     std::vector<std::unique_ptr<ProgramElement>>& ownedElements() { return fElements; }
     const std::vector<std::unique_ptr<ProgramElement>>& ownedElements() const { return fElements; }
 
+    const ProgramUsage* usage() const { return fUsage.get(); }
+
     std::unique_ptr<String> fSource;
     std::unique_ptr<ProgramConfig> fConfig;
     std::shared_ptr<Context> fContext;
