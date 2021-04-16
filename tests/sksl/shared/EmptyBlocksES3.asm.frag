@@ -144,11 +144,11 @@ OpBranch %79
 %79 = OpLabel
 OpBranch %80
 %80 = OpLabel
+OpBranch %81
+%81 = OpLabel
 %83 = OpExtInst %float %1 Sqrt %float_1
 %84 = OpFOrdEqual %bool %83 %float_2
-OpBranchConditional %84 %81 %82
-%81 = OpLabel
-OpBranch %78
+OpBranchConditional %84 %78 %82
 %82 = OpLabel
 %85 = OpLoad %v4float %color
 OpReturnValue %85

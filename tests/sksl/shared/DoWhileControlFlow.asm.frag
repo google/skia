@@ -76,12 +76,12 @@ OpBranch %25
 %38 = OpLabel
 OpBranch %23
 %23 = OpLabel
+OpBranch %24
+%24 = OpLabel
 %39 = OpLoad %v4float %x
 %40 = OpCompositeExtract %float %39 3
 %41 = OpFOrdEqual %bool %40 %float_1
-OpBranchConditional %41 %24 %25
-%24 = OpLabel
-OpBranch %21
+OpBranchConditional %41 %21 %25
 %25 = OpLabel
 OpBranch %42
 %42 = OpLabel
@@ -104,12 +104,12 @@ OpBranch %45
 OpStore %56 %float_0
 OpBranch %44
 %44 = OpLabel
+OpBranch %45
+%45 = OpLabel
 %58 = OpLoad %v4float %x
 %59 = OpCompositeExtract %float %58 2
 %60 = OpFOrdGreaterThan %bool %59 %float_0
-OpBranchConditional %60 %45 %46
-%45 = OpLabel
-OpBranch %42
+OpBranchConditional %60 %42 %46
 %46 = OpLabel
 %61 = OpLoad %v4float %x
 OpReturnValue %61

@@ -3268,10 +3268,10 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
         this->writeInstruction(SpvOpBranch, next, out);
     }
     this->writeLabel(next, out);
-    SpvId test = this->writeExpression(*d.test(), out);
-    this->writeInstruction(SpvOpBranchConditional, test, continueTarget, end, out);
+    this->writeInstruction(SpvOpBranch, continueTarget, out);
     this->writeLabel(continueTarget, out);
-    this->writeInstruction(SpvOpBranch, header, out);
+    SpvId test = this->writeExpression(*d.test(), out);
+    this->writeInstruction(SpvOpBranchConditional, test, header, end, out);
     this->writeLabel(end, out);
     fBreakTarget.pop();
     fContinueTarget.pop();
