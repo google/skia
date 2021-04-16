@@ -22,6 +22,30 @@
       },
       "revId": "0a08d55996b2bc00265231f429cb600cbf54ee7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fe706cd_bf441eab",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-16T19:15:52Z",
+      "side": 1,
+      "message": "That\u0027s smarter than what I was doing.",
+      "parentUuid": "149e9b5b_ce8d466f",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 100,
+        "endChar": 9
+      },
+      "revId": "0a08d55996b2bc00265231f429cb600cbf54ee7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
