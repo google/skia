@@ -648,6 +648,14 @@ export interface LineMetrics {
     lineNumber: number;
 }
 
+export interface GlyphRun {
+    glyphs: Uint16Array;
+    positions: Float32Array;    // alternating x0, y0, x1, y1, ...
+    offsets: Uint32Array;
+    origin_x: number;
+    origin_y: number;
+}
+
 /**
  * This object is a wrapper around a pointer to some memory on the WASM heap. The type of the
  * pointer was determined at creation time.
@@ -804,6 +812,8 @@ export interface Paragraph extends EmbindObject<Paragraph> {
      * @param offset
      */
     getWordBoundary(offset: number): URange;
+
+    getShapedRuns(): GlyphRun[];
 
     /**
      * Lays out the text in the paragraph so it is wrapped to the given width.
