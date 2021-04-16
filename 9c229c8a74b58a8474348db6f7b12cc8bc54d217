@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b26cb715_af96285f",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-16T18:07:52Z",
+      "side": 1,
+      "message": "Please don\u0027t return the any type.",
+      "range": {
+        "startLine": 808,
+        "startChar": 21,
+        "endLine": 808,
+        "endChar": 24
+      },
+      "revId": "9c229c8a74b58a8474348db6f7b12cc8bc54d217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c55acee_02cb3d62",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-16T18:07:52Z",
+      "side": 1,
+      "message": "JSArray",
+      "range": {
+        "startLine": 335,
+        "startChar": 0,
+        "endLine": 335,
+        "endChar": 8
+      },
+      "revId": "9c229c8a74b58a8474348db6f7b12cc8bc54d217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e275207_b45af7e9",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-16T18:07:52Z",
+      "side": 1,
+      "message": "idea: return some font id number that can be resolved later?",
+      "range": {
+        "startLine": 365,
+        "startChar": 20,
+        "endLine": 365,
+        "endChar": 24
+      },
+      "revId": "9c229c8a74b58a8474348db6f7b12cc8bc54d217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
