@@ -154,6 +154,7 @@ gm_sources = [
   "$_gm/drawatlas.cpp",
   "$_gm/drawatlascolor.cpp",
   "$_gm/drawbitmaprect.cpp",
+  "$_gm/drawglyphs.cpp",
   "$_gm/drawimageset.cpp",
   "$_gm/drawminibitmaprect.cpp",
   "$_gm/drawquadset.cpp",
