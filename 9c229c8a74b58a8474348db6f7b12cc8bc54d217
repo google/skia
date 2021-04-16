@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "33499ba8_4cf29192",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-16T19:49:03Z",
+      "side": 1,
+      "message": "returning GlyphRun[]",
+      "parentUuid": "b26cb715_af96285f",
+      "range": {
+        "startLine": 808,
+        "startChar": 21,
+        "endLine": 808,
+        "endChar": 24
+      },
+      "revId": "9c229c8a74b58a8474348db6f7b12cc8bc54d217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0c55acee_02cb3d62",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-16T18:07:52Z",
       "side": 1,
       "message": "JSArray",
+      "range": {
+        "startLine": 335,
+        "startChar": 0,
+        "endLine": 335,
+        "endChar": 8
+      },
+      "revId": "9c229c8a74b58a8474348db6f7b12cc8bc54d217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64393ecb_39a49f48",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-16T19:49:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c55acee_02cb3d62",
       "range": {
         "startLine": 335,
         "startChar": 0,
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-16T18:07:52Z",
       "side": 1,
       "message": "idea: return some font id number that can be resolved later?",
+      "range": {
+        "startLine": 365,
+        "startChar": 20,
+        "endLine": 365,
+        "endChar": 24
+      },
+      "revId": "9c229c8a74b58a8474348db6f7b12cc8bc54d217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc919c4d_1fd5670e",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-16T19:49:03Z",
+      "side": 1,
+      "message": "Yup, that\u0027s in my (recent) doc. I will update the code when that is further developed.",
+      "parentUuid": "1e275207_b45af7e9",
       "range": {
         "startLine": 365,
         "startChar": 20,
