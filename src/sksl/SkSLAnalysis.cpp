@@ -74,8 +74,8 @@ static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
 // Visitor that determines the merged SampleUsage for a given child 'fp' in the program.
 class MergeSampleUsageVisitor : public ProgramVisitor {
 public:
-    MergeSampleUsageVisitor(const Context& context, const Variable& fp)
-            : fContext(context), fFP(fp) {}
+    MergeSampleUsageVisitor(const Context& context, const Variable& fp, bool writesToSampleCoords)
+            : fContext(context), fFP(fp), fWritesToSampleCoords(writesToSampleCoords) {}
 
     SampleUsage visit(const Program& program) {
         fUsage = SampleUsage(); // reset to none
@@ -86,6 +86,7 @@ public:
 protected:
     const Context& fContext;
     const Variable& fFP;
+    const bool fWritesToSampleCoords;
     SampleUsage fUsage;
 
     bool visitExpression(const Expression& e) override {
@@ -97,7 +98,18 @@ protected:
                 if (fc.arguments().size() >= 2) {
                     const Expression* coords = fc.arguments()[1].get();
                     if (coords->type() == *fContext.fTypes.fFloat2) {
-                        fUsage.merge(SampleUsage::Explicit());
+                        // If the coords are a direct reference to the program's sample-coords,
+                        // and those coords are never modified, we can conservatively turn this
+                        // into PassThrough sampling. In all other cases, we consider it Explicit.
+                        if (!fWritesToSampleCoords && coords->is<VariableReference>() &&
+                            coords->as<VariableReference>()
+                                            .variable()
+                                            ->modifiers()
+                                            .fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
+                            fUsage.merge(SampleUsage::PassThrough());
+                        } else {
+                            fUsage.merge(SampleUsage::Explicit());
+                        }
                     } else if (coords->type() == *fContext.fTypes.fFloat3x3) {
                         // Determine the type of matrix for this call site
                         if (coords->isConstantOrUniform()) {
@@ -145,6 +157,29 @@ public:
         if (e.is<VariableReference>()) {
             const VariableReference& var = e.as<VariableReference>();
             return var.variable()->modifiers().fLayout.fBuiltin == fBuiltin;
+        }
+        return INHERITED::visitExpression(e);
+    }
+
+    int fBuiltin;
+
+    using INHERITED = ProgramVisitor;
+};
+
+// Visitor that searches through the program for writes to a particular builtin variable
+class BuiltinVariableWriteVisitor : public ProgramVisitor {
+public:
+    BuiltinVariableWriteVisitor(int builtin) : fBuiltin(builtin) {}
+
+    bool visitExpression(const Expression& e) override {
+        if (e.is<VariableReference>()) {
+            const VariableReference& ref = e.as<VariableReference>();
+            if (ref.variable()->modifiers().fLayout.fBuiltin == fBuiltin &&
+                (ref.refKind() == VariableReference::RefKind::kWrite ||
+                 ref.refKind() == VariableReference::RefKind::kReadWrite ||
+                 ref.refKind() == VariableReference::RefKind::kPointer)) {
+                return true;
+            }
         }
         return INHERITED::visitExpression(e);
     }
@@ -569,7 +604,10 @@ public:
 // Analysis
 
 SampleUsage Analysis::GetSampleUsage(const Program& program, const Variable& fp) {
-    MergeSampleUsageVisitor visitor(*program.fContext, fp);
+    BuiltinVariableWriteVisitor sampleCoordWriteVisitor(SK_MAIN_COORDS_BUILTIN);
+    bool writesToSampleCoords = sampleCoordWriteVisitor.visit(program);
+
+    MergeSampleUsageVisitor visitor(*program.fContext, fp, writesToSampleCoords);
     return visitor.visit(program);
 }
 
