@@ -201,6 +201,18 @@ DSLPossibleExpression operator,(DSLExpression left, DSLExpression right) {
                                     right.release());
 }
 
+DSLPossibleExpression operator,(DSLPossibleExpression left, DSLExpression right) {
+    return DSLExpression(std::move(left)) , std::move(right);
+}
+
+DSLPossibleExpression operator,(DSLExpression left, DSLPossibleExpression right) {
+    return std::move(left) , DSLExpression(std::move(right));
+}
+
+DSLPossibleExpression operator,(DSLPossibleExpression left, DSLPossibleExpression right) {
+    return DSLExpression(std::move(left)) , DSLExpression(std::move(right));
+}
+
 std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Type& type) {
     // tripping this assert means we had an error occur somewhere else in DSL construction that
     // wasn't caught where it should have been

@@ -89,7 +89,7 @@ DSLStatement Do(DSLStatement stmt, DSLExpression test, PositionInfo pos = Positi
 /**
  * for (initializer; test; next) stmt;
  */
-DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
+DSLStatement For(DSLForLoopInitializer initializer, DSLExpression test, DSLExpression next,
                  DSLStatement stmt, PositionInfo pos = PositionInfo());
 
 /**
