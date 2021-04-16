@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b345e1be_e3a684aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-16T22:48:37Z",
+      "side": 1,
+      "message": "This is ready to go.\n\nThe only remaining diff is an image filter that the test created by itself, not by using the dmsaa surface.",
+      "revId": "847a78690023b076372515c02b4c3c84a6f8107e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
