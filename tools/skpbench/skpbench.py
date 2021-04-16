@@ -167,6 +167,9 @@ class SKPBench:
   if FLAGS.reduceOpsTaskSplitting:
     ARGV.extend(['--reduceOpsTaskSplitting'])
 
+  if FLAGS.gpuResourceCacheLimit:
+    ARGV.extend(['--gpuResourceCacheLimit', str(FLAGS.gpuResourceCacheLimit)])
+
   if FLAGS.adb:
     if FLAGS.device_serial is None:
       ARGV[:0] = [FLAGS.adb_binary, 'shell']

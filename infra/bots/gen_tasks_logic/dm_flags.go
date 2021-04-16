@@ -441,6 +441,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--reduceOpsTaskSplitting", "true")
 		}
 
+		// Test reduceOpsTaskSplitting fallback when over budget.
+		if b.model("NUC7i5BNK") {
+			args = append(args, "--gpuResourceCacheLimit", "16777216")
+		}
+
 		// Test rendering to wrapped dsts on a few bots
 		// Also test "glenarrow", which hits F16 surfaces and F16 vertex colors.
 		if b.extraConfig("BonusConfigs") {

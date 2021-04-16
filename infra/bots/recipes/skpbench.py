@@ -113,6 +113,9 @@ def skpbench_steps(api):
   if api.properties.get('reduce_ops_task_splitting') == 'true':
     skpbench_args += ['--reduceOpsTaskSplitting']
 
+  if api.properties.get('gpu_resource_cache_limit'):
+    skpbench_args += ['--gpuResourceCacheLimit', api.properties.get('gpu_resource_cache_limit')]
+
   api.run(api.python, 'skpbench',
       script=skpbench_dir.join('skpbench.py'),
       args=skpbench_args)
@@ -178,6 +181,7 @@ TEST_BUILDERS = [
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench_DDLTotal_9x9',
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-AllPathsVolatile_Skpbench',
   'Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal_AllPathsVolatile_Skpbench',
+  'Perf-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ASAN_Vulkan',
 ]
 
 
@@ -211,7 +215,8 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
-                   reduce_ops_task_splitting='true') +
+                   reduce_ops_task_splitting='true',
+                   gpu_resource_cache_limit='16777216') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
