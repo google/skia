@@ -134,10 +134,10 @@ public:
         }
 
         half4 main(float2 xy) {
-            half4 before = sample(before_map);
-            half4 after = sample(after_map);
+            half4 before = sample(before_map, xy);
+            half4 after = sample(after_map, xy);
 
-            float m = smooth_cutoff(sample(threshold_map).a);
+            float m = smooth_cutoff(sample(threshold_map, xy).a);
             return mix(before, after, m);
         }
     )", kAnimate_RTFlag | kBench_RTFlag) {}
@@ -228,7 +228,7 @@ public:
         uniform float inv_size;
 
         half4 main(float2 xy) {
-            float4 c = unpremul(sample(input));
+            float4 c = unpremul(sample(input, xy));
 
             // Map to cube coords:
             float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
