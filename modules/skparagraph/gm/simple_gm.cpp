@@ -88,7 +88,7 @@ protected:
 
     SkISize onISize() override {
         if (fFlags & kShowVisitor) {
-            return SkISize::Make(1620, 820);
+            return SkISize::Make(810, 420);
         }
         return SkISize::Make(412, 420);
     }
