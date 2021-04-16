@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3405a94_d5f00c58",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-16T17:45:50Z",
+      "side": 1,
+      "message": "Started drawing them with canvas-\u003edrawRect instead of canvas-\u003edrawPaint",
+      "revId": "f17ef24b9218323cf65d29ecaae5a7ceea2632dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
