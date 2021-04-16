@@ -23,11 +23,19 @@ public class Surface {
         this(CreateBitmapInstance(bitmap));
     }
 
+    public Surface(android.view.Surface surface) {
+        this(nCreateGL(surface));
+    }
+
     /**
      * The Canvas associated with this Surface.
      */
     public Canvas getCanvas() {
         return mCanvas;
+    }
+
+    public void swapBuffers() {
+        nSwapBuffers(mNativeInstance);
     }
 
     /**
@@ -57,6 +65,8 @@ public class Surface {
     }
 
     private static native long nCreateBitmap(Bitmap bitmap);
+    private static native long nCreateGL(android.view.Surface surface);
+    private static native void nSwapBuffers(long nativeInstance);
     private static native void nRelease(long nativeInstance);
     private static native long nGetNativeCanvas(long nativeInstance);
 }
