@@ -87,6 +87,24 @@
       "parentUuid": "3892d7a1_3c95c433",
       "revId": "64606c6f20055aceb5475847628794ffe7552646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "838e8a58_666e0d08",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-16T20:31:36Z",
+      "side": 1,
+      "message": "... I also realize that I can probably skip the analysis pass by just using the existing ProgramUsage to get the write-count of the main coords parameter. Let me see if I can make this nicer.",
+      "parentUuid": "48d43d83_677b9a33",
+      "revId": "64606c6f20055aceb5475847628794ffe7552646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
