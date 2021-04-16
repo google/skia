@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009979668",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/375134?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ea5e8232_07cad543",
+        "filename": "experimental/sktext/src/Processor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-16T20:49:40Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 59,
+        "startChar": 12,
+        "endLine": 59,
+        "endChar": 17
+      },
+      "revId": "ce736435a981e95ab28840ecdaf85f954f0d1825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000009979668",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/375134?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "545e43ab_51530a29",
+        "filename": "experimental/sktext/src/Processor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-16T20:49:40Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 9
+      },
+      "revId": "ce736435a981e95ab28840ecdaf85f954f0d1825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
