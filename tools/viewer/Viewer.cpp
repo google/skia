@@ -21,6 +21,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScan.h"
+#include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -377,7 +378,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             GrContextOptions::ShaderCacheStrategy::kSkSL;
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
-    displayParams.fGrContextOptions.fAlwaysAntialias = FLAGS_dmsaa;
+    if (FLAGS_dmsaa) {
+        displayParams.fSurfaceProps = SkSurfaceProps(
+                displayParams.fSurfaceProps.flags() | kDMSAA_SkSurfacePropsPrivateFlag,
+                displayParams.fSurfaceProps.pixelGeometry());
+    }
     fWindow->setRequestedDisplayParams(displayParams);
     fDisplay = fWindow->getRequestedDisplayParams();
     fRefresh = FLAGS_redraw;
