@@ -640,6 +640,14 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
     GrMipmapped mipmapped() const;
 
+    bool alwaysAntialias() const {
+        return fSurfaceProps.flags() & kDMSAA_SkSurfacePropsPrivateFlag;
+    }
+
+    GrAA chooseAA(const SkPaint& paint) {
+        return GrAA(paint.isAntiAlias() || this->alwaysAntialias());
+    }
+
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
