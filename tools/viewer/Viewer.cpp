@@ -1545,10 +1545,13 @@ void Viewer::drawSlide(SkSurface* surface) {
     }
 
     if (fShowSlideDimensions) {
+        SkCanvas* canvas = surface->getCanvas();
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->concat(this->computeMatrix());
         SkRect r = SkRect::Make(fSlides[fCurrentSlide]->getDimensions());
         SkPaint paint;
         paint.setColor(0x40FFFF00);
-        surface->getCanvas()->drawRect(r, paint);
+        canvas->drawRect(r, paint);
     }
 }
 
