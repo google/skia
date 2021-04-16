@@ -309,8 +309,9 @@ public:
         const int kDrawsPerLoop = 32;
 
         for (int i = 0; i < loops; ++i) {
-            auto rtc = GrSurfaceDrawContext::Make(
-                    context, GrColorType::kRGBA_8888, p3, SkBackingFit::kApprox, {100, 100});
+            auto rtc = GrSurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, p3,
+                                                  SkBackingFit::kApprox, {100, 100},
+                                                  SkSurfaceProps());
             SkASSERT(rtc);
 
             for (int j = 0; j < kDrawsPerLoop; ++j) {

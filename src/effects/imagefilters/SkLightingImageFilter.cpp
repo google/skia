@@ -533,7 +533,8 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
             kNeedNewImageUniqueID_SpecialImage,
             surfaceFillContext->readSurfaceView(),
             surfaceFillContext->colorInfo().colorType(),
-            surfaceFillContext->colorInfo().refColorSpace());
+            surfaceFillContext->colorInfo().refColorSpace(),
+            ctx.surfaceProps());
 }
 #endif
 
@@ -1310,7 +1311,7 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(const Context&
                                                              bounds);
 
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                          dst);
+                                          dst, ctx.surfaceProps());
 }
 
 #if SK_SUPPORT_GPU
@@ -1445,7 +1446,8 @@ sk_sp<SkSpecialImage> SkSpecularLightingImageFilter::onFilterImage(const Context
                                                               surfaceScale(),
                                                               bounds);
 
-    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()), dst);
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()), dst,
+                                          ctx.surfaceProps());
 }
 
 #if SK_SUPPORT_GPU
