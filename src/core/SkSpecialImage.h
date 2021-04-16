@@ -73,13 +73,13 @@ public:
     static sk_sp<SkSpecialImage> MakeFromImage(GrRecordingContext*,
                                                const SkIRect& subset,
                                                sk_sp<SkImage>,
-                                               const SkSurfaceProps* = nullptr);
+                                               const SkSurfaceProps&);
     static sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
-                                                const SkSurfaceProps* = nullptr);
+                                                const SkSurfaceProps&);
     static sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
-                                                const SkSurfaceProps* = nullptr);
+                                                const SkSurfaceProps&);
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
                                                      const SkIRect& subset,
@@ -87,7 +87,7 @@ public:
                                                      GrSurfaceProxyView,
                                                      GrColorType,
                                                      sk_sp<SkColorSpace>,
-                                                     const SkSurfaceProps* = nullptr,
+                                                     const SkSurfaceProps&,
                                                      SkAlphaType at = kPremul_SkAlphaType);
 #endif
 
@@ -97,8 +97,8 @@ public:
     sk_sp<SkSpecialSurface> makeSurface(SkColorType colorType,
                                         const SkColorSpace* colorSpace,
                                         const SkISize& size,
-                                        SkAlphaType at = kPremul_SkAlphaType,
-                                        const SkSurfaceProps* props = nullptr) const;
+                                        SkAlphaType,
+                                        const SkSurfaceProps&) const;
 
     /**
      * Create a new surface with a backend that is compatible with this special image.
@@ -156,7 +156,7 @@ public:
     bool getROPixels(SkBitmap*) const;
 
 protected:
-    SkSpecialImage(const SkIRect& subset, uint32_t uniqueID, const SkSurfaceProps*);
+    SkSpecialImage(const SkIRect& subset, uint32_t uniqueID, const SkSurfaceProps&);
 
 private:
     const SkSurfaceProps fProps;
