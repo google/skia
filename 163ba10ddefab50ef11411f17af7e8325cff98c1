@@ -16,6 +16,24 @@
       "message": "Is this causing the red on the waterfall?\n\n(linker error?)",
       "revId": "163ba10ddefab50ef11411f17af7e8325cff98c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e73d82ec_97301244",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-17T17:41:45Z",
+      "side": 1,
+      "message": "Yup, reverted.",
+      "parentUuid": "3fd54ded_670697ba",
+      "revId": "163ba10ddefab50ef11411f17af7e8325cff98c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
