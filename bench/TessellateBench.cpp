@@ -153,7 +153,7 @@ DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(),
 }
 
 static void benchmark_wangs_formula_conic(const SkMatrix& matrix, const SkPath& path) {
-    // Conic version expects tolerance, not intolerance
+    // Conic version expects tolerance, not "precision"
     constexpr float kTolerance = 4;
     int sum = 0;
     GrVectorXform xform(matrix);
@@ -169,7 +169,7 @@ static void benchmark_wangs_formula_conic(const SkMatrix& matrix, const SkPath& 
 }
 
 static void benchmark_wangs_formula_conic_log2(const SkMatrix& matrix, const SkPath& path) {
-    // Conic version expects tolerance, not intolerance
+    // Conic version expects tolerance, not "precision"
     constexpr float kTolerance = 4;
     int sum = 0;
     GrVectorXform xform(matrix);

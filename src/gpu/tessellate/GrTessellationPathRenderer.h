@@ -20,7 +20,7 @@
 class GrTessellationPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
     // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
-    constexpr static float kLinearizationIntolerance = 4;
+    constexpr static float kLinearizationPrecision = 4;
 
     // This is the maximum resolve level supported by our internal indirect draw shaders. (Indirect
     // draws are an alternative to hardware tessellation, and we can use them when hardware support
@@ -29,7 +29,7 @@ public:
     // At a given resolveLevel, a curve gets linearized into 2^resolveLevel line segments. So the
     // finest resolveLevel supported by our indirect draw shaders is 2^10 == 1024 line segments.
     //
-    // 1024 line segments is enough resolution (with intolerance == 4) to guarantee we can render a
+    // 1024 line segments is enough resolution (with precision == 4) to guarantee we can render a
     // 123575px x 123575px path. (See GrWangsFormula::worst_case_cubic.)
     constexpr static int kMaxResolveLevel = 10;
 

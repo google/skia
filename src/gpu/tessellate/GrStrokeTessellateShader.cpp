@@ -47,8 +47,8 @@ float length_pow2(float2 v) {
 })";
 
 static const char* kNumRadialSegmentsPerRadian = R"(
-float num_radial_segments_per_radian(float parametricIntolerance, float strokeRadius) {
-    return .5 / acos(max(1.0 - 1.0/(parametricIntolerance * strokeRadius), -1.0));
+float num_radial_segments_per_radian(float parametricPrecision, float strokeRadius) {
+    return .5 / acos(max(1.0 - 1.0/(parametricPrecision * strokeRadius), -1.0));
 })";
 
 // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better
@@ -70,7 +70,7 @@ float4 unchecked_mix(float4 a, float4 b, float4 T) {
 // will be a composition of these parametric segments as well as radial segments.
 static void append_wangs_formula_fn(SkString* code, bool hasConics) {
     code->appendf(R"(
-    float wangs_formula(in float4x2 P, in float w, in float parametricIntolerance) {
+    float wangs_formula(in float4x2 P, in float w, in float parametricPrecision) {
         const float CUBIC_TERM_POW2 = %f;
         float l0 = length_pow2(fma(float2(-2), P[1], P[2]) + P[0]);
         float l1 = length_pow2(fma(float2(-2), P[2], P[3]) + P[1]);
@@ -81,7 +81,7 @@ static void append_wangs_formula_fn(SkString* code, bool hasConics) {
         m = (w > 0.0) ? QUAD_TERM_POW2 * l0 : m;)", GrWangsFormula::length_term_pow2<2>(1));
     }
     code->append(R"(
-        return max(ceil(sqrt(parametricIntolerance * sqrt(m))), 1.0);
+        return max(ceil(sqrt(parametricPrecision * sqrt(m))), 1.0);
     })");
 }
 
@@ -150,7 +150,7 @@ private:
         }
 
         if (!shader.hasDynamicStroke()) {
-            // [PARAMETRIC_INTOLERANCE, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
+            // [PARAMETRIC_PRECISION, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
             const char* tessArgsName;
             fTessArgsUniform = uniHandler->addUniform(nullptr,
                                                       kVertex_GrShaderFlag |
@@ -161,17 +161,17 @@ private:
             float NUM_RADIAL_SEGMENTS_PER_RADIAN = %s.y;
             float JOIN_TYPE = %s.z;)", tessArgsName, tessArgsName);
         } else {
-            const char* parametricIntoleranceName;
+            const char* parametricPrecisionName;
             fTessArgsUniform = uniHandler->addUniform(nullptr,
                                                       kVertex_GrShaderFlag |
                                                       kTessControl_GrShaderFlag |
                                                       kTessEvaluation_GrShaderFlag,
-                                                      kFloat_GrSLType, "parametricIntolerance",
-                                                      &parametricIntoleranceName);
+                                                      kFloat_GrSLType, "parametricPrecision",
+                                                      &parametricPrecisionName);
             v->codeAppendf(R"(
             float STROKE_RADIUS = dynamicStrokeAttr.x;
             float NUM_RADIAL_SEGMENTS_PER_RADIAN = num_radial_segments_per_radian(%s,STROKE_RADIUS);
-            float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricIntoleranceName);
+            float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricPrecisionName);
         }
 
         if (!shader.viewMatrix().isIdentity()) {
@@ -432,14 +432,14 @@ private:
             }
             float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
             pdman.set4f(fTessArgsUniform,
-                        tolerances.fParametricIntolerance,  // PARAMETRIC_INTOLERANCE
+                        tolerances.fParametricPrecision,  // PARAMETRIC_PRECISION
                         tolerances.fNumRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
                         GetJoinType(shader.fStroke),  // JOIN_TYPE
                         strokeRadius);  // STROKE_RADIUS
         } else {
             SkASSERT(!stroke.isHairlineStyle());
             float maxScale = shader.viewMatrix().getMaxScale();
-            pdman.set1f(fTessArgsUniform, GrStrokeTolerances::CalcParametricIntolerance(maxScale));
+            pdman.set1f(fTessArgsUniform, GrStrokeTolerances::CalcParametricPrecision(maxScale));
         }
 
         // Set up the view matrix, if any.
@@ -486,11 +486,11 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     const char* tessArgsName = impl->getTessArgsUniformName(uniformHandler);
     if (!this->hasDynamicStroke()) {
         code.appendf("uniform vec4 %s;\n", tessArgsName);
-        code.appendf("#define PARAMETRIC_INTOLERANCE %s.x\n", tessArgsName);
+        code.appendf("#define PARAMETRIC_PRECISION %s.x\n", tessArgsName);
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN %s.y\n", tessArgsName);
     } else {
         code.appendf("uniform float %s;\n", tessArgsName);
-        code.appendf("#define PARAMETRIC_INTOLERANCE %s\n", tessArgsName);
+        code.appendf("#define PARAMETRIC_PRECISION %s\n", tessArgsName);
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN vsStrokeArgs[0].x\n");
     }
 
@@ -575,7 +575,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // Calculate the number of parametric segments. The final tessellated strip will be a
         // composition of these parametric segments as well as radial segments.
         float w = isinf(P[3].y) ? P[3].x : -1.0; // w<0 means the curve is an integral cubic.
-        float numParametricSegments = wangs_formula(P, w, PARAMETRIC_INTOLERANCE);
+        float numParametricSegments = wangs_formula(P, w, PARAMETRIC_PRECISION);
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how the patch builder articulates lineTos but Wang's formula returns
             // >>1 segment in this scenario. Assign 1 parametric segment.
@@ -1020,27 +1020,27 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
 
         // Tessellation control uniforms and/or dynamic attributes.
         if (!shader.hasDynamicStroke()) {
-            // [PARAMETRIC_INTOLERANCE, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
+            // [PARAMETRIC_PRECISION, NUM_RADIAL_SEGMENTS_PER_RADIAN, JOIN_TYPE, STROKE_RADIUS]
             const char* tessArgsName;
             fTessControlArgsUniform = args.fUniformHandler->addUniform(
                     nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "tessControlArgs",
                     &tessArgsName);
             args.fVertBuilder->codeAppendf(R"(
-            float PARAMETRIC_INTOLERANCE = %s.x;
+            float PARAMETRIC_PRECISION = %s.x;
             float NUM_RADIAL_SEGMENTS_PER_RADIAN = %s.y;
             float JOIN_TYPE = %s.z;
             float STROKE_RADIUS = %s.w;)", tessArgsName, tessArgsName, tessArgsName, tessArgsName);
         } else {
-            const char* parametricIntoleranceName;
+            const char* parametricPrecisionName;
             fTessControlArgsUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat_GrSLType, "parametricIntolerance",
-                    &parametricIntoleranceName);
+                    nullptr, kVertex_GrShaderFlag, kFloat_GrSLType, "parametricPrecision",
+                    &parametricPrecisionName);
             args.fVertBuilder->codeAppendf(R"(
-            float PARAMETRIC_INTOLERANCE = %s;
+            float PARAMETRIC_PRECISION = %s;
             float STROKE_RADIUS = dynamicStrokeAttr.x;
             float NUM_RADIAL_SEGMENTS_PER_RADIAN = num_radial_segments_per_radian(
-                    PARAMETRIC_INTOLERANCE, STROKE_RADIUS);
-            float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricIntoleranceName);
+                    PARAMETRIC_PRECISION, STROKE_RADIUS);
+            float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricPrecisionName);
         }
 
         // View matrix uniforms.
@@ -1079,7 +1079,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         float numTotalEdges = abs(argsAttr.z);
 
         // Find how many parametric segments this stroke requires.
-        float numParametricSegments = min(wangs_formula(P, w, PARAMETRIC_INTOLERANCE),
+        float numParametricSegments = min(wangs_formula(P, w, PARAMETRIC_PRECISION),
                                           float(1 << MAX_PARAMETRIC_SEGMENTS_LOG2));
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how we describe lines, but Wang's formula does not return 1 in this case.
@@ -1273,7 +1273,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             }
             float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
             pdman.set4f(fTessControlArgsUniform,
-                        tolerances.fParametricIntolerance,  // PARAMETRIC_INTOLERANCE
+                        tolerances.fParametricPrecision,  // PARAMETRIC_PRECISION
                         tolerances.fNumRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
                         GetJoinType(shader.fStroke),  // JOIN_TYPE
                         strokeRadius);  // STROKE_RADIUS
@@ -1281,7 +1281,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             SkASSERT(!stroke.isHairlineStyle());
             float maxScale = shader.viewMatrix().getMaxScale();
             pdman.set1f(fTessControlArgsUniform,
-                        GrStrokeTolerances::CalcParametricIntolerance(maxScale));
+                        GrStrokeTolerances::CalcParametricPrecision(maxScale));
         }
 
         // Set up the view matrix, if any.

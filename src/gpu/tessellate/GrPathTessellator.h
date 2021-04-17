@@ -56,8 +56,8 @@ public:
     void drawHullInstances(GrOpFlushState*) const override;
 
 private:
-    constexpr static float kLinearizationIntolerance =
-            GrTessellationPathRenderer::kLinearizationIntolerance;
+    constexpr static float kLinearizationPrecision =
+            GrTessellationPathRenderer::kLinearizationPrecision;
     constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
 
     const bool fDrawInnerFan;

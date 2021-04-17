@@ -10,7 +10,7 @@
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tests/Test.h"
 
-constexpr static int kIntolerance = 4;  // 1/4 pixel max error.
+constexpr static int kPrecision = 4;  // 1/4 pixel max error.
 
 const SkPoint kSerp[4] = {
         {285.625f, 499.687f}, {411.625f, 808.188f}, {1064.62f, 135.688f}, {1042.63f, 585.187f}};
@@ -21,13 +21,13 @@ const SkPoint kLoop[4] = {
 const SkPoint kQuad[4] = {
         {460.625f, 557.187f}, {707.121f, 209.688f}, {779.628f, 577.687f}};
 
-static float wangs_formula_quadratic_reference_impl(float intolerance, const SkPoint p[3]) {
-    float k = (2 * 1) / 8.f * intolerance;
+static float wangs_formula_quadratic_reference_impl(float precision, const SkPoint p[3]) {
+    float k = (2 * 1) / 8.f * precision;
     return sqrtf(k * (p[0] - p[1]*2 + p[2]).length());
 }
 
-static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint p[4]) {
-    float k = (3 * 2) / 8.f * intolerance;
+static float wangs_formula_cubic_reference_impl(float precision, const SkPoint p[4]) {
+    float k = (3 * 2) / 8.f * precision;
     return sqrtf(k * std::max((p[0] - p[1]*2 + p[2]).length(),
                               (p[1] - p[2]*2 + p[3]).length()));
 }
@@ -40,7 +40,7 @@ static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint
 // See Thm 3, Corollary 1.
 //
 // Input points should be in projected space.
-static float wangs_formula_conic_reference_impl(float intolerance,
+static float wangs_formula_conic_reference_impl(float precision,
                                                 const SkPoint P[3],
                                                 const float w) {
     // Compute center of bounding box in projected space
@@ -63,7 +63,7 @@ static float wangs_formula_conic_reference_impl(float intolerance,
     SkASSERT(max_len > 0);
 
     // Compute delta = parametric step size of linearization
-    const float eps = 1 / intolerance;
+    const float eps = 1 / precision;
     const float r_minus_eps = std::max(0.f, max_len - eps);
     const float min_w = std::min(w, 1.f);
     const float numer = 4 * min_w * eps;
@@ -199,55 +199,55 @@ DEF_TEST(WangsFormula_log2, r) {
             // Test cubic boundaries.
             //     f = sqrt(k * length(max(abs(p0 - p1*2 + p2),
             //                             abs(p1 - p2*2 + p3))));
-            constexpr static float k = (3 * 2) / (8 * (1.f/kIntolerance));
+            constexpr static float k = (3 * 2) / (8 * (1.f/kPrecision));
             float x = std::ldexp(1, level * 2) / k;
             setupCubicLengthTerm(level << 1, pts, x - epsilon);
-            float referenceValue = wangs_formula_cubic_reference_impl(kIntolerance, pts);
+            float referenceValue = wangs_formula_cubic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level);
-            float c = GrWangsFormula::cubic(kIntolerance, pts);
+            float c = GrWangsFormula::cubic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(c/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kIntolerance, pts) == level);
+            REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kPrecision, pts) == level);
             setupCubicLengthTerm(level << 1, pts, x + epsilon);
-            referenceValue = wangs_formula_cubic_reference_impl(kIntolerance, pts);
+            referenceValue = wangs_formula_cubic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level + 1);
-            c = GrWangsFormula::cubic(kIntolerance, pts);
+            c = GrWangsFormula::cubic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(c/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kIntolerance, pts) == level + 1);
+            REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kPrecision, pts) == level + 1);
         }
 
         {
             // Test quadratic boundaries.
             //     f = std::sqrt(k * Length(p0 - p1*2 + p2));
-            constexpr static float k = 2 / (8 * (1.f/kIntolerance));
+            constexpr static float k = 2 / (8 * (1.f/kPrecision));
             float x = std::ldexp(1, level * 2) / k;
             setupQuadraticLengthTerm(level << 1, pts, x - epsilon);
-            float referenceValue = wangs_formula_quadratic_reference_impl(kIntolerance, pts);
+            float referenceValue = wangs_formula_quadratic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level);
-            float q = GrWangsFormula::quadratic(kIntolerance, pts);
+            float q = GrWangsFormula::quadratic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(q/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kIntolerance, pts) == level);
+            REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kPrecision, pts) == level);
             setupQuadraticLengthTerm(level << 1, pts, x + epsilon);
-            referenceValue = wangs_formula_quadratic_reference_impl(kIntolerance, pts);
+            referenceValue = wangs_formula_quadratic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level+1);
-            q = GrWangsFormula::quadratic(kIntolerance, pts);
+            q = GrWangsFormula::quadratic(kPrecision, pts);
             REPORTER_ASSERT(r, SkScalarNearlyEqual(q/referenceValue, 1, kTessellationTolerance));
-            REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kIntolerance, pts) == level + 1);
+            REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kPrecision, pts) == level + 1);
         }
     }
 
     auto check_cubic_log2 = [&](const SkPoint* pts) {
-        float f = std::max(1.f, wangs_formula_cubic_reference_impl(kIntolerance, pts));
-        int f_log2 = GrWangsFormula::cubic_log2(kIntolerance, pts);
+        float f = std::max(1.f, wangs_formula_cubic_reference_impl(kPrecision, pts));
+        int f_log2 = GrWangsFormula::cubic_log2(kPrecision, pts);
         REPORTER_ASSERT(r, SkScalarCeilToInt(std::log2(f)) == f_log2);
-        float c = std::max(1.f, GrWangsFormula::cubic(kIntolerance, pts));
+        float c = std::max(1.f, GrWangsFormula::cubic(kPrecision, pts));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(c/f, 1, kTessellationTolerance));
     };
 
     auto check_quadratic_log2 = [&](const SkPoint* pts) {
-        float f = std::max(1.f, wangs_formula_quadratic_reference_impl(kIntolerance, pts));
-        int f_log2 = GrWangsFormula::quadratic_log2(kIntolerance, pts);
+        float f = std::max(1.f, wangs_formula_quadratic_reference_impl(kPrecision, pts));
+        int f_log2 = GrWangsFormula::quadratic_log2(kPrecision, pts);
         REPORTER_ASSERT(r, SkScalarCeilToInt(std::log2(f)) == f_log2);
-        float q = std::max(1.f, GrWangsFormula::quadratic(kIntolerance, pts));
+        float q = std::max(1.f, GrWangsFormula::quadratic(kPrecision, pts));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(q/f, 1, kTessellationTolerance));
     };
 
@@ -279,16 +279,16 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
     auto check_cubic_log2_with_transform = [&](const SkPoint* pts, const SkMatrix& m){
         SkPoint ptsXformed[4];
         m.mapPoints(ptsXformed, pts, 4);
-        int expected = GrWangsFormula::cubic_log2(kIntolerance, ptsXformed);
-        int actual = GrWangsFormula::cubic_log2(kIntolerance, pts, GrVectorXform(m));
+        int expected = GrWangsFormula::cubic_log2(kPrecision, ptsXformed);
+        int actual = GrWangsFormula::cubic_log2(kPrecision, pts, GrVectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
     auto check_quadratic_log2_with_transform = [&](const SkPoint* pts, const SkMatrix& m) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
-        int expected = GrWangsFormula::quadratic_log2(kIntolerance, ptsXformed);
-        int actual = GrWangsFormula::quadratic_log2(kIntolerance, pts, GrVectorXform(m));
+        int expected = GrWangsFormula::quadratic_log2(kPrecision, ptsXformed);
+        int actual = GrWangsFormula::quadratic_log2(kPrecision, pts, GrVectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
     };
 
@@ -312,25 +312,25 @@ DEF_TEST(WangsFormula_vectorXforms, r) {
 DEF_TEST(WangsFormula_worst_case_cubic, r) {
     {
         SkPoint worstP[] = {{0,0}, {100,100}, {0,0}, {0,0}};
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kIntolerance, 100, 100) ==
-                           wangs_formula_cubic_reference_impl(kIntolerance, worstP));
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kIntolerance, 100, 100) ==
-                           GrWangsFormula::cubic_log2(kIntolerance, worstP));
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kPrecision, 100, 100) ==
+                           wangs_formula_cubic_reference_impl(kPrecision, worstP));
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kPrecision, 100, 100) ==
+                           GrWangsFormula::cubic_log2(kPrecision, worstP));
     }
     {
         SkPoint worstP[] = {{100,100}, {100,100}, {200,200}, {100,100}};
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kIntolerance, 100, 100) ==
-                           wangs_formula_cubic_reference_impl(kIntolerance, worstP));
-        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kIntolerance, 100, 100) ==
-                           GrWangsFormula::cubic_log2(kIntolerance, worstP));
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kPrecision, 100, 100) ==
+                           wangs_formula_cubic_reference_impl(kPrecision, worstP));
+        REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kPrecision, 100, 100) ==
+                           GrWangsFormula::cubic_log2(kPrecision, worstP));
     }
     auto check_worst_case_cubic = [&](const SkPoint* pts) {
         SkRect bbox;
         bbox.setBoundsNoCheck(pts, 4);
-        float worst = GrWangsFormula::worst_case_cubic(kIntolerance, bbox.width(), bbox.height());
-        int worst_log2 = GrWangsFormula::worst_case_cubic_log2(kIntolerance, bbox.width(),
+        float worst = GrWangsFormula::worst_case_cubic(kPrecision, bbox.width(), bbox.height());
+        int worst_log2 = GrWangsFormula::worst_case_cubic_log2(kPrecision, bbox.width(),
                                                                bbox.height());
-        float actual = wangs_formula_cubic_reference_impl(kIntolerance, pts);
+        float actual = wangs_formula_cubic_reference_impl(kPrecision, pts);
         REPORTER_ASSERT(r, worst >= actual);
         REPORTER_ASSERT(r, std::ceil(std::log2(std::max(1.f, worst))) == worst_log2);
     };
@@ -351,7 +351,7 @@ DEF_TEST(WangsFormula_quad_within_tol, r) {
     SkRandom rand;
     for_random_beziers(3, &rand, [&r](const SkPoint pts[]) {
         const int nsegs = static_cast<int>(
-                std::ceil(wangs_formula_quadratic_reference_impl(kIntolerance, pts)));
+                std::ceil(wangs_formula_quadratic_reference_impl(kPrecision, pts)));
 
         const float tdelta = 1.f / nsegs;
         for (int j = 0; j < nsegs; ++j) {
@@ -388,7 +388,7 @@ DEF_TEST(WangsFormula_quad_within_tol, r) {
             const float d = std::abs((p - sectionPts[0]).dot(n)) / n.length();
 
             // Check distance is within specified tolerance
-            REPORTER_ASSERT(r, d <= (1.f / kIntolerance) + SK_ScalarNearlyZero);
+            REPORTER_ASSERT(r, d <= (1.f / kPrecision) + SK_ScalarNearlyZero);
         }
     }, maxExponent);
 }
@@ -401,8 +401,8 @@ DEF_TEST(WangsFormula_rational_quad_reduces, r) {
     SkRandom rand;
     for (int i = 0; i < 100; ++i) {
         for_random_beziers(3, &rand, [&r](const SkPoint pts[]) {
-            const float rational_nsegs = wangs_formula_conic_reference_impl(kIntolerance, pts, 1.f);
-            const float integral_nsegs = wangs_formula_quadratic_reference_impl(kIntolerance, pts);
+            const float rational_nsegs = wangs_formula_conic_reference_impl(kPrecision, pts, 1.f);
+            const float integral_nsegs = wangs_formula_quadratic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(
                     r, SkScalarNearlyEqual(rational_nsegs, integral_nsegs, kTessellationTolerance));
         });
@@ -447,7 +447,7 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
                 3, &rand,
                 [&](const SkPoint pts[]) {
                     const int nsegs = static_cast<int>(
-                            std::ceil(wangs_formula_conic_reference_impl(kIntolerance, pts, w)));
+                            std::ceil(wangs_formula_conic_reference_impl(kPrecision, pts, w)));
 
                     const float tdelta = 1.f / nsegs;
                     for (int j = 0; j < nsegs; ++j) {
@@ -465,7 +465,7 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
                         const double d = std::abs(dot(p1 - p0, n)) / length(n);
 
                         // Check distance is within tolerance
-                        REPORTER_ASSERT(r, d <= (1.0 / kIntolerance) + SK_ScalarNearlyZero);
+                        REPORTER_ASSERT(r, d <= (1.0 / kPrecision) + SK_ScalarNearlyZero);
                     }
                 },
                 maxExponent);
@@ -474,13 +474,13 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
 
 // Ensure the vectorized conic version equals the reference implementation
 DEF_TEST(WangsFormula_conic_matches_reference, r) {
-    constexpr static float kTolerance = 1.f / kIntolerance;
+    constexpr static float kTolerance = 1.f / kPrecision;
 
     SkRandom rand;
     for (int i = -10; i <= 10; ++i) {
         const float w = std::ldexp(1 + rand.nextF(), i);
         for_random_beziers(3, &rand, [&r, w](const SkPoint pts[]) {
-            const float ref_nsegs = wangs_formula_conic_reference_impl(kIntolerance, pts, w);
+            const float ref_nsegs = wangs_formula_conic_reference_impl(kPrecision, pts, w);
             const float nsegs = GrWangsFormula::conic(kTolerance, pts, w);
 
             // Because the Gr version may implement the math differently for performance,
@@ -493,7 +493,7 @@ DEF_TEST(WangsFormula_conic_matches_reference, r) {
 
 // Ensure using transformations gives the same result as pre-transforming all points.
 DEF_TEST(WangsFormula_conic_vectorXforms, r) {
-    constexpr static float kTolerance = 1.f / kIntolerance;
+    constexpr static float kTolerance = 1.f / kPrecision;
 
     auto check_conic_with_transform = [&](const SkPoint* pts, float w, const SkMatrix& m) {
         SkPoint ptsXformed[3];

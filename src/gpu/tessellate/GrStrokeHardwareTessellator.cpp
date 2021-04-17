@@ -58,14 +58,13 @@ public:
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
             , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments() - 2)
-            , fParametricIntolerance(GrStrokeTolerances::CalcParametricIntolerance(
-                    matrixMaxScale)) {
+            , fParametricPrecision(GrStrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
     }
 
-    // This is the intolerance value, adjusted for the view matrix, to use with Wang's formulas when
+    // This is the precision value, adjusted for the view matrix, to use with Wang's formulas when
     // determining how many parametric segments a curve will require.
-    float parametricIntolerance() const {
-        return fParametricIntolerance;
+    float parametricPrecision() const {
+        return fParametricPrecision;
     }
     // Will a line and worst-case previous join both fit in a single patch together?
     bool lineFitsInPatch_withJoin() {
@@ -366,8 +365,7 @@ private:
             GrPathShader::WriteConicPatch(p, w, asPatch);
         }
 
-        float numParametricSegments_pow4 =
-                GrWangsFormula::quadratic_pow4(fParametricIntolerance, p);
+        float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricPrecision, p);
         if (this->stroke180FitsInPatch(numParametricSegments_pow4) || maxDepth == 0) {
             this->internalPatchTo(prevJoinType,
                                   this->stroke180FitsInPatch_withJoin(numParametricSegments_pow4),
@@ -431,7 +429,7 @@ private:
             return;
         }
 
-        float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricIntolerance, p);
+        float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricPrecision, p);
         if (this->stroke180FitsInPatch(numParametricSegments_pow4) || maxDepth == 0) {
             this->internalPatchTo(prevJoinType,
                                   this->stroke180FitsInPatch_withJoin(numParametricSegments_pow4),
@@ -600,9 +598,9 @@ private:
     // The maximum number of tessellation segments the hardware can emit for a single patch.
     const int fMaxTessellationSegments;
 
-    // This is the intolerance value, adjusted for the view matrix, to use with Wang's formulas when
+    // This is the precision value, adjusted for the view matrix, to use with Wang's formulas when
     // determining how many parametric segments a curve will require.
-    const float fParametricIntolerance;
+    const float fParametricPrecision;
 
     // Number of radial segments required for each radian of rotation in order to look smooth with
     // the current stroke radius.
@@ -703,13 +701,13 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
         float localStrokeWidth = GrStrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
                                                                          stroke.getWidth());
         float numRadialSegmentsPerRadian = GrStrokeTolerances::CalcNumRadialSegmentsPerRadian(
-                patchWriter.parametricIntolerance(), localStrokeWidth);
+                patchWriter.parametricPrecision(), localStrokeWidth);
         patchWriter.updateTolerances(numRadialSegmentsPerRadian, stroke.getJoin());
     }
 
     // Fast SIMD queue that buffers up values for "numRadialSegmentsPerRadian". Only used when we
     // have dynamic strokes.
-    GrStrokeToleranceBuffer toleranceBuffer(patchWriter.parametricIntolerance());
+    GrStrokeToleranceBuffer toleranceBuffer(patchWriter.parametricPrecision());
 
     for (PathStrokeList* pathStroke = fPathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
@@ -775,7 +773,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                         continue;
                     }
                     float numParametricSegments_pow4 =
-                            GrWangsFormula::quadratic_pow4(patchWriter.parametricIntolerance(), p);
+                            GrWangsFormula::quadratic_pow4(patchWriter.parametricPrecision(), p);
                     if (!patchWriter.stroke180FitsInPatch(numParametricSegments_pow4)) {
                         // The curve requires more tessellation segments than the hardware can
                         // support. This is rare. Recursively chop until each sub-curve fits.
@@ -814,7 +812,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     // draws conics.
                     // TODO: Update here when the shader starts using the real conic formula.
                     float numParametricSegments_pow4 =
-                            GrWangsFormula::quadratic_pow4(patchWriter.parametricIntolerance(), p);
+                            GrWangsFormula::quadratic_pow4(patchWriter.parametricPrecision(), p);
                     if (!patchWriter.stroke180FitsInPatch(numParametricSegments_pow4)) {
                         // The curve requires more tessellation segments than the hardware can
                         // support. This is rare. Recursively chop until each sub-curve fits.
@@ -839,7 +837,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                         continue;
                     }
                     float numParametricSegments_pow4 =
-                            GrWangsFormula::cubic_pow4(patchWriter.parametricIntolerance(), p);
+                            GrWangsFormula::cubic_pow4(patchWriter.parametricPrecision(), p);
                     if (!patchWriter.stroke360FitsInPatch(numParametricSegments_pow4) ||
                         cubic_has_cusp(p)) {
                         // Either the curve requires more tessellation segments than the hardware

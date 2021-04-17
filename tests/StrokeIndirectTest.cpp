@@ -331,7 +331,7 @@ void GrStrokeIndirectTessellator::verifyResolveLevels(skiatest::Reporter* r,
                     }
                 }
                 float numParametricSegments = (hasCusp) ? 0 : GrWangsFormula::quadratic(
-                        tolerances.fParametricIntolerance, pts);
+                        tolerances.fParametricPrecision, pts);
                 float rotation = (hasCusp) ? 0 : SkMeasureQuadRotation(pts);
                 if (stroke.getJoin() == SkPaint::kRound_Join) {
                     SkVector controlPoint = (pts[0] == pts[1]) ? pts[2] : pts[1];
@@ -374,7 +374,7 @@ void GrStrokeIndirectTessellator::verifyResolveLevels(skiatest::Reporter* r,
                     // it matches the answer we got already.
                     SkPoint* p = chops + i*3;
                     float numParametricSegments =
-                            GrWangsFormula::cubic(tolerances.fParametricIntolerance, p);
+                            GrWangsFormula::cubic(tolerances.fParametricPrecision, p);
                     SkVector tan0 =
                             ((p[0] == p[1]) ? (p[1] == p[2]) ? p[3] : p[2] : p[1]) - p[0];
                     SkVector tan1 =
@@ -454,8 +454,7 @@ void GrStrokeIndirectTessellator::verifyBuffers(skiatest::Reporter* r, GrMockOpT
         for (unsigned j = 0; j < indirect->fInstanceCount; ++j) {
             SkASSERT(fabsf(instance->fNumTotalEdges) == indirect->fVertexCount/2);
             const SkPoint* p = instance->fPts;
-            float numParametricSegments = GrWangsFormula::cubic(
-                    tolerances.fParametricIntolerance, p);
+            float numParametricSegments = GrWangsFormula::cubic(tolerances.fParametricPrecision, p);
             float alternateNumParametricSegments = numParametricSegments;
             if (p[0] == p[1] && p[2] == p[3]) {
                 // We articulate lines as "p0,p0,p1,p1". This one might actually expect 0 parametric
