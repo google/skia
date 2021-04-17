@@ -28,13 +28,27 @@ std::unique_ptr<Statement> ForStatement::clone() const {
 }
 
 String ForStatement::description() const {
-    String result("for (");
-    if (this->initializer()) {
+    String result;
+    bool closeForLoopScope = false;
+    if (this->initializer() && this->initializer()->is<Block>()) {
+        // Our initializer-statement contains a Block that holds multiple variable declarations;
+        // originally they were represented as a comma-separated list of variables, but SkSL
+        // splits these apart into separate statements. We synthesize a scope, emit the Block,
+        // and then emit the for statement with an empty init-statement.
+        result += "{\n";
         result += this->initializer()->description();
-    } else {
-        result += ";";
+        result += "for (; ";
+        closeForLoopScope = true;
     }
-    result += " ";
+    else {
+        result = "for (";
+        if (this->initializer()) {
+            result += this->initializer()->description();
+        } else {
+            result += ";";
+        }
+        result += " ";
+    }
     if (this->test()) {
         result += this->test()->description();
     }
@@ -43,6 +57,9 @@ String ForStatement::description() const {
         result += this->next()->description();
     }
     result += ") " + this->statement()->description();
+    if (closeForLoopScope) {
+        result += "\n}";
+    }
     return result;
 }
 
@@ -113,7 +130,7 @@ static bool is_vardecl_block(const SkSL::Statement& stmt) {
         return false;
     }
     for (const auto& child : b.children()) {
-        if (!child->is<SkSL::VarDeclaration>()) {
+        if (!ForStatement::IsValidInitializer(child.get())) {
             return false;
         }
     }

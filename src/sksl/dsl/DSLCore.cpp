@@ -87,9 +87,10 @@ public:
         return DoStatement::Convert(DSLWriter::Context(), stmt.release(), test.release());
     }
 
-    static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
+    static DSLPossibleStatement For(DSLForLoopInitializer initializer, DSLExpression test,
                                     DSLExpression next, DSLStatement stmt, PositionInfo pos) {
-        return ForStatement::Convert(DSLWriter::Context(), /*offset=*/-1, initializer.release(),
+        return ForStatement::Convert(DSLWriter::Context(), /*offset=*/-1,
+                                     initializer.fStatement.release(),
                                      test.release(), next.release(), stmt.release(),
                                      DSLWriter::SymbolTable());
     }
@@ -189,7 +190,7 @@ DSLStatement Do(DSLStatement stmt, DSLExpression test, PositionInfo pos) {
     return DSLStatement(DSLCore::Do(std::move(stmt), std::move(test)), pos);
 }
 
-DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
+DSLStatement For(DSLForLoopInitializer initializer, DSLExpression test, DSLExpression next,
                  DSLStatement stmt, PositionInfo pos) {
     return DSLStatement(DSLCore::For(std::move(initializer), std::move(test), std::move(next),
                                      std::move(stmt), pos), pos);
