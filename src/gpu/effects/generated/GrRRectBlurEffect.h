@@ -27,7 +27,8 @@ public:
                                                      float sigma,
                                                      float xformedSigma,
                                                      const SkRRect& srcRRect,
-                                                     const SkRRect& devRRect);
+                                                     const SkRRect& devRRect,
+                                                     const SkSurfaceProps&);
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RRectBlurEffect"; }

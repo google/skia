@@ -65,7 +65,7 @@ public:
     std::unique_ptr<GrSurfaceDrawContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
                                                                    GrSurfaceOrigin, GrColorType,
                                                                    sk_sp<SkColorSpace>,
-                                                                   const SkSurfaceProps*);
+                                                                   const SkSurfaceProps&);
 
     void addTextureResolveTask(sk_sp<GrTextureProxy>, GrSurfaceProxy::ResolveFlags);
 

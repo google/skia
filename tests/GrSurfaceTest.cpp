@@ -290,8 +290,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         if (renderable == GrRenderable::kYes) {
                             surfCtx = GrSurfaceDrawContext::Make(
                                     dContext, combo.fColorType, nullptr, fit,
-                                    {desc.fWidth, desc.fHeight}, 1, GrMipmapped::kNo,
-                                    GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+                                    {desc.fWidth, desc.fHeight}, SkSurfaceProps(), 1,
+                                    GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
                         } else {
                             GrImageInfo info(combo.fColorType,
                                              kUnknown_SkAlphaType,

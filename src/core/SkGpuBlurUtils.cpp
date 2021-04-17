@@ -105,9 +105,11 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian_2d(GrRecordingCon
     SkASSERT(radiusX && radiusY);
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaX) &&
              !SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaY));
+    // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
+    // GrSurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
     auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-            context, srcColorType, std::move(finalCS), dstFit, dstBounds.size(), 1,
-            GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
+            context, srcColorType, std::move(finalCS), dstFit, dstBounds.size(), SkSurfaceProps(),
+            1, GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
     if (!surfaceDrawContext) {
         return nullptr;
     }
@@ -156,9 +158,12 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
     // Logically we're creating an infinite blur of 'srcBounds' of 'srcView' with 'mode' tiling
     // and then capturing the 'dstBounds' portion in a new RTC where the top left of 'dstBounds' is
     // at {0, 0} in the new RTC.
+    //
+    // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
+    // GrSurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
     auto dstRenderTargetContext = GrSurfaceDrawContext::Make(
-            context, srcColorType, std::move(finalCS), fit, dstBounds.size(), 1, GrMipmapped::kNo,
-            srcView.proxy()->isProtected(), srcView.origin());
+            context, srcColorType, std::move(finalCS), fit, dstBounds.size(), SkSurfaceProps(), 1,
+            GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -304,9 +309,11 @@ static std::unique_ptr<GrSurfaceDrawContext> reexpand(GrRecordingContext* contex
 
     src.reset(); // no longer needed
 
+    // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
+    // GrSurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
     auto dstRenderTargetContext = GrSurfaceDrawContext::Make(
-            context, srcColorType, std::move(colorSpace), fit, dstSize, 1, GrMipmapped::kNo,
-            srcView.proxy()->isProtected(), srcView.origin());
+            context, srcColorType, std::move(colorSpace), fit, dstSize, SkSurfaceProps(), 1,
+            GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -501,9 +508,12 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     // If we determined that there is no blurring necessary in either direction then just do a
     // a draw that applies the tile mode.
     if (!radiusX && !radiusY) {
+        // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
+        // GrSurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
         auto result = GrSurfaceDrawContext::Make(context, srcColorType, std::move(colorSpace), fit,
-                                                  dstBounds.size(), 1, GrMipmapped::kNo,
-                                                  srcView.proxy()->isProtected(), srcView.origin());
+                                                 dstBounds.size(), SkSurfaceProps(), 1,
+                                                 GrMipmapped::kNo,
+                                                 srcView.proxy()->isProtected(), srcView.origin());
         if (!result) {
             return nullptr;
         }
@@ -577,12 +587,15 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                (mode == SkTileMode::kDecal && sigmaX > kMaxSigma) ? 1 : 0;
     int padY = mode == SkTileMode::kClamp ||
                (mode == SkTileMode::kDecal && sigmaY > kMaxSigma) ? 1 : 0;
+    // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
+    // GrSurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
     auto rescaledSDC = GrSurfaceDrawContext::Make(
             srcCtx->recordingContext(),
             colorInfo.colorType(),
             colorInfo.refColorSpace(),
             SkBackingFit::kApprox,
             {rescaledSize.width() + 2*padX, rescaledSize.height() + 2*padY},
+            SkSurfaceProps(),
             1,
             GrMipmapped::kNo,
             srcCtx->asSurfaceProxy()->isProtected(),

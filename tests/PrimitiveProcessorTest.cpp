@@ -175,8 +175,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrGpu* gpu = context->priv().getGpu();
 #endif
 
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1});
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, nullptr,
+                                                         SkBackingFit::kApprox, {1, 1},
+                                                         SkSurfaceProps());
     if (!surfaceDrawContext) {
         ERRORF(reporter, "Could not create render target context.");
         return;
