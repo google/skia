@@ -81,10 +81,10 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
     //
     // Solve the following equation for w:
     //
-    //     GrWangsFormula::worst_case_cubic(kLinearizationIntolerance, w, kMaxAtlasPathHeight^2 / w)
+    //     GrWangsFormula::worst_case_cubic(kLinearizationPrecision, w, kMaxAtlasPathHeight^2 / w)
     //              == maxTessellationSegments
     //
-    float k = GrWangsFormula::length_term<3>(kLinearizationIntolerance);
+    float k = GrWangsFormula::length_term<3>(kLinearizationPrecision);
     float h = kMaxAtlasPathHeight;
     float s = caps.shaderCaps()->maxTessellationSegments();
     // Quadratic formula from Numerical Recipes in C:
@@ -119,7 +119,7 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
     // Verify GrWangsFormula::worst_case_cubic() still works as we expect. The worst case number of
     // segments for this bounding box should be maxTessellationSegments.
     SkASSERT(SkScalarNearlyEqual(GrWangsFormula::worst_case_cubic(
-            kLinearizationIntolerance, worstCaseWidth, worstCaseHeight), s, 1));
+            kLinearizationPrecision, worstCaseWidth, worstCaseHeight), s, 1));
 #endif
     fStencilAtlasFlags &= ~OpFlags::kDisableHWTessellation;
     fMaxAtlasPathWidth = std::min(fMaxAtlasPathWidth, (int)worstCaseWidth);
@@ -157,8 +157,8 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
                            GrTessellationPathRenderer::OpFlags opFlags, GrAAType aaType,
                            const SkRect& shapeDevBounds, const SkMatrix& viewMatrix,
                            const GrStyledShape& shape, GrPaint&& paint) {
-    constexpr static auto kLinearizationIntolerance =
-            GrTessellationPathRenderer::kLinearizationIntolerance;
+    constexpr static auto kLinearizationPrecision =
+            GrTessellationPathRenderer::kLinearizationPrecision;
     constexpr static auto kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
     using OpFlags = GrTessellationPathRenderer::OpFlags;
 
@@ -169,7 +169,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
 
     // Find the worst-case log2 number of line segments that a curve in this path might need to be
     // divided into.
-    int worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationIntolerance,
+    int worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationPrecision,
                                                                       shapeDevBounds.width(),
                                                                       shapeDevBounds.height());
     if (worstCaseResolveLevel > kMaxResolveLevel) {
@@ -205,7 +205,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
 
         SkRect newDevBounds;
         viewMatrix.mapRect(&newDevBounds, path.getBounds());
-        worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationIntolerance,
+        worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationPrecision,
                                                                       newDevBounds.width(),
                                                                       newDevBounds.height());
         // kMaxResolveLevel should be large enough to tessellate paths the size of any screen we
@@ -272,7 +272,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         // sufficient for this path. fMaxAtlasPathWidth should have been tuned for this to always be
         // the case.
         if (!(fStencilAtlasFlags & OpFlags::kDisableHWTessellation)) {
-            int worstCaseNumSegments = GrWangsFormula::worst_case_cubic(kLinearizationIntolerance,
+            int worstCaseNumSegments = GrWangsFormula::worst_case_cubic(kLinearizationPrecision,
                                                                         devIBounds.width(),
                                                                         devIBounds.height());
             const GrShaderCaps& shaderCaps = *args.fContext->priv().caps()->shaderCaps();

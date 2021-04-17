@@ -49,20 +49,20 @@ struct GrStrokeTolerances {
     // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
     // steps in parametric space.) The tessellator will add enough parametric segments so that,
     // once transformed into device space, they never deviate by more than
-    // 1/GrTessellationPathRenderer::kLinearizationIntolerance pixels from the true curve.
-    constexpr static float CalcParametricIntolerance(float matrixMaxScale) {
-        return matrixMaxScale * GrTessellationPathRenderer::kLinearizationIntolerance;
+    // 1/GrTessellationPathRenderer::kLinearizationPrecision pixels from the true curve.
+    constexpr static float CalcParametricPrecision(float matrixMaxScale) {
+        return matrixMaxScale * GrTessellationPathRenderer::kLinearizationPrecision;
     }
     // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
     // in tangent angle.) The tessellator will add this number of radial segments for each
     // radian of rotation in local path space.
-    static float CalcNumRadialSegmentsPerRadian(float parametricIntolerance,
+    static float CalcNumRadialSegmentsPerRadian(float parametricPrecision,
                                                 float strokeWidth) {
-        return .5f / acosf(std::max(1 - 2 / (parametricIntolerance * strokeWidth), -1.f));
+        return .5f / acosf(std::max(1 - 2 / (parametricPrecision * strokeWidth), -1.f));
     }
     template<int N> static grvx::vec<N> ApproxNumRadialSegmentsPerRadian(
-            float parametricIntolerance, grvx::vec<N> strokeWidths) {
-        grvx::vec<N> cosTheta = skvx::max(1 - 2 / (parametricIntolerance * strokeWidths), -1);
+            float parametricPrecision, grvx::vec<N> strokeWidths) {
+        grvx::vec<N> cosTheta = skvx::max(1 - 2 / (parametricPrecision * strokeWidths), -1);
         // Subtract GRVX_APPROX_ACOS_MAX_ERROR so we never account for too few segments.
         return .5f / (grvx::approx_acos(cosTheta) - GRVX_APPROX_ACOS_MAX_ERROR);
     }
@@ -99,11 +99,11 @@ struct GrStrokeTolerances {
     }
     static GrStrokeTolerances MakeNonHairline(float matrixMaxScale, float strokeWidth) {
         SkASSERT(strokeWidth > 0);
-        float parametricIntolerance = CalcParametricIntolerance(matrixMaxScale);
-        return {parametricIntolerance,
-                CalcNumRadialSegmentsPerRadian(parametricIntolerance, strokeWidth)};
+        float parametricPrecision = CalcParametricPrecision(matrixMaxScale);
+        return {parametricPrecision,
+                CalcNumRadialSegmentsPerRadian(parametricPrecision, strokeWidth)};
     }
-    float fParametricIntolerance;
+    float fParametricPrecision;
     float fNumRadialSegmentsPerRadian;
 };
 
@@ -112,8 +112,8 @@ class alignas(sizeof(float) * 4) GrStrokeToleranceBuffer {
 public:
     using PathStrokeList = GrStrokeTessellator::PathStrokeList;
 
-    GrStrokeToleranceBuffer(float parametricIntolerance)
-            : fParametricIntolerance(parametricIntolerance) {
+    GrStrokeToleranceBuffer(float parametricPrecision)
+            : fParametricPrecision(parametricPrecision) {
     }
 
     float fetchRadialSegmentsPerRadian(PathStrokeList* head) {
@@ -128,7 +128,7 @@ public:
             do {
                 fStrokeWidths[i++] = peekAhead->fStroke.getWidth();
             } while ((peekAhead = peekAhead->fNext) && i < 4);
-            auto tol = GrStrokeTolerances::ApproxNumRadialSegmentsPerRadian(fParametricIntolerance,
+            auto tol = GrStrokeTolerances::ApproxNumRadialSegmentsPerRadian(fParametricPrecision,
                                                                             fStrokeWidths);
             tol.store(fNumRadialSegmentsPerRadian);
             fBufferIdx = 0;
@@ -141,7 +141,7 @@ public:
 private:
     grvx::float4 fStrokeWidths{};  // Must be first for alignment purposes.
     float fNumRadialSegmentsPerRadian[4];
-    const float fParametricIntolerance;
+    const float fParametricPrecision;
     int fBufferIdx = 4;  // Initialize the buffer as "empty";
 };
 

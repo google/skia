@@ -24,13 +24,13 @@ GrPathIndirectTessellator::GrPathIndirectTessellator(const SkMatrix& viewMatrix,
         int level;
         switch (verb) {
             case SkPathVerb::kConic:
-                level = GrWangsFormula::conic_log2(1.f / kLinearizationIntolerance, pts, *w, xform);
+                level = GrWangsFormula::conic_log2(1.f / kLinearizationPrecision, pts, *w, xform);
                 break;
             case SkPathVerb::kQuad:
-                level = GrWangsFormula::quadratic_log2(kLinearizationIntolerance, pts, xform);
+                level = GrWangsFormula::quadratic_log2(kLinearizationPrecision, pts, xform);
                 break;
             case SkPathVerb::kCubic:
-                level = GrWangsFormula::cubic_log2(kLinearizationIntolerance, pts, xform);
+                level = GrWangsFormula::cubic_log2(kLinearizationPrecision, pts, xform);
                 break;
             default:
                 continue;
@@ -179,14 +179,14 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
                 default:
                     continue;
                 case SkPathVerb::kConic:
-                    level = GrWangsFormula::conic_log2(1.f / kLinearizationIntolerance, pts, *w,
+                    level = GrWangsFormula::conic_log2(1.f / kLinearizationPrecision, pts, *w,
                                                        xform);
                     break;
                 case SkPathVerb::kQuad:
-                    level = GrWangsFormula::quadratic_log2(kLinearizationIntolerance, pts, xform);
+                    level = GrWangsFormula::quadratic_log2(kLinearizationPrecision, pts, xform);
                     break;
                 case SkPathVerb::kCubic:
-                    level = GrWangsFormula::cubic_log2(kLinearizationIntolerance, pts, xform);
+                    level = GrWangsFormula::cubic_log2(kLinearizationPrecision, pts, xform);
                     break;
             }
             if (level == 0) {
