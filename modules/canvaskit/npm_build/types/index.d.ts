@@ -1562,10 +1562,23 @@ export interface ContourMeasure extends EmbindObject<ContourMeasure> {
     length(): number;
 }
 
+export interface FontMetrics {
+    top: number,        // top of the tallest glyph above the baseline. < 0
+    ascent: number,     // suggested space above the baseline. < 0
+    descent: number,    // suggested space below the baseline. > 0
+    bottom: number,     // bottom of lowest glyph below the baseline. > 0
+    leading: number,    // suggested spacing between descent of previous line and ascent of next line.
+}
+
 /**
  * See SkFont.h for more on this class.
  */
 export interface Font extends EmbindObject<Font> {
+    /**
+     * Returns the FontMetrics for this font.
+     */
+    getMetrics(): FontMetrics;
+
     /**
      * Retrieves the bounds for each glyph in glyphs.
      * If paint is not null, its stroking, PathEffect, and MaskFilter fields are respected.
@@ -1599,6 +1612,7 @@ export interface Font extends EmbindObject<Font> {
     getGlyphWidths(glyphs: InputGlyphIDArray, paint?: Paint | null,
                    output?: Float32Array): Float32Array;
 
+    
     /**
      * Returns text scale on x-axis. Default value is 1.
      */
