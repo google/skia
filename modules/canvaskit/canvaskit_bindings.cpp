@@ -1203,6 +1203,18 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      glyphIDs, expectedCodePoints);
             return actualCodePoints;
         }))
+        .function("getMetrics", optional_override([](SkFont& self) -> JSObject {
+            SkFontMetrics fm;
+            self.getMetrics(&fm);
+
+            JSObject j = emscripten::val::object();
+            j.set("top",     fm.fTop);
+            j.set("ascent",  fm.fAscent);
+            j.set("descent", fm.fDescent);
+            j.set("bottom",  fm.fBottom);
+            j.set("leading", fm.fLeading);
+            return j;
+        }))
         .function("getScaleX", &SkFont::getScaleX)
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)
