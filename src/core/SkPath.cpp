@@ -2088,22 +2088,22 @@ struct Convexicator {
     SkPathFirstDirection getFirstDirection() const { return fFirstDirection; }
 
     void setMovePt(const SkPoint& pt) {
-        fPriorPt = fLastPt = fCurrPt = pt;
+        fFirstPt = fLastPt = pt;
+        fExpectedDir = kInvalid_DirChange;
     }
 
     bool addPt(const SkPoint& pt) {
-        if (fCurrPt == pt) {
+        if (fLastPt == pt) {
             return true;
         }
-        fCurrPt = pt;
-        if (fPriorPt == fLastPt) {  // should only be true for first non-zero vector
-            fLastVec = fCurrPt - fLastPt;
-            fFirstPt = pt;
-        } else if (!this->addVec(fCurrPt - fLastPt)) {
+        // should only be true for first non-zero vector after setMovePt was called.
+        if (fFirstPt == fLastPt && fExpectedDir == kInvalid_DirChange) {
+            fLastVec = pt - fLastPt;
+            fFirstVec = fLastVec;
+        } else if (!this->addVec(pt - fLastPt)) {
             return false;
         }
-        fPriorPt = fLastPt;
-        fLastPt = fCurrPt;
+        fLastPt = pt;
         return true;
     }
 
@@ -2144,7 +2144,10 @@ struct Convexicator {
     }
 
     bool close() {
-        return this->addPt(fFirstPt);
+        // If this was an explicit close, there was already a lineTo to fFirstPoint, so this
+        // addPt() is a no-op. Otherwise, the addPt implicitly closes the contour. In either case,
+        // we have to check the direction change along the first vector in case it is concave.
+        return this->addPt(fFirstPt) && this->addVec(fFirstVec);
     }
 
     bool isFinite() const {
@@ -2200,15 +2203,16 @@ private:
         return true;
     }
 
-    SkPoint             fFirstPt {0, 0};
-    SkPoint             fPriorPt {0, 0};
-    SkPoint             fLastPt {0, 0};
-    SkPoint             fCurrPt {0, 0};
-    SkVector            fLastVec {0, 0};
-    DirChange           fExpectedDir { kInvalid_DirChange };
-    SkPathFirstDirection   fFirstDirection { SkPathFirstDirection::kUnknown };
-    int                 fReversals { 0 };
-    bool                fIsFinite { true };
+    SkPoint              fFirstPt {0, 0};  // The first point of the contour, e.g. moveTo(x,y)
+    SkVector             fFirstVec {0, 0}; // The direction leaving fFirstPt to the next vertex
+
+    SkPoint              fLastPt {0, 0};   // The last point passed to addPt()
+    SkVector             fLastVec {0, 0};  // The direction that brought the path to fLastPt
+
+    DirChange            fExpectedDir { kInvalid_DirChange };
+    SkPathFirstDirection fFirstDirection { SkPathFirstDirection::kUnknown };
+    int                  fReversals { 0 };
+    bool                 fIsFinite { true };
 };
 
 SkPathConvexity SkPath::computeConvexity() const {
