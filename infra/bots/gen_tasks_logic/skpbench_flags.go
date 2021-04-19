@@ -5,7 +5,7 @@ package gen_tasks_logic
 
 // skpbenchFlags generates flags to skpbench based on the given task properties.
 func (b *taskBuilder) skpbenchFlags() {
-	if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
+	if !b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		b.recipeProp("reduce_ops_task_splitting", "true")
 	}
 	if b.model("NUC7i5BNK") {
