@@ -22,6 +22,30 @@
       },
       "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab7e064a_813c068e",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-19T17:02:19Z",
+      "side": 1,
+      "message": "At one point it was kLast and changed to kAll during the code review process:\n\nhttps://skia-review.googlesource.com/c/skia/+/384936/10..19/include/core/SkSurfaceProps.h#b55\n\nHowever, I agree with your concern that somebody might think they actually should use kAll. Based on that I think we should use kLast.",
+      "parentUuid": "5aff4def_c76f95eb",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
