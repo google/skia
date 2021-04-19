@@ -1,0 +1,12 @@
+void main() {
+    for (for(;;) ;; )             {}
+    for (switch(0) {} ;; )        {}
+    for (while(false) {} ;; )     {}
+    for (do {} while(false) ;; )  {}
+    for (if (false) {} ;; )       {}
+    for (break;; )                {}
+    for (continue;; )             {}
+    for (discard;; )              {}
+    for (void;; )                 {}
+    for (for(for(for(;;);;);;);;) {}
+}
