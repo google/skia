@@ -73,6 +73,30 @@
       },
       "revId": "cfe255b12f7c638c5392e340099d8ae858b9ee50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b4e2261_75390138",
+        "filename": "src/effects/imagefilters/SkPictureImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-19T14:52:33Z",
+      "side": 1,
+      "message": "wondering if we invert this, and put a factory on the props instance itself (we do this pattern for ImageInfo)\n\ne.g.\n\nSkSurfaceProps existing_props.cloneWithPixelGeometry(geo);\n\nNothing special, but it \"hides\" whatever else goes into a prop, and makes it clear you want a copy, but you are *changing* the pixel-geo.\n\njust a thought",
+      "parentUuid": "70bcd208_3f42d95e",
+      "range": {
+        "startLine": 103,
+        "startChar": 80,
+        "endLine": 103,
+        "endChar": 81
+      },
+      "revId": "cfe255b12f7c638c5392e340099d8ae858b9ee50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
