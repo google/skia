@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99b1c3f9_20a8dd01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-19T17:19:38Z",
+      "side": 1,
+      "message": "Won\u0027t land this until we see that the fallback is working on the perf bot",
+      "revId": "f9ddf1273de846a8095fffa3c1bd85d8ecf8ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
