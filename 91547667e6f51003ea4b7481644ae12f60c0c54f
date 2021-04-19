@@ -72,6 +72,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "51e0ae99_dbf8f3c3",
+        "filename": "resources/sksl/errors/ForInitStmt.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-19T17:19:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0790cf94_e8d2914f",
+      "range": {
+        "startLine": 1,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 36
+      },
+      "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a51a350_16775310",
@@ -103,6 +127,24 @@
       "side": 1,
       "message": "Probably! I\u0027ll experiment with this. Seems like we should allow it here!",
       "parentUuid": "4a51a350_16775310",
+      "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2603b27f_48acc1f7",
+        "filename": "src/sksl/ir/SkSLForStatement.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-19T17:19:32Z",
+      "side": 1,
+      "message": "Added a test case for this in ForLoopMultipleInit and allowed `stmt-\u003eisEmpty` to pass the simple-initializer check.",
+      "parentUuid": "4d5a19d7_92cb3725",
       "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
