@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6438e86d_fdecfb82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-19T20:41:07Z",
+      "side": 1,
+      "message": "Hi Kevin,\n\nI\u0027m trying to add CanvasKit bindings for this change: https://skia-review.googlesource.com/c/skia/+/394969. Not knowing much javascript, I only searched for `TextStyle` and `StrutStyle` in the canvaskit directory\nand followed existing patterns. Could you take a look at the CL? Also I wonder \nif the golden test is good enough for this change?",
+      "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
