@@ -251,7 +251,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~path")
 	}
 
-	if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
+	if !b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		args = append(args, "--reduceOpsTaskSplitting", "true")
 	}
 
