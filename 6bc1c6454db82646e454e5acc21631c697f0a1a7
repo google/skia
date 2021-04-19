@@ -16,6 +16,24 @@
       "message": "\u0027top\u0027 and \u0027bottom\u0027 should no longer be exported in new interfaces (at least not unconditionally). In OpenType the font bbox does not vary, so it will be incorrect for variable fonts not at the default. It was already sometimes incorrect when hinting, since no font ever took hinting into account when computing these values. Note that SkFontMetrics::hasBounds will let you know if these values are valid.",
       "revId": "6bc1c6454db82646e454e5acc21631c697f0a1a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a67c6f64_45c7fa65",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1569,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-19T17:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b46ab2ee_9ee805d1",
+      "revId": "6bc1c6454db82646e454e5acc21631c697f0a1a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
