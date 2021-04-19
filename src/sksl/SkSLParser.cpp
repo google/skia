@@ -1371,38 +1371,20 @@ ASTNode::ID Parser::forStatement() {
         return ASTNode::ID::Invalid();
     }
     ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kFor);
-    ASTNode::ID initializer;
     Token nextToken = this->peek();
-    switch (nextToken.fKind) {
-        case Token::Kind::TK_SEMICOLON:
-            this->nextToken();
-            this->createEmptyChild(result);
-            break;
-        case Token::Kind::TK_CONST: {
-            initializer = this->varDeclarations();
-            if (!initializer) {
-                return ASTNode::ID::Invalid();
-            }
-            getNode(result).addChild(initializer);
-            break;
+    if (nextToken.fKind == Token::Kind::TK_SEMICOLON) {
+        // An empty init-statement.
+        this->nextToken();
+        this->createEmptyChild(result);
+    } else {
+        // The init-statement must be an expression or variable declaration.
+        ASTNode::ID initializer = (nextToken.fKind == Token::Kind::TK_CONST)
+                                          ? this->varDeclarations()
+                                          : this->varDeclarationsOrExpressionStatement();
+        if (!initializer) {
+            return ASTNode::ID::Invalid();
         }
-        case Token::Kind::TK_IDENTIFIER: {
-            if (this->isType(this->text(nextToken))) {
-                initializer = this->varDeclarations();
-                if (!initializer) {
-                    return ASTNode::ID::Invalid();
-                }
-                getNode(result).addChild(initializer);
-                break;
-            }
-            [[fallthrough]];
-        }
-        default:
-            initializer = this->expressionStatement();
-            if (!initializer) {
-                return ASTNode::ID::Invalid();
-            }
-            getNode(result).addChild(initializer);
+        getNode(result).addChild(initializer);
     }
     ASTNode::ID test;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
