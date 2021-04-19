@@ -26,16 +26,6 @@ public:
 
     const GrContextOptions& options() const { return fContext->options(); }
 
-#if GR_TEST_UTILS
-    bool alwaysAntialias() const { return fContext->options().fAlwaysAntialias; }
-    GrAA chooseAA(const SkPaint& paint) const {
-        return GrAA(paint.isAntiAlias() || this->alwaysAntialias());
-    }
-#else
-    bool alwaysAntialias() const { return false; }
-    GrAA chooseAA(const SkPaint& paint) const { return GrAA(paint.isAntiAlias()); }
-#endif
-
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const;
 

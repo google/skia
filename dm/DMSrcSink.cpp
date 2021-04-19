@@ -1479,7 +1479,6 @@ GPUSink::GPUSink(const SkCommandLineConfigGpu* config,
         , fAlphaType(config->getAlphaType())
         , fColorSpace(sk_ref_sp(config->getColorSpace()))
         , fBaseContextOptions(grCtxOptions) {
-    fBaseContextOptions.fAlwaysAntialias = config->getUseDMSAA();
     if (FLAGS_programBinaryCache) {
         fBaseContextOptions.fPersistentCache = &fMemoryCache;
     }

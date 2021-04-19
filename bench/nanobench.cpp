@@ -249,7 +249,6 @@ struct GPUTarget : public Target {
     }
     bool init(SkImageInfo info, Benchmark* bench) override {
         GrContextOptions options = grContextOpts;
-        options.fAlwaysAntialias = config.useDMSAA;
         bench->modifyGrContextOptions(&options);
         this->factory = std::make_unique<GrContextFactory>(options);
         SkSurfaceProps props(this->config.surfaceFlags, kRGB_H_SkPixelGeometry);
@@ -472,7 +471,6 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         const auto ctxType = gpuConfig->getContextType();
         const auto ctxOverrides = gpuConfig->getContextOverrides();
         const auto sampleCount = gpuConfig->getSamples();
-        const auto useDMSAA = gpuConfig->getUseDMSAA();
         const auto colorType = gpuConfig->getColorType();
         auto colorSpace = gpuConfig->getColorSpace();
         if (gpuConfig->getSurfType() != SkCommandLineConfigGpu::SurfType::kDefault) {
@@ -503,7 +501,6 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             kPremul_SkAlphaType,
             sk_ref_sp(colorSpace),
             sampleCount,
-            useDMSAA,
             ctxType,
             ctxOverrides,
             gpuConfig->getSurfaceFlags()
@@ -522,7 +519,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             }                                                                  \
             Config config = {                                                  \
                 SkString(#name), Benchmark::backend, color, alpha, colorSpace, \
-                0, false, kBogusContextType, kBogusContextOverrides, 0         \
+                0, kBogusContextType, kBogusContextOverrides, 0                \
             };                                                                 \
             configs->push_back(config);                                        \
             return;                                                            \

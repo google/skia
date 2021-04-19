@@ -119,9 +119,9 @@ static SkImageInfo make_info(GrSurfaceDrawContext* context, bool opaque) {
 }
 
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-static bool force_aa_clip(const GrRecordingContext* context, const GrSurfaceDrawContext* sdc) {
+static bool force_aa_clip(const GrSurfaceDrawContext* sdc) {
     return (sdc->numSamples() > 1 && !sdc->caps()->multisampleDisableSupport()) ||
-           context->priv().alwaysAntialias();
+           sdc->alwaysAntialias();
 }
 #endif
 
@@ -135,7 +135,7 @@ SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
                 &this->asMatrixProvider(),
-                force_aa_clip(fContext.get(), fSurfaceDrawContext.get())) {
+                force_aa_clip(fSurfaceDrawContext.get())) {
 #else
         , fClip(fSurfaceDrawContext->dimensions(), &this->cs(), &this->asMatrixProvider()) {
 #endif
@@ -266,7 +266,7 @@ void SkGpuDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
 
     // Regions don't actually need AA, but in DMSAA mode every clip element is antialiased.
-    GrAA aa = GrAA(fContext->priv().alwaysAntialias());
+    GrAA aa = GrAA(fSurfaceDrawContext->alwaysAntialias());
 
     if (globalRgn.isEmpty()) {
         fClip.clipRect(SkMatrix::I(), SkRect::MakeEmpty(), aa, op);
@@ -301,7 +301,7 @@ bool SkGpuDevice::onClipIsAA() const {
         if (e.fAA == GrAA::kYes) {
             return true;
         }
-        SkASSERT(!fContext->priv().alwaysAntialias());
+        SkASSERT(!fSurfaceDrawContext->alwaysAntialias());
     }
     return false;
 }
@@ -356,7 +356,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
         return;
     }
 
-    GrAA aa = fContext->priv().chooseAA(paint);
+    GrAA aa = fSurfaceDrawContext->chooseAA(paint);
 
     if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
         GrStyle style(paint, SkPaint::kStroke_Style);
@@ -441,7 +441,7 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
     }
 
     fSurfaceDrawContext->drawRect(this->clip(), std::move(grPaint),
-                                  fContext->priv().chooseAA(paint), this->localToDevice(), rect,
+                                  fSurfaceDrawContext->chooseAA(paint), this->localToDevice(), rect,
                                   &style);
 }
 
@@ -505,8 +505,8 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 
     fSurfaceDrawContext->drawRRect(this->clip(), std::move(grPaint),
-                                   fContext->priv().chooseAA(paint), this->localToDevice(), rrect,
-                                   style);
+                                   fSurfaceDrawContext->chooseAA(paint), this->localToDevice(),
+                                   rrect, style);
 }
 
 static std::unique_ptr<GrFragmentProcessor> make_inverse_rrect_fp(const SkMatrix& viewMatrix,
@@ -540,7 +540,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
         // For axis-aligned filled DRRects, just draw a regular rrect with inner clipped out using a
         // coverage FP instead of using path rendering.
         if (auto fp = make_inverse_rrect_fp(this->localToDevice(), inner,
-                                            fContext->priv().chooseAA(paint),
+                                            fSurfaceDrawContext->chooseAA(paint),
                                             *fSurfaceDrawContext->caps()->shaderCaps())) {
             GrPaint grPaint;
             if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
@@ -550,8 +550,8 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
             SkASSERT(!grPaint.hasCoverageFragmentProcessor());
             grPaint.setCoverageFragmentProcessor(std::move(fp));
             fSurfaceDrawContext->drawRRect(this->clip(), std::move(grPaint),
-                                           fContext->priv().chooseAA(paint), this->localToDevice(),
-                                           outer, GrStyle());
+                                           fSurfaceDrawContext->chooseAA(paint),
+                                           this->localToDevice(), outer, GrStyle());
             return;
         }
     }
@@ -587,8 +587,8 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     }
 
     fSurfaceDrawContext->drawRegion(this->clip(), std::move(grPaint),
-                                    fContext->priv().chooseAA(paint), this->localToDevice(), region,
-                                    GrStyle(paint));
+                                    fSurfaceDrawContext->chooseAA(paint), this->localToDevice(),
+                                    region, GrStyle(paint));
 }
 
 void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
@@ -608,7 +608,7 @@ void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     }
 
     fSurfaceDrawContext->drawOval(this->clip(), std::move(grPaint),
-                                  fContext->priv().chooseAA(paint), this->localToDevice(), oval,
+                                  fSurfaceDrawContext->chooseAA(paint), this->localToDevice(), oval,
                                   GrStyle(paint));
 }
 
@@ -626,9 +626,9 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
         return;
     }
 
-    fSurfaceDrawContext->drawArc(this->clip(), std::move(grPaint), fContext->priv().chooseAA(paint),
-                                 this->localToDevice(), oval, startAngle, sweepAngle, useCenter,
-                                 GrStyle(paint));
+    fSurfaceDrawContext->drawArc(this->clip(), std::move(grPaint),
+                                 fSurfaceDrawContext->chooseAA(paint), this->localToDevice(), oval,
+                                 startAngle, sweepAngle, useCenter, GrStyle(paint));
 }
 
 #include "include/core/SkMaskFilter.h"
@@ -651,7 +651,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
             return;
         }
         fSurfaceDrawContext->drawPath(this->clip(), std::move(grPaint),
-                                      fContext->priv().chooseAA(paint), this->localToDevice(),
+                                      fSurfaceDrawContext->chooseAA(paint), this->localToDevice(),
                                       origSrcPath, GrStyle(paint));
         return;
     }
@@ -762,7 +762,7 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
                                 const SkSamplingOptions& sampling, const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
-    GrAA aa = fContext->priv().chooseAA(paint);
+    GrAA aa = fSurfaceDrawContext->chooseAA(paint);
     GrQuadAAFlags aaFlags = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
     this->drawImageQuad(image, src, &dst, nullptr, aa, aaFlags, nullptr, sampling, paint,
                         constraint);
@@ -1033,7 +1033,7 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
             0x1>()
     );
     // Regions don't actually need AA, but in DMSAA mode everything is antialiased.
-    GrAA aa = GrAA(fContext->priv().alwaysAntialias());
+    GrAA aa = GrAA(fSurfaceDrawContext->alwaysAntialias());
     sdc->drawRegion(nullptr, std::move(grPaint), aa, SkMatrix::I(), clipRegion,
                     GrStyle::SimpleFill(), &kDrawToStencil);
     return true;
