@@ -22,6 +22,47 @@
       },
       "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9885c014_093da554",
+        "filename": "resources/sksl/errors/ForInitStmt.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-19T16:00:04Z",
+      "side": 1,
+      "message": "Ah, and because it\u0027s a parser error, even if we split it into separate functions, we\u0027ll still only get one error?",
+      "parentUuid": "a0487105_235808c5",
+      "range": {
+        "startLine": 1,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 36
+      },
+      "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a51a350_16775310",
+        "filename": "src/sksl/ir/SkSLForStatement.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-19T16:00:04Z",
+      "side": 1,
+      "message": "Question: Is it possible to end up with a Nop? (eg, via ExpressionStatement::Make and something with no side-effects)?",
+      "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
