@@ -30,6 +30,10 @@ public:
                                                   const GrD3DTextureResourceInfo&,
                                                   sk_sp<GrD3DResourceState>);
 
+    static sk_sp<GrD3DTexture> MakeAliasingTexture(GrD3DGpu*,
+                                                   sk_sp<GrD3DTexture>,
+                                                   DXGI_FORMAT);
+
     ~GrD3DTexture() override {}
 
     GrBackendTexture getBackendTexture() const override;

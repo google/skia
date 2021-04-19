@@ -166,6 +166,11 @@ public:
                                                  D3D12_RESOURCE_STATES initialResourceState,
                                                  sk_sp<GrD3DAlloc>* allocation,
                                                  const D3D12_CLEAR_VALUE*) = 0;
+    virtual gr_cp<ID3D12Resource> createAliasingResource(sk_sp<GrD3DAlloc>& allocation,
+                                                         uint64_t localOffset,
+                                                         const D3D12_RESOURCE_DESC*,
+                                                         D3D12_RESOURCE_STATES initialResourceState,
+                                                         const D3D12_CLEAR_VALUE*) = 0;
 };
 
 // Note: there is no notion of Borrowed or Adopted resources in the D3D backend,

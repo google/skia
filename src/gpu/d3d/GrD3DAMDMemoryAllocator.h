@@ -31,6 +31,12 @@ public:
                                          sk_sp<GrD3DAlloc>* allocation,
                                          const D3D12_CLEAR_VALUE*) override;
 
+    gr_cp<ID3D12Resource> createAliasingResource(sk_sp<GrD3DAlloc>& allocation,
+                                                 uint64_t localOffset,
+                                                 const D3D12_RESOURCE_DESC*,
+                                                 D3D12_RESOURCE_STATES initialResourceState,
+                                                 const D3D12_CLEAR_VALUE*) override;
+
     class Alloc : public GrD3DAlloc {
     public:
         Alloc(D3D12MA::Allocation* allocation) : fAllocation(allocation) {}
@@ -38,6 +44,7 @@ public:
             fAllocation->Release();
         }
     private:
+        friend class GrD3DAMDMemoryAllocator;
         D3D12MA::Allocation* fAllocation;
     };
 
