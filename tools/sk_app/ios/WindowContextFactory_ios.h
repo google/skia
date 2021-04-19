@@ -28,16 +28,21 @@ struct IOSWindowInfo {
     UIViewController*   fViewController;
 };
 
+#ifdef SK_VULKAN
 inline std::unique_ptr<WindowContext> MakeVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
     // No Vulkan support on iOS yet.
     return nullptr;
 }
+#endif
 
+#ifdef SK_METAL
 std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo&, const DisplayParams&);
+#endif
 
+#ifdef SK_GL
 std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo&, const DisplayParams&);
-
 std::unique_ptr<WindowContext> MakeRasterForIOS(const IOSWindowInfo&, const DisplayParams&);
+#endif
 
 }  // namespace window_context_factory
 

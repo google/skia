@@ -91,15 +91,14 @@ bool Window_ios::attach(BackendType attachType) {
 #endif
 #ifdef SK_GL
         case kNativeGL_BackendType:
-        default:
             fWindowContext = MakeGLForIOS(info, fRequestedDisplayParams);
             break;
-#else
-        default:
-#endif
         case kRaster_BackendType:
             fWindowContext = MakeRasterForIOS(info, fRequestedDisplayParams);
             break;
+#endif
+        default:
+            SkASSERT_RELEASE(false);
     }
     this->onBackendCreated();
 
