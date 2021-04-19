@@ -81,9 +81,15 @@ uniform half blurRadius;
                             const SkISize& dimensions,
                             float xformedSigma) {
         SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
+
+        // We cache blur masks. Use default surface props here so we can use the same cached mask
+        // regardless of the final dst surface.
+        SkSurfaceProps defaultSurfaceProps;
+
         std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::MakeWithFallback(
-                dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
-                GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
+                dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions,
+                defaultSurfaceProps, 1, GrMipmapped::kNo, GrProtected::kNo,
+                kBlurredRRectMaskOrigin);
         if (!rtc) {
             return false;
         }

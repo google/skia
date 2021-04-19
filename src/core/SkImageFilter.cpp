@@ -586,6 +586,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                                      const SkIRect& bounds,
                                                      SkColorType colorType,
                                                      const SkColorSpace* colorSpace,
+                                                     const SkSurfaceProps& surfaceProps,
                                                      GrProtected isProtected) {
     GrImageInfo info(SkColorTypeToGrColorType(colorType),
                      kPremul_SkAlphaType,
@@ -612,12 +613,14 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                                kNeedNewImageUniqueID_SpecialImage,
                                                surfaceFillContext->readSurfaceView(),
                                                surfaceFillContext->colorInfo().colorType(),
-                                               surfaceFillContext->colorInfo().refColorSpace());
+                                               surfaceFillContext->colorInfo().refColorSpace(),
+                                               surfaceProps);
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(SkSpecialImage* src,
                                                             SkColorType colorType,
-                                                            SkColorSpace* colorSpace) {
+                                                            SkColorSpace* colorSpace,
+                                                            const SkSurfaceProps& surfaceProps) {
     // There are several conditions that determine if we actually need to convert the source to the
     // destination's color space. Rather than duplicate that logic here, just try to make an xform
     // object. If that produces something, then both are tagged, and the source is in a different
@@ -632,7 +635,8 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(SkSpecialImage* src,
     }
 
     sk_sp<SkSpecialSurface> surf(src->makeSurface(colorType, colorSpace,
-                                                  SkISize::Make(src->width(), src->height())));
+                                                  SkISize::Make(src->width(), src->height()),
+                                                  kPremul_SkAlphaType, surfaceProps));
     if (!surf) {
         return sk_ref_sp(src);
     }

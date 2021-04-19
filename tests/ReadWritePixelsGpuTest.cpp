@@ -1192,7 +1192,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
                                                           info.colorType(),
                                                           info.refColorSpace(),
                                                           SkBackingFit::kExact,
-                                                          info.dimensions());
+                                                          info.dimensions(),
+                                                          SkSurfaceProps());
                     SkASSERT(dst);
                     GrSamplerState sampler(SkFilterMode::kNearest, SkMipmapMode::kNearest);
                     for (int i = 1; i <= 1; ++i) {

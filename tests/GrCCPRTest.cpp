@@ -63,7 +63,7 @@ public:
             , fCCPR(fDContext->priv().drawingManager()->getCoverageCountingPathRenderer())
             , fRTC(GrSurfaceDrawContext::Make(
                       fDContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-                      {kCanvasSize, kCanvasSize})) {
+                      {kCanvasSize, kCanvasSize}, SkSurfaceProps())) {
         if (!fCCPR) {
             ERRORF(reporter, "ccpr not enabled in GrDirectContext for ccpr tests");
         }

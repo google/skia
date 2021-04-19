@@ -45,7 +45,8 @@ protected:
 #if SK_SUPPORT_GPU
     GrSurfaceProxyView createMaskTexture(GrRecordingContext*,
                                          const SkMatrix&,
-                                         const SkIRect& bounds) const;
+                                         const SkIRect& bounds,
+                                         const SkSurfaceProps&) const;
 #endif
 
 private:
@@ -97,11 +98,12 @@ void SkAlphaThresholdImageFilter::flatten(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-GrSurfaceProxyView SkAlphaThresholdImageFilter::createMaskTexture(GrRecordingContext* context,
-                                                                  const SkMatrix& inMatrix,
-                                                                  const SkIRect& bounds) const {
+GrSurfaceProxyView SkAlphaThresholdImageFilter::createMaskTexture(
+        GrRecordingContext* context, const SkMatrix& inMatrix, const SkIRect& bounds,
+        const SkSurfaceProps& surfaceProps) const {
     auto rtContext = GrSurfaceDrawContext::MakeWithFallback(
-            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox, bounds.size());
+            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox, bounds.size(),
+            surfaceProps);
     if (!rtContext) {
         return {};
     }
@@ -156,7 +158,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdImageFilter::onFilterImage(const Context& 
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-offset->fX), SkIntToScalar(-offset->fY));
 
-        GrSurfaceProxyView maskView = this->createMaskTexture(context, matrix, bounds);
+        GrSurfaceProxyView maskView = this->createMaskTexture(context, matrix, bounds,
+                                                              ctx.surfaceProps());
         if (!maskView) {
             return nullptr;
         }
@@ -180,7 +183,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdImageFilter::onFilterImage(const Context& 
         }
 
         return DrawWithFP(context, std::move(thresholdFP), bounds, ctx.colorType(),
-                          ctx.colorSpace(), isProtected);
+                          ctx.colorSpace(), ctx.surfaceProps(), isProtected);
     }
 #endif
 
@@ -253,5 +256,5 @@ sk_sp<SkSpecialImage> SkAlphaThresholdImageFilter::onFilterImage(const Context& 
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                          dst);
+                                          dst, ctx.surfaceProps());
 }

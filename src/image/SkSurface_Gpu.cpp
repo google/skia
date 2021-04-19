@@ -14,6 +14,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkSurfacePriv.h"
 #include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
@@ -418,8 +419,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 
     auto sdc = GrSurfaceDrawContext::Make(
             context, grColorType, c.refColorSpace(), SkBackingFit::kExact,
-            c.dimensions(), c.sampleCount(), GrMipmapped(c.isMipMapped()), c.isProtected(),
-            c.origin(), budgeted, &c.surfaceProps());
+            c.dimensions(), c.surfaceProps(), c.sampleCount(), GrMipmapped(c.isMipMapped()),
+            c.isProtected(), c.origin(), budgeted);
     if (!sdc) {
         return nullptr;
     }
@@ -530,8 +531,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* context,
     }
 
     auto sdc = GrSurfaceDrawContext::MakeFromBackendTexture(
-            context, grColorType, std::move(colorSpace), tex, sampleCnt, origin, props,
-            std::move(releaseHelper));
+            context, grColorType, std::move(colorSpace), tex, sampleCnt, origin,
+            SkSurfacePropsCopyOrDefault(props), std::move(releaseHelper));
     if (!sdc) {
         return nullptr;
     }
@@ -588,7 +589,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     }
     auto sdc = GrSurfaceDrawContext::MakeFromBackendTexture(
             context, oldSDC->colorInfo().colorType(), std::move(colorSpace), backendTexture,
-            sampleCnt, origin, &this->props(), std::move(releaseHelper));
+            sampleCnt, origin, this->props(), std::move(releaseHelper));
     if (!sdc) {
         return false;
     }
@@ -644,7 +645,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* cont
                                                                  std::move(colorSpace),
                                                                  rt,
                                                                  origin,
-                                                                 props,
+                                                                 SkSurfacePropsCopyOrDefault(props),
                                                                  std::move(releaseHelper));
     if (!sdc) {
         return nullptr;

@@ -184,6 +184,10 @@ static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext*
                                                              const SkMatrix& origViewMatrix,
                                                              const GrStyledShape& shape,
                                                              int sampleCnt) {
+    // We cache blur masks. Use default surface props here so we can use the same cached mask
+    // regardless of the final dst surface.
+    SkSurfaceProps defaultSurfaceProps;
+
     // Use GrResourceProvider::MakeApprox to implement our own approximate size matching, but demand
     // a "SkBackingFit::kExact" size match on the actual render target. We do this because the
     // filter will reach outside the src bounds, so we need to pre-clear these values to ensure a
@@ -194,9 +198,11 @@ static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext*
     // the same. We should offset our filter within the render target and expand the size as needed
     // to guarantee at least 1px of padding on all sides.
     auto approxSize = GrResourceProvider::MakeApprox(maskRect.size());
-    auto rtContext = GrSurfaceDrawContext::MakeWithFallback(
-            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, approxSize, sampleCnt,
-            GrMipmapped::kNo, GrProtected::kNo, kMaskOrigin);
+    auto rtContext = GrSurfaceDrawContext::MakeWithFallback(context, GrColorType::kAlpha_8, nullptr,
+                                                            SkBackingFit::kExact, approxSize,
+                                                            defaultSurfaceProps, sampleCnt,
+                                                            GrMipmapped::kNo, GrProtected::kNo,
+                                                            kMaskOrigin);
     if (!rtContext) {
         return nullptr;
     }

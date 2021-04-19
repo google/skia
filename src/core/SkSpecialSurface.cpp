@@ -16,7 +16,7 @@
  ///////////////////////////////////////////////////////////////////////////////
 class SkSpecialSurface_Base : public SkSpecialSurface {
 public:
-    SkSpecialSurface_Base(const SkIRect& subset, const SkSurfaceProps* props)
+    SkSpecialSurface_Base(const SkIRect& subset, const SkSurfaceProps& props)
         : INHERITED(subset, props)
         , fCanvas(nullptr) {
     }
@@ -42,8 +42,8 @@ static SkSpecialSurface_Base* as_SB(SkSpecialSurface* surface) {
 }
 
 SkSpecialSurface::SkSpecialSurface(const SkIRect& subset,
-                                   const SkSurfaceProps* props)
-    : fProps(SkSurfacePropsCopyOrDefault(props).flags(), kUnknown_SkPixelGeometry)
+                                   const SkSurfaceProps& props)
+    : fProps(props.flags(), kUnknown_SkPixelGeometry)
     , fSubset(subset) {
     SkASSERT(fSubset.width() > 0);
     SkASSERT(fSubset.height() > 0);
@@ -67,7 +67,7 @@ public:
     SkSpecialSurface_Raster(const SkImageInfo& info,
                             sk_sp<SkPixelRef> pr,
                             const SkIRect& subset,
-                            const SkSurfaceProps* props)
+                            const SkSurfaceProps& props)
         : INHERITED(subset, props) {
         SkASSERT(info.width() == pr->width() && info.height() == pr->height());
         fBitmap.setInfo(info, info.minRowBytes());
@@ -83,7 +83,7 @@ public:
     ~SkSpecialSurface_Raster() override { }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
-        return SkSpecialImage::MakeFromRaster(this->subset(), fBitmap, &this->props());
+        return SkSpecialImage::MakeFromRaster(this->subset(), fBitmap, this->props());
     }
 
 private:
@@ -93,7 +93,7 @@ private:
 };
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, SkBitmap& bm,
-                                                         const SkSurfaceProps* props) {
+                                                         const SkSurfaceProps& props) {
     if (subset.isEmpty() || !SkSurfaceValidateRasterInfo(bm.info(), bm.rowBytes())) {
         return nullptr;
     }
@@ -101,7 +101,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, 
 }
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
-                                                     const SkSurfaceProps* props) {
+                                                     const SkSurfaceProps& props) {
     if (!SkSurfaceValidateRasterInfo(info)) {
         return nullptr;
     }
@@ -127,7 +127,7 @@ public:
     SkSpecialSurface_Gpu(GrRecordingContext* context,
                          std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext,
                          int width, int height, const SkIRect& subset)
-            : INHERITED(subset, &surfaceDrawContext->surfaceProps())
+            : INHERITED(subset, surfaceDrawContext->surfaceProps())
             , fReadView(surfaceDrawContext->readSurfaceView()) {
         auto device = SkGpuDevice::Make(context, std::move(surfaceDrawContext),
                                         SkGpuDevice::kUninit_InitContents);
@@ -155,7 +155,7 @@ public:
                                                    kNeedNewImageUniqueID_SpecialImage,
                                                    std::move(fReadView), ct,
                                                    fCanvas->imageInfo().refColorSpace(),
-                                                   &this->props());
+                                                   this->props());
     }
 
 private:
@@ -167,14 +167,14 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* c
                                                            int width, int height,
                                                            GrColorType colorType,
                                                            sk_sp<SkColorSpace> colorSpace,
-                                                           const SkSurfaceProps* props) {
+                                                           const SkSurfaceProps& props) {
     if (!context) {
         return nullptr;
     }
     auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-            context, colorType, std::move(colorSpace), SkBackingFit::kApprox, {width, height}, 1,
-            GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
-            props);
+            context, colorType, std::move(colorSpace), SkBackingFit::kApprox, {width, height},
+            props, 1, GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted::kYes);
     if (!surfaceDrawContext) {
         return nullptr;
     }

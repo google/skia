@@ -18,8 +18,8 @@
 static const int kSize = 64;
 
 static std::unique_ptr<GrSurfaceDrawContext> get_rtc(GrRecordingContext* rContext) {
-    return GrSurfaceDrawContext::Make(
-            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kSize, kSize});
+    return GrSurfaceDrawContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
+                                      SkBackingFit::kExact, {kSize, kSize}, SkSurfaceProps());
 }
 
 static void check_instantiation_status(skiatest::Reporter* reporter,

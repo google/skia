@@ -194,7 +194,7 @@ bool SkDeferredDisplayListRecorder::init() {
     auto rtc = std::make_unique<GrSurfaceDrawContext>(fContext.get(), std::move(readView),
                                                       std::move(writeView), grColorType,
                                                       fCharacterization.refColorSpace(),
-                                                      &fCharacterization.surfaceProps());
+                                                      fCharacterization.surfaceProps());
     fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(rtc));
     return SkToBool(fSurface.get());
 }

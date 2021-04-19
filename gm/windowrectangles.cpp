@@ -228,7 +228,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrSurfa
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
     auto maskRTC = GrSurfaceDrawContext::MakeWithFallback(
             ctx, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact,
-            {kCoverRect.width() + padRight, kCoverRect.height() + padBottom});
+            {kCoverRect.width() + padRight, kCoverRect.height() + padBottom}, SkSurfaceProps());
     if (!maskRTC) {
         return;
     }

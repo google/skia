@@ -62,7 +62,8 @@ static bool check_rect(GrDirectContext* dContext, GrSurfaceDrawContext* rtc, con
 
 std::unique_ptr<GrSurfaceDrawContext> newRTC(GrRecordingContext* rContext, int w, int h) {
     return GrSurfaceDrawContext::Make(
-            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {w, h});
+            rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {w, h},
+            SkSurfaceProps());
 }
 
 static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {

@@ -19,7 +19,7 @@
 
 std::unique_ptr<GrSurfaceDrawContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         sk_sp<GrSurfaceProxy> proxy, GrSurfaceOrigin origin, GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props) {
+        sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps& props) {
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
     // we have to manually ensure it is allocated here.
     if (!this->instatiateProxy(proxy.get())) {
@@ -32,9 +32,8 @@ std::unique_ptr<GrSurfaceDrawContext> GrOnFlushResourceProvider::makeRenderTarge
         return nullptr;
     }
 
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-            context, colorType, std::move(colorSpace), std::move(proxy),
-            origin, props, true);
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(context, colorType, std::move(colorSpace),
+                                                         std::move(proxy), origin, props, true);
 
     if (!surfaceDrawContext) {
         return nullptr;

@@ -57,7 +57,7 @@ static void test_surface(const sk_sp<SkSpecialSurface>& surf,
 DEF_TEST(SpecialSurface_Raster, reporter) {
 
     SkImageInfo info = SkImageInfo::MakeN32(kSmallerSize, kSmallerSize, kOpaque_SkAlphaType);
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRaster(info));
+    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRaster(info, SkSurfaceProps()));
 
     test_surface(surf, reporter, 0);
 }
@@ -69,7 +69,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 
     const SkIRect subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeFromBitmap(subset, bm));
+    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeFromBitmap(subset, bm, SkSurfaceProps()));
 
     test_surface(surf, reporter, kPad);
 
@@ -84,7 +84,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
             continue;
         }
         sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(
-                direct, kSmallerSize, kSmallerSize, colorType, nullptr));
+                direct, kSmallerSize, kSmallerSize, colorType, nullptr, SkSurfaceProps()));
         test_surface(surf, reporter, 0);
     }
 }

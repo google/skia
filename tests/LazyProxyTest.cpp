@@ -207,11 +207,12 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     for (bool nullTexture : {false, true}) {
         LazyProxyTest test(reporter);
         ctx->priv().addOnFlushCallbackObject(&test);
-        auto rtc = GrSurfaceDrawContext::Make(
-                ctx.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {100, 100});
+        auto rtc = GrSurfaceDrawContext::Make(ctx.get(), GrColorType::kRGBA_8888, nullptr,
+                                              SkBackingFit::kExact, {100, 100}, SkSurfaceProps());
         REPORTER_ASSERT(reporter, rtc);
-        auto mockAtlas = GrSurfaceDrawContext::Make(
-                ctx.get(), GrColorType::kAlpha_F16, nullptr, SkBackingFit::kExact, {10, 10});
+        auto mockAtlas = GrSurfaceDrawContext::Make(ctx.get(), GrColorType::kAlpha_F16, nullptr,
+                                                    SkBackingFit::kExact, {10, 10},
+                                                    SkSurfaceProps());
         REPORTER_ASSERT(reporter, mockAtlas);
         LazyProxyTest::Clip clip(&test, mockAtlas->asTextureProxy());
         rtc->addDrawOp(&clip,
@@ -382,8 +383,8 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     sk_sp<GrDirectContext> ctx = GrDirectContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     for (bool failInstantiation : {false, true}) {
-        auto rtc = GrSurfaceDrawContext::Make(
-                ctx.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {100, 100});
+        auto rtc = GrSurfaceDrawContext::Make(ctx.get(), GrColorType::kRGBA_8888, nullptr,
+                                              SkBackingFit::kExact, {100, 100}, SkSurfaceProps());
         REPORTER_ASSERT(reporter, rtc);
 
         rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));

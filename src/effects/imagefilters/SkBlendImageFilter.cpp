@@ -298,7 +298,8 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
                                                kNeedNewImageUniqueID_SpecialImage,
                                                surfaceFillContext->readSurfaceView(),
                                                surfaceFillContext->colorInfo().colorType(),
-                                               surfaceFillContext->colorInfo().refColorSpace());
+                                               surfaceFillContext->colorInfo().refColorSpace(),
+                                               ctx.surfaceProps());
 }
 
 #endif

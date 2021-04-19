@@ -193,7 +193,7 @@ static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEn
                                                               skiatest::Reporter* reporter) {
     auto surfaceContext = GrSurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, encoding_as_color_space(contextEncoding),
-            SkBackingFit::kExact, {kW, kH}, 1, GrMipmapped::kNo, GrProtected::kNo,
+            SkBackingFit::kExact, {kW, kH}, SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo,
             kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);
     if (!surfaceContext) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));

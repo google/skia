@@ -95,7 +95,7 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::Make(GrRecordingCont
                                           writeSwizzle,
                                           origin,
                                           budgeted,
-                                          /* surface props*/ nullptr);
+                                          SkSurfaceProps());
     }
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(format,
@@ -134,12 +134,12 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::Make(GrRecordingCont
                                           info.refColorSpace(),
                                           fit,
                                           info.dimensions(),
+                                          SkSurfaceProps(),
                                           sampleCount,
                                           mipmapped,
                                           isProtected,
                                           origin,
-                                          budgeted,
-                                          nullptr);
+                                          budgeted);
     }
     GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(info.colorType(),
                                                                              GrRenderable::kYes);
@@ -182,12 +182,12 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::MakeWithFallback(
                                                       info.refColorSpace(),
                                                       fit,
                                                       info.dimensions(),
+                                                      SkSurfaceProps(),
                                                       sampleCount,
                                                       mipmapped,
                                                       isProtected,
                                                       origin,
-                                                      budgeted,
-                                                      nullptr);
+                                                      budgeted);
     }
     auto [ct, _] = GetFallbackColorTypeAndFormat(context, info.colorType(), sampleCount);
     if (ct == GrColorType::kUnknown) {
@@ -220,7 +220,7 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::MakeFromBackendTextu
                                                             tex,
                                                             sampleCount,
                                                             origin,
-                                                            nullptr,
+                                                            SkSurfaceProps(),
                                                             std::move(releaseHelper));
     }
     const GrBackendFormat& format = tex.getBackendFormat();

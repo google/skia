@@ -83,9 +83,9 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     GrStyle style(SkStrokeRec::kFill_InitStyle);
 
     {
-        auto rtc = GrSurfaceDrawContext::Make(
-            dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
-            {kBigSize/2 + 1, kBigSize/2 + 1});
+        auto rtc = GrSurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                              SkBackingFit::kApprox,
+                                              {kBigSize/2 + 1, kBigSize/2 + 1}, SkSurfaceProps());
 
         rtc->clear(SK_PMColor4fBLACK);
 
@@ -101,8 +101,9 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     }
 
     {
-        auto rtc = GrSurfaceDrawContext::Make(
-            dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kBigSize, kBigSize});
+        auto rtc = GrSurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                              SkBackingFit::kExact, {kBigSize, kBigSize},
+                                              SkSurfaceProps());
 
         rtc->clear(SK_PMColor4fBLACK);
 

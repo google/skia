@@ -160,8 +160,8 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
     // they need to be exact.
     return GrSurfaceDrawContext::Make(
             context, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
-            SkBackingFit::kExact, origInfo.dimensions(), sampleCount, mipmapped, GrProtected::kNo,
-            origin, budgeted, surfaceProps);
+            SkBackingFit::kExact, origInfo.dimensions(), SkSurfacePropsCopyOrDefault(surfaceProps),
+            sampleCount, mipmapped, GrProtected::kNo, origin, budgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -681,7 +681,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
                                                std::move(view),
                                                SkColorTypeToGrColorType(bitmap.colorType()),
                                                bitmap.refColorSpace(),
-                                               &this->surfaceProps());
+                                               this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
@@ -696,7 +696,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
                                                    std::move(view),
                                                    ct,
                                                    image->refColorSpace(),
-                                                   &this->surfaceProps());
+                                                   this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
         SkBitmap bm;
 
@@ -747,7 +747,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
                                                std::move(view),
                                                ct,
                                                this->imageInfo().refColorSpace(),
-                                               &this->surfaceProps());
+                                               this->surfaceProps());
 }
 
 void SkGpuDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& sampling,
@@ -981,10 +981,10 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     auto sdc = GrSurfaceDrawContext::MakeWithFallback(
             fContext.get(), SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
-            fSurfaceDrawContext->colorInfo().refColorSpace(), fit, cinfo.fInfo.dimensions(),
+            fSurfaceDrawContext->colorInfo().refColorSpace(), fit, cinfo.fInfo.dimensions(), props,
             fSurfaceDrawContext->numSamples(), GrMipmapped::kNo,
             fSurfaceDrawContext->asSurfaceProxy()->isProtected(), kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted::kYes, &props);
+            SkBudgeted::kYes);
     if (!sdc) {
         return nullptr;
     }

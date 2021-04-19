@@ -397,7 +397,8 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
                                                kNeedNewImageUniqueID_SpecialImage,
                                                surfaceFillContext->readSurfaceView(),
                                                surfaceFillContext->colorInfo().colorType(),
-                                               surfaceFillContext->colorInfo().refColorSpace());
+                                               surfaceFillContext->colorInfo().refColorSpace(),
+                                               ctx.surfaceProps());
 }
 #endif
 

@@ -63,7 +63,7 @@ public:
                                                       sk_sp<SkColorSpace>,
                                                       sk_sp<GrSurfaceProxy>,
                                                       GrSurfaceOrigin,
-                                                      const SkSurfaceProps*,
+                                                      const SkSurfaceProps&,
                                                       bool flushTimeOpsTask = false);
 
     /* Uses the default texture format for the color type */
@@ -72,12 +72,12 @@ public:
                                                       sk_sp<SkColorSpace>,
                                                       SkBackingFit,
                                                       SkISize dimensions,
+                                                      const SkSurfaceProps&,
                                                       int sampleCnt = 1,
                                                       GrMipmapped = GrMipmapped::kNo,
                                                       GrProtected = GrProtected::kNo,
                                                       GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-                                                      SkBudgeted = SkBudgeted::kYes,
-                                                      const SkSurfaceProps* = nullptr);
+                                                      SkBudgeted = SkBudgeted::kYes);
 
     /**
      * Takes custom swizzles rather than determining swizzles from color type and format.
@@ -95,7 +95,7 @@ public:
                                                       GrSwizzle writeSwizzle,
                                                       GrSurfaceOrigin,
                                                       SkBudgeted,
-                                                      const SkSurfaceProps*);
+                                                      const SkSurfaceProps&);
 
     // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
     // fails. The fallback GrColorType will have at least the number of channels and precision per
@@ -107,12 +107,12 @@ public:
             sk_sp<SkColorSpace>,
             SkBackingFit,
             SkISize dimensions,
+            const SkSurfaceProps&,
             int sampleCnt = 1,
             GrMipmapped = GrMipmapped::kNo,
             GrProtected = GrProtected::kNo,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes,
-            const SkSurfaceProps* = nullptr);
+            SkBudgeted = SkBudgeted::kYes);
 
     // These match the definitions in SkSurface & GrSurface.h, for whence they came
     typedef void* ReleaseContext;
@@ -121,7 +121,7 @@ public:
     // Creates a GrSurfaceDrawContext that wraps the passed in GrBackendTexture.
     static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendTexture(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
-            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*,
+            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps&,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
     static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendRenderTarget(
@@ -130,19 +130,19 @@ public:
             sk_sp<SkColorSpace>,
             const GrBackendRenderTarget&,
             GrSurfaceOrigin,
-            const SkSurfaceProps*,
+            const SkSurfaceProps&,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
     static std::unique_ptr<GrSurfaceDrawContext> MakeFromVulkanSecondaryCB(
             GrRecordingContext*, const SkImageInfo&, const GrVkDrawableInfo&,
-            const SkSurfaceProps*);
+            const SkSurfaceProps&);
 
     GrSurfaceDrawContext(GrRecordingContext*,
                          GrSurfaceProxyView readView,
                          GrSurfaceProxyView writeView,
                          GrColorType,
                          sk_sp<SkColorSpace>,
-                         const SkSurfaceProps*,
+                         const SkSurfaceProps&,
                          bool flushTimeOpsTask = false);
 
     ~GrSurfaceDrawContext() override;

@@ -62,7 +62,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
                                                                     std::move(writeView),
                                                                     info.colorType(),
                                                                     info.refColorSpace(),
-                                                                    /*surface props*/ nullptr);
+                                                                    SkSurfaceProps());
         } else {
             surfaceContext = std::make_unique<GrSurfaceFillContext>(context,
                                                                     std::move(readView),
