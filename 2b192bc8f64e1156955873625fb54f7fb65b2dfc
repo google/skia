@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdf7bc34_ef2e95da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-19T14:49:21Z",
+      "side": 1,
+      "message": "All the SkSpecialImage, SkDevice, and SkImageFilter related changes look good to me. I\u0027ll defer to Brian on the maskfilter blur and rrect blur, but it does seem like the surface flags should be put into the key if they could change.",
+      "revId": "2b192bc8f64e1156955873625fb54f7fb65b2dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ed7a117f_62a2bb88",
@@ -31,6 +48,29 @@
       "writtenOn": "2021-04-19T14:03:57Z",
       "side": 1,
       "message": "Are we going to draw differently with different props? If so then I think we need to include the props in the mask\u0027s key. If not, we should just use default props.",
+      "revId": "2b192bc8f64e1156955873625fb54f7fb65b2dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "905b3ebb_a77e9fa8",
+        "filename": "tests/ImageFilterCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-19T14:49:21Z",
+      "side": 1,
+      "message": "nit wrapping",
+      "range": {
+        "startLine": 274,
+        "startChar": 96,
+        "endLine": 274,
+        "endChar": 110
+      },
       "revId": "2b192bc8f64e1156955873625fb54f7fb65b2dfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
