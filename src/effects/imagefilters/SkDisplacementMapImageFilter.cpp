@@ -336,7 +336,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
                                                    kNeedNewImageUniqueID_SpecialImage,
                                                    surfaceFillContext->readSurfaceView(),
                                                    surfaceFillContext->colorInfo().colorType(),
-                                                   surfaceFillContext->colorInfo().refColorSpace());
+                                                   surfaceFillContext->colorInfo().refColorSpace(),
+                                                   ctx.surfaceProps());
     }
 #endif
 
@@ -369,7 +370,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                          dst);
+                                          dst, ctx.surfaceProps());
 }
 
 SkRect SkDisplacementMapImageFilter::computeFastBounds(const SkRect& src) const {

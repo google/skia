@@ -57,12 +57,18 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                const SkISize& dimensions,
                                float xformedSigma) {
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
+
+    // We cache blur masks. Use default surface props here so we can use the same cached mask
+    // regardless of the final dst surface.
+    SkSurfaceProps defaultSurfaceProps;
+
     std::unique_ptr<GrSurfaceDrawContext> rtc =
             GrSurfaceDrawContext::MakeWithFallback(dContext,
                                                    GrColorType::kAlpha_8,
                                                    nullptr,
                                                    SkBackingFit::kExact,
                                                    dimensions,
+                                                   defaultSurfaceProps,
                                                    1,
                                                    GrMipmapped::kNo,
                                                    GrProtected::kNo,
