@@ -16,6 +16,23 @@
       "message": "The 3D bump-mapped cube was the only sample that ever used this feature. I updated the native version to work without it. The web-versions were going to be quite a bit harder to convert, so I simply removed it there. (CK doesn\u0027t have SkRuntimeShaderBuilder, which is something we ought to look at).",
       "revId": "99fef6fb20c0ff81163984e86ea59468c976a996",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84ea70cd_12338b95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-19T18:34:40Z",
+      "side": 1,
+      "message": "... and to be clear: If we ever want something like this, it can be added back with a more well-defined behavior. I\u0027m increasingly leaning towards features like this existing only in the C++ API (not as part of the language). For example: Supplying a sentinel value for a uniform when you call makeShader, that binds the uniform to a marked matrix. That stops the SkSL language spec (which may soon be long-lived) from dictating and necessitating Skia features that become hard to maintain or remove.",
+      "revId": "99fef6fb20c0ff81163984e86ea59468c976a996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
