@@ -38,7 +38,7 @@ OpDecorate %66 RelaxedPrecision
 OpDecorate %67 RelaxedPrecision
 OpDecorate %_arr_float_int_2 ArrayStride 16
 OpDecorate %_arr_float_int_4 ArrayStride 16
-OpDecorate %108 RelaxedPrecision
+OpDecorate %113 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -190,6 +190,17 @@ OpBranch %107
 %106 = OpLabel
 OpBranch %103
 %107 = OpLabel
-%108 = OpLoad %v4float %result
-OpReturnValue %108
+OpBranch %108
+%108 = OpLabel
+OpLoopMerge %112 %111 None
+OpBranch %109
+%109 = OpLabel
+OpBranch %110
+%110 = OpLabel
+OpBranch %112
+%111 = OpLabel
+OpBranch %108
+%112 = OpLabel
+%113 = OpLoad %v4float %result
+OpReturnValue %113
 OpFunctionEnd

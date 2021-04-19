@@ -32,6 +32,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
             result.w = e[0] * f;
         }
     }
+    {
+        for (; ; ) break;
+    }
     for (; ; ) break;
     _out.sk_FragColor = result;
     return _out;

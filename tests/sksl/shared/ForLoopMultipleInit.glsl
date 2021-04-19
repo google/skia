@@ -24,6 +24,9 @@ vec4 main() {
             result.w = e[0] * f;
         }
     }
+    {
+        for (; ; ) break;
+    }
     for (; ; ) break;
     return result;
 }

@@ -117,6 +117,7 @@ sksl_error_tests = [
   "/sksl/errors/EnumValueMustBeConstInt.sksl",
   "/sksl/errors/ErrorsInDeadCode.sksl",
   "/sksl/errors/FloatRemainder.sksl",
+  "/sksl/errors/ForInitStmt.sksl",
   "/sksl/errors/ForTypeMismatch.sksl",
   "/sksl/errors/GenericArgumentMismatch.sksl",
   "/sksl/errors/IfTypeMismatch.sksl",
