@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5aff4def_c76f95eb",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-19T14:10:59Z",
+      "side": 1,
+      "message": "WDYT about\n\n kLast_Flag \u003d kUseDeviceIndependentFonts_Flag\n\nand then either computing kAll_Flags privately, or just setting the DMSAA flag using kLast \u003c\u003c 1? I suggest only because of a very mild worry that someone would actually use kAll but probably not kLast.",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
