@@ -1,0 +1,2 @@
+in s { int I; };
+void main() {}
