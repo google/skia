@@ -912,12 +912,13 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				}
 			} else if b.os("ChromeOS") {
 				version, ok := map[string]string{
-					"MaliT604":           "10575.22.0",
-					"MaliT764":           "10575.22.0",
-					"MaliT860":           "10575.22.0",
-					"PowerVRGX6250":      "10575.22.0",
-					"TegraK1":            "10575.22.0",
-					"IntelHDGraphics615": "10575.22.0",
+					"MaliT604":            "10575.22.0",
+					"MaliT764":            "10575.22.0",
+					"MaliT860":            "10575.22.0",
+					"PowerVRGX6250":       "10575.22.0",
+					"TegraK1":             "10575.22.0",
+					"IntelHDGraphics615":  "10575.22.0",
+					"IntelUHDGraphics605": "13729.56.0",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in ChromeOS GPU mapping.", b.parts["cpu_or_gpu_value"])
