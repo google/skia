@@ -1,21 +1,30 @@
 // Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
+#include "experimental/ddlbench/Cmds.h"
+#include "experimental/ddlbench/Fake.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkSLDefines.h"
 #include "src/core/SkOSFile.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/DDLPromiseImageHelper.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
+
+#include <algorithm>
+
+using sk_gpu_test::GrContextFactory;
+
+#if 0
+#include "include/core/SkPicture.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkSLDefines.h"
+#include "tools/DDLPromiseImageHelper.h"
 #include "tools/gpu/TestContext.h"
 
 #include <chrono>
@@ -26,13 +35,14 @@ using hires_clock = std::chrono::high_resolution_clock;
 using duration = std::chrono::nanoseconds;
 
 using sk_gpu_test::ContextInfo;
-using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
 
 static DEFINE_int(numRecordingThreads, 1, "number of DDL recording threads");
 static DEFINE_int(numTilesX, 3, "number of tiles horizontally");
 static DEFINE_int(numTilesY, 3, "number of tiles vertically");
 static DEFINE_int(numSamples, 1, "number of MSAA samples");
+#endif
+
 static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 static DEFINE_string(src, "", "input .skp file");
 
@@ -45,6 +55,7 @@ static void exitf(const char* format, ...) {
     exit(1);
 }
 
+#if 0
 // Each thread holds this chunk of data thread_locally
 struct ThreadInfo {
     ThreadInfo() = default;
@@ -283,6 +294,7 @@ static sk_sp<SkPicture> create_shared_skp(const char* src,
 
     return promiseImageHelper->recreateSKP(dContext, skp.get());
 }
+#endif
 
 static void check_params(GrDirectContext* dContext,
                          int width, int height, SkColorType ct, SkAlphaType at, int numSamples) {
@@ -311,30 +323,116 @@ static bool mkdir_p(const SkString& dirname) {
     return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
 }
 
-static void maybe_save_file(SkSurface* surface) {
-    if (FLAGS_png.isEmpty()) {
-        return;
+static void save_files(int testID, const SkBitmap& expected, const SkBitmap& actual) {
+    char name[64];
+
+    _snprintf(name, 64, "c://src//bugs//expected%d.png", testID);
+    name[63] = '\0';
+
+    if (!mkdir_p(SkOSPath::Dirname(name))) {
+        exitf("failed to create directory for png \"%s\"", name);
+    }
+    if (!ToolUtils::EncodeImageToFile(name, expected, SkEncodedImageFormat::kPNG, 100)) {
+        exitf("failed to save png to \"%s\"", name);
     }
 
-    SkBitmap bmp;
-    bmp.allocPixels(surface->imageInfo());
-    if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
-        exitf("failed to read canvas pixels for png");
+    _snprintf(name, 64, "c://src//bugs//actual%d.png", testID);
+    name[63] = '\0';
+
+    if (!ToolUtils::EncodeImageToFile(name, actual, SkEncodedImageFormat::kPNG, 100)) {
+        exitf("failed to save png to \"%s\"", name);
     }
-    if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
-        exitf("failed to create directory for png \"%s\"", FLAGS_png[0]);
+}
+
+// unit test - exercise sorting behavior
+static void key_test() {
+    Key k;
+    k.dump();
+
+    Key k2(2, 1);
+    k2.dump();
+
+}
+
+static void check_order(const std::vector<int>& actualOrder,
+                        const std::vector<int>& expectedOrder) {
+    if (expectedOrder.size() != actualOrder.size()) {
+        exitf("Op count mismatch. Expected %d - got %d\n",
+              expectedOrder.size(),
+              actualOrder.size());
     }
-    if (!ToolUtils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
-        exitf("failed to save png to \"%s\"", FLAGS_png[0]);
+
+    if (expectedOrder != actualOrder) {
+        SkDebugf("order mismatch:\n");
+        SkDebugf("E %d: ", expectedOrder.size());
+        for (auto t : expectedOrder) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
+
+        SkDebugf("A %d: ", actualOrder.size());
+        for (auto t : actualOrder) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
     }
+}
+
+typedef int (*PFTest)(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder);
+
+static void sort_test(PFTest testcase) {
+    std::vector<const Cmd*> test;
+    std::vector<int> expectedOrder;
+    int testID = testcase(&test, &expectedOrder);
+
+
+    SkBitmap expectedBM;
+    expectedBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    expectedBM.eraseColor(SK_ColorBLACK);
+    SkCanvas real(expectedBM);
+
+    SkBitmap actualBM;
+    actualBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    actualBM.eraseColor(SK_ColorBLACK);
+
+    FakeCanvas fake(actualBM);
+    for (auto c : test) {
+        c->execute(&fake);
+        c->execute(&real);
+    }
+
+    fake.finalize();
+
+    std::vector<int> actualOrder = fake.getOrder();
+    check_order(actualOrder, expectedOrder);
+
+    save_files(testID, expectedBM, actualBM);
+}
+
+static int test1(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    expectedOrder->push_back(0);
+    expectedOrder->push_back(1);
+
+    test->push_back(new RectCmd(0, SkIRect::MakeXYWH(10, 10 , 100, 100), SK_ColorRED));
+    test->push_back(new RectCmd(1, SkIRect::MakeXYWH(50, 50 , 100, 100), SK_ColorGREEN));
+    return 1;
+}
+
+static int test2(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    expectedOrder->push_back(0);
+    expectedOrder->push_back(1);
+
+    test->push_back(new RectCmd(0, SkIRect::MakeXYWH(10, 10 , 100, 100), SK_ColorRED));
+    test->push_back(new RectCmd(1, SkIRect::MakeXYWH(50, 50 , 100, 100), SK_ColorGREEN));
+    return 2;
 }
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_src.count() != 1) {
-        exitf("Missing input file");
-    }
+//    if (FLAGS_src.count() != 1) {
+//        exitf("Missing input file");
+//    }
 
     // TODO: get these from the command line flags
     const GrContextFactory::ContextType kContextType = GrContextFactory::kGL_ContextType;
@@ -347,6 +445,12 @@ int main(int argc, char** argv) {
 
     GrContextFactory factory(kContextOptions);
 
+    key_test();
+    sort_test(test1);
+    sort_test(test2);
+
+    SkDebugf("done\n");
+#if 0
     std::unique_ptr<ThreadInfo> mainContext(new ThreadInfo);
     std::unique_ptr<ThreadInfo[]> utilityContexts(new ThreadInfo[FLAGS_numRecordingThreads]);
 
@@ -435,6 +539,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
         utilityContexts[i].dump();
     }
+#endif
 
     return 0;
 }
