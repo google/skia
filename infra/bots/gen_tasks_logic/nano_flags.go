@@ -254,6 +254,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		args = append(args, "--reduceOpsTaskSplitting", "true")
 	}
+	if b.model("NUC7i5BNK") {
+		args = append(args, "--gpuResourceCacheLimit", "16777216")
+	}
 
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
