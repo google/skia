@@ -113,6 +113,9 @@ def skpbench_steps(api):
   if api.properties.get('reduce_ops_task_splitting') == 'true':
     skpbench_args += ['--reduceOpsTaskSplitting']
 
+  if api.properties.get('gpu_resource_cache_limit'):
+    skpbench_args += ['--gpuResourceCacheLimit', api.properties.get('gpu_resource_cache_limit')]
+
   api.run(api.python, 'skpbench',
       script=skpbench_dir.join('skpbench.py'),
       args=skpbench_args)
@@ -211,7 +214,8 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
-                   reduce_ops_task_splitting='true') +
+                   reduce_ops_task_splitting='true',
+                   gpu_resource_cache_limit='16777216') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',

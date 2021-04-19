@@ -95,6 +95,9 @@ __argparse.add_argument('--internalSamples',
 __argparse.add_argument('srcs',
   nargs='+',
   help=".skp files or directories to expand for .skp files, and/or .svg files")
+__argparse.add_argument('--gpuResourceCacheLimit',
+  type=int, default=-1,
+  help="Maximum number of bytes to use for budgeted GPU resources.")
 
 FLAGS = __argparse.parse_args()
 if FLAGS.adb:
@@ -166,6 +169,9 @@ class SKPBench:
 
   if FLAGS.reduceOpsTaskSplitting:
     ARGV.extend(['--reduceOpsTaskSplitting'])
+
+  if FLAGS.gpuResourceCacheLimit:
+    ARGV.extend(['--gpuResourceCacheLimit', str(FLAGS.gpuResourceCacheLimit)])
 
   if FLAGS.adb:
     if FLAGS.device_serial is None:

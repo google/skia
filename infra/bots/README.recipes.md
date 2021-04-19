@@ -463,7 +463,7 @@ Recipe for the Skia RecreateSKPs Bot.
 
 [DEPS](/infra/bots/recipes/skpbench.py#12): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/skpbench.py#155)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/skpbench.py#158)(api):**
 
 &mdash; **def [skpbench\_steps](/infra/bots/recipes/skpbench.py#41)(api):**
 
