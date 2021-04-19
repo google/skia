@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c808272_e4a74da7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-19T13:58:37Z",
+      "side": 1,
+      "message": "Reworked to grab main (and the sample coords parameter) early, then use the VariableCounts to decide if they\u0027re referenced and written. Still doesn\u0027t solve the problem with us thinking they\u0027re referenced when all uses get turned into pass-through samplings, but I\u0027m okay with that for now - it\u0027s a minor perf problem, compared to the one that this fixes.",
+      "revId": "150e385de49626886397da3a497e689fa3ea9b44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
