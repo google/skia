@@ -15,7 +15,6 @@ layout (
     input_attachment_index = 1,
     max_vertices = 1,
     invocations = 1,
-    marker = one,
     when = one,
     ctype = int)
 void on_return() {}
@@ -38,6 +37,5 @@ layout (
     input_attachment_index = 1,
     max_vertices = 1,
     invocations = 1,
-    marker = one,
     when = one,
     ctype = int) float x) {}

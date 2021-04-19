@@ -1,5 +1,4 @@
 ### Compilation failed:
 
-error: 5: 'marker' is only permitted in runtime shaders
-error: 8: unknown identifier 'sk_FragCoord'
-2 errors
+error: 6: unknown identifier 'sk_FragCoord'
+1 error

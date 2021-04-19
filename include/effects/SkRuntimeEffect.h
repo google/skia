@@ -59,9 +59,7 @@ public:
 
         enum Flags {
             kArray_Flag         = 0x1,
-            kMarker_Flag        = 0x2,
-            kMarkerNormals_Flag = 0x4,
-            kSRGBUnpremul_Flag  = 0x8,
+            kSRGBUnpremul_Flag  = 0x2,
         };
 
         SkString  name;
@@ -69,7 +67,6 @@ public:
         Type      type;
         int       count;
         uint32_t  flags;
-        uint32_t  marker;
 
         bool isArray() const { return SkToBool(this->flags & kArray_Flag); }
         size_t sizeInBytes() const;

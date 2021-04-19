@@ -1,8 +1,6 @@
-// Runtime color filters may not use layout(marker), or sk_FragCoord
+// Runtime color filters may not use sk_FragCoord
 
-// Expect 2 errors
-
-layout(marker=ctm) uniform float4x4 ctm;
+// Expect 1 error
 
 half4 main(half4 color) {
     return sk_FragCoord.xy01;

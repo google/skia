@@ -72,6 +72,14 @@ static SkM44 inv(const SkM44& m) {
     return inverse;
 }
 
+// Compute the inverse transpose (of the upper-left 3x3) of a matrix, used to transform vectors
+static SkM44 normals(SkM44 m) {
+    m.setRow(3, {0, 0, 0, 1});
+    m.setCol(3, {0, 0, 0, 1});
+    SkAssertResult(m.invert(&m));
+    return m.transpose();
+}
+
 class Sample3DView : public Sample {
 protected:
     float   fNear = 0.05f;
@@ -81,8 +89,6 @@ protected:
     SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
     SkV3    fCOA { 0, 0, 0 };
     SkV3    fUp  { 0, 1, 0 };
-
-    const char* kLocalToWorld = "local_to_world";
 
 public:
     void concatCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
@@ -258,7 +264,8 @@ public:
         return this->Sample3DView::onChar(uni);
     }
 
-    virtual void drawContent(SkCanvas* canvas, SkColor, int index, bool drawFront) = 0;
+    virtual void drawContent(
+            SkCanvas* canvas, SkColor, int index, bool drawFront, const SkM44& localToWorld) = 0;
 
     void onDrawContent(SkCanvas* canvas) override {
         if (!canvas->recordingContext() && !(fFlags & kCanRunOnCPU)) {
@@ -281,10 +288,10 @@ public:
                 canvas->concat(trans);
 
                 // "World" space - content is centered at the origin, in device scale (+-200)
-                canvas->markCTM(kLocalToWorld);
+                SkM44 localToWorld = m * inv(trans);
 
-                canvas->concat(m * inv(trans));
-                this->drawContent(canvas, f.fColor, index++, drawFront);
+                canvas->concat(localToWorld);
+                this->drawContent(canvas, f.fColor, index++, drawFront, localToWorld);
             }
         }
 
@@ -371,8 +378,8 @@ public:
             uniform shader color_map;
             uniform shader normal_map;
 
-            layout (marker=local_to_world)          uniform float4x4 localToWorld;
-            layout (marker=normals(local_to_world)) uniform float4x4 localToWorldAdjInv;
+            uniform float4x4 localToWorld;
+            uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
             float3 convert_normal_sample(half4 c) {
@@ -402,14 +409,19 @@ public:
         fEffect = effect;
     }
 
-    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
+    void drawContent(SkCanvas* canvas,
+                     SkColor color,
+                     int index,
+                     bool drawFront,
+                     const SkM44& localToWorld) override {
         if (!drawFront || !front(canvas->getLocalToDevice())) {
             return;
         }
 
         SkRuntimeShaderBuilder builder(fEffect);
         builder.uniform("lightPos") = fLight.computeWorldPos(fSphere);
-        // localToWorld matrices are automatically populated, via layout(marker)
+        builder.uniform("localToWorld") = localToWorld;
+        builder.uniform("localToWorldAdjInv") = normals(localToWorld);
 
         builder.child("color_map")  = fImgShader;
         builder.child("normal_map") = fBmpShader;
@@ -450,7 +462,8 @@ public:
         }
     }
 
-    void drawContent(SkCanvas* canvas, SkColor color, int index, bool drawFront) override {
+    void drawContent(
+            SkCanvas* canvas, SkColor color, int index, bool drawFront, const SkM44&) override {
         if (!drawFront || !front(canvas->getLocalToDevice())) {
             return;
         }
