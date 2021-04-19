@@ -344,21 +344,10 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                                         "float3, or float4 variables");
         }
     }
-    if (modifiers.fFlags & Modifiers::kVarying_Flag) {
-        if (this->programKind() != ProgramKind::kRuntimeEffect &&
-            this->programKind() != ProgramKind::kRuntimeShader) {
-            this->errorReporter().error(offset, "'varying' is only permitted in runtime shaders");
-        }
-        if (!baseType->isFloat() &&
-            !(baseType->isVector() && baseType->componentType().isFloat())) {
-            this->errorReporter().error(offset, "'varying' must be float scalar or vector");
-        }
-    }
     int permitted = Modifiers::kConst_Flag;
     if (storage == Variable::Storage::kGlobal) {
         permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
-                     Modifiers::kFlat_Flag | Modifiers::kVarying_Flag |
-                     Modifiers::kNoPerspective_Flag;
+                     Modifiers::kFlat_Flag | Modifiers::kNoPerspective_Flag;
     }
     // TODO(skbug.com/11301): Migrate above checks into building a mask of permitted layout flags
     this->checkModifiers(offset, modifiers, permitted, /*permittedLayoutFlags=*/~0);
@@ -845,7 +834,6 @@ void IRGenerator::checkModifiers(int offset,
     checkModifier(Modifiers::kFlat_Flag,           "flat");
     checkModifier(Modifiers::kNoPerspective_Flag,  "noperspective");
     checkModifier(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects");
-    checkModifier(Modifiers::kVarying_Flag,        "varying");
     checkModifier(Modifiers::kInline_Flag,         "inline");
     checkModifier(Modifiers::kNoInline_Flag,       "noinline");
     SkASSERT(flags == 0);

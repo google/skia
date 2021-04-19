@@ -211,41 +211,11 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
         return;
     }
 
-    auto varIndexByFlag = [this, &ref](uint32_t flag) {
-        int index = 0;
-        bool found = false;
-        for (const ProgramElement* e : fProgram.elements()) {
-            if (found) {
-                break;
-            }
-            if (e->is<GlobalVarDeclaration>()) {
-                const GlobalVarDeclaration& global = e->as<GlobalVarDeclaration>();
-                const Variable& var = global.declaration()->as<VarDeclaration>().var();
-                if (&var == ref.variable()) {
-                    found = true;
-                    break;
-                }
-                // Skip over children (shaders/colorFilters). These are indexed separately from
-                // other globals.
-                if ((var.modifiers().fFlags & flag) && !var.type().isEffectChild()) {
-                    ++index;
-                }
-            }
-        }
-        SkASSERT(found);
-        return index;
-    };
-
-    if (modifiers.fFlags & Modifiers::kVarying_Flag) {
-        this->write("_vtx_attr_");
-        this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
+    auto it = fVariableNames.find(var);
+    if (it != fVariableNames.end()) {
+        this->write(it->second);
     } else {
-        auto it = fVariableNames.find(var);
-        if (it != fVariableNames.end()) {
-            this->write(it->second);
-        } else {
-            this->write(var->name());
-        }
+        this->write(var->name());
     }
 }
 
