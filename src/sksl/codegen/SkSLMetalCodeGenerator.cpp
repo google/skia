@@ -1876,26 +1876,12 @@ void MetalCodeGenerator::writeForStatement(const ForStatement& f) {
         return;
     }
 
-    bool closeForLoopScope = false;
+    this->write("for (");
     if (f.initializer() && !f.initializer()->isEmpty()) {
-        if (f.initializer()->is<Block>()) {
-            // Our initializer-statement could potentially contain multiple variables of differing
-            // type (e.g. `int` and `int[4]`). In Metal, there isn't a clean way to express this in
-            // the for's init-statement block, since we use `array<T, N>` type for our arrays.
-            // Instead, we synthesize a scope and declare those variables right above the for loop.
-            this->writeLine("{");
-            ++fIndentation;
-            this->writeStatement(*f.initializer());
-            this->write("for (; ");
-            closeForLoopScope = true;
-        } else {
-            this->write("for (");
-            this->writeStatement(*f.initializer());
-        }
+        this->writeStatement(*f.initializer());
     } else {
-        this->write("for (; ");
+        this->write("; ");
     }
-
     if (f.test()) {
         this->writeExpression(*f.test(), Precedence::kTopLevel);
     }
@@ -1905,12 +1891,6 @@ void MetalCodeGenerator::writeForStatement(const ForStatement& f) {
     }
     this->write(") ");
     this->writeStatement(*f.statement());
-
-    if (closeForLoopScope) {
-        --fIndentation;
-        this->writeLine("");
-        this->writeLine("}");
-    }
 }
 
 void MetalCodeGenerator::writeDoStatement(const DoStatement& d) {
