@@ -1103,19 +1103,48 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
-    Statement x = For(Statement(), Expression(), Expression(), Block());
-    EXPECT_EQUAL(x, "for (;;) {}");
-
-    Var i(kInt_Type, "i", 0);
-    Statement y = For(Declare(i), i < 10, ++i, i += 5);
-    EXPECT_EQUAL(y, "for (int i = 0; (i < 10); ++i) (i += 5);");
+    {
+        Statement s = For(Statement(), Expression(), Expression(), Block());
+        EXPECT_EQUAL(s, "for (;;) {}");
+    }
 
     {
+        DSLWriter::Reset();
+        Var i(kInt_Type, "i", 0);
+        Statement s = For(Declare(i), i < 10, ++i, i += 5);
+        EXPECT_EQUAL(s, "for (int i = 0; (i < 10); ++i) (i += 5);");
+    }
+
+    {
+        DSLWriter::Reset();
+        Var x(kInt_Type, "x", 0);
+        Var y(kInt_Type, "y", 0);
+        Statement s = For((Declare(x), Declare(y)), x < 10, (++x, ++y), x += y);
+        EXPECT_EQUAL(s, "{ int x = 0; int y = 0; for (; (x < 10); (++x, ++y)) (x += y); }");
+    }
+
+    {
+        DSLWriter::Reset();
+        Var x(kInt_Type, "x", 0);
+        Var y(kInt_Type, "y", 0);
+        Var z(kInt_Type, "z", 0);
+        Statement s = For((Declare(x), Declare(y), Declare(z)), x < 10, (++x, ++y, z -= x), x += y);
+        EXPECT_EQUAL(s, "{ int x = 0; int y = 0; int z = 0; for (; (x < 10); ((++x, ++y), (z -= x)))"
+                        " (x += y); }");
+    }
+
+    {
+        DSLWriter::Reset();
+        Var i(kInt_Type, "i", 0);
+        DSLWriter::MarkDeclared(i);
         ExpectError error(r, "error: expected 'bool', but found 'int'\n");
         For(i = 0, i + 10, ++i, i += 5).release();
     }
 
     {
+        DSLWriter::Reset();
+        Var i(kInt_Type, "i", 0);
+        DSLWriter::MarkDeclared(i);
         ExpectError error(r, "error: invalid for loop initializer\n");
         For(If(i == 0, i = 1), i < 10, ++i, i += 5).release();
     }
