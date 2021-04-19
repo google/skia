@@ -93,6 +93,13 @@ private:
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
 
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext* context,
+                                                               SkSamplingOptions,
+                                                               SkTileMode[2],
+                                                               const SkMatrix& matrix,
+                                                               const SkRect* subset,
+                                                               const SkRect* domain) const override;
+
     GrSurfaceProxyView makeView(GrRecordingContext*) const;
 
     // Thread-safe wrapper around the proxies backing this image. Handles dynamically switching

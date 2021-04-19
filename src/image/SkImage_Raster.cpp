@@ -137,6 +137,13 @@ private:
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
+
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext*,
+                                                               SkSamplingOptions,
+                                                               SkTileMode[2],
+                                                               const SkMatrix&,
+                                                               const SkRect*,
+                                                               const SkRect*) const override;
 #endif
 
     SkBitmap fBitmap;
@@ -421,5 +428,22 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
 
     GrBitmapTextureMaker maker(context, fBitmap, policy);
     return {maker.view(mipmapped), maker.colorType()};
+}
+
+std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
+        GrRecordingContext* context,
+        SkSamplingOptions sampling,
+        SkTileMode tileModes[2],
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    auto wmx = SkTileModeToWrapMode(tileModes[0]);
+    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    GrBitmapTextureMaker maker(context, fBitmap, GrImageTexGenPolicy::kDraw);
+    if (sampling.useCubic) {
+        return maker.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
+    }
+    GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
+    return maker.createFragmentProcessor(m, subset, domain, sampler);
 }
 #endif
