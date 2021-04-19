@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed7a117f_62a2bb88",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-19T14:03:57Z",
+      "side": 1,
+      "message": "This is another place where we\u0027re caching a mask. If we want to use the same cached mask regardless of the final dst surface then I don\u0027t think we should inherit the surface props. I believe our policy is that we ignore the paint\u0027s aa setting and always start blurs with an AA mask.",
+      "revId": "2b192bc8f64e1156955873625fb54f7fb65b2dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29d93d0e_c19f26cf",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.fp",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-19T14:03:57Z",
+      "side": 1,
+      "message": "Are we going to draw differently with different props? If so then I think we need to include the props in the mask\u0027s key. If not, we should just use default props.",
+      "revId": "2b192bc8f64e1156955873625fb54f7fb65b2dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
