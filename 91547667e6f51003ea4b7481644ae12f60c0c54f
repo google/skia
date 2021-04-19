@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0487105_235808c5",
+        "filename": "resources/sksl/errors/ForInitStmt.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-19T15:36:31Z",
+      "side": 1,
+      "message": "At present, the parser rejects the test code so we don\u0027t get past line 2.",
+      "range": {
+        "startLine": 1,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 36
+      },
+      "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
