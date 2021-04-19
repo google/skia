@@ -100,8 +100,9 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(const Context& ctx,
     SkASSERT(!bounds.isEmpty());
 
     // Given the standard usage of the picture image filter (i.e., to render content at a fixed
-    // resolution that, most likely, differs from the screen's) disable LCD text.
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    // resolution that, most likely, differs from the screen's) disable LCD text by removing any
+    // knowledge of the pixel geometry.
+    SkSurfaceProps props = ctx.surfaceProps()->cloneWithPixelGeometry(kUnknown_SkPixelGeometry);
     sk_sp<SkSpecialSurface> surf(ctx.makeSurface(bounds.size(), &props));
     if (!surf) {
         return nullptr;
