@@ -1016,6 +1016,9 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     Var a(kInt_Type, "a", 1), b(kInt_Type, "b", 2);
     Statement y = Block(Declare(a), Declare(b), a = b);
     EXPECT_EQUAL(y, "{ int a = 1; int b = 2; (a = b); }");
+
+    Statement z = (If(a > 0, --a), ++b);
+    EXPECT_EQUAL(z, "if ((a > 0)) --a; ++b;");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
@@ -1113,11 +1116,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
     {
         ExpectError error(r, "error: expected 'bool', but found 'int'\n");
         For(i = 0, i + 10, ++i, i += 5).release();
-    }
-
-    {
-        ExpectError error(r, "error: invalid for loop initializer\n");
-        For(If(i == 0, i = 1), i < 10, ++i, i += 5).release();
     }
 }
 

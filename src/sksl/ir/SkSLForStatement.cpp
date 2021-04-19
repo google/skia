@@ -113,7 +113,7 @@ static bool is_vardecl_block(const SkSL::Statement& stmt) {
         return false;
     }
     for (const auto& child : b.children()) {
-        if (!child->is<SkSL::VarDeclaration>()) {
+        if (!ForStatement::IsValidInitializer(child.get())) {
             return false;
         }
     }

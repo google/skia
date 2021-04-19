@@ -26,6 +26,7 @@ namespace dsl {
 
 class DSLBlock;
 class DSLExpression;
+class DSLForLoopInitializer;
 class DSLPossibleExpression;
 class DSLPossibleStatement;
 class DSLVar;
@@ -62,6 +63,7 @@ private:
     friend class DSLExpression;
     friend class DSLPossibleStatement;
     friend class DSLWriter;
+    friend DSLStatement operator,(DSLStatement left, DSLStatement right);
 };
 
 /**
@@ -89,6 +91,8 @@ private:
 
     friend class DSLStatement;
 };
+
+DSLStatement operator,(DSLStatement left, DSLStatement right);
 
 } // namespace dsl
 

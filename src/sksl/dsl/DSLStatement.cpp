@@ -11,7 +11,10 @@
 #include "include/sksl/DSLExpression.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -73,6 +76,14 @@ DSLPossibleStatement::~DSLPossibleStatement() {
         // this handles incorporating the expression into the output tree
         DSLStatement(std::move(fStatement));
     }
+}
+
+DSLStatement operator,(DSLStatement left, DSLStatement right) {
+    StatementArray stmts;
+    stmts.reserve_back(2);
+    stmts.push_back(left.release());
+    stmts.push_back(right.release());
+    return DSLStatement(SkSL::Block::MakeUnscoped(/*offset=*/-1, std::move(stmts)));
 }
 
 } // namespace dsl
