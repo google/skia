@@ -53,6 +53,7 @@ struct SimpleTextStyle {
     SkScalar letterSpacing;
     SkScalar wordSpacing;
     SkScalar heightMultiplier;
+    bool halfLeading;
     uintptr_t /* const char* */ localePtr;
     int localeLen;
     SimpleFontStyle fontStyle;
@@ -76,6 +77,7 @@ struct SimpleStrutStyle {
     SimpleFontStyle fontStyle;
     SkScalar fontSize;
     SkScalar heightMultiplier;
+    bool halfLeading;
     SkScalar leading;
     bool strutEnabled;
     bool forceStrutHeight;
@@ -103,6 +105,8 @@ para::StrutStyle toStrutStyle(const SimpleStrutStyle& s) {
         ss.setHeight(s.heightMultiplier);
         ss.setHeightOverride(true);
     }
+    ss.setHalfLeading(s.halfLeading);
+
     if (s.leading != 0) {
         ss.setLeading(s.leading);
     }
@@ -147,6 +151,8 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
         ts.setHeight(s.heightMultiplier);
         ts.setHeightOverride(true);
     }
+
+    ts.setHalfLeading(s.halfLeading);
 
     ts.setDecoration(para::TextDecoration(s.decoration));
     ts.setDecorationStyle(s.decorationStyle);
@@ -552,6 +558,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("fontSize",         &SimpleStrutStyle::fontSize)
         .field("fontStyle",        &SimpleStrutStyle::fontStyle)
         .field("heightMultiplier", &SimpleStrutStyle::heightMultiplier)
+        .field("halfLeading",      &SimpleStrutStyle::halfLeading)
         .field("leading",          &SimpleStrutStyle::leading)
         .field("forceStrutHeight", &SimpleStrutStyle::forceStrutHeight);
 
@@ -569,6 +576,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("letterSpacing",         &SimpleTextStyle::letterSpacing)
         .field("wordSpacing",           &SimpleTextStyle::wordSpacing)
         .field("heightMultiplier",      &SimpleTextStyle::heightMultiplier)
+        .field("halfLeading",           &SimpleTextStyle::halfLeading)
         .field("_localePtr",            &SimpleTextStyle::localePtr)
         .field("_localeLen",            &SimpleTextStyle::localeLen)
         .field("fontStyle",             &SimpleTextStyle::fontStyle)
