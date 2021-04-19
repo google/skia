@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25757f00_62e88406",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-19T11:56:23Z",
+      "side": 1,
+      "message": "Adding bsalomon@ for API review. No one is using this so I\u0027m not sure it warrants a RELEASE_NOTES entry.",
+      "revId": "35a1cbf811af888d93cc6fb87a5df4770f253561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
