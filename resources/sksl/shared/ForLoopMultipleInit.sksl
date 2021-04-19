@@ -20,5 +20,8 @@ half4 main() {
     // Four variables, all dead
     for (half4 x, y, z, w;; ) break;
 
+    // Just referencing a variable instead of declaring it--legal, if not meaningful.
+    for (result;; ) break;
+
     return result;
 }
