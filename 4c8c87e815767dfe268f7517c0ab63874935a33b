@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8749afd_b76085c5",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-19T17:50:21Z",
+      "side": 1,
+      "message": "I think you just wanted to use SkFontMetrics::hasBounds() here. While the enum is public, I think one generally wants to stick to the helper methods.",
+      "range": {
+        "startLine": 1214,
+        "startChar": 16,
+        "endLine": 1214,
+        "endChar": 65
+      },
+      "revId": "4c8c87e815767dfe268f7517c0ab63874935a33b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
