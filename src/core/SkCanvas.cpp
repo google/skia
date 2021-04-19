@@ -1799,27 +1799,6 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     // We expect fans to be converted to triangles when building or deserializing SkVertices.
     SkASSERT(vertices->priv().mode() != SkVertices::kTriangleFan_VertexMode);
 
-    // If the vertices contain custom attributes, ensure they line up with the paint's shader.
-    const SkRuntimeEffect* effect =
-            paint.getShader() ? as_SB(paint.getShader())->asRuntimeEffect() : nullptr;
-    if ((size_t)vertices->priv().attributeCount() != (effect ? effect->varyings().count() : 0)) {
-        return;
-    }
-    if (effect) {
-        int attrIndex = 0;
-        for (const auto& v : effect->varyings()) {
-            const SkVertices::Attribute& attr(vertices->priv().attributes()[attrIndex++]);
-            // Mismatch between the SkSL varying and the vertex shader output for this attribute
-            if (attr.channelCount() != v.width) {
-                return;
-            }
-            // If we can't provide any of the asked-for matrices, we can't draw this
-            if (attr.fMarkerID && !fMarkerStack->findMarker(attr.fMarkerID, nullptr)) {
-                return;
-            }
-        }
-    }
-
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // Preserve legacy behavior for Android: ignore the SkShader if there are no texCoords present
     if (paint.getShader() &&

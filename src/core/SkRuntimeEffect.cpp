@@ -209,7 +209,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     // can sample children with matrices or explicit coords. Because the children are color filters,
     // we know (by induction) that they don't use those coords, so we keep the overall invariant.
     //
-    // Further down, we also ensure that color filters can't use varyings or layout(marker), which
+    // Further down, we also ensure that color filters can't use layout(marker), which
     // would allow them to change behavior based on the CTM.
     // TODO(skbug.com/11813): When ProgramKind is always kRuntimeColorFilter or kRuntimeShader,
     // this can be simpler. There is no way for color filters to refer to sk_FragCoord or sample
@@ -223,12 +223,11 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     std::vector<Uniform> uniforms;
     std::vector<SkString> children;
     std::vector<SkSL::SampleUsage> sampleUsages;
-    std::vector<Varying> varyings;
     const SkSL::Context& ctx(compiler->context());
 
     // Go through program elements, pulling out information that we need
     for (const SkSL::ProgramElement* elem : program->elements()) {
-        // Variables (uniform, varying, etc.)
+        // Variables (uniform, etc.)
         if (elem->is<SkSL::GlobalVarDeclaration>()) {
             const SkSL::GlobalVarDeclaration& global = elem->as<SkSL::GlobalVarDeclaration>();
             const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
@@ -236,16 +235,8 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
             const SkSL::Variable& var = varDecl.var();
             const SkSL::Type& varType = var.type();
 
-            // Varyings (only used in conjunction with drawVertices)
-            if (var.modifiers().fFlags & SkSL::Modifiers::kVarying_Flag) {
-                flags &= ~kAllowColorFilter_Flag;
-                varyings.push_back({var.name(),
-                                    varType.typeKind() == SkSL::Type::TypeKind::kVector
-                                            ? varType.columns()
-                                            : 1});
-            }
             // Child effects that can be sampled ('shader' or 'colorFilter')
-            else if (varType.isEffectChild()) {
+            if (varType.isEffectChild()) {
                 children.push_back(var.name());
                 sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(
                         *program, var, sampleCoordsUsage.fWrite != 0));
@@ -300,7 +291,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                                                       std::move(uniforms),
                                                       std::move(children),
                                                       std::move(sampleUsages),
-                                                      std::move(varyings),
                                                       flags));
     return Result{std::move(effect), SkString()};
 }
@@ -404,7 +394,6 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::vector<Uniform>&& uniforms,
                                  std::vector<SkString>&& children,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
-                                 std::vector<Varying>&& varyings,
                                  uint32_t flags)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
@@ -413,7 +402,6 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         , fUniforms(std::move(uniforms))
         , fChildren(std::move(children))
         , fSampleUsages(std::move(sampleUsages))
-        , fVaryings(std::move(varyings))
         , fFlags(flags) {
     SkASSERT(fBaseProgram);
     SkASSERT(fChildren.size() == fSampleUsages.size());

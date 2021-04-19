@@ -326,8 +326,7 @@ public:
             case Expression::Kind::kVariableReference: {
                 VariableReference& varRef = expr.as<VariableReference>();
                 const Variable* var = varRef.variable();
-                if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag |
-                                               Modifiers::kVarying_Flag)) {
+                if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag)) {
                     fErrors->error(expr.fOffset,
                                    "cannot modify immutable variable '" + var->name() + "'");
                 } else {
@@ -641,8 +640,8 @@ bool ProgramUsage::isDead(const Variable& v) const {
     const Modifiers& modifiers = v.modifiers();
     VariableCounts counts = this->get(v);
     if ((v.storage() != Variable::Storage::kLocal && counts.fRead) ||
-        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
-                             Modifiers::kVarying_Flag))) {
+        (modifiers.fFlags &
+         (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag))) {
         return false;
     }
     // Consider the variable dead if it's never read and never written (besides the initial-value).
