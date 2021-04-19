@@ -51,6 +51,24 @@
       "parentUuid": "698020e4_bdd5d90e",
       "revId": "1f6ff9d3d10109a3939b14f3a22d8c46eda13470",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc7b7f96_204067d0",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-19T16:48:50Z",
+      "side": 1,
+      "message": "Robert you said:\n  Whenever a opsTask is destroyed it nulls out matching RTP\u0027s arena pointer.\n\nI change the OpsTask to not null out the pointer in the dtor. Instead, I have GrDrawManager::flush null out all the RTPs that are flushed. I needed to do this be cause of the --reduceOpsTaskSplitting flag causes OpsTasks to be destroyed, and created. During the merge process, OpsTasks are destroyed nulling out the ptr. When later OpsTasks are created, and try to merge with this one, they have different arenas. In order to maintain the same arena through the entire process, I moved the nulling out to the end of the GrDrawingManager::flush call.",
+      "parentUuid": "b00d3077_d52980e8",
+      "revId": "1f6ff9d3d10109a3939b14f3a22d8c46eda13470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
