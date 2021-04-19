@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15a1a95e_1c774d20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-19T16:01:56Z",
+      "side": 1,
+      "message": "agreed - we can re-add it when we\u0027re smarter (and more motivated)",
+      "revId": "72e7af7f0fd5c7f76dc218e95b0d10920210767e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
