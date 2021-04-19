@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0790cf94_e8d2914f",
+        "filename": "resources/sksl/errors/ForInitStmt.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-19T16:03:35Z",
+      "side": 1,
+      "message": "Good catch! I am experimenting with simplifying the parser in a followup CL and, yup, needed to split these tests apart into multiple functions to get all the errors to register. I\u0027ll move that change into this CL.",
+      "parentUuid": "9885c014_093da554",
+      "range": {
+        "startLine": 1,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 36
+      },
+      "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4a51a350_16775310",
         "filename": "src/sksl/ir/SkSLForStatement.cpp",
         "patchSetId": 2
@@ -61,6 +85,24 @@
       "writtenOn": "2021-04-19T16:00:04Z",
       "side": 1,
       "message": "Question: Is it possible to end up with a Nop? (eg, via ExpressionStatement::Make and something with no side-effects)?",
+      "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d5a19d7_92cb3725",
+        "filename": "src/sksl/ir/SkSLForStatement.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-19T16:03:35Z",
+      "side": 1,
+      "message": "Probably! I\u0027ll experiment with this. Seems like we should allow it here!",
+      "parentUuid": "4a51a350_16775310",
       "revId": "91547667e6f51003ea4b7481644ae12f60c0c54f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
