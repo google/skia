@@ -54,7 +54,12 @@ private:
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
 
-    GrSurfaceProxyView flattenToRGB(GrRecordingContext*, GrMipmapped) const;
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext*,
+                                                               SkSamplingOptions,
+                                                               const SkTileMode[],
+                                                               const SkMatrix&,
+                                                               const SkRect*,
+                                                               const SkRect*) const override;
 
     mutable GrYUVATextureProxies     fYUVAProxies;
 
