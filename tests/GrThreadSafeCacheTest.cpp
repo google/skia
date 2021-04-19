@@ -42,6 +42,7 @@ static std::unique_ptr<GrSurfaceDrawContext> new_RTC(GrRecordingContext* rContex
                                       nullptr,
                                       SkBackingFit::kExact,
                                       {wh, wh},
+                                      SkSurfaceProps(),
                                       1,
                                       GrMipMapped::kNo,
                                       GrProtected::kNo,
