@@ -56,13 +56,6 @@ DEF_TEST(SkRuntimeEffectInvalid_NoInVariables, r) {
     test_invalid_effect(r, "in half3x3 m;" EMPTY_MAIN, "'in'");
 }
 
-DEF_TEST(SkRuntimeEffectInvalid_MarkerRequiresFloat4x4, r) {
-    // 'marker' is only permitted on float4x4 uniforms
-    test_invalid_effect(r,
-                        "layout(marker=local_to_world) uniform float3x3 localToWorld;" EMPTY_MAIN,
-                        "float4x4");
-}
-
 DEF_TEST(SkRuntimeEffectInvalid_UndefinedFunction, r) {
     test_invalid_effect(r, "half4 missing(); half4 main() { return missing(); }",
                            "undefined function");
@@ -94,10 +87,6 @@ DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
     // but not valid color filters
     test("half4 main(float2 p) { return half2(p).xy01; }");
     test("half4 main(float2 p) { return half2(sk_FragCoord.xy).xy01; }");
-
-    // We also can't use layout(marker), which would give the runtime color filter CTM information
-    test("layout(marker=ctm) uniform float4x4 ctm;"
-         "half4 main(float2 p) { return half4(half(ctm[0][0]), 0, 0, 1); }");
 }
 
 class TestEffect {

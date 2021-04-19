@@ -39,9 +39,8 @@ struct Layout {
         kPrimitive_Flag                  = 1 << 15,
         kMaxVertices_Flag                = 1 << 16,
         kInvocations_Flag                = 1 << 17,
-        kMarker_Flag                     = 1 << 18,
-        kWhen_Flag                       = 1 << 19,
-        kCType_Flag                      = 1 << 20,
+        kWhen_Flag                       = 1 << 18,
+        kCType_Flag                      = 1 << 19,
     };
 
     enum Primitive {
@@ -114,7 +113,7 @@ struct Layout {
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, Primitive primitive, int maxVertices, int invocations,
-           StringFragment marker, StringFragment when, CType ctype)
+           StringFragment when, CType ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -126,7 +125,6 @@ struct Layout {
     , fPrimitive(primitive)
     , fMaxVertices(maxVertices)
     , fInvocations(invocations)
-    , fMarker(marker)
     , fWhen(when)
     , fCType(ctype) {}
 
@@ -232,9 +230,6 @@ struct Layout {
         if (fInvocations >= 0) {
             result += separator() + "invocations = " + to_string(fInvocations);
         }
-        if (fMarker.fLength) {
-            result += separator() + "marker = " + fMarker;
-        }
         if (fWhen.fLength) {
             result += separator() + "when = " + fWhen;
         }
@@ -259,7 +254,6 @@ struct Layout {
                fPrimitive            == other.fPrimitive &&
                fMaxVertices          == other.fMaxVertices &&
                fInvocations          == other.fInvocations &&
-               fMarker               == other.fMarker &&
                fWhen                 == other.fWhen &&
                fCType                == other.fCType;
     }
@@ -283,8 +277,6 @@ struct Layout {
     Primitive fPrimitive;
     int fMaxVertices;
     int fInvocations;
-    // marker refers to matrices tagged on the SkCanvas with markCTM
-    StringFragment fMarker;
     StringFragment fWhen;
     CType fCType;
 };

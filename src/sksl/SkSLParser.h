@@ -50,7 +50,6 @@ public:
         TRIANGLES_ADJACENCY,
         MAX_VERTICES,
         INVOCATIONS,
-        MARKER,
         WHEN,
         KEY,
         TRACKED,

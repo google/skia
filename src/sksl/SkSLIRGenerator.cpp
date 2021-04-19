@@ -308,20 +308,6 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         (modifiers.fFlags & Modifiers::kUniform_Flag)) {
         this->errorReporter().error(offset, "'key' is not permitted on 'uniform' variables");
     }
-    if (modifiers.fLayout.fMarker.fLength) {
-        if (this->programKind() != ProgramKind::kRuntimeEffect &&
-            this->programKind() != ProgramKind::kRuntimeShader) {
-            this->errorReporter().error(offset, "'marker' is only permitted in runtime shaders");
-        }
-        if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            this->errorReporter().error(offset,
-                                        "'marker' is only permitted on 'uniform' variables");
-        }
-        if (*baseType != *fContext.fTypes.fFloat4x4) {
-            this->errorReporter().error(offset,
-                                        "'marker' is only permitted on float4x4 variables");
-        }
-    }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
         if (this->programKind() != ProgramKind::kRuntimeEffect &&
             this->programKind() != ProgramKind::kRuntimeColorFilter &&
@@ -866,7 +852,6 @@ void IRGenerator::checkModifiers(int offset,
     checkLayout(Layout::kPrimitive_Flag,                "primitive-type");
     checkLayout(Layout::kMaxVertices_Flag,              "max_vertices");
     checkLayout(Layout::kInvocations_Flag,              "invocations");
-    checkLayout(Layout::kMarker_Flag,                   "marker");
     checkLayout(Layout::kWhen_Flag,                     "when");
     checkLayout(Layout::kCType_Flag,                    "ctype");
     SkASSERT(layoutFlags == 0);
