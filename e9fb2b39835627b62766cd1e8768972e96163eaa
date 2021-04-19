@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a36abb3c_43530919",
+        "filename": "infra/bots/recipes/skpbench.expected/trybot.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-19T18:02:48Z",
+      "side": 1,
+      "message": "Yeah, this is just the expected output of the unit test for skpbench.py itself. Same idea as other comment – just need full test coverage for that file. Very silly.",
+      "parentUuid": "6f87713c_e876a8a6",
+      "range": {
+        "startLine": 303,
+        "startChar": 0,
+        "endLine": 303,
+        "endChar": 37
+      },
+      "revId": "e9fb2b39835627b62766cd1e8768972e96163eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8025d0a0_fcd8af82",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-04-19T17:59:40Z",
       "side": 1,
       "message": "Rm this ?",
+      "revId": "e9fb2b39835627b62766cd1e8768972e96163eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8469cdfc_4b3fff06",
+        "filename": "infra/bots/recipes/skpbench.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-19T18:02:48Z",
+      "side": 1,
+      "message": "This needs to stay – it\u0027s just part of a test case for the flags themselves. Without it we don\u0027t get full coverage and can\u0027t upload.",
+      "parentUuid": "8025d0a0_fcd8af82",
       "revId": "e9fb2b39835627b62766cd1e8768972e96163eaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
