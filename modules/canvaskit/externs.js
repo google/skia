@@ -337,6 +337,7 @@ var CanvasKit = {
 
   Font: {
     // public API (from C++ bindings)
+    getMetrics: function() {},
     getScaleX: function() {},
     getSize: function() {},
     getSkewX: function() {},
