@@ -421,10 +421,12 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext, const SkIma
         return nullptr;
     }
     srcSpecialImage = SkSpecialImage::MakeFromImage(rContext, subset,
-                                                    sk_ref_sp(const_cast<SkImage*>(this)));
+                                                    sk_ref_sp(const_cast<SkImage*>(this)),
+                                                    SkSurfaceProps());
 #else
     srcSpecialImage = SkSpecialImage::MakeFromImage(nullptr, subset,
-                                                    sk_ref_sp(const_cast<SkImage*>(this)));
+                                                    sk_ref_sp(const_cast<SkImage*>(this)),
+                                                    SkSurfaceProps());
 #endif
     if (!srcSpecialImage) {
         return nullptr;
