@@ -11,7 +11,10 @@
 #include "include/sksl/DSLExpression.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -73,6 +76,35 @@ DSLPossibleStatement::~DSLPossibleStatement() {
         // this handles incorporating the expression into the output tree
         DSLStatement(std::move(fStatement));
     }
+}
+
+DSLForLoopInitializer::DSLForLoopInitializer(DSLStatement stmt)
+    : fStatement(std::move(stmt)) {}
+
+DSLForLoopInitializer::DSLForLoopInitializer(DSLPossibleStatement stmt, PositionInfo pos)
+    : DSLForLoopInitializer(DSLStatement(std::move(stmt), pos)) {}
+
+DSLForLoopInitializer::DSLForLoopInitializer(DSLExpression expr)
+    : DSLForLoopInitializer(DSLStatement(std::move(expr))) {}
+
+DSLForLoopInitializer::DSLForLoopInitializer(DSLPossibleExpression expr, PositionInfo pos)
+    : DSLForLoopInitializer(DSLStatement(std::move(expr), pos)) {}
+
+DSLForLoopInitializer operator,(DSLForLoopInitializer left, DSLForLoopInitializer right) {
+    if (!left.fStatement.fStatement || !right.fStatement.fStatement) {
+        return DSLStatement();
+    }
+    StatementArray stmts;
+    stmts.reserve_back(2);
+    if (!SkSL::ForStatement::IsValidInitializer(left.fStatement.fStatement.get()) ||
+        !SkSL::ForStatement::IsValidInitializer(right.fStatement.fStatement.get())) {
+        DSLWriter::ReportError("error: comma operator on statements is only legal on for loop "
+                               "initializers\n");
+        return DSLStatement();
+    }
+    stmts.push_back(left.fStatement.release());
+    stmts.push_back(right.fStatement.release());
+    return DSLStatement(SkSL::Block::MakeUnscoped(/*offset=*/-1, std::move(stmts)));
 }
 
 } // namespace dsl

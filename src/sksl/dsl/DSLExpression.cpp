@@ -201,6 +201,22 @@ DSLPossibleExpression operator,(DSLExpression left, DSLExpression right) {
                                     right.release());
 }
 
+DSLPossibleExpression operator,(DSLPossibleExpression left, DSLExpression right) {
+    return DSLWriter::ConvertBinary(DSLExpression(std::move(left)).release(),
+                                    SkSL::Token::Kind::TK_COMMA, right.release());
+}
+
+DSLPossibleExpression operator,(DSLExpression left, DSLPossibleExpression right) {
+    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_COMMA,
+                                    DSLExpression(std::move(right)).release());
+}
+
+DSLPossibleExpression operator,(DSLPossibleExpression left, DSLPossibleExpression right) {
+    return DSLWriter::ConvertBinary(DSLExpression(std::move(left)).release(),
+                                    SkSL::Token::Kind::TK_COMMA,
+                                    DSLExpression(std::move(right)).release());
+}
+
 std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Type& type) {
     // tripping this assert means we had an error occur somewhere else in DSL construction that
     // wasn't caught where it should have been
