@@ -673,7 +673,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
     SkMatrix srcToDst = SkMatrix::RectToRect(src, dst);
 
     GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, downgrade_to_filter(sampling));
-    GrAA aa = fContext->priv().chooseAA(paint);
+    GrAA aa = fSurfaceDrawContext->chooseAA(paint);
     GrQuadAAFlags aaFlags = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
     GrColorInfo colorInfo(SkColorTypeToGrColorType(special->colorType()),
