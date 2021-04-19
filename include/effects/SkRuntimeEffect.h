@@ -75,11 +75,6 @@ public:
         size_t sizeInBytes() const;
     };
 
-    struct Varying {
-        SkString name;
-        int      width;  // 1 - 4 (floats)
-    };
-
     struct Options {
         // For testing purposes, completely disable the inliner. (Normally, Runtime Effects don't
         // run the inliner directly, but they still get an inlining pass once they are painted.)
@@ -172,7 +167,6 @@ public:
 
     ConstIterable<Uniform> uniforms() const { return ConstIterable<Uniform>(fUniforms); }
     ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
-    ConstIterable<Varying> varyings() const { return ConstIterable<Varying>(fVaryings); }
 
     // Returns pointer to the named uniform variable's description, or nullptr if not found
     const Uniform* findUniform(const char* name) const;
@@ -204,7 +198,6 @@ private:
                     std::vector<Uniform>&& uniforms,
                     std::vector<SkString>&& children,
                     std::vector<SkSL::SampleUsage>&& sampleUsages,
-                    std::vector<Varying>&& varyings,
                     uint32_t flags);
 
     static Result Make(std::unique_ptr<SkSL::Program> program, SkSL::ProgramKind kind);
@@ -241,7 +234,6 @@ private:
     std::vector<Uniform> fUniforms;
     std::vector<SkString> fChildren;
     std::vector<SkSL::SampleUsage> fSampleUsages;
-    std::vector<Varying>  fVaryings;
 
     SkOnce fColorFilterProgramOnce;
     std::unique_ptr<skvm::Program> fColorFilterProgram;

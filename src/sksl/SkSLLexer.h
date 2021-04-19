@@ -44,7 +44,6 @@ struct Token {
         TK_INLINE,
         TK_NOINLINE,
         TK_HASSIDEEFFECTS,
-        TK_VARYING,
         TK_STRUCT,
         TK_LAYOUT,
         TK_ENUM,

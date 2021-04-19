@@ -106,10 +106,11 @@ public:
         kMatrixImageFilterSampling_Version  = 83,
         kImageFilterImageSampling_Version   = 84,
         kNoFilterQualityShaders_Version     = 85,
+        kVerticesRemoveCustomData_Version   = 86,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kEdgeAAQuadColor4f_Version,
-        kCurrent_Version = kNoFilterQualityShaders_Version
+        kCurrent_Version = kVerticesRemoveCustomData_Version
     };
 
     static_assert(SkPicturePriv::kMin_Version <= SkPicturePriv::kCubicResamplerImageShader_Version,

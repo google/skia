@@ -27,7 +27,7 @@ struct Modifiers {
         kFlat_Flag           = 1 <<  4,
         kNoPerspective_Flag  = 1 <<  5,
         kHasSideEffects_Flag = 1 <<  6,
-        kVarying_Flag        = 1 <<  7,
+
         kInline_Flag         = 1 <<  8,
         kNoInline_Flag       = 1 <<  9,
     };
@@ -56,9 +56,6 @@ struct Modifiers {
         }
         if (fFlags & kHasSideEffects_Flag) {
             result += "sk_has_side_effects ";
-        }
-        if (fFlags & kVarying_Flag) {
-            result += "varying ";
         }
         if (fFlags & kNoInline_Flag) {
             result += "noinline ";
