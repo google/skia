@@ -2153,7 +2153,13 @@ if (skia_enable_tools) {
       ]
     }
     test_app("ddlbench") {
-      sources = [ "experimental/ddlbench/ddlbench.cpp" ]
+      sources = [
+        "experimental/ddlbench/Cmds.cpp",
+        "experimental/ddlbench/Cmds.h",
+        "experimental/ddlbench/Fake.cpp",
+        "experimental/ddlbench/Fake.h",
+        "experimental/ddlbench/ddlbench.cpp",
+      ]
       deps = [
         ":flags",
         ":skia",
