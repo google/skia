@@ -1292,28 +1292,12 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
         return;
     }
 
-    bool closeForLoopScope = false;
+    this->write("for (");
     if (f.initializer() && !f.initializer()->isEmpty()) {
-        if (f.initializer()->is<Block>()) {
-            // Our initializer-statement contains a Block that holds multiple variable declarations;
-            // originally they were represented as a comma-separated list of variables, but SkSL
-            // splits these apart into separate statements. We synthesize a scope, emit the Block,
-            // and then emit the for statement with an empty init-statement.
-            this->writeLine("{");
-            ++fIndentation;
-            this->writeStatement(*f.initializer());
-            this->write("for (; ");
-            closeForLoopScope = true;
-        } else {
-            // Our initializer-statement is a single statement and can be emitted normally.
-            this->write("for (");
-            this->writeStatement(*f.initializer());
-        }
+        this->writeStatement(*f.initializer());
     } else {
-        // This for-loop has an empty initializer-statement.
-        this->write("for (; ");
+        this->write("; ");
     }
-
     if (f.test()) {
         if (this->caps().addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
@@ -1331,12 +1315,6 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     }
     this->write(") ");
     this->writeStatement(*f.statement());
-
-    if (closeForLoopScope) {
-        --fIndentation;
-        this->writeLine("");
-        this->writeLine("}");
-    }
 }
 
 void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
