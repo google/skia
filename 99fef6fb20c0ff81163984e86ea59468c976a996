@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2931eb4_c5082db7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-19T18:32:38Z",
+      "side": 1,
+      "message": "The 3D bump-mapped cube was the only sample that ever used this feature. I updated the native version to work without it. The web-versions were going to be quite a bit harder to convert, so I simply removed it there. (CK doesn\u0027t have SkRuntimeShaderBuilder, which is something we ought to look at).",
+      "revId": "99fef6fb20c0ff81163984e86ea59468c976a996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
