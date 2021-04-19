@@ -1,0 +1,10 @@
+void test_init_stmt_for()       { for (for(;;);; )              {} }
+void test_init_stmt_switch()    { for (switch(0) {} ; )         {} }
+void test_init_stmt_while()     { for (while(false) {} ; )      {} }
+void test_init_stmt_do()        { for (do {} while(false);; )   {} }
+void test_init_stmt_if()        { for (if (false) {} ; )        {} }
+void test_init_stmt_break()     { for (break;; )                {} }
+void test_init_stmt_continue()  { for (continue;; )             {} }
+void test_init_stmt_discard()   { for (discard;; )              {} }
+void test_init_stmt_type()      { for (void;; )                 {} }
+void test_init_stmt_deep()      { for (for(for(for(;;);;);;);;) {} }
