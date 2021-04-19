@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae6b5808_a5272238",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-19T13:03:29Z",
+      "side": 1,
+      "message": "lgtm but Jim \u0026 Michael would know more about the implications of this",
+      "revId": "cfe255b12f7c638c5392e340099d8ae858b9ee50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70bcd208_3f42d95e",
+        "filename": "src/effects/imagefilters/SkPictureImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-19T13:03:29Z",
+      "side": 1,
+      "message": "Maybe add:\n// ... by removing any knowledge of the pixel geometry.\n\n?",
+      "range": {
+        "startLine": 103,
+        "startChar": 80,
+        "endLine": 103,
+        "endChar": 81
+      },
+      "revId": "cfe255b12f7c638c5392e340099d8ae858b9ee50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
