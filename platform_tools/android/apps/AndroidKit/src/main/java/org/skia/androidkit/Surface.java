@@ -24,6 +24,13 @@ public class Surface {
     }
 
     /**
+     * Create a Surface backed by the provided Android Surface (android.view.Surface).
+     */
+    public Surface(Surface surface) {
+        this(CreateSurfaceInstance(surface));
+    }
+
+    /**
      * The Canvas associated with this Surface.
      */
     public Canvas getCanvas() {
@@ -56,7 +63,13 @@ public class Surface {
         return nCreateBitmap(bitmap);
     }
 
+    private static long CreateSurfaceInstance(Surface surface) {
+        return nCreateSurface(surface);
+    }
+
     private static native long nCreateBitmap(Bitmap bitmap);
+    private static native long nCreateSurface(Surface surface);
+
     private static native void nRelease(long nativeInstance);
     private static native long nGetNativeCanvas(long nativeInstance);
 }
