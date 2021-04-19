@@ -3521,8 +3521,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             SpvId id = this->writeInterfaceBlock(intf);
 
             const Modifiers& modifiers = intf.variable().modifiers();
-            if (((modifiers.fFlags & Modifiers::kIn_Flag) ||
-                 (modifiers.fFlags & Modifiers::kOut_Flag)) &&
+            if ((modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
                 modifiers.fLayout.fBuiltin == -1 &&
                 !is_dead(intf.variable(), fProgram.fUsage.get())) {
                 interfaceVars.insert(id);
@@ -3561,8 +3560,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (auto entry : fVariableMap) {
         const Variable* var = entry.first;
         if (var->storage() == Variable::Storage::kGlobal &&
-            ((var->modifiers().fFlags & Modifiers::kIn_Flag) ||
-             (var->modifiers().fFlags & Modifiers::kOut_Flag)) &&
+            (var->modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
             !is_dead(*var, fProgram.fUsage.get())) {
             interfaceVars.insert(entry.second);
         }

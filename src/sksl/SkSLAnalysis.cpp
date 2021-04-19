@@ -210,6 +210,9 @@ public:
                 // they are unread and unwritten.
                 fUsage->fVariableCounts[param];
             }
+        } else if (pe.is<InterfaceBlock>()) {
+            // Ensure interface-block variables exist in the variable usage map.
+            fUsage->fVariableCounts[&pe.as<InterfaceBlock>().variable()];
         }
         return INHERITED::visitProgramElement(pe);
     }

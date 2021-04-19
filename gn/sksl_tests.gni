@@ -237,6 +237,7 @@ sksl_spirv_tests = [
   "/sksl/spirv/OpaqueTypeInArray.sksl",
   "/sksl/workarounds/RewriteMatrixVectorMultiply.sksl",
   "/sksl/errors/UndefinedFunction.sksl",
+  "/sksl/errors/UnusedInterfaceBlock.sksl",
 ]
 
 sksl_shared_tests = [
