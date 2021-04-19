@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd5d796d_cf5cd522",
+        "filename": "src/sksl/dsl/DSLStatement.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-19T15:01:16Z",
+      "side": 1,
+      "message": "A StatementArray has 2 slots baked in by default (it\u0027s SkSTArray of size 2) so this call is a no-op... but it\u0027s fine to keep it as well if you like to be explicit about it. Up to you.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 26
+      },
+      "revId": "c2aed79bc5879c494f3e80467ae07bbf3d256d93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
