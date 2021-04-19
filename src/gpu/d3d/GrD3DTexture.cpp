@@ -108,6 +108,31 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeWrappedTexture(GrD3DGpu* gpu,
                                                 ioType));
 }
 
+sk_sp<GrD3DTexture> GrD3DTexture::MakeAliasingTexture(GrD3DGpu* gpu,
+                                                      sk_sp<GrD3DTexture> originalTexture,
+                                                      DXGI_FORMAT format) {
+    GrD3DTextureResourceInfo info = originalTexture->fInfo;
+    D3D12_RESOURCE_DESC desc = originalTexture->d3dResource()->GetDesc();
+    desc.Format = format;
+
+    info.fResource = gpu->memoryAllocator()->createAliasingResource(info.fAlloc, 0, &desc,
+                                                                    info.fResourceState, nullptr);
+    if (!info.fResource) {
+        return false;
+    }
+
+    sk_sp<GrD3DResourceState> state(
+        new GrD3DResourceState(static_cast<D3D12_RESOURCE_STATES>(info.fResourceState)));
+
+    GrD3DDescriptorHeap::CPUHandle shaderResourceView =
+        gpu->resourceProvider().createShaderResourceView(info.fResource.get());
+
+    GrD3DTexture* tex = new GrD3DTexture(gpu, SkBudgeted::kNo, originalTexture->dimensions(),
+                                         info, std::move(state), shaderResourceView,
+                                         originalTexture->mipmapStatus());
+    return sk_sp<GrD3DTexture>(tex);
+}
+
 void GrD3DTexture::onRelease() {
     GrD3DGpu* gpu = this->getD3DGpu();
     gpu->resourceProvider().recycleShaderView(fShaderResourceView);

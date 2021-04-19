@@ -9,7 +9,7 @@
 #include "src/gpu/d3d/GrD3DUtil.h"
 
 sk_sp<GrD3DMemoryAllocator> GrD3DAMDMemoryAllocator::Make(IDXGIAdapter* adapter,
-                                                             ID3D12Device* device) {
+                                                          ID3D12Device* device) {
     D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
     allocatorDesc.pAdapter = adapter;
     allocatorDesc.pDevice = device;
@@ -44,5 +44,21 @@ gr_cp<ID3D12Resource> GrD3DAMDMemoryAllocator::createResource(
     }
 
     allocation->reset(new Alloc(d3d12maAllocation));
+    return resource;
+}
+
+gr_cp<ID3D12Resource> GrD3DAMDMemoryAllocator::createAliasingResource(
+        sk_sp<GrD3DAlloc>& allocation, uint64_t localOffset,
+        const D3D12_RESOURCE_DESC* resourceDesc, D3D12_RESOURCE_STATES initialResourceState,
+        const D3D12_CLEAR_VALUE* clearValue) {
+    Alloc* alloc = (Alloc*)allocation.get();
+    gr_cp<ID3D12Resource> resource;
+    HRESULT hr = fAllocator->CreateAliasingResource(alloc->fAllocation, localOffset, resourceDesc,
+                                                    initialResourceState, clearValue,
+                                                    IID_PPV_ARGS(&resource));
+    if (!SUCCEEDED(hr)) {
+        return nullptr;
+    }
+
     return resource;
 }
