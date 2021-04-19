@@ -134,12 +134,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
         settings.fInlineThreshold = 0;
         settings.fForceNoInline = options.forceNoInline;
         settings.fAllowNarrowingConversions = true;
-        program = compiler->convertProgram(SkSL::ProgramKind::kRuntimeEffect,
-                                           SkSL::String(sksl.c_str(), sksl.size()),
-                                           settings);
-        // TODO: Many errors aren't caught until we process the generated Program here. Catching those
-        // in the IR generator would provide better errors messages (with locations).
-        #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
+        program = compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
 
         if (!program) {
             RETURN_FAILURE("%s", compiler->errorText().c_str());
