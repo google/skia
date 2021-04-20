@@ -1049,6 +1049,7 @@ void ParagraphImpl::ensureUTF16Mapping() {
 
 void ParagraphImpl::visit(const Visitor& visitor) {
     for (auto& line : fLines) {
+        // visit the "visual" runs
         for (auto& rec : line.fTextBlobCache) {
             SkTextBlob::Iter iter(*rec.fBlob);
             SkTextBlob::Iter::ExperimentalRun run;
@@ -1078,6 +1079,21 @@ void ParagraphImpl::visit(const Visitor& visitor) {
                 });
                 clusterPtr += run.count;
             }
+        }
+        // do we have trailing white-space runs?
+        size_t index = line.fClusterRange.end;
+        while (index < line.fGhostClusterRange.end) {
+            const auto& cluster = fClusters[index];
+            const auto& run = fRuns[cluster.fRunIndex];
+            visitor({
+                run.fFont,
+                line.fOffset,
+                SkToInt(cluster.fEnd - cluster.fStart),
+                &run.fGlyphs[cluster.fStart],
+                &run.fPositions[cluster.fStart],
+                &run.fClusterIndexes[cluster.fStart],
+            });
+            index = cluster.fEnd;
         }
     }
 }
