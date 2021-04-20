@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b55d2c0e_fcf9b4b6",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-20T16:50:39Z",
+      "side": 1,
+      "message": "So the new pattern here is that all these helper queries on render target now go through getFramebuffer and they query off he framebuffer.",
+      "range": {
+        "startLine": 264,
+        "startChar": 18,
+        "endLine": 264,
+        "endChar": 32
+      },
+      "revId": "0c3f0fda1bfb8a54080300c1b11c83765a142c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
