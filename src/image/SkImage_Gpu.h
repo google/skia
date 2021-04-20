@@ -23,18 +23,10 @@ class SkBitmap;
 
 class SkImage_Gpu final : public SkImage_GpuBase {
 public:
-    SkImage_Gpu(sk_sp<GrImageContext>, uint32_t uniqueID, GrSurfaceProxyView, SkColorType,
-                SkAlphaType, sk_sp<SkColorSpace>);
     SkImage_Gpu(sk_sp<GrImageContext> context,
                 uint32_t uniqueID,
                 GrSurfaceProxyView view,
-                SkColorInfo info)
-            : SkImage_Gpu(std::move(context),
-                          uniqueID,
-                          std::move(view),
-                          info.colorType(),
-                          info.alphaType(),
-                          info.refColorSpace()) {}
+                SkColorInfo info);
 
     static sk_sp<SkImage> MakeWithVolatileSrc(sk_sp<GrRecordingContext> rContext,
                                               GrSurfaceProxyView volatileSrc,

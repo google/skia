@@ -324,8 +324,9 @@ static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, GrSurface
                                           SkColorType colorType, SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace) {
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
-                                   kNeedNewImageUniqueID, std::move(view), colorType, alphaType,
-                                   std::move(colorSpace));
+                                   kNeedNewImageUniqueID,
+                                   std::move(view),
+                                   SkColorInfo(colorType, alphaType, std::move(colorSpace)));
 }
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
@@ -360,10 +361,11 @@ public:
         // instantiates itself it is going to have to either be okay with having a larger
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
-        sk_sp<SkImage> img =
-                sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
-                                               this->uniqueID(), fView, this->colorType(),
-                                               fAlphaType, fColorSpace));
+        sk_sp<SkImage> img = sk_sp<SkImage>(
+                new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
+                                this->uniqueID(),
+                                fView,
+                                SkColorInfo(this->colorType(), fAlphaType, fColorSpace)));
 
         canvas->drawImageRect(img, SkRect::Make(this->subset()), dst,
                               sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
