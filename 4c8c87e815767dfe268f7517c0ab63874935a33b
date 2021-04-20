@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d592682b_b7087645",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1826,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-04-20T12:32:16Z",
+      "side": 0,
+      "message": "This is breaking the Android roll, since hasCustomData no longer exists. See https://android-build.googleplex.com/builds/pending/P21971690/cf_x86_64_phone-userdebug/latest/view/logs/build_error.log",
+      "range": {
+        "startLine": 1826,
+        "startChar": 62,
+        "endLine": 1826,
+        "endChar": 75
+      },
+      "revId": "4c8c87e815767dfe268f7517c0ab63874935a33b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
