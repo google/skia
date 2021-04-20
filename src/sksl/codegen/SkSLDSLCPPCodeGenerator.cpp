@@ -303,7 +303,7 @@ int DSLCPPCodeGenerator::getChildFPIndex(const Variable& var) const {
     for (const ProgramElement* p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
             const VarDeclaration& decl =
-                                  p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
+                    p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
             if (&decl.var() == &var) {
                 return index;
             } else if (decl.var().type().isFragmentProcessor()) {
@@ -311,15 +311,39 @@ int DSLCPPCodeGenerator::getChildFPIndex(const Variable& var) const {
             }
         }
     }
-    SkDEBUGFAIL("child fragment processor not found");
+    SkDEBUGFAILF("child fragment processor for '%s' not found", var.description().c_str());
     return 0;
 }
 
 void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     if (function.isBuiltin() && function.name() == "sample") {
-        SK_ABORT("not yet implemented: sample() for DSL");
+        // The first argument to sample() must be a fragment processor. (Old-school samplers are no
+        // longer supported in FP files.)
+        const ExpressionArray& arguments = c.arguments();
+        SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
+        const Expression& fpArgument = *arguments.front();
+        SkASSERT(fpArgument.type().isFragmentProcessor());
+
+        // We can't look up the child FP index unless the fragment-processor is a real variable.
+        if (!fpArgument.is<VariableReference>()) {
+            fErrors.error(fpArgument.fOffset,
+                          "sample()'s fragmentProcessor argument must be a variable reference\n");
+            return;
+        }
+
+        // Pass the index of the fragment processor, and all the other arguments as-is.
+        int childFPIndex = this->getChildFPIndex(*fpArgument.as<VariableReference>().variable());
+        this->writef("SampleChild(%d", childFPIndex);
+
+        for (int index = 1; index < arguments.count(); ++index) {
+            this->write(", ");
+            this->writeExpression(*arguments[index], Precedence::kSequence);
+        }
+        this->write(")");
+        return;
     }
+
     if (function.isBuiltin()) {
         SK_ABORT("not yet implemented: built-in function support for DSL");
     }
