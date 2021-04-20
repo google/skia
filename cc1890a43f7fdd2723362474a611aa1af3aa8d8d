@@ -16,6 +16,24 @@
       "message": "The errors in Vulkan are a preexisting, non-DSL issue (skia:11874) which I\u0027ll resolve in a separate CL before landing this. We didn\u0027t interpret `continue` properly.",
       "revId": "cc1890a43f7fdd2723362474a611aa1af3aa8d8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4edb7df2_d0eb7c7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-20T13:41:01Z",
+      "side": 1,
+      "message": "Fixed at http://review.skia.org/397576",
+      "parentUuid": "078a28bf_74d74c64",
+      "revId": "cc1890a43f7fdd2723362474a611aa1af3aa8d8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
