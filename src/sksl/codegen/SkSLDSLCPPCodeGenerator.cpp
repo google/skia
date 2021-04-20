@@ -293,11 +293,6 @@ void DSLCPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             fAccessSampleCoordsDirectly = true;
             return;
         }
-
-        if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
-            SK_ABORT("not yet implemented: reference to uniform");
-            return;
-        }
     }
 
     this->write(var.name());
@@ -330,59 +325,6 @@ void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 
     SK_ABORT("not yet implemented: helper function support for DSL");
-}
-
-static const char* glsltype_string(const Context& context, const Type& type) {
-    // If a new GrSL type is added, this function will need to be updated.
-    static_assert(kGrSLTypeCount == 49);
-
-    if (type == *context.fTypes.fVoid    ) { return "kVoid_GrSLType";     }
-    if (type == *context.fTypes.fBool    ) { return "kBool_GrSLType";     }
-    if (type == *context.fTypes.fBool2   ) { return "kBool2_GrSLType";    }
-    if (type == *context.fTypes.fBool3   ) { return "kBool3_GrSLType";    }
-    if (type == *context.fTypes.fBool4   ) { return "kBool4_GrSLType";    }
-    if (type == *context.fTypes.fByte    ) { return "kByte_GrSLType";     }
-    if (type == *context.fTypes.fByte2   ) { return "kByte2_GrSLType";    }
-    if (type == *context.fTypes.fByte3   ) { return "kByte3_GrSLType";    }
-    if (type == *context.fTypes.fByte4   ) { return "kByte4_GrSLType";    }
-    if (type == *context.fTypes.fUByte   ) { return "kUByte_GrSLType";    }
-    if (type == *context.fTypes.fUByte2  ) { return "kUByte2_GrSLType";   }
-    if (type == *context.fTypes.fUByte3  ) { return "kUByte3_GrSLType";   }
-    if (type == *context.fTypes.fUByte4  ) { return "kUByte4_GrSLType";   }
-    if (type == *context.fTypes.fShort   ) { return "kShort_GrSLType";    }
-    if (type == *context.fTypes.fShort2  ) { return "kShort2_GrSLType";   }
-    if (type == *context.fTypes.fShort3  ) { return "kShort3_GrSLType";   }
-    if (type == *context.fTypes.fShort4  ) { return "kShort4_GrSLType";   }
-    if (type == *context.fTypes.fUShort  ) { return "kUShort_GrSLType";   }
-    if (type == *context.fTypes.fUShort2 ) { return "kUShort2_GrSLType";  }
-    if (type == *context.fTypes.fUShort3 ) { return "kUShort3_GrSLType";  }
-    if (type == *context.fTypes.fUShort4 ) { return "kUShort4_GrSLType";  }
-    if (type == *context.fTypes.fFloat   ) { return "kFloat_GrSLType";    }
-    if (type == *context.fTypes.fFloat2  ) { return "kFloat2_GrSLType";   }
-    if (type == *context.fTypes.fFloat3  ) { return "kFloat3_GrSLType";   }
-    if (type == *context.fTypes.fFloat4  ) { return "kFloat4_GrSLType";   }
-    if (type == *context.fTypes.fFloat2x2) { return "kFloat2x2_GrSLType"; }
-    if (type == *context.fTypes.fFloat3x3) { return "kFloat3x3_GrSLType"; }
-    if (type == *context.fTypes.fFloat4x4) { return "kFloat4x4_GrSLType"; }
-    if (type == *context.fTypes.fHalf    ) { return "kHalf_GrSLType";     }
-    if (type == *context.fTypes.fHalf2   ) { return "kHalf2_GrSLType";    }
-    if (type == *context.fTypes.fHalf3   ) { return "kHalf3_GrSLType";    }
-    if (type == *context.fTypes.fHalf4   ) { return "kHalf4_GrSLType";    }
-    if (type == *context.fTypes.fHalf2x2 ) { return "kHalf2x2_GrSLType";  }
-    if (type == *context.fTypes.fHalf3x3 ) { return "kHalf3x3_GrSLType";  }
-    if (type == *context.fTypes.fHalf4x4 ) { return "kHalf4x4_GrSLType";  }
-    if (type == *context.fTypes.fInt     ) { return "kInt_GrSLType";      }
-    if (type == *context.fTypes.fInt2    ) { return "kInt2_GrSLType";     }
-    if (type == *context.fTypes.fInt3    ) { return "kInt3_GrSLType";     }
-    if (type == *context.fTypes.fInt4    ) { return "kInt4_GrSLType";     }
-    if (type == *context.fTypes.fUInt    ) { return "kUint_GrSLType";     }
-    if (type == *context.fTypes.fUInt2   ) { return "kUint2_GrSLType";    }
-    if (type == *context.fTypes.fUInt3   ) { return "kUint3_GrSLType";    }
-    if (type == *context.fTypes.fUInt4   ) { return "kUint4_GrSLType";    }
-    if (type.isEnum())                     { return "kInt_GrSLType";      }
-
-    SkDEBUGFAILF("unsupported type: %s", type.description().c_str());
-    return nullptr;
 }
 
 void DSLCPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl) {
@@ -653,17 +595,18 @@ String DSLCPPCodeGenerator::getDSLType(const Type& type) {
 String DSLCPPCodeGenerator::getDSLModifiers(const Modifiers& modifiers) {
     String text;
 
+    // Uniforms variables from FP files can have `in uniform` flags. That's not how they are
+    // represented in DSL, however. Transform `in uniform` to just `uniform`.
+    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+        text += "kUniform_Modifier | ";
+    } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
+        text += "kIn_Modifier | ";
+    }
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
         text += "kConst_Modifier | ";
     }
-    if (modifiers.fFlags & Modifiers::kIn_Flag) {
-        text += "kIn_Modifier | ";
-    }
     if (modifiers.fFlags & Modifiers::kOut_Flag) {
         text += "kOut_Modifier | ";
-    }
-    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-        text += "kUniform_Modifier | ";
     }
     if (modifiers.fFlags & Modifiers::kFlat_Flag) {
         text += "kFlat_Modifier | ";
@@ -772,21 +715,12 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     if (var.modifiers().fLayout.fWhen.fLength) {
         this->writef("        if (%s) {\n    ", String(var.modifiers().fLayout.fWhen).c_str());
     }
-    String name(var.name());
-    if (!var.type().isArray()) {
-        this->writef("        %sVar = args.fUniformHandler->addUniform(&_outer, "
-                     "kFragment_GrShaderFlag, %s, \"%s\");\n",
-                     HCodeGenerator::FieldName(name.c_str()).c_str(),
-                     glsltype_string(fContext, var.type()),
-                     name.c_str());
-    } else {
-        this->writef("        %sVar = args.fUniformHandler->addUniformArray(&_outer, "
-                     "kFragment_GrShaderFlag, %s, \"%s\", %d);\n",
-                     HCodeGenerator::FieldName(name.c_str()).c_str(),
-                     glsltype_string(fContext, var.type().componentType()),
-                     name.c_str(),
-                     var.type().columns());
-    }
+    this->writeVar(var);
+
+    String varName = var.name();
+    this->writef("%sVar = VarUniformHandle(%s);\n",
+                 HCodeGenerator::FieldName(varName.c_str()).c_str(), varName.c_str());
+
     if (var.modifiers().fLayout.fWhen.fLength) {
         this->write("        }\n");
     }
