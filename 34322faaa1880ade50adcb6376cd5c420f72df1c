@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010061048",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/398536?revision\u003d3",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "d7a5e0f9_c5a0e35f",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/AnimationActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-20T14:07:55Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "34322faaa1880ade50adcb6376cd5c420f72df1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
