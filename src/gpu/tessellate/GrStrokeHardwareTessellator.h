@@ -18,8 +18,8 @@ class GrStrokeHardwareTessellator : public GrStrokeTessellator {
 public:
     GrStrokeHardwareTessellator(ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
                                 PathStrokeList* pathStrokeList, const GrShaderCaps&)
-            : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kTessellation, shaderFlags,
-                                  viewMatrix, pathStrokeList) {
+            : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kHardwareTessellation,
+                                  shaderFlags, viewMatrix, pathStrokeList) {
     }
 
     void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) override;
@@ -27,10 +27,6 @@ public:
 
 private:
     GrVertexChunkArray fPatchChunks;
-
-public:
-    // This class is used to benchmark prepareBuffers().
-    class TestingOnly_Benchmark;
 };
 
 #endif
