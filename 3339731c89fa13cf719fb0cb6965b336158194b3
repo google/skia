@@ -136,6 +136,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "95009309_c16b2ea8",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-20T20:06:18Z",
+      "side": 1,
+      "message": "Thank you! The new goldens look correct to me so I approved them.",
+      "parentUuid": "f1918611_7c97cea5",
+      "range": {
+        "startLine": 831,
+        "startChar": 29,
+        "endLine": 831,
+        "endChar": 33
+      },
+      "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d325969b_92ba2b31",
