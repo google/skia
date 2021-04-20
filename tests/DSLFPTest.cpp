@@ -26,8 +26,8 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-template <typename FPClass>
-static void test_dsl_fp(skiatest::Reporter* r, GrDirectContext* ctx) {
+template <typename FPClass, typename... Uniforms>
+static void test_dsl_fp(skiatest::Reporter* r, GrDirectContext* ctx, Uniforms&&... uniforms) {
     std::unique_ptr<GrSurfaceDrawContext> rtCtx =
             GrSurfaceDrawContext::Make(ctx,
                                        GrColorType::kRGBA_8888,
@@ -35,7 +35,8 @@ static void test_dsl_fp(skiatest::Reporter* r, GrDirectContext* ctx) {
                                        SkBackingFit::kApprox,
                                        {1, 1});
 
-    rtCtx->fillRectWithFP(SkIRect::MakeWH(1, 1), FPClass::Make());
+    rtCtx->fillRectWithFP(SkIRect::MakeWH(1, 1),
+                          FPClass::Make(std::forward<Uniforms>(uniforms)...));
 
     SkImageInfo dstInfo = SkImageInfo::Make(/*width=*/1, /*height=*/1, kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType, /*cs=*/nullptr);
@@ -49,9 +50,9 @@ static void test_dsl_fp(skiatest::Reporter* r, GrDirectContext* ctx) {
                     GrColorUnpackG(*color), GrColorUnpackB(*color));
 }
 
-#define DSL_FP_TEST(FPClass)                                         \
-    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FPClass, r, ctxInfo) {        \
-        return test_dsl_fp<Gr##FPClass>(r, ctxInfo.directContext()); \
+#define DSL_FP_TEST(FPClass, ...)                                                   \
+    DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FPClass, r, ctxInfo) {                       \
+        return test_dsl_fp<Gr##FPClass>(r, ctxInfo.directContext(), ##__VA_ARGS__); \
     }
 
 DSL_FP_TEST(DSLFPTest_DoStatement)
@@ -59,5 +60,7 @@ DSL_FP_TEST(DSLFPTest_ForStatement)
 DSL_FP_TEST(DSLFPTest_IfStatement)
 DSL_FP_TEST(DSLFPTest_SwitchStatement)
 DSL_FP_TEST(DSLFPTest_Swizzle)
-DSL_FP_TEST(DSLFPTest_Ternary)
+DSL_FP_TEST(DSLFPTest_Ternary,
+            /*colorGreen=*/SkPMColor4f{0, 1, 0, 1},
+            /*colorRed=*/SkPMColor4f{1, 0, 0, 1})
 DSL_FP_TEST(DSLFPTest_WhileStatement)
