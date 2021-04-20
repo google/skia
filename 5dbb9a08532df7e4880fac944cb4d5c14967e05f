@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50b95a75_409cdd33",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-20T13:20:51Z",
+      "side": 1,
+      "message": "nit: In other public types that have methods that make a copy with one aspect changed we usually name the methods \"make\u003cProperty\u003e\" E.g. SkImageInfo has makeColorType(SkColorType) among others. I\u0027d call this makePixelGeometry().",
+      "range": {
+        "startLine": 66,
+        "startChar": 19,
+        "endLine": 66,
+        "endChar": 41
+      },
+      "revId": "5dbb9a08532df7e4880fac944cb4d5c14967e05f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
