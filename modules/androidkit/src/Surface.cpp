@@ -7,11 +7,20 @@
 
 #include <android/bitmap.h>
 #include <android/log.h>
+// TODO: Clean this up
+#include <android/native_activity.h>
+#include <android/native_window_jni.h>
+#include <android/native_window.h>
+#include <android/window.h>
+#include <android/rect.h>
+#include <android/surface_control.h>
 #include <jni.h>
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+
+#include "modules/androidkit/include/SurfaceThread.h"
 
 namespace {
 
@@ -19,7 +28,12 @@ class Surface : public SkRefCnt {
 public:
     virtual void release(JNIEnv*) = 0;
 
-    SkCanvas* getCanvas() const { return fSurface->getCanvas(); }
+    SkCanvas* getCanvas() const {
+        if (fSurface) {
+            return fSurface->getCanvas();
+        }
+        return nullptr;
+    }
 
 protected:
     sk_sp<SkSurface> fSurface;
@@ -86,9 +100,41 @@ private:
     jobject fBitmap;
 };
 
+// SkSurface created from being passed an android.view.Surface
+// For now, assume we are always rendering with OpenGL
+class SurfaceSurface final : public Surface {
+public:
+    SurfaceSurface(JNIEnv* env, jobject surface) {
+        ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
+        if (!window) {
+            return;
+        }
+        // TODO: when creating multiple surfaces, they should use the same SurfaceThread
+        fWindow = window;
+    }
+
+private:
+    void release(JNIEnv* env) override {
+        if (fSurface) {
+            fSurface.reset();
+        }
+    }
+
+    ANativeWindow* fWindow;
+    SurfaceThread fThread;
+};
+
+// JNI methods
+
 static jlong Surface_CreateBitmap(JNIEnv* env, jobject, jobject bitmap) {
     return reinterpret_cast<jlong>(new BitmapSurface(env, bitmap));
 }
+
+static jlong Surface_CreateSurface(JNIEnv* env, jobject, jobject surface) {
+    return reinterpret_cast<jlong>(new SurfaceSurface(env, surface));
+}
+
+//TODO support software surfaces and Vulkan surfaces
 
 static void Surface_Release(JNIEnv* env, jobject, jlong native_surface) {
     if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
@@ -110,6 +156,8 @@ int register_androidkit_Surface(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
         {"nCreateBitmap"   , "(Landroid/graphics/Bitmap;)J",
             reinterpret_cast<void*>(Surface_CreateBitmap)},
+        {"nCreateSurface"  , "(Landroid/view/Surface;)J",
+            reinterpret_cast<void*>(Surface_CreateSurface)},
         {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)},
         {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
     };
