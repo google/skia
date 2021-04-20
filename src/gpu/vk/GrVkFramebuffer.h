@@ -20,13 +20,13 @@ class GrVkRenderPass;
 
 class GrVkFramebuffer : public GrVkManagedResource {
 public:
-    static GrVkFramebuffer* Create(GrVkGpu* gpu,
-                                   SkISize dimensions,
-                                   const GrVkRenderPass* renderPass,
-                                   GrVkAttachment* colorAttachment,
-                                   GrVkAttachment* resolveAttachment,
-                                   GrVkAttachment* stencilAttachment,
-                                   GrVkResourceProvider::CompatibleRPHandle);
+    static sk_sp<const GrVkFramebuffer> Make(GrVkGpu* gpu,
+                                             SkISize dimensions,
+                                             sk_sp<const GrVkRenderPass> compatibleRenderPass,
+                                             GrVkAttachment* colorAttachment,
+                                             GrVkAttachment* resolveAttachment,
+                                             GrVkAttachment* stencilAttachment,
+                                             GrVkResourceProvider::CompatibleRPHandle);
 
     // Used for wrapped external secondary command buffers
     GrVkFramebuffer(const GrVkGpu* gpu,
@@ -61,6 +61,8 @@ public:
     }
 #endif
 
+    const GrVkRenderPass* compatibleRenderPass() const { return fCompatibleRenderPass.get(); }
+
     GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle() const {
         return fCompatibleRenderPassHandle;
     }
@@ -75,6 +77,7 @@ private:
                     sk_sp<GrVkAttachment> colorAttachment,
                     sk_sp<GrVkAttachment> resolveAttachment,
                     sk_sp<GrVkAttachment> stencilAttachment,
+                    sk_sp<const GrVkRenderPass> compatibleRenderPass,
                     GrVkResourceProvider::CompatibleRPHandle);
 
     ~GrVkFramebuffer() override;
@@ -88,6 +91,7 @@ private:
     sk_sp<GrVkAttachment> fResolveAttachment;
     sk_sp<GrVkAttachment> fStencilAttachment;
 
+    sk_sp<const GrVkRenderPass> fCompatibleRenderPass;
     GrVkResourceProvider::CompatibleRPHandle fCompatibleRenderPassHandle;
 
     sk_sp<const GrVkRenderPass> fExternalRenderPass;
