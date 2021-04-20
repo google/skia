@@ -670,11 +670,11 @@ void GrVkPipeline::freeGPUData() const {
 
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
                                               GrVkCommandBuffer* cmdBuffer,
-                                              const GrRenderTarget* renderTarget,
+                                              SkISize colorAttachmentDimensions,
                                               GrSurfaceOrigin rtOrigin,
                                               const SkIRect& scissorRect) {
     SkASSERT(scissorRect.isEmpty() ||
-             SkIRect::MakeWH(renderTarget->width(), renderTarget->height()).contains(scissorRect));
+             SkIRect::MakeSize(colorAttachmentDimensions).contains(scissorRect));
 
     VkRect2D scissor;
     scissor.offset.x = scissorRect.fLeft;
@@ -683,7 +683,7 @@ void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
         scissor.offset.y = scissorRect.fTop;
     } else {
         SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
-        scissor.offset.y = renderTarget->height() - scissorRect.fBottom;
+        scissor.offset.y = colorAttachmentDimensions.height() - scissorRect.fBottom;
     }
     scissor.extent.height = scissorRect.height();
 
@@ -694,13 +694,13 @@ void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
 
 void GrVkPipeline::SetDynamicViewportState(GrVkGpu* gpu,
                                            GrVkCommandBuffer* cmdBuffer,
-                                           const GrRenderTarget* renderTarget) {
+                                           SkISize colorAttachmentDimensions) {
     // We always use one viewport the size of the RT
     VkViewport viewport;
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = SkIntToScalar(renderTarget->width());
-    viewport.height = SkIntToScalar(renderTarget->height());
+    viewport.width = SkIntToScalar(colorAttachmentDimensions.width());
+    viewport.height = SkIntToScalar(colorAttachmentDimensions.height());
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     cmdBuffer->setViewport(gpu, 0, 1, &viewport);
