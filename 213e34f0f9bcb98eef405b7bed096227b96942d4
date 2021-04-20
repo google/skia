@@ -94,6 +94,30 @@
       },
       "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3846fcd0_fc9d4bd9",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-20T13:26:06Z",
+      "side": 1,
+      "message": "no real pref, but either of these seems odd to make public",
+      "parentUuid": "dd2882ac_ee1e41d6",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
