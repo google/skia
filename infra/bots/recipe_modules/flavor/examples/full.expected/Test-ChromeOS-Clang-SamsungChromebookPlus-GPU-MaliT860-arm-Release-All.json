@@ -13,7 +13,9 @@
     "infra_step": true,
     "name": "read ssh_machine.json",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@ssh_machine.json@{\"user_ip\": \"foo@127.0.0.1\"}@@@",
+      "@@@STEP_LOG_LINE@ssh_machine.json@{@@@",
+      "@@@STEP_LOG_LINE@ssh_machine.json@  \"user_ip\": \"foo@127.0.0.1\"@@@",
+      "@@@STEP_LOG_LINE@ssh_machine.json@}@@@",
       "@@@STEP_LOG_END@ssh_machine.json@@@"
     ]
   },
