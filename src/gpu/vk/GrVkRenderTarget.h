@@ -86,7 +86,7 @@ public:
         return fResolveAttachment ? fResolveAttachment.get() : fColorAttachment.get();
     }
 
-    std::pair<const GrVkRenderPass*, GrVkResourceProvider::CompatibleRPHandle> getSimpleRenderPass(
+    const GrVkRenderPass* getSimpleRenderPass(
             bool withResolve,
             bool withStencil,
             SelfDependencyFlags selfDepFlags,
@@ -158,14 +158,15 @@ private:
     GrVkAttachment* dynamicMSAAAttachment();
     GrVkAttachment* msaaAttachment();
 
-    const GrVkRenderPass* createSimpleRenderPass(bool withResolve,
-                                                 bool withStencil,
-                                                 SelfDependencyFlags selfDepFlags,
-                                                 LoadFromResolve);
-    const GrVkFramebuffer* createFramebuffer(bool withResolve,
-                                             bool withStencil,
-                                             SelfDependencyFlags selfDepFlags,
-                                             LoadFromResolve);
+    std::pair<const GrVkRenderPass*, GrVkResourceProvider::CompatibleRPHandle>
+        createSimpleRenderPass(bool withResolve,
+                               bool withStencil,
+                               SelfDependencyFlags selfDepFlags,
+                               LoadFromResolve);
+    void createFramebuffer(bool withResolve,
+                           bool withStencil,
+                           SelfDependencyFlags selfDepFlags,
+                           LoadFromResolve);
 
     bool completeStencilAttachment() override;
 
@@ -187,12 +188,11 @@ private:
 
     // We can have a renderpass with and without resolve attachment, stencil attachment,
     // input attachment dependency, advanced blend dependency, and loading from resolve. All 5 of
-    // these being completely orthogonal. Thus we have a total of 32 types of render passes.
-    static constexpr int kNumCachedRenderPasses = 32;
+    // these being completely orthogonal. Thus we have a total of 32 types of render passes. We then
+    // cache a framebuffer for each type of these render passes.
+    static constexpr int kNumCachedFramebuffers = 32;
 
-    const GrVkFramebuffer*                   fCachedFramebuffers[kNumCachedRenderPasses];
-    const GrVkRenderPass*                    fCachedRenderPasses[kNumCachedRenderPasses];
-    GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandles[kNumCachedRenderPasses];
+    sk_sp<const GrVkFramebuffer> fCachedFramebuffers[kNumCachedFramebuffers];
 
     const GrVkDescriptorSet* fCachedInputDescriptorSet = nullptr;
 

@@ -13,16 +13,16 @@
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 
-GrVkFramebuffer* GrVkFramebuffer::Create(
+sk_sp<const GrVkFramebuffer> GrVkFramebuffer::Make(
         GrVkGpu* gpu,
         SkISize dimensions,
-        const GrVkRenderPass* renderPass,
+        sk_sp<const GrVkRenderPass> compatibleRenderPass,
         GrVkAttachment* colorAttachment,
         GrVkAttachment* resolveAttachment,
         GrVkAttachment* stencilAttachment,
         GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle) {
     // At the very least we need a renderPass and a colorAttachment
-    SkASSERT(renderPass);
+    SkASSERT(compatibleRenderPass);
     SkASSERT(colorAttachment);
 
     VkImageView attachments[3];
@@ -40,7 +40,7 @@ GrVkFramebuffer* GrVkFramebuffer::Create(
     createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
-    createInfo.renderPass = renderPass->vkRenderPass();
+    createInfo.renderPass = compatibleRenderPass->vkRenderPass();
     createInfo.attachmentCount = numAttachments;
     createInfo.pAttachments = attachments;
     createInfo.width = dimensions.width();
@@ -55,9 +55,10 @@ GrVkFramebuffer* GrVkFramebuffer::Create(
         return nullptr;
     }
 
-    return new GrVkFramebuffer(gpu, framebuffer, sk_ref_sp(colorAttachment),
-                               sk_ref_sp(resolveAttachment), sk_ref_sp(stencilAttachment),
-                               compatibleRenderPassHandle);
+    auto fb = new GrVkFramebuffer(gpu, framebuffer, sk_ref_sp(colorAttachment),
+                                  sk_ref_sp(resolveAttachment), sk_ref_sp(stencilAttachment),
+                                  std::move(compatibleRenderPass), compatibleRenderPassHandle);
+    return sk_sp<const GrVkFramebuffer>(fb);
 }
 
 GrVkFramebuffer::GrVkFramebuffer(const GrVkGpu* gpu,
@@ -65,12 +66,14 @@ GrVkFramebuffer::GrVkFramebuffer(const GrVkGpu* gpu,
                                  sk_sp<GrVkAttachment> colorAttachment,
                                  sk_sp<GrVkAttachment> resolveAttachment,
                                  sk_sp<GrVkAttachment> stencilAttachment,
+                                 sk_sp<const GrVkRenderPass> compatibleRenderPass,
                                  GrVkResourceProvider::CompatibleRPHandle compatibleRPHandle)
         : GrVkManagedResource(gpu)
         , fFramebuffer(framebuffer)
         , fColorAttachment(std::move(colorAttachment))
         , fResolveAttachment(std::move(resolveAttachment))
         , fStencilAttachment(std::move(stencilAttachment))
+        , fCompatibleRenderPass(std::move(compatibleRenderPass))
         , fCompatibleRenderPassHandle(compatibleRPHandle) {
     SkASSERT(fCompatibleRenderPassHandle.isValid());
 }
