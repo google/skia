@@ -223,7 +223,8 @@ fi
 PARAGRAPH_JS="--pre-js $BASE_DIR/paragraph.js"
 PARAGRAPH_LIB="$BUILD_DIR/libskparagraph.a"
 PARAGRAPH_BINDINGS="-DSK_INCLUDE_PARAGRAPH=1 \
-  $BASE_DIR/paragraph_bindings.cpp"
+  $BASE_DIR/paragraph_bindings.cpp \
+  $BASE_DIR/paragraph_bindings_gen.cpp"
 
 if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Omitting paragraph (must have fonts and non-primitive shaper)"
