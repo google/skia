@@ -349,7 +349,7 @@ describe('Canvas 2D emulation', () => {
 
             ctx.translate(60, 0);
             ctx.rotate(Math.PI / 6);
-            ctx.transform(1.5, 0, 0, 0.5, 0, 0, 0); // effectively scale
+            ctx.transform(1.5, 0, 0, 0.5, 0, 0); // effectively scale
             ctx.rect(90, 10, 20, 20);
             ctx.resetTransform();
 
