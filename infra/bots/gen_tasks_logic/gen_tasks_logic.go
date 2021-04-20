@@ -227,9 +227,14 @@ var (
 		},
 	}
 
-	// Set dontReduceOpsTaskSplitting option on these models
-	DONT_REDUCE_OPS_TASK_SPLITTING_MODELS = []string{
-		"NUC5PPYH",
+	// Enable reduceOpsTaskSplitting option on these models
+	// skbug.com/10877#c27
+	REDUCE_OPS_TASK_SPLITTING_MODELS = []string{
+		"AndroidOne",
+		"GalaxyS20",
+		"Nexus5x",
+		"Nexus7",
+		"NUC7i5BNK",
 	}
 )
 
