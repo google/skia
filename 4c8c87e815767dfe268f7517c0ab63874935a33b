@@ -22,6 +22,30 @@
       },
       "revId": "4c8c87e815767dfe268f7517c0ab63874935a33b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ac75e0e_ce9bf16c",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1826,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-20T12:47:08Z",
+      "side": 0,
+      "message": "Oof, sorry. Landing a fix.",
+      "parentUuid": "d592682b_b7087645",
+      "range": {
+        "startLine": 1826,
+        "startChar": 62,
+        "endLine": 1826,
+        "endChar": 75
+      },
+      "revId": "4c8c87e815767dfe268f7517c0ab63874935a33b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
