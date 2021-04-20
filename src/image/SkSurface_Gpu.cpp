@@ -135,16 +135,16 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
     }
 
     const SkImageInfo info = fDevice->imageInfo();
-    sk_sp<SkImage> image;
-    if (srcView.asTextureProxy()) {
-        // The surfaceDrawContext coming out of SkGpuDevice should always be exact and the
-        // above copy creates a kExact surfaceContext.
-        SkASSERT(srcView.proxy()->priv().isExact());
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID,
-                                        std::move(srcView), info.colorType(), info.alphaType(),
-                                        info.refColorSpace());
+    if (!srcView.asTextureProxy()) {
+        return nullptr;
     }
-    return image;
+    // The surfaceDrawContext coming out of SkGpuDevice should always be exact and the
+    // above copy creates a kExact surfaceContext.
+    SkASSERT(srcView.proxy()->priv().isExact());
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext),
+                                   kNeedNewImageUniqueID,
+                                   std::move(srcView),
+                                   info.colorInfo());
 }
 
 void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
@@ -303,9 +303,10 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
         const SkImageInfo info = fDevice->imageInfo();
         GrSurfaceProxyView view(std::move(srcProxy), sdc->origin(), sdc->readSwizzle());
         sk_sp<SkImage> image;
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(canvasContext), kNeedNewImageUniqueID,
-                                        std::move(view), info.colorType(), info.alphaType(),
-                                        info.refColorSpace());
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(canvasContext),
+                                        kNeedNewImageUniqueID,
+                                        std::move(view),
+                                        info.colorInfo());
         canvas->drawImage(image.get(), x, y, sampling, paint);
         return true;
     };

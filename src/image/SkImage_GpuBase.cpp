@@ -28,9 +28,8 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkReadPixelsRec.h"
 
-SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkISize size, uint32_t uniqueID,
-                                 SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
-        : INHERITED(SkImageInfo::Make(size, ct, at, std::move(cs)), uniqueID)
+SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkImageInfo info, uint32_t uniqueID)
+        : INHERITED(std::move(info), uniqueID)
         , fContext(std::move(context)) {}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

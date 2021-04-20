@@ -146,15 +146,10 @@ inline GrBackendFormat SkImage_Gpu::ProxyChooser::backendFormat() {
 SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context,
                          uint32_t uniqueID,
                          GrSurfaceProxyView view,
-                         SkColorType ct,
-                         SkAlphaType at,
-                         sk_sp<SkColorSpace> colorSpace)
+                         SkColorInfo info)
         : INHERITED(std::move(context),
-                    view.proxy()->backingStoreDimensions(),
-                    uniqueID,
-                    ct,
-                    at,
-                    std::move(colorSpace))
+                    SkImageInfo::Make(view.proxy()->backingStoreDimensions(), std::move(info)),
+                    uniqueID)
         , fChooser(view.detachProxy())
         , fSwizzle(view.swizzle())
         , fOrigin(view.origin()) {
@@ -172,13 +167,11 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrDirectContext> dContext,
                          sk_sp<GrSurfaceProxy> stableCopy,
                          sk_sp<GrRenderTask> copyTask,
                          int volatileSrcTargetCount,
-                         SkColorInfo colorInfo)
+                         SkColorInfo info)
         : INHERITED(std::move(dContext),
-                    volatileSrc.proxy()->backingStoreDimensions(),
-                    kNeedNewImageUniqueID,
-                    colorInfo.colorType(),
-                    colorInfo.alphaType(),
-                    colorInfo.refColorSpace())
+                    SkImageInfo::Make(volatileSrc.proxy()->backingStoreDimensions(),
+                                      std::move(info)),
+                    kNeedNewImageUniqueID)
         , fChooser(std::move(stableCopy),
                    volatileSrc.detachProxy(),
                    std::move(copyTask),
@@ -297,31 +290,34 @@ size_t SkImage_Gpu::onTextureSize() const { return fChooser.gpuMemorySize(); }
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS,
                                                          GrDirectContext* direct) const {
+    SkColorInfo info(targetCT, this->alphaType(), std::move(targetCS));
     if (!fContext->priv().matches(direct)) {
         return nullptr;
     }
 
-    auto info = this->imageInfo().makeColorType(targetCT).makeColorSpace(targetCS);
-    auto surfaceFillContext = GrSurfaceFillContext::MakeWithFallback(direct,
-                                                                     std::move(info),
-                                                                     SkBackingFit::kExact);
+    auto surfaceFillContext = GrSurfaceFillContext::MakeWithFallback(
+            direct,
+            GrImageInfo(info, this->dimensions()),
+            SkBackingFit::kExact);
     if (!surfaceFillContext) {
         return nullptr;
     }
-    auto [view, ct] = this->asView(direct, GrMipmapped(this->hasMipmaps()));
+    // We respecify info's CT because we called MakeWithFallback.
+    auto ct = GrColorTypeToSkColorType(surfaceFillContext->colorInfo().colorType());
+    info = info.makeColorType(ct);
+
+    // Draw this image's texture into the SFC.
+    auto [view, _] = this->asView(direct, GrMipmapped(this->hasMipmaps()));
     auto texFP = GrTextureEffect::Make(std::move(view), this->alphaType());
     auto colorFP = GrColorSpaceXformEffect::Make(std::move(texFP),
-                                                 this->colorSpace(), this->alphaType(),
-                                                 targetCS.get(),     this->alphaType());
-    SkASSERT(colorFP);
-
+                                                 this->imageInfo().colorInfo(),
+                                                 info);
     surfaceFillContext->fillWithFP(std::move(colorFP));
-    SkASSERT(surfaceFillContext->asTextureProxy());
 
-    targetCT = GrColorTypeToSkColorType(surfaceFillContext->colorInfo().colorType());
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID,
-                                   surfaceFillContext->readSurfaceView(), targetCT,
-                                   this->alphaType(), std::move(targetCS));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct),
+                                   kNeedNewImageUniqueID,
+                                   surfaceFillContext->readSurfaceView(),
+                                   std::move(info));
 }
 
 sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
@@ -331,9 +327,7 @@ sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) c
     return sk_make_sp<SkImage_Gpu>(fContext,
                                    kNeedNewImageUniqueID,
                                    std::move(view),
-                                   this->colorType(),
-                                   this->alphaType(),
-                                   std::move(newCS));
+                                   this->imageInfo().colorInfo().makeColorSpace(std::move(newCS)));
 }
 
 void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
@@ -397,8 +391,10 @@ void SkImage_Gpu::generatingSurfaceIsDeleted() { fChooser.makeVolatileProxyStabl
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrRecordingContext* rContext,
                                                  const GrBackendTexture& backendTex,
-                                                 GrColorType colorType, GrSurfaceOrigin origin,
-                                                 SkAlphaType at, sk_sp<SkColorSpace> colorSpace,
+                                                 GrColorType colorType,
+                                                 GrSurfaceOrigin origin,
+                                                 SkAlphaType at,
+                                                 sk_sp<SkColorSpace> colorSpace,
                                                  GrWrapOwnership ownership,
                                                  sk_sp<GrRefCntedCallback> releaseHelper) {
     if (!backendTex.isValid() || backendTex.width() <= 0 || backendTex.height() <= 0) {
@@ -414,8 +410,11 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrRecordingContext* rContext,
 
     GrSwizzle swizzle = rContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID, std::move(view),
-                                   GrColorTypeToSkColorType(colorType), at, std::move(colorSpace));
+    SkColorInfo info(GrColorTypeToSkColorType(colorType), at, std::move(colorSpace));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext),
+                                   kNeedNewImageUniqueID,
+                                   std::move(view),
+                                   std::move(info));
 }
 
 sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext* rContext,
@@ -448,8 +447,10 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext* rContext,
     SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, GrSwizzle::RGBA());
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID,  std::move(view),
-                                   ct, at, std::move(cs));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext),
+                                   kNeedNewImageUniqueID,
+                                   std::move(view),
+                                   SkColorInfo(ct, at, std::move(cs)));
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
@@ -529,8 +530,10 @@ sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrDirectContext* direct, sk_sp
 
     SkColorType colorType = GrCompressionTypeToSkColorType(type);
 
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID, std::move(view),
-                                   colorType, kOpaque_SkAlphaType, nullptr);
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct),
+                                   kNeedNewImageUniqueID,
+                                   std::move(view),
+                                   SkColorInfo(colorType, kOpaque_SkAlphaType, nullptr));
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
@@ -624,8 +627,10 @@ sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threa
     GrSwizzle swizzle = threadSafeProxy->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     sk_sp<GrImageContext> ctx(GrImageContextPriv::MakeForPromiseImage(std::move(threadSafeProxy)));
-    return sk_make_sp<SkImage_Gpu>(std::move(ctx), kNeedNewImageUniqueID, std::move(view),
-                                   colorType, alphaType, std::move(colorSpace));
+    return sk_make_sp<SkImage_Gpu>(std::move(ctx),
+                                   kNeedNewImageUniqueID,
+                                   std::move(view),
+                                   SkColorInfo(colorType, alphaType, std::move(colorSpace)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -747,12 +752,11 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
 
     GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView framebufferView(std::move(proxy), surfaceOrigin, swizzle);
+    SkColorInfo colorInfo = pixmap.info().colorInfo().makeColorType(colorType);
     sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
                                                    kNeedNewImageUniqueID,
                                                    framebufferView,
-                                                   colorType,
-                                                   pixmap.alphaType(),
-                                                   pixmap.refColorSpace());
+                                                   std::move(colorInfo));
     if (!image) {
         return nullptr;
     }

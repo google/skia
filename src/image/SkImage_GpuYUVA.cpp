@@ -39,14 +39,16 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  GrYUVATextureProxies proxies,
                                  sk_sp<SkColorSpace> imageColorSpace)
         : INHERITED(std::move(context),
-                    proxies.yuvaInfo().dimensions(),
-                    uniqueID,
-                    kAssumedColorType,
-                    // If an alpha channel is present we always use kPremul. This is because,
-                    // although the planar data is always un-premul, the final interleaved RGB image
-                    // is/would-be premul.
-                    proxies.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType : kOpaque_SkAlphaType,
-                    std::move(imageColorSpace))
+                    SkImageInfo::Make(proxies.yuvaInfo().dimensions(),
+                                      kAssumedColorType,
+                                      // If an alpha channel is present we always use kPremul. This
+                                      // is because, although the planar data is always un-premul,
+                                      // the final interleaved RGBA sample produced in the shader
+                                      // is premul (and similar if flattened via asView).
+                                      proxies.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType
+                                                                    : kOpaque_SkAlphaType,
+                                      std::move(imageColorSpace)),
+                    uniqueID)
         , fYUVAProxies(std::move(proxies)) {
     // The caller should have checked this, just verifying.
     SkASSERT(fYUVAProxies.isValid());
@@ -57,11 +59,8 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  const SkImage_GpuYUVA* image,
                                  sk_sp<SkColorSpace> targetCS)
         : INHERITED(std::move(context),
-                    image->dimensions(),
-                    kNeedNewImageUniqueID,
-                    kAssumedColorType,
-                    image->alphaType(),
-                    std::move(targetCS))
+                    image->imageInfo().makeColorSpace(std::move(targetCS)),
+                    kNeedNewImageUniqueID)
         , fYUVAProxies(image->fYUVAProxies)
         // Since null fFromColorSpace means no GrColorSpaceXform, we turn a null
         // image->refColorSpace() into an explicit SRGB.
