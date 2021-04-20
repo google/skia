@@ -19,8 +19,8 @@
 // we will end up writing.
 struct GrVertexChunk {
     sk_sp<const GrBuffer> fBuffer;
-    int fVertexCount = 0;
-    int fBaseVertex;
+    int fCount = 0;
+    int fBase;  // baseVertex or baseInstance, depending on the use case.
 };
 
 // Represents an array of GrVertexChunks.
@@ -45,7 +45,7 @@ public:
     ~GrVertexChunkBuilder() {
         if (!fChunks->empty()) {
             fTarget->putBackVertices(fCurrChunkVertexCapacity - fCurrChunkVertexCount, fStride);
-            fChunks->back().fVertexCount = fCurrChunkVertexCount;
+            fChunks->back().fCount = fCurrChunkVertexCount;
         }
     }
 
@@ -68,7 +68,7 @@ private:
     bool allocChunk(int minCount) {
         if (!fChunks->empty()) {
             // No need to put back vertices; the buffer is full.
-            fChunks->back().fVertexCount = fCurrChunkVertexCount;
+            fChunks->back().fCount = fCurrChunkVertexCount;
         }
         fCurrChunkVertexCount = 0;
         GrVertexChunk* chunk = &fChunks->push_back();
@@ -76,7 +76,7 @@ private:
                                                                   fMinVerticesPerChunk * minCount,
                                                                   fMinVerticesPerChunk * minCount,
                                                                   &chunk->fBuffer,
-                                                                  &chunk->fBaseVertex,
+                                                                  &chunk->fBase,
                                                                   &fCurrChunkVertexCapacity)};
         if (!fCurrChunkVertexWriter || !chunk->fBuffer || fCurrChunkVertexCapacity < minCount) {
             SkDebugf("WARNING: Failed to allocate vertex buffer for GrVertexChunk.\n");
