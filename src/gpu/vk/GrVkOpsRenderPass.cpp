@@ -646,16 +646,19 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     // same place (i.e., the target renderTargetProxy) they had best agree.
     SkASSERT(programInfo.origin() == fOrigin);
 
-    if (!fCurrentPipelineState->setAndBindUniforms(fGpu, fRenderTarget, programInfo, currentCB)) {
+    auto colorAttachment = fFramebuffer->colorAttachment();
+    if (!fCurrentPipelineState->setAndBindUniforms(fGpu, colorAttachment->dimensions(), programInfo,
+                                                   currentCB)) {
         return false;
     }
 
     if (!programInfo.pipeline().isScissorTestEnabled()) {
         // "Disable" scissor by setting it to the full pipeline bounds.
-        GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
+        GrVkPipeline::SetDynamicScissorRectState(
+                fGpu, currentCB, colorAttachment->dimensions(), fOrigin,
                                                  fCurrentPipelineBounds);
     }
-    GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, fRenderTarget);
+    GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, colorAttachment->dimensions());
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB,
                                                programInfo.pipeline().writeSwizzle(),
                                                programInfo.pipeline().getXferProcessor());
@@ -668,13 +671,14 @@ void GrVkOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     if (!combinedScissorRect.intersect(fCurrentPipelineBounds, scissor)) {
         combinedScissorRect = SkIRect::MakeEmpty();
     }
-    GrVkPipeline::SetDynamicScissorRectState(fGpu, this->currentCommandBuffer(), fRenderTarget,
+    GrVkPipeline::SetDynamicScissorRectState(fGpu, this->currentCommandBuffer(),
+                                             fFramebuffer->colorAttachment()->dimensions(),
                                              fOrigin, combinedScissorRect);
 }
 
 #ifdef SK_DEBUG
-void check_sampled_texture(GrTexture* tex, GrRenderTarget* rt, GrVkGpu* gpu) {
-    SkASSERT(!tex->isProtected() || (rt->isProtected() && gpu->protectedContext()));
+void check_sampled_texture(GrTexture* tex, GrAttachment* colorAttachment, GrVkGpu* gpu) {
+    SkASSERT(!tex->isProtected() || (colorAttachment->isProtected() && gpu->protectedContext()));
     auto vkTex = static_cast<GrVkTexture*>(tex)->textureAttachment();
     SkASSERT(vkTex->currentLayout() == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
@@ -685,14 +689,15 @@ bool GrVkOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,
                                        const GrPipeline& pipeline) {
 #ifdef SK_DEBUG
     SkASSERT(fCurrentPipelineState);
+    auto colorAttachment = fFramebuffer->colorAttachment();
     for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
-        check_sampled_texture(geomProcTextures[i]->peekTexture(), fRenderTarget, fGpu);
+        check_sampled_texture(geomProcTextures[i]->peekTexture(), colorAttachment, fGpu);
     }
     pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
-        check_sampled_texture(te.texture(), fRenderTarget, fGpu);
+        check_sampled_texture(te.texture(), colorAttachment, fGpu);
     });
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        check_sampled_texture(dstTexture, fRenderTarget, fGpu);
+        check_sampled_texture(dstTexture, colorAttachment, fGpu);
     }
 #endif
     if (!fCurrentPipelineState->setAndBindTextures(fGpu, geomProc, pipeline, geomProcTextures,
