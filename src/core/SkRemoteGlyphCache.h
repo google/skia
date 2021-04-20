@@ -84,6 +84,13 @@ public:
     SK_SPI explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
     SK_SPI ~SkStrikeServer();
 
+    // Create an analysis SkCanvas used to populate the SkStrikeServer with ops
+    // which will be serialized and rendered using the SkStrikeClient.
+    SK_API std::unique_ptr<SkCanvas> makeAnalysisCanvas(int width, int height,
+                                                        const SkSurfaceProps& props,
+                                                        sk_sp<SkColorSpace> colorSpace,
+                                                        bool DFTSupport);
+
     // Serializes the typeface to be transmitted using this server.
     SK_SPI sk_sp<SkData> serializeTypeface(SkTypeface*);
 
