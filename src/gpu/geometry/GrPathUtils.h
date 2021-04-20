@@ -162,6 +162,17 @@ inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
 // point(s) occurred at 180-degree turnaround points on a degenerate flat line.
 int findCubicConvex180Chops(const SkPoint[], float T[2], bool* areCusps);
 
+// Returns true if the given conic (or quadratic) has a cusp point. The w value is not necessary in
+// determining this. If there is a cusp, it can be found at the midtangent.
+inline bool conicHasCusp(const SkPoint p[3]) {
+    SkVector a = p[1] - p[0];
+    SkVector b = p[2] - p[1];
+    // A conic of any class can only have a cusp if it is a degenerate flat line with a 180 degree
+    // turnarund. To detect this, the beginning and ending tangents must be parallel
+    // (a.cross(b) == 0) and pointing in opposite directions (a.dot(b) < 0).
+    return a.cross(b) == 0 && a.dot(b) < 0;
+}
+
 }  // namespace GrPathUtils
 
 #endif

@@ -633,15 +633,6 @@ private:
     GrVertexColor fDynamicColor;
 };
 
-SK_ALWAYS_INLINE static bool conic_has_cusp(const SkPoint p[3]) {
-    SkVector a = p[1] - p[0];
-    SkVector b = p[2] - p[1];
-    // A conic of any class can only have a cusp if it is a degenerate flat line with a 180 degree
-    // turnarund. To detect this, the beginning and ending tangents must be parallel
-    // (a.cross(b) == 0) and pointing in opposite directions (a.dot(b) < 0).
-    return a.cross(b) == 0 && a.dot(b) < 0;
-}
-
 SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
     using grvx::float2;
 
@@ -762,7 +753,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, int tota
                         patchWriter.writeLineTo(p[0], p[2]);
                         continue;
                     }
-                    if (conic_has_cusp(p)) {
+                    if (GrPathUtils::conicHasCusp(p)) {
                         // Cusps are rare, but the tessellation shader can't handle them. Chop the
                         // curve into segments that the shader can handle.
                         SkPoint cusp = SkEvalQuadAt(p, SkFindQuadMidTangent(p));
@@ -797,7 +788,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, int tota
                         patchWriter.writeLineTo(p[0], p[2]);
                         continue;
                     }
-                    if (conic_has_cusp(p)) {
+                    if (GrPathUtils::conicHasCusp(p)) {
                         // Cusps are rare, but the tessellation shader can't handle them. Chop the
                         // curve into segments that the shader can handle.
                         SkConic conic(p, *w);
