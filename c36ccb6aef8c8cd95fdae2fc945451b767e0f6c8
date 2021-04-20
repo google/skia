@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ddb8658_b788a760",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-20T17:00:00Z",
+      "side": 1,
+      "message": "So I have a general question about aliasing in D3D. What, if any, are the restrictions on using aliased memory within the same draws, render passes (if we ever use them), etc? I only ask because Vulkan has this same concept but I\u0027ve avoided it because there are a lot more restrictions and tracking that needs to be done with aliased memory.\n\nFor this specific use case with sRGB formats, but reading them as linear, does d3d12 not have a way to do this via views? In Vulkan when you create a VkImage with the flag VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT which says that I can create GrVkImageViews of that Image with different formats.",
+      "revId": "c36ccb6aef8c8cd95fdae2fc945451b767e0f6c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
