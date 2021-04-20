@@ -16,6 +16,52 @@
       "message": "Hi Kevin,\n\nI\u0027m trying to add CanvasKit bindings for this change: https://skia-review.googlesource.com/c/skia/+/394969. Not knowing much javascript, I only searched for `TextStyle` and `StrutStyle` in the canvaskit directory\nand followed existing patterns. Could you take a look at the CL? Also I wonder \nif the golden test is good enough for this change?",
       "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a9d04fb_194fc3af",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-20T12:12:53Z",
+      "side": 1,
+      "message": "I don\u0027t believe this paint object is used.",
+      "range": {
+        "startLine": 809,
+        "startChar": 14,
+        "endLine": 809,
+        "endChar": 19
+      },
+      "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff015539_5271559c",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-20T12:12:53Z",
+      "side": 1,
+      "message": "I don\u0027t see any text being drawn for these tests. I\u0027m not sure why just from this cursory look.\n\nhttps://gold.skia.org/search?issue\u003d398276\u0026crs\u003dgerrit\u0026corpus\u003dcanvaskit",
+      "range": {
+        "startLine": 831,
+        "startChar": 29,
+        "endLine": 831,
+        "endChar": 33
+      },
+      "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
