@@ -118,6 +118,30 @@
       },
       "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9edc34f9_cd11ac2e",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-20T16:14:52Z",
+      "side": 1,
+      "message": "We could make neither public. kDMSAA will only be private temporarily. Should we just privately make \"kDMSAA \u003d kUseDeviceIndependentFonts_Flag \u003c\u003c 1\"? Once we move kDMSAA into the public API in a month or so this won\u0027t be a problem anymore.",
+      "parentUuid": "3846fcd0_fc9d4bd9",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
