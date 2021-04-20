@@ -70,7 +70,7 @@ public:
     // for specific runs of text can be obtained in run_metrics_map. These values
     // are the cumulative metrics for the entire line.
     double fAscent = SK_ScalarMax;
-    double fDescent = SK_ScalarMax;
+    double fDescent = SK_ScalarMin;
     double fUnscaledAscent = SK_ScalarMax;
     // Total height of the paragraph including the current line.
     //
