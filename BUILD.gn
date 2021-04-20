@@ -2474,12 +2474,17 @@ if (skia_enable_tools) {
       is_shared_library = true
 
       sources = [
+        "modules/androidkit/include/SurfaceThread.h",
         "modules/androidkit/src/AndroidKit.cpp",
         "modules/androidkit/src/Canvas.cpp",
         "modules/androidkit/src/Paint.cpp",
         "modules/androidkit/src/Surface.cpp",
+        "modules/androidkit/src/SurfaceThread.cpp",
       ]
-      libs = [ "jnigraphics" ]
+      libs = [
+        "android",
+        "jnigraphics",
+      ]
 
       deps = [ ":skia" ]
     }
