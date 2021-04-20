@@ -25,15 +25,21 @@ public:
         PathStrokeList* fNext = nullptr;
     };
 
-    GrStrokeTessellator(ShaderFlags shaderFlags, PathStrokeList* pathStrokeList)
-            : fShaderFlags(shaderFlags), fPathStrokeList(pathStrokeList) {}
+    GrStrokeTessellator(GrStrokeTessellateShader::Mode shaderMode, ShaderFlags shaderFlags,
+                        const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList)
+            : fShaderFlags(shaderFlags)
+            , fPathStrokeList(pathStrokeList)
+            , fShader(shaderMode, shaderFlags, viewMatrix, fPathStrokeList->fStroke,
+                      fPathStrokeList->fColor) {
+    }
+
+    const GrPathShader* shader() const { return &fShader; }
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix& viewMatrix,
-                         int totalCombinedVerbCnt) = 0;
+    virtual void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) = 0;
 
-    // Issues draw calls for the tessellated stroke. The caller is responsible for binding its
-    // desired pipeline ahead of time.
+    // Issues draw calls for the tessellated stroke. The caller is responsible for creating and
+    // binding a pipeline that uses this class's shader() before calling draw().
     virtual void draw(GrOpFlushState*) const = 0;
 
     virtual ~GrStrokeTessellator() {}
@@ -41,6 +47,7 @@ public:
 protected:
     const ShaderFlags fShaderFlags;
     PathStrokeList* fPathStrokeList;
+    GrStrokeTessellateShader fShader;
 };
 
 // These tolerances decide the number of parametric and radial segments the tessellator will

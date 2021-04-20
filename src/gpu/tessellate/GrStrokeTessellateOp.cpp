@@ -169,13 +169,12 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
 
     // Only use hardware tessellation if we need dynamic color or if the path has a somewhat large
     // number of verbs. Otherwise we seem to be better off using indirect draws.
-    GrStrokeTessellateShader::Mode shaderMode;
     if (this->canUseHardwareTessellation(caps) &&
         ((fShaderFlags & ShaderFlags::kDynamicColor) || fTotalCombinedVerbCnt > 50)) {
         SkASSERT(!this->nextInChain());  // We never chain when hw tessellation is an option.
-        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, &fPathStrokeList,
+        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, fViewMatrix,
+                                                                &fPathStrokeList,
                                                                 *caps.shaderCaps());
-        shaderMode = GrStrokeTessellateShader::Mode::kTessellation;
     } else {
         if (this->nextInChain()) {
             // We are a chained list of indirect stroke ops. The only reason we would have chained
@@ -203,7 +202,6 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
             headTessellator->addToChain(chainedTessellator);
         }
         fTessellator = headTessellator;
-        shaderMode = GrStrokeTessellateShader::Mode::kIndirect;
     }
 
     // If we are mixed sampled then we need a separate pipeline for the stencil pass. This is
@@ -216,21 +214,19 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
                 args, fAAType, GrTessellationPathRenderer::OpFlags::kNone, clip.hardClip());
     }
 
-    auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-            shaderMode, fShaderFlags, fViewMatrix, this->headStroke(), this->headColor());
     auto* fillPipeline = GrFillPathShader::MakeFillPassPipeline(args, fAAType, std::move(clip),
                                                                 std::move(fProcessors));
     auto fillStencil = &GrUserStencilSettings::kUnused;
     if (fNeedsStencil) {
         auto* stencilPipeline = (mixedSampledStencilPipeline) ? mixedSampledStencilPipeline
                                                               : fillPipeline;
-        fStencilProgram = GrPathShader::MakeProgram(args, strokeTessellateShader, stencilPipeline,
+        fStencilProgram = GrPathShader::MakeProgram(args, fTessellator->shader(), stencilPipeline,
                                                     &kMarkStencil);
         fillStencil = &kTestAndResetStencil;
         args.fXferBarrierFlags = GrXferBarrierFlags::kNone;
     }
 
-    fFillProgram = GrPathShader::MakeProgram(args, strokeTessellateShader, fillPipeline,
+    fFillProgram = GrPathShader::MakeProgram(args, fTessellator->shader(), fillPipeline,
                                              fillStencil);
 }
 
@@ -258,7 +254,7 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
                                     flushState->detachAppliedClip());
     }
     SkASSERT(fTessellator);
-    fTessellator->prepare(flushState, fViewMatrix, fTotalCombinedVerbCnt);
+    fTessellator->prepare(flushState, fTotalCombinedVerbCnt);
 }
 
 void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {

@@ -51,10 +51,9 @@ public:
     };
 
     PatchWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target, float matrixMaxScale,
-                GrVertexChunkArray* patchChunks, int minPatchesPerChunk)
+                GrVertexChunkArray* patchChunks, size_t patchStride, int minPatchesPerChunk)
             : fShaderFlags(shaderFlags)
-            , fChunkBuilder(target, patchChunks,
-                            GrStrokeTessellateShader::PatchStride(fShaderFlags), minPatchesPerChunk)
+            , fChunkBuilder(target, patchChunks, patchStride, minPatchesPerChunk)
             // Subtract 2 because the tessellation shader chops every cubic at two locations, and
             // each chop has the potential to introduce an extra segment.
             , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments() - 2)
@@ -670,12 +669,11 @@ SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
 
 }  // namespace
 
-void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
-                                          const SkMatrix& viewMatrix, int totalCombinedVerbCnt) {
+void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, int totalCombinedVerbCnt) {
     using JoinType = PatchWriter::JoinType;
 
     std::array<float, 2> matrixMinMaxScales;
-    if (!viewMatrix.getMinMaxScales(matrixMinMaxScales.data())) {
+    if (!fShader.viewMatrix().getMinMaxScales(matrixMinMaxScales.data())) {
         matrixMinMaxScales.fill(1);
     }
 
@@ -684,7 +682,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
     int capPreallocCount = 8;
     int minPatchesPerChunk = strokePreallocCount + capPreallocCount;
     PatchWriter patchWriter(fShaderFlags, target, matrixMinMaxScales[1], &fPatchChunks,
-                            minPatchesPerChunk);
+                            fShader.vertexStride(), minPatchesPerChunk);
 
     if (!(fShaderFlags & ShaderFlags::kDynamicStroke)) {
         // Strokes are static. Calculate tolerances once.
@@ -724,13 +722,13 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
                     // "A subpath ... consisting of a single moveto shall not be stroked."
                     // https://www.w3.org/TR/SVG11/painting.html#StrokeProperties
                     if (!contourIsEmpty) {
-                        patchWriter.writeCaps(p[-1], viewMatrix, stroke);
+                        patchWriter.writeCaps(p[-1], fShader.viewMatrix(), stroke);
                     }
                     patchWriter.moveTo(p[0]);
                     contourIsEmpty = true;
                     continue;
                 case SkPathVerb::kClose:
-                    patchWriter.writeClose(p[0], viewMatrix, stroke);
+                    patchWriter.writeClose(p[0], fShader.viewMatrix(), stroke);
                     contourIsEmpty = true;
                     continue;
                 case SkPathVerb::kLine:
@@ -852,7 +850,7 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target,
         }
         if (!contourIsEmpty) {
             const SkPoint* p = SkPathPriv::PointData(path);
-            patchWriter.writeCaps(p[path.countPoints() - 1], viewMatrix, stroke);
+            patchWriter.writeCaps(p[path.countPoints() - 1], fShader.viewMatrix(), stroke);
         }
     }
 }
