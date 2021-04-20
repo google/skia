@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd81667b_e3fb4e29",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-04-20T23:50:24Z",
+      "side": 1,
+      "message": "So, for every cluster in trailing spaces you will return a separate block (\"run\")?\nI suppose, it works... Shouldn\u0027t we at least return an indicator that it\u0027s a trailing spaces block?",
+      "revId": "18d2d21606c25e3a90b3003fbd77327a64a405e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
