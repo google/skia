@@ -21,6 +21,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageContextPriv.h"
+#include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
@@ -181,6 +182,26 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
     sfc->fillWithFP(std::move(fp));
 
     return {sfc->readSurfaceView(), sfc->imageInfo().colorType()};
+}
+
+std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
+        GrRecordingContext* context,
+        SkSamplingOptions sampling,
+        const SkTileMode tileModes[2],
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    if (!fContext->priv().matches(context)) {
+        return {};
+    }
+    GrYUVAImageTextureMaker maker(context, this);
+    auto wmx = SkTileModeToWrapMode(tileModes[0]);
+    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    if (sampling.useCubic) {
+        return maker.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
+    }
+    GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
+    return maker.createFragmentProcessor(m, subset, domain, sampler);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

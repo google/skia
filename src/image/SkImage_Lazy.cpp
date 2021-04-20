@@ -255,6 +255,23 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Lazy::onAsView(
     return {textureMaker.view(mipmapped), textureMaker.colorType()};
 }
 
+std::unique_ptr<GrFragmentProcessor> SkImage_Lazy::onAsFragmentProcessor(
+        GrRecordingContext* rContext,
+        SkSamplingOptions sampling,
+        const SkTileMode tileModes[2],
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    auto wmx = SkTileModeToWrapMode(tileModes[0]);
+    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    GrImageTextureMaker maker(rContext, this, GrImageTexGenPolicy::kDraw);
+    if (sampling.useCubic) {
+        return maker.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
+    }
+    GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
+    return maker.createFragmentProcessor(m, subset, domain, sampler);
+}
+
 GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* ctx,
                                                             SkBudgeted budgeted) const {
     SkYUVAPixmapInfo::SupportedDataTypes supportedDataTypes(*ctx);

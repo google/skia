@@ -32,8 +32,10 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/SkGr.h"
 #include "src/image/SkImage_Gpu.h"
 #endif
 #include "include/gpu/GrBackendSurface.h"
@@ -314,6 +316,26 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Base::asView(GrRecordingCont
         mipmapped = GrMipmapped::kNo;
     }
     return this->onAsView(context, mipmapped, policy);
+}
+
+std::unique_ptr<GrFragmentProcessor> SkImage_Base::asFragmentProcessor(
+        GrRecordingContext* rContext,
+        SkSamplingOptions sampling,
+        const SkTileMode tileModes[2],
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    if (!rContext) {
+        return {};
+    }
+    if (sampling.useCubic && !GrValidCubicResampler(sampling.cubic)) {
+        return {};
+    }
+    if (sampling.mipmap != SkMipmapMode::kNone &&
+        (!rContext->priv().caps()->mipmapSupport() || this->dimensions().area() <= 1)) {
+        sampling = SkSamplingOptions(sampling.filter);
+    }
+    return this->onAsFragmentProcessor(rContext, sampling, tileModes, m, subset, domain);
 }
 #endif
 

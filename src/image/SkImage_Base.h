@@ -97,6 +97,21 @@ public:
             GrMipmapped mipmapped,
             GrImageTexGenPolicy policy = GrImageTexGenPolicy::kDraw) const;
 
+    /**
+     * Returns a GrFragmentProcessor that can be used with the passed GrRecordingContext to
+     * draw the image. SkSamplingOptions indicates the filter and SkTileMode[] indicates the x and
+     * y tile modes. The passed matrix is applied to the coordinates before sampling the image.
+     * Optional 'subset' indicates whether the tile modes should be applied to a subset of the image
+     * Optional 'domain' is a bound on the coordinates of the image that will be required and can be
+     * used to optimize the shader if 'subset' is also specified.
+     */
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             SkSamplingOptions,
+                                                             const SkTileMode[2],
+                                                             const SkMatrix&,
+                                                             const SkRect* subset = nullptr,
+                                                             const SkRect* domain = nullptr) const;
+
     virtual bool isYUVA() const { return false; }
 
     // If this image is the current cached image snapshot of a surface then this is called when the
@@ -166,6 +181,14 @@ private:
             GrRecordingContext*,
             GrMipmapped,
             GrImageTexGenPolicy policy) const = 0;
+
+    virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(
+            GrRecordingContext*,
+            SkSamplingOptions,
+            const SkTileMode[2],
+            const SkMatrix&,
+            const SkRect* subset,
+            const SkRect* domain) const = 0;
 #endif
     // Set true by caches when they cache content that's derived from the current pixels.
     mutable std::atomic<bool> fAddedToRasterCache;
