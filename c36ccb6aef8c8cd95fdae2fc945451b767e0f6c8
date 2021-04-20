@@ -34,6 +34,24 @@
       "parentUuid": "4ddb8658_b788a760",
       "revId": "c36ccb6aef8c8cd95fdae2fc945451b767e0f6c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfa35246_15fb627d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-20T17:59:26Z",
+      "side": 1,
+      "message": "So looks like for SRVs you can set a compatible format on the D3D12_SHADER_RESOURCE_VIEW_DESC. And for UAV there is a format on the D3D12_UNORDERED_ACCESS_VIEW_DESC. I feel like you can just use those to create different views instead of dealing with aliased resources. But I may be missing something in my quick search",
+      "parentUuid": "8357045b_23424bd2",
+      "revId": "c36ccb6aef8c8cd95fdae2fc945451b767e0f6c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
