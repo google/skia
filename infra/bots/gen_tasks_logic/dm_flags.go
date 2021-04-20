@@ -941,6 +941,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~SurfacePartialDraw_Gpu")
 	}
 
+	if b.extraConfig("Metal") && b.gpu("PowerVRGX6450") && b.matchOs("iOS") {
+	        match = append(match, "~flight_animated_image")
+	}
+
 	if b.extraConfig("Direct3D") {
 		// skia:9935
 		match = append(match, "~^DDLSkSurfaceFlush$")
