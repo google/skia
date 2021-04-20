@@ -29,20 +29,27 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var green(kNo_Modifier, DSLType(kHalf4_Type), "green", Half4(0.0, 1.0, 0.0, 1.0));
-Var red(kNo_Modifier, DSLType(kHalf4_Type), "red", Half4(1.0, 0.0, 0.0, 1.0));
+Var colorGreen(kUniform_Modifier, DSLType(kHalf4_Type), "colorGreen");
+colorGreenVar = VarUniformHandle(colorGreen);
+Var colorRed(kUniform_Modifier, DSLType(kHalf4_Type), "colorRed");
+colorRedVar = VarUniformHandle(colorRed);
 Var t(kNo_Modifier, DSLType(kBool_Type), "t", true);
 Var f(kNo_Modifier, DSLType(kBool_Type), "f", false);
-Declare(green);
-Declare(red);
 Declare(t);
 Declare(f);
-Return(Half4(Select(t, /*If True:*/ green.x(), /*If False:*/ red.x()), Select(f, /*If True:*/ red.y(), /*If False:*/ green.y()), Select(green.y() == red.x(), /*If True:*/ green.z(), /*If False:*/ red.x()), Select(green.w() != red.w(), /*If True:*/ red.y(), /*If False:*/ green.w())));
+Return(Half4(Select(t, /*If True:*/ colorGreen.x(), /*If False:*/ colorRed.x()), Select(f, /*If True:*/ colorRed.y(), /*If False:*/ colorGreen.y()), Select(colorGreen.y() == colorRed.x(), /*If True:*/ colorGreen.z(), /*If False:*/ colorRed.x()), Select(colorGreen.w() != colorRed.w(), /*If True:*/ colorRed.y(), /*If False:*/ colorGreen.w())));
         EndFragmentProcessor();
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+        const GrDSLFPTest_Ternary& _outer = _proc.cast<GrDSLFPTest_Ternary>();
+        {
+        pdman.set4fv(colorGreenVar, 1, (_outer.colorGreen).vec());
+        pdman.set4fv(colorRedVar, 1, (_outer.colorRed).vec());
+        }
     }
+    UniformHandle colorGreenVar;
+    UniformHandle colorRedVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_Ternary::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLFPTest_Ternary>();
@@ -52,10 +59,14 @@ void GrDSLFPTest_Ternary::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProc
 bool GrDSLFPTest_Ternary::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_Ternary& that = other.cast<GrDSLFPTest_Ternary>();
     (void) that;
+    if (colorGreen != that.colorGreen) return false;
+    if (colorRed != that.colorRed) return false;
     return true;
 }
 GrDSLFPTest_Ternary::GrDSLFPTest_Ternary(const GrDSLFPTest_Ternary& src)
-: INHERITED(kGrDSLFPTest_Ternary_ClassID, src.optimizationFlags()) {
+: INHERITED(kGrDSLFPTest_Ternary_ClassID, src.optimizationFlags())
+, colorGreen(src.colorGreen)
+, colorRed(src.colorRed) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_Ternary::clone() const {
@@ -63,6 +74,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_Ternary::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_Ternary::onDumpInfo() const {
-    return SkString();
+    return SkStringPrintf("(colorGreen=half4(%f, %f, %f, %f), colorRed=half4(%f, %f, %f, %f))", colorGreen.fR, colorGreen.fG, colorGreen.fB, colorGreen.fA, colorRed.fR, colorRed.fG, colorRed.fB, colorRed.fA);
 }
 #endif
