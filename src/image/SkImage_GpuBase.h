@@ -53,8 +53,7 @@ public:
                                                            sk_sp<GrRefCntedCallback> releaseHelper);
 
 protected:
-    SkImage_GpuBase(sk_sp<GrImageContext>, SkISize size, uint32_t uniqueID, SkColorType,
-                    SkAlphaType, sk_sp<SkColorSpace>);
+    SkImage_GpuBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);
 
     sk_sp<GrImageContext> fContext;
 
