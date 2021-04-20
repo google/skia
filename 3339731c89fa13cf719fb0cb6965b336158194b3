@@ -157,6 +157,30 @@
       },
       "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e5d5cad_cb0f811a",
+        "filename": "modules/skparagraph/include/Metrics.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-04-20T19:27:03Z",
+      "side": 1,
+      "message": "It was changed as a part of a new Flutter changes to keep consistency.\nIt\u0027s also been tested.",
+      "parentUuid": "d325969b_92ba2b31",
+      "range": {
+        "startLine": 73,
+        "startChar": 22,
+        "endLine": 73,
+        "endChar": 34
+      },
+      "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
