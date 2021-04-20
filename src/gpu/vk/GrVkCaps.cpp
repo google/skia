@@ -1842,8 +1842,8 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
 
         bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
         // TODO: support failure in getSimpleRenderPass
-        auto[rp, compatibleHandle] = vkRT->getSimpleRenderPass(needsResolve, needsStencil,
-                                                               selfDepFlags, loadFromResolve);
+        auto rp = vkRT->getSimpleRenderPass(needsResolve, needsStencil, selfDepFlags,
+                                            loadFromResolve);
         SkASSERT(rp);
         rp->genKey(&b);
 
