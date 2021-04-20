@@ -1316,12 +1316,7 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
     REPORTER_ASSERT(reporter, convexity == expectedConvexity);
 
     // test points-by-array interface
-    SkPath::Iter iter(path, true);
-    int initialMoves = 0;
-    SkPoint pts[4];
-    while (SkPath::kMove_Verb == iter.next(pts)) {
-        ++initialMoves;
-    }
+    int initialMoves = SkPathPriv::LeadingMoveToCount(path);
     if (initialMoves > 0) {
         std::vector<SkPoint> points;
         points.resize(path.getPoints(nullptr, 0));
@@ -1984,9 +1979,9 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.moveTo(0, 0);
     path.lineTo(SkIntToScalar(100), 0);
     path.lineTo(0, SkIntToScalar(100));
-    // Convexity logic is now more conservative, so that multiple (non-trailing) moveTos make a
-    // path non-convex.
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
+    // Convexity logic treats a path as filled and closed, so that multiple (non-trailing) moveTos
+    // have no effect on convexity
+    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(
         SkRect::MakeXYWH(SkIntToScalar(50), 0,
                          SkIntToScalar(10),
                          SkIntToScalar(10))));
@@ -5816,4 +5811,37 @@ DEF_TEST(path_convexity_scale_way_down, r) {
     path.transform(SkMatrix::Scale(scale, scale), &path2);
     SkPathPriv::ForceComputeConvexity(path2);
     REPORTER_ASSERT(r, path2.isConvex());
+}
+
+// crbug.com/1187385
+DEF_TEST(path_moveto_addrect, r) {
+    // Test both an empty and non-empty rect passed to SkPath::addRect
+    SkRect rects[] = {{207.0f, 237.0f, 300.0f, 237.0f},
+                      {207.0f, 237.0f, 300.0f, 267.0f}};
+
+    for (SkRect rect: rects) {
+        for (int numExtraMoveTos : {0, 1, 2, 3}) {
+            SkPath path;
+            // Convexity and contains functions treat the path as a simple fill, so consecutive
+            // moveTos are collapsed together.
+            for (int i = 0; i < numExtraMoveTos; ++i) {
+                path.moveTo(i, i);
+            }
+            path.addRect(rect);
+
+            REPORTER_ASSERT(r, (numExtraMoveTos + 1) == SkPathPriv::LeadingMoveToCount(path));
+
+            // addRect should mark the path as known convex automatically (i.e. it wasn't set
+            // to unknown after edits)
+            SkPathConvexity origConvexity = SkPathPriv::GetConvexityOrUnknown(path);
+            REPORTER_ASSERT(r, origConvexity == SkPathConvexity::kConvex);
+
+            // but it should also agree with the regular convexity computation
+            SkPathPriv::ForceComputeConvexity(path);
+            REPORTER_ASSERT(r, path.isConvex());
+
+            SkRect query = rect.makeInset(10.f, 0.f);
+            REPORTER_ASSERT(r, path.conservativelyContainsRect(query));
+        }
+    }
 }
