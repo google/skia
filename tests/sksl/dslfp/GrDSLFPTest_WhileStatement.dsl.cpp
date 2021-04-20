@@ -29,6 +29,10 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
+Var colorGreen(kIn_Modifier | kUniform_Modifier, DSLType(kHalf4_Type), "colorGreen");
+colorGreenVar = VarUniformHandle(colorGreen);
+Var colorRed(kIn_Modifier | kUniform_Modifier, DSLType(kHalf4_Type), "colorRed");
+colorRedVar = VarUniformHandle(colorRed);
 Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(1.0));
 Declare(color);
 While(color.x() > 0.5, color.x() -= 0.25);
@@ -39,7 +43,14 @@ Return(color);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+        const GrDSLFPTest_WhileStatement& _outer = _proc.cast<GrDSLFPTest_WhileStatement>();
+        {
+        pdman.set4fv(colorGreenVar, 1, (_outer.colorGreen).vec());
+        pdman.set4fv(colorRedVar, 1, (_outer.colorRed).vec());
+        }
     }
+    UniformHandle colorGreenVar;
+    UniformHandle colorRedVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_WhileStatement::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLFPTest_WhileStatement>();
@@ -49,10 +60,14 @@ void GrDSLFPTest_WhileStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrDSLFPTest_WhileStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_WhileStatement& that = other.cast<GrDSLFPTest_WhileStatement>();
     (void) that;
+    if (colorGreen != that.colorGreen) return false;
+    if (colorRed != that.colorRed) return false;
     return true;
 }
 GrDSLFPTest_WhileStatement::GrDSLFPTest_WhileStatement(const GrDSLFPTest_WhileStatement& src)
-: INHERITED(kGrDSLFPTest_WhileStatement_ClassID, src.optimizationFlags()) {
+: INHERITED(kGrDSLFPTest_WhileStatement_ClassID, src.optimizationFlags())
+, colorGreen(src.colorGreen)
+, colorRed(src.colorRed) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_WhileStatement::clone() const {
@@ -60,6 +75,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_WhileStatement::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_WhileStatement::onDumpInfo() const {
-    return SkString();
+    return SkStringPrintf("(colorGreen=half4(%f, %f, %f, %f), colorRed=half4(%f, %f, %f, %f))", colorGreen.fR, colorGreen.fG, colorGreen.fB, colorGreen.fA, colorRed.fR, colorRed.fG, colorRed.fB, colorRed.fA);
 }
 #endif

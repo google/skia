@@ -14,15 +14,19 @@
 
 class GrDSLFPTest_Swizzle : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make() {
-        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_Swizzle());
+    static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f colorGreen, SkPMColor4f colorRed) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_Swizzle(colorGreen, colorRed));
     }
     GrDSLFPTest_Swizzle(const GrDSLFPTest_Swizzle& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DSLFPTest_Swizzle"; }
+    SkPMColor4f colorGreen;
+    SkPMColor4f colorRed;
 private:
-    GrDSLFPTest_Swizzle()
-    : INHERITED(kGrDSLFPTest_Swizzle_ClassID, kNone_OptimizationFlags) {
+    GrDSLFPTest_Swizzle(SkPMColor4f colorGreen, SkPMColor4f colorRed)
+    : INHERITED(kGrDSLFPTest_Swizzle_ClassID, kNone_OptimizationFlags)
+    , colorGreen(colorGreen)
+    , colorRed(colorRed) {
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
