@@ -166,6 +166,30 @@
       },
       "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daca3f88_59561f45",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-20T16:24:38Z",
+      "side": 1,
+      "message": "I\u0027ll land as-is. We can delete kLast in ~1 month once kDMSAA is ready to go public.",
+      "parentUuid": "cd92bcd8_9c35c12f",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "213e34f0f9bcb98eef405b7bed096227b96942d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
