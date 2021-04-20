@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63400a4d_c7e6d38e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-20T06:52:01Z",
+      "side": 1,
+      "message": "Jim, FYI about compute shaders since you\u0027re working on them:\n\nOur largest bottleneck in may cases is just copying all the stroke data over to the GPU, and the chopping here is the reason why we can\u0027t just keep a path\u0027s data on the GPU right now. As Robert pointed out, if we could figure out a way to do this chopping in a compute shader instead then we would see a huge speedup on many svgs.",
+      "revId": "2f0dfac55304bdf5eafa9408af1808f7e996b1c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
