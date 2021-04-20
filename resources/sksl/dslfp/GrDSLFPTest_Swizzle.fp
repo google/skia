@@ -1,3 +1,5 @@
+layout(ctype=SkPMColor4f) in uniform half4 colorGreen, colorRed;
+
 half4 main() {
     half4 v = half4(1, 2, 3, 4);
 

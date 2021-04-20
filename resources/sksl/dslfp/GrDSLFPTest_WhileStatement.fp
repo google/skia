@@ -1,3 +1,5 @@
+layout(ctype=SkPMColor4f) in uniform half4 colorGreen, colorRed;
+
 // (This test code was largely borrowed from shared/WhileLoopControlFlow.sksl.)
 half4 main() {
     half4 color = half4(1);

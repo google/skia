@@ -69,6 +69,8 @@ private:
 
     void writeSwizzle(const Swizzle& swizzle) override;
 
+    void writeVar(const Variable& var);
+
     void writeVariableReference(const VariableReference& ref) override;
 
     void writeFunctionCall(const FunctionCall& c) override;

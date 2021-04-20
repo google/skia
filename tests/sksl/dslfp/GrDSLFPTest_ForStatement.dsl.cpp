@@ -29,6 +29,10 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
+Var colorGreen(DSLModifiers(kIn_Modifier|kUniform_Modifier), DSLType(kHalf4_Type), "colorGreen");
+colorGreenVar = VarUniformHandle(colorGreen);
+Var colorRed(DSLModifiers(kIn_Modifier|kUniform_Modifier), DSLType(kHalf4_Type), "colorRed");
+colorRedVar = VarUniformHandle(colorRed);
 Var color(DSLModifiers(), DSLType(kHalf4_Type), "color", Half4(1.0));
 Var a(DSLModifiers(), DSLType(kHalf_Type), "a", 0.0);
 Var r(DSLModifiers(), DSLType(kHalf_Type), "r", -5.0);
@@ -42,7 +46,14 @@ Return(color);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+        const GrDSLFPTest_ForStatement& _outer = _proc.cast<GrDSLFPTest_ForStatement>();
+        {
+        pdman.set4fv(colorGreenVar, 1, (_outer.colorGreen).vec());
+        pdman.set4fv(colorRedVar, 1, (_outer.colorRed).vec());
+        }
     }
+    UniformHandle colorGreenVar;
+    UniformHandle colorRedVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_ForStatement::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLFPTest_ForStatement>();
@@ -52,10 +63,14 @@ void GrDSLFPTest_ForStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps, G
 bool GrDSLFPTest_ForStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_ForStatement& that = other.cast<GrDSLFPTest_ForStatement>();
     (void) that;
+    if (colorGreen != that.colorGreen) return false;
+    if (colorRed != that.colorRed) return false;
     return true;
 }
 GrDSLFPTest_ForStatement::GrDSLFPTest_ForStatement(const GrDSLFPTest_ForStatement& src)
-: INHERITED(kGrDSLFPTest_ForStatement_ClassID, src.optimizationFlags()) {
+: INHERITED(kGrDSLFPTest_ForStatement_ClassID, src.optimizationFlags())
+, colorGreen(src.colorGreen)
+, colorRed(src.colorRed) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_ForStatement::clone() const {
@@ -63,6 +78,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_ForStatement::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_ForStatement::onDumpInfo() const {
-    return SkString();
+    return SkStringPrintf("(colorGreen=half4(%f, %f, %f, %f), colorRed=half4(%f, %f, %f, %f))", colorGreen.fR, colorGreen.fG, colorGreen.fB, colorGreen.fA, colorRed.fR, colorRed.fG, colorRed.fB, colorRed.fA);
 }
 #endif

@@ -35,7 +35,9 @@ static void test_dsl_fp(skiatest::Reporter* r, GrDirectContext* ctx) {
                                        SkBackingFit::kApprox,
                                        {1, 1});
 
-    rtCtx->fillRectWithFP(SkIRect::MakeWH(1, 1), FPClass::Make());
+    rtCtx->fillRectWithFP(SkIRect::MakeWH(1, 1),
+                          FPClass::Make(/*colorGreen=*/SkPMColor4f{0, 1, 0, 1},
+                                        /*colorRed=*/SkPMColor4f{1, 0, 0, 1}));
 
     SkImageInfo dstInfo = SkImageInfo::Make(/*width=*/1, /*height=*/1, kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType, /*cs=*/nullptr);

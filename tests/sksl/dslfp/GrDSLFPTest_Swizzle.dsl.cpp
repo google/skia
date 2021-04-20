@@ -29,6 +29,10 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
+Var colorGreen(DSLModifiers(kIn_Modifier|kUniform_Modifier), DSLType(kHalf4_Type), "colorGreen");
+colorGreenVar = VarUniformHandle(colorGreen);
+Var colorRed(DSLModifiers(kIn_Modifier|kUniform_Modifier), DSLType(kHalf4_Type), "colorRed");
+colorRedVar = VarUniformHandle(colorRed);
 Var v(DSLModifiers(), DSLType(kHalf4_Type), "v", Half4(1.0, 2.0, 3.0, 4.0));
 Var b(DSLModifiers(), DSLType(kBool4_Type), "b", Bool4(true, true, true, true));
 Declare(v);
@@ -94,7 +98,14 @@ Return(Half4(Half2(Swizzle(b, X, Y)), 0.0, v.z()));
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+        const GrDSLFPTest_Swizzle& _outer = _proc.cast<GrDSLFPTest_Swizzle>();
+        {
+        pdman.set4fv(colorGreenVar, 1, (_outer.colorGreen).vec());
+        pdman.set4fv(colorRedVar, 1, (_outer.colorRed).vec());
+        }
     }
+    UniformHandle colorGreenVar;
+    UniformHandle colorRedVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_Swizzle::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLFPTest_Swizzle>();
@@ -104,10 +115,14 @@ void GrDSLFPTest_Swizzle::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProc
 bool GrDSLFPTest_Swizzle::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_Swizzle& that = other.cast<GrDSLFPTest_Swizzle>();
     (void) that;
+    if (colorGreen != that.colorGreen) return false;
+    if (colorRed != that.colorRed) return false;
     return true;
 }
 GrDSLFPTest_Swizzle::GrDSLFPTest_Swizzle(const GrDSLFPTest_Swizzle& src)
-: INHERITED(kGrDSLFPTest_Swizzle_ClassID, src.optimizationFlags()) {
+: INHERITED(kGrDSLFPTest_Swizzle_ClassID, src.optimizationFlags())
+, colorGreen(src.colorGreen)
+, colorRed(src.colorRed) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_Swizzle::clone() const {
@@ -115,6 +130,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_Swizzle::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_Swizzle::onDumpInfo() const {
-    return SkString();
+    return SkStringPrintf("(colorGreen=half4(%f, %f, %f, %f), colorRed=half4(%f, %f, %f, %f))", colorGreen.fR, colorGreen.fG, colorGreen.fB, colorGreen.fA, colorRed.fR, colorRed.fG, colorRed.fB, colorRed.fA);
 }
 #endif

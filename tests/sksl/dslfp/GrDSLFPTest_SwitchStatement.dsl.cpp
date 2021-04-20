@@ -29,6 +29,10 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
+Var colorGreen(DSLModifiers(kIn_Modifier|kUniform_Modifier), DSLType(kHalf4_Type), "colorGreen");
+colorGreenVar = VarUniformHandle(colorGreen);
+Var colorRed(DSLModifiers(kIn_Modifier|kUniform_Modifier), DSLType(kHalf4_Type), "colorRed");
+colorRedVar = VarUniformHandle(colorRed);
 Var color(DSLModifiers(), DSLType(kHalf4_Type), "color", Half4(0.0));
 Declare(color);
 Switch(Int(color.x()),
@@ -48,7 +52,14 @@ Return(color);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+        const GrDSLFPTest_SwitchStatement& _outer = _proc.cast<GrDSLFPTest_SwitchStatement>();
+        {
+        pdman.set4fv(colorGreenVar, 1, (_outer.colorGreen).vec());
+        pdman.set4fv(colorRedVar, 1, (_outer.colorRed).vec());
+        }
     }
+    UniformHandle colorGreenVar;
+    UniformHandle colorRedVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_SwitchStatement::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLFPTest_SwitchStatement>();
@@ -58,10 +69,14 @@ void GrDSLFPTest_SwitchStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps
 bool GrDSLFPTest_SwitchStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_SwitchStatement& that = other.cast<GrDSLFPTest_SwitchStatement>();
     (void) that;
+    if (colorGreen != that.colorGreen) return false;
+    if (colorRed != that.colorRed) return false;
     return true;
 }
 GrDSLFPTest_SwitchStatement::GrDSLFPTest_SwitchStatement(const GrDSLFPTest_SwitchStatement& src)
-: INHERITED(kGrDSLFPTest_SwitchStatement_ClassID, src.optimizationFlags()) {
+: INHERITED(kGrDSLFPTest_SwitchStatement_ClassID, src.optimizationFlags())
+, colorGreen(src.colorGreen)
+, colorRed(src.colorRed) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_SwitchStatement::clone() const {
@@ -69,6 +84,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_SwitchStatement::clone() const 
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_SwitchStatement::onDumpInfo() const {
-    return SkString();
+    return SkStringPrintf("(colorGreen=half4(%f, %f, %f, %f), colorRed=half4(%f, %f, %f, %f))", colorGreen.fR, colorGreen.fG, colorGreen.fB, colorGreen.fA, colorRed.fR, colorRed.fG, colorRed.fB, colorRed.fA);
 }
 #endif

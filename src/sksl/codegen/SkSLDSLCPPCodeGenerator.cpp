@@ -293,11 +293,6 @@ void DSLCPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             fAccessSampleCoordsDirectly = true;
             return;
         }
-
-        if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
-            SK_ABORT("not yet implemented: reference to uniform");
-            return;
-        }
     }
 
     this->write(var.name());
@@ -330,59 +325,6 @@ void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 
     SK_ABORT("not yet implemented: helper function support for DSL");
-}
-
-static const char* glsltype_string(const Context& context, const Type& type) {
-    // If a new GrSL type is added, this function will need to be updated.
-    static_assert(kGrSLTypeCount == 49);
-
-    if (type == *context.fTypes.fVoid    ) { return "kVoid_GrSLType";     }
-    if (type == *context.fTypes.fBool    ) { return "kBool_GrSLType";     }
-    if (type == *context.fTypes.fBool2   ) { return "kBool2_GrSLType";    }
-    if (type == *context.fTypes.fBool3   ) { return "kBool3_GrSLType";    }
-    if (type == *context.fTypes.fBool4   ) { return "kBool4_GrSLType";    }
-    if (type == *context.fTypes.fByte    ) { return "kByte_GrSLType";     }
-    if (type == *context.fTypes.fByte2   ) { return "kByte2_GrSLType";    }
-    if (type == *context.fTypes.fByte3   ) { return "kByte3_GrSLType";    }
-    if (type == *context.fTypes.fByte4   ) { return "kByte4_GrSLType";    }
-    if (type == *context.fTypes.fUByte   ) { return "kUByte_GrSLType";    }
-    if (type == *context.fTypes.fUByte2  ) { return "kUByte2_GrSLType";   }
-    if (type == *context.fTypes.fUByte3  ) { return "kUByte3_GrSLType";   }
-    if (type == *context.fTypes.fUByte4  ) { return "kUByte4_GrSLType";   }
-    if (type == *context.fTypes.fShort   ) { return "kShort_GrSLType";    }
-    if (type == *context.fTypes.fShort2  ) { return "kShort2_GrSLType";   }
-    if (type == *context.fTypes.fShort3  ) { return "kShort3_GrSLType";   }
-    if (type == *context.fTypes.fShort4  ) { return "kShort4_GrSLType";   }
-    if (type == *context.fTypes.fUShort  ) { return "kUShort_GrSLType";   }
-    if (type == *context.fTypes.fUShort2 ) { return "kUShort2_GrSLType";  }
-    if (type == *context.fTypes.fUShort3 ) { return "kUShort3_GrSLType";  }
-    if (type == *context.fTypes.fUShort4 ) { return "kUShort4_GrSLType";  }
-    if (type == *context.fTypes.fFloat   ) { return "kFloat_GrSLType";    }
-    if (type == *context.fTypes.fFloat2  ) { return "kFloat2_GrSLType";   }
-    if (type == *context.fTypes.fFloat3  ) { return "kFloat3_GrSLType";   }
-    if (type == *context.fTypes.fFloat4  ) { return "kFloat4_GrSLType";   }
-    if (type == *context.fTypes.fFloat2x2) { return "kFloat2x2_GrSLType"; }
-    if (type == *context.fTypes.fFloat3x3) { return "kFloat3x3_GrSLType"; }
-    if (type == *context.fTypes.fFloat4x4) { return "kFloat4x4_GrSLType"; }
-    if (type == *context.fTypes.fHalf    ) { return "kHalf_GrSLType";     }
-    if (type == *context.fTypes.fHalf2   ) { return "kHalf2_GrSLType";    }
-    if (type == *context.fTypes.fHalf3   ) { return "kHalf3_GrSLType";    }
-    if (type == *context.fTypes.fHalf4   ) { return "kHalf4_GrSLType";    }
-    if (type == *context.fTypes.fHalf2x2 ) { return "kHalf2x2_GrSLType";  }
-    if (type == *context.fTypes.fHalf3x3 ) { return "kHalf3x3_GrSLType";  }
-    if (type == *context.fTypes.fHalf4x4 ) { return "kHalf4x4_GrSLType";  }
-    if (type == *context.fTypes.fInt     ) { return "kInt_GrSLType";      }
-    if (type == *context.fTypes.fInt2    ) { return "kInt2_GrSLType";     }
-    if (type == *context.fTypes.fInt3    ) { return "kInt3_GrSLType";     }
-    if (type == *context.fTypes.fInt4    ) { return "kInt4_GrSLType";     }
-    if (type == *context.fTypes.fUInt    ) { return "kUint_GrSLType";     }
-    if (type == *context.fTypes.fUInt2   ) { return "kUint2_GrSLType";    }
-    if (type == *context.fTypes.fUInt3   ) { return "kUint3_GrSLType";    }
-    if (type == *context.fTypes.fUInt4   ) { return "kUint4_GrSLType";    }
-    if (type.isEnum())                     { return "kInt_GrSLType";      }
-
-    SkDEBUGFAILF("unsupported type: %s", type.description().c_str());
-    return nullptr;
 }
 
 void DSLCPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl) {
@@ -479,10 +421,26 @@ void DSLCPPCodeGenerator::writeIfStatement(const IfStatement& stmt) {
     this->write(")");
 }
 
+void DSLCPPCodeGenerator::writeVar(const Variable& var) {
+    this->write("Var ");
+    this->write(var.name());
+    this->write("(");
+    this->write(this->getDSLModifiers(var.modifiers()));
+    this->write(", ");
+    this->write(this->getDSLType(var.type()));
+    this->write(", \"");
+    this->write(var.name());
+    this->write("\"");
+    if (var.initialValue()) {
+        this->write(", ");
+        this->writeExpression(*var.initialValue(), Precedence::kTopLevel);
+    }
+    this->write(");\n");
+}
+
 void DSLCPPCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, bool global) {
     if (!global) {
         const Variable& var = varDecl.var();
-
         {
             // We want to divert our output into fFunctionHeader, but fFunctionHeader is just a
             // String, not a StringStream. So instead, we divert into a temporary stream and append
@@ -490,22 +448,7 @@ void DSLCPPCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, boo
             StringStream stream;
             AutoOutputStream divert(this, &stream);
 
-            // Write the Var() at the header of the function.
-            // TODO: modifiers!
-            this->write("Var ");
-            this->write(var.name());
-            this->write("(");
-            this->write(this->getDSLModifiers(var.modifiers()));
-            this->write(", ");
-            this->write(this->getDSLType(var.type()));
-            this->write(", \"");
-            this->write(var.name());
-            this->write("\"");
-            if (var.initialValue()) {
-                this->write(", ");
-                this->writeExpression(*var.initialValue(), Precedence::kTopLevel);
-            }
-            this->write(");\n");
+            this->writeVar(var);
 
             fFunctionHeader += stream.str();
         }
@@ -653,30 +596,29 @@ String DSLCPPCodeGenerator::getDSLModifiers(const Modifiers& modifiers) {
     String text;
 
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
-        text += "kConst_Modifier |";
+        text += "kConst_Modifier|";
     }
     if (modifiers.fFlags & Modifiers::kIn_Flag) {
-        text += "kIn_Modifier |";
+        text += "kIn_Modifier|";
     }
     if (modifiers.fFlags & Modifiers::kOut_Flag) {
-        text += "kOut_Modifier |";
+        text += "kOut_Modifier|";
     }
     if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-        text += "kUniform_Modifier |";
+        text += "kUniform_Modifier|";
     }
     if (modifiers.fFlags & Modifiers::kFlat_Flag) {
-        text += "kFlat_Modifier |";
+        text += "kFlat_Modifier|";
     }
     if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
-        text += "kNoPerspective_Modifier |";
+        text += "kNoPerspective_Modifier|";
     }
 
     if (text.empty()) {
         return "DSLModifiers()";
     }
 
-    // Replace trailing ` |` with `)`.
-    text.pop_back();
+    // Replace trailing `|` with `)`.
     text.back() = ')';
 
     return String("DSLModifiers(") + text;
@@ -771,21 +713,12 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     if (var.modifiers().fLayout.fWhen.fLength) {
         this->writef("        if (%s) {\n    ", String(var.modifiers().fLayout.fWhen).c_str());
     }
-    String name(var.name());
-    if (!var.type().isArray()) {
-        this->writef("        %sVar = args.fUniformHandler->addUniform(&_outer, "
-                     "kFragment_GrShaderFlag, %s, \"%s\");\n",
-                     HCodeGenerator::FieldName(name.c_str()).c_str(),
-                     glsltype_string(fContext, var.type()),
-                     name.c_str());
-    } else {
-        this->writef("        %sVar = args.fUniformHandler->addUniformArray(&_outer, "
-                     "kFragment_GrShaderFlag, %s, \"%s\", %d);\n",
-                     HCodeGenerator::FieldName(name.c_str()).c_str(),
-                     glsltype_string(fContext, var.type().componentType()),
-                     name.c_str(),
-                     var.type().columns());
-    }
+    this->writeVar(var);
+
+    String varName = var.name();
+    this->writef("%sVar = VarUniformHandle(%s);\n",
+                 HCodeGenerator::FieldName(varName.c_str()).c_str(), varName.c_str());
+
     if (var.modifiers().fLayout.fWhen.fLength) {
         this->write("        }\n");
     }
@@ -848,13 +781,6 @@ void DSLCPPCodeGenerator::writePrivateVarValues() {
     }
 }
 
-static bool is_accessible(const Variable& var) {
-    const Type& type = var.type();
-    return !type.isFragmentProcessor() &&
-           Type::TypeKind::kSampler != type.typeKind() &&
-           Type::TypeKind::kOther != type.typeKind();
-}
-
 bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     this->writef("    void emitCode(EmitArgs& args) override {\n"
                  "        const %s& _outer = args.fFp.cast<%s>();\n"
@@ -863,22 +789,8 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
                  "        using namespace SkSL::dsl;\n"
                  "        StartFragmentProcessor(this, &args);\n",
                  fFullName.c_str(), fFullName.c_str());
-    for (const ProgramElement* p : fProgram.elements()) {
-        if (p->is<GlobalVarDeclaration>()) {
-            const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
-            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-            String nameString(decl.var().name());
-            const char* name = nameString.c_str();
-            if (SectionAndParameterHelper::IsParameter(decl.var()) &&
-                is_accessible(decl.var())) {
-                this->writef("        auto %s = _outer.%s;\n"
-                             "        (void) %s;\n",
-                             name, name, name);
-            }
-        }
-    }
     this->writePrivateVarValues();
-    for (const auto u : uniforms) {
+    for (const Variable* u : uniforms) {
         this->addUniform(*u);
     }
     this->writeSection(kEmitCodeSection);
