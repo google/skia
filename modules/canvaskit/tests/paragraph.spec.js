@@ -805,6 +805,47 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
+    gm('paragraph_text_styles_mixed_leading_distribution', (canvas) => {
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
+
+        const wrapTo = 200;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                color: CanvasKit.BLACK,
+                backgroundColor: CanvasKit.Color(234, 208, 232), // light pink
+                fontFamilies: ['Noto Serif'],
+                fontSize: 10,
+                heightMultiplier: 10,
+            },
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('Not half leading');
+
+        const halfLeadingText = new CanvasKit.TextStyle({
+            color: CanvasKit.Color(48, 37, 199),
+            backgroundColor: CanvasKit.Color(234, 208, 232), // light pink
+            fontFamilies: ['Noto Serif'],
+            fontSize: 10,
+            heightMultiplier: 10,
+            halfLeading: true,
+        });
+        builder.pushStyle(halfLeadingText);
+        builder.addText('Half Leading Text');
+        const paragraph = builder.build();
+
+        paragraph.layout(wrapTo);
+        canvas.clear(CanvasKit.WHITE);
+        canvas.drawParagraph(paragraph, 0, 0);
+
+        fontMgr.delete();
+        paragraph.delete();
+        builder.delete();
+    });
+
     it('should not crash if we omit font family on pushed textStyle', () => {
         const surface = CanvasKit.MakeCanvasSurface('test');
         expect(surface).toBeTruthy('Could not make surface');
