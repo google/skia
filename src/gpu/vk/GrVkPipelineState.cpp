@@ -73,10 +73,10 @@ void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
 }
 
 bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
-                                           const GrRenderTarget* renderTarget,
+                                           SkISize colorAttachmentDimensions,
                                            const GrProgramInfo& programInfo,
                                            GrVkCommandBuffer* commandBuffer) {
-    this->setRenderTargetState(renderTarget, programInfo.origin());
+    this->setRenderTargetState(colorAttachmentDimensions, programInfo.origin());
 
     fGeometryProcessor->setData(fDataManager, *gpu->caps()->shaderCaps(), programInfo.geomProc());
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
@@ -247,20 +247,21 @@ bool GrVkPipelineState::setAndBindInputAttachment(GrVkGpu* gpu,
     return true;
 }
 
-void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
+void GrVkPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
+                                             GrSurfaceOrigin origin) {
 
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
+        fRenderTargetState.fRenderTargetSize.fHeight != colorAttachmentDimensions.height()) {
+        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
+                           SkIntToScalar(colorAttachmentDimensions.height()));
     }
 
     // set RT adjustment
-    SkISize dimensions = rt->dimensions();
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
-        fRenderTargetState.fRenderTargetSize != dimensions) {
-        fRenderTargetState.fRenderTargetSize = dimensions;
+        fRenderTargetState.fRenderTargetSize != colorAttachmentDimensions) {
+        fRenderTargetState.fRenderTargetSize = colorAttachmentDimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
         float rtAdjustmentVec[4];

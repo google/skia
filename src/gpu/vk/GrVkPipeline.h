@@ -61,9 +61,13 @@ public:
         return fPipelineLayout;
     }
 
-    static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
+    static void SetDynamicScissorRectState(GrVkGpu*,
+                                           GrVkCommandBuffer*,
+                                           SkISize colorAttachmentDimensions,
                                            GrSurfaceOrigin, const SkIRect& scissorRect);
-    static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
+    static void SetDynamicViewportState(GrVkGpu*,
+                                        GrVkCommandBuffer*,
+                                        SkISize colorAttachmentDimensions);
     static void SetDynamicBlendConstantState(GrVkGpu*,
                                              GrVkCommandBuffer*,
                                              const GrSwizzle& writeSwizzle,
