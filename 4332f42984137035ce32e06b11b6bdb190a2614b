@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95e1638f_12d9864a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-20T14:17:36Z",
+      "side": 1,
+      "message": "This explores one end of the api/threading-model spectrum: the client is fully responsible for managing the render thread and for issuing draw commands within the correct context.\n\n(the other end being we manage the render thread transparently, under the hood, and dispatch draw commands to it).\n",
+      "revId": "4332f42984137035ce32e06b11b6bdb190a2614b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
