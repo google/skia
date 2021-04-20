@@ -40,7 +40,6 @@ class RenderThread extends Thread {
         // TODO: convert to native AK surface.
         while (mRunning) {
             android.graphics.Canvas android_canvas = mAndroidSurface.lockHardwareCanvas();
-            android_canvas.drawColor(0xffffffe0);
 
             int w = android_canvas.getWidth(),
                 h = android_canvas.getHeight();
@@ -67,6 +66,8 @@ class RenderThread extends Thread {
         final float kWidth  = 400,
                     kHeight = 200,
                     kSpeed  = 4;
+
+        canvas.drawColor(0xffffffe0);
 
         Paint p = new Paint();
         p.setColor(new Color(0, 1, 0, 1));
