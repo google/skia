@@ -70,6 +70,30 @@
       },
       "revId": "5dbb9a08532df7e4880fac944cb4d5c14967e05f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f2bf571_33949536",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-20T14:53:55Z",
+      "side": 1,
+      "message": "I think I like \"clone\" better in this case. It\u0027s more clear for this method IMO.",
+      "parentUuid": "36a180a8_a7aca882",
+      "range": {
+        "startLine": 66,
+        "startChar": 19,
+        "endLine": 66,
+        "endChar": 41
+      },
+      "revId": "5dbb9a08532df7e4880fac944cb4d5c14967e05f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
