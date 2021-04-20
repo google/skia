@@ -22,6 +22,30 @@
       },
       "revId": "5dbb9a08532df7e4880fac944cb4d5c14967e05f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54cc3367_b80bb6bf",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-20T13:23:35Z",
+      "side": 1,
+      "message": "Agreed that is our prev pattern. To be honest, it doesn\u0027t always trigger immediate recognition with me when I read it, hence my earlier suggest for a name like this one (which seems very clear).\n\nAll that said, I\u0027m totally fine if we want to remain consistent, and debate (or not) the notion of a different pattern separate from this CL.",
+      "parentUuid": "50b95a75_409cdd33",
+      "range": {
+        "startLine": 66,
+        "startChar": 19,
+        "endLine": 66,
+        "endChar": 41
+      },
+      "revId": "5dbb9a08532df7e4880fac944cb4d5c14967e05f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
