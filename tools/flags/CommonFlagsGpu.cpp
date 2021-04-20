@@ -36,7 +36,8 @@ static DEFINE_int(internalSamples, 4,
 static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");
 
-static DEFINE_bool(dontReduceOpsTaskSplitting, false, "Don't reorder tasks to reduce render passes");
+static DEFINE_bool(reduceOpsTaskSplitting, false, "Improve opsTask sorting");
+static DEFINE_bool(dontReduceOpsTaskSplitting, false, "Allow more opsTask splitting");
 
 static DEFINE_int(gpuResourceCacheLimit, -1,
                   "Maximum number of bytes to use for budgeted GPU resources. "
@@ -103,9 +104,10 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
     ctxOptions->fResourceCacheLimitOverride          = FLAGS_gpuResourceCacheLimit;
 
-    if (FLAGS_dontReduceOpsTaskSplitting) {
-        ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
-    } else {
+    if (FLAGS_reduceOpsTaskSplitting) {
+        SkASSERT(!FLAGS_dontReduceOpsTaskSplitting);
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kYes;
+    } else if (FLAGS_dontReduceOpsTaskSplitting) {
+        ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
     }
 }
