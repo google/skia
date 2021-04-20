@@ -89,6 +89,114 @@ DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
     test("half4 main(float2 p) { return half2(sk_FragCoord.xy).xy01; }");
 }
 
+DEF_TEST(SkRuntimeEffectForColorFilter, r) {
+    // Tests that the color filter factory rejects or accepts certain SkSL constructs
+    auto test_valid = [r](const char* sksl) {
+        auto [effect, errorText] = SkRuntimeEffect::MakeForColorFilter(SkString(sksl));
+        REPORTER_ASSERT(r, effect, errorText.c_str());
+    };
+
+    auto test_invalid = [r](const char* sksl, const char* expected) {
+        auto [effect, errorText] = SkRuntimeEffect::MakeForColorFilter(SkString(sksl));
+        REPORTER_ASSERT(r, !effect);
+        REPORTER_ASSERT(r,
+                        errorText.contains(expected),
+                        "Expected error message to contain \"%s\". Actual message: \"%s\"",
+                        expected,
+                        errorText.c_str());
+    };
+
+    // Color filters must use the 'half4 main(half4)' signature. Either color can be float4/vec4
+    test_valid("half4  main(half4  c) { return c; }");
+    test_valid("float4 main(half4  c) { return c; }");
+    test_valid("half4  main(float4 c) { return c; }");
+    test_valid("float4 main(float4 c) { return c; }");
+    test_valid("vec4   main(half4  c) { return c; }");
+    test_valid("half4  main(vec4   c) { return c; }");
+    test_valid("vec4   main(vec4   c) { return c; }");
+
+    // Invalid return types
+    test_invalid("void  main(half4 c) {}",                "'main' must return");
+    test_invalid("half3 main(half4 c) { return c.rgb; }", "'main' must return");
+
+    // Invalid argument types (some are valid as shaders, but not color filters)
+    test_invalid("half4 main() { return half4(1); }",           "'main' parameter");
+    test_invalid("half4 main(float2 p) { return half4(1); }",   "'main' parameter");
+    test_invalid("half4 main(float2 p, half4 c) { return c; }", "'main' parameter");
+
+    // sk_FragCoord should not be available
+    test_invalid("half4 main(half4 c) { return sk_FragCoord.xy01; }", "unknown identifier");
+
+    // Sampling a child shader requires that we pass explicit coords
+    test_valid("uniform shader child;"
+               "half4 main(half4 c) { return sample(child, c.rg); }");
+
+    test_invalid(
+            "uniform shader child;"
+            "half4 main(half4 c) { return sample(child); }",
+            "expected 2 arguments");
+    test_invalid(
+            "uniform shader child;"
+            "half4 main(half4 c) { return sample(child, float3x3(1)); }",
+            "expected 'float2'");
+}
+
+DEF_TEST(SkRuntimeEffectForShader, r) {
+    // Tests that the shader factory rejects or accepts certain SkSL constructs
+    auto test_valid = [r](const char* sksl) {
+        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl));
+        REPORTER_ASSERT(r, effect, errorText.c_str());
+    };
+
+    auto test_invalid = [r](const char* sksl, const char* expected) {
+        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl));
+        REPORTER_ASSERT(r, !effect);
+        REPORTER_ASSERT(r,
+                        errorText.contains(expected),
+                        "Expected error message to contain \"%s\". Actual message: \"%s\"",
+                        expected,
+                        errorText.c_str());
+    };
+
+    // Shaders must use either the 'half4 main(float2)' or 'half4 main(float2, half4)' signature
+    // Either color can be half4/float4/vec4, but the coords must be float2/vec2
+    test_valid("half4  main(float2 p) { return p.xyxy; }");
+    test_valid("float4 main(float2 p) { return p.xyxy; }");
+    test_valid("vec4   main(float2 p) { return p.xyxy; }");
+    test_valid("half4  main(vec2   p) { return p.xyxy; }");
+    test_valid("vec4   main(vec2   p) { return p.xyxy; }");
+    test_valid("half4  main(float2 p, half4  c) { return c; }");
+    test_valid("half4  main(float2 p, float4 c) { return c; }");
+    test_valid("half4  main(float2 p, vec4   c) { return c; }");
+    test_valid("float4 main(float2 p, half4  c) { return c; }");
+    test_valid("vec4   main(float2 p, half4  c) { return c; }");
+    test_valid("vec4   main(vec2   p, vec4   c) { return c; }");
+
+    // Invalid return types
+    test_invalid("void  main(float2 p) {}",                "'main' must return");
+    test_invalid("half3 main(float2 p) { return p.xy1; }", "'main' must return");
+
+    // Invalid argument types (some are valid as color filters, but not shaders)
+    test_invalid("half4 main() { return half4(1); }", "'main' parameter");
+    test_invalid("half4 main(half4 c) { return c; }", "'main' parameter");
+
+    // sk_FragCoord should be available
+    test_valid("half4 main(float2 p) { return sk_FragCoord.xy01; }");
+
+    // Sampling a child shader requires that we pass explicit coords
+    test_valid("uniform shader child;"
+               "half4 main(float2 p) { return sample(child, p); }");
+
+    test_invalid(
+            "uniform shader child;"
+            "half4 main(float2 p) { return sample(child); }",
+            "expected 2 arguments");
+    test_invalid(
+            "uniform shader child;"
+            "half4 main(float2 p) { return sample(child, float3x3(1)); }",
+            "expected 'float2'");
+}
+
 class TestEffect {
 public:
     TestEffect(skiatest::Reporter* r, sk_sp<SkSurface> surface)
