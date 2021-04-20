@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be62aea8_607028f8",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-20T18:36:34Z",
+      "side": 1,
+      "message": "removed.",
+      "parentUuid": "2a9d04fb_194fc3af",
+      "range": {
+        "startLine": 809,
+        "startChar": 14,
+        "endLine": 809,
+        "endChar": 19
+      },
+      "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff015539_5271559c",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-04-20T12:12:53Z",
       "side": 1,
       "message": "I don\u0027t see any text being drawn for these tests. I\u0027m not sure why just from this cursory look.\n\nhttps://gold.skia.org/search?issue\u003d398276\u0026crs\u003dgerrit\u0026corpus\u003dcanvaskit",
+      "range": {
+        "startLine": 831,
+        "startChar": 29,
+        "endLine": 831,
+        "endChar": 33
+      },
+      "revId": "3339731c89fa13cf719fb0cb6965b336158194b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d35b5629_38e6380a",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 17734
+      },
+      "writtenOn": "2021-04-20T18:36:34Z",
+      "side": 1,
+      "message": "I set the font size to 2 so it was barely visible: https://gold.skia.org/img/images/ceb7538892d0c8477501902d688b4275.png. \n\nShould be visible now (is there a way to tell Skia Gold to regenerate the goldens?).",
+      "parentUuid": "ff015539_5271559c",
       "range": {
         "startLine": 831,
         "startChar": 29,
