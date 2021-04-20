@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a87a7474_6b75881a",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1796,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-20T16:51:57Z",
+      "side": 1,
+      "message": "SkPath::Iter is no longer modified.",
+      "parentUuid": "6898dea9_b6d96f3b",
+      "range": {
+        "startLine": 1796,
+        "startChar": 42,
+        "endLine": 1796,
+        "endChar": 75
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "38c28ec0_d5b3a9be",
@@ -102,6 +126,30 @@
       "side": 1,
       "message": "we could, but then we lose the semantics that forceClose\u003dtrue for the iterator matches what you\u0027d get by rasterizing a simple fill. It also makes it so we clean up all trailing moveTos, not just the last one. I don\u0027t think this will hurt performance since most verbs will be non-move anyways.",
       "parentUuid": "38c28ec0_d5b3a9be",
+      "range": {
+        "startLine": 1798,
+        "startChar": 0,
+        "endLine": 1798,
+        "endChar": 69
+      },
+      "revId": "5511b1ac80900193ddc4fa08200ffd072e7dae8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb4063c2_72685ec5",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1798,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-20T16:51:57Z",
+      "side": 1,
+      "message": "Gone",
+      "parentUuid": "2cf58a91_0174c145",
       "range": {
         "startLine": 1798,
         "startChar": 0,

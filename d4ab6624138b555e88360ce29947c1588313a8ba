@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f50c5cac_8f623d36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-20T16:51:57Z",
+      "side": 1,
+      "message": "PTAL another look. I removed the changes to SkPath::Iter and the public API. computeConvexity() and conservativelyContainsRect() now use SkPathPriv::Iterate instead of depending on the force-close behavior of the old iterator.",
+      "revId": "d4ab6624138b555e88360ce29947c1588313a8ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
