@@ -6,12 +6,12 @@
 # We want to run python in unbuffered mode; however shebangs on linux grab the
 # entire rest of the shebang line as a single argument, leading to errors like:
 #
-#   /usr/bin/env: 'python -u': No such file or directory
+#   /usr/bin/env: 'python2 -u': No such file or directory
 #
 # This little shell hack is a triple-quoted noop in python, but in sh it
 # evaluates to re-exec'ing this script in unbuffered mode.
 # pylint: disable=pointless-string-statement
-''''exec python -u -- "$0" ${1+"$@"} # '''
+''''exec python2 -u -- "$0" ${1+"$@"} # '''
 # vi: syntax=python
 """Bootstrap script to clone and forward to the recipe engine tool.
 
@@ -25,14 +25,19 @@ To fix bugs, fix in the googlesource repo then run the autoroller.
 
 # pylint: disable=wrong-import-position
 import argparse
+import errno
 import json
 import logging
 import os
 import subprocess
 import sys
-import urlparse
 
 from collections import namedtuple
+
+try:
+  import urllib.parse as urlparse
+except ImportError:
+  import urlparse
 
 # The dependency entry for the recipe_engine in the client repo's recipes.cfg
 #
@@ -103,7 +108,9 @@ def parse(repo_root, recipes_cfg_path):
     raise MalformedRecipesCfg(ex.message, recipes_cfg_path)
 
 
-_BAT = '.bat' if sys.platform.startswith(('win', 'cygwin')) else ''
+IS_WIN = sys.platform.startswith(('win', 'cygwin'))
+
+_BAT = '.bat' if IS_WIN else ''
 GIT = 'git' + _BAT
 VPYTHON = 'vpython' + _BAT
 CIPD = 'cipd' + _BAT
@@ -195,6 +202,13 @@ def checkout_engine(engine_path, repo_root, recipes_cfg_path):
     try:
       _git_check_call(['diff', '--quiet', revision], cwd=engine_path)
     except subprocess.CalledProcessError:
+      index_lock = os.path.join(engine_path, '.git', 'index.lock')
+      try:
+        os.remove(index_lock)
+      except OSError as exc:
+        if exc.errno != errno.ENOENT:
+          logging.warn('failed to remove %r, reset will fail: %s', index_lock,
+                       exc)
       _git_check_call(['reset', '-q', '--hard', revision], cwd=engine_path)
 
     # If the engine has refactored/moved modules we need to clean all .pyc files
@@ -224,18 +238,26 @@ def main():
     repo_root = (
         _git_output(['rev-parse', '--show-toplevel'],
                     cwd=os.path.abspath(os.path.dirname(__file__))).strip())
-    repo_root = os.path.abspath(repo_root)
+    repo_root = os.path.abspath(repo_root).decode()
     recipes_cfg_path = os.path.join(repo_root, 'infra', 'config', 'recipes.cfg')
     args = ['--package', recipes_cfg_path] + args
 
   engine_path = checkout_engine(engine_override, repo_root, recipes_cfg_path)
 
-  try:
-    return _subprocess_call(
-        [VPYTHON, '-u',
-         os.path.join(engine_path, 'recipe_engine', 'main.py')] + args)
-  except KeyboardInterrupt:
-    return 1
+  argv = (
+      [VPYTHON, '-u',
+       os.path.join(engine_path, 'recipe_engine', 'main.py')] + args)
+
+  if IS_WIN:
+    # No real 'exec' on windows; set these signals to ignore so that they
+    # propagate to our children but we still wait for the child process to quit.
+    import signal
+    signal.signal(signal.SIGBREAK, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    return _subprocess_call(argv)
+  else:
+    os.execvp(argv[0], argv)
 
 
 if __name__ == '__main__':
