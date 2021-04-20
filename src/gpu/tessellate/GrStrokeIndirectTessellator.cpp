@@ -526,13 +526,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
                     // close to what the actual number of subdivisions would have been.
                     [[fallthrough]];
                 case Verb::kQuad: {
-                    // Check for a cusp. A conic of any class can only have a cusp if it is a
-                    // degenerate flat line with a 180 degree turnarund. To detect this, the
-                    // beginning and ending tangents must be parallel (a.cross(b) == 0) and pointing
-                    // in opposite directions (a.dot(b) < 0).
-                    SkVector a = pts[1] - pts[0];
-                    SkVector b = pts[2] - pts[1];
-                    if (a.cross(b) == 0 && a.dot(b) < 0) {
+                    if (GrPathUtils::conicHasCusp(pts)) {
                         // The curve has a cusp. Draw two lines and a circle instead of a quad.
                         int8_t cuspResolveLevel = counter.countCircles(1);
                         *nextResolveLevel++ = -cuspResolveLevel;  // Negative signals a cusp.
