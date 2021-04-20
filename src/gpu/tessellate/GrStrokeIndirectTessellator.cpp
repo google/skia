@@ -442,7 +442,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
                                                          PathStrokeList* pathStrokeList,
                                                          int totalCombinedVerbCnt,
                                                          SkArenaAlloc* alloc)
-        : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kIndirect, shaderFlags,
+        : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kLog2Indirect, shaderFlags,
                               viewMatrix, pathStrokeList) {
     // The maximum potential number of values we will need in fResolveLevels is:
     //
@@ -472,7 +472,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
             lastStrokeWidth = stroke.getWidth();
         }
         fMaxNumExtraEdgesInJoin = std::max(fMaxNumExtraEdgesInJoin,
-                GrStrokeTessellateShader::NumExtraEdgesInIndirectJoin(stroke.getJoin()));
+                GrStrokeTessellateShader::NumFixedEdgesInJoin(stroke.getJoin()));
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
         GrStrokeIterator iter(pathStroke->fPath, &stroke, &viewMatrix);
         while (iter.next()) {
