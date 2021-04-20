@@ -96,28 +96,6 @@ public:
         float fJoinType;  // See GetJoinType().
     };
 
-    // Size in bytes of a tessellation patch with the given shader flags.
-    static size_t PatchStride(ShaderFlags shaderFlags) {
-        return sizeof(SkPoint) * 5 + DynamicStateStride(shaderFlags);
-    }
-
-    // Size in bytes of an indirect draw instance with the given shader flags.
-    static size_t IndirectInstanceStride(ShaderFlags shaderFlags) {
-        return sizeof(float) * 11 + DynamicStateStride(shaderFlags);
-    }
-
-    // Combined size in bytes of the dynamic state attribs enabled in the given shader flags.
-    static size_t DynamicStateStride(ShaderFlags shaderFlags) {
-        size_t stride = 0;
-        if (shaderFlags & ShaderFlags::kDynamicStroke) {
-            stride += sizeof(DynamicStroke);
-        }
-        if (shaderFlags & ShaderFlags::kDynamicColor) {
-            stride += (shaderFlags & ShaderFlags::kWideColor) ? sizeof(float) * 4 : 4;
-        }
-        return stride;
-    }
-
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
     GrStrokeTessellateShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
                              const SkStrokeRec& stroke, SkPMColor4f color)
@@ -176,10 +154,8 @@ public:
         }
         if (fMode == Mode::kTessellation) {
             this->setVertexAttributes(fAttribs.data(), fAttribs.count());
-            SkASSERT(this->vertexStride() == PatchStride(fShaderFlags));
         } else {
             this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
-            SkASSERT(this->instanceStride() == IndirectInstanceStride(fShaderFlags));
         }
         SkASSERT(fAttribs.count() <= kMaxAttribCount);
     }

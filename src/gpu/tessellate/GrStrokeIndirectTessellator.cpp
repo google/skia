@@ -442,7 +442,8 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
                                                          PathStrokeList* pathStrokeList,
                                                          int totalCombinedVerbCnt,
                                                          SkArenaAlloc* alloc)
-        : GrStrokeTessellator(shaderFlags, std::move(pathStrokeList)) {
+        : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kIndirect, shaderFlags,
+                              viewMatrix, pathStrokeList) {
     // The maximum potential number of values we will need in fResolveLevels is:
     //
     //   * 3 segments per verb (from two chops)
@@ -742,7 +743,6 @@ private:
 }  // namespace
 
 void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target,
-                                          const SkMatrix& viewMatrix,
                                           int /*totalCombinedVerbCnt*/) {
     SkASSERT(fResolveLevels);
     SkASSERT(!fDrawIndirectBuffer);
@@ -766,21 +766,21 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target,
 
     // We already know the instance count. Allocate an instance for each.
     int baseInstance;
-    size_t instanceStride = GrStrokeTessellateShader::IndirectInstanceStride(fShaderFlags);
-    GrVertexWriter instanceWriter = {target->makeVertexSpace(instanceStride, fChainedInstanceCount,
+    GrVertexWriter instanceWriter = {target->makeVertexSpace(fShader.instanceStride(),
+                                                             fChainedInstanceCount,
                                                              &fInstanceBuffer, &baseInstance)};
     if (!instanceWriter) {
         SkASSERT(!fInstanceBuffer);
         fDrawIndirectBuffer.reset();
         return;
     }
-    SkDEBUGCODE(auto endInstanceWriter = instanceWriter.makeOffset(instanceStride *
+    SkDEBUGCODE(auto endInstanceWriter = instanceWriter.makeOffset(fShader.instanceStride() *
                                                                    fChainedInstanceCount);)
 
     // Fill in the indirect-draw and instance buffers.
     for (auto* tess = this; tess; tess = tess->fNextInChain) {
-        tess->writeBuffers(&indirectWriter, &instanceWriter, viewMatrix, instanceStride,
-                           baseInstance, fMaxNumExtraEdgesInJoin);
+        tess->writeBuffers(&indirectWriter, &instanceWriter, fShader.viewMatrix(),
+                           fShader.instanceStride(), baseInstance, fMaxNumExtraEdgesInJoin);
         baseInstance += tess->fTotalInstanceCount;
     }
 
