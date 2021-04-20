@@ -11,6 +11,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/tessellate/GrFillPathShader.h"
 #include "src/gpu/tessellate/GrStencilPathShader.h"
+#include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
@@ -111,15 +112,6 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkAren
         }
     }
 
-    // The indirect tessellator can't combine overlapping, mismatched colors because the log2
-    // binning draws things out of order. But we can still chain them together and generate a single
-    // long list of indirect draws.
-    if ((combinedFlags & ShaderFlags::kDynamicColor) &&
-        !this->canUseHardwareTessellation(caps) &&
-        this->bounds().intersects(op->bounds())) {
-        return CombineResult::kMayChain;
-    }
-
     fShaderFlags = combinedFlags;
 
     // Concat the op's PathStrokeList. Since the head element is allocated inside the op, we need to
@@ -164,41 +156,22 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
     const GrCaps& caps = *args.fCaps;
     SkArenaAlloc* arena = args.fArena;
 
-    // Only use hardware tessellation if we need dynamic color or if the path has a somewhat large
-    // number of verbs. Otherwise we seem to be better off using indirect draws.
-    if (this->canUseHardwareTessellation(caps) &&
-        ((fShaderFlags & ShaderFlags::kDynamicColor) || fTotalCombinedVerbCnt > 50)) {
-        SkASSERT(!this->nextInChain());  // We never chain when hw tessellation is an option.
+    if (fTotalCombinedVerbCnt > 50 && this->canUseHardwareTessellation(caps)) {
+        // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
+        // Otherwise we seem to be better off using instanced draws.
         fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, fViewMatrix,
                                                                 &fPathStrokeList,
                                                                 *caps.shaderCaps());
+    } else if (fTotalCombinedVerbCnt > 50 && !(fShaderFlags & ShaderFlags::kDynamicColor)) {
+        // Only use the log2 indirect tessellator if we're drawing a somewhat large number of verbs
+        // and the stroke doesn't use dynamic color. (The log2 indirect tessellator can't support
+        // dynamic color without a z-buffer, due to how it reorders strokes.)
+        fTessellator = arena->make<GrStrokeIndirectTessellator>(fShaderFlags, fViewMatrix,
+                                                                &fPathStrokeList,
+                                                                fTotalCombinedVerbCnt, arena);
     } else {
-        if (this->nextInChain()) {
-            // We are a chained list of indirect stroke ops. The only reason we would have chained
-            // is if everything was a match except color.
-            fShaderFlags |= ShaderFlags::kDynamicColor;
-            // Collect any other shader flags in the chain.
-            const SkStrokeRec& headStroke = this->headStroke();
-            for (GrStrokeTessellateOp* op = this->nextInChain(); op; op = op->nextInChain()) {
-                fShaderFlags |= op->fShaderFlags;
-                if (!(fShaderFlags & ShaderFlags::kDynamicStroke) &&
-                    !DynamicStroke::StrokesHaveEqualDynamicState(headStroke, op->headStroke())) {
-                    fShaderFlags |= ShaderFlags::kDynamicStroke;
-                }
-            }
-        }
-        auto* headTessellator = arena->make<GrStrokeIndirectTessellator>(
-                fShaderFlags, fViewMatrix, &fPathStrokeList, fTotalCombinedVerbCnt, arena);
-        // Make a tessellator for every chained op after us. These will all append to the head
-        // tessellator's shared indirect-draw list during prepare().
-        for (GrStrokeTessellateOp* op = this->nextInChain(); op; op = op->nextInChain()) {
-            SkASSERT(fViewMatrix == op->fViewMatrix);
-            auto* chainedTessellator = arena->make<GrStrokeIndirectTessellator>(
-                    fShaderFlags, fViewMatrix, &op->fPathStrokeList, op->fTotalCombinedVerbCnt,
-                    arena);
-            headTessellator->addToChain(chainedTessellator);
-        }
-        fTessellator = headTessellator;
+        fTessellator = arena->make<GrStrokeFixedCountTessellator>(fShaderFlags, fViewMatrix,
+                                                                  &fPathStrokeList);
     }
 
     auto* pipeline = GrFillPathShader::MakeFillPassPipeline(args, fAAType, std::move(clip),

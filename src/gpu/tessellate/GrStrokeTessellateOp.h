@@ -28,9 +28,6 @@ private:
 
     SkStrokeRec& headStroke() { return fPathStrokeList.fStroke; }
     SkPMColor4f& headColor() { return fPathStrokeList.fColor; }
-    GrStrokeTessellateOp* nextInChain() const {
-        return static_cast<GrStrokeTessellateOp*>(this->GrDrawOp::nextInChain());
-    }
 
     // Returns whether it is a good tradeoff to use the dynamic states flagged in the given
     // bitfield. Dynamic states improve batching, but if they aren't already enabled, they come at

@@ -856,8 +856,8 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, int tota
 }
 
 void GrStrokeHardwareTessellator::draw(GrOpFlushState* flushState) const {
-    for (const auto& chunk : fPatchChunks) {
-        flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
-        flushState->draw(chunk.fVertexCount, chunk.fBaseVertex);
+    for (const auto& vertexChunk : fPatchChunks) {
+        flushState->bindBuffers(nullptr, nullptr, vertexChunk.fBuffer);
+        flushState->draw(vertexChunk.fCount, vertexChunk.fBase);
     }
 }

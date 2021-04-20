@@ -27,9 +27,10 @@ class GrGLSLUniformHandler;
 class GrStrokeTessellateShader : public GrPathShader {
 public:
     // Are we using hardware tessellation or indirect draws?
-    enum class Mode : bool {
-        kTessellation,
-        kIndirect
+    enum class Mode {
+        kHardwareTessellation,
+        kLog2Indirect,
+        kFixedCount
     };
 
     enum class ShaderFlags {
@@ -42,24 +43,26 @@ public:
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
 
-    // When using indirect draws, we expect a fixed number of additional edges to be appended onto
-    // each instance in order to implement its preceding join. Specifically, each join emits:
+    // Returns the fixed number of edges that are always emitted with the given join type. If the
+    // join is round, the caller needs to account for the additional radial edges on their own.
+    // Specifically, each join always emits:
     //
-    //   * Two colocated edges at the beginning (a double-sided edge to seam with the preceding
-    //     stroke and a single-sided edge to seam with the join).
+    //   * Two colocated edges at the beginning (a full-width edge to seam with the preceding stroke
+    //     and a half-width edge to begin the join).
     //
-    //   * An extra edge in the middle for miter joins, or else a variable number for round joins
-    //     (counted in the resolveLevel).
+    //   * An extra edge in the middle for miter joins, or else a variable number of radial edges
+    //     for round joins (the caller is responsible for counting radial edges from round joins).
     //
-    //   * A single sided edge at the end of the join that is colocated with the first (double
-    //     sided) edge of the stroke
+    //   * A half-width edge at the end of the join that will be colocated with the first
+    //     (full-width) edge of the stroke.
     //
-    constexpr static int NumExtraEdgesInIndirectJoin(SkPaint::Join joinType) {
+    constexpr static int NumFixedEdgesInJoin(SkPaint::Join joinType) {
         switch (joinType) {
             case SkPaint::kMiter_Join:
                 return 4;
             case SkPaint::kRound_Join:
-                // The inner edges for round joins are counted in the stroke's resolveLevel.
+                // The caller is responsible for counting the variable number of middle, radial
+                // segments on round joins.
                 [[fallthrough]];
             case SkPaint::kBevel_Join:
                 return 3;
@@ -100,14 +103,14 @@ public:
     GrStrokeTessellateShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
                              const SkStrokeRec& stroke, SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
-                           (mode == Mode::kTessellation) ?
+                           (mode == Mode::kHardwareTessellation) ?
                                    GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
-                           (mode == Mode::kTessellation) ? 1 : 0)
+                           (mode == Mode::kHardwareTessellation) ? 1 : 0)
             , fMode(mode)
             , fShaderFlags(shaderFlags)
             , fStroke(stroke)
             , fColor(color) {
-        if (fMode == Mode::kTessellation) {
+        if (fMode == Mode::kHardwareTessellation) {
             // A join calculates its starting angle using prevCtrlPtAttr.
             fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
             // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
@@ -131,15 +134,19 @@ public:
             // 180-degree point stroke.
             fAttribs.emplace_back("pts01Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
             fAttribs.emplace_back("pts23Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-            // "lastControlPoint" and "numTotalEdges" are both packed into argsAttr.
-            //
-            // A join calculates its starting angle using "argsAttr.xy=lastControlPoint".
-            //
-            // "abs(argsAttr.z=numTotalEdges)" tells the shader the literal number of edges in the
-            // triangle strip being rendered (i.e., it should be vertexCount/2). If numTotalEdges is
-            // negative and the join type is "kRound", it also instructs the shader to only allocate
-            // one segment the preceding round join.
-            fAttribs.emplace_back("argsAttr", kFloat3_GrVertexAttribType, kFloat3_GrSLType);
+            if (fMode == Mode::kLog2Indirect) {
+                // argsAttr.xy contains the lastControlPoint for setting up the join.
+                //
+                // "argsAttr.z=numTotalEdges" tells the shader the literal number of edges in the
+                // triangle strip being rendered (i.e., it should be vertexCount/2). If
+                // numTotalEdges is negative and the join type is "kRound", it also instructs the
+                // shader to only allocate one segment the preceding round join.
+                fAttribs.emplace_back("argsAttr", kFloat3_GrVertexAttribType, kFloat3_GrSLType);
+            } else {
+                SkASSERT(fMode == Mode::kFixedCount);
+                // argsAttr contains the lastControlPoint for setting up the join.
+                fAttribs.emplace_back("argsAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+            }
         }
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             fAttribs.emplace_back("dynamicStrokeAttr", kFloat2_GrVertexAttribType,
@@ -152,7 +159,7 @@ public:
                                           : kUByte4_norm_GrVertexAttribType,
                                   kHalf4_GrSLType);
         }
-        if (fMode == Mode::kTessellation) {
+        if (fMode == Mode::kHardwareTessellation) {
             this->setVertexAttributes(fAttribs.data(), fAttribs.count());
         } else {
             this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
@@ -163,6 +170,13 @@ public:
     bool hasConics() const { return fShaderFlags & ShaderFlags::kHasConics; }
     bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
     bool hasDynamicColor() const { return fShaderFlags & ShaderFlags::kDynamicColor; }
+
+    // Used by GrFixedCountTessellator to configure the uniform value that tells the shader how many
+    // total edges are in the triangle strip.
+    void setFixedCountNumTotalEdges(int value) {
+        SkASSERT(fMode == Mode::kFixedCount);
+        fFixedCountNumTotalEdges = value;
+    }
 
 private:
     const char* name() const override { return "GrStrokeTessellateShader"; }
@@ -186,8 +200,12 @@ private:
     constexpr static int kMaxAttribCount = 5;
     SkSTArray<kMaxAttribCount, Attribute> fAttribs;
 
+    // This is a uniform value used when fMode is kFixedCount that tells the shader how many total
+    // edges are in the triangle strip.
+    float fFixedCountNumTotalEdges = 0;
+
     class TessellationImpl;
-    class IndirectImpl;
+    class InstancedImpl;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellateShader::ShaderFlags);

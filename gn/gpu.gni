@@ -475,6 +475,8 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrPathTessellator.h",
   "$_src/gpu/tessellate/GrStencilPathShader.cpp",
   "$_src/gpu/tessellate/GrStencilPathShader.h",
+  "$_src/gpu/tessellate/GrStrokeFixedCountTessellator.cpp",
+  "$_src/gpu/tessellate/GrStrokeFixedCountTessellator.h",
   "$_src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
   "$_src/gpu/tessellate/GrStrokeHardwareTessellator.h",
   "$_src/gpu/tessellate/GrStrokeIndirectTessellator.cpp",
