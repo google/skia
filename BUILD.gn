@@ -2772,7 +2772,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && (is_linux || is_mac || is_ios)) {
+  if (skia_use_gl && (is_win || is_linux || is_mac || is_ios)) {
     test_app("SkiaSDLExample") {
       sources = [ "example/SkiaSDLExample.cpp" ]
       libs = []

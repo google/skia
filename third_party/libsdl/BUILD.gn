@@ -125,6 +125,56 @@ third_party("libsdl") {
     ]
   }
 
+  if (is_win) {
+    sources += [
+      "../externals/sdl/src/core/windows/SDL_windows.c",
+      "../externals/sdl/src/core/windows/SDL_xinput.c",
+      "../externals/sdl/src/filesystem/windows/SDL_sysfilesystem.c",
+      "../externals/sdl/src/loadso/windows/SDL_sysloadso.c",
+      "../externals/sdl/src/main/windows/SDL_windows_main.c",
+      "../externals/sdl/src/main/windows/version.rc",
+      "../externals/sdl/src/power/windows/SDL_syspower.c",
+      "../externals/sdl/src/render/direct3d/SDL_render_d3d.c",
+      "../externals/sdl/src/render/opengl/SDL_render_gl.c",
+      "../externals/sdl/src/render/opengl/SDL_shaders_gl.c",
+      "../externals/sdl/src/thread/generic/SDL_syscond.c",
+      "../externals/sdl/src/thread/windows/SDL_sysmutex.c",
+      "../externals/sdl/src/thread/windows/SDL_syssem.c",
+      "../externals/sdl/src/thread/windows/SDL_systhread.c",
+      "../externals/sdl/src/thread/windows/SDL_systls.c",
+      "../externals/sdl/src/timer/windows/SDL_systimer.c",
+      "../externals/sdl/src/video/windows/SDL_windowsclipboard.c",
+      "../externals/sdl/src/video/windows/SDL_windowsevents.c",
+      "../externals/sdl/src/video/windows/SDL_windowsframebuffer.c",
+      "../externals/sdl/src/video/windows/SDL_windowskeyboard.c",
+      "../externals/sdl/src/video/windows/SDL_windowsmessagebox.c",
+      "../externals/sdl/src/video/windows/SDL_windowsmodes.c",
+      "../externals/sdl/src/video/windows/SDL_windowsmouse.c",
+      "../externals/sdl/src/video/windows/SDL_windowsopengl.c",
+      "../externals/sdl/src/video/windows/SDL_windowsopengles.c",
+      "../externals/sdl/src/video/windows/SDL_windowsshape.c",
+      "../externals/sdl/src/video/windows/SDL_windowsvideo.c",
+      "../externals/sdl/src/video/windows/SDL_windowswindow.c",
+    ]
+    defines += [
+      "SDL_THREAD_WINDOWS=1",
+      "SDL_FILESYSTEM_WINDOWS=1",
+      "SDL_VIDEO_DRIVER_WINDOWS=1",
+      "SDL_VIDEO_OPENGL=1",
+      "SDL_VIDEO_RENDER_OGL=1",
+      "SDL_VIDEO_OPENGL_WGL=1",
+      "SDL_TIMER_WINDOWS=1",
+      "SDL_LOADSO_WINDOWS=1",
+      "SDL_POWER_WINDOWS=1",
+    ]
+    libs += [
+      "Imm32.lib",
+      "Shell32.lib",
+      "Version.lib",
+      "Winmm.lib",
+    ]
+  }
+
   if (is_linux) {
     sources += [
       "../externals/sdl/src/filesystem/unix/SDL_sysfilesystem.c",

@@ -19,6 +19,9 @@
 
 #if defined(SK_BUILD_FOR_ANDROID)
 #include <GLES/gl.h>
+#elif defined(SK_BUILD_FOR_WIN)
+#include <windows.h>
+#include <GL/gl.h>
 #elif defined(SK_BUILD_FOR_UNIX)
 #include <GL/gl.h>
 #elif defined(SK_BUILD_FOR_MAC)
