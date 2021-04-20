@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.SurfaceView;
 import android.widget.ImageView;
 import org.skia.androidkit.Canvas;
 import org.skia.androidkit.Color;
@@ -26,12 +27,15 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        Bitmap bmp = Bitmap.createBitmap(200, 200, conf);
-        Surface surface = new Surface(bmp);
+
         Paint p = new Paint();
         p.setColor(new Color(0, 1, 0, 1));
-        surface.getCanvas().drawRect(0, 0, 100, 100, p);
+
+        // Bitmap
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        Bitmap bmp = Bitmap.createBitmap(200, 200, conf);
+        Surface bitmapSurface = new Surface(bmp);
+        bitmapSurface.getCanvas().drawRect(0, 0, 100, 100, p);
         ImageView image = findViewById(R.id.image);
         image.setImageBitmap(bmp);
     }
