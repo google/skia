@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8db3fd2d_b1299409",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-04-20T12:42:52Z",
+      "side": 1,
+      "message": "Two devices now online: \n\nhttps://chromium-swarm.appspot.com/botlist?f\u003dgpu%3AIntelUHDGraphics605\u0026f\u003dos%3AChromeOS\u0026f\u003dpool%3ASkia\u0026f\u003drelease_version%3A13729.56.0",
+      "revId": "6b21f76e80786a80e515a12ea40941c8f7174e44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
