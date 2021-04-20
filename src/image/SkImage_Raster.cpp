@@ -137,6 +137,13 @@ private:
     std::tuple<GrSurfaceProxyView, GrColorType> onAsView(GrRecordingContext*,
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
+
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext*,
+                                                               SkSamplingOptions,
+                                                               const SkTileMode[2],
+                                                               const SkMatrix&,
+                                                               const SkRect*,
+                                                               const SkRect*) const override;
 #endif
 
     SkBitmap fBitmap;
@@ -407,19 +414,36 @@ sk_sp<SkImage> SkImage_Raster::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS
 
 #if SK_SUPPORT_GPU
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
-        GrRecordingContext* context,
+        GrRecordingContext* rContext,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
     if (fPinnedView) {
         if (policy != GrImageTexGenPolicy::kDraw) {
-            return {CopyView(context, fPinnedView, mipmapped, policy), fPinnedColorType};
+            return {CopyView(rContext, fPinnedView, mipmapped, policy), fPinnedColorType};
         }
         GrColorInfo colorInfo(fPinnedColorType, this->alphaType(), this->refColorSpace());
-        GrTextureAdjuster adjuster(context, fPinnedView, colorInfo, fPinnedUniqueID);
+        GrTextureAdjuster adjuster(rContext, fPinnedView, colorInfo, fPinnedUniqueID);
         return {adjuster.view(mipmapped), adjuster.colorType()};
     }
 
-    GrBitmapTextureMaker maker(context, fBitmap, policy);
+    GrBitmapTextureMaker maker(rContext, fBitmap, policy);
     return {maker.view(mipmapped), maker.colorType()};
+}
+
+std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
+        GrRecordingContext* context,
+        SkSamplingOptions sampling,
+        const SkTileMode tileModes[2],
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    auto wmx = SkTileModeToWrapMode(tileModes[0]);
+    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    GrBitmapTextureMaker maker(context, fBitmap, GrImageTexGenPolicy::kDraw);
+    if (sampling.useCubic) {
+        return maker.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
+    }
+    GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
+    return maker.createFragmentProcessor(m, subset, domain, sampler);
 }
 #endif

@@ -334,71 +334,15 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    GrSamplerState::WrapMode wmX = SkTileModeToWrapMode(fTileModeX),
-                             wmY = SkTileModeToWrapMode(fTileModeY);
-    // Must set wrap and filter on the sampler before requesting a texture. In two places
-    // below we check the matrix scale factors to determine how to interpret the filter
-    // quality setting. This completely ignores the complexity of the drawVertices case
-    // where explicit local coords are provided by the caller.
-    GrSamplerState::Filter     fm = GrSamplerState::Filter::kNearest;
-    GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
-    SkCubicResampler kernel = kInvalidCubicResampler;
-
-    if (fSampling.useCubic) {
-        kernel = fSampling.cubic;
-    } else {
-        switch (fSampling.filter) {
-            case SkFilterMode::kNearest: fm = GrSamplerState::Filter::kNearest; break;
-            case SkFilterMode::kLinear : fm = GrSamplerState::Filter::kLinear ; break;
-        }
-        switch (fSampling.mipmap) {
-            case SkMipmapMode::kNone   : mm = GrSamplerState::MipmapMode::kNone   ; break;
-            case SkMipmapMode::kNearest: mm = GrSamplerState::MipmapMode::kNearest; break;
-            case SkMipmapMode::kLinear : mm = GrSamplerState::MipmapMode::kLinear ; break;
-        }
+    SkTileMode tileModes[2] = {fTileModeX, fTileModeY};
+    auto fp = as_IB(fImage.get())->asFragmentProcessor(args.fContext,
+                                                       fSampling,
+                                                       tileModes,
+                                                       lmInverse);
+    if (!fp) {
+        return nullptr;
     }
 
-    std::unique_ptr<GrFragmentProcessor> fp;
-    // TODO: Replace this mess with SkImage_Base::asFragmentProcessor() after it's implemented.
-    if (as_IB(fImage)->isYUVA()) {
-        GrYUVAImageTextureMaker maker(args.fContext, fImage.get());
-        if (GrValidCubicResampler(kernel)) {
-            fp = maker.createBicubicFragmentProcessor(lmInverse,
-                                                      nullptr,
-                                                      nullptr,
-                                                      wmX, wmY,
-                                                      kernel);
-        } else {
-            fp = maker.createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
-        }
-        if (!fp) {
-            return nullptr;
-        }
-    } else {
-        auto mipmapped = !GrValidCubicResampler(kernel) && mm != SkMipmapMode::kNone
-                ? GrMipmapped::kYes
-                : GrMipmapped::kNo;
-        auto [view, ct] = as_IB(fImage)->asView(args.fContext, mipmapped);
-        if (!view) {
-            return nullptr;
-        }
-        if (GrValidCubicResampler(kernel)) {
-            fp = GrBicubicEffect::Make(std::move(view),
-                                       fImage->alphaType(),
-                                       lmInverse,
-                                       wmX, wmY,
-                                       kernel,
-                                       GrBicubicEffect::Direction::kXY,
-                                       *args.fContext->priv().caps());
-        } else {
-            fp = GrTextureEffect::Make(std::move(view),
-                                       fImage->alphaType(),
-                                       lmInverse,
-                                       {wmX, wmY, fm, mm},
-                                       *args.fContext->priv().caps());
-        }
-    }
-    SkASSERT(fp);
     fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                        fImage->colorSpace(),
                                        fImage->alphaType(),

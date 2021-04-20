@@ -43,6 +43,7 @@ public:
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
+public:
     bool isYUVA() const override { return true; }
 
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
@@ -54,7 +55,12 @@ private:
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
 
-    GrSurfaceProxyView flattenToRGB(GrRecordingContext*, GrMipmapped) const;
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext*,
+                                                               SkSamplingOptions,
+                                                               const SkTileMode[],
+                                                               const SkMatrix&,
+                                                               const SkRect*,
+                                                               const SkRect*) const override;
 
     mutable GrYUVATextureProxies     fYUVAProxies;
 

@@ -843,6 +843,31 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Gpu::onAsView(
     return {adjuster.view(mipmapped), adjuster.colorType()};
 }
 
+std::unique_ptr<GrFragmentProcessor> SkImage_Gpu::onAsFragmentProcessor(
+        GrRecordingContext* rContext,
+        SkSamplingOptions sampling,
+        const SkTileMode tileModes[2],
+        const SkMatrix& m,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    if (!fContext->priv().matches(rContext)) {
+        return {};
+    }
+    GrSurfaceProxyView view = this->makeView(rContext);
+    GrColorType ct = SkColorTypeAndFormatToGrColorType(rContext->priv().caps(),
+                                                       this->colorType(),
+                                                       view.proxy()->backendFormat());
+    GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
+    GrTextureAdjuster adjuster(rContext, std::move(view), colorInfo, this->uniqueID());
+    auto wmx = SkTileModeToWrapMode(tileModes[0]);
+    auto wmy = SkTileModeToWrapMode(tileModes[1]);
+    if (sampling.useCubic) {
+        return adjuster.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
+    }
+    GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
+    return adjuster.createFragmentProcessor(m, subset, domain, sampler);
+}
+
 GrSurfaceProxyView SkImage_Gpu::makeView(GrRecordingContext* rContext) const {
     return {fChooser.chooseProxy(rContext), fOrigin, fSwizzle};
 }
