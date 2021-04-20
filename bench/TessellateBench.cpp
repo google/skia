@@ -303,9 +303,9 @@ private:
     void onDraw(int loops, SkCanvas*) final {
         SkMatrix matrix = SkMatrix::Scale(fMatrixScale, fMatrixScale);
         for (int i = 0; i < loops; ++i) {
-            GrStrokeHardwareTessellator tessellator(fShaderFlags, fPathStrokes.data(),
+            GrStrokeHardwareTessellator tessellator(fShaderFlags, matrix, fPathStrokes.data(),
                                                     *fTarget->caps().shaderCaps());
-            tessellator.prepare(fTarget.get(), matrix, fTotalVerbCount);
+            tessellator.prepare(fTarget.get(), fTotalVerbCount);
             fTarget->resetAllocator();
         }
     }
@@ -365,7 +365,7 @@ private:
                 GrStrokeIndirectTessellator tessellator(ShaderFlags::kNone, SkMatrix::I(),
                                                         &pathStroke, path.countVerbs(),
                                                         fTarget->allocator());
-                tessellator.prepare(fTarget.get(), SkMatrix::I(), path.countVerbs());
+                tessellator.prepare(fTarget.get(), path.countVerbs());
             }
             fTarget->resetAllocator();
         }

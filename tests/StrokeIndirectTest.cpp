@@ -46,7 +46,7 @@ static void test_stroke(skiatest::Reporter* r, GrDirectContext* ctx, GrMockOpTar
                                                     matrix, &pathStrokeList, path.countVerbs(),
                                                     target->allocator());
             tessellator.verifyResolveLevels(r, target, matrix, path, stroke);
-            tessellator.prepare(target, matrix, path.countVerbs());
+            tessellator.prepare(target, path.countVerbs());
             tessellator.verifyBuffers(r, target, matrix, stroke);
         }
     }
