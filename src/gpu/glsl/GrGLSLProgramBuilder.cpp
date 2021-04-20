@@ -57,7 +57,7 @@ void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
 bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     // First we loop over all of the installed processors and collect coord transforms.  These will
     // be sent to the GrGLSLGeometryProcessor in its emitCode function
-    SkSL::dsl::Start(this->shaderCompiler());
+    SkSL::dsl::Start(this->shaderCompiler(), SkSL::ProgramKind::kFragmentProcessor);
     SkString inputColor;
     SkString inputCoverage;
     this->emitAndInstallPrimProc(&inputColor, &inputCoverage);

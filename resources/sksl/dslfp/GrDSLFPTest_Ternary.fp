@@ -1,6 +1,8 @@
+layout(ctype=SkPMColor4f) in uniform half4 colorGreen, colorRed;
+
 half4 main() {
-    half4 green = half4(0, 1, 0, 1);
-    half4 red   = half4(1, 0, 0, 1);
+    half4 green = colorGreen;
+    half4 red   = colorRed;
     bool  t     = true;
     bool  f     = false;
 
