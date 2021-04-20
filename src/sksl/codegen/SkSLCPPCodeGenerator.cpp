@@ -551,7 +551,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     if (decl.isBuiltin()) {
         return;
     }
-    fFunctionHeader.clear();
+    fFunctionHeader = "";
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;

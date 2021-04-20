@@ -135,9 +135,9 @@ protected:
 
     virtual void writeFunctionCall(const FunctionCall& c);
 
-    virtual void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+    void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
-    virtual void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+    void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
     virtual void writeFieldAccess(const FieldAccess& f);
 
@@ -148,7 +148,7 @@ protected:
     void writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence);
 
-    virtual void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
+    void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
 
     virtual void writeIndexExpression(const IndexExpression& expr);
 
