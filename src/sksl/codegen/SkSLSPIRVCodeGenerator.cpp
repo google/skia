@@ -631,6 +631,9 @@ SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
     String separator;
     const std::vector<const Variable*>& parameters = function.parameters();
     for (size_t i = 0; i < parameters.size(); i++) {
+        if (function.isMain() && parameters[i]->modifiers().fLayout.fBuiltin != -1) {
+            continue;
+        }
         key += separator;
         separator = ", ";
         key += to_string(this->getType(parameters[i]->type()));
@@ -639,10 +642,14 @@ SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId(nullptr);
-        int32_t length = 3 + (int32_t) parameters.size();
+        int32_t length = 3;
         SpvId returnType = this->getType(function.returnType());
         std::vector<SpvId> parameterTypes;
         for (size_t i = 0; i < parameters.size(); i++) {
+            if (function.isMain() && parameters[i]->modifiers().fLayout.fBuiltin != -1) {
+                continue;
+            }
+            length++;
             // glslang seems to treat all function arguments as pointers whether they need to be or
             // not. I  was initially puzzled by this until I ran bizarre failures with certain
             // patterns of function calls and control constructs, as exemplified by this minimal
@@ -2885,6 +2892,9 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
                            StringFragment(mangledName.c_str(), mangledName.size()),
                            fNameBuffer);
     for (const Variable* parameter : f.parameters()) {
+        if (f.isMain() && parameter->modifiers().fLayout.fBuiltin != -1) {
+            continue;
+        }
         SpvId id = this->nextId(nullptr);
         fVariableMap[parameter] = id;
         SpvId type = this->getPointerType(parameter->type(), SpvStorageClassFunction);
