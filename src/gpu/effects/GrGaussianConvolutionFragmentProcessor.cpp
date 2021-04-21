@@ -32,9 +32,7 @@ protected:
 
 private:
     UniformHandle fKernelUni;
-#if !defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
     UniformHandle fOffsetsUni;
-#endif
     UniformHandle fIncrementUni;
 
     using INHERITED = GrGLSLFragmentProcessor;
@@ -49,11 +47,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     Var increment(kUniform_Modifier, kHalf2_Type, "Increment");
     fIncrementUni = VarUniformHandle(increment);
 
-#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
-    int width = SkGpuBlurUtils::KernelWidth(ce.fRadius);
-#else
     int width = SkGpuBlurUtils::LinearKernelWidth(ce.fRadius);
-#endif
 
     int arrayCount = (width + 3) / 4;
     SkASSERT(4 * arrayCount >= width);
@@ -64,18 +58,6 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     Var color(kHalf4_Type, "color", Half4(0));
     Declare(color);
 
-#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
-    Var coord(kFloat2_Type, "coord", sk_SampleCoord() - ce.fRadius * increment);
-    Declare(coord);
-
-    // Manually unroll loop because some drivers don't; yields 20-30% speedup.
-    for (int i = 0; i < width; i++) {
-        if (i != 0) {
-            coord += increment;
-        }
-        color += SampleChild(/*index=*/0, coord) * kernel[i / 4][i & 0x3];
-    }
-#else
     Var offsets(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Offsets");
     fOffsetsUni = VarUniformHandle(offsets);
 
@@ -87,7 +69,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
         color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
             kernel[i / 4][i & 0x3];
     }
-#endif
+
     Return(color);
     EndFragmentProcessor();
 }
@@ -100,19 +82,13 @@ void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgram
     increment[static_cast<int>(conv.fDirection)] = 1;
     pdman.set2fv(fIncrementUni, 1, increment);
 
-#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
-    int width = SkGpuBlurUtils::KernelWidth(conv.fRadius);
-#else
     int width = SkGpuBlurUtils::LinearKernelWidth(conv.fRadius);
-#endif
     int arrayCount = (width + 3)/4;
     SkDEBUGCODE(size_t arraySize = 4*arrayCount;)
     SkASSERT(arraySize >= static_cast<size_t>(width));
     SkASSERT(arraySize <= SK_ARRAY_COUNT(GrGaussianConvolutionFragmentProcessor::fKernel));
     pdman.set4fv(fKernelUni, arrayCount, conv.fKernel);
-#if !defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
     pdman.set4fv(fOffsetsUni, arrayCount, conv.fOffsets);
-#endif
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::GenKey(const GrProcessor& processor,
@@ -140,10 +116,6 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
     // the linear blur requires a linear sample.
     GrSamplerState::Filter filter = is_zero_sigma ?
         GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kLinear;
-#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
-    filter = GrSamplerState::Filter::kNearest;
-#endif
-
     GrSamplerState sampler(wm, filter);
     if (is_zero_sigma) {
         halfWidth = 0;
@@ -180,11 +152,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fDirection(direction) {
     this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     SkASSERT(radius <= kMaxKernelRadius);
-#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
-    SkGpuBlurUtils::Compute1DGaussianKernel(fKernel, gaussianSigma, fRadius);
-#else
     SkGpuBlurUtils::Compute1DLinearGaussianKernel(fKernel, fOffsets, gaussianSigma, fRadius);
-#endif
     this->setUsesSampleCoordsDirectly();
 }
 
@@ -194,12 +162,8 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fRadius(that.fRadius)
         , fDirection(that.fDirection) {
     this->cloneAndRegisterAllChildProcessors(that);
-#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
-    memcpy(fKernel, that.fKernel, SkGpuBlurUtils::KernelWidth(fRadius) * sizeof(float));
-#else
     memcpy(fKernel, that.fKernel, SkGpuBlurUtils::LinearKernelWidth(fRadius) * sizeof(float));
     memcpy(fOffsets, that.fOffsets, SkGpuBlurUtils::LinearKernelWidth(fRadius) * sizeof(float));
-#endif
     this->setUsesSampleCoordsDirectly();
 }
 
@@ -215,14 +179,9 @@ GrGaussianConvolutionFragmentProcessor::onMakeProgramImpl() const {
 
 bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor& sBase) const {
     const auto& that = sBase.cast<GrGaussianConvolutionFragmentProcessor>();
-#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
-    return fRadius == that.fRadius && fDirection == that.fDirection &&
-           std::equal(fKernel, fKernel + SkGpuBlurUtils::KernelWidth(fRadius), that.fKernel);
-#else
     return fRadius == that.fRadius && fDirection == that.fDirection &&
            std::equal(fKernel, fKernel + SkGpuBlurUtils::LinearKernelWidth(fRadius), that.fKernel) &&
            std::equal(fOffsets, fOffsets + SkGpuBlurUtils::LinearKernelWidth(fRadius), that.fOffsets);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
