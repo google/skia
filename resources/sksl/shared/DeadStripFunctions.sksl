@@ -10,7 +10,7 @@ half4 live_fn(half4 a, half4 b) {
     return a + b;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     const bool TRUE = true, FALSE = false;
     half4 a, b;
 

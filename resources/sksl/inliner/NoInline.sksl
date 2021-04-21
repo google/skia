@@ -17,7 +17,7 @@ noinline half fma(half a, half b, half c) {
     return add(mul(a, b), c);
 }
 
-half4 main() {
+half4 main(float2 coords) {
     // Functions used multiple times:
     half4 result = fma(colorGreen.a, colorGreen.g, colorGreen.r).0x0x;
     // Functions used only once:

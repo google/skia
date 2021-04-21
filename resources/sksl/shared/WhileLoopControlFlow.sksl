@@ -1,4 +1,4 @@
-half4 main() {
+half4 main(float2 coords) {
     half4 x = half4(1, 1, 1, 1);
 
     // Verify that break is allowed in a while loop.

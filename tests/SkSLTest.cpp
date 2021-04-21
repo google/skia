@@ -46,7 +46,7 @@ static void test_one_permutation(skiatest::Reporter* r,
     }
 
     SkString shaderString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
-    SkRuntimeEffect::Result result = SkRuntimeEffect::Make(shaderString, options);
+    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForShader(shaderString, options);
     if (!result.effect) {
         ERRORF(r, "%s%s: %s", testFile, permutationSuffix, result.errorText.c_str());
         return;
@@ -129,7 +129,8 @@ SKSL_TEST(SkSLAssignmentOps,                   "folding/AssignmentOps.sksl")
 SKSL_TEST(SkSLBoolFolding,                     "folding/BoolFolding.sksl")
 SKSL_TEST(SkSLIntFoldingES2,                   "folding/IntFoldingES2.sksl")
 SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
-SKSL_TEST(SkSLMatrixFoldingES2,                "folding/MatrixFoldingES2.sksl")
+// skbug.com/11919: Fails on Nexus5/7, and Intel GPUs
+SKSL_TEST_CPU(SkSLMatrixFoldingES2,            "folding/MatrixFoldingES2.sksl")
 SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
@@ -152,7 +153,8 @@ SKSL_TEST(SkSLInlinerUsesTempVarForMultipleReturns,
 SKSL_TEST(SkSLInlinerUsesTempVarForReturnsInsideBlockWithVar,
      "inliner/InlinerUsesTempVarForReturnsInsideBlockWithVar.sksl")
 SKSL_TEST(SkSLInlineThreshold,                    "inliner/InlineThreshold.sksl")
-SKSL_TEST(SkSLInlineWithInoutArgument,            "inliner/InlineWithInoutArgument.sksl")
+// skbug.com/11919: Fails on Adreno + Vulkan
+SKSL_TEST_CPU(SkSLInlineWithInoutArgument,        "inliner/InlineWithInoutArgument.sksl")
 SKSL_TEST(SkSLInlineWithModifiedArgument,         "inliner/InlineWithModifiedArgument.sksl")
 SKSL_TEST(SkSLInlineWithNestedBigCalls,           "inliner/InlineWithNestedBigCalls.sksl")
 SKSL_TEST(SkSLInlineWithUnmodifiedArgument,       "inliner/InlineWithUnmodifiedArgument.sksl")
@@ -175,7 +177,8 @@ SKSL_TEST(SkSLIntrinsicCeil,                   "intrinsics/Ceil.sksl")
 SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
-SKSL_TEST(SkSLIntrinsicMixFloat,               "intrinsics/MixFloat.sksl")
+// skbug.com/11919: Fails on Adreno + Vulkan
+SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 
 SKSL_TEST(SkSLArrayTypes,                      "shared/ArrayTypes.sksl")
@@ -204,15 +207,19 @@ SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl"
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
 SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
-SKSL_TEST(SkSLOutParams,                       "shared/OutParams.sksl")
-SKSL_TEST(SkSLOutParamsNoInline,               "shared/OutParamsNoInline.sksl")
-SKSL_TEST(SkSLOutParamsTricky,                 "shared/OutParamsTricky.sksl")
+
+// skbug.com/11919: Fails on Adreno + Vulkan
+SKSL_TEST_CPU(SkSLOutParams,                   "shared/OutParams.sksl")
+SKSL_TEST_CPU(SkSLOutParamsNoInline,           "shared/OutParamsNoInline.sksl")
+SKSL_TEST_CPU(SkSLOutParamsTricky,             "shared/OutParamsTricky.sksl")
+
 SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(SkSLReturnsValueOnEveryPathES2,      "shared/ReturnsValueOnEveryPathES2.sksl")
 SKSL_TEST(SkSLScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
 SKSL_TEST(SkSLStackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(SkSLStaticIf,                        "shared/StaticIf.sksl")
-SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
+// TODO(skia:11908) Re-enable this when Metal supports struct equality
+SKSL_TEST_CPU(SkSLStructsInFunctions,          "shared/StructsInFunctions.sksl")
 SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(SkSLSwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(SkSLSwizzleConstants,                "shared/SwizzleConstants.sksl")
@@ -225,7 +232,8 @@ SKSL_TEST(SkSLTernaryExpression,               "shared/TernaryExpression.sksl")
 SKSL_TEST(SkSLUnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
 SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
-SKSL_TEST(SkSLVectorScalarMath,                "shared/VectorScalarMath.sksl")
+// skbug.com/11919: Fails on Nexus5/7, and Intel GPUs
+SKSL_TEST_CPU(SkSLVectorScalarMath,            "shared/VectorScalarMath.sksl")
 
 /*
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.

@@ -109,6 +109,6 @@ bool test_int() {
     return ok;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return test_half() && test_int() ? colorGreen : colorRed;
 }

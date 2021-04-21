@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed, colorBlack, colorWhite, testInputs;
 
-half4 main() {
+half4 main(float2 coords) {
     half4 expectedBW = half4(0.5, 0.5, 0.5, 1);
     half4 expectedWT = half4(1,   0.5, 1,   2.25);
 

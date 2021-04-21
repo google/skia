@@ -2,7 +2,7 @@ inline half square(half x) {
     return x * x;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     half one = 1;
     half4 result = half4(123);
     result.r = square(0);
