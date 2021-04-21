@@ -14,6 +14,6 @@ half4 helper() {
     return half4(c.red, c.green, c.blue, c.alpha);
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return helper();
 }

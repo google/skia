@@ -1,4 +1,4 @@
-half4 main() {
+half4 main(float2 coords) {
     float x;
     float y;
     x = y = 1;

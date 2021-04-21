@@ -4,7 +4,7 @@ struct S {
     int x, y;
 };
 
-half4 main() {
+half4 main(float2 coords) {
     float f1[4] = float[4](1, 2, 3, 4);
     float f2[4] = float[4](1, 2, 3, 4);
     float f3[4] = float[4](1, 2, 3, -4);

@@ -4,6 +4,6 @@ half4 switchRedAndGreen(half4 v) {
     return v.grba;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return switchRedAndGreen(switchRedAndGreen(switchRedAndGreen(colorRed)));
 }

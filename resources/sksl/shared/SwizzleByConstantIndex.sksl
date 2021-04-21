@@ -27,7 +27,7 @@ half4 foldable() {
     return half4(x, y, z, w); // 0, 1, 2, 3
 }
 
-half4 main() {
+half4 main(float2 coords) {
     half4 a = constant_swizzle();
     half4 b = foldable_index();
     half4 c = foldable();

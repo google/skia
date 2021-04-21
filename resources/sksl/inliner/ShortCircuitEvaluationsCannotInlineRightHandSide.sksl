@@ -8,7 +8,7 @@ inline bool testB(half4 v) {
     return bool(v.g);
 }
 
-half4 main() {
+half4 main(float2 coords) {
     half4 result = half4(0);
     if (testA(colorWhite) && testB(colorWhite)) {
        result.g = 1;
