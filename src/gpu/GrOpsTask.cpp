@@ -749,6 +749,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
                                     opsTask->fSampledProxies.data());
         fOpChains.move_back_n(opsTask->fOpChains.count(),
                               opsTask->fOpChains.data());
+        this->addDependenciesFromOtherTask(opsTask.get());
         opsTask->fDeferredProxies.reset();
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();

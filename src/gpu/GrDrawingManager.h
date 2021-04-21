@@ -144,6 +144,8 @@ public:
                        sk_sp<GrRenderTargetProxy> newDest,
                        SkIPoint offset);
 
+    void dumpGraph() const;
+
 private:
     GrDrawingManager(GrRecordingContext*,
                      const GrPathRendererChain::Options&,
