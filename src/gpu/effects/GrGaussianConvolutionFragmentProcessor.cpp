@@ -33,6 +33,7 @@ protected:
 private:
     UniformHandle fKernelUni;
     UniformHandle fOffsetsUni;
+    UniformHandle fKernelWidthUni;
     UniformHandle fIncrementUni;
 
     using INHERITED = GrGLSLFragmentProcessor;
@@ -49,32 +50,52 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
 
     int width = SkGpuBlurUtils::LinearKernelWidth(ce.fRadius);
 
-    int arrayCount = (width + 3) / 4;
-    SkASSERT(4 * arrayCount >= width);
+    // This checks that bitwise integer operations and array indexing by non-consts are allowed.
+    bool unrollLoop = args.fShaderCaps->generation() < k130_GrGLSLGeneration;
+    // If we're in reduced shader mode and we can have a loop then use a uniform to limit the
+    // number of iterations so we don't need a code variation for each width.
+    bool useWidthUniform = !unrollLoop && args.fShaderCaps->reducedShaderMode();
+
+    int arrayCount;
+    if (useWidthUniform) {
+        // Size the kernel uniform for the maximum width.
+        arrayCount = (SkGpuBlurUtils::LinearKernelWidth(kMaxKernelRadius) + 3) / 4;
+    } else {
+        arrayCount = (width + 3) / 4;
+        SkASSERT(4 * arrayCount >= width);
+    }
 
     Var kernel(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Kernel");
     fKernelUni = VarUniformHandle(kernel);
 
-    Var color(kHalf4_Type, "color", Half4(0));
-    Declare(color);
 
     Var offsets(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Offsets");
     fOffsetsUni = VarUniformHandle(offsets);
 
+    Var color(kHalf4_Type, "color", Half4(0));
+    Declare(color);
+
     Var coord(kFloat2_Type, "coord", sk_SampleCoord());
     Declare(coord);
 
-    // This checks that bitwise integer operations and array indexing by non-consts are allowed.
-    if (args.fShaderCaps->generation() >= k130_GrGLSLGeneration) {
-        Var i(kInt_Type, "i", 0);
-        For(Declare(i), i < width, i++,
-            color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
-                     kernel[i / 4][i & 0x3]);
-    } else {
+    if (unrollLoop) {
         for (int i = 0; i < width; i++) {
             color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
                      kernel[i / 4][i & 0x3];
         }
+    } else {
+        Var i(kInt_Type, "i", 0);
+        DSLExpression loopTest;
+        if (useWidthUniform) {
+            Var kernelWidth(kUniform_Modifier, kInt_Type, "kernelWidth");
+            fKernelWidthUni = VarUniformHandle(kernelWidth);
+            loopTest = i < kernelWidth;
+        } else {
+            loopTest = i < width;
+        }
+        For(Declare(i), std::move(loopTest), i++,
+            color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
+                     kernel[i / 4][i & 0x3]);
     }
 
     Return(color);
@@ -96,13 +117,22 @@ void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgram
     SkASSERT(arraySize <= SK_ARRAY_COUNT(GrGaussianConvolutionFragmentProcessor::fKernel));
     pdman.set4fv(fKernelUni, arrayCount, conv.fKernel);
     pdman.set4fv(fOffsetsUni, arrayCount, conv.fOffsets);
+    if (fKernelWidthUni.isValid()) {
+        pdman.set1i(fKernelWidthUni, width);
+    }
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::GenKey(const GrProcessor& processor,
-                                                          const GrShaderCaps&,
+                                                          const GrShaderCaps& shaderCaps,
                                                           GrProcessorKeyBuilder* b) {
     const auto& conv = processor.cast<GrGaussianConvolutionFragmentProcessor>();
+#if defined(SK_DISABLE_BILINEAR_BLUR_OPTIMIZATION)
     b->add32(conv.fRadius);
+#else
+    if (!shaderCaps.integerSupport()) {
+        b->add32(conv.fRadius);
+    }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
