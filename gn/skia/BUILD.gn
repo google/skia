@@ -126,7 +126,6 @@ config("default") {
     cflags += [
       "-fstrict-aliasing",
       "-fPIC",
-      "-fvisibility=hidden",
     ]
     cflags_cc += [
       "-std=c++17",
