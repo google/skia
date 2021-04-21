@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fde14d6_6f2c0520",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-21T15:04:06Z",
+      "side": 1,
+      "message": "Unfortunately we can\u0027t land this until it compiles with Clang.",
+      "revId": "143f9b465b27fef02d067b73c4256588830a2f50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
