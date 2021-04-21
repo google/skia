@@ -12,6 +12,6 @@ inline half BigY(half x) {
     return x;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return BigX(BigY(12345)).0x0x;
 }

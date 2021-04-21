@@ -5,7 +5,7 @@ inline half4 green() {
     return x;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     half4 result = colorRed;
     while (result != colorGreen)
         result = green();

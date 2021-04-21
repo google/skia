@@ -1,1 +1,1 @@
-half4 main() { return half4(0, 1, 0, 1); }
+half4 main(float2 coords) { return half4(0, 1, 0, 1); }
