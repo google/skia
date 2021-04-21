@@ -185,7 +185,7 @@ const SkGlyphRunList& SkGlyphRunBuilder::textToGlyphRunList(
     auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, encoding);
     SkRect bounds = SkRect::MakeEmpty();
     if (!glyphIDs.empty()) {
-        this->initialize(glyphIDs.size());
+        this->prepareBuffers(glyphIDs.size(), 0);
         SkSpan<const SkPoint> positions = draw_text_positions(font, glyphIDs, {0, 0}, fPositions);
         this->makeGlyphRun(font,
                            glyphIDs,
@@ -258,14 +258,18 @@ const SkGlyphRunList& SkGlyphRunBuilder::blobToGlyphRunList(
     return this->makeGlyphRunList(&blob, blob.bounds().makeOffset(origin), origin);
 }
 
-void SkGlyphRunBuilder::initialize(int totalRunSize) {
-
-    if (totalRunSize > fMaxTotalRunSize) {
-        fMaxTotalRunSize = totalRunSize;
-        fPositions.reset(fMaxTotalRunSize);
+std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
+SkGlyphRunBuilder::convertRSXForm(SkSpan<const SkRSXform> xforms) {
+    const int count = xforms.count();
+    this->prepareBuffers(count, count);
+    auto positions = SkSpan(fPositions.get(), count);
+    auto scaledRotations = SkSpan(fScaledRotations.get(), count);
+    for (auto [pos, sr, xform] : SkMakeZip(positions, scaledRotations, xforms)) {
+        auto [scos, ssin, tx, ty] = xform;
+        pos = {tx, ty};
+        sr = {scos, ssin};
     }
-
-    fGlyphRunListStorage.clear();
+    return {positions, scaledRotations};
 }
 
 void SkGlyphRunBuilder::initialize(const SkTextBlob& blob) {
@@ -280,14 +284,18 @@ void SkGlyphRunBuilder::initialize(const SkTextBlob& blob) {
         }
     }
 
+    prepareBuffers(positionCount, rsxFormCount);
+}
+
+void SkGlyphRunBuilder::prepareBuffers(int positionCount, int RSXFormCount) {
     if (positionCount > fMaxTotalRunSize) {
         fMaxTotalRunSize = positionCount;
         fPositions.reset(fMaxTotalRunSize);
     }
 
-    if (rsxFormCount > fMaxScaledRotations) {
-        fMaxScaledRotations = rsxFormCount;
-        fScaledRotations.reset(rsxFormCount);
+    if (RSXFormCount > fMaxScaledRotations) {
+        fMaxScaledRotations = RSXFormCount;
+        fScaledRotations.reset(RSXFormCount);
     }
 
     fGlyphRunListStorage.clear();

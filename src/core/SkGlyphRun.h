@@ -14,6 +14,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkSpan.h"
@@ -127,12 +128,15 @@ public:
                                              SkPoint origin,
                                              SkTextEncoding encoding = SkTextEncoding::kUTF8);
     const SkGlyphRunList& blobToGlyphRunList(const SkTextBlob& blob, SkPoint origin);
+    std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
+            convertRSXForm(SkSpan<const SkRSXform> xforms);
 
     bool empty() const { return fGlyphRunListStorage.empty(); }
 
 private:
-    void initialize(int totalRunSize);
     void initialize(const SkTextBlob& blob);
+    void prepareBuffers(int positionCount, int RSXFormCount);
+
     SkSpan<const SkGlyphID> textToGlyphIDs(
             const SkFont& font, const void* bytes, size_t byteLength, SkTextEncoding);
 

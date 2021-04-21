@@ -9,7 +9,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRSXform.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkSpan.h"
+#include "src/core/SkZip.h"
 #include "tools/ToolUtils.h"
 
 static const char gText[] = "Call me Ishmael. Some years ago—never mind how long precisely";
@@ -21,7 +24,7 @@ public:
         fFont = SkFont(fTypeface);
         fFont.setSubpixel(true);
         fFont.setSize(18);
-        size_t txtLen = strlen(gText);
+        const size_t txtLen = strlen(gText);
         fGlyphCount = fFont.countText(gText, txtLen, SkTextEncoding::kUTF8);
 
         fGlyphs.append(fGlyphCount);
@@ -29,6 +32,19 @@ public:
 
         fPositions.append(fGlyphCount);
         fFont.getPos(fGlyphs.begin(), fGlyphCount, fPositions.begin());
+        auto positions = SkSpan(fPositions.begin(), fGlyphCount);
+
+        fLength = positions.back().x() - positions.front().x();
+        fRadius = fLength / SK_FloatPI;
+        fXforms.append(fGlyphCount);
+
+        for (auto [xform, pos] : SkMakeZip(fXforms.begin(), positions)) {
+            const SkScalar lengthToGlyph = pos.x() - positions.front().x();
+            const SkScalar angle = SK_FloatPI * (fLength - lengthToGlyph) / fLength;
+            const SkScalar cos = std::cos(angle);
+            const SkScalar sin = std::sin(angle);
+            xform = SkRSXform::Make(sin, cos, fRadius*cos, -fRadius*sin);
+        }
     }
 
     SkString onShortName() override {
@@ -53,6 +69,9 @@ public:
         canvas->drawGlyphs(fGlyphCount, fGlyphs.begin(), fPositions.begin(), {50, 640}, fFont,
                            SkPaint{});
 
+        canvas->drawGlyphs(fGlyphCount, fGlyphs.begin(), fXforms.begin(),
+                           {50 + fLength / 2, 160 + fRadius}, fFont, SkPaint{});
+
         // TODO: add tests for cluster versions of drawGlyphs.
     }
 
@@ -60,8 +79,11 @@ private:
     sk_sp<SkTypeface>   fTypeface;
     SkFont fFont;
     SkTDArray<SkGlyphID> fGlyphs;
-    SkTDArray<SkPoint>  fPositions;
+    SkTDArray<SkPoint>   fPositions;
+    SkTDArray<SkRSXform> fXforms;
     int fGlyphCount;
+    SkScalar fRadius;
+    SkScalar fLength;
 };
 
 DEF_GM(return new DrawGlyphsGM{};)
