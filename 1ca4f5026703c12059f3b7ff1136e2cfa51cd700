@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "560085bb_0e45d6f8",
+        "filename": "resources/sksl/folding/VectorVectorFolding.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-21T17:44:43Z",
+      "side": 1,
+      "message": "Accidental?",
+      "range": {
+        "startLine": 130,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 20
+      },
+      "revId": "1ca4f5026703c12059f3b7ff1136e2cfa51cd700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
