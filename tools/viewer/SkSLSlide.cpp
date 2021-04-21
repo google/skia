@@ -217,15 +217,17 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         }
     }
 
-    for (const auto& [i, name] : SkMakeEnumerate(fEffect->children())) {
-        auto curShader = std::find_if(fShaders.begin(), fShaders.end(),
-                                      [tgt = fChildren[i]](auto p) { return p.second == tgt; });
-        SkASSERT(curShader!= fShaders.end());
+    for (const auto& c : fEffect->children()) {
+        auto curShader =
+                std::find_if(fShaders.begin(), fShaders.end(), [tgt = fChildren[c.index]](auto p) {
+                    return p.second == tgt;
+                });
+        SkASSERT(curShader != fShaders.end());
 
-        if (ImGui::BeginCombo(name.c_str(), curShader->first)) {
+        if (ImGui::BeginCombo(c.name.c_str(), curShader->first)) {
             for (const auto& namedShader : fShaders) {
                 if (ImGui::Selectable(namedShader.first, curShader->second == namedShader.second)) {
-                    fChildren[i] = namedShader.second;
+                    fChildren[c.index] = namedShader.second;
                 }
             }
             ImGui::EndCombo();
