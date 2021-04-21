@@ -15,6 +15,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
@@ -86,6 +87,8 @@ bool GrDrawingManager::flush(
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
         const GrBackendSurfaceMutableState* newState) {
+    printf("Start flush\n");
+    SK_AT_SCOPE_EXIT(printf("End flush\n"));
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
@@ -142,10 +145,12 @@ bool GrDrawingManager::flush(
     bool usingReorderedDAG = false;
     GrResourceAllocator resourceAllocator(dContext);
     if (fReduceOpsTaskSplitting) {
+        printf("Start reordering\n");
         usingReorderedDAG = this->reorderTasks(&resourceAllocator);
         if (!usingReorderedDAG) {
             resourceAllocator.reset();
         }
+        printf("End reordering\n");
     }
 
     if (!fCpuBufferCache) {
