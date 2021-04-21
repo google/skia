@@ -3419,8 +3419,22 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
                                     main.returnType().description() + "' from main()");
         return {};
     }
+    ExpressionArray args;
+    if (main.parameters().size() == 1) {
+        if (main.parameters()[0]->type() != *fContext.fTypes.fFloat2) {
+            fErrors.error(main.fOffset,
+                          "SPIR-V does not support parameter of type '" +
+                                  main.parameters()[0]->type().description() + "' to main()");
+            return {};
+        }
+        auto zero = std::make_unique<FloatLiteral>(
+                /*offset=*/-1, 0.0f, fContext.fTypes.fFloatLiteral.get());
+        auto zeros = std::make_unique<ConstructorSplat>(
+                /*offset=*/-1, *fContext.fTypes.fFloat2, std::move(zero));
+        args.push_back(std::move(zeros));
+    }
     auto callMainFn = std::make_unique<FunctionCall>(/*offset=*/-1, &main.returnType(), &main,
-                                                     /*arguments=*/ExpressionArray{});
+                                                     std::move(args));
 
     // Synthesize `skFragColor = main()` as a BinaryExpression.
     auto assignmentStmt = std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
