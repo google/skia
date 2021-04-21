@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea15f509_bcaf278f",
+        "filename": "src/sksl/codegen/SkSLDSLCPPCodeGenerator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T14:15:18Z",
+      "side": 1,
+      "message": "Is it actually correct to always strip \u0027in\u0027? I think that \u0027in\u0027 in an .fp should only impact if the variable is a constructor parameter, right? I guess it doesn\u0027t matter? Things like:\n\n  layout(key) in bool enforcePMColor;\n\n... don\u0027t even end up in the generated code, except as literals?",
+      "range": {
+        "startLine": 602,
+        "startChar": 0,
+        "endLine": 604,
+        "endChar": 5
+      },
+      "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3da32d01_9d3b62b4",
+        "filename": "tests/sksl/dslfp/GrDSLFPTest_DoStatement.dsl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T14:15:18Z",
+      "side": 1,
+      "message": "... hmm? Given the other code I tagged above, I expected this to have kIn attached, still? Also, this is all correct - but the old CPP code generator actually injected the literal for things like this, didn\u0027t it? (See GrArithmeticProcessor, eg). I guess with constant propagation, it works out the same.\n\nOne thing I suddenly realize is that the DSL here assumes we\u0027re working in the scope of a single function, right? Not an issue for this CL, but if we want to support helper functions in .fps, we need the ability to emit them into the DSL, plus variables like this need a way to be emitted at global scope.",
+      "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
