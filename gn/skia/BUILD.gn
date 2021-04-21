@@ -126,12 +126,8 @@ config("default") {
     cflags += [
       "-fstrict-aliasing",
       "-fPIC",
-      "-fvisibility=hidden",
     ]
-    cflags_cc += [
-      "-std=c++17",
-      "-fvisibility-inlines-hidden",
-    ]
+    cflags_cc += [ "-std=c++17" ]
   }
 
   if (current_cpu == "arm") {
