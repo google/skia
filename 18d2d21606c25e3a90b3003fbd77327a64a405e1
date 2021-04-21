@@ -16,6 +16,24 @@
       "message": "So, for every cluster in trailing spaces you will return a separate block (\"run\")?\nI suppose, it works... Shouldn\u0027t we at least return an indicator that it\u0027s a trailing spaces block?",
       "revId": "18d2d21606c25e3a90b3003fbd77327a64a405e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29af5538_c520b322",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-21T13:46:04Z",
+      "side": 1,
+      "message": "I am assuming I must return *something*, so the client knows how to position a cursor at every grapheme/character offset...\n\nYes, I had a similar thought. I\u0027ll return a \"flags\" field, one of which can mean \"none of these draw\"",
+      "parentUuid": "fd81667b_e3fb4e29",
+      "revId": "18d2d21606c25e3a90b3003fbd77327a64a405e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
