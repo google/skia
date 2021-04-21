@@ -22,6 +22,30 @@
       },
       "revId": "1ca4f5026703c12059f3b7ff1136e2cfa51cd700",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ada556c_37113721",
+        "filename": "resources/sksl/folding/VectorVectorFolding.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T17:51:08Z",
+      "side": 1,
+      "message": "No, that was my one test case. I can revert this part, then do them all in bulk separately.",
+      "parentUuid": "560085bb_0e45d6f8",
+      "range": {
+        "startLine": 130,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 20
+      },
+      "revId": "1ca4f5026703c12059f3b7ff1136e2cfa51cd700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
