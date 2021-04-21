@@ -16,6 +16,23 @@
       "message": "I had to fix a serialization bug. Please take another look.",
       "revId": "fce31fe53098bba11cdb065fbaf7b8d5150a4e45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28f3f79c_efac08f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-21T19:41:56Z",
+      "side": 1,
+      "message": "Looks even better to me. It\u0027s nice that with SkZip it\u0027s easy to just have the xx,yy separate from the xy,yx parts in the SkGlyphRun. I suppose SkTextBlob is optimized for serialization and SkGlyphRun for being used in-memory.",
+      "revId": "fce31fe53098bba11cdb065fbaf7b8d5150a4e45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
