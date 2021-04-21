@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0eaa2a02_ca44eb57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T18:02:20Z",
+      "side": 1,
+      "message": "PS4 fixes Vulkan and Metal. The SPIRV one is definitely the ugliest.",
+      "revId": "9fbb461ee3bb990ac44266a86f7c3b22e7a82df3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
