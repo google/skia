@@ -95,9 +95,8 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
     }
 
     Stats::ProgramCacheResult stat;
-    auto tmp = this->findOrCreatePipelineState(renderTarget, desc, programInfo,
-                                               compatibleRenderPass, overrideSubpassForResolveLoad,
-                                               &stat);
+    auto tmp = this->findOrCreatePipelineStateImpl(desc, programInfo, compatibleRenderPass,
+                                                   overrideSubpassForResolveLoad, &stat);
     if (!tmp) {
         fStats.incNumInlineCompilationFailures();
     } else {
@@ -107,8 +106,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
     return tmp;
 }
 
-GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineState(
-        GrRenderTarget* renderTarget,
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelineStateImpl(
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass,
@@ -124,8 +122,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
             *stat = Stats::ProgramCacheResult::kMiss;
         }
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, desc, programInfo, compatibleRenderPass,
-                overrideSubpassForResolveLoad));
+                fGpu, desc, programInfo, compatibleRenderPass, overrideSubpassForResolveLoad));
         if (!pipelineState) {
             return nullptr;
         }

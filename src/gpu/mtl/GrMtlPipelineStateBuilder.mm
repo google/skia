@@ -44,7 +44,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
 GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrMtlGpu* gpu,
                                                      const GrProgramDesc& desc,
                                                      const GrProgramInfo& programInfo)
-        : INHERITED(nullptr, desc, programInfo)
+        : INHERITED(desc, programInfo)
         , fGpu(gpu)
         , fUniformHandler(this)
         , fVaryingHandler(this) {

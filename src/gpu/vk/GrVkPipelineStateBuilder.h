@@ -30,7 +30,6 @@ public:
      * @return the created pipeline if generation was successful; nullptr otherwise
      */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
-                                                  GrRenderTarget*,
                                                   const GrProgramDesc&,
                                                   const GrProgramInfo&,
                                                   VkRenderPass compatibleRenderPass,
@@ -46,7 +45,7 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
+    GrVkPipelineStateBuilder(GrVkGpu*, const GrProgramDesc&, const GrProgramInfo&);
 
     GrVkPipelineState* finalize(const GrProgramDesc&, VkRenderPass compatibleRenderPass,
                                 bool overrideSupbassForResolveLoad);

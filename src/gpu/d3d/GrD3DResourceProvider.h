@@ -27,6 +27,7 @@ class GrD3DCommandSignature;
 class GrD3DDirectCommandList;
 class GrD3DGpu;
 class GrD3DPipelineState;
+class GrD3DRenderTarget;
 class GrSamplerState;
 
 class GrD3DResourceProvider {
@@ -71,7 +72,7 @@ public:
         return &fDescriptorTableManager;
     }
 
-    GrD3DPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
+    GrD3DPipelineState* findOrCreateCompatiblePipelineState(GrD3DRenderTarget*,
                                                             const GrProgramInfo&);
 
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
@@ -94,7 +95,7 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrD3DPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&);
+        GrD3DPipelineState* refPipelineState(GrD3DRenderTarget*, const GrProgramInfo&);
 
         void markPipelineStateUniformsDirty();
 

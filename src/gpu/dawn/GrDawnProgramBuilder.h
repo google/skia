@@ -92,7 +92,6 @@ public:
 
 private:
     GrDawnProgramBuilder(GrDawnGpu*,
-                         GrRenderTarget*,
                          const GrProgramInfo&,
                          GrProgramDesc*);
     wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::ProgramKind,

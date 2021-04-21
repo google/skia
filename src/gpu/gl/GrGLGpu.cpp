@@ -1825,7 +1825,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
     this->handleDirtyContext();
 
     sk_sp<GrGLProgram> program = fProgramCache->findOrCreateProgram(this->getContext(),
-                                                                    renderTarget, programInfo);
+                                                                    programInfo);
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
