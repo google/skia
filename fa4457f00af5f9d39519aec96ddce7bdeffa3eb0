@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "965e194a_9e6f7e87",
+        "filename": "src/sksl/codegen/SkSLDSLCPPCodeGenerator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T14:58:53Z",
+      "side": 1,
+      "message": "Right, sorry. I was actually suggesting that it might be more correct to strip \u0027in\u0027 all the time. Although I see your response to the other comment may clear up why it doesn\u0027t make much difference.",
+      "parentUuid": "9c7d2a24_e7fa29b9",
+      "range": {
+        "startLine": 602,
+        "startChar": 0,
+        "endLine": 604,
+        "endChar": 5
+      },
+      "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3da32d01_9d3b62b4",
@@ -79,6 +103,24 @@
       "side": 1,
       "message": "Parameters (i.e. layout keys, \"SectionAndParameterHelper::IsParameter\" \u003d\u003d true) are a total special case and don\u0027t use getDSLModifiers at all. See DSLCPPCodeGenerator.cpp:818.\n\nFor parameters, I experimented with multiple approaches before landing on this one. My first attempt was this:\n\n    auto colorWhite \u003d Half4(_outer.rR,_outer.rG,_outer.rB,_outer.rA);\n\nHowever, this totally doesn\u0027t work at all. `colorWhite` is a loose DSLExpression. DSL wasn\u0027t really built with a free-floating DSLExpression in mind. You can\u0027t copy it or clone it. You can std::move it and use it exactly one time. :( This was pretty much a non-starter.\n\nI also experimented with\n\n    #define colorWhite Half4(_outer.rR,_outer.rG,_outer.rB,_outer.rA)\n\nThis actually did pretty much work! OTOH, it felt gross compared to declaring a const variable and letting constant-propagation do its thing. We can experiment with this more if you\u0027re interested though.",
       "parentUuid": "3da32d01_9d3b62b4",
+      "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daa5004d_69d41395",
+        "filename": "tests/sksl/dslfp/GrDSLFPTest_DoStatement.dsl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T14:58:53Z",
+      "side": 1,
+      "message": "No, I think this is fine for now.",
+      "parentUuid": "975ea8f1_4a426ccf",
       "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
