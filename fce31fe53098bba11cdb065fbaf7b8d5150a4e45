@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d6bb577_0195c39d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-21T18:48:22Z",
+      "side": 1,
+      "message": "I had to fix a serialization bug. Please take another look.",
+      "revId": "fce31fe53098bba11cdb065fbaf7b8d5150a4e45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
