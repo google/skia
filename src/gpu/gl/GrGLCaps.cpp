@@ -990,7 +990,7 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
                                const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     if (ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
         ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples")) {
-        fMixedSamplesSupport = true;
+        // fMixedSamplesSupport = true;
     }
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
