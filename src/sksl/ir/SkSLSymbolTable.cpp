@@ -82,10 +82,9 @@ const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable, const Symbol
 }
 
 const String* SymbolTable::takeOwnershipOfString(String str) {
-    fOwnedStrings.push_back(std::move(str));
-    // Because fOwnedStrings is a deque and we only push_back new elements onto it, and never erase
-    // or reorder, returning a pointer to an element here is safe.
-    return &fOwnedStrings.back();
+    fOwnedStrings.push_front(std::move(str));
+    // Because fOwnedStrings is a linked list, pointers to elements are stable.
+    return &fOwnedStrings.front();
 }
 
 void SymbolTable::addAlias(StringFragment name, const Symbol* symbol) {
