@@ -1,8 +1,10 @@
+layout(key) in half one;  // always equals 1.0
+
 half4 main() {
     half4 color = half4(0);
 
     // Basic if statement. (00 == 00: true --> color=0001)
-    if (color.rg == color.ba) color.a = 1;
+    if (color.rg == color.ba) color.a = one;
 
     // Basic if statement with Block. (00 == 01: false)
     if (color.rg == color.ba) {
@@ -15,7 +17,7 @@ half4 main() {
     if (color.r == color.g) color = color.araa; else color = color.rrra;
 
     // Chained if-else statements.
-    if (color.r + color.g + color.b + color.a == 1) {  // (3 == 1: false)
+    if (color.r + color.g + color.b + color.a == one) {  // (3 == 1: false)
         color = half4(-1);
     } else if (color.r + color.g + color.b + color.a == 2) {  // (3 == 2: false)
         color = half4(-2);
@@ -24,14 +26,14 @@ half4 main() {
     }
 
     // Nested if-else statements.
-    if (color.r == 1) {  // (0 == 1: false)
+    if (color.r == one) {  // (0 == 1: false)
         if (color.r == 2) {
             color = color.rrrr;
         } else {
             color = color.gggg;
         }
     } else {
-        if (color.b * color.a == 1) { // (1*1 == 1: true)
+        if (color.b * color.a == one) { // (1*1 == 1: true)
             color = color.rbga; // (color = 0101)
         } else {
             color = color.aaaa;
