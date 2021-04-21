@@ -15,6 +15,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
@@ -86,6 +87,8 @@ bool GrDrawingManager::flush(
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
         const GrBackendSurfaceMutableState* newState) {
+    printf("Start flush\n");
+    SK_AT_SCOPE_EXIT(printf("End flush\n"));
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
@@ -389,6 +392,8 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
 }
 
 bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
+    printf("Start reordering\n");
+    SK_AT_SCOPE_EXIT(printf("End reordering\n"));
     SkASSERT(fReduceOpsTaskSplitting);
     SkTInternalLList<GrRenderTask> llist;
     bool clustered = GrClusterRenderTasks(fDAG, &llist);
@@ -399,10 +404,13 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     for (GrRenderTask* task : llist) {
         task->gatherProxyIntervals(resourceAllocator);
     }
+    printf("Will plan assignment\n");
     if (!resourceAllocator->planAssignment()) {
         return false;
     }
+    printf("Will make budget headroom\n");
     if (!resourceAllocator->makeBudgetHeadroom()) {
+        printf("No budget headroom\n");
         auto dContext = fContext->asDirectContext();
         SkASSERT(dContext);
         dContext->priv().getGpu()->stats()->incNumReorderedDAGsOverBudget();
@@ -412,6 +420,7 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     // Such cases are currently pathological, so we could just return here and keep current order.
     reorder_array_by_llist(llist, &fDAG);
 
+    printf("Will merge tasks\n");
     int newCount = 0;
     for (int i = 0; i < fDAG.count(); i++) {
         sk_sp<GrRenderTask>& task = fDAG[i];
@@ -427,6 +436,7 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);
+    printf("Did merge tasks\n");
     return true;
 }
 
