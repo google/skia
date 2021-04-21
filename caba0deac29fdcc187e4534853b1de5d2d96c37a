@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1a3c290_abfd9ec2",
+        "filename": "src/sksl/codegen/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-21T17:28:19Z",
+      "side": 1,
+      "message": "How about\n \n  f.isMain() \u0026\u0026",
+      "range": {
+        "startLine": 1013,
+        "startChar": 12,
+        "endLine": 1013,
+        "endChar": 13
+      },
+      "revId": "caba0deac29fdcc187e4534853b1de5d2d96c37a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
