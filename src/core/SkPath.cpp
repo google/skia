@@ -61,7 +61,7 @@ static void joinNoEmptyChecks(SkRect* dst, const SkRect& src) {
 }
 
 static bool is_degenerate(const SkPath& path) {
-    return (path.countVerbs() - SkPathPriv::LeadingMoveToCount(path)) == 0;
+    return path.countVerbs() <= 1;
 }
 
 class SkAutoDisableDirectionCheck {
@@ -291,51 +291,69 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
 
     SkPoint firstPt;
     SkPoint prevPt;
+    SkPath::Iter iter(*this, true);
+    SkPath::Verb verb;
+    SkPoint pts[4];
     int segmentCount = 0;
     SkDEBUGCODE(int moveCnt = 0;)
+    SkDEBUGCODE(int closeCount = 0;)
 
-    for (auto [verb, pts, weight] : SkPathPriv::Iterate(*this)) {
-        if (verb == SkPathVerb::kClose || (segmentCount > 0 && verb == SkPathVerb::kMove)) {
-            // Closing the current contour; but since convexity is a precondition, it's the only
-            // contour that matters.
-            SkASSERT(moveCnt);
-            segmentCount++;
-            break;
-        } else if (verb == SkPathVerb::kMove) {
-            // A move at the start of the contour (or multiple leading moves, in which case we
-            // keep the last one before a non-move verb).
-            SkASSERT(!segmentCount);
-            SkDEBUGCODE(++moveCnt);
-            firstPt = prevPt = pts[0];
-        } else {
-            int pointCount = SkPathPriv::PtsInVerb((unsigned) verb);
-            SkASSERT(pointCount > 0);
-
-            if (!SkPathPriv::AllPointsEq(pts, pointCount + 1)) {
-                SkASSERT(moveCnt);
-                int nextPt = pointCount;
-                segmentCount++;
-
-                if (SkPathVerb::kConic == verb) {
-                    SkConic orig;
-                    orig.set(pts, *weight);
-                    SkPoint quadPts[5];
-                    int count = orig.chopIntoQuadsPOW2(quadPts, 1);
-                    SkASSERT_RELEASE(2 == count);
-
-                    if (!check_edge_against_rect(quadPts[0], quadPts[2], rect, direction)) {
-                        return false;
-                    }
-                    if (!check_edge_against_rect(quadPts[2], quadPts[4], rect, direction)) {
-                        return false;
-                    }
-                } else {
-                    if (!check_edge_against_rect(prevPt, pts[nextPt], rect, direction)) {
-                        return false;
-                    }
+    while ((verb = iter.next(pts)) != kDone_Verb) {
+        int nextPt = -1;
+        switch (verb) {
+            case kMove_Verb:
+                SkASSERT(!segmentCount && !closeCount);
+                SkDEBUGCODE(++moveCnt);
+                firstPt = prevPt = pts[0];
+                break;
+            case kLine_Verb:
+                if (!SkPathPriv::AllPointsEq(pts, 2)) {
+                    nextPt = 1;
+                    SkASSERT(moveCnt && !closeCount);
+                    ++segmentCount;
                 }
-                prevPt = pts[nextPt];
+                break;
+            case kQuad_Verb:
+            case kConic_Verb:
+                if (!SkPathPriv::AllPointsEq(pts, 3)) {
+                    SkASSERT(moveCnt && !closeCount);
+                    ++segmentCount;
+                    nextPt = 2;
+                }
+                break;
+            case kCubic_Verb:
+                if (!SkPathPriv::AllPointsEq(pts, 4)) {
+                    SkASSERT(moveCnt && !closeCount);
+                    ++segmentCount;
+                    nextPt = 3;
+                }
+                break;
+            case kClose_Verb:
+                SkDEBUGCODE(++closeCount;)
+                break;
+            default:
+                SkDEBUGFAIL("unknown verb");
+        }
+        if (-1 != nextPt) {
+            if (SkPath::kConic_Verb == verb) {
+                SkConic orig;
+                orig.set(pts, iter.conicWeight());
+                SkPoint quadPts[5];
+                int count = orig.chopIntoQuadsPOW2(quadPts, 1);
+                SkASSERT_RELEASE(2 == count);
+
+                if (!check_edge_against_rect(quadPts[0], quadPts[2], rect, direction)) {
+                    return false;
+                }
+                if (!check_edge_against_rect(quadPts[2], quadPts[4], rect, direction)) {
+                    return false;
+                }
+            } else {
+                if (!check_edge_against_rect(prevPt, pts[nextPt], rect, direction)) {
+                    return false;
+                }
             }
+            prevPt = pts[nextPt];
         }
     }
 
@@ -2198,6 +2216,10 @@ private:
 };
 
 SkPathConvexity SkPath::computeConvexity() const {
+    SkPoint         pts[4];
+    SkPath::Verb    verb;
+    SkPath::Iter    iter(*this, true);
+
     auto setComputedConvexity = [=](SkPathConvexity convexity){
         SkASSERT(SkPathConvexity::kUnknown != convexity);
         this->setConvexity(convexity);
@@ -2218,63 +2240,58 @@ SkPathConvexity SkPath::computeConvexity() const {
         const SkPoint* points = fPathRef->points();
         const SkPoint* last = &points[pointCount];
         // only consider the last of the initial move tos
-        int skipCount = SkPathPriv::LeadingMoveToCount(*this) - 1;
-        if (skipCount > 0) {
-            points += skipCount;
+        while (SkPath::kMove_Verb == iter.next(pts)) {
+            ++points;
         }
+        --points;
         SkPathConvexity convexity = Convexicator::BySign(points, (int) (last - points));
         if (SkPathConvexity::kConvex != convexity) {
             return setComputedConvexity(SkPathConvexity::kConcave);
         }
+        iter.setPath(*this, true);
     } else if (!this->isFinite()) {
         return setFail();
     }
 
-    int contourCount = 0;
-    bool needsClose = false;
-    Convexicator state;
+    int             contourCount = 0;
+    int             count;
+    Convexicator    state;
 
-    for (auto [verb, pts, wt] : SkPathPriv::Iterate(*this)) {
-        // Looking for the last moveTo before non-move verbs start
-        if (contourCount == 0) {
-            if (verb == SkPathVerb::kMove) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case kMove_Verb:
+                if (++contourCount > 1) {
+                    return setComputedConvexity(SkPathConvexity::kConcave);
+                }
                 state.setMovePt(pts[0]);
-            } else {
-                // Starting the actual contour, fall through to c=1 to add the points
-                contourCount++;
-                needsClose = true;
-            }
-        }
-        // Accumulating points into the Convexicator until we hit a close or another move
-        if (contourCount == 1) {
-            if (verb == SkPathVerb::kClose || verb == SkPathVerb::kMove) {
+                count = 0;
+                break;
+            case kLine_Verb:
+                count = 1;
+                break;
+            case kQuad_Verb:
+                // fall through
+            case kConic_Verb:
+                count = 2;
+                break;
+            case kCubic_Verb:
+                count = 3;
+                break;
+            case kClose_Verb:
                 if (!state.close()) {
                     return setFail();
                 }
-                needsClose = false;
-                contourCount++;
-            } else {
-                // lines add 1 point, cubics add 3, conics and quads add 2
-                int count = SkPathPriv::PtsInVerb((unsigned) verb);
-                SkASSERT(count > 0);
-                for (int i = 1; i <= count; ++i) {
-                    if (!state.addPt(pts[i])) {
-                        return setFail();
-                    }
-                }
-            }
-        } else {
-            // The first contour has closed and anything other than spurious trailing moves means
-            // there's multiple contours and the path can't be convex
-            if (verb != SkPathVerb::kMove) {
+                count = 0;
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+                return setComputedConvexity(SkPathConvexity::kConcave);
+        }
+        for (int i = 1; i <= count; i++) {
+            if (!state.addPt(pts[i])) {
                 return setFail();
             }
         }
-    }
-
-    // If the path isn't explicitly closed do so implicitly
-    if (needsClose && !state.close()) {
-        return setFail();
     }
 
     if (this->getFirstDirection() == SkPathFirstDirection::kUnknown) {
