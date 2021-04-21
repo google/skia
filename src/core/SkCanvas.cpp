@@ -2283,6 +2283,27 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     }
 }
 
+void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* positions,
+                          const uint32_t* clusters, int textByteCount, const char* utf8text,
+                          SkPoint origin, const SkFont& font, const SkPaint& paint) {
+    if (count <= 0) { return; }
+
+    SkGlyphRun glyphRun {
+            font,
+            SkSpan(positions, count),
+            SkSpan(glyphs, count),
+            SkSpan(utf8text, textByteCount),
+            SkSpan(clusters, count),
+            SkSpan<SkVector>()
+    };
+    SkGlyphRunList glyphRunList {
+            glyphRun,
+            glyphRun.sourceBounds(paint).makeOffset(origin),
+            origin
+    };
+    this->onDrawGlyphRunList(glyphRunList, paint);
+}
+
 void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint positions[],
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
     if (count <= 0) { return; }
@@ -2303,23 +2324,24 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint pos
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
-void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* positions,
-                          const uint32_t* clusters, int textByteCount, const char* utf8text,
+void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform xforms[],
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
     if (count <= 0) { return; }
 
+    auto [positions, rotateScales] = fScratchGlyphRunBuilder->convertRSXForm(SkSpan(xforms, count));
+
     SkGlyphRun glyphRun {
-        font,
-        SkSpan(positions, count),
-        SkSpan(glyphs, count),
-        SkSpan(utf8text, textByteCount),
-        SkSpan(clusters, count),
-        SkSpan<SkVector>()
+            font,
+            positions,
+            SkSpan(glyphs, count),
+            SkSpan<const char>(),
+            SkSpan<const uint32_t>(),
+            rotateScales
     };
     SkGlyphRunList glyphRunList {
-        glyphRun,
-        glyphRun.sourceBounds(paint).makeOffset(origin),
-        origin
+            glyphRun,
+            glyphRun.sourceBounds(paint).makeOffset(origin),
+            origin
     };
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
