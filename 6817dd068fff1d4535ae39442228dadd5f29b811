@@ -16,6 +16,23 @@
       "message": "This tries to apply the same logic to the CK version of the cube that I applied to the native version in https://skia-review.googlesource.com/c/skia/+/398226.\n\nSomehow, the lighting is flipped around, even though the Viewer implementation looks correct. Regardless, the light still moves in response to the dot, and the cube spins, etc...",
       "revId": "6817dd068fff1d4535ae39442228dadd5f29b811",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5871bc88_e3d30b78",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T21:25:07Z",
+      "side": 1,
+      "message": "I\u0027m going to land this as-is. I tried to roll back to the old version of the web demo, but that won\u0027t run, because the CK module it pulls from no longer has the feature. So I can\u0027t tell if the web demo\u0027s lighting was always flipped like this? In any case, I\u0027m on vacation for a long weekend, but we can audit the code and debug this to understand what\u0027s wrong next week, if it matters.",
+      "revId": "6817dd068fff1d4535ae39442228dadd5f29b811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
