@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "020b7e44_0c6f11be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-21T12:53:17Z",
+      "side": 1,
+      "message": "Code looks good, just one clarification on the old behavior that shouldn\u0027t block landing this.",
+      "revId": "4a42522d0cdc86ffd3cb5e9ba0b9481c77441fc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fac8ef55_ad9fa53d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-21T12:53:17Z",
+      "side": 1,
+      "message": "Other comment aside, I like this new location and code comment calling out why we are updating ct. It also seems good to keep \u0027info\u0027 in sync",
+      "range": {
+        "startLine": 305,
+        "startChar": 4,
+        "endLine": 307,
+        "endChar": 34
+      },
+      "revId": "4a42522d0cdc86ffd3cb5e9ba0b9481c77441fc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

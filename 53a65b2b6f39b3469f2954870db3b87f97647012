@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62e78d66_e1a9fda5",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-21T12:53:17Z",
+      "side": 0,
+      "message": "For the minor bug, wouldn\u0027t this have detected the fallback from F16 to 8888 or similar so the returned SkImage_GPU has a color type matching the fallback still? The textFP and color xform don\u0027t need the color type, am I missing something?",
+      "range": {
+        "startLine": 321,
+        "startChar": 4,
+        "endLine": 321,
+        "endChar": 85
+      },
+      "revId": "53a65b2b6f39b3469f2954870db3b87f97647012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
