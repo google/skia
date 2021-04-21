@@ -154,6 +154,7 @@ void GrGLOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
 
 void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                       uint16_t maxIndexValue, int baseVertex) {
+    fprintf(stderr, "Args %d %d %d %d %d", indexCount, baseIndex, SkToInt(minIndexValue), SkToInt(maxIndexValue), baseVertex);
     GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
     if (fGpu->glCaps().baseVertexBaseInstanceSupport()) {
         SkASSERT(fGpu->glCaps().drawInstancedSupport());
@@ -165,13 +166,16 @@ void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t mi
             return;
         }
     } else {
+        fprintf(stderr, "bindVertexBuffer");
         this->bindVertexBuffer(fActiveVertexBuffer.get(), baseVertex);
     }
 
     if (fGpu->glCaps().drawRangeElementsSupport()) {
+        fprintf(stderr, "DrawRangeElements");
         GL_CALL(DrawRangeElements(glPrimType, minIndexValue, maxIndexValue, indexCount,
                                   GR_GL_UNSIGNED_SHORT, this->offsetForBaseIndex(baseIndex)));
     } else {
+        fprintf(stderr, "DrawElements");
         GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT,
                              this->offsetForBaseIndex(baseIndex)));
     }
