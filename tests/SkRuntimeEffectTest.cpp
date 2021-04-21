@@ -132,11 +132,11 @@ DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     test_invalid(
             "uniform shader child;"
             "half4 main(half4 c) { return sample(child); }",
-            "expected 2 arguments");
+            "no match for sample(shader)");
     test_invalid(
             "uniform shader child;"
             "half4 main(half4 c) { return sample(child, float3x3(1)); }",
-            "expected 'float2'");
+            "no match for sample(shader, float3x3)");
 }
 
 DEF_TEST(SkRuntimeEffectForShader, r) {
@@ -188,11 +188,11 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
     test_invalid(
             "uniform shader child;"
             "half4 main(float2 p) { return sample(child); }",
-            "expected 2 arguments");
+            "no match for sample(shader)");
     test_invalid(
             "uniform shader child;"
             "half4 main(float2 p) { return sample(child, float3x3(1)); }",
-            "expected 'float2'");
+            "no match for sample(shader, float3x3)");
 }
 
 class TestEffect {
