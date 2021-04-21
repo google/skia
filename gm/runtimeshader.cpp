@@ -376,6 +376,103 @@ public:
 };
 DEF_GM(return new DefaultColorRT;)
 
+class InputColorRT : public RuntimeShaderGM {
+public:
+    InputColorRT() : RuntimeShaderGM("input_color_rt", {512, 256}, R"(
+        uniform shader input;
+        uniform half4 gColor;
+        half4 main(float2 xy) {
+            return sample(input, xy, gColor);
+        }
+    )") {}
+
+    sk_sp<SkImage> fMandrill;
+
+    void onOnceBeforeDraw() override {
+        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
+        this->RuntimeShaderGM::onOnceBeforeDraw();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkRuntimeShaderBuilder builder(fEffect);
+
+        // First, we leave the child as null. Sampling it should return the input (not paint) color.
+        SkPaint paint;
+        paint.setColor4f({ 0.75f, 0.75f, 0.25f, 1.0f });
+        builder.uniform("gColor") = SkColor4f{0.25f, 0.75f, 0.75f, 1.0f};
+        paint.setShader(builder.makeShader(nullptr, false));
+        canvas->drawRect({ 0, 0, 256, 256 }, paint);
+
+        // Now we bind an image shader as the child. Skia says "shaders are scaled by paint alpha"
+        // TODO(skia:11942) This is implemented differently on CPU and GPU. CPU always applies
+        // paint alpha to the combined output of the shader stage (so this draw is opaque).
+        // GPU applies the input alpha to each shader's output (so this draw is transparent).
+        builder.child("input") = fMandrill->makeShader(SkSamplingOptions());
+        builder.uniform("gColor") = SkColor4f{1.0f, 1.0f, 1.0f, 0.5f};
+        paint.setColor4f({ 1.0f, 1.0f, 1.0f, 1.0f });
+        paint.setShader(builder.makeShader(nullptr, false));
+        canvas->translate(256, 0);
+        canvas->drawRect({ 0, 0, 256, 256 }, paint);
+    }
+};
+DEF_GM(return new InputColorRT;)
+
+class InputGradientRT : public RuntimeShaderGM {
+public:
+    InputGradientRT() : RuntimeShaderGM("input_gradient_rt", {768, 256}, R"(
+        uniform shader input;
+        uniform half4 hColor;
+        uniform half4 vColor;
+        half4 main(float2 xy) {
+            return (sample(input, xy, hColor) + sample(input, xy.yx, vColor)).rgb1;
+        }
+    )") {}
+
+    sk_sp<SkShader> fGradientShader;
+
+    void onOnceBeforeDraw() override {
+        // Produces a gradient from transparent black to the input color
+        auto [effect, error] = SkRuntimeEffect::MakeForShader(SkString(R"(
+            half4 main(float2 xy, half4 inColor) {
+                return inColor * xy.x * (1/256.0);
+            }
+        )"));
+        if (!effect) {
+            SkDebugf("RuntimeShader error: %s\n", error.c_str());
+        }
+        fGradientShader = effect->makeShader(nullptr, nullptr, 0, nullptr, false);
+
+        this->RuntimeShaderGM::onOnceBeforeDraw();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkRuntimeShaderBuilder builder(fEffect);
+        builder.child("input") = fGradientShader;
+
+        // First: horizontal green gradient
+        SkPaint paint;
+        builder.uniform("hColor") = SkColors::kGreen;
+        builder.uniform("vColor") = SkColors::kTransparent;
+        paint.setShader(builder.makeShader(nullptr, false));
+        canvas->drawRect({0, 0, 256, 256}, paint);
+
+        // Next: vertical blue gradient
+        builder.uniform("hColor") = SkColors::kTransparent;
+        builder.uniform("vColor") = SkColors::kBlue;
+        paint.setShader(builder.makeShader(nullptr, false));
+        canvas->translate(256, 0);
+        canvas->drawRect({0, 0, 256, 256}, paint);
+
+        // Finally: combined gradient
+        builder.uniform("hColor") = SkColors::kGreen;
+        builder.uniform("vColor") = SkColors::kBlue;
+        paint.setShader(builder.makeShader(nullptr, false));
+        canvas->translate(256, 0);
+        canvas->drawRect({0, 0, 256, 256}, paint);
+    }
+};
+DEF_GM(return new InputGradientRT;)
+
 // Emits coverage for a rounded rectangle whose corners are superellipses defined by the boundary:
 //
 //   x^n + y^n == 1

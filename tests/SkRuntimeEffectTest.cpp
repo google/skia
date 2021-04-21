@@ -128,15 +128,42 @@ DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     // Sampling a child shader requires that we pass explicit coords
     test_valid("uniform shader child;"
                "half4 main(half4 c) { return sample(child, c.rg); }");
+    // Passing a color is optional, it must come after the coords
+    test_valid("uniform shader child;"
+               "half4 main(half4 c) { return sample(child, c.rg, c); }");
 
+    // Shader with just a color
+    test_invalid("uniform shader child;"
+                 "half4 main(half4 c) { return sample(child, c); }",
+                 "no match for sample(shader, half4)");
+    // Coords and color in the wrong order
+    test_invalid("uniform shader child;"
+                 "half4 main(half4 c) { return sample(child, c, c.rg); }",
+                 "no match for sample(shader, half4, half2)");
+
+    // Older variants that are no longer allowed
     test_invalid(
             "uniform shader child;"
             "half4 main(half4 c) { return sample(child); }",
-            "expected 2 arguments");
+            "no match for sample(shader)");
     test_invalid(
             "uniform shader child;"
             "half4 main(half4 c) { return sample(child, float3x3(1)); }",
-            "expected 'float2'");
+            "no match for sample(shader, float3x3)");
+
+    // Sampling a colorFilter requires a color. No other signatures are valid.
+    test_valid("uniform colorFilter child;"
+               "half4 main(half4 c) { return sample(child, c); }");
+
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(half4 c) { return sample(child); }",
+                 "sample(colorFilter)");
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(half4 c) { return sample(child, c.rg); }",
+                 "sample(colorFilter, half2)");
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(half4 c) { return sample(child, c.rg, c); }",
+                 "sample(colorFilter, half2, half4)");
 }
 
 DEF_TEST(SkRuntimeEffectForShader, r) {
@@ -184,15 +211,42 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
     // Sampling a child shader requires that we pass explicit coords
     test_valid("uniform shader child;"
                "half4 main(float2 p) { return sample(child, p); }");
+    // Passing a color is optional, it must come after the coords
+    test_valid("uniform shader child;"
+               "half4 main(float2 p, half4 c) { return sample(child, p, c); }");
 
+    // Shader with just a color
+    test_invalid("uniform shader child;"
+                 "half4 main(float2 p, half4 c) { return sample(child, c); }",
+                 "no match for sample(shader, half4)");
+    // Coords and color in the wrong order
+    test_invalid("uniform shader child;"
+                 "half4 main(float2 p, half4 c) { return sample(child, c, p); }",
+                 "no match for sample(shader, half4, float2)");
+
+    // Older variants that are no longer allowed
     test_invalid(
             "uniform shader child;"
             "half4 main(float2 p) { return sample(child); }",
-            "expected 2 arguments");
+            "no match for sample(shader)");
     test_invalid(
             "uniform shader child;"
             "half4 main(float2 p) { return sample(child, float3x3(1)); }",
-            "expected 'float2'");
+            "no match for sample(shader, float3x3)");
+
+    // Sampling a colorFilter requires a color. No other signatures are valid.
+    test_valid("uniform colorFilter child;"
+               "half4 main(float2 p, half4 c) { return sample(child, c); }");
+
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(float2 p) { return sample(child); }",
+                 "sample(colorFilter)");
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(float2 p) { return sample(child, p); }",
+                 "sample(colorFilter, float2)");
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(float2 p, half4 c) { return sample(child, p, c); }",
+                 "sample(colorFilter, float2, half4)");
 }
 
 class TestEffect {
