@@ -14,7 +14,7 @@
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
 
-#include <deque>
+#include <forward_list>
 #include <memory>
 #include <vector>
 
@@ -139,8 +139,7 @@ private:
 
     bool fBuiltin = false;
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
-    // A deque is used here because insertion is guaranteed not to invalidate the pointers inside.
-    std::deque<String> fOwnedStrings;
+    std::forward_list<String> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     ErrorReporter& fErrorReporter;
 
