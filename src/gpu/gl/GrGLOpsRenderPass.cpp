@@ -7,6 +7,7 @@
 
 #include "src/gpu/gl/GrGLOpsRenderPass.h"
 
+#include "src/core/SkScopeExit.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 
@@ -154,6 +155,8 @@ void GrGLOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
 
 void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                       uint16_t maxIndexValue, int baseVertex) {
+    PushSegfaultContext(SkStringPrintf("fIndexPointer %p, args %d %d %d %d %d", fIndexPointer, indexCount, baseIndex, SkToInt(minIndexValue), SkToInt(maxIndexValue), baseVertex));
+    SK_AT_SCOPE_EXIT(PopSegfaultContext());
     GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
     if (fGpu->glCaps().baseVertexBaseInstanceSupport()) {
         SkASSERT(fGpu->glCaps().drawInstancedSupport());
