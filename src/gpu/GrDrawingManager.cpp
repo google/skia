@@ -139,6 +139,8 @@ bool GrDrawingManager::flush(
 
     this->sortTasks();
 
+    this->startGraph();
+    this->subGraph("Before", "B");
     bool usingReorderedDAG = false;
     GrResourceAllocator resourceAllocator(dContext);
     if (fReduceOpsTaskSplitting) {
@@ -147,6 +149,8 @@ bool GrDrawingManager::flush(
             resourceAllocator.reset();
         }
     }
+    this->subGraph("After", "A");
+    this->endGraph();
 
     if (!fCpuBufferCache) {
         // We cache more buffers when the backend is using client side arrays. Otherwise, we
@@ -217,6 +221,7 @@ bool GrDrawingManager::flush(
         }
         resourceAllocator.assign();
     }
+
     bool flushed = !resourceAllocator.failedInstantiation() &&
                     this->executeRenderTasks(&flushState);
     this->removeRenderTasks();
@@ -641,6 +646,35 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     SkASSERT(ddlTask->isClosed());
 
     SkDEBUGCODE(this->validate());
+}
+
+void GrDrawingManager::startGraph() const {
+    SkDebugf("digraph G {\nratio=auto;\nrankdir=BT;\n");
+}
+
+// Copy the dag into a file called graph.dot, and use the following command to turn it into a PDF.
+//     dot -Tpdf graph.dot -o graph.pdf && open graph.pdf
+void GrDrawingManager::subGraph(const char title[], const char tag[]) const {
+    for (auto& node : fDAG) {
+        SkDebugf("%s_%s_%d [label = \"%s %d\\n%d\"];\n",
+                 tag, node->name(), node->uniqueID(), node->name(), node->uniqueID(),
+                 node->target(0)->uniqueID().asUInt());
+    }
+    for (auto& fromNode : fDAG) {
+        for (auto& toNode : fromNode->fDependencies) {
+            SkDebugf("%s_%s_%d -> %s_%s_%d;\n", tag, fromNode->name(), fromNode->uniqueID(),
+                     tag,   toNode->name(),   toNode->uniqueID());
+        }
+    }
+    SkDebugf("subgraph cluster_%s {\nlabel=\"%s\";\n", tag, title);
+    for (auto& fromNode : fDAG) {
+        SkDebugf("%s_%s_%d;\n", tag, fromNode->name(), fromNode->uniqueID());
+    }
+    SkDebugf("}\n");
+}
+
+void GrDrawingManager::endGraph() const {
+    SkDebugf("}\n");
 }
 
 #ifdef SK_DEBUG
