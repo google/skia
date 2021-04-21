@@ -463,8 +463,8 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
     }
 
     sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(
-        "uniform shader cf0;"
-        "uniform shader cf1;"
+        "uniform colorFilter cf0;"
+        "uniform colorFilter cf1;"
         "uniform half   weight;"
         "half4 main() { return mix(sample(cf0), sample(cf1), weight); }"
     );
