@@ -175,8 +175,9 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
         fCurrentPipelineBounds.setEmpty();
     }
 
+    GrD3DRenderTarget* d3dRT = static_cast<GrD3DRenderTarget*>(fRenderTarget);
     fCurrentPipelineState =
-            fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, info);
+            fGpu->resourceProvider().findOrCreateCompatiblePipelineState(d3dRT, info);
     if (!fCurrentPipelineState) {
         return false;
     }

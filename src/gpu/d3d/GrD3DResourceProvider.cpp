@@ -16,6 +16,7 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DPipelineState.h"
 #include "src/gpu/d3d/GrD3DPipelineStateBuilder.h"
+#include "src/gpu/d3d/GrD3DRenderTarget.h"
 
 GrD3DResourceProvider::GrD3DResourceProvider(GrD3DGpu* gpu)
         : fGpu(gpu)
@@ -194,7 +195,7 @@ sk_sp<GrD3DDescriptorTable> GrD3DResourceProvider::findOrCreateSamplerTable(
 }
 
 GrD3DPipelineState* GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* rt, const GrProgramInfo& info) {
+        GrD3DRenderTarget* rt, const GrProgramInfo& info) {
     return fPipelineStateCache->refPipelineState(rt, info);
 }
 
@@ -266,7 +267,7 @@ void GrD3DResourceProvider::PipelineStateCache::release() {
 }
 
 GrD3DPipelineState* GrD3DResourceProvider::PipelineStateCache::refPipelineState(
-        GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
+        GrD3DRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif

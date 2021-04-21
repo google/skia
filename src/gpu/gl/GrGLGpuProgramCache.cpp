@@ -49,19 +49,17 @@ void GrGLGpu::ProgramCache::reset() {
 }
 
 sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* dContext,
-                                                              GrRenderTarget* renderTarget,
                                                               const GrProgramInfo& programInfo) {
     const GrCaps* caps = dContext->priv().caps();
 
-    GrProgramDesc desc = caps->makeDesc(renderTarget, programInfo);
+    GrProgramDesc desc = caps->makeDesc(/*renderTarget*/nullptr, programInfo);
     if (!desc.isValid()) {
         GrCapsDebugf(caps, "Failed to gl program descriptor!\n");
         return nullptr;
     }
 
     Stats::ProgramCacheResult stat;
-    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, renderTarget, desc,
-                                                       programInfo, &stat);
+    sk_sp<GrGLProgram> tmp = this->findOrCreateProgramImpl(dContext, desc, programInfo, &stat);
     if (!tmp) {
         fStats.incNumInlineCompilationFailures();
     } else {
@@ -75,7 +73,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* d
                                                               const GrProgramDesc& desc,
                                                               const GrProgramInfo& programInfo,
                                                               Stats::ProgramCacheResult* stat) {
-    sk_sp<GrGLProgram> tmp = this->findOrCreateProgram(dContext, nullptr, desc, programInfo, stat);
+    sk_sp<GrGLProgram> tmp = this->findOrCreateProgramImpl(dContext, desc, programInfo, stat);
     if (!tmp) {
         fStats.incNumPreCompilationFailures();
     } else {
@@ -85,19 +83,18 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* d
     return tmp;
 }
 
-sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* dContext,
-                                                              GrRenderTarget* renderTarget,
-                                                              const GrProgramDesc& desc,
-                                                              const GrProgramInfo& programInfo,
-                                                              Stats::ProgramCacheResult* stat) {
+sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgramImpl(GrDirectContext* dContext,
+                                                                  const GrProgramDesc& desc,
+                                                                  const GrProgramInfo& programInfo,
+                                                                  Stats::ProgramCacheResult* stat) {
     *stat = Stats::ProgramCacheResult::kHit;
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fProgram) {
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
         const GrGLPrecompiledProgram* precompiledProgram = &((*entry)->fPrecompiledProgram);
         SkASSERT(precompiledProgram->fProgramID != 0);
-        (*entry)->fProgram = GrGLProgramBuilder::CreateProgram(dContext, renderTarget, desc,
-                                                               programInfo, precompiledProgram);
+        (*entry)->fProgram = GrGLProgramBuilder::CreateProgram(dContext, desc, programInfo,
+                                                               precompiledProgram);
         if (!(*entry)->fProgram) {
             // Should we purge the program ID from the cache at this point?
             SkDEBUGFAIL("Couldn't create program from precompiled program");
@@ -108,8 +105,7 @@ sk_sp<GrGLProgram> GrGLGpu::ProgramCache::findOrCreateProgram(GrDirectContext* d
         *stat = Stats::ProgramCacheResult::kPartial;
     } else if (!entry) {
         // We have a cache miss
-        sk_sp<GrGLProgram> program = GrGLProgramBuilder::CreateProgram(dContext, renderTarget,
-                                                                       desc, programInfo);
+        sk_sp<GrGLProgram> program = GrGLProgramBuilder::CreateProgram(dContext, desc, programInfo);
         if (!program) {
             fStats.incNumCompilationFailures();
             return nullptr;
