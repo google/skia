@@ -1042,7 +1042,8 @@ static bool read_tag_mba(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xy
             return false;
         }
 
-        b2a->input_channels = 0;
+        // Zero out *output* channels to skip this stage.
+        b2a->output_channels = 0;
     }
     return true;
 }
