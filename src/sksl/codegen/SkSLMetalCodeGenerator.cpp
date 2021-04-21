@@ -1584,6 +1584,9 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         this->writeFunctionRequirementParams(f, separator);
     }
     for (const auto& param : f.parameters()) {
+        if (f.isMain() && param->modifiers().fLayout.fBuiltin != -1) {
+            continue;
+        }
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers(), /*globalContext=*/false);
