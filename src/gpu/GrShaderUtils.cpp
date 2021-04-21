@@ -212,7 +212,10 @@ GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler() {
     class GrDefaultShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {
     public:
         void compileError(const char* shader, const char* errors) override {
-            PrintLineByLine(BuildShaderErrorMessage(shader, errors));
+            SkSL::String message = BuildShaderErrorMessage(shader, errors);
+            VisitLineByLine(message, [](int, const char* lineText) {
+                SkDebugf("%s\n", lineText);
+            });
             SkDEBUGFAIL("Shader compilation failed!");
         }
     };
