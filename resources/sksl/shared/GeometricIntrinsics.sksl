@@ -16,7 +16,7 @@ float2 vector(float2 x, float2 y) {
     return x;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     float x = scalar(1, 2);
     float2 y = vector(float2(1, 2), float2(3, 4));
     return colorGreen;

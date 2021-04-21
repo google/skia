@@ -15,7 +15,7 @@ bool test() {
     return a && !b && c && !d && e && !f && g && !h && i && !j;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return test() ? colorGreen : colorRed;
 }
 

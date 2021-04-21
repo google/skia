@@ -1,4 +1,4 @@
-half4 main() {
+half4 main(float2 coords) {
     float2 x[2];
     x[0] = float2( 0, 0);
     x[1] = float2( 1, 0);

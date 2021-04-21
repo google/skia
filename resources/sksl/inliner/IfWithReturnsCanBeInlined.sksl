@@ -4,6 +4,6 @@ half4 branchy(half4 c) {
     if (colorGreen == colorRed) return colorRed; else return colorGreen;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return branchy(colorGreen);
 }

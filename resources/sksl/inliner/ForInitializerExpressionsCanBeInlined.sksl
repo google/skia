@@ -12,7 +12,7 @@ inline half4 grow(half4 v) {
     return v + half4(0.125);
 }
 
-half4 main() {
+half4 main(float2 coords) {
     for (sk_FragColor = initLoopVar();
          shouldLoop(sk_FragColor);
          sk_FragColor = grow(sk_FragColor)) {

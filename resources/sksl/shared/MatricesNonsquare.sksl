@@ -30,6 +30,6 @@ bool test_half() {
     return true;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return test_float() && test_half() ? colorGreen : colorRed;
 }
