@@ -1161,6 +1161,7 @@ class NanobenchShaderErrorHandler : public GrContextOptions::ShaderErrorHandler 
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
+    FLAGS_match = CommandLineFlags::StringArray({ SkString("desk_mapsvg") });
 
     initializeEventTracingForTools();
 
