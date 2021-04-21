@@ -6,7 +6,7 @@ inline int tooBig(int x) {
     return x;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     int y = 0;
     y = tooBig(y);
     y = tooBig(y);

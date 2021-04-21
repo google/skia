@@ -13,7 +13,7 @@ half fma(half a, half b, half c) {
     return add(mul(a, b), c);
 }
 
-half4 main() {
+half4 main(float2 coords) {
     half a = fma(color.x, color.y, color.z);
     half b = fma(color.y, color.z, color.w);
     half c = fma(color.z, color.w, color.x);

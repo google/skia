@@ -42,6 +42,6 @@ bool test() {
     return ok == 22 && bad == 0;
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return test() ? colorGreen : colorRed;
 }
