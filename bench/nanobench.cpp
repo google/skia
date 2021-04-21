@@ -62,6 +62,8 @@
 #include <memory>
 #include <thread>
 
+#include <signal.h>
+
 extern bool gSkForceRasterPipelineBlitter;
 extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
@@ -1159,8 +1161,103 @@ class NanobenchShaderErrorHandler : public GrContextOptions::ShaderErrorHandler 
     }
 };
 
+#include <unwind.h>
+#include <dlfcn.h>
+#include <cxxabi.h>
+
+struct android_backtrace_state
+{
+    void **current;
+    void **end;
+};
+
+_Unwind_Reason_Code android_unwind_callback(struct _Unwind_Context* context,
+                                            void* arg)
+{
+    android_backtrace_state* state = (android_backtrace_state *)arg;
+    uintptr_t pc = _Unwind_GetIP(context);
+    if (pc)
+    {
+        if (state->current == state->end)
+        {
+            return _URC_END_OF_STACK;
+        }
+        else
+        {
+            *state->current++ = reinterpret_cast<void*>(pc);
+        }
+    }
+    return _URC_NO_REASON;
+}
+
+void dump_stack(void)
+{
+    fprintf(stderr, "android stack dump \n");
+
+    const int max = 100;
+    void* buffer[max];
+
+    android_backtrace_state state;
+    state.current = buffer;
+    state.end = buffer + max;
+
+    _Unwind_Backtrace(android_unwind_callback, &state);
+
+    int count = (int)(state.current - buffer);
+
+    for (int idx = 0; idx < count; idx++)
+    {
+        const void* addr = buffer[idx];
+        const char* symbol = "";
+
+        Dl_info info;
+        if (dladdr(addr, &info) && info.dli_sname)
+        {
+            symbol = info.dli_sname;
+        }
+        int status = 0;
+        char *demangled = __cxxabiv1::__cxa_demangle(symbol, 0, 0, &status);
+
+        fprintf(stderr, "%03d: 0x%p %s\n",
+                idx,
+                addr,
+                (NULL != demangled && 0 == status) ?
+                demangled : symbol);
+
+        if (NULL != demangled)
+            free(demangled);
+    }
+
+    fprintf(stderr, "android stack dump done");
+}
+
+static std::thread::id gMainThread;
+void segfault_sigaction(int signal, siginfo_t *si, void *arg)
+{
+    for (const auto& str : GetSegfaultContext()) {
+        fprintf(stderr, "%s\n", str.c_str());
+    }
+    fprintf(stderr, "Caught segfault at address %p, main thread: %d\n", si->si_addr, std::this_thread::get_id() == gMainThread);
+    dump_stack();
+    exit(1);
+}
+
+void install_segfault_handler() {
+    gMainThread = std::this_thread::get_id();
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(struct sigaction));
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = segfault_sigaction;
+    sa.sa_flags     = SA_SIGINFO;
+
+    sigaction(SIGSEGV, &sa, NULL);
+}
+
 int main(int argc, char** argv) {
+    install_segfault_handler();
     CommandLineFlags::Parse(argc, argv);
+    FLAGS_match = CommandLineFlags::StringArray({ SkString("desk_motionmarksuitsclip.skp") });
 
     initializeEventTracingForTools();
 
@@ -1277,6 +1374,8 @@ int main(int argc, char** argv) {
             // During HWUI output this canvas may be nullptr.
             SkCanvas* canvas = target->getCanvas();
             const char* config = target->config.name.c_str();
+            PushSegfaultContext(SkString(config));
+            SK_AT_SCOPE_EXIT(PopSegfaultContext());
 
             if (FLAGS_pre_log || FLAGS_dryRun) {
                 SkDebugf("Running %s\t%s\n"
