@@ -788,7 +788,7 @@ public:
 
 #ifdef SK_ENABLE_DUMP_GPU
     /** Returns a string with detailed information about the context & GPU, in JSON format. */
-    SkString dump() const;
+    SK_WARN_UNUSED_RESULT SkString dump() const;
 #endif
 
     class DirectContextID {
