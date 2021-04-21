@@ -81,6 +81,9 @@ public:
                                     const D3D12_TEXTURE_COPY_LOCATION* srcLocation,
                                     const D3D12_BOX* srcBox);
 
+     void copyTextureToTexture(const GrD3DTexture* dst,
+                               const GrD3DTexture* src);
+
     // We don't take a ref to the src buffer because we assume the src buffer is coming from a
     // staging buffer which will get ref'd during submit.
     void copyBufferToBuffer(sk_sp<GrD3DBuffer> dstBuffer, uint64_t dstOffset,

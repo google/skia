@@ -190,6 +190,20 @@ void GrD3DCommandList::copyTextureRegionToBuffer(sk_sp<const GrBuffer> dst,
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
 }
 
+void GrD3DCommandList::copyTextureToTexture(const GrD3DTexture* dst, const GrD3DTexture* src) {
+    SkASSERT(fIsActive);
+    SkASSERT(src);
+    SkASSERT(dst);
+    SkASSERT(src->width() == dst->width() && src->height() == dst->height());
+
+    this->addingWork();
+    ID3D12Resource* dstTexture = dst->d3dResource();
+    ID3D12Resource* srcTexture = src->d3dResource();
+    fCommandList->CopyResource(dstTexture, srcTexture);
+    this->addResource(dst->resource());
+    this->addResource(src->resource());
+}
+
 void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrD3DBuffer> dst, uint64_t dstOffset,
                                           ID3D12Resource* srcBuffer, uint64_t srcOffset,
                                           uint64_t numBytes) {
