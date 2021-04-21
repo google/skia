@@ -33,7 +33,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, SkISize dimensions,
         wgpu::TextureUsage::CopyDst;
 
     if (renderTarget) {
-        textureDesc.usage |= wgpu::TextureUsage::OutputAttachment;
+        textureDesc.usage |= wgpu::TextureUsage::RenderAttachment;
     }
 
     textureDesc.size.width = dimensions.fWidth;

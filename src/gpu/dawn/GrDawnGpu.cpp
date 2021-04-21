@@ -317,7 +317,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         wgpu::TextureUsage::CopyDst;
 
     if (GrRenderable::kYes == renderable) {
-        desc.usage |= wgpu::TextureUsage::OutputAttachment;
+        desc.usage |= wgpu::TextureUsage::RenderAttachment;
     }
 
     int numMipLevels = 1;
@@ -359,13 +359,13 @@ void GrDawnGpu::uploadTextureData(GrColorType srcColorType, const GrMipLevel tex
                 this->stagingBufferManager()->allocateStagingBufferSlice(size);
         SkRectMemcpy(slice.fOffsetMapPtr, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
 
-        wgpu::BufferCopyView srcBuffer = {};
+        wgpu::ImageCopyBuffer srcBuffer = {};
         srcBuffer.buffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
         srcBuffer.layout.offset = slice.fOffset;
         srcBuffer.layout.bytesPerRow = dstRowBytes;
         srcBuffer.layout.rowsPerImage = height;
 
-        wgpu::TextureCopyView dstTexture;
+        wgpu::ImageCopyTexture dstTexture;
         dstTexture.texture = texture;
         dstTexture.mipLevel = i;
         dstTexture.origin = {x, y, 0};
@@ -416,12 +416,12 @@ bool GrDawnGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
                 src += origRowBytes;
             }
         }
-        wgpu::BufferCopyView srcBuffer = {};
+        wgpu::ImageCopyBuffer srcBuffer = {};
         srcBuffer.buffer = static_cast<GrDawnBuffer*>(stagingBuffer.fBuffer)->get();
         srcBuffer.layout.offset = stagingBuffer.fOffset;
         srcBuffer.layout.bytesPerRow = rowBytes;
         srcBuffer.layout.rowsPerImage = h;
-        wgpu::TextureCopyView dstTexture;
+        wgpu::ImageCopyTexture dstTexture;
         dstTexture.texture = info.fTexture;
         dstTexture.mipLevel = i;
         dstTexture.origin = {0, 0, 0};
@@ -492,7 +492,7 @@ GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(SkISize di
     wgpu::TextureDescriptor desc;
     desc.usage =
         wgpu::TextureUsage::CopySrc |
-        wgpu::TextureUsage::OutputAttachment;
+        wgpu::TextureUsage::RenderAttachment;
 
     desc.size.width = dimensions.width();
     desc.size.height = dimensions.height();
@@ -589,7 +589,7 @@ bool GrDawnGpu::onCopySurface(GrSurface* dst,
 
     uint32_t width = srcRect.width(), height = srcRect.height();
 
-    wgpu::TextureCopyView srcTextureView, dstTextureView;
+    wgpu::ImageCopyTexture srcTextureView, dstTextureView;
     srcTextureView.texture = srcTexture;
     srcTextureView.origin = {(uint32_t) srcRect.x(), (uint32_t) srcRect.y(), 0};
     dstTextureView.texture = dstTexture;
@@ -623,11 +623,11 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
 
     wgpu::Buffer buf = device().CreateBuffer(&desc);
 
-    wgpu::TextureCopyView srcTexture;
+    wgpu::ImageCopyTexture srcTexture;
     srcTexture.texture = tex;
     srcTexture.origin = {(uint32_t) left, (uint32_t) top, 0};
 
-    wgpu::BufferCopyView dstBuffer = {};
+    wgpu::ImageCopyBuffer dstBuffer = {};
     dstBuffer.buffer = buf;
     dstBuffer.layout.offset = 0;
     dstBuffer.layout.bytesPerRow = rowBytes;
@@ -674,7 +674,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     wgpu::TextureDescriptor texDesc;
     texDesc.usage = wgpu::TextureUsage::Sampled |
                     wgpu::TextureUsage::CopySrc |
-                    wgpu::TextureUsage::OutputAttachment;
+                    wgpu::TextureUsage::RenderAttachment;
     texDesc.size.width = (tex->width() + 1) / 2;
     texDesc.size.height = (tex->height() + 1) / 2;
     texDesc.size.depthOrArrayLayers = 1;
@@ -773,10 +773,10 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         rpe.EndPass();
 
         wgpu::Extent3D copySize = {(uint32_t)dstWidth, (uint32_t)dstHeight, 1};
-        wgpu::TextureCopyView srcCopyView;
+        wgpu::ImageCopyTexture srcCopyView;
         srcCopyView.texture = dstTexture;
         srcCopyView.mipLevel = mipLevel;
-        wgpu::TextureCopyView dstCopyView;
+        wgpu::ImageCopyTexture dstCopyView;
         dstCopyView.mipLevel = mipLevel + 1;
         dstCopyView.texture = src->texture();
         commandEncoder.CopyTextureToTexture(&srcCopyView, &dstCopyView, &copySize);

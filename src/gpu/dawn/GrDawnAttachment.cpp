@@ -28,7 +28,7 @@ sk_sp<GrDawnAttachment> GrDawnAttachment::MakeStencil(GrDawnGpu* gpu,
                                                       SkISize dimensions,
                                                       int sampleCnt) {
     wgpu::TextureDescriptor desc;
-    desc.usage = wgpu::TextureUsage::OutputAttachment;
+    desc.usage = wgpu::TextureUsage::RenderAttachment;
     desc.size.width = dimensions.width();
     desc.size.height = dimensions.height();
     desc.size.depthOrArrayLayers = 1;
