@@ -256,6 +256,9 @@ bool GrDirectContext::init() {
                                                      allowMultitexturing);
     this->priv().addOnFlushCallbackObject(fAtlasManager.get());
 
+#ifdef SK_ENABLE_DUMP_GPU
+    SkDebugf("Context: %s\n", this->dump().c_str());
+#endif
     return true;
 }
 
