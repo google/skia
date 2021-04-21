@@ -162,6 +162,30 @@
       },
       "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdc404a3_a58a058b",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-21T20:18:24Z",
+      "side": 1,
+      "message": "Wrote a doc capturing this; resolving.",
+      "parentUuid": "1574e3e2_5ebca41a",
+      "range": {
+        "startLine": 562,
+        "startChar": 20,
+        "endLine": 562,
+        "endChar": 24
+      },
+      "revId": "6d66ff53a13ab815a6d64a9a5075180355d00b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
