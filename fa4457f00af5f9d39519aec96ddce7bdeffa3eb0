@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c7d2a24_e7fa29b9",
+        "filename": "src/sksl/codegen/SkSLDSLCPPCodeGenerator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-21T14:55:55Z",
+      "side": 1,
+      "message": "This only strips `in` if the `uniform` modifier is on the variable. I could be wrong but I don\u0027t think there is ever a case where we want \"in uniform\" as a  modifier combination. `in bool` doesn\u0027t have a `uniform` modifier and wouldn\u0027t be affected by this change.",
+      "parentUuid": "ea15f509_bcaf278f",
+      "range": {
+        "startLine": 602,
+        "startChar": 0,
+        "endLine": 604,
+        "endChar": 5
+      },
+      "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3da32d01_9d3b62b4",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-04-21T14:15:18Z",
       "side": 1,
       "message": "... hmm? Given the other code I tagged above, I expected this to have kIn attached, still? Also, this is all correct - but the old CPP code generator actually injected the literal for things like this, didn\u0027t it? (See GrArithmeticProcessor, eg). I guess with constant propagation, it works out the same.\n\nOne thing I suddenly realize is that the DSL here assumes we\u0027re working in the scope of a single function, right? Not an issue for this CL, but if we want to support helper functions in .fps, we need the ability to emit them into the DSL, plus variables like this need a way to be emitted at global scope.",
+      "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "975ea8f1_4a426ccf",
+        "filename": "tests/sksl/dslfp/GrDSLFPTest_DoStatement.dsl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-21T14:55:55Z",
+      "side": 1,
+      "message": "Parameters (i.e. layout keys, \"SectionAndParameterHelper::IsParameter\" \u003d\u003d true) are a total special case and don\u0027t use getDSLModifiers at all. See DSLCPPCodeGenerator.cpp:818.\n\nFor parameters, I experimented with multiple approaches before landing on this one. My first attempt was this:\n\n    auto colorWhite \u003d Half4(_outer.rR,_outer.rG,_outer.rB,_outer.rA);\n\nHowever, this totally doesn\u0027t work at all. `colorWhite` is a loose DSLExpression. DSL wasn\u0027t really built with a free-floating DSLExpression in mind. You can\u0027t copy it or clone it. You can std::move it and use it exactly one time. :( This was pretty much a non-starter.\n\nI also experimented with\n\n    #define colorWhite Half4(_outer.rR,_outer.rG,_outer.rB,_outer.rA)\n\nThis actually did pretty much work! OTOH, it felt gross compared to declaring a const variable and letting constant-propagation do its thing. We can experiment with this more if you\u0027re interested though.",
+      "parentUuid": "3da32d01_9d3b62b4",
       "revId": "fa4457f00af5f9d39519aec96ddce7bdeffa3eb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
