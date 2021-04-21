@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b56a11c_6c49dc78",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T15:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "feed8533_e4ecc7a5",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 6
+      },
+      "revId": "f86a0684ee0c3e6e04681735616cdd39270acd5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e26c222d_6bad76b8",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebeb762b_c4972b23",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T15:06:01Z",
+      "side": 1,
+      "message": "Yeah, I was trying to avoid combinatorial explosion, but I\u0027ve gone ahead and added some additional combinations, including one where I always use all GLSL type names.",
+      "parentUuid": "e26c222d_6bad76b8",
+      "range": {
+        "startLine": 102,
+        "startChar": 54,
+        "endLine": 104,
+        "endChar": 54
+      },
+      "revId": "f86a0684ee0c3e6e04681735616cdd39270acd5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b44de6e3_4f01b6d6",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-21T14:39:58Z",
       "side": 1,
       "message": "nit: at least one of these three should return a vec4 or float4",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 144,
+        "endChar": 0
+      },
+      "revId": "f86a0684ee0c3e6e04681735616cdd39270acd5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e97df834_4cdcd3d8",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T15:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b44de6e3_4f01b6d6",
       "range": {
         "startLine": 141,
         "startChar": 4,
