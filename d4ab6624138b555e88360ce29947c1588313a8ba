@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "caeecd6f_56d9dd84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-21T17:54:10Z",
+      "side": 1,
+      "message": "Yes, this slightly expands the set of paths we would identify as convex so ganesh is switching to a different path renderer.",
+      "parentUuid": "9a4b54c1_9ac2be2c",
+      "revId": "d4ab6624138b555e88360ce29947c1588313a8ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b120bb5d_c0ec969f",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-04-21T14:23:57Z",
       "side": 1,
       "message": "nit: // we\u0027re all Move verbs",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 25
+      },
+      "revId": "d4ab6624138b555e88360ce29947c1588313a8ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0adf2537_6d32ca10",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-21T17:54:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b120bb5d_c0ec969f",
       "range": {
         "startLine": 90,
         "startChar": 0,
