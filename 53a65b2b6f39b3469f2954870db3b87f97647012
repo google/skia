@@ -22,6 +22,30 @@
       },
       "revId": "53a65b2b6f39b3469f2954870db3b87f97647012",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4da1fe58_fbfa629a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-21T13:03:06Z",
+      "side": 0,
+      "message": "Oh, you\u0027re right. After I modified the code I misremembered what it had been before I changed it. I\u0027ll take the related note out of the commit message.",
+      "parentUuid": "62e78d66_e1a9fda5",
+      "range": {
+        "startLine": 321,
+        "startChar": 4,
+        "endLine": 321,
+        "endChar": 85
+      },
+      "revId": "53a65b2b6f39b3469f2954870db3b87f97647012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
