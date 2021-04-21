@@ -6,7 +6,7 @@
 
 uniform half4 colorGreen, colorRed;
 
-half4 main() {
+half4 main(float2 coords) {
     // A looping construct is required for continue.
     float result = 0;
     for (int x=0; x<=1; x++) {

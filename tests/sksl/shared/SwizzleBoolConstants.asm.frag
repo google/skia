@@ -23,44 +23,44 @@ OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %27 RelaxedPrecision
-OpDecorate %28 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %44 RelaxedPrecision
-OpDecorate %47 RelaxedPrecision
-OpDecorate %50 RelaxedPrecision
-OpDecorate %57 RelaxedPrecision
+OpDecorate %34 RelaxedPrecision
+OpDecorate %38 RelaxedPrecision
+OpDecorate %42 RelaxedPrecision
+OpDecorate %49 RelaxedPrecision
+OpDecorate %52 RelaxedPrecision
+OpDecorate %55 RelaxedPrecision
 OpDecorate %62 RelaxedPrecision
-OpDecorate %64 RelaxedPrecision
 OpDecorate %67 RelaxedPrecision
-OpDecorate %70 RelaxedPrecision
+OpDecorate %69 RelaxedPrecision
+OpDecorate %72 RelaxedPrecision
 OpDecorate %75 RelaxedPrecision
-OpDecorate %78 RelaxedPrecision
-OpDecorate %81 RelaxedPrecision
-OpDecorate %82 RelaxedPrecision
-OpDecorate %88 RelaxedPrecision
-OpDecorate %92 RelaxedPrecision
-OpDecorate %95 RelaxedPrecision
+OpDecorate %80 RelaxedPrecision
+OpDecorate %83 RelaxedPrecision
+OpDecorate %86 RelaxedPrecision
+OpDecorate %87 RelaxedPrecision
+OpDecorate %93 RelaxedPrecision
+OpDecorate %97 RelaxedPrecision
 OpDecorate %100 RelaxedPrecision
-OpDecorate %102 RelaxedPrecision
+OpDecorate %105 RelaxedPrecision
 OpDecorate %107 RelaxedPrecision
-OpDecorate %109 RelaxedPrecision
 OpDecorate %112 RelaxedPrecision
 OpDecorate %114 RelaxedPrecision
 OpDecorate %117 RelaxedPrecision
-OpDecorate %120 RelaxedPrecision
-OpDecorate %126 RelaxedPrecision
+OpDecorate %119 RelaxedPrecision
+OpDecorate %122 RelaxedPrecision
+OpDecorate %125 RelaxedPrecision
 OpDecorate %131 RelaxedPrecision
-OpDecorate %133 RelaxedPrecision
 OpDecorate %136 RelaxedPrecision
-OpDecorate %139 RelaxedPrecision
+OpDecorate %138 RelaxedPrecision
+OpDecorate %141 RelaxedPrecision
 OpDecorate %144 RelaxedPrecision
-OpDecorate %147 RelaxedPrecision
-OpDecorate %151 RelaxedPrecision
-OpDecorate %158 RelaxedPrecision
-OpDecorate %161 RelaxedPrecision
-OpDecorate %162 RelaxedPrecision
+OpDecorate %149 RelaxedPrecision
+OpDecorate %152 RelaxedPrecision
+OpDecorate %156 RelaxedPrecision
+OpDecorate %163 RelaxedPrecision
+OpDecorate %166 RelaxedPrecision
+OpDecorate %167 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -73,13 +73,16 @@ OpDecorate %162 RelaxedPrecision
 %10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
-%18 = OpTypeFunction %v4float
+%v2float = OpTypeVector %float 2
+%float_0 = OpConstant %float 0
+%19 = OpConstantComposite %v2float %float_0 %float_0
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+%23 = OpTypeFunction %v4float %_ptr_Function_v2float
 %v4bool = OpTypeVector %bool 4
 %_ptr_Function_v4bool = OpTypePointer Function %v4bool
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
-%float_0 = OpConstant %float 0
 %true = OpConstantTrue %bool
 %v2bool = OpTypeVector %bool 2
 %false = OpConstantFalse %bool
@@ -88,175 +91,178 @@ OpDecorate %162 RelaxedPrecision
 %int_1 = OpConstant %int 1
 %_entrypoint_v = OpFunction %void None %15
 %16 = OpLabel
-%17 = OpFunctionCall %v4float %main
-OpStore %sk_FragColor %17
+%20 = OpVariable %_ptr_Function_v2float Function
+OpStore %20 %19
+%22 = OpFunctionCall %v4float %main %20
+OpStore %sk_FragColor %22
 OpReturn
 OpFunctionEnd
-%main = OpFunction %v4float None %18
-%19 = OpLabel
+%main = OpFunction %v4float None %23
+%24 = OpFunctionParameter %_ptr_Function_v2float
+%25 = OpLabel
 %v = OpVariable %_ptr_Function_v4bool Function
 %result = OpVariable %_ptr_Function_v4bool Function
-%152 = OpVariable %_ptr_Function_v4float Function
-%23 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%27 = OpLoad %v4float %23
-%28 = OpCompositeExtract %float %27 1
-%29 = OpFUnordNotEqual %bool %28 %float_0
-%31 = OpCompositeConstruct %v4bool %29 %29 %29 %29
-OpStore %v %31
-%33 = OpLoad %v4bool %v
-%34 = OpCompositeExtract %bool %33 0
-%36 = OpCompositeConstruct %v4bool %34 %true %true %true
-OpStore %result %36
-%37 = OpLoad %v4bool %v
-%38 = OpVectorShuffle %v2bool %37 %37 0 1
-%40 = OpCompositeExtract %bool %38 0
-%41 = OpCompositeExtract %bool %38 1
-%43 = OpCompositeConstruct %v4bool %40 %41 %false %true
-OpStore %result %43
-%44 = OpLoad %v4bool %v
-%45 = OpCompositeExtract %bool %44 0
-%46 = OpCompositeConstruct %v4bool %45 %true %true %false
-OpStore %result %46
-%47 = OpLoad %v4bool %v
-%48 = OpCompositeExtract %bool %47 1
-%49 = OpCompositeConstruct %v4bool %false %48 %true %true
-OpStore %result %49
-%50 = OpLoad %v4bool %v
-%51 = OpVectorShuffle %v3bool %50 %50 0 1 2
-%53 = OpCompositeExtract %bool %51 0
-%54 = OpCompositeExtract %bool %51 1
-%55 = OpCompositeExtract %bool %51 2
-%56 = OpCompositeConstruct %v4bool %53 %54 %55 %true
-OpStore %result %56
-%57 = OpLoad %v4bool %v
-%58 = OpVectorShuffle %v2bool %57 %57 0 1
-%59 = OpCompositeExtract %bool %58 0
-%60 = OpCompositeExtract %bool %58 1
-%61 = OpCompositeConstruct %v4bool %59 %60 %true %true
+%157 = OpVariable %_ptr_Function_v4float Function
+%29 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%33 = OpLoad %v4float %29
+%34 = OpCompositeExtract %float %33 1
+%35 = OpFUnordNotEqual %bool %34 %float_0
+%36 = OpCompositeConstruct %v4bool %35 %35 %35 %35
+OpStore %v %36
+%38 = OpLoad %v4bool %v
+%39 = OpCompositeExtract %bool %38 0
+%41 = OpCompositeConstruct %v4bool %39 %true %true %true
+OpStore %result %41
+%42 = OpLoad %v4bool %v
+%43 = OpVectorShuffle %v2bool %42 %42 0 1
+%45 = OpCompositeExtract %bool %43 0
+%46 = OpCompositeExtract %bool %43 1
+%48 = OpCompositeConstruct %v4bool %45 %46 %false %true
+OpStore %result %48
+%49 = OpLoad %v4bool %v
+%50 = OpCompositeExtract %bool %49 0
+%51 = OpCompositeConstruct %v4bool %50 %true %true %false
+OpStore %result %51
+%52 = OpLoad %v4bool %v
+%53 = OpCompositeExtract %bool %52 1
+%54 = OpCompositeConstruct %v4bool %false %53 %true %true
+OpStore %result %54
+%55 = OpLoad %v4bool %v
+%56 = OpVectorShuffle %v3bool %55 %55 0 1 2
+%58 = OpCompositeExtract %bool %56 0
+%59 = OpCompositeExtract %bool %56 1
+%60 = OpCompositeExtract %bool %56 2
+%61 = OpCompositeConstruct %v4bool %58 %59 %60 %true
 OpStore %result %61
 %62 = OpLoad %v4bool %v
-%63 = OpCompositeExtract %bool %62 0
-%64 = OpLoad %v4bool %v
-%65 = OpCompositeExtract %bool %64 2
-%66 = OpCompositeConstruct %v4bool %63 %false %65 %true
+%63 = OpVectorShuffle %v2bool %62 %62 0 1
+%64 = OpCompositeExtract %bool %63 0
+%65 = OpCompositeExtract %bool %63 1
+%66 = OpCompositeConstruct %v4bool %64 %65 %true %true
 OpStore %result %66
 %67 = OpLoad %v4bool %v
 %68 = OpCompositeExtract %bool %67 0
-%69 = OpCompositeConstruct %v4bool %68 %true %false %false
-OpStore %result %69
-%70 = OpLoad %v4bool %v
-%71 = OpVectorShuffle %v2bool %70 %70 1 2
-%72 = OpCompositeExtract %bool %71 0
-%73 = OpCompositeExtract %bool %71 1
-%74 = OpCompositeConstruct %v4bool %true %72 %73 %false
+%69 = OpLoad %v4bool %v
+%70 = OpCompositeExtract %bool %69 2
+%71 = OpCompositeConstruct %v4bool %68 %false %70 %true
+OpStore %result %71
+%72 = OpLoad %v4bool %v
+%73 = OpCompositeExtract %bool %72 0
+%74 = OpCompositeConstruct %v4bool %73 %true %false %false
 OpStore %result %74
 %75 = OpLoad %v4bool %v
-%76 = OpCompositeExtract %bool %75 1
-%77 = OpCompositeConstruct %v4bool %false %76 %true %false
-OpStore %result %77
-%78 = OpLoad %v4bool %v
-%79 = OpCompositeExtract %bool %78 2
-%80 = OpCompositeConstruct %v4bool %true %true %79 %false
-OpStore %result %80
-%81 = OpLoad %v4bool %v
-OpStore %result %81
-%82 = OpLoad %v4bool %v
-%83 = OpVectorShuffle %v3bool %82 %82 0 1 2
-%84 = OpCompositeExtract %bool %83 0
-%85 = OpCompositeExtract %bool %83 1
-%86 = OpCompositeExtract %bool %83 2
-%87 = OpCompositeConstruct %v4bool %84 %85 %86 %true
-OpStore %result %87
-%88 = OpLoad %v4bool %v
-%89 = OpVectorShuffle %v2bool %88 %88 0 1
-%90 = OpCompositeExtract %bool %89 0
-%91 = OpCompositeExtract %bool %89 1
-%92 = OpLoad %v4bool %v
-%93 = OpCompositeExtract %bool %92 3
-%94 = OpCompositeConstruct %v4bool %90 %91 %false %93
-OpStore %result %94
-%95 = OpLoad %v4bool %v
-%96 = OpVectorShuffle %v2bool %95 %95 0 1
-%97 = OpCompositeExtract %bool %96 0
-%98 = OpCompositeExtract %bool %96 1
-%99 = OpCompositeConstruct %v4bool %97 %98 %true %false
+%76 = OpVectorShuffle %v2bool %75 %75 1 2
+%77 = OpCompositeExtract %bool %76 0
+%78 = OpCompositeExtract %bool %76 1
+%79 = OpCompositeConstruct %v4bool %true %77 %78 %false
+OpStore %result %79
+%80 = OpLoad %v4bool %v
+%81 = OpCompositeExtract %bool %80 1
+%82 = OpCompositeConstruct %v4bool %false %81 %true %false
+OpStore %result %82
+%83 = OpLoad %v4bool %v
+%84 = OpCompositeExtract %bool %83 2
+%85 = OpCompositeConstruct %v4bool %true %true %84 %false
+OpStore %result %85
+%86 = OpLoad %v4bool %v
+OpStore %result %86
+%87 = OpLoad %v4bool %v
+%88 = OpVectorShuffle %v3bool %87 %87 0 1 2
+%89 = OpCompositeExtract %bool %88 0
+%90 = OpCompositeExtract %bool %88 1
+%91 = OpCompositeExtract %bool %88 2
+%92 = OpCompositeConstruct %v4bool %89 %90 %91 %true
+OpStore %result %92
+%93 = OpLoad %v4bool %v
+%94 = OpVectorShuffle %v2bool %93 %93 0 1
+%95 = OpCompositeExtract %bool %94 0
+%96 = OpCompositeExtract %bool %94 1
+%97 = OpLoad %v4bool %v
+%98 = OpCompositeExtract %bool %97 3
+%99 = OpCompositeConstruct %v4bool %95 %96 %false %98
 OpStore %result %99
 %100 = OpLoad %v4bool %v
-%101 = OpCompositeExtract %bool %100 0
-%102 = OpLoad %v4bool %v
-%103 = OpVectorShuffle %v2bool %102 %102 2 3
-%104 = OpCompositeExtract %bool %103 0
-%105 = OpCompositeExtract %bool %103 1
-%106 = OpCompositeConstruct %v4bool %101 %true %104 %105
-OpStore %result %106
+%101 = OpVectorShuffle %v2bool %100 %100 0 1
+%102 = OpCompositeExtract %bool %101 0
+%103 = OpCompositeExtract %bool %101 1
+%104 = OpCompositeConstruct %v4bool %102 %103 %true %false
+OpStore %result %104
+%105 = OpLoad %v4bool %v
+%106 = OpCompositeExtract %bool %105 0
 %107 = OpLoad %v4bool %v
-%108 = OpCompositeExtract %bool %107 0
-%109 = OpLoad %v4bool %v
-%110 = OpCompositeExtract %bool %109 2
-%111 = OpCompositeConstruct %v4bool %108 %false %110 %true
+%108 = OpVectorShuffle %v2bool %107 %107 2 3
+%109 = OpCompositeExtract %bool %108 0
+%110 = OpCompositeExtract %bool %108 1
+%111 = OpCompositeConstruct %v4bool %106 %true %109 %110
 OpStore %result %111
 %112 = OpLoad %v4bool %v
 %113 = OpCompositeExtract %bool %112 0
 %114 = OpLoad %v4bool %v
-%115 = OpCompositeExtract %bool %114 3
-%116 = OpCompositeConstruct %v4bool %113 %true %true %115
+%115 = OpCompositeExtract %bool %114 2
+%116 = OpCompositeConstruct %v4bool %113 %false %115 %true
 OpStore %result %116
 %117 = OpLoad %v4bool %v
 %118 = OpCompositeExtract %bool %117 0
-%119 = OpCompositeConstruct %v4bool %118 %true %false %true
-OpStore %result %119
-%120 = OpLoad %v4bool %v
-%121 = OpVectorShuffle %v3bool %120 %120 1 2 3
-%122 = OpCompositeExtract %bool %121 0
-%123 = OpCompositeExtract %bool %121 1
-%124 = OpCompositeExtract %bool %121 2
-%125 = OpCompositeConstruct %v4bool %true %122 %123 %124
-OpStore %result %125
-%126 = OpLoad %v4bool %v
-%127 = OpVectorShuffle %v2bool %126 %126 1 2
-%128 = OpCompositeExtract %bool %127 0
-%129 = OpCompositeExtract %bool %127 1
-%130 = OpCompositeConstruct %v4bool %false %128 %129 %true
+%119 = OpLoad %v4bool %v
+%120 = OpCompositeExtract %bool %119 3
+%121 = OpCompositeConstruct %v4bool %118 %true %true %120
+OpStore %result %121
+%122 = OpLoad %v4bool %v
+%123 = OpCompositeExtract %bool %122 0
+%124 = OpCompositeConstruct %v4bool %123 %true %false %true
+OpStore %result %124
+%125 = OpLoad %v4bool %v
+%126 = OpVectorShuffle %v3bool %125 %125 1 2 3
+%127 = OpCompositeExtract %bool %126 0
+%128 = OpCompositeExtract %bool %126 1
+%129 = OpCompositeExtract %bool %126 2
+%130 = OpCompositeConstruct %v4bool %true %127 %128 %129
 OpStore %result %130
 %131 = OpLoad %v4bool %v
-%132 = OpCompositeExtract %bool %131 1
-%133 = OpLoad %v4bool %v
-%134 = OpCompositeExtract %bool %133 3
-%135 = OpCompositeConstruct %v4bool %false %132 %true %134
+%132 = OpVectorShuffle %v2bool %131 %131 1 2
+%133 = OpCompositeExtract %bool %132 0
+%134 = OpCompositeExtract %bool %132 1
+%135 = OpCompositeConstruct %v4bool %false %133 %134 %true
 OpStore %result %135
 %136 = OpLoad %v4bool %v
 %137 = OpCompositeExtract %bool %136 1
-%138 = OpCompositeConstruct %v4bool %true %137 %true %true
-OpStore %result %138
-%139 = OpLoad %v4bool %v
-%140 = OpVectorShuffle %v2bool %139 %139 2 3
-%141 = OpCompositeExtract %bool %140 0
-%142 = OpCompositeExtract %bool %140 1
-%143 = OpCompositeConstruct %v4bool %false %false %141 %142
+%138 = OpLoad %v4bool %v
+%139 = OpCompositeExtract %bool %138 3
+%140 = OpCompositeConstruct %v4bool %false %137 %true %139
+OpStore %result %140
+%141 = OpLoad %v4bool %v
+%142 = OpCompositeExtract %bool %141 1
+%143 = OpCompositeConstruct %v4bool %true %142 %true %true
 OpStore %result %143
 %144 = OpLoad %v4bool %v
-%145 = OpCompositeExtract %bool %144 2
-%146 = OpCompositeConstruct %v4bool %false %false %145 %true
-OpStore %result %146
-%147 = OpLoad %v4bool %v
-%148 = OpCompositeExtract %bool %147 3
-%149 = OpCompositeConstruct %v4bool %false %true %true %148
-OpStore %result %149
-%151 = OpLoad %v4bool %result
-%150 = OpAny %bool %151
-OpSelectionMerge %156 None
-OpBranchConditional %150 %154 %155
-%154 = OpLabel
-%157 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%158 = OpLoad %v4float %157
-OpStore %152 %158
-OpBranch %156
-%155 = OpLabel
-%159 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
-%161 = OpLoad %v4float %159
-OpStore %152 %161
-OpBranch %156
-%156 = OpLabel
-%162 = OpLoad %v4float %152
-OpReturnValue %162
+%145 = OpVectorShuffle %v2bool %144 %144 2 3
+%146 = OpCompositeExtract %bool %145 0
+%147 = OpCompositeExtract %bool %145 1
+%148 = OpCompositeConstruct %v4bool %false %false %146 %147
+OpStore %result %148
+%149 = OpLoad %v4bool %v
+%150 = OpCompositeExtract %bool %149 2
+%151 = OpCompositeConstruct %v4bool %false %false %150 %true
+OpStore %result %151
+%152 = OpLoad %v4bool %v
+%153 = OpCompositeExtract %bool %152 3
+%154 = OpCompositeConstruct %v4bool %false %true %true %153
+OpStore %result %154
+%156 = OpLoad %v4bool %result
+%155 = OpAny %bool %156
+OpSelectionMerge %161 None
+OpBranchConditional %155 %159 %160
+%159 = OpLabel
+%162 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%163 = OpLoad %v4float %162
+OpStore %157 %163
+OpBranch %161
+%160 = OpLabel
+%164 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
+%166 = OpLoad %v4float %164
+OpStore %157 %166
+OpBranch %161
+%161 = OpLabel
+%167 = OpLoad %v4float %157
+OpReturnValue %167
 OpFunctionEnd
