@@ -642,3 +642,17 @@ void SkStrSplit(const char* str, const char* delimiters, SkStrSplitMode splitMod
         }
     }
 }
+
+std::vector<SkString> gSegfaultContext;
+
+const std::vector<SkString>& GetSegfaultContext() {
+    return gSegfaultContext;
+}
+
+void PushSegfaultContext(SkString str) {
+    gSegfaultContext.push_back(std::move(str));
+}
+
+void PopSegfaultContext() {
+    gSegfaultContext.pop_back();
+}
