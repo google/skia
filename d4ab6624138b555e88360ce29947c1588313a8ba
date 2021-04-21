@@ -16,6 +16,46 @@
       "message": "PTAL another look. I removed the changes to SkPath::Iter and the public API. computeConvexity() and conservativelyContainsRect() now use SkPathPriv::Iterate instead of depending on the force-close behavior of the old iterator.",
       "revId": "d4ab6624138b555e88360ce29947c1588313a8ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a4b54c1_9ac2be2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-21T14:23:57Z",
+      "side": 1,
+      "message": "Are the GM diffs expected?",
+      "revId": "d4ab6624138b555e88360ce29947c1588313a8ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b120bb5d_c0ec969f",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-21T14:23:57Z",
+      "side": 1,
+      "message": "nit: // we\u0027re all Move verbs",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 25
+      },
+      "revId": "d4ab6624138b555e88360ce29947c1588313a8ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
