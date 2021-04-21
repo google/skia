@@ -8,6 +8,7 @@
 #ifndef GrEagerVertexAllocator_DEFINED
 #define GrEagerVertexAllocator_DEFINED
 
+#include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
 // This interface is used to allocate and map GPU vertex data before the exact number of required
@@ -85,6 +86,28 @@ private:
 
     size_t fLockStride;
     int fLockCount = 0;
+};
+
+class GrCpuVertexAllocator : public GrEagerVertexAllocator {
+public:
+    GrCpuVertexAllocator() = default;
+
+#ifdef SK_DEBUG
+    ~GrCpuVertexAllocator() override {
+        SkASSERT(!fLockStride && !fVertices && !fVertexData);
+    }
+#endif
+
+    void* lock(size_t stride, int eagerCount) override;
+    void unlock(int actualCount) override;
+
+    sk_sp<GrThreadSafeCache::VertexData> detachVertexData();
+
+private:
+    sk_sp<GrThreadSafeCache::VertexData> fVertexData;
+
+    void*  fVertices = nullptr;
+    size_t fLockStride = 0;
 };
 
 #endif
