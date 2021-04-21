@@ -144,7 +144,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
     if (function.isBuiltin() && function.name() == "sample") {
-        SkASSERT(arguments.size() <= 2);
+        SkASSERT(arguments.size() <= 3);
         SkASSERT(arguments[0]->type().isEffectChild());
         SkASSERT(arguments[0]->is<VariableReference>());
         int index = 0;
@@ -165,6 +165,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         SkASSERT(found);
 
+        String color;
         String coords;
         if (arguments.size() > 1) {
             AutoOutputBuffer outputToBuffer(this);

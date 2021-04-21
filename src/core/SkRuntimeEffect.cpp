@@ -118,6 +118,14 @@ static bool init_uniform_type(const SkSL::Context& ctx,
     return false;
 }
 
+static SkRuntimeEffect::Child::Type child_type(const SkSL::Type& type) {
+    switch (type.typeKind()) {
+        case SkSL::Type::TypeKind::kColorFilter: return SkRuntimeEffect::Child::Type::kColorFilter;
+        case SkSL::Type::TypeKind::kShader:      return SkRuntimeEffect::Child::Type::kShader;
+        default: SkUNREACHABLE;
+    }
+}
+
 // TODO: Many errors aren't caught until we process the generated Program here. Catching those
 // in the IR generator would provide better errors messages (with locations).
 #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
@@ -196,7 +204,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
 
     size_t offset = 0;
     std::vector<Uniform> uniforms;
-    std::vector<SkString> children;
+    std::vector<Child> children;
     std::vector<SkSL::SampleUsage> sampleUsages;
     const SkSL::Context& ctx(compiler->context());
 
@@ -212,7 +220,11 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
 
             // Child effects that can be sampled ('shader' or 'colorFilter')
             if (varType.isEffectChild()) {
-                children.push_back(var.name());
+                Child c;
+                c.name  = var.name();
+                c.type  = child_type(varType);
+                c.index = children.size();
+                children.push_back(c);
                 sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(
                         *program, var, sampleCoordsUsage.fWrite != 0));
             }
@@ -354,7 +366,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  const Options& options,
                                  const SkSL::FunctionDefinition& main,
                                  std::vector<Uniform>&& uniforms,
-                                 std::vector<SkString>&& children,
+                                 std::vector<Child>&& children,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
                                  uint32_t flags)
         : fHash(SkGoodHash()(sksl))
@@ -393,10 +405,10 @@ const SkRuntimeEffect::Uniform* SkRuntimeEffect::findUniform(const char* name) c
     return iter == fUniforms.end() ? nullptr : &(*iter);
 }
 
-int SkRuntimeEffect::findChild(const char* name) const {
+const SkRuntimeEffect::Child* SkRuntimeEffect::findChild(const char* name) const {
     auto iter = std::find_if(fChildren.begin(), fChildren.end(),
-                             [name](const SkString& s) { return s.equals(name); });
-    return iter == fChildren.end() ? -1 : static_cast<int>(iter - fChildren.begin());
+                             [name](const Child& c) { return c.name.equals(name); });
+    return iter == fChildren.end() ? nullptr : &(*iter);
 }
 
 SkRuntimeEffect::FilterColorInfo SkRuntimeEffect::getFilterColorInfo() {
@@ -850,10 +862,22 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
     if (!uniforms) {
         uniforms = SkData::MakeEmpty();
     }
+    // Verify that all child objects are shaders (to match the C++ types here).
+    // TODO(skia:11813) When we support shader and colorFilter children (with different samplng
+    // semantics), the 'children' parameter will contain both types, so this will be more complex.
+    if (!std::all_of(fChildren.begin(), fChildren.end(), [](const Child& c) {
+            return c.type == Child::Type::kShader;
+        })) {
+        return nullptr;
+    }
     return uniforms->size() == this->uniformSize() && childCount == fChildren.size()
-        ? sk_sp<SkShader>(new SkRTShader(sk_ref_sp(this), std::move(uniforms), localMatrix,
-                                         children, childCount, isOpaque))
-        : nullptr;
+                   ? sk_sp<SkShader>(new SkRTShader(sk_ref_sp(this),
+                                                    std::move(uniforms),
+                                                    localMatrix,
+                                                    children,
+                                                    childCount,
+                                                    isOpaque))
+                   : nullptr;
 }
 
 sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
@@ -943,10 +967,18 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
     if (!uniforms) {
         uniforms = SkData::MakeEmpty();
     }
+    // Verify that all child objects are color filters (to match the C++ types here).
+    // TODO(skia:11813) When we support shader and colorFilter children (with different samplng
+    // semantics), the 'children' parameter will contain both types, so this will be more complex.
+    if (!std::all_of(fChildren.begin(), fChildren.end(), [](const Child& c) {
+            return c.type == Child::Type::kColorFilter;
+        })) {
+        return nullptr;
+    }
     return uniforms->size() == this->uniformSize() && childCount == fChildren.size()
-        ? sk_sp<SkColorFilter>(new SkRuntimeColorFilter(sk_ref_sp(this), std::move(uniforms),
-                                                        children, childCount))
-        : nullptr;
+                   ? sk_sp<SkColorFilter>(new SkRuntimeColorFilter(
+                             sk_ref_sp(this), std::move(uniforms), children, childCount))
+                   : nullptr;
 }
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms) const {
