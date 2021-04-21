@@ -154,6 +154,7 @@ void GrGLOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
 
 void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                       uint16_t maxIndexValue, int baseVertex) {
+    fprintf(stderr, "Args %d %d %d %d %d", indexCount, baseIndex, SkToInt(minIndexValue), SkToInt(maxIndexValue), baseVertex);
     GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
     if (fGpu->glCaps().baseVertexBaseInstanceSupport()) {
         SkASSERT(fGpu->glCaps().drawInstancedSupport());

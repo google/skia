@@ -44,6 +44,7 @@ private:
     void bindVertexBuffer(const GrBuffer*, int baseVertex);
 
     const void* offsetForBaseIndex(int baseIndex) const {
+        fprintf(stderr, "fIndexPointer: %p", fIndexPointer);
         if (!fIndexPointer) {
             // nullptr != 0. Adding an offset to a nullptr is undefined.
             return (void*)(baseIndex * sizeof(uint16_t));
