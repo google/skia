@@ -144,7 +144,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
     if (function.isBuiltin() && function.name() == "sample") {
-        SkASSERT(arguments.size() <= 2);
+        SkASSERT(arguments.size() >= 2 && arguments.size() <= 3);
         SkASSERT(arguments[0]->type().isEffectChild());
         SkASSERT(arguments[0]->is<VariableReference>());
         int index = 0;
@@ -165,14 +165,33 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         SkASSERT(found);
 
+        // Arguments (after child) will be:
+        //   (coords), (color), or (coords, color)
+        auto typeIsColor = [&](const Type& type) {
+            return type == *fProgram.fContext->fTypes.fHalf4 ||
+                   type == *fProgram.fContext->fTypes.fFloat4;
+        };
+        auto typeIsCoords = [&](const Type& type) {
+            return type == *fProgram.fContext->fTypes.fFloat2;
+        };
+
+        // Input color always appears last (if it's present)
+        String color;
+        if (typeIsColor(arguments.back()->type())) {
+            AutoOutputBuffer outputToBuffer(this);
+            this->writeExpression(*arguments.back(), Precedence::kSequence);
+            color = outputToBuffer.fBuffer.str();
+        }
+
+        // Coords appear right after the child (if they're present)
         String coords;
-        if (arguments.size() > 1) {
+        if (typeIsCoords(arguments[1]->type())) {
             AutoOutputBuffer outputToBuffer(this);
             this->writeExpression(*arguments[1], Precedence::kSequence);
             coords = outputToBuffer.fBuffer.str();
         }
 
-        this->write(fCallbacks->sampleChild(index, std::move(coords)));
+        this->write(fCallbacks->sampleChild(index, std::move(coords), std::move(color)));
         return;
     }
 
