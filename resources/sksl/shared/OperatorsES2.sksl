@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main() {
+half4 main(float2 coords) {
     float x = 1, y = 2;
     int z = 3;
     x = x - x + y * x * x * (y - x);

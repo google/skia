@@ -1,6 +1,6 @@
 uniform half unknownInput; // 1
 
-half4 main() {
+half4 main(float2 coords) {
     half r, g;
     (true ? r : g) = 1 - unknownInput;
     (false ? r : g) = unknownInput;

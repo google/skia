@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main() {
+half4 main(float2 coords) {
     float test1[4] = float[4](1, 2, 3, 4);
     float2 test2[2] = float2[2](float2(1, 2), float2(3, 4));
     float4x4 test3[1] = float4x4[1](float4x4(16));

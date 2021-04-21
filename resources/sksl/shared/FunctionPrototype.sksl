@@ -10,7 +10,7 @@ half4 this_function_is_defined_before_use(half4 x) {
 
 bool this_function_is_prototyped_in_the_middle_and_never_defined(float4x4 a);
 
-half4 main() {
+half4 main(float2 coords) {
     return this_function_is_defined_after_use(this_function_is_defined_before_use(colorGreen));
 }
 

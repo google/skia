@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main() {
+half4 main(float2 coords) {
     float4 value = colorGreen.gggg * 6;
     int4   exp;
     float4 result;

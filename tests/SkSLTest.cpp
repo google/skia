@@ -46,7 +46,7 @@ static void test_one_permutation(skiatest::Reporter* r,
     }
 
     SkString shaderString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
-    SkRuntimeEffect::Result result = SkRuntimeEffect::Make(shaderString, options);
+    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForShader(shaderString, options);
     if (!result.effect) {
         ERRORF(r, "%s%s: %s", testFile, permutationSuffix, result.errorText.c_str());
         return;

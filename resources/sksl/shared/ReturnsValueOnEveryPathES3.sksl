@@ -127,7 +127,7 @@ bool switch_with_one_sided_if_then_fallthrough() {
     }
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return  simple() &&
             return_on_both_sides() &&
             for_inside_body() &&
