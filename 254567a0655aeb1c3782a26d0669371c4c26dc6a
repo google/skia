@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "623812d1_fab138c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-21T15:31:38Z",
+      "side": 1,
+      "message": "At some point, let\u0027s revive/steal some code from our textonpath days (using PathMeasure), to show this API used for that...",
+      "revId": "254567a0655aeb1c3782a26d0669371c4c26dc6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
