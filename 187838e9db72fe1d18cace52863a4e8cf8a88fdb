@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c28b15ef_cc8947fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T15:43:59Z",
+      "side": 1,
+      "message": "I\u0027ve looked at every example I can find in our various site files, pretty sure they all conform to the new rules (as do all the defaults/examples on shaders.skia.org).",
+      "revId": "187838e9db72fe1d18cace52863a4e8cf8a88fdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
