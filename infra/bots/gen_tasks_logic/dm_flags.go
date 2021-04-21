@@ -848,6 +848,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLMatrixEquality_GPU")
 	}
 
+	if b.matchGpu("Adreno[3-6][0-9][0-9]") { // skia:11891 - disable on Adreno 3xx-6xx
+		skip("_", "tests", "_", "DSLFPTest_SwitchStatement")
+	}
+
 	match := []string{}
 	if b.extraConfig("Valgrind") { // skia:3021
 		match = append(match, "~Threaded")
