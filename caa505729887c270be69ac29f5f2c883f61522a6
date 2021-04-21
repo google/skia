@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84a4ec08_3212d283",
+        "filename": "src/gpu/vk/GrVkPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-21T17:00:11Z",
+      "side": 1,
+      "message": "This is a lot cleaner.",
+      "range": {
+        "startLine": 66,
+        "startChar": 43,
+        "endLine": 66,
+        "endChar": 76
+      },
+      "revId": "caa505729887c270be69ac29f5f2c883f61522a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
