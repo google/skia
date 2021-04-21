@@ -1051,6 +1051,14 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 m.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
             }
         }
+        if (isMain && (this->programKind() == ProgramKind::kFragment)) {
+            // For testing purposes, we have .sksl inputs that are treated as both runtime effects
+            // and fragment shaders. To make that work, fragment shaders are allowed to have a
+            // coords parameter. We turn it into sk_FragCoord.
+            if (*type == *fContext.fTypes.fFloat2) {
+                m.fLayout.fBuiltin = SK_FRAGCOORD_BUILTIN;
+            }
+        }
 
         const Variable* var = fSymbolTable->takeOwnershipOfSymbol(
                 std::make_unique<Variable>(param.fOffset, fModifiers->addToPool(m), pd.fName, type,
@@ -1059,9 +1067,12 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
 
     auto paramIsCoords = [&](int idx) {
-        return parameters[idx]->type() == *fContext.fTypes.fFloat2 &&
-               parameters[idx]->modifiers().fFlags == 0 &&
-               parameters[idx]->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
+        const Variable* p = parameters[idx];
+        return p->type() == *fContext.fTypes.fFloat2 &&
+               p->modifiers().fFlags == 0 &&
+               p->modifiers().fLayout.fBuiltin == (this->programKind() == ProgramKind::kFragment
+                                                           ? SK_FRAGCOORD_BUILTIN
+                                                           : SK_MAIN_COORDS_BUILTIN);
     };
 
     auto paramIsInputColor = [&](int idx) {
@@ -1142,7 +1153,16 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             case ProgramKind::kGeneric:
                 // No rules apply here
                 break;
-            case ProgramKind::kFragment:
+            case ProgramKind::kFragment: {
+                bool validParams = (parameters.size() == 0) ||
+                                   (parameters.size() == 1 && paramIsCoords(0));
+                if (!validParams) {
+                    this->errorReporter().error(f.fOffset,
+                                                "shader 'main' must be main() or main(float2)");
+                    return;
+                }
+                break;
+            }
             case ProgramKind::kVertex:
             case ProgramKind::kGeometry:
                 if (parameters.size()) {

@@ -1007,6 +1007,12 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     this->write(" " + f.mangledName() + "(");
     const char* separator = "";
     for (const auto& param : f.parameters()) {
+        // This is a workaround for our test files. They use the runtime effect signature, so main
+        // takes a coords parameter. The IR generator tags those with a builtin ID (sk_FragCoord),
+        // and we omit them from the declaration here, so the function is valid GLSL.
+        if (f.isMain() && param->modifiers().fLayout.fBuiltin != -1) {
+            continue;
+        }
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers(), false);
