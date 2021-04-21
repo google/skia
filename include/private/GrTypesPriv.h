@@ -849,7 +849,7 @@ enum class GpuPathRenderers {
     kAALinearizing     =   1 << 5,
     kSmall             =   1 << 6,
     kTriangulating     =   1 << 7,
-    kDefault           = ((1 << 8) - 1)  // All path renderers.
+    kDefault           = ((1 << 7) - 1)  // All path renderers except Triangulating
 };
 
 /**
