@@ -29,6 +29,14 @@ Milestone 91
     syntax of 'in shader' is no longer supported.
     https://review.skia.org/393081
 
+  * SkRuntimeEffect now enforces stricter rules on the signature of main, and arguments to sample().
+    main must be declared to return a color ('half4', 'float4', or 'vec4'). The first argument must
+    be coordinates ('float2' or 'vec2'). The second argument is optional, but if present, it must
+    be the incoming color ('half4', 'float4', or 'vec4').
+    Calls to sample a shader must be of the form 'sample(child, coords)', where 'child' is a uniform
+    shader, and 'coords' is of type 'float2' or 'vec2'.
+    https://review.skia.org/399077
+
 * * *
 
 Milestone 90
