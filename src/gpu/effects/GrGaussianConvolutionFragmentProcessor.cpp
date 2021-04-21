@@ -64,10 +64,17 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     Var coord(kFloat2_Type, "coord", sk_SampleCoord());
     Declare(coord);
 
-    // Manually unroll loop because some drivers don't; yields 20-30% speedup.
-    for (int i = 0; i < width; i++) {
-        color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
-            kernel[i / 4][i & 0x3];
+    // This checks that bitwise integer operations and array indexing by non-consts are allowed.
+    if (args.fShaderCaps->generation() >= k130_GrGLSLGeneration) {
+        Var i(kInt_Type, "i", 0);
+        For(Declare(i), i < width, i++,
+            color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
+                     kernel[i / 4][i & 0x3]);
+    } else {
+        for (int i = 0; i < width; i++) {
+            color += SampleChild(/*index=*/0, coord + offsets[i / 4][i & 3] * increment) *
+                     kernel[i / 4][i & 0x3];
+        }
     }
 
     Return(color);
