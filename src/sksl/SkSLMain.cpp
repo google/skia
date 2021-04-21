@@ -439,14 +439,19 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                             fOutput += declaration;
                         }
 
-                        String sampleChild(int index, String coords) override {
-                            return String::printf("sample(child_%d%s%s)",
-                                                  index,
-                                                  coords.empty() ? "" : ", ",
-                                                  coords.c_str());
+                        String sampleChild(int index, String coords, String color) override {
+                            String result = "sample(child_" + SkSL::to_string(index);
+                            if (!coords.empty()) {
+                                result += ", " + coords;
+                            }
+                            if (!color.empty()) {
+                                result += ", " + color;
+                            }
+                            result += ")";
+                            return result;
                         }
 
-                        String              fOutput;
+                        String fOutput;
                     };
                     Callbacks callbacks;
                     SkSL::PipelineStage::ConvertProgram(program, "_coords", "_inColor", &callbacks);
