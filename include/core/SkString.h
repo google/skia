@@ -291,4 +291,10 @@ inline void SkStrSplit(const char* str, const char* delimiters, SkTArray<SkStrin
     SkStrSplit(str, delimiters, kCoalesce_SkStrSplitMode, out);
 }
 
+#include <vector>
+
+const std::vector<SkString>& GetSegfaultContext();
+void PushSegfaultContext(SkString str);
+void PopSegfaultContext();
+
 #endif

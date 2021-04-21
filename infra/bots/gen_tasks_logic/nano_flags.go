@@ -161,14 +161,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 	if b.debug() || b.extraConfig("ASAN") || b.extraConfig("Valgrind") {
 		args = append(args, "--loops", "1")
-		args = append(args, "--samples", "1")
-		// Ensure that the bot framework does not think we have timed out.
-		args = append(args, "--keepAlive", "true")
-	}
-
-	// skia:9036
-	if b.model("NVIDIA_Shield") {
-		args = append(args, "--dontReduceOpsTaskSplitting")
+	// 	args = append(args, "--samples", "1")
+	// 	// Ensure that the bot framework does not think we have timed out.
+	// 	args = append(args, "--keepAlive", "true")
 	}
 
 	// Some people don't like verbose output.
@@ -251,8 +246,8 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~path")
 	}
 
-	if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
-		args = append(args, "--reduceOpsTaskSplitting", "true")
+	if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
+		args = append(args, "--dontReduceOpsTaskSplitting", "true")
 	}
 	if b.model("NUC7i5BNK") {
 		args = append(args, "--gpuResourceCacheLimit", "16777216")
