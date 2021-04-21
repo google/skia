@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main() {
+half4 main(float2 coords) {
     bool4 v = bool4(colorGreen.g);
 
     bool4 result;

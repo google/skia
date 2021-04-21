@@ -7,7 +7,7 @@ half fn(half4 v) {
     }
 }
 
-half4 main() {
+half4 main(float2 coords) {
     half4 v = testInputs;
 
     v = v.rgba;

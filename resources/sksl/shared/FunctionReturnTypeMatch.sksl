@@ -23,7 +23,7 @@ int2     returns_int2()              { return int2(2); }
 int3     returns_int3()              { return int3(3); }
 int4     returns_int4()              { return int4(4); }
 
-half4 main() {
+half4 main(float2 coords) {
     float     x1  = returns_float();
     float2    x2  = returns_float2();
     float3    x3  = returns_float3();

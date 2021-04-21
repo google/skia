@@ -6,6 +6,6 @@ half4 blocky(half4 c) {
     }
 }
 
-half4 main() {
+half4 main(float2 coords) {
     return blocky(colorGreen);
 }
