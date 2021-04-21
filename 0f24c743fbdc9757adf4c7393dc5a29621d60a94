@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc2c342a_fc36d380",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-21T18:31:34Z",
+      "side": 1,
+      "message": "Since this is a private header, let\u0027s keep it in the same dir with the .cpp files (src/).",
+      "range": {
+        "startLine": 23,
+        "startChar": 29,
+        "endLine": 23,
+        "endChar": 52
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01ed954d_90e6848e",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-21T18:31:34Z",
+      "side": 1,
+      "message": "I\u0027m hoping this will eventually evolve into a proxy (ThreadedSurface) that just wraps another surface implementation.  That way we can decouple the event loop functionality from the actual surface backend type and offer both options to clients (we manage the thread/they manage the thread).\n\nDoesn\u0027t have to be this cl, just a note.",
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c3c6273_dd14131d",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-21T18:31:34Z",
+      "side": 1,
+      "message": "fWindow \u003d ...\n\n(to ensure we always initialize fWindow)",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 29
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36caace8_daf4032a",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-21T18:31:34Z",
+      "side": 1,
+      "message": "if (fWindow) {\n    ANativeWindow_release(fWindow);\n}",
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14970f55_c3fff414",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-21T18:31:34Z",
+      "side": 1,
+      "message": "Should be fine to drop the conditional and always call reset().",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "188d3378_d068cd82",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-21T18:31:34Z",
+      "side": 1,
+      "message": "How/when do we shut down this thread?\n\nIf the surface gets deleted, so does the SurfaceThread object -- but it appears like the looper will keep spinning and accessing deallocated heap.\n\nThe SurfaceSurface destructor seems like a good place to terminate the thread (post a kShutdown message and pthread_join?).",
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a38bd71_1b1a2205",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Surface.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-21T18:31:34Z",
+      "side": 1,
+      "message": "Since this is just forwarding to the native impl, you could call nCreateSurface directly from the constructor.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 5
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
