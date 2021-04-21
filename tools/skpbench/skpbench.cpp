@@ -32,6 +32,7 @@
 #include "tools/gpu/FlushFinishTracker.h"
 #include "tools/gpu/GpuTimer.h"
 #include "tools/gpu/GrContextFactory.h"
+#include "tools/skpbench/SkiaMemoryTracer.h"
 
 #ifdef SK_XML
 #include "modules/svg/include/SkSVGDOM.h"
@@ -619,25 +620,35 @@ int main(int argc, char** argv) {
     if (FLAGS_scale != 1) {
         canvas->scale(FLAGS_scale, FLAGS_scale);
     }
-    if (!FLAGS_gpuClock) {
-        if (FLAGS_ddl) {
-            run_ddl_benchmark(testCtx, ctx, surface, skp.get(), &samples);
-        } else if (!mskp) {
-            auto s = std::make_unique<StaticSkp>(skp);
-            run_benchmark(ctx, surface.get(), s.get(), &samples);
+
+    while (true) {
+        if (!FLAGS_gpuClock) {
+            if (FLAGS_ddl) {
+                run_ddl_benchmark(testCtx, ctx, surface, skp.get(), &samples);
+            } else if (!mskp) {
+                auto s = std::make_unique<StaticSkp>(skp);
+                run_benchmark(ctx, surface.get(), s.get(), &samples);
+            } else {
+                run_benchmark(ctx, surface.get(), mskp.get(), &samples);
+            }
         } else {
-            run_benchmark(ctx, surface.get(), mskp.get(), &samples);
+            if (FLAGS_ddl) {
+                exitf(ExitErr::kUnavailable, "DDL: GPU-only timing not supported");
+            }
+            if (!testCtx->gpuTimingSupport()) {
+                exitf(ExitErr::kUnavailable, "GPU does not support timing");
+            }
+            run_gpu_time_benchmark(testCtx->gpuTimer(), ctx, surface.get(), skp.get(), &samples);
         }
-    } else {
-        if (FLAGS_ddl) {
-            exitf(ExitErr::kUnavailable, "DDL: GPU-only timing not supported");
-        }
-        if (!testCtx->gpuTimingSupport()) {
-            exitf(ExitErr::kUnavailable, "GPU does not support timing");
-        }
-        run_gpu_time_benchmark(testCtx->gpuTimer(), ctx, surface.get(), skp.get(), &samples);
+        print_result(samples, config->getTag().c_str(), srcname.c_str());
+
+        SkString log("GPU caches\n");
+        android::uirenderer::skiapipeline::SkiaMemoryTracer gpuTracer("category", true);
+        ctx->dumpMemoryStatistics(&gpuTracer);
+        gpuTracer.logOutput(log);
+        gpuTracer.logTotals(log);
+        SkDebugf("%s", log.c_str());
     }
-    print_result(samples, config->getTag().c_str(), srcname.c_str());
 
     // Save a proof (if one was requested).
     if (!FLAGS_png.isEmpty()) {
