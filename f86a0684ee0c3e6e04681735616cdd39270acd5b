@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "feed8533_e4ecc7a5",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-21T14:39:58Z",
+      "side": 1,
+      "message": "optional: I liked how test_invalid_effect checked that the error-text contained a substring. Consider a `test_invalid_color_filter` and `test_invalid_shader` with that sort of interface, rather than just a true/false.",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 6
+      },
+      "revId": "f86a0684ee0c3e6e04681735616cdd39270acd5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e26c222d_6bad76b8",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 1
@@ -19,6 +42,29 @@
         "startChar": 54,
         "endLine": 104,
         "endChar": 54
+      },
+      "revId": "f86a0684ee0c3e6e04681735616cdd39270acd5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b44de6e3_4f01b6d6",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-21T14:39:58Z",
+      "side": 1,
+      "message": "nit: at least one of these three should return a vec4 or float4",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 144,
+        "endChar": 0
       },
       "revId": "f86a0684ee0c3e6e04681735616cdd39270acd5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
