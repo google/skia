@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main() {
+half4 main(float2 coords) {
     bool ok = true;
     ok = ok && (half4(int4(0, 0, 1, 2)) == half4(int4(half4(0.01, 0.99, 1.49, 2.75))));
     ok = ok && (half4(int4(0, 0, -1, -2)) == half4(int4(half4(-0.01, -0.99, -1.49, -2.75))));

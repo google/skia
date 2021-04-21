@@ -1,4 +1,4 @@
-half4 main() {
+half4 main(float2 coords) {
     half4 color = half4(0);
 
     for (int counter=0; counter<10; ++counter) ;

@@ -1,7 +1,7 @@
 uniform half4 testInputs;
 uniform half4 colorGreen, colorRed;
 
-half4 main() {
+half4 main(float2 coords) {
     half4 expected = half4(-1, 0, 1, 1);
     return (sign(testInputs.x)    == expected.x &&
             sign(testInputs.xy)   == expected.xy &&
