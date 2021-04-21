@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9d5cad1_c3575bef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-21T19:30:52Z",
+      "side": 1,
+      "message": "PS5 switches SPIRV to inject a float2(0) from the adapter. I tried to wire up sk_FragCoord, but it gets ugly because that variable may have been stripped out, so even though it exists in the symbol table, it\u0027s no longer in the variable-map of the generator. Rather than lots of error checking, the literal argument seemed easier.\n\nOne tradeoff here is that this will generate new .asm files for all tests (when I add the main parameter) - see the follow-up CL. The earlier fix in this CL left the spirv output identical.",
+      "revId": "b3724a1bcc7e219538f197c5fb744f04c5aca235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
