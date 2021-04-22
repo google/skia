@@ -8,6 +8,7 @@
 #include <jni.h>
 
 #include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
 
 namespace {
 
@@ -21,16 +22,25 @@ static void Paint_Release(JNIEnv* env, jobject, jlong native_paint) {
 
 static void Paint_SetColor(JNIEnv* env, jobject, jlong native_paint,
                            float r, float g, float b, float a) {
-    reinterpret_cast<SkPaint*>(native_paint)->setColor4f({r, g, b, a});
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        paint->setColor4f({r, g, b, a});
+    }
+}
+
+static void Paint_SetShader(JNIEnv* env, jobject, jlong native_paint, jlong native_shader) {
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        paint->setShader(sk_ref_sp(reinterpret_cast<SkShader*>(native_shader)));
+    }
 }
 
 }  // namespace
 
 int register_androidkit_Paint(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nCreate"  , "()J"     , reinterpret_cast<void*>(Paint_Create)},
-        {"nRelease" , "(J)V"    , reinterpret_cast<void*>(Paint_Release)},
-        {"nSetColor", "(JFFFF)V", reinterpret_cast<void*>(Paint_SetColor)},
+        {"nCreate"   , "()J"     , reinterpret_cast<void*>(Paint_Create)},
+        {"nRelease"  , "(J)V"    , reinterpret_cast<void*>(Paint_Release)},
+        {"nSetColor" , "(JFFFF)V", reinterpret_cast<void*>(Paint_SetColor)},
+        {"nSetShader", "(JJ)V"   , reinterpret_cast<void*>(Paint_SetShader)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Paint");
