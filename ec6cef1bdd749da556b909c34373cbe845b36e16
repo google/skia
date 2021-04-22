@@ -16,6 +16,24 @@
       "message": "Oops, sorry about the wrong email.",
       "revId": "ec6cef1bdd749da556b909c34373cbe845b36e16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4a99b46_8069b840",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-22T14:55:52Z",
+      "side": 1,
+      "message": "no worries!",
+      "parentUuid": "99b35aa9_99d985e0",
+      "revId": "ec6cef1bdd749da556b909c34373cbe845b36e16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
