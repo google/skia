@@ -321,9 +321,6 @@ public:
     //commands supported?
     bool baseVertexBaseInstanceSupport() const { return fBaseVertexBaseInstanceSupport; }
 
-    /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
-    bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
-
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
 
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
@@ -535,7 +532,6 @@ private:
     bool fES2CompatibilitySupport : 1;
     bool fDrawRangeElementsSupport : 1;
     bool fBaseVertexBaseInstanceSupport : 1;
-    bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fBindFragDataLocationSupport : 1;
     bool fRGBA8888PixelsOpsAreSlow : 1;
