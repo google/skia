@@ -22,53 +22,29 @@ namespace SkSL {
 // Template evaluation //
 /////////////////////////
 
-static String eval_template(const String& format, const std::vector<String>& tokens,
-                            const std::vector<const String*>& values) {
-    StringStream stream;
+static String eval_template(const String& format,
+                            std::initializer_list<String> tokens,
+                            std::initializer_list<String> replacements) {
+    SkASSERT(tokens.size() == replacements.size());
+    String str = format;
 
-    int tokenNameStart = -1;
-    for (size_t i = 0; i < format.size(); i++) {
-        if (tokenNameStart >= 0) {
-            // Within a token name so check if it is the end
-            if (format[i] == '}') {
-                // Skip 2 extra characters at the beginning for the $ and {, which must exist since
-                // otherwise tokenNameStart < 0
-                String token(format.c_str() + tokenNameStart + 2, i - tokenNameStart - 2);
-                // Search for the token in supported list
-                bool found = false;
-                for (size_t j = 0; j < tokens.size(); j++) {
-                    if (token == tokens[j]) {
-                        // Found a match so append the value corresponding to j to the output
-                        stream.writeText(values[j]->c_str());
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    // Write out original characters as if we didn't consider it to be a token name
-                    stream.writeText("${");
-                    stream.writeText(token.c_str());
-                    stream.writeText("}");
-                }
-
-                // And end the token name state
-                tokenNameStart = -1;
+    // Replace every token with its replacement.
+    auto tokenIter = tokens.begin();
+    auto replacementIter = replacements.begin();
+    for (; tokenIter != tokens.end(); ++tokenIter, ++replacementIter) {
+        size_t position = 0;
+        for (;;) {
+            // Replace one instance of the current token with the requested replacement.
+            position = str.find(*tokenIter, position);
+            if (position == String::npos) {
+                break;
             }
-        } else {
-            // Outside of a token name, so check if this character starts a name:
-            // i == $ and i+1 == {
-            if (i < format.size() - 1 && format[i] == '$' && format[i + 1] == '{') {
-                // Begin parsing the token
-                tokenNameStart = i;
-            } else {
-                // Just a character so append it
-                stream.write8(format[i]);
-            }
+            str.replace(position, tokenIter->size(), *replacementIter);
+            position += replacementIter->size();
         }
     }
 
-    return stream.str();
+    return str;
 }
 
 static bool determine_inline_from_template(const String& uniformTemplate) {
@@ -92,9 +68,9 @@ static bool determine_inline_from_template(const String& uniformTemplate) {
 
 String UniformCTypeMapper::dirtyExpression(const String& newVar, const String& oldVar) const {
     if (fSupportsTracking) {
-        std::vector<String> tokens = { "newVar", "oldVar" };
-        std::vector<const String*> values = { &newVar, &oldVar };
-        return eval_template(fDirtyExpressionTemplate, tokens, values);
+        return eval_template(fDirtyExpressionTemplate,
+                             {"${newVar}", "${oldVar}"},
+                             {newVar, oldVar});
     } else {
         return "";
     }
@@ -102,9 +78,9 @@ String UniformCTypeMapper::dirtyExpression(const String& newVar, const String& o
 
 String UniformCTypeMapper::saveState(const String& newVar, const String& oldVar) const {
     if (fSupportsTracking) {
-        std::vector<String> tokens = { "newVar", "oldVar" };
-        std::vector<const String*> values = { &newVar, &oldVar };
-        return eval_template(fSaveStateTemplate, tokens, values);
+        return eval_template(fSaveStateTemplate,
+                             {"${newVar}", "${oldVar}"},
+                             {newVar, oldVar});
     } else {
         return "";
     }
@@ -112,7 +88,6 @@ String UniformCTypeMapper::saveState(const String& newVar, const String& oldVar)
 
 String UniformCTypeMapper::setUniform(const String& pdman, const String& uniform,
                                       const String& var) const {
-    std::vector<String> tokens = { "pdman", "uniform", "var", "count" };
     String count;
     String finalVar;
     const String* activeTemplate;
@@ -125,8 +100,10 @@ String UniformCTypeMapper::setUniform(const String& pdman, const String& uniform
         finalVar = std::move(var);
         activeTemplate = &fUniformSingleTemplate;
     }
-    std::vector<const String*> values = { &pdman, &uniform, &finalVar, &count };
-    return eval_template(*activeTemplate, tokens, values);
+
+    return eval_template(*activeTemplate,
+                         {"${pdman}", "${uniform}", "${var}", "${count}"},
+                         {pdman, uniform, finalVar, count});
 }
 
 UniformCTypeMapper::UniformCTypeMapper(
