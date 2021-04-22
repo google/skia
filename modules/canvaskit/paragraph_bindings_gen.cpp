@@ -92,4 +92,10 @@ EMSCRIPTEN_BINDINGS(ParagraphGen) {
     enum_<para::TextDirection>("TextDirection")
             .value("LTR", para::TextDirection::kLtr)
             .value("RTL", para::TextDirection::kRtl);
+
+    enum_<para::TextHeightBehavior>("TextHeightBehavior")
+            .value("All", para::TextHeightBehavior::kAll)
+            .value("DisableFirstAscent", para::TextHeightBehavior::kDisableFirstAscent)
+            .value("DisableLastDescent", para::TextHeightBehavior::kDisableLastDescent)
+            .value("DisableAll", para::TextHeightBehavior::kDisableAll);
 }
