@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#if 0  // TODO(skia:11854): enable tests in followup CL
 
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
@@ -83,5 +82,3 @@ DSL_FP_TEST(DSLFPTest_DoStatement, /*shouldLoop:*/ false)
 DSL_FP_TEST(DSLFPTest_ForStatement, /*colorWhite:*/ SkPMColor4f{1, 1, 1, 1})
 DSL_FP_TEST(DSLFPTest_SwitchStatement)
 DSL_FP_TEST(DSLFPTest_WhileStatement)
-
-#endif
