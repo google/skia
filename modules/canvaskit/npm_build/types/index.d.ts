@@ -503,6 +503,7 @@ export interface CanvasKit {
     readonly TextAlign: TextAlignEnumValues;
     readonly TextBaseline: TextBaselineEnumValues;
     readonly TextDirection: TextDirectionEnumValues;
+    readonly TextHeightBehavior: TextHeightBehaviorEnumValues;
 
     // Paragraph Constants
     readonly NoDecoration: number;
@@ -877,6 +878,7 @@ export interface ParagraphStyle {
     strutStyle?: StrutStyle;
     textAlign?: TextAlign;
     textDirection?: TextDirection;
+    textHeightBehavior?: TextHeightBehavior;
     textStyle?: TextStyle;
 }
 
@@ -3694,6 +3696,7 @@ export type RectWidthStyle = EmbindEnumEntity;
 export type TextAlign = EmbindEnumEntity;
 export type TextBaseline = EmbindEnumEntity;
 export type TextDirection = EmbindEnumEntity;
+export type TextHeightBehavior = EmbindEnumEntity;
 
 export interface AffinityEnumValues extends EmbindEnum {
     Upstream: Affinity;
@@ -3934,6 +3937,13 @@ export interface TextBaselineEnumValues extends EmbindEnum {
 export interface TextDirectionEnumValues extends EmbindEnum {
     LTR: TextDirection;
     RTL: TextDirection;
+}
+
+export interface TextHeightBehaviorEnumValues extends EmbindEnum {
+    All: TextHeightBehavior;
+    DisableFirstAscent: TextHeightBehavior;
+    DisableLastDescent: TextHeightBehavior;
+    DisableAll: TextHeightBehavior;
 }
 
 export interface TileModeEnumValues extends EmbindEnum {
