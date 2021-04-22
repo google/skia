@@ -233,7 +233,8 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
 GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                     GrRecordingContext* context,
                                                     const GrColorInfo&) const {
-    return GrFPSuccess(ColorTableEffect::Make(std::move(inputFP), context, fBitmap));
+    auto cte = ColorTableEffect::Make(std::move(inputFP), context, fBitmap);
+    return cte ? GrFPSuccess(std::move(cte)) : GrFPFailure(nullptr);
 }
 
 #endif // SK_SUPPORT_GPU
