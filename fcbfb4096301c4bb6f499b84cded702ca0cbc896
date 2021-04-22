@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1372ceb_99b0a9be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-22T12:56:37Z",
+      "side": 1,
+      "message": "lgtm, will be happy to see GrTextureProducer minimized or removed entirely",
+      "revId": "fcbfb4096301c4bb6f499b84cded702ca0cbc896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
