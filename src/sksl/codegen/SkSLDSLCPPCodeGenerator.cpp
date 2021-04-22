@@ -861,7 +861,7 @@ void DSLCPPCodeGenerator::writePrivateVars() {
                 // state. Note that tracked variables must be uniform in's and that is validated
                 // before writePrivateVars() is called.
                 const UniformCTypeMapper* mapper = UniformCTypeMapper::Get(fContext, var);
-                SkASSERT(mapper && mapper->supportsTracking());
+                SkASSERT(mapper);
 
                 String name = HCodeGenerator::FieldName(String(var.name()).c_str());
                 // The member statement is different if the mapper reports a default value
@@ -1026,8 +1026,6 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
             }
 
             if (isTracked) {
-                SkASSERT(mapper->supportsTracking());
-
                 String prevVar = HCodeGenerator::FieldName(name) + "Prev";
                 this->writef("%sif (%s) {\n"
                              "%s    %s;\n"
@@ -1309,14 +1307,6 @@ bool DSLCPPCodeGenerator::generateCode() {
                             + "'s type is not supported for use as a 'uniform in'");
                     return false;
                 }
-                if (decl.var().modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
-                    if (!mapper->supportsTracking()) {
-                        fErrors.error(decl.fOffset, String(decl.var().name())
-                                + "'s type does not support state tracking");
-                        return false;
-                    }
-                }
-
             } else {
                 // If it's not a uniform_in, it's an error to be tracked
                 if (decl.var().modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
