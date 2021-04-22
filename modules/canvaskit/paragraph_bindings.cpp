@@ -312,7 +312,7 @@ JSArray GetLineMetrics(para::Paragraph& self) {
 /*
  *  Returns Runs[K]
  *
- *  Run --> { font: ???, glyphs[N], positions[N*2], offsets[N], origin: x,y }
+ *  Run --> { font: ???, glyphs[N], positions[N*2], offsets[N], flags }
  *
  *  K = number of runs
  *  N = number of glyphs in a given run
@@ -326,16 +326,20 @@ JSArray GetShapedRuns(para::Paragraph& self) {
     };
     std::vector<Run>      runs;
     std::vector<uint16_t> glyphs;
-    std::vector<SkPoint>  positions;
     std::vector<uint32_t> offsets;
+    std::vector<SkPoint>  positions;
 
     self.visit([&](const para::Paragraph::VisitorInfo& info) {
         // add 1 Run
         runs.push_back({info.font, info.origin, (int)glyphs.size(), info.count});
         // append the arrays
         glyphs.insert(glyphs.end(), info.glyphs, info.glyphs + info.count);
-        positions.insert(positions.end(), info.positions, info.positions + info.count);
         offsets.insert(offsets.end(), info.utf8Starts, info.utf8Starts + info.count);
+        // we manually offset each of these
+        positions.insert(positions.end(), info.positions, info.positions + info.count);
+        for (auto pos = positions.end() - info.count; pos != positions.end(); ++pos) {
+            *pos += info.origin;
+        }
     });
 
     JSArray jruns = emscripten::val::array();
@@ -349,8 +353,6 @@ JSArray GetShapedRuns(para::Paragraph& self) {
         jrun.set("glyphs"   , MakeTypedArray(N,   &glyphs[I],       "Uint16Array"));
         jrun.set("positions", MakeTypedArray(N*2, &positions[I].fX, "Float32Array"));
         jrun.set("offsets"  , MakeTypedArray(N,   &offsets[I],      "Uint32Array"));
-        jrun.set("origin_x" , crun.origin.fX);
-        jrun.set("origin_y" , crun.origin.fY);
 
         jruns.call<void>("push", jrun);
 
