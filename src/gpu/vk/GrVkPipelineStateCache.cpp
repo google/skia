@@ -79,8 +79,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::findOrCreatePipelin
     if (programInfo.isStencilEnabled()) {
         SkASSERT(renderTarget->getStencilAttachment());
         SkASSERT(renderTarget->numStencilBits() == 8);
-        SkASSERT(renderTarget->getStencilAttachment()->numSamples() ==
-                 programInfo.numStencilSamples());
+        SkASSERT(renderTarget->getStencilAttachment()->numSamples() == programInfo.numSamples());
     }
 #endif
 

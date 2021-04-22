@@ -44,8 +44,7 @@ private:
     const char* name() const override { return "GrPathInnerTriangulateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
-                                      bool hasMixedSampledCoverage, GrClampType) override;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
 
     // These calls set up the stencil & fill programs we will use prior to preparing and executing.
     void pushFanStencilProgram(const GrPathShader::ProgramArgs&,

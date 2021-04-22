@@ -30,8 +30,7 @@ static DEFINE_string(pr, "",
               "[~]none [~]dashline [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
               "[~]small [~]tri [~]tess [~]all");
 
-static DEFINE_int(internalSamples, 4,
-                  "Number of samples for internal draws that use MSAA or mixed samples.");
+static DEFINE_int(internalSamples, 4, "Number of samples for internal draws that use MSAA.");
 
 static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");

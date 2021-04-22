@@ -270,7 +270,7 @@ public:
      * If passed in render target already has a stencil buffer with at least "numSamples" samples,
      * return true. Otherwise attempt to attach one and return true on success.
      */
-    bool attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples);
+    bool attachStencilAttachment(GrRenderTarget* rt);
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
                                            const GrBackendFormat& format,

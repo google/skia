@@ -234,7 +234,7 @@ private:
                               size_t imageBytes, size_t rowBytes);
 
     sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(
-            const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
+            const GrRenderTarget*, SkISize dimensions) override;
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
         return GrBackendFormat::MakeMtl(this->mtlCaps().preferredStencilFormat());

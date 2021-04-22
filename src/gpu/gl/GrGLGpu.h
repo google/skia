@@ -129,8 +129,7 @@ public:
     }
 
     sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                             SkISize dimensions,
-                                                             int numStencilSamples) override;
+                                                             SkISize dimensions) override;
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
                                            const GrBackendFormat& format,

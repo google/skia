@@ -239,8 +239,8 @@ struct SK_API GrContextOptions {
     ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
     /**
-     * Specifies the number of samples Ganesh should use when performing internal draws with MSAA or
-     * mixed samples (hardware capabilities permitting).
+     * Specifies the number of samples Ganesh should use when performing internal draws with MSAA
+     * (hardware capabilities permitting).
      *
      * If 0, Ganesh will disable internal code paths that use multisampling.
      */

@@ -35,17 +35,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
         const GrXPFactory* xpf = GrCustomXfermode::Get(blendMode);
 
         GrXPFactory::AnalysisProperties xpfAnalysis =
-                GrXPFactory::GetAnalysisProperties(xpf, opaque, coverage, false, caps,
-                                                   GrClampType::kAuto);
+                GrXPFactory::GetAnalysisProperties(xpf, opaque, coverage, caps, GrClampType::kAuto);
 
         GrPaint paint;
         paint.setXPFactory(xpf);
         GrProcessorSet procs(std::move(paint));
-        bool hasMixedSampledCoverage = false;
         SkPMColor4f overrideColor;
         GrProcessorSet::Analysis processorAnalysis = procs.finalize(
-                opaque, coverage, nullptr, &GrUserStencilSettings::kUnused, hasMixedSampledCoverage,
-                caps, GrClampType::kAuto, &overrideColor);
+                opaque, coverage, nullptr, &GrUserStencilSettings::kUnused, caps,
+                GrClampType::kAuto, &overrideColor);
 
         if (caps.advancedBlendEquationSupport() &&
                 !caps.isAdvancedBlendEquationDisabled(blendEquation)) {

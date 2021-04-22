@@ -493,10 +493,10 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     return buffer;
 }
 
-bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples) {
+bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
     SkASSERT(rt);
     GrAttachment* stencil = rt->getStencilAttachment();
-    if (stencil && stencil->numSamples() == numStencilSamples) {
+    if (stencil) {
         return true;
     }
 
@@ -517,13 +517,12 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
         GrProtected isProtected = rt->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         GrAttachment::ComputeSharedAttachmentUniqueKey(
                 *this->caps(), stencilFormat, rt->dimensions(),
-                GrAttachment::UsageFlags::kStencilAttachment, numStencilSamples, GrMipmapped::kNo,
+                GrAttachment::UsageFlags::kStencilAttachment, rt->numSamples(), GrMipmapped::kNo,
                 isProtected, &sbKey);
         auto stencil = this->findByUniqueKey<GrAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
-            stencil = this->gpu()->makeStencilAttachmentForRenderTarget(rt, rt->dimensions(),
-                                                                        numStencilSamples);
+            stencil = this->gpu()->makeStencilAttachmentForRenderTarget(rt, rt->dimensions());
             if (!stencil) {
                 return false;
             }
@@ -531,11 +530,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
         }
         rt->attachStencilAttachment(std::move(stencil));
     }
-
-    if (GrAttachment* stencil = rt->getStencilAttachment()) {
-        return stencil->numSamples() == numStencilSamples;
-    }
-    return false;
+    return rt->getStencilAttachment();
 }
 
 sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
