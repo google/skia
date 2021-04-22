@@ -661,6 +661,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     }
 
+    // TESTING Pixel5
+    fDrawRangeElementsSupport = false;
+
     // We prefer GL sync objects but also support NV_fence_sync. The former can be
     // used to implements GrFence and GrSemaphore. The latter only implements GrFence.
     // TODO: support CHROMIUM_sync_point and maybe KHR_fence_sync
@@ -1196,6 +1199,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
                        fUseDrawInsteadOfAllRenderTargetWrites);
     writer->appendBool("Max instances per draw without crashing (or zero)",
                        fMaxInstancesPerDrawWithoutCrashing);
+    writer->appendBool("Draw range elements support", fDrawRangeElementsSupport);
 
     writer->beginArray("formats");
 
