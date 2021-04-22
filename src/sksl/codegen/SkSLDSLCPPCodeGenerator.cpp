@@ -220,10 +220,6 @@ String DSLCPPCodeGenerator::formatRuntimeValue(const Type& type,
     return "";
 }
 
-void DSLCPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
-    this->writeExpression(value, Precedence::kTopLevel);
-}
-
 void DSLCPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     // Confirm that the component array only contains X/Y/Z/W.
     SkASSERT(std::all_of(swizzle.components().begin(), swizzle.components().end(),
@@ -293,7 +289,7 @@ void DSLCPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
         }
     }
 
-    this->write(var.name());
+    this->write(this->getVariableCppName(var));
 }
 
 int DSLCPPCodeGenerator::getChildFPIndex(const Variable& var) const {
@@ -502,15 +498,50 @@ void DSLCPPCodeGenerator::writeIfStatement(const IfStatement& stmt) {
     this->write(")");
 }
 
+static bool variable_exists_with_name(const std::unordered_map<const Variable*, String>& varMap,
+                                      const String& trialName) {
+    for (const auto& [varPtr, varName] : varMap) {
+        if (varName == trialName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+const char* DSLCPPCodeGenerator::getVariableCppName(const Variable& var) {
+    String& cppName = fVariableCppNames[&var];
+    if (cppName.empty()) {
+        if (!variable_exists_with_name(fVariableCppNames, var.name())) {
+            // Nothing needs to change; use the name as-is.
+            cppName = var.name();
+        } else {
+            // Another variable with the same name exists in the function, at a different scope.
+            // Append a numeric prefix to disambiguate the two. (This check could be more efficient,
+            // but it really doesn't matter much; this case is rare, and we don't compile DSL CPPs
+            // at Skia runtime.)
+            for (int prefix=0;; ++prefix) {
+                String prefixedName = String::printf("_%d_%.*s", prefix, (int)var.name().size(),
+                                                                 var.name().data());
+                if (!variable_exists_with_name(fVariableCppNames, prefixedName)) {
+                    cppName = std::move(prefixedName);
+                    break;
+                }
+            }
+        }
+    }
+
+    return cppName.c_str();
+}
+
 void DSLCPPCodeGenerator::writeVar(const Variable& var) {
     this->write("Var ");
-    this->write(var.name());
+    this->write(this->getVariableCppName(var));
     this->write("(");
     this->write(this->getDSLModifiers(var.modifiers()));
     this->write(", ");
     this->write(this->getDSLType(var.type()));
     this->write(", \"");
-    this->write(var.name());
+    this->write(this->getVariableCppName(var));
     this->write("\"");
     if (var.initialValue()) {
         this->write(", ");
@@ -535,7 +566,7 @@ void DSLCPPCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, boo
         }
 
         this->write("Declare(");
-        this->write(var.name());
+        this->write(this->getVariableCppName(var));
         this->write(")");
     }
 }
@@ -798,9 +829,8 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     }
     this->writeVar(var);
 
-    String varName = var.name();
-    this->writef("%sVar = VarUniformHandle(%s);\n",
-                 HCodeGenerator::FieldName(varName.c_str()).c_str(), varName.c_str());
+    this->writef("%.*sVar = VarUniformHandle(%s);\n",
+                 (int)var.name().size(), var.name().data(), this->getVariableCppName(var));
 
     if (var.modifiers().fLayout.fWhen.fLength) {
         this->write("        }\n");
@@ -824,7 +854,7 @@ void DSLCPPCodeGenerator::writePrivateVars() {
                 this->writef("%s %s = %s;\n",
                              HCodeGenerator::FieldType(fContext, var.type(),
                                                        var.modifiers().fLayout).c_str(),
-                             String(var.name()).c_str(),
+                             this->getVariableCppName(var),
                              default_value(var).c_str());
             } else if (var.modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                 // An auto-tracked uniform in variable, so add a field to hold onto the prior
@@ -886,8 +916,6 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
             if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
                 continue;
             }
-            String nameString(var.name());
-            const char* name = nameString.c_str();
             if (SectionAndParameterHelper::IsParameter(var) && is_accessible(var)) {
                 // `formatRuntimeValue` generates a C++ format string (which we don't need, since
                 // we're not formatting anything at runtime) and a vector of the arguments within
@@ -895,9 +923,11 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
                 std::vector<String> argumentList;
                 (void) this->formatRuntimeValue(var.type(), var.modifiers().fLayout,
                                                 "_outer." + var.name(), &argumentList);
+
+                const char* varCppName = this->getVariableCppName(var);
                 this->writef("Var %s(kConst_Modifier, %s, \"%s\", %s(",
-                             name, this->getDSLType(var.type()).c_str(), name,
-                             this->getTypeName(var.type()).c_str());
+                             varCppName, this->getDSLType(var.type()).c_str(),
+                             varCppName, this->getTypeName(var.type()).c_str());
                 const char* separator = "";
                 for (const String& arg : argumentList) {
                     this->write(separator);
@@ -905,7 +935,7 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
                     separator = ", ";
                 }
                 this->writef("));\n"
-                             "Declare(%s);\n", name);
+                             "Declare(%s);\n", varCppName);
             }
         }
     }
@@ -1026,25 +1056,29 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
                 const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
                 const Variable& variable = decl.var();
-                String nameString(variable.name());
-                const char* name = nameString.c_str();
 
                 if (needs_uniform_var(variable)) {
-                    this->writef("        UniformHandle& %s = %sVar;\n"
+                    const char* varCppName = this->getVariableCppName(variable);
+
+                    this->writef("        UniformHandle& %s = %.*sVar;\n"
                                  "        (void) %s;\n",
-                                 name, HCodeGenerator::FieldName(name).c_str(), name);
+                                 varCppName, (int)variable.name().size(),
+                                 variable.name().data(), varCppName);
                 } else if (SectionAndParameterHelper::IsParameter(variable) &&
                            !variable.type().isFragmentProcessor()) {
                     if (!wroteProcessor) {
-                        this->writef("        const %s& _outer = _proc.cast<%s>();\n", fullName,
-                                     fullName);
+                        this->writef("        const %s& _outer = _proc.cast<%s>();\n",
+                                     fullName, fullName);
                         wroteProcessor = true;
                     }
 
                     if (!variable.type().isFragmentProcessor()) {
-                        this->writef("        auto %s = _outer.%s;\n"
+                        const char* varCppName = this->getVariableCppName(variable);
+
+                        this->writef("        auto %s = _outer.%.*s;\n"
                                      "        (void) %s;\n",
-                                     name, name, name);
+                                     varCppName, (int)variable.name().size(),
+                                     variable.name().data(), varCppName);
                     }
                 }
             }
@@ -1199,11 +1233,10 @@ void DSLCPPCodeGenerator::writeGetKey() {
                     fErrors.error(var.fOffset, "layout(key) may not be specified on uniforms");
                 }
                 if (is_private(var)) {
-                    this->writef(
-                            "%s %s =",
-                            HCodeGenerator::FieldType(fContext, varType, var.modifiers().fLayout)
-                                    .c_str(),
-                            String(var.name()).c_str());
+                    this->writef("%s %s =",
+                                 HCodeGenerator::FieldType(fContext, varType,
+                                                           var.modifiers().fLayout).c_str(),
+                                 this->getVariableCppName(var));
                     if (decl.value()) {
                         fCPPMode = true;
                         this->writeExpression(*decl.value(), Precedence::kAssignment);
@@ -1322,16 +1355,15 @@ bool DSLCPPCodeGenerator::generateCode() {
     this->write("private:\n");
     this->writeSetData(uniforms);
     this->writePrivateVars();
-    for (const auto& u : uniforms) {
+    for (const Variable* u : uniforms) {
         if (needs_uniform_var(*u) && !(u->modifiers().fFlags & Modifiers::kIn_Flag)) {
-            this->writef("    UniformHandle %sVar;\n",
-                         HCodeGenerator::FieldName(String(u->name()).c_str()).c_str());
+            this->writef("    UniformHandle %.*sVar;\n", (int)u->name().size(), u->name().data());
         }
     }
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
         if (needs_uniform_var(*param)) {
-            this->writef("    UniformHandle %sVar;\n",
-                         HCodeGenerator::FieldName(String(param->name()).c_str()).c_str());
+            this->writef("    UniformHandle %.*sVar;\n",
+                         (int)param->name().size(), param->name().data());
         }
     }
     this->writef("};\n"
