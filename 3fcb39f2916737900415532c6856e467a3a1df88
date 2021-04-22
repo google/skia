@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ccadd6e_1bd4e3ab",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-22T19:35:35Z",
+      "side": 1,
+      "message": "Is this sorted, is that why it\u0027s log2?",
+      "range": {
+        "startLine": 445,
+        "startChar": 62,
+        "endLine": 445,
+        "endChar": 75
+      },
+      "revId": "3fcb39f2916737900415532c6856e467a3a1df88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
