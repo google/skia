@@ -29,15 +29,13 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var one(kConst_Modifier, DSLType(kHalf_Type), "one", Half(_outer.one));
-Declare(one);
 Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(0.0));
 Declare(color);
-If(Swizzle(color, X, Y) == Swizzle(color, Z, W), /*Then:*/ color.w() = one);
+If(Swizzle(color, X, Y) == Swizzle(color, Z, W), /*Then:*/ color.w() = 1.0);
 If(Swizzle(color, X, Y) == Swizzle(color, Z, W), /*Then:*/ Block(color.x() = color.w()));
 If(color.x() == color.y(), /*Then:*/ color = Swizzle(color, W, X, W, W), /*Else:*/ color = Swizzle(color, X, X, X, W));
-If(((color.x() + color.y()) + color.z()) + color.w() == one, /*Then:*/ Block(color = Half4(-1.0)), /*Else:*/ If(((color.x() + color.y()) + color.z()) + color.w() == 2.0, /*Then:*/ Block(color = Half4(-2.0)), /*Else:*/ Block(color = Swizzle(color, Y, Y, W, W))));
-If(color.x() == one, /*Then:*/ Block(If(color.x() == 2.0, /*Then:*/ Block(color = Swizzle(color, X, X, X, X)), /*Else:*/ Block(color = Swizzle(color, Y, Y, Y, Y)))), /*Else:*/ Block(If(color.z() * color.w() == one, /*Then:*/ Block(color = Swizzle(color, X, Z, Y, W)), /*Else:*/ Block(color = Swizzle(color, W, W, W, W)))));
+If(((color.x() + color.y()) + color.z()) + color.w() == 1.0, /*Then:*/ Block(color = Half4(-1.0)), /*Else:*/ If(((color.x() + color.y()) + color.z()) + color.w() == 2.0, /*Then:*/ Block(color = Half4(-2.0)), /*Else:*/ Block(color = Swizzle(color, Y, Y, W, W))));
+If(color.x() == 1.0, /*Then:*/ Block(If(color.x() == 2.0, /*Then:*/ Block(color = Swizzle(color, X, X, X, X)), /*Else:*/ Block(color = Swizzle(color, Y, Y, Y, Y)))), /*Else:*/ Block(If(color.z() * color.w() == 1.0, /*Then:*/ Block(color = Swizzle(color, X, Z, Y, W)), /*Else:*/ Block(color = Swizzle(color, W, W, W, W)))));
 Return(color);
         EndFragmentProcessor();
     }
@@ -49,17 +47,14 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_IfStatement::onMakeProgramI
     return std::make_unique<GrGLSLDSLFPTest_IfStatement>();
 }
 void GrDSLFPTest_IfStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    b->add32(sk_bit_cast<uint32_t>(one), "one");
 }
 bool GrDSLFPTest_IfStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_IfStatement& that = other.cast<GrDSLFPTest_IfStatement>();
     (void) that;
-    if (one != that.one) return false;
     return true;
 }
 GrDSLFPTest_IfStatement::GrDSLFPTest_IfStatement(const GrDSLFPTest_IfStatement& src)
-: INHERITED(kGrDSLFPTest_IfStatement_ClassID, src.optimizationFlags())
-, one(src.one) {
+: INHERITED(kGrDSLFPTest_IfStatement_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_IfStatement::clone() const {
@@ -67,6 +62,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_IfStatement::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_IfStatement::onDumpInfo() const {
-    return SkStringPrintf("(one=%f)", one);
+    return SkString();
 }
 #endif

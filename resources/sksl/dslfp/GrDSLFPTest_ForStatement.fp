@@ -1,8 +1,6 @@
-layout(key, ctype=SkPMColor4f) in half4 colorWhite;
-
 // (This test code was largely borrowed from shared/ForLoopControlFlow.sksl.)
 half4 main() {
-    half4 color = colorWhite;
+    half4 color = half4(1);
 
     // A basic for-loop with no block.
     for (half a = 0; a <= 1; ++a) color.a = a;

@@ -29,9 +29,7 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var colorWhite(kConst_Modifier, DSLType(kHalf4_Type), "colorWhite", Half4(_outer.colorWhite.fR, _outer.colorWhite.fG, _outer.colorWhite.fB, _outer.colorWhite.fA));
-Declare(colorWhite);
-Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", colorWhite);
+Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(1.0));
 Var a(kNo_Modifier, DSLType(kHalf_Type), "a", 0.0);
 Var r(kNo_Modifier, DSLType(kHalf_Type), "r", -5.0);
 Var b(kNo_Modifier, DSLType(kHalf_Type), "b", 5.0);
@@ -50,22 +48,14 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_ForStatement::onMakeProgram
     return std::make_unique<GrGLSLDSLFPTest_ForStatement>();
 }
 void GrDSLFPTest_ForStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    uint16_t red = SkFloatToHalf(colorWhite.fR);
-    uint16_t green = SkFloatToHalf(colorWhite.fG);
-    uint16_t blue = SkFloatToHalf(colorWhite.fB);
-    uint16_t alpha = SkFloatToHalf(colorWhite.fA);
-    b->add32(((uint32_t)red << 16) | green, "colorWhite.rg");
-    b->add32(((uint32_t)blue << 16) | alpha, "colorWhite.ba");
 }
 bool GrDSLFPTest_ForStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_ForStatement& that = other.cast<GrDSLFPTest_ForStatement>();
     (void) that;
-    if (colorWhite != that.colorWhite) return false;
     return true;
 }
 GrDSLFPTest_ForStatement::GrDSLFPTest_ForStatement(const GrDSLFPTest_ForStatement& src)
-: INHERITED(kGrDSLFPTest_ForStatement_ClassID, src.optimizationFlags())
-, colorWhite(src.colorWhite) {
+: INHERITED(kGrDSLFPTest_ForStatement_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_ForStatement::clone() const {
@@ -73,6 +63,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_ForStatement::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_ForStatement::onDumpInfo() const {
-    return SkStringPrintf("(colorWhite=half4(%f, %f, %f, %f))", colorWhite.fR, colorWhite.fG, colorWhite.fB, colorWhite.fA);
+    return SkString();
 }
 #endif
