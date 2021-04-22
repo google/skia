@@ -152,10 +152,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		args = append(args, "--randomProcessorTest")
 	}
 
-	if b.model("Pixel3", "Pixel3a") && b.extraConfig("Vulkan") {
-		args = append(args, "--dontReduceOpsTaskSplitting")
-	}
-
 	threadLimit := -1
 	const MAIN_THREAD_ONLY = 0
 
@@ -430,8 +426,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("_ test _ TransferPixelsFromTextureTest")  // skia:11814
 		}
 
-		if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
-			args = append(args, "--reduceOpsTaskSplitting", "true")
+		if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
+			args = append(args, "--dontReduceOpsTaskSplitting", "true")
 		}
 
 		// Test reduceOpsTaskSplitting fallback when over budget.
