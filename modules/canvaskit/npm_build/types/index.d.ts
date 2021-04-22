@@ -648,12 +648,13 @@ export interface LineMetrics {
     lineNumber: number;
 }
 
+readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whitespace(s)
+
 export interface GlyphRun {
     glyphs: Uint16Array;
     positions: Float32Array;    // alternating x0, y0, x1, y1, ...
     offsets: Uint32Array;
-    origin_x: number;
-    origin_y: number;
+    flags: number;              // see ..._GlyphRunFlag values
 }
 
 /**
