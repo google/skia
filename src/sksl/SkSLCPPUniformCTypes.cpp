@@ -67,23 +67,11 @@ static bool determine_inline_from_template(const String& uniformTemplate) {
 ///////////////////////////////////////
 
 String UniformCTypeMapper::dirtyExpression(const String& newVar, const String& oldVar) const {
-    if (fSupportsTracking) {
-        return eval_template(fDirtyExpressionTemplate,
-                             {"${newVar}", "${oldVar}"},
-                             {newVar, oldVar});
-    } else {
-        return "";
-    }
+    return eval_template(fDirtyExpressionTemplate, {"${newVar}", "${oldVar}"}, {newVar, oldVar});
 }
 
 String UniformCTypeMapper::saveState(const String& newVar, const String& oldVar) const {
-    if (fSupportsTracking) {
-        return eval_template(fSaveStateTemplate,
-                             {"${newVar}", "${oldVar}"},
-                             {newVar, oldVar});
-    } else {
-        return "";
-    }
+    return eval_template(fSaveStateTemplate, {"${newVar}", "${oldVar}"}, {newVar, oldVar});
 }
 
 String UniformCTypeMapper::setUniform(const String& pdman, const String& uniform,
@@ -109,7 +97,7 @@ String UniformCTypeMapper::setUniform(const String& pdman, const String& uniform
 UniformCTypeMapper::UniformCTypeMapper(
         Layout::CType ctype, const std::vector<String>& skslTypes,
         const String& setUniformSingleFormat, const String& setUniformArrayFormat,
-        bool enableTracking, const String& defaultValue, const String& dirtyExpressionFormat,
+        const String& defaultValue, const String& dirtyExpressionFormat,
         const String& saveStateFormat)
     : fCType(ctype)
     , fSKSLTypes(skslTypes)
@@ -117,7 +105,6 @@ UniformCTypeMapper::UniformCTypeMapper(
     , fUniformArrayTemplate(setUniformArrayFormat)
     , fInlineValue(determine_inline_from_template(setUniformSingleFormat) &&
                    determine_inline_from_template(setUniformArrayFormat))
-    , fSupportsTracking(enableTracking)
     , fDefaultValue(defaultValue)
     , fDirtyExpressionTemplate(dirtyExpressionFormat)
     , fSaveStateTemplate(saveStateFormat) {}

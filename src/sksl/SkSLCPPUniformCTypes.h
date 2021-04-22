@@ -37,9 +37,7 @@ public:
     UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
             const String& setUniformSingleFormat, const String& setUniformArrayFormat,
             const String& defaultValue = "", const String& dirtyExpressionFormat = "",
-            const String& saveStateFormat = "")
-        : UniformCTypeMapper(ctype, skslTypes, setUniformSingleFormat, setUniformArrayFormat,
-                true, defaultValue, dirtyExpressionFormat, saveStateFormat) { }
+            const String& saveStateFormat = "");
 
     // Returns nullptr if the type and layout are not supported; the returned pointer's ownership
     // is not transfered to the caller.
@@ -63,15 +61,8 @@ public:
         return fSKSLTypes;
     }
 
-    // Whether or not this handler knows how to write state tracking code
-    // for the uniform variables
-    bool supportsTracking() const {
-        return fSupportsTracking;
-    }
-
     // What the C++ class fields are initialized to in the GLSLFragmentProcessor The empty string
-    // implies the no-arg constructor is suitable. This is not used if supportsTracking() returns
-    // false.
+    // implies the no-arg constructor is suitable.
     //
     // The returned snippet will be a valid as the lhs of an assignment.
     const String& defaultValue() const {
@@ -79,15 +70,14 @@ public:
     }
 
     // Return a boolean expression that returns true if the variables specified by newValueVarName
-    // and oldValueVarName have different values. This is ignored if supportsTracking() returns
-    // false.
+    // and oldValueVarName have different values.
     //
     // The returned snippet will be a valid expression to be inserted into the condition of an 'if'
     // statement.
     String dirtyExpression(const String& newValueVarName, const String& oldValueVarName) const;
 
     // Return a statement that stores the value of newValueVarName into the variable specified by
-    // oldValueVarName. This is ignored if supportsTracking() returns false.
+    // oldValueVarName.
     //
     // The returned snippet will be a valid expression.
     String saveState(const String& newValueVarName, const String& oldValueVarName) const;
@@ -109,11 +99,6 @@ public:
     }
 
 private:
-    UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
-            const String& setUniformSingleFormat, const String& setUniformArrayFormat,
-            bool enableTracking, const String& defaultValue, const String& dirtyExpressionFormat,
-            const String& saveStateFormat);
-
     const UniformCTypeMapper* arrayMapper(int arrayCount) const;
 
     Layout::CType fCType;
@@ -123,7 +108,6 @@ private:
     String fUniformArrayTemplate;
     bool fInlineValue; // Cached value calculated from fUniformTemplate
 
-    bool fSupportsTracking;
     String fDefaultValue;
     String fDirtyExpressionTemplate;
     String fSaveStateTemplate;
