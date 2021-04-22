@@ -366,6 +366,9 @@ public:
     // Many drivers have issues with color clears.
     bool performColorClearsAsDraws() const { return fPerformColorClearsAsDraws; }
 
+    // Google SwiftShader appears to have difficulty with this.
+    bool avoidClearingFBOMipmapLevels() const { return fAvoidClearingFBOMipmapLevels; }
+
     bool avoidLargeIndexBufferDraws() const { return fAvoidLargeIndexBufferDraws; }
 
     /// Adreno 4xx devices experience an issue when there are a large number of stencil clip bit
@@ -514,6 +517,7 @@ protected:
     bool fAvoidWritePixelsFastPath                   : 1;
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
+    bool fAvoidClearingFBOMipmapLevels               : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

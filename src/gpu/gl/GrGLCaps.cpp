@@ -8,6 +8,7 @@
 #include "src/gpu/gl/GrGLCaps.h"
 
 #include <memory>
+#include <stdio.h>
 
 #include "include/gpu/GrContextOptions.h"
 #include "src/core/SkCompressedDataUtils.h"
@@ -3568,6 +3569,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (fDriverBugWorkarounds.gl_clear_broken) {
         fPerformColorClearsAsDraws = true;
         fPerformStencilClearsAsDraws = true;
+    }
+
+    if (!GrGLGetWebGLRendererSupport(glInterface)) {
+        printf("CanvasKit detected software renderer\n");
+        fAvoidClearingFBOMipmapLevels = true;
     }
 
     if (ctxInfo.vendor() == kQualcomm_GrGLVendor) {

@@ -586,6 +586,18 @@ GrGLRenderer GrGLGetRenderer(const GrGLInterface* gl) {
     return GrGLGetRendererFromStrings((const char*)rendererString, gl->fExtensions);
 }
 
+bool GrGLGetWebGLRendererSupport(const GrGLInterface* gl) {
+    if (!gl->hasExtension("WEBGL_debug_renderer_info")) {
+        // If we can't get the renderer, then play it safe, because privacy mode could be on.
+        return false;
+    }
+    const GrGLubyte* rendererString;
+    GR_GL_CALL_RET(gl, rendererString, GetString(GR_GL_UNMASKED_RENDERER_WEBGL));
+    // Otherwise we only fail if the renderer is explicitly set to SwiftShader.
+    GrGLRenderer realRenderer = GrGLGetRendererFromStrings((const char*)rendererString, gl->fExtensions);
+    return (realRenderer != kGoogleSwiftShader_GrGLRenderer);
+}
+
 std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInfo(
         const GrGLInterface* gl) {
     const GrGLubyte* rendererString;

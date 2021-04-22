@@ -249,6 +249,7 @@ GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 GrGLVendor GrGLGetVendor(const GrGLInterface*);
 GrGLRenderer GrGLGetRenderer(const GrGLInterface*);
+bool GrGLGetWebGLRendererSupport(const GrGLInterface* gl);
 std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInfo(
         const GrGLInterface*);
 

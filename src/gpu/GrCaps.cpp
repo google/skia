@@ -82,6 +82,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fAvoidWritePixelsFastPath = false;
     fRequiresManualFBBarrierAfterTessellatedStencilDraw = false;
     fNativeDrawIndexedIndirectIsBroken = false;
+    fAvoidClearingFBOMipmapLevels = false;
 
     fPreferVRAMUseOverFlushes = true;
 

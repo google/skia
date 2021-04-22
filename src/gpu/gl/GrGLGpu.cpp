@@ -1335,7 +1335,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
                 }
             }
         } else if (this->glCaps().canFormatBeFBOColorAttachment(format.asGLFormat()) &&
-                   !this->glCaps().performColorClearsAsDraws()) {
+                   !this->glCaps().performColorClearsAsDraws() &&
+                   !this->glCaps().avoidClearingFBOMipmapLevels()) {
             this->flushScissorTest(GrScissorTest::kDisabled);
             this->disableWindowRectangles();
             this->flushColorWrite(true);
