@@ -40,7 +40,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fES2CompatibilitySupport = false;
     fDrawRangeElementsSupport = false;
     fBaseVertexBaseInstanceSupport = false;
-    fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
     fRectangleTextureSupport = false;
@@ -1172,11 +1171,15 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("GL_ARB_imaging support", fImagingSupport);
     writer->appendBool("Vertex array object support", fVertexArrayObjectSupport);
     writer->appendBool("Debug support", fDebugSupport);
+    writer->appendBool("ES2 compatibility support", fES2CompatibilitySupport);
+    writer->appendBool("drawRangeElements support", fDrawRangeElementsSupport);
     writer->appendBool("Base (vertex base) instance support", fBaseVertexBaseInstanceSupport);
     writer->appendBool("RGBA 8888 pixel ops are slow", fRGBA8888PixelsOpsAreSlow);
     writer->appendBool("Partial FBO read is slow", fPartialFBOReadIsSlow);
     writer->appendBool("Bind uniform location support", fBindUniformLocationSupport);
     writer->appendBool("Rectangle texture support", fRectangleTextureSupport);
+    writer->appendBool("Mipmap LOD control support", fMipmapLodControlSupport);
+    writer->appendBool("Mipmap level control support", fMipmapLevelControlSupport);
     writer->appendBool("BGRA to RGBA readback conversions are slow",
                        fRGBAToBGRAReadbackConversionsAreSlow);
     writer->appendBool("Use buffer data null hint", fUseBufferDataNullHint);
