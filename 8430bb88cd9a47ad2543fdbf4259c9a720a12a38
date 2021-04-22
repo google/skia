@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bf7bc26_d7650311",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-22T13:55:12Z",
+      "side": 1,
+      "message": "This should be the last Vulkan refactor for removing RT stuff for a bit. Switching gears after this to start working on the GL version.",
+      "revId": "8430bb88cd9a47ad2543fdbf4259c9a720a12a38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c54961e1_7fec3be0",
+        "filename": "src/gpu/vk/GrVkAttachment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-22T13:55:12Z",
+      "side": 1,
+      "message": "copied from GrvkRenderTarget",
+      "range": {
+        "startLine": 200,
+        "startChar": 12,
+        "endLine": 200,
+        "endChar": 32
+      },
+      "revId": "8430bb88cd9a47ad2543fdbf4259c9a720a12a38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
