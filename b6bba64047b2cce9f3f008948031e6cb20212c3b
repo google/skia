@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40550b64_1cdcabab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-22T19:15:55Z",
+      "side": 1,
+      "message": "Just plumbing for now.  The plan is for it to trigger eglSwapBuffers() with a GL surface.",
+      "revId": "b6bba64047b2cce9f3f008948031e6cb20212c3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ac9d165_266f89b6",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Surface.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-22T19:15:55Z",
+      "side": 1,
+      "message": "Not sure if conflating these two is always a good idea, but empirically they always seem to go together.\n\nWe can fission a swapBuffers() if needed, or if too confusing.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 30
+      },
+      "revId": "b6bba64047b2cce9f3f008948031e6cb20212c3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
