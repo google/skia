@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e063a07_331d36a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-22T14:46:45Z",
+      "side": 1,
+      "message": "trivial fix where SkTable_ColorFilter didn\u0027t detect that it\u0027s FP wasn\u0027t created because the context was abandoned and the tabl bitmap failed to turn into a FP.",
+      "revId": "030edb752e575786c34d33955f45a42cf21af72d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
