@@ -190,8 +190,10 @@ public:
 
     /** Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state, const SkRect& chainBounds) {
+        PushSegfaultContext(SkString(this->name()));
         TRACE_EVENT0("skia.gpu", name());
         this->onExecute(state, chainBounds);
+        PopSegfaultContext();
     }
 
     /** Used for spewing information about ops when debugging. */

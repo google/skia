@@ -1484,6 +1484,8 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+#include <pthread.h>
+
 int main(int argc, char** argv) {
 #if defined(__MSVC_RUNTIME_CHECKS)
     _RTC_SetErrorFunc(RuntimeCheckErrorFunc);
@@ -1492,6 +1494,16 @@ int main(int argc, char** argv) {
     android::ProcessState::self()->startThreadPool();
 #endif
     CommandLineFlags::Parse(argc, argv);
+    FLAGS_match = CommandLineFlags::StringArray({ SkString("filterfastbounds") });
+    auto watchdog = SkExecutor::MakeFIFOThreadPool(1);
+    pthread_t mainThread = pthread_self();
+
+    watchdog->add([mainThread]{
+        while (true) {
+            sleep(5);
+            pthread_kill(mainThread, SIGUSR1);
+        }
+    });
 
     initializeEventTracingForTools();
 
@@ -1501,6 +1513,9 @@ int main(int argc, char** argv) {
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
+    signal(SIGUSR1, [](int sig){
+        dump_stack();
+    });
     ToolUtils::SetDefaultFontMgr();
     SetAnalyticAAFromCommonFlags();
 
