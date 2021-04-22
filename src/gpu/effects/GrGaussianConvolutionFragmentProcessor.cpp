@@ -170,6 +170,7 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
     if (is_zero_sigma) {
         halfWidth = 0;
     }
+    bool alwyasUseShaderTileMode = caps.reducedShaderMode();
     if (pixelDomain) {
         // Inset because we expect to be invoked at pixel centers.
         SkRect domain = SkRect::Make(*pixelDomain).makeInset(0.5, 0.5f);
@@ -178,10 +179,14 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
             case Direction::kY: domain.outset(0, halfWidth); break;
         }
         child = GrTextureEffect::MakeSubset(std::move(view), alphaType, SkMatrix::I(), sampler,
-                                            SkRect::Make(subset), domain, caps);
+                                            SkRect::Make(subset), domain, caps,
+                                            GrTextureEffect::kDefaultBorder,
+                                            alwyasUseShaderTileMode);
     } else {
         child = GrTextureEffect::MakeSubset(std::move(view), alphaType, SkMatrix::I(), sampler,
-                                            SkRect::Make(subset), caps);
+                                            SkRect::Make(subset), caps,
+                                            GrTextureEffect::kDefaultBorder,
+                                            alwyasUseShaderTileMode);
     }
 
     if (is_zero_sigma) {

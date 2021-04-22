@@ -51,7 +51,8 @@ public:
                                                            GrSamplerState,
                                                            const SkRect& subset,
                                                            const GrCaps& caps,
-                                                           const float border[4] = kDefaultBorder);
+                                                           const float border[4] = kDefaultBorder,
+                                                           bool alwaysUseShaderTileMode = false);
 
     /**
      * The same as above but also takes a 'domain' that specifies any known limit on the post-
@@ -66,7 +67,8 @@ public:
                                                            const SkRect& subset,
                                                            const SkRect& domain,
                                                            const GrCaps& caps,
-                                                           const float border[4] = kDefaultBorder);
+                                                           const float border[4] = kDefaultBorder,
+                                                           bool alwaysUseShaderTileMode = false);
 
     /**
      * Like MakeSubset() but always uses kLinear filtering. MakeSubset() uses the subset rect

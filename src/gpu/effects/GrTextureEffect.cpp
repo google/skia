@@ -30,6 +30,7 @@ struct GrTextureEffect::Sampling {
              const SkRect&,
              const SkRect*,
              const float border[4],
+             bool alwaysUseShaderTileMode,
              const GrCaps&,
              SkVector linearFilterInset = {0.5f, 0.5f});
     inline bool hasBorderAlpha() const;
@@ -40,6 +41,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     const SkRect& subset,
                                     const SkRect* domain,
                                     const float border[4],
+                                    bool alwaysUseShaderTileMode,
                                     const GrCaps& caps,
                                     SkVector linearFilterInset) {
     struct Span {
@@ -68,7 +70,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
 
     auto resolve = [&](int size, Wrap wrap, Span subset, Span domain, float linearFilterInset) {
         Result1D r;
-        bool canDoModeInHW = true;
+        bool canDoModeInHW = !alwaysUseShaderTileMode;
         // TODO: Use HW border color when available.
         if (wrap == Wrap::kClampToBorder &&
             (!caps.clampToBorderSupport() || border[0] || border[1] || border[2] || border[3])) {
@@ -90,7 +92,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         bool domainIsSafe = false;
         if (filter == Filter::kNearest) {
             Span isubset{sk_float_floor(subset.fA), sk_float_ceil(subset.fB)};
-            if (domain.fA > isubset.fA && domain.fB < isubset.fB) {
+            if (!alwaysUseShaderTileMode && domain.fA > isubset.fA && domain.fB < isubset.fB) {
                 domainIsSafe = true;
             }
             // This inset prevents sampling neighboring texels that could occur when
@@ -99,7 +101,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
             r.fShaderClamp = isubset.makeInset(0.5f);
         } else {
             r.fShaderClamp = subset.makeInset(linearFilterInset);
-            if (r.fShaderClamp.contains(domain)) {
+            if (!alwaysUseShaderTileMode && r.fShaderClamp.contains(domain)) {
                 domainIsSafe = true;
             }
         }
@@ -173,6 +175,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
                       SkRect::Make(view.proxy()->dimensions()),
                       nullptr,
                       border,
+                      false,
                       caps);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
@@ -186,8 +189,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
                                                                  const GrCaps& caps,
-                                                                 const float border[4]) {
-    Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, caps);
+                                                                 const float border[4],
+                                                                 bool alwaysUseShaderTileMode) {
+    Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, alwaysUseShaderTileMode, caps);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
                                                                 sampling));
@@ -201,8 +205,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const SkRect& subset,
                                                                  const SkRect& domain,
                                                                  const GrCaps& caps,
-                                                                 const float border[4]) {
-    Sampling sampling(*view.proxy(), sampler, subset, &domain, border, caps);
+                                                                 const float border[4],
+                                                                 bool alwaysUseShaderTileMode) {
+    Sampling sampling(*view.proxy(), sampler, subset, &domain, border, alwaysUseShaderTileMode, caps);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
                                                                 sampling));
@@ -221,7 +226,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeCustomLinearFilterInse
         const GrCaps& caps,
         const float border[4]) {
     GrSamplerState sampler(wx, wy, Filter::kLinear);
-    Sampling sampling(*view.proxy(), sampler, subset, domain, border, caps, inset);
+    Sampling sampling(*view.proxy(), sampler, subset, domain, border, false, caps, inset);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
                                                                 sampling));
