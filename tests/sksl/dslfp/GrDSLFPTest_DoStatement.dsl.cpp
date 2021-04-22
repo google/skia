@@ -29,9 +29,11 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
+Var shouldLoop(kConst_Modifier, DSLType(kBool_Type), "shouldLoop", Bool(!!(_outer.shouldLoop)));
+Declare(shouldLoop);
 Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(1.0, 1.0, 1.0, 1.0));
 Declare(color);
-Do(color.x() -= 0.25, /*While:*/ color.x() > 0.5);
+Do(color.x() -= 0.25, /*While:*/ shouldLoop);
 Do(Block(color.x() -= 0.25, If(color.x() <= 0.0, /*Then:*/ Break())), /*While:*/ color.w() == 1.0);
 Do(Block(color.z() -= 0.25, If(color.w() == 1.0, /*Then:*/ Continue()), color.y() = 0.0), /*While:*/ color.z() > 0.0);
 Return(color);
@@ -45,14 +47,17 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_DoStatement::onMakeProgramI
     return std::make_unique<GrGLSLDSLFPTest_DoStatement>();
 }
 void GrDSLFPTest_DoStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+    b->addBool(shouldLoop, "shouldLoop");
 }
 bool GrDSLFPTest_DoStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_DoStatement& that = other.cast<GrDSLFPTest_DoStatement>();
     (void) that;
+    if (shouldLoop != that.shouldLoop) return false;
     return true;
 }
 GrDSLFPTest_DoStatement::GrDSLFPTest_DoStatement(const GrDSLFPTest_DoStatement& src)
-: INHERITED(kGrDSLFPTest_DoStatement_ClassID, src.optimizationFlags()) {
+: INHERITED(kGrDSLFPTest_DoStatement_ClassID, src.optimizationFlags())
+, shouldLoop(src.shouldLoop) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_DoStatement::clone() const {
@@ -60,6 +65,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_DoStatement::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_DoStatement::onDumpInfo() const {
-    return SkString();
+    return SkStringPrintf("(shouldLoop=%d)", !!(shouldLoop));
 }
 #endif
