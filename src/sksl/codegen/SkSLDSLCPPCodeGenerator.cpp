@@ -318,10 +318,92 @@ int DSLCPPCodeGenerator::getChildFPIndex(const Variable& var) const {
 void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     if (function.isBuiltin() && function.name() == "sample") {
-        SK_ABORT("not yet implemented: sample() for DSL");
+        // The first argument to sample() must be a fragment processor. (Old-school samplers are no
+        // longer supported in FP files.)
+        const ExpressionArray& arguments = c.arguments();
+        SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
+        const Expression& fpArgument = *arguments.front();
+        SkASSERT(fpArgument.type().isFragmentProcessor());
+
+        // We can't look up the child FP index unless the fragment-processor is a real variable.
+        if (!fpArgument.is<VariableReference>()) {
+            fErrors.error(fpArgument.fOffset,
+                          "sample()'s fragmentProcessor argument must be a variable reference");
+            return;
+        }
+
+        // Pass the index of the fragment processor, and all the other arguments as-is.
+        int childFPIndex = this->getChildFPIndex(*fpArgument.as<VariableReference>().variable());
+        this->writef("SampleChild(%d", childFPIndex);
+
+        for (int index = 1; index < arguments.count(); ++index) {
+            this->write(", ");
+            this->writeExpression(*arguments[index], Precedence::kSequence);
+        }
+        this->write(")");
+        return;
     }
     if (function.isBuiltin()) {
-        SK_ABORT("not yet implemented: built-in function support for DSL");
+        static const auto* kBuiltinNames = new std::unordered_map<String, String>{
+                {"abs", "Abs"},
+                {"all", "All"},
+                {"any", "Any"},
+                {"ceil", "Ceil"},
+                {"clamp", "Clamp"},
+                {"cos", "Cos"},
+                {"cross", "Cross"},
+                {"degrees", "Degrees"},
+                {"distance", "Distance"},
+                {"dot", "Dot"},
+                {"equal", "Equal"},
+                {"exp", "Exp"},
+                {"exp2", "Exp2"},
+                {"faceforward", "Faceforward"},
+                {"floor", "Floor"},
+                {"fract", "Fract"},
+                {"greaterThan", "GreaterThan"},
+                {"greaterThanEqual", "GreaterThanEqual"},
+                {"inversesqrt", "Inversesqrt"},
+                {"inverse", "Inverse"},
+                {"length", "Length"},
+                {"lessThan", "LessThan"},
+                {"lessThanEqual", "LessThanEqual"},
+                {"log", "Log"},
+                {"max", "Max"},
+                {"min", "Min"},
+                {"mix", "Mix"},
+                {"mod", "Mod"},
+                {"normalize", "Normalize"},
+                {"not", "Not"},
+                {"pow", "Pow"},
+                {"radians", "Radians"},
+                {"reflect", "Reflect"},
+                {"refract", "Refract"},
+                {"saturate", "Saturate"},
+                {"sign", "Sign"},
+                {"sin", "Sin"},
+                {"smoothstep", "Smoothstep"},
+                {"sqrt", "Sqrt"},
+                {"step", "Step"},
+                {"tan", "Tan"},
+                {"unpremul", "Unpremul"}};
+
+        auto iter = kBuiltinNames->find(function.name());
+        if (iter == kBuiltinNames->end()) {
+            fErrors.error(c.fOffset, "unrecognized built-in function '" + function.name() + "'");
+            return;
+        }
+
+        this->write(iter->second);
+        this->write("(");
+        const char* separator = "";
+        for (const std::unique_ptr<Expression>& argument : c.arguments()) {
+            this->write(separator);
+            separator = ", ";
+            this->writeExpression(*argument, Precedence::kSequence);
+        }
+        this->write(")");
+        return;
     }
 
     SK_ABORT("not yet implemented: helper function support for DSL");
