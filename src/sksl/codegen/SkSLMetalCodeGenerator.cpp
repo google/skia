@@ -1646,7 +1646,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->writeLine("    (void)_out;");
     }
 
-    fFunctionHeader = "";
+    fFunctionHeader.clear();
     StringStream buffer;
     {
         AutoOutputStream outputToBuffer(this, &buffer);
