@@ -1143,4 +1143,8 @@
 /* Tessellation */
 #define GR_GL_MAX_TESS_GEN_LEVEL_OES                        0x8E7E
 
+/* WEBGL_debug_renderer_info */
+#define GR_GL_UNMASKED_VENDOR_WEBGL                         0x9245
+#define GR_GL_UNMASKED_RENDERER_WEBGL                       0x9246
+
 #endif
