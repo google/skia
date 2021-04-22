@@ -40,14 +40,6 @@ void GrRenderTarget::onAbandon() {
 }
 
 void GrRenderTarget::attachStencilAttachment(sk_sp<GrAttachment> stencil) {
-#ifdef SK_DEBUG
-    if (fSampleCnt > 1) {
-        // Render targets with >1 color sample should never use mixed samples. (This would lead to
-        // different sample patterns, depending on stencil state.)
-        SkASSERT(!stencil || stencil->numSamples() == fSampleCnt);
-    }
-#endif
-
     if (!stencil && !fStencilAttachment) {
         // No need to do any work since we currently don't have a stencil attachment and
         // we're not actually adding one.

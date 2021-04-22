@@ -15,8 +15,8 @@
 class GrPathTessellator;
 
 // Draws paths using a standard Redbook "stencil then fill" method. Curves get linearized by either
-// GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it requires a
-// render target that supports either MSAA or mixed samples if AA is desired.
+// GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it requires
+// MSAA if AA is desired.
 class GrTessellatingStencilFillOp : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
@@ -32,14 +32,13 @@ private:
             , fProcessors(std::move(paint)) {
         SkRect devBounds;
         fViewMatrix.mapRect(&devBounds, path.getBounds());
-        this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
+        this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrTessellatingStencilFillOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
-                                      bool hasMixedSampledCoverage, GrClampType) override;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
 
     // Chooses the rendering method we will use and creates the corresponding tessellator and
     // stencil/fill programs.

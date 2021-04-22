@@ -30,20 +30,7 @@ public:
                                                   GrProcessorSet&& processors) {
         auto pipelineFlags = GrPipeline::InputFlags::kNone;
         if (aaType != GrAAType::kNone) {
-            if (args.fWriteView.asRenderTargetProxy()->numSamples() == 1) {
-                // We are mixed sampled. We need to either enable conservative raster (preferred) or
-                // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
-                // the cover geometry, the stencil test is still multisampled and will still produce
-                // smooth results.)
-                SkASSERT(aaType == GrAAType::kCoverage);
-                if (args.fCaps->conservativeRasterSupport()) {
-                    pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-                    pipelineFlags |= GrPipeline::InputFlags::kConservativeRaster;
-                }
-            } else {
-                // We are standard MSAA. Leave MSAA enabled for the cover geometry.
-                pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-            }
+            pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
         }
         return GrSimpleMeshDrawOpHelper::CreatePipeline(
                 args.fCaps, args.fArena, args.fWriteView.swizzle(), std::move(appliedClip),

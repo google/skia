@@ -1927,7 +1927,7 @@ void Viewer::drawImGui() {
                     } else {
                         const auto* caps = ctx->priv().caps();
                         prButton(GpuPathRenderers::kDefault);
-                        if (fWindow->sampleCount() > 1 || caps->mixedSamplesSupport()) {
+                        if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
                             if (GrTessellationPathRenderer::IsSupported(*caps)) {
                                 prButton(GpuPathRenderers::kTessellation);
                             }
@@ -2760,7 +2760,7 @@ void Viewer::updateUIState() {
             } else {
                 const auto* caps = ctx->priv().caps();
                 writer.appendString(gPathRendererNames[GpuPathRenderers::kDefault].c_str());
-                if (fWindow->sampleCount() > 1 || caps->mixedSamplesSupport()) {
+                if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
                     if (GrTessellationPathRenderer::IsSupported(*caps)) {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kTessellation].c_str());

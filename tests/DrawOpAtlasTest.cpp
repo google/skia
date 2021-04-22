@@ -215,10 +215,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
         return;
     }
 
-    bool hasMixedSampledCoverage = false;
     GrAtlasTextOp* atlasTextOp = (GrAtlasTextOp*)op.get();
-    atlasTextOp->finalize(
-            *context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
+    atlasTextOp->finalize(*context->priv().caps(), nullptr, GrClampType::kAuto);
 
     TestingUploadTarget uploadTarget;
 

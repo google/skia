@@ -151,18 +151,7 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
                                                     const char* outColor,
                                                     const char* outColorSecondary,
                                                     const GrXferProcessor& proc) {
-    if (proc.dstReadUsesMixedSamples()) {
-        if (srcCoverage) {
-            // TODO: Once we are no longer using legacy mesh ops, it will not be possible to even
-            // create a mixed sample with lcd so we can uncomment the below assert. In practice
-            // today this never happens except for GLPrograms test which can make one. skia:6661
-            // SkASSERT(!proc.isLCD());
-            fragBuilder->codeAppendf("%s *= %s;", outColor, srcCoverage);
-            fragBuilder->codeAppendf("%s = %s;", outColorSecondary, srcCoverage);
-        } else {
-            fragBuilder->codeAppendf("%s = half4(1.0);", outColorSecondary);
-        }
-    } else if (srcCoverage) {
+    if (srcCoverage) {
         if (proc.isLCD()) {
             fragBuilder->codeAppendf("half3 lerpRGB = mix(%s.aaa, %s.aaa, %s.rgb);",
                                      dstColor, outColor, srcCoverage);

@@ -67,13 +67,12 @@ public:
      *                      this may be set to a known color in which case the op must output this
      *                      color from its geometry processor instead.
      */
-    GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
-            GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
-            GrProcessorAnalysisColor* geometryColor) {
-        return this->finalizeProcessors(
-                caps, clip, &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, clampType,
-                geometryCoverage, geometryColor);
+    GrProcessorSet::Analysis finalizeProcessors(const GrCaps& caps, const GrAppliedClip* clip,
+                                                GrClampType clampType,
+                                                GrProcessorAnalysisCoverage geometryCoverage,
+                                                GrProcessorAnalysisColor* geometryColor) {
+        return this->finalizeProcessors(caps, clip, &GrUserStencilSettings::kUnused, clampType,
+                                        geometryCoverage, geometryColor);
     }
 
     /**
@@ -81,10 +80,9 @@ public:
      * output. The op passes this color as 'geometryColor' and after return if 'geometryColor' has
      * changed the op must override its geometry processor color output with the new color.
      */
-    GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType,
-            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor,
-            bool* wideColor);
+    GrProcessorSet::Analysis finalizeProcessors(const GrCaps&, const GrAppliedClip*, GrClampType,
+                                                GrProcessorAnalysisCoverage geometryCoverage,
+                                                SkPMColor4f* geometryColor, bool* wideColor);
 
     bool isTrivial() const {
       return fProcessors == nullptr;
@@ -178,10 +176,10 @@ public:
     GrPipeline::InputFlags pipelineFlags() const { return fPipelineFlags; }
 
 protected:
-    GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*,
-            bool hasMixedSampledCoverage, GrClampType, GrProcessorAnalysisCoverage geometryCoverage,
-            GrProcessorAnalysisColor* geometryColor);
+    GrProcessorSet::Analysis finalizeProcessors(const GrCaps& caps, const GrAppliedClip*,
+                                                const GrUserStencilSettings*, GrClampType,
+                                                GrProcessorAnalysisCoverage geometryCoverage,
+                                                GrProcessorAnalysisColor* geometryColor);
 
     GrProcessorSet* fProcessors;
     GrPipeline::InputFlags fPipelineFlags;

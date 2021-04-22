@@ -663,7 +663,7 @@ private:
     GrAAType chooseAAType(GrAA);
 
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
-    void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
+    void setNeedsStencil();
 
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
 
@@ -729,7 +729,7 @@ private:
 
     SkSurfaceProps fSurfaceProps;
 
-    int fNumStencilSamples = 0;
+    bool fNeedsStencil = false;
 
     GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
 

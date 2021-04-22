@@ -128,18 +128,13 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
 GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     const GrStyledShape& shape = *args.fShape;
-    if (shape.style().hasPathEffect() ||
+    if (args.fAAType == GrAAType::kCoverage ||
+        shape.style().hasPathEffect() ||
         args.fViewMatrix->hasPerspective() ||
         shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
         shape.inverseFilled() ||
         args.fHasUserStencilSettings) {
         return CanDrawPath::kNo;
-    }
-    if (GrAAType::kCoverage == args.fAAType) {
-        SkASSERT(1 == args.fProxy->numSamples());
-        if (!args.fProxy->canUseMixedSamples(*args.fCaps)) {
-            return CanDrawPath::kNo;
-        }
     }
     // On platforms that don't have native support for indirect draws and/or hardware tessellation,
     // we find that cached triangulations of strokes can render slightly faster. Let cacheable paths
@@ -424,30 +419,16 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
     auto aaType = GrAAType::kMSAA;
     auto fillRectFlags = GrFillRectOp::InputFlags::kNone;
 
-    // This will be the final op in the surfaceDrawContext. So if Ganesh is planning to discard the
-    // stencil values anyway, then we might not actually need to reset the stencil values back to 0.
-    bool mustResetStencil = !onFlushRP->caps()->discardStencilValuesAfterRenderPass();
-
-    if (rtc->numSamples() == 1) {
-        // We are mixed sampled. We need to either enable conservative raster (preferred) or disable
-        // MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for the cover
-        // geometry, the stencil test is still multisampled and will still produce smooth results.)
-        if (onFlushRP->caps()->conservativeRasterSupport()) {
-            fillRectFlags |= GrFillRectOp::InputFlags::kConservativeRaster;
-        } else {
-            aaType = GrAAType::kNone;
-        }
-        mustResetStencil = true;
-    }
-
     SkRect coverRect = SkRect::MakeIWH(fAtlas.drawBounds().width(), fAtlas.drawBounds().height());
     const GrUserStencilSettings* stencil;
-    if (mustResetStencil) {
+    if (onFlushRP->caps()->discardStencilValuesAfterRenderPass()) {
+        // This is the final op in the surfaceDrawContext. Since Ganesh is planning to discard the
+        // stencil values anyway, there is no need to reset the stencil values back to 0.
+        stencil = &kTestStencil;
+    } else {
         // Outset the cover rect in case there are T-junctions in the path bounds.
         coverRect.outset(1, 1);
         stencil = &kTestAndResetStencil;
-    } else {
-        stencil = &kTestStencil;
     }
 
     GrQuad coverQuad(coverRect);

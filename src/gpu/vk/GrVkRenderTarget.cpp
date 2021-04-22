@@ -359,13 +359,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescr
         const GrVkAttachment* vkStencil = static_cast<const GrVkAttachment*>(stencil);
         desc->fStencil.fFormat = vkStencil->imageFormat();
         desc->fStencil.fSamples = vkStencil->numSamples();
-#ifdef SK_DEBUG
-        if (this->getVkGpu()->caps()->mixedSamplesSupport()) {
-            SkASSERT(desc->fStencil.fSamples >= desc->fColor.fSamples);
-        } else {
-            SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
-        }
-#endif
+        SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
         *attachmentFlags |= GrVkRenderPass::kStencil_AttachmentFlag;
         ++attachmentCount;
     }
@@ -391,18 +385,12 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
         ++attachmentCount;
     }
 
-    SkASSERT(!programInfo.isStencilEnabled() || programInfo.numStencilSamples());
-    if (programInfo.numStencilSamples()) {
+    SkASSERT(!programInfo.isStencilEnabled() || programInfo.needsStencil());
+    if (programInfo.needsStencil()) {
         VkFormat stencilFormat = vkCaps.preferredStencilFormat();
         desc->fStencil.fFormat = stencilFormat;
-        desc->fStencil.fSamples = programInfo.numStencilSamples();
-#ifdef SK_DEBUG
-        if (vkCaps.mixedSamplesSupport()) {
-            SkASSERT(desc->fStencil.fSamples >= desc->fColor.fSamples);
-        } else {
-            SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
-        }
-#endif
+        desc->fStencil.fSamples = programInfo.numSamples();
+        SkASSERT(desc->fStencil.fSamples == desc->fColor.fSamples);
         *flags |= GrVkRenderPass::kStencil_AttachmentFlag;
         ++attachmentCount;
     }

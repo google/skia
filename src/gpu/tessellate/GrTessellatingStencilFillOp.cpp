@@ -36,10 +36,9 @@ GrDrawOp::FixedFunctionFlags GrTessellatingStencilFillOp::fixedFunctionFlags() c
 
 GrProcessorSet::Analysis GrTessellatingStencilFillOp::finalize(const GrCaps& caps,
                                                                const GrAppliedClip* clip,
-                                                               bool hasMixedSampledCoverage,
                                                                GrClampType clampType) {
-    return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr,
-                                hasMixedSampledCoverage, caps, clampType, &fColor);
+    return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr, caps,
+                                clampType, &fColor);
 }
 
 void GrTessellatingStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& args,

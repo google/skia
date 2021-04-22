@@ -107,8 +107,8 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
 
     SkDEBUGCODE(auto analysis =) processors.finalize(analysisColor,
                                                      GrProcessorAnalysisCoverage::kSingleChannel,
-                                                     &appliedClip, stencilSettings, false,
-                                                     *caps, GrClampType::kAuto, &analysisColor);
+                                                     &appliedClip, stencilSettings, *caps,
+                                                     GrClampType::kAuto, &analysisColor);
     SkASSERT(!analysis.requiresDstTexture());
 
     return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,

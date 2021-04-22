@@ -546,13 +546,6 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     if (resetBits & kMSAAEnable_GrGLBackendState) {
         fMSAAEnabled = kUnknown_TriState;
-
-        if (this->caps()->mixedSamplesSupport()) {
-            // The skia blend modes all use premultiplied alpha and therefore expect RGBA coverage
-            // modulation. This state has no effect when not rendering to a mixed sampled target.
-            GL_CALL(CoverageModulation(GR_GL_RGBA));
-        }
-
         fHWConservativeRasterEnabled = kUnknown_TriState;
     }
 
@@ -1694,8 +1687,7 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
 }
 
 sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                  SkISize dimensions,
-                                                                  int numStencilSamples) {
+                                                                  SkISize dimensions) {
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 
@@ -1717,8 +1709,8 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRender
     GrGLenum glFmt = GrGLFormatToEnum(sFmt);
     // we do this "if" so that we don't call the multisample
     // version on a GL that doesn't have an MSAA extension.
-    if (numStencilSamples > 1) {
-        if (!this->renderbufferStorageMSAA(*fGLContext, numStencilSamples, glFmt,
+    if (rt->numSamples() > 1) {
+        if (!this->renderbufferStorageMSAA(*fGLContext, rt->numSamples(), glFmt,
                                            dimensions.width(), dimensions.height())) {
             GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
             return nullptr;
@@ -1736,7 +1728,7 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRender
 
     return sk_sp<GrAttachment>(new GrGLAttachment(
             this, sbDesc, dimensions, GrAttachment::UsageFlags::kStencilAttachment,
-            numStencilSamples, sFmt));
+            rt->numSamples(), sFmt));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2424,15 +2416,7 @@ void GrGLGpu::disableStencil() {
 void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     // rt is only optional if useHWAA is false.
     SkASSERT(rt || !useHWAA);
-#ifdef SK_DEBUG
-    if (useHWAA && rt->numSamples() <= 1) {
-        SkASSERT(this->caps()->mixedSamplesSupport());
-        auto glRT = static_cast<GrGLRenderTarget*>(rt);
-        SkASSERT(glRT->singleSampleFBOID() != 0);
-        SkASSERT(glRT->multisampleFBOID() == 0);
-        SkASSERT(rt->getStencilAttachment());
-    }
-#endif
+    SkASSERT(!useHWAA || rt->numSamples() > 1);
 
     if (this->caps()->multisampleDisableSupport()) {
         if (useHWAA) {

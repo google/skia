@@ -67,7 +67,6 @@ public:
 #endif
         return fUseClientSideIndirectBuffers;
     }
-    bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
     bool conservativeRasterSupport() const { return fConservativeRasterSupport; }
     bool wireframeSupport() const { return fWireframeSupport; }
     // This flag indicates that we never have to resolve MSAA. In practice, it means that we have
@@ -204,7 +203,7 @@ public:
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
-    // Returns whether mixed samples is supported for the given backend render target.
+    // Returns whether window rectangles are supported for the given backend render target.
     bool isWindowRectanglesSupportedForRT(const GrBackendRenderTarget& rt) const {
         return this->maxWindowRectangles() > 0 && this->onIsWindowRectanglesSupportedForRT(rt);
     }
@@ -225,8 +224,8 @@ public:
     // 1 means the format is renderable but doesn't support MSAA.
     virtual int maxRenderTargetSampleCount(const GrBackendFormat&) const = 0;
 
-    // Returns the number of samples to use when performing internal draws to the given config with
-    // MSAA or mixed samples. If 0, Ganesh should not attempt to use internal multisampling.
+    // Returns the number of samples to use when performing draws to the given config with internal
+    // MSAA. If 0, Ganesh should not attempt to use internal multisampling.
     int internalMultisampleCount(const GrBackendFormat& format) const {
         return std::min(fInternalMultisampleCount, this->maxRenderTargetSampleCount(format));
     }
@@ -503,7 +502,6 @@ protected:
     bool fDrawInstancedSupport                       : 1;
     bool fNativeDrawIndirectSupport                  : 1;
     bool fUseClientSideIndirectBuffers               : 1;
-    bool fMixedSamplesSupport                        : 1;
     bool fConservativeRasterSupport                  : 1;
     bool fWireframeSupport                           : 1;
     bool fMSAAResolvesAutomatically                  : 1;

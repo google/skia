@@ -60,11 +60,10 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
     GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
-            GrClampType clampType) override {
+            const GrCaps& caps, const GrAppliedClip* clip, GrClampType clampType) override {
         return fProcessorSet.finalize(
                 fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip,
-                &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps, clampType, &fColor);
+                &GrUserStencilSettings::kUnused, caps, clampType, &fColor);
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {

@@ -525,7 +525,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
     pipelineDescriptor.colorAttachments[0] = create_color_attachment(pixelFormat,
                                                                      programInfo.pipeline(),
                                                                      writer.get());
-    pipelineDescriptor.sampleCount = programInfo.numRasterSamples();
+    pipelineDescriptor.sampleCount = programInfo.numSamples();
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
     pipelineDescriptor.stencilAttachmentPixelFormat = mtlCaps->getStencilPixelFormat(desc);
     if (writer) {

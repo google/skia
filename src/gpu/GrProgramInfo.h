@@ -25,7 +25,7 @@ public:
                   GrXferBarrierFlags renderPassXferBarriers,
                   GrLoadOp colorLoadOp)
             : fNumSamples(targetView.asRenderTargetProxy()->numSamples())
-            , fNumStencilSamples(targetView.asRenderTargetProxy()->numStencilSamples())
+            , fNeedsStencil(targetView.asRenderTargetProxy()->needsStencil())
             , fBackendFormat(targetView.proxy()->backendFormat())
             , fOrigin(targetView.origin())
             , fTargetSupportsVkResolveLoad(
@@ -38,9 +38,8 @@ public:
             , fPrimitiveType(primitiveType)
             , fTessellationPatchVertexCount(tessellationPatchVertexCount)
             , fRenderPassXferBarriers(renderPassXferBarriers)
-            , fColorLoadOp(colorLoadOp)
-            , fIsMixedSampled(this->isStencilEnabled() && fNumStencilSamples > fNumSamples) {
-        SkASSERT(this->numRasterSamples() > 0);
+            , fColorLoadOp(colorLoadOp) {
+        SkASSERT(this->numSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
                  (fTessellationPatchVertexCount > 0));
         fRequestedFeatures = fGeomProc->requestedFeatures();
@@ -55,16 +54,12 @@ public:
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
     int numSamples() const { return fNumSamples; }
-    int numStencilSamples() const { return fNumStencilSamples; }
+    int needsStencil() const { return fNeedsStencil; }
     bool isStencilEnabled() const {
         return fUserStencilSettings != &GrUserStencilSettings::kUnused ||
                fPipeline->hasStencilClip();
     }
     const GrUserStencilSettings* userStencilSettings() const { return fUserStencilSettings; }
-    int numRasterSamples() const {
-        return this->isStencilEnabled() ? fNumStencilSamples : fNumSamples;
-    }
-    bool isMixedSampled() const { return fIsMixedSampled; }
     // The backend format of the destination render target [proxy]
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
     GrSurfaceOrigin origin() const { return fOrigin;  }
@@ -103,7 +98,7 @@ public:
 
 private:
     const int                             fNumSamples;
-    const int                             fNumStencilSamples;
+    const bool                            fNeedsStencil;
     const GrBackendFormat                 fBackendFormat;
     const GrSurfaceOrigin                 fOrigin;
     const bool                            fTargetSupportsVkResolveLoad;
@@ -115,7 +110,6 @@ private:
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.
     GrXferBarrierFlags                    fRenderPassXferBarriers;
     GrLoadOp                              fColorLoadOp;
-    const bool                            fIsMixedSampled;
 };
 
 #endif

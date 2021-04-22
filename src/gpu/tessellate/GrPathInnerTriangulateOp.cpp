@@ -36,10 +36,9 @@ GrDrawOp::FixedFunctionFlags GrPathInnerTriangulateOp::fixedFunctionFlags() cons
 
 GrProcessorSet::Analysis GrPathInnerTriangulateOp::finalize(const GrCaps& caps,
                                                             const GrAppliedClip* clip,
-                                                            bool hasMixedSampledCoverage,
                                                             GrClampType clampType) {
-    return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr,
-                                hasMixedSampledCoverage, caps, clampType, &fColor);
+    return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, nullptr, caps,
+                                clampType, &fColor);
 }
 
 void GrPathInnerTriangulateOp::pushFanStencilProgram(const GrPathShader::ProgramArgs& args,
@@ -71,10 +70,9 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArg
         return;
     }
 
-    // If using wireframe or mixed samples, we have to fall back on a standard Redbook "stencil then
-    // fill" algorithm instead of bypassing the stencil buffer to fill the fan directly.
-    bool forceRedbookStencilPass = (fOpFlags & (OpFlags::kStencilOnly | OpFlags::kWireframe)) ||
-                                   fAAType == GrAAType::kCoverage;  // i.e., mixed samples!
+    // If using wireframe, we have to fall back on a standard Redbook "stencil then fill" algorithm
+    // instead of bypassing the stencil buffer to fill the fan directly.
+    bool forceRedbookStencilPass = (fOpFlags & (OpFlags::kStencilOnly | OpFlags::kWireframe));
     bool doFill = !(fOpFlags & OpFlags::kStencilOnly);
 
     bool isLinear;

@@ -24,12 +24,10 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionF
 }
 
 GrProcessorSet::Analysis GrSimpleMeshDrawOpHelperWithStencil::finalizeProcessors(
-        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
-        GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
-        SkPMColor4f* geometryColor, bool* wideColor) {
+        const GrCaps& caps, const GrAppliedClip* clip, GrClampType clampType,
+        GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor, bool* wideColor) {
     GrProcessorAnalysisColor color = *geometryColor;
-    auto result = this->finalizeProcessors(
-            caps, clip, hasMixedSampledCoverage, clampType, geometryCoverage, &color);
+    auto result = this->finalizeProcessors(caps, clip, clampType, geometryCoverage, &color);
     color.isConstant(geometryColor);
     if (wideColor) {
         *wideColor = !geometryColor->fitsInBytes();
