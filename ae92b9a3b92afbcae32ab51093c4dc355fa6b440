@@ -16,6 +16,24 @@
       "message": "What if we just do (!alwaysUseShaderTileMode \u0026\u0026) here instead of twice above?",
       "revId": "ae92b9a3b92afbcae32ab51093c4dc355fa6b440",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23c7b729_abed9fd2",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-22T18:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cbf5d5c_c3676f21",
+      "revId": "ae92b9a3b92afbcae32ab51093c4dc355fa6b440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
