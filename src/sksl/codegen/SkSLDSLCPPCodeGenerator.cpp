@@ -23,8 +23,7 @@
 namespace SkSL {
 
 static bool needs_uniform_var(const Variable& var) {
-    return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
-            var.type().typeKind() != Type::TypeKind::kSampler;
+    return var.modifiers().fFlags & Modifiers::kUniform_Flag;
 }
 
 static const char* get_scalar_type_name(const Context& context, const Type& type) {
@@ -112,8 +111,7 @@ static bool is_private(const Variable& var) {
 static bool is_uniform_in(const Variable& var) {
     const Modifiers& modifiers = var.modifiers();
     return (modifiers.fFlags & Modifiers::kUniform_Flag) &&
-           (modifiers.fFlags & Modifiers::kIn_Flag) &&
-           var.type().typeKind() != Type::TypeKind::kSampler;
+           (modifiers.fFlags & Modifiers::kIn_Flag);
 }
 
 String DSLCPPCodeGenerator::formatRuntimeValue(const Type& type,
@@ -303,7 +301,7 @@ int DSLCPPCodeGenerator::getChildFPIndex(const Variable& var) const {
     for (const ProgramElement* p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
             const VarDeclaration& decl =
-                                  p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
+                    p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
             if (&decl.var() == &var) {
                 return index;
             } else if (decl.var().type().isFragmentProcessor()) {
@@ -311,15 +309,39 @@ int DSLCPPCodeGenerator::getChildFPIndex(const Variable& var) const {
             }
         }
     }
-    SkDEBUGFAIL("child fragment processor not found");
+    SkDEBUGFAILF("child fragment processor for '%s' not found", var.description().c_str());
     return 0;
 }
 
 void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     if (function.isBuiltin() && function.name() == "sample") {
-        SK_ABORT("not yet implemented: sample() for DSL");
+        // The first argument to sample() must be a fragment processor. (Old-school samplers are no
+        // longer supported in FP files.)
+        const ExpressionArray& arguments = c.arguments();
+        SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
+        const Expression& fpArgument = *arguments.front();
+        SkASSERT(fpArgument.type().isFragmentProcessor());
+
+        // We can't look up the child FP index unless the fragment-processor is a real variable.
+        if (!fpArgument.is<VariableReference>()) {
+            fErrors.error(fpArgument.fOffset,
+                          "sample()'s fragmentProcessor argument must be a variable reference\n");
+            return;
+        }
+
+        // Pass the index of the fragment processor, and all the other arguments as-is.
+        int childFPIndex = this->getChildFPIndex(*fpArgument.as<VariableReference>().variable());
+        this->writef("SampleChild(%d", childFPIndex);
+
+        for (int index = 1; index < arguments.count(); ++index) {
+            this->write(", ");
+            this->writeExpression(*arguments[index], Precedence::kSequence);
+        }
+        this->write(")");
+        return;
     }
+
     if (function.isBuiltin()) {
         SK_ABORT("not yet implemented: built-in function support for DSL");
     }
@@ -786,7 +808,6 @@ void DSLCPPCodeGenerator::writePrivateVarValues() {
 static bool is_accessible(const Variable& var) {
     const Type& type = var.type();
     return !type.isFragmentProcessor() &&
-           Type::TypeKind::kSampler != type.typeKind() &&
            Type::TypeKind::kOther != type.typeKind();
 }
 
@@ -941,7 +962,6 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
         this->writef("        }\n");
     }
     if (section) {
-        int samplerIndex = 0;
         for (const ProgramElement* p : fProgram.elements()) {
             if (p->is<GlobalVarDeclaration>()) {
                 const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
@@ -949,18 +969,11 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 const Variable& variable = decl.var();
                 String nameString(variable.name());
                 const char* name = nameString.c_str();
-                if (variable.type().typeKind() == Type::TypeKind::kSampler) {
-                    this->writef("        const GrSurfaceProxyView& %sView = "
-                                 "_outer.textureSampler(%d).view();\n",
-                                 name, samplerIndex);
-                    this->writef("        GrTexture& %s = *%sView.proxy()->peekTexture();\n",
-                                 name, name);
-                    this->writef("        (void) %s;\n", name);
-                    ++samplerIndex;
-                } else if (needs_uniform_var(variable)) {
+
+                if (needs_uniform_var(variable)) {
                     this->writef("        UniformHandle& %s = %sVar;\n"
-                                    "        (void) %s;\n",
-                                    name, HCodeGenerator::FieldName(name).c_str(), name);
+                                 "        (void) %s;\n",
+                                 name, HCodeGenerator::FieldName(name).c_str(), name);
                 } else if (SectionAndParameterHelper::IsParameter(variable) &&
                            !variable.type().isFragmentProcessor()) {
                     if (!wroteProcessor) {
@@ -971,8 +984,8 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
 
                     if (!variable.type().isFragmentProcessor()) {
                         this->writef("        auto %s = _outer.%s;\n"
-                                        "        (void) %s;\n",
-                                        name, name, name);
+                                     "        (void) %s;\n",
+                                     name, name, name);
                     }
                 }
             }
@@ -1001,15 +1014,6 @@ void DSLCPPCodeGenerator::writeClone() {
         }
         this->writef(" {\n");
         this->writef("        this->cloneAndRegisterAllChildProcessors(src);\n");
-        int samplerCount = 0;
-        for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            if (param->type().typeKind() == Type::TypeKind::kSampler) {
-                ++samplerCount;
-            }
-        }
-        if (samplerCount) {
-            this->writef("     this->setTextureSamplerCnt(%d);", samplerCount);
-        }
         if (fAccessSampleCoordsDirectly) {
             this->writef("    this->setUsesSampleCoordsDirectly();\n");
         }
@@ -1198,8 +1202,9 @@ bool DSLCPPCodeGenerator::generateCode() {
         if (p->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
             const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-            if ((decl.var().modifiers().fFlags & Modifiers::kUniform_Flag) &&
-                        decl.var().type().typeKind() != Type::TypeKind::kSampler) {
+            SkASSERT(decl.var().type().typeKind() != Type::TypeKind::kSampler);
+
+            if (decl.var().modifiers().fFlags & Modifiers::kUniform_Flag) {
                 uniforms.push_back(&decl.var());
             }
 
