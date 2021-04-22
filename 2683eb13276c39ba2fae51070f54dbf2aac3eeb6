@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4b0b1b0_9861e374",
+        "filename": "modules/androidkit/src/RuntimeShaderBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:55:18Z",
+      "side": 1,
+      "message": "Pretty sure this works:\n\nc \u003d env-\u003eFindClass(\"java/lang/Exception\"); // or different exception(make our own?)\nenv-\u003eThrowNew(c, msg);\n... // C++ code continues until native call is done, then exception triggers\n\nThen catch it in java code:\n\ntry:\n    nCreate(\"BadSkSl\");\ncatch(Exception e):\n    Log.d(\"more info on crash\");",
+      "revId": "2683eb13276c39ba2fae51070f54dbf2aac3eeb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
