@@ -580,8 +580,6 @@ DM_SRCS_ALL = struct(
         "tests/sksl/dslfp/GrDSLFPTest_DoStatement.h",
         "tests/sksl/dslfp/GrDSLFPTest_ForStatement.dsl.cpp",
         "tests/sksl/dslfp/GrDSLFPTest_ForStatement.h",
-        "tests/sksl/dslfp/GrDSLFPTest_HelloWorld.dsl.cpp",
-        "tests/sksl/dslfp/GrDSLFPTest_HelloWorld.h",
         "tests/sksl/dslfp/GrDSLFPTest_IfStatement.dsl.cpp",
         "tests/sksl/dslfp/GrDSLFPTest_IfStatement.h",
         "tests/sksl/dslfp/GrDSLFPTest_SwitchStatement.dsl.cpp",
