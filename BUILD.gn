@@ -2326,6 +2326,7 @@ if (skia_enable_tools) {
       "fuzz/FuzzPolyUtils.cpp",
       "fuzz/FuzzRegionOp.cpp",
       "fuzz/FuzzSkParagraph.cpp",
+      "fuzz/FuzzTriangulation.cpp",
       "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
       "fuzz/oss_fuzz/FuzzAnimatedImage.cpp",
       "fuzz/oss_fuzz/FuzzImage.cpp",
@@ -3047,6 +3048,14 @@ if (skia_enable_tools) {
       sources = [
         "fuzz/FuzzPathop.cpp",
         "fuzz/oss_fuzz/FuzzPathop.cpp",
+      ]
+      deps = []
+    }
+
+    libfuzzer_app("api_triangulation") {
+      sources = [
+        "fuzz/FuzzTriangulation.cpp",
+        "fuzz/oss_fuzz/FuzzTriangulation.cpp",
       ]
       deps = []
     }
