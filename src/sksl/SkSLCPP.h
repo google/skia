@@ -16,8 +16,8 @@
 
 using std::abs;
 
-struct SkSLFloat4 {
-    SkSLFloat4(float x, float y, float z, float w)
+struct Float4 {
+    Float4(float x, float y, float z, float w)
     : fX(x)
     , fY(y)
     , fZ(z)
@@ -44,9 +44,9 @@ inline SkPoint float2(float xy) { return SkPoint::Make(xy, xy); }
 
 inline SkPoint float2(float x, float y) { return SkPoint::Make(x, y); }
 
-inline SkSLFloat4 float4(float xyzw) { return SkSLFloat4(xyzw, xyzw, xyzw, xyzw); }
+inline Float4 float4(float xyzw) { return Float4(xyzw, xyzw, xyzw, xyzw); }
 
-inline SkSLFloat4 float4(float x, float y, float z, float w) { return SkSLFloat4(x, y, z, w); }
+inline Float4 float4(float x, float y, float z, float w) { return Float4(x, y, z, w); }
 
 #define half2 float2
 

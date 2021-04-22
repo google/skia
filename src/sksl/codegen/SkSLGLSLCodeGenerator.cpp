@@ -688,7 +688,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                         proj = false;
                         break;
                 }
-                if (!fTextureFunctionOverride.empty()) {
+                if (fTextureFunctionOverride != "") {
                     this->write(fTextureFunctionOverride.c_str());
                 } else {
                     this->write("texture");
@@ -1044,7 +1044,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->writeLine(" {");
     fIndentation++;
 
-    fFunctionHeader.clear();
+    fFunctionHeader = "";
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
