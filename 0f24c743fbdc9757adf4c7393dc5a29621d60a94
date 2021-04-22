@@ -41,6 +41,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ca447eb_6e717fc5",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:20:19Z",
+      "side": 1,
+      "message": "Agreed, another idea was accepting a parameter in the nSurface_CreateSurfafce that notifies the constructor which backend type we should set up.",
+      "parentUuid": "01ed954d_90e6848e",
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c3c6273_dd14131d",
@@ -54,6 +72,30 @@
       "writtenOn": "2021-04-21T18:31:34Z",
       "side": 1,
       "message": "fWindow \u003d ...\n\n(to ensure we always initialize fWindow)",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 29
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc18a255_2cef3276",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:20:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c3c6273_dd14131d",
       "range": {
         "startLine": 108,
         "startChar": 8,
@@ -81,6 +123,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2149f6d5_99779883",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:20:19Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "36caace8_daf4032a",
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14970f55_c3fff414",
@@ -94,6 +154,30 @@
       "writtenOn": "2021-04-21T18:31:34Z",
       "side": 1,
       "message": "Should be fine to drop the conditional and always call reset().",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 9
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "133e391d_6f3acafe",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:20:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14970f55_c3fff414",
       "range": {
         "startLine": 118,
         "startChar": 0,
@@ -121,6 +205,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cc8c269_b9a2980f",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:20:19Z",
+      "side": 1,
+      "message": "That was the idea, I have it in another cl off of this one. I called it kAllSurfacesDestroyed that was going to shut down the thread when posted. I\u0027ll post the message for now but it currently doesn\u0027t do anything.",
+      "parentUuid": "188d3378_d068cd82",
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8a38bd71_1b1a2205",
@@ -134,6 +236,30 @@
       "writtenOn": "2021-04-21T18:31:34Z",
       "side": 1,
       "message": "Since this is just forwarding to the native impl, you could call nCreateSurface directly from the constructor.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 5
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8458394_9ccae07b",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Surface.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:20:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a38bd71_1b1a2205",
       "range": {
         "startLine": 66,
         "startChar": 0,
