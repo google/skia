@@ -91,8 +91,6 @@ private:
     String formatRuntimeValue(const Type& type, const Layout& layout, const String& cppCode,
                               std::vector<String>* formatArgs);
 
-    void writeVarInitializer(const Variable& var, const Expression& value) override;
-
     void writeInputVars() override;
 
     void writePrivateVars();
@@ -113,9 +111,12 @@ private:
 
     int getChildFPIndex(const Variable& var) const;
 
+    const char* getVariableCppName(const Variable& var);
+
     String fName;
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;
+    std::unordered_map<const Variable*, String> fVariableCppNames;
 
     // true if the sksl declared its main() function with a float2 parameter AND referenced that
     // parameter in its body.
