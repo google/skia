@@ -50,6 +50,24 @@
       "message": "I looked at the whole thing.",
       "revId": "f5450b9e95c4b11fca6fb62001daf1f8e924d5e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d75d0ea9_913ad41e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-22T20:11:31Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "070781d1_dc0f456b",
+      "revId": "f5450b9e95c4b11fca6fb62001daf1f8e924d5e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
