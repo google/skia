@@ -16,6 +16,24 @@
       "message": "Pretty sure this works:\n\nc \u003d env-\u003eFindClass(\"java/lang/Exception\"); // or different exception(make our own?)\nenv-\u003eThrowNew(c, msg);\n... // C++ code continues until native call is done, then exception triggers\n\nThen catch it in java code:\n\ntry:\n    nCreate(\"BadSkSl\");\ncatch(Exception e):\n    Log.d(\"more info on crash\");",
       "revId": "2683eb13276c39ba2fae51070f54dbf2aac3eeb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4abf0408_9bae247d",
+        "filename": "modules/androidkit/src/RuntimeShaderBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-22T18:19:10Z",
+      "side": 1,
+      "message": "Ack.\n\nDeferring rigorous error handling for now - I think we need to decide on a consistent policy to be enforced throughout AK.\n\nE.g. how defensive do we want/need to be?  which layer should validate client inputs (if any)?\n\nI was leaning towards pushing most of it to Java, as it\u0027s easier to throw exceptions etc.  But this is a great example of native-side errors that would be super useful to surface.\n\nI\u0027ll revisit in a follow-up.",
+      "parentUuid": "a4b0b1b0_9861e374",
+      "revId": "2683eb13276c39ba2fae51070f54dbf2aac3eeb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
