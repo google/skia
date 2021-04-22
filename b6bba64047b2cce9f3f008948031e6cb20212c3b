@@ -39,6 +39,30 @@
       },
       "revId": "b6bba64047b2cce9f3f008948031e6cb20212c3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e2cf337_25803294",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Surface.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-22T19:24:41Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "4ac9d165_266f89b6",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 30
+      },
+      "revId": "b6bba64047b2cce9f3f008948031e6cb20212c3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
