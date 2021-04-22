@@ -176,7 +176,8 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
     bool canSplit = mode == SkTileMode::kDecal || mode == SkTileMode::kClamp;
     // ...but it's not worth doing the splitting if we'll get HW tiling instead of shader tiling.
     bool canHWTile =
-            srcBounds.contains(srcBackingBounds) &&
+            srcBounds.contains(srcBackingBounds)         &&
+            !context->priv().caps()->reducedShaderMode() && // this mode always uses shader tiling
             !(mode == SkTileMode::kDecal && !context->priv().caps()->clampToBorderSupport());
     if (!canSplit || canHWTile) {
         auto dstRect = SkIRect::MakeSize(dstBounds.size());

@@ -170,18 +170,33 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
     if (is_zero_sigma) {
         halfWidth = 0;
     }
-    if (pixelDomain) {
+    // It's pretty common to blur a subset of an input texture. In reduced shader mode we always
+    // apply the wrap mode in the shader.
+    bool alwaysUseShaderTileMode = caps.reducedShaderMode();
+    if (pixelDomain && !alwaysUseShaderTileMode) {
         // Inset because we expect to be invoked at pixel centers.
         SkRect domain = SkRect::Make(*pixelDomain).makeInset(0.5, 0.5f);
         switch (dir) {
             case Direction::kX: domain.outset(halfWidth, 0); break;
             case Direction::kY: domain.outset(0, halfWidth); break;
         }
-        child = GrTextureEffect::MakeSubset(std::move(view), alphaType, SkMatrix::I(), sampler,
-                                            SkRect::Make(subset), domain, caps);
+        child = GrTextureEffect::MakeSubset(std::move(view),
+                                            alphaType,
+                                            SkMatrix::I(),
+                                            sampler,
+                                            SkRect::Make(subset),
+                                            domain,
+                                            caps,
+                                            GrTextureEffect::kDefaultBorder);
     } else {
-        child = GrTextureEffect::MakeSubset(std::move(view), alphaType, SkMatrix::I(), sampler,
-                                            SkRect::Make(subset), caps);
+        child = GrTextureEffect::MakeSubset(std::move(view),
+                                            alphaType,
+                                            SkMatrix::I(),
+                                            sampler,
+                                            SkRect::Make(subset),
+                                            caps,
+                                            GrTextureEffect::kDefaultBorder,
+                                            alwaysUseShaderTileMode);
     }
 
     if (is_zero_sigma) {
