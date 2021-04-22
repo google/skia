@@ -125,6 +125,27 @@ void GrD3DCommandList::uavBarrier(sk_sp<GrManagedResource> resource,
     }
 }
 
+void GrD3DCommandList::aliasingBarrier(sk_sp<GrManagedResource> beforeManagedResource,
+                                       ID3D12Resource* beforeResource,
+                                       sk_sp<GrManagedResource> afterManagedResource,
+                                       ID3D12Resource* afterResource) {
+    SkASSERT(fIsActive);
+    // D3D will apply barriers in order so we can just add onto the end
+    D3D12_RESOURCE_BARRIER& newBarrier = fResourceBarriers.push_back();
+    newBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_ALIASING;
+    newBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    newBarrier.Aliasing.pResourceBefore = beforeResource;
+    newBarrier.Aliasing.pResourceAfter = afterResource;
+
+    fHasWork = true;
+    if (beforeManagedResource) {
+        this->addResource(std::move(beforeManagedResource));
+    }
+    if (afterManagedResource) {
+        this->addResource(std::move(afterManagedResource));
+    }
+}
+
 void GrD3DCommandList::submitResourceBarriers() {
     SkASSERT(fIsActive);
 
@@ -188,6 +209,20 @@ void GrD3DCommandList::copyTextureRegionToBuffer(sk_sp<const GrBuffer> dst,
     this->addGrBuffer(std::move(dst));
     this->addResource(std::move(src));
     fCommandList->CopyTextureRegion(dstLocation, dstX, dstY, 0, srcLocation, srcBox);
+}
+
+void GrD3DCommandList::copyTextureToTexture(const GrD3DTexture* dst, const GrD3DTexture* src) {
+    SkASSERT(fIsActive);
+    SkASSERT(src);
+    SkASSERT(dst);
+    SkASSERT(src->width() == dst->width() && src->height() == dst->height());
+
+    this->addingWork();
+    ID3D12Resource* dstTexture = dst->d3dResource();
+    ID3D12Resource* srcTexture = src->d3dResource();
+    fCommandList->CopyResource(dstTexture, srcTexture);
+    this->addResource(dst->resource());
+    this->addResource(src->resource());
 }
 
 void GrD3DCommandList::copyBufferToBuffer(sk_sp<GrD3DBuffer> dst, uint64_t dstOffset,
