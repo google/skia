@@ -69,10 +69,11 @@
 
       s['heightMultiplier'] = s['heightMultiplier'] || 0;
       s['maxLines'] = s['maxLines'] || 0;
+      s['strutStyle'] = strutStyle(s['strutStyle']);
       s['textAlign'] = s['textAlign'] || CanvasKit.TextAlign.Start;
       s['textDirection'] = s['textDirection'] || CanvasKit.TextDirection.LTR;
+      s['textHeightBehavior'] = s['textHeightBehavior'] || CanvasKit.TextHeightBehavior.All;
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
-      s['strutStyle'] = strutStyle(s['strutStyle']);
       return s;
     };
 

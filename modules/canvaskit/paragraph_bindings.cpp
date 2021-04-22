@@ -214,6 +214,7 @@ struct SimpleParagraphStyle {
     size_t maxLines;
     para::TextAlign textAlign;
     para::TextDirection textDirection;
+    para::TextHeightBehavior textHeightBehavior;
     SimpleTextStyle textStyle;
     SimpleStrutStyle strutStyle;
 };
@@ -241,6 +242,7 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     if (s.maxLines != 0) {
         ps.setMaxLines(s.maxLines);
     }
+    ps.setTextHeightBehavior(s.textHeightBehavior);
     return ps;
 }
 
@@ -464,15 +466,16 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("width",     &SimpleFontStyle::width);
 
     value_object<SimpleParagraphStyle>("ParagraphStyle")
-        .field("disableHinting",    &SimpleParagraphStyle::disableHinting)
-        .field("_ellipsisPtr",      &SimpleParagraphStyle::ellipsisPtr)
-        .field("_ellipsisLen",      &SimpleParagraphStyle::ellipsisLen)
-        .field("heightMultiplier",  &SimpleParagraphStyle::heightMultiplier)
-        .field("maxLines",          &SimpleParagraphStyle::maxLines)
-        .field("textAlign",         &SimpleParagraphStyle::textAlign)
-        .field("textDirection",     &SimpleParagraphStyle::textDirection)
-        .field("textStyle",         &SimpleParagraphStyle::textStyle)
-        .field("strutStyle",        &SimpleParagraphStyle::strutStyle);
+        .field("disableHinting",     &SimpleParagraphStyle::disableHinting)
+        .field("_ellipsisPtr",       &SimpleParagraphStyle::ellipsisPtr)
+        .field("_ellipsisLen",       &SimpleParagraphStyle::ellipsisLen)
+        .field("heightMultiplier",   &SimpleParagraphStyle::heightMultiplier)
+        .field("maxLines",           &SimpleParagraphStyle::maxLines)
+        .field("textAlign",          &SimpleParagraphStyle::textAlign)
+        .field("textDirection",      &SimpleParagraphStyle::textDirection)
+        .field("textHeightBehavior", &SimpleParagraphStyle::textHeightBehavior)
+        .field("textStyle",          &SimpleParagraphStyle::textStyle)
+        .field("strutStyle",         &SimpleParagraphStyle::strutStyle);
 
     value_object<SimpleStrutStyle>("StrutStyle")
         .field("_fontFamiliesPtr", &SimpleStrutStyle::fontFamiliesPtr)

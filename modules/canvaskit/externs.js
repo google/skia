@@ -939,6 +939,13 @@ var CanvasKit = {
     RTL: {},
   },
 
+  TextHeightBehavior: {
+    All: {},
+    DisableFirstAscent: {},
+    DisableLastDescent: {},
+    DisableAll: {},
+  },
+
   DecorationStyle: {
     Solid: {},
     Double: {},
