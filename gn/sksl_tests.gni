@@ -16,9 +16,10 @@ sksl_fp_error_tests = [
 ]
 
 sksl_dsl_fp_tests = [
-  "/sksl/dslfp/GrDSLFPTest_HelloWorld.fp",
+  "/sksl/dslfp/GrDSLFPTest_Builtins.fp",
   "/sksl/dslfp/GrDSLFPTest_DoStatement.fp",
   "/sksl/dslfp/GrDSLFPTest_ForStatement.fp",
+  "/sksl/dslfp/GrDSLFPTest_HelloWorld.fp",
   "/sksl/dslfp/GrDSLFPTest_IfStatement.fp",
   "/sksl/dslfp/GrDSLFPTest_Sample.fp",
   "/sksl/dslfp/GrDSLFPTest_SwitchStatement.fp",
