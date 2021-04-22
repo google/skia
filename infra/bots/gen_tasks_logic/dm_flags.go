@@ -427,7 +427,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 
 		if b.gpu("AppleM1") && !b.extraConfig("Metal") {
-			skip("_ test _ TransferPixelsFromTextureTest") // skia:11814
+			skip("_ test _ TransferPixelsFromTextureTest")  // skia:11814
 		}
 
 		if b.model(REDUCE_OPS_TASK_SPLITTING_MODELS...) {
@@ -844,9 +844,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
-	if b.matchGpu("Adreno[56][0-9][0-9]") { // skia:11308, skia:11891 - disable on Adreno 5xx/6xx
+	if b.matchGpu("Adreno[56][0-9][0-9]") { // skia:11308 - disable on Adreno 5xx/6xx
 		skip("_", "tests", "_", "SkSLMatrixEquality_GPU")
-		skip("_", "tests", "_", "DSLFPTest_SwitchStatement")
 	}
 
 	match := []string{}
@@ -943,8 +942,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.extraConfig("Metal") && b.gpu("PowerVRGX6450") && b.matchOs("iOS") {
-		// skbug.com/11885
-		match = append(match, "~flight_animated_image")
+	        // skbug.com/11885
+	        match = append(match, "~flight_animated_image")
 	}
 
 	if b.extraConfig("Direct3D") {
