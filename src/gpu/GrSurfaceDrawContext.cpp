@@ -415,8 +415,10 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    if (gGrDrawTextNoCache) {
-        // drawGlyphRunListNoCache lives in GrTextBlob.cpp to share sub run implementation code.
+    if (gGrDrawTextNoCache || glyphRunList.blob() == nullptr) {
+        // If the glyphRunList does not have an associated text blob, then it was created by one of
+        // the direct draw APIs (drawGlyphs, etc.). There is no need to create a GrTextBlob just
+        // build the sub run directly and place it in the op.
         this->drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList, paint);
     } else {
         this->drawGlyphRunListWithCache(clip, viewMatrix, glyphRunList, paint);
