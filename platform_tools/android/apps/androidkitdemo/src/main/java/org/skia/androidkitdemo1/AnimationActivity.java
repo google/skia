@@ -52,6 +52,7 @@ class RenderThread extends Thread {
             renderFrame(surface.getCanvas(),
                         (double)(java.lang.System.currentTimeMillis() - time_base) / 1000,
                         w, h);
+            surface.flushAndSubmit();
             surface.release();
 
             android_canvas.drawBitmap(bm, 0, 0, new android.graphics.Paint());
