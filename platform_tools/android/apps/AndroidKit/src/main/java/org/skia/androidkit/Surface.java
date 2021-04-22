@@ -30,6 +30,16 @@ public class Surface {
         return mCanvas;
     }
 
+    /***
+     * Triggers the immediate execution of all pending draw operations.
+     *
+     * Additionaly, if the backing device is multi-buffered, submits the current
+     * buffer to be displayed.
+     */
+    public void flushAndSubmit() {
+        nFlushAndSubmit(mNativeInstance);
+    }
+
     /**
      * Releases any resources associated with this Surface.
      */
@@ -59,4 +69,5 @@ public class Surface {
     private static native long nCreateBitmap(Bitmap bitmap);
     private static native void nRelease(long nativeInstance);
     private static native long nGetNativeCanvas(long nativeInstance);
+    private static native void nFlushAndSubmit(long nativeInstance);
 }
