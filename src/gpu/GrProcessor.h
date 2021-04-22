@@ -159,7 +159,7 @@ public:
 #if GR_TEST_UTILS
     virtual SkString onDumpInfo() const { return SkString(); }
 
-    virtual SkString dumpInfo() const final {
+    SkString dumpInfo() const {
         SkString info(name());
         info.append(this->onDumpInfo());
         return info;
