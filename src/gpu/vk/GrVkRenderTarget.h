@@ -122,12 +122,6 @@ public:
                                                  GrVkRenderPass::AttachmentsDescriptor* desc,
                                                  GrVkRenderPass::AttachmentFlags* flags);
 
-    // So that we don't need to rewrite descriptor sets each time, we keep a cached input descriptor
-    // set on the the RT and simply reuse that descriptor set for this render target only. This call
-    // will not ref the GrVkDescriptorSet so the caller must manually ref it if it wants to keep it
-    // alive.
-    const GrVkDescriptorSet* inputDescSet(GrVkGpu*, bool forResolve);
-
 protected:
     enum class CreateType {
         kDirectlyWrapped, // We need to register this in the ctor

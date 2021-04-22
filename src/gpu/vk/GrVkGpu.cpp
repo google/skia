@@ -1369,8 +1369,8 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
 
 bool GrVkGpu::loadMSAAFromResolve(GrVkCommandBuffer* commandBuffer,
                                   const GrVkRenderPass& renderPass,
-                                  GrSurface* dst,
-                                  GrSurface* src,
+                                  GrAttachment* dst,
+                                  GrVkAttachment* src,
                                   const SkIRect& srcRect) {
     return fMSAALoadManager.loadMSAAFromResolve(this, commandBuffer, renderPass, dst, src, srcRect);
 }
@@ -2432,13 +2432,13 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 bool GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
                               sk_sp<const GrVkFramebuffer> framebuffer,
                               const VkClearValue* colorClear,
-                              GrVkRenderTarget* target,
+                              const GrSurface* target,
                               const SkIRect& renderPassBounds,
                               bool forSecondaryCB) {
     if (!this->currentCommandBuffer()) {
         return false;
     }
-    SkASSERT (!target->wrapsSecondaryCommandBuffer());
+    SkASSERT (!framebuffer->isExternal());
 
 #ifdef SK_DEBUG
     uint32_t index;

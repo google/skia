@@ -460,7 +460,7 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
                                                const GrVkRenderPass* renderPass,
                                                sk_sp<const GrVkFramebuffer> framebuffer,
                                                const VkClearValue clearValues[],
-                                               GrVkRenderTarget* target,
+                                               const GrSurface* target,
                                                const SkIRect& bounds,
                                                bool forSecondaryCB) {
     SkASSERT(fIsActive);

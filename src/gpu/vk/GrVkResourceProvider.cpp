@@ -280,7 +280,7 @@ GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
 
 sk_sp<const GrVkPipeline> GrVkResourceProvider::findOrCreateMSAALoadPipeline(
         const GrVkRenderPass& renderPass,
-        const GrVkRenderTarget* dst,
+        int numSamples,
         VkPipelineShaderStageCreateInfo* shaderStageInfo,
         VkPipelineLayout pipelineLayout) {
     // Find or Create a compatible pipeline
@@ -298,7 +298,7 @@ sk_sp<const GrVkPipeline> GrVkResourceProvider::findOrCreateMSAALoadPipeline(
                 GrPrimitiveType::kTriangleStrip,
                 kTopLeft_GrSurfaceOrigin,
                 GrStencilSettings(),
-                dst->numSamples(),
+                numSamples,
                 /*isHWantialiasState=*/false,
                 GrXferProcessor::BlendInfo(),
                 /*isWireframe=*/false,

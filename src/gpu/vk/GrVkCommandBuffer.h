@@ -219,7 +219,7 @@ public:
                          const GrVkRenderPass*,
                          sk_sp<const GrVkFramebuffer>,
                          const VkClearValue clearValues[],
-                         GrVkRenderTarget* target,
+                         const GrSurface* target,
                          const SkIRect& bounds,
                          bool forSecondaryCB);
     void endRenderPass(const GrVkGpu* gpu);
