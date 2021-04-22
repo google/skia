@@ -10,6 +10,10 @@ Milestone 92
     SkRuntimeEffect.
     https://review.skia.org/398222
 
+  * Dropped support for mixed samples. Mixed samples is no longer relevant for Ganesh. DMSAA and the
+    new Ganesh architecture both rely on full MSAA, and any platform where mixed samples is
+    supported will ultimately not use the old architecture.
+
 * * *
 
 Milestone 91

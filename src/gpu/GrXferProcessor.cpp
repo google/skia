@@ -13,21 +13,19 @@
 GrXferProcessor::GrXferProcessor(ClassID classID)
         : INHERITED(classID)
         , fWillReadDstColor(false)
-        , fDstReadUsesMixedSamples(false)
         , fIsLCD(false) {}
 
-GrXferProcessor::GrXferProcessor(ClassID classID, bool willReadDstColor, bool hasMixedSamples,
+GrXferProcessor::GrXferProcessor(ClassID classID, bool willReadDstColor,
                                  GrProcessorAnalysisCoverage coverage)
         : INHERITED(classID)
         , fWillReadDstColor(willReadDstColor)
-        , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples)
         , fIsLCD(GrProcessorAnalysisCoverage::kLCD == coverage) {}
 
 bool GrXferProcessor::hasSecondaryOutput() const {
     if (!this->willReadDstColor()) {
         return this->onHasSecondaryOutput();
     }
-    return this->dstReadUsesMixedSamples();
+    return false;
 }
 
 void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b,
@@ -46,12 +44,9 @@ void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorK
                 key |= 0x8;
             }
         }
-        if (this->dstReadUsesMixedSamples()) {
-            key |= 0x10;
-        }
     }
     if (fIsLCD) {
-        key |= 0x20;
+        key |= 0x10;
     }
     b->add32(key);
     this->onGetGLSLProcessorKey(caps, b);
@@ -159,15 +154,13 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
         const GrXPFactory* factory,
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
-        bool hasMixedSamples,
         const GrCaps& caps,
         GrClampType clampType) {
     AnalysisProperties result;
     if (factory) {
-        result = factory->analysisProperties(color, coverage, hasMixedSamples, caps, clampType);
+        result = factory->analysisProperties(color, coverage, caps, clampType);
     } else {
-        result = GrPorterDuffXPFactory::SrcOverAnalysisProperties(color, coverage, hasMixedSamples,
-                                                                  caps, clampType);
+        result = GrPorterDuffXPFactory::SrcOverAnalysisProperties(color, coverage, caps, clampType);
     }
     if (coverage == GrProcessorAnalysisCoverage::kNone) {
         result |= AnalysisProperties::kCompatibleWithCoverageAsAlpha;
@@ -184,15 +177,11 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
 sk_sp<const GrXferProcessor> GrXPFactory::MakeXferProcessor(const GrXPFactory* factory,
                                                             const GrProcessorAnalysisColor& color,
                                                             GrProcessorAnalysisCoverage coverage,
-                                                            bool hasMixedSamples,
                                                             const GrCaps& caps,
                                                             GrClampType clampType) {
-    SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
-
     if (factory) {
-        return factory->makeXferProcessor(color, coverage, hasMixedSamples, caps, clampType);
+        return factory->makeXferProcessor(color, coverage, caps, clampType);
     } else {
-        return GrPorterDuffXPFactory::MakeSrcOverXferProcessor(color, coverage, hasMixedSamples,
-                                                               caps);
+        return GrPorterDuffXPFactory::MakeSrcOverXferProcessor(color, coverage, caps);
     }
 }

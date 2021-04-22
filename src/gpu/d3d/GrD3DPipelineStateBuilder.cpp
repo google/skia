@@ -543,8 +543,8 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
 
     psoDesc.DSVFormat = depthStencilFormat;
 
-    unsigned int numRasterSamples = programInfo.numRasterSamples();
-    psoDesc.SampleDesc = { numRasterSamples, sampleQualityPattern };
+    unsigned int numSamples = programInfo.numSamples();
+    psoDesc.SampleDesc = { numSamples, sampleQualityPattern };
 
     // Only used for multi-adapter systems.
     psoDesc.NodeMask = 0;

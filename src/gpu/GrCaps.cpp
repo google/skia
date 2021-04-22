@@ -30,7 +30,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDrawInstancedSupport = false;
     fNativeDrawIndirectSupport = false;
     fUseClientSideIndirectBuffers = false;
-    fMixedSamplesSupport = false;
     fConservativeRasterSupport = false;
     fWireframeSupport = false;
     fMSAAResolvesAutomatically = false;
@@ -92,12 +91,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 }
 
 void GrCaps::finishInitialization(const GrContextOptions& options) {
-    if (fMixedSamplesSupport) {
-        // We need multisample disable and dual source blending in order to support mixed samples.
-        fMixedSamplesSupport = this->multisampleDisableSupport() &&
-                               this->shaderCaps()->dualSourceBlendingSupport();
-    }
-
     if (!fNativeDrawIndirectSupport) {
         // We will implement indirect draws with a polyfill, so the commands need to reside in CPU
         // memory.
@@ -137,11 +130,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
 #if GR_TEST_UTILS
-    if (options.fSuppressDualSourceBlending) {
-        // GrShaderCaps::applyOptionsOverrides already handled the rest; here we just need to make
-        // sure mixed samples gets disabled if dual source blending is suppressed.
-        fMixedSamplesSupport = false;
-    }
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
     }
@@ -211,7 +199,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Draw Instanced Support", fDrawInstancedSupport);
     writer->appendBool("Native Draw Indirect Support", fNativeDrawIndirectSupport);
     writer->appendBool("Use client side indirect buffers", fUseClientSideIndirectBuffers);
-    writer->appendBool("Mixed Samples Support", fMixedSamplesSupport);
     writer->appendBool("Conservative Raster Support", fConservativeRasterSupport);
     writer->appendBool("Wireframe Support", fWireframeSupport);
     writer->appendBool("MSAA Resolves Automatically", fMSAAResolvesAutomatically);
@@ -262,8 +249,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Render Target Size", fMaxRenderTargetSize);
     writer->appendS32("Max Preferred Render Target Size", fMaxPreferredRenderTargetSize);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
-    writer->appendS32("Preferred Sample Count for Internal MSAA and Mixed Samples",
-                      fInternalMultisampleCount);
+    writer->appendS32("Sample Count for Internal MSAA", fInternalMultisampleCount);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",

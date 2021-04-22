@@ -288,8 +288,7 @@ static void draw_path(GrRecordingContext* context,
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-    // Since we are only drawing to the stencil buffer, we can use kMSAA even if the render
-    // target is mixed sampled.
+    // kMSAA is the only type of AA that's possible on a stencil buffer.
     GrAAType pathAAType = aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone;
 
     GrPathRenderer::DrawPathArgs args{context,
@@ -322,7 +321,6 @@ static void stencil_path(GrRecordingContext* context,
 }
 
 static GrAA supported_aa(GrSurfaceDrawContext* rtc, GrAA aa) {
-    // MIXED SAMPLES TODO: We can use stencil with mixed samples as well.
     if (rtc->numSamples() > 1) {
         if (rtc->caps()->multisampleDisableSupport()) {
             return aa;

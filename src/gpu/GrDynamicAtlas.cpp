@@ -56,7 +56,7 @@ sk_sp<GrTextureProxy> GrDynamicAtlas::MakeLazyAtlasProxy(
     GrBackendFormat format = caps.getDefaultBackendFormat(colorType, GrRenderable::kYes);
 
     int sampleCount = 1;
-    if (!caps.mixedSamplesSupport() && InternalMultisample::kYes == internalMultisample) {
+    if (InternalMultisample::kYes == internalMultisample) {
         sampleCount = caps.internalMultisampleCount(format);
     }
 

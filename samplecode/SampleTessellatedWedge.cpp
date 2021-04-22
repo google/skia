@@ -71,8 +71,6 @@ void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
         error = "GPU Only.";
     } else if (!ctx->priv().caps()->drawInstancedSupport()) {
         error = "Instanced rendering not supported.";
-    } else if (sdc->numSamples() == 1 && !ctx->priv().caps()->mixedSamplesSupport()) {
-        error = "MSAA/mixed samples only.";
     }
     if (!error.isEmpty()) {
         SkFont font(nullptr, 20);
@@ -88,8 +86,6 @@ void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
     GrAAType aa;
     if (sdc->numSamples() > 1) {
         aa = GrAAType::kMSAA;
-    } else if (sdc->asRenderTargetProxy()->canUseMixedSamples(*ctx->priv().caps())) {
-        aa = GrAAType::kCoverage;
     } else {
         aa = GrAAType::kNone;
     }

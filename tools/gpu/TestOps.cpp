@@ -101,7 +101,6 @@ public:
 
     GrProcessorSet::Analysis finalize(const GrCaps&,
                                       const GrAppliedClip*,
-                                      bool hasMixedSampledCoverage,
                                       GrClampType) override;
 
     void visitProxies(const VisitProxyFunc& func) const override {
@@ -158,12 +157,10 @@ GrOp::Owner TestRectOp::Make(GrRecordingContext* context,
 
 GrProcessorSet::Analysis TestRectOp::finalize(const GrCaps& caps,
                                               const GrAppliedClip* clip,
-                                              bool hasMixedSampledCoverage,
                                               GrClampType clampType) {
     return fProcessorSet.finalize(GrProcessorAnalysisColor::Opaque::kYes,
                                   GrProcessorAnalysisCoverage::kSingleChannel, clip,
-                                  &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps,
-                                  clampType, &fColor);
+                                  &GrUserStencilSettings::kUnused, caps, clampType, &fColor);
 }
 
 static bool use_wide_color(const GrPaint& paint, const GrCaps* caps) {

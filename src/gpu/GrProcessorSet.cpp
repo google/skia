@@ -115,8 +115,7 @@ bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
 GrProcessorSet::Analysis GrProcessorSet::finalize(
         const GrProcessorAnalysisColor& colorInput, const GrProcessorAnalysisCoverage coverageInput,
         const GrAppliedClip* clip, const GrUserStencilSettings* userStencil,
-        bool hasMixedSampledCoverage, const GrCaps& caps, GrClampType clampType,
-        SkPMColor4f* overrideInputColor) {
+        const GrCaps& caps, GrClampType clampType, SkPMColor4f* overrideInputColor) {
     SkASSERT(!this->isFinalized());
 
     GrProcessorSet::Analysis analysis;
@@ -153,8 +152,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     }
 
     GrXPFactory::AnalysisProperties props = GrXPFactory::GetAnalysisProperties(
-            this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, hasMixedSampledCoverage,
-            caps, clampType);
+            this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, caps, clampType);
     analysis.fRequiresDstTexture =
             SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresDstTexture);
     analysis.fCompatibleWithCoverageAsAlpha &=
@@ -182,8 +180,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     analysis.fHasColorFragmentProcessor = this->hasColorFragmentProcessor();
 
     auto xp = GrXPFactory::MakeXferProcessor(this->xpFactory(), colorAnalysis.outputColor(),
-                                             outputCoverage, hasMixedSampledCoverage, caps,
-                                             clampType);
+                                             outputCoverage, caps, clampType);
     fXP.fProcessor = xp.release();
 
     fFlags |= kFinalized_Flag;

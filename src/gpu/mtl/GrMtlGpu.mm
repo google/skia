@@ -532,9 +532,8 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     return true;
 }
 
-sk_sp<GrAttachment> GrMtlGpu::makeStencilAttachmentForRenderTarget(
-        const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
-    SkASSERT(numStencilSamples == rt->numSamples());
+sk_sp<GrAttachment> GrMtlGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                   SkISize dimensions) {
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 

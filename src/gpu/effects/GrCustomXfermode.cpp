@@ -78,8 +78,8 @@ public:
         , fMode(mode)
         , fHWBlendEquation(hwBlendEquation) {}
 
-    CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(kCustomXP_ClassID, true, hasMixedSamples, coverage)
+    CustomXP(SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
+            : INHERITED(kCustomXP_ClassID, true, coverage)
             , fMode(mode)
             , fHWBlendEquation(kIllegal_GrBlendEquation) {
     }
@@ -141,8 +141,8 @@ private:
         GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
         fragBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
 
-        // Apply coverage by multiplying it into the src color before blending. Mixed samples will
-        // "just work" automatically. (See onGetOptimizations())
+        // Apply coverage by multiplying it into the src color before blending. This will "just
+        // work" automatically. (See analysisProperties())
         fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputCoverage,
                                  args.fInputColor);
     }
@@ -218,13 +218,11 @@ public:
 private:
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
-                                                   bool hasMixedSamples,
                                                    const GrCaps&,
                                                    GrClampType) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          bool hasMixedSamples,
                                           const GrCaps&,
                                           GrClampType) const override;
 
@@ -245,19 +243,18 @@ private:
 sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor&,
         GrProcessorAnalysisCoverage coverage,
-        bool hasMixedSamples,
         const GrCaps& caps,
         GrClampType clampType) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
     }
-    return sk_sp<GrXferProcessor>(new CustomXP(hasMixedSamples, fMode, coverage));
+    return sk_sp<GrXferProcessor>(new CustomXP(fMode, coverage));
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
         const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
-        bool hasMixedSamples, const GrCaps& caps, GrClampType clampType) const {
+        const GrCaps& caps, GrClampType clampType) const {
     /*
       The general SVG blend equation is defined in the spec as follows:
 

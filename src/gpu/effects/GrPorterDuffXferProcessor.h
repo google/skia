@@ -29,7 +29,6 @@ public:
         null then the SimpleSrcOverXP() below should be used. */
     static sk_sp<const GrXferProcessor> MakeSrcOverXferProcessor(const GrProcessorAnalysisColor&,
                                                                  GrProcessorAnalysisCoverage,
-                                                                 bool hasMixedSamples,
                                                                  const GrCaps&);
 
     /** Returns a simple non-LCD porter duff blend XP with no optimizations or coverage. */
@@ -41,7 +40,6 @@ public:
 
     static AnalysisProperties SrcOverAnalysisProperties(const GrProcessorAnalysisColor&,
                                                         const GrProcessorAnalysisCoverage&,
-                                                        bool hasMixedSamples,
                                                         const GrCaps&,
                                                         GrClampType);
 
@@ -50,13 +48,11 @@ private:
 
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
-                                                   bool hasMixedSamples,
                                                    const GrCaps&,
                                                    GrClampType) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          bool hasMixedSamples,
                                           const GrCaps&,
                                           GrClampType) const override;
 

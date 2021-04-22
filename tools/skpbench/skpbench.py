@@ -91,7 +91,7 @@ __argparse.add_argument('--gpuThreads',
        " software path rendering. Defaults to two.")
 __argparse.add_argument('--internalSamples',
   type=int, default=-1,
-  help="Number of samples for internal draws that use MSAA or mixed samples.")
+  help="Number of samples for internal draws that use MSAA.")
 __argparse.add_argument('srcs',
   nargs='+',
   help=".skp files or directories to expand for .skp files, and/or .svg files")

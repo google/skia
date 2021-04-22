@@ -42,8 +42,7 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const final { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
-                                      bool hasMixedSampledCoverage, GrClampType) final;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) final;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) final;
 
     void visitProxies(const VisitProxyFunc& fn) const override {
@@ -234,15 +233,14 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
     // We will write the color and local rect attribs during finalize().
 }
 
-GrProcessorSet::Analysis FillRRectOp::finalize(
-        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
-        GrClampType clampType) {
+GrProcessorSet::Analysis FillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                               GrClampType clampType) {
     SkASSERT(1 == fInstanceCount);
 
     bool isWideColor;
-    auto analysis = fHelper.finalizeProcessors(caps, clip, hasMixedSampledCoverage, clampType,
-                                               GrProcessorAnalysisCoverage::kSingleChannel,
-                                               &fColor, &isWideColor);
+    auto analysis = fHelper.finalizeProcessors(caps, clip, clampType,
+                                               GrProcessorAnalysisCoverage::kSingleChannel, &fColor,
+                                               &isWideColor);
 
     // Finish writing the instance attribs.
     if (isWideColor) {

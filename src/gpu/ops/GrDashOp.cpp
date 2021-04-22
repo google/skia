@@ -253,13 +253,11 @@ public:
         return flags;
     }
 
-    GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
-            GrClampType clampType) override {
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      GrClampType clampType) override {
         GrProcessorAnalysisCoverage coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-        auto analysis = fProcessorSet.finalize(
-                fColor, coverage, clip, fStencilSettings, hasMixedSampledCoverage, caps, clampType,
-                &fColor);
+        auto analysis = fProcessorSet.finalize(fColor, coverage, clip, fStencilSettings, caps,
+                                               clampType, &fColor);
         fUsesLocalCoords = analysis.usesLocalCoords();
         return analysis;
     }

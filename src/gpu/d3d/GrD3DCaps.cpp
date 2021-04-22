@@ -183,9 +183,6 @@ void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
         fMultisampleDisableSupport = true;
     }
 
-    // TODO: It's not clear if this is supported or not.
-    fMixedSamplesSupport = false;
-
     if (D3D12_CONSERVATIVE_RASTERIZATION_TIER_NOT_SUPPORTED !=
             optionsDesc.ConservativeRasterizationTier) {
         fConservativeRasterSupport = true;
@@ -1057,12 +1054,9 @@ GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
 
     programInfo.pipeline().genKey(&b, *this);
     // The num samples is already added in the render target key so we don't need to add it here.
-    SkASSERT(programInfo.numRasterSamples() == rt->numSamples());
 
     // D3D requires the full primitive type as part of its key
     b.add32(programInfo.primitiveTypeKey());
-
-    SkASSERT(!this->mixedSamplesSupport());
 
     b.flush();
     return desc;

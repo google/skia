@@ -36,13 +36,11 @@ private:
 
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
-                                                   bool hasMixedSamples,
                                                    const GrCaps&,
                                                    GrClampType) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor& color,
                                           const GrProcessorAnalysisCoverage& coverage,
-                                          bool hasMixedSamples,
                                           const GrCaps&,
                                           GrClampType) const override {
         auto props = AnalysisProperties::kIgnoresInputColor;
@@ -53,8 +51,7 @@ private:
             case SkRegion::kUnion_Op:
             case SkRegion::kDifference_Op:
                 // FIXME: If we can formalize the fact that this op only operates on alpha, we can
-                // set AnalysisProperties::kUnaffectedByDstValue if color/coverage/hasMixedSamples
-                // are all opaque.
+                // set AnalysisProperties::kUnaffectedByDstValue if color/coverage are all opaque.
                 break;
             case SkRegion::kIntersect_Op:
             case SkRegion::kXOR_Op:

@@ -988,11 +988,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
 
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
                                const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
-    if (ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
-        ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples")) {
-        // fMixedSamplesSupport = true;
-    }
-
     if (GR_IS_GR_GL(ctxInfo.standard())) {
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
@@ -2358,8 +2353,6 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             // non-ES GL we don't support MSAA for GL_RGB8. On 4.2+ we could check using
             // glGetInternalFormativ(GL_RENDERBUFFER, GL_RGB8, GL_INTERNALFORMAT_SUPPORTED, ...) if
             // this becomes an issue.
-            // This also would probably work in mixed-samples mode where there is no MSAA color
-            // buffer but we don't support that just for simplicity's sake.
             info.fFlags |= nonMSAARenderFlags;
         } else if (GR_IS_GR_GL_ES(standard)) {
             // 3.0 and the extension support this as a render buffer format.

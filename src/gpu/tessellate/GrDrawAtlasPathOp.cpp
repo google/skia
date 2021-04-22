@@ -115,12 +115,10 @@ GrGLSLGeometryProcessor* DrawAtlasPathShader::createGLSLInstance(const GrShaderC
 }  // namespace
 
 GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                     bool hasMixedSampledCoverage,
                                                      GrClampType clampType) {
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
             fInstanceList.fInstance.fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip,
-            &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps, clampType,
-            &fInstanceList.fInstance.fColor);
+            &GrUserStencilSettings::kUnused, caps, clampType, &fInstanceList.fInstance.fColor);
     fUsesLocalCoords = analysis.usesLocalCoords();
     return analysis;
 }

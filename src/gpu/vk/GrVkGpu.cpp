@@ -1469,16 +1469,14 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
 ////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrAttachment> GrVkGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                  SkISize dimensions,
-                                                                  int numStencilSamples) {
-    SkASSERT(numStencilSamples == rt->numSamples() || this->caps()->mixedSamplesSupport());
+                                                                  SkISize dimensions) {
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 
     VkFormat sFmt = this->vkCaps().preferredStencilFormat();
 
     fStats.incStencilAttachmentCreates();
-    return GrVkAttachment::MakeStencil(this, dimensions, numStencilSamples, sFmt);
+    return GrVkAttachment::MakeStencil(this, dimensions, rt->numSamples(), sFmt);
 }
 
 sk_sp<GrAttachment> GrVkGpu::makeMSAAAttachment(SkISize dimensions,

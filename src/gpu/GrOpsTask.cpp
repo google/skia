@@ -562,16 +562,13 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     SkASSERT(renderTarget);
 
     GrAttachment* stencil = nullptr;
-    if (int numStencilSamples = proxy->numStencilSamples()) {
-        if (!flushState->resourceProvider()->attachStencilAttachment(
-                renderTarget, numStencilSamples)) {
+    if (proxy->needsStencil()) {
+        if (!flushState->resourceProvider()->attachStencilAttachment(renderTarget)) {
             SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
             return false;
         }
         stencil = renderTarget->getStencilAttachment();
     }
-
-    SkASSERT(!stencil || stencil->numSamples() == proxy->numStencilSamples());
 
     GrLoadOp stencilLoadOp;
     switch (fInitialStencilContent) {

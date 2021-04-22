@@ -279,14 +279,14 @@ static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* view
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
-static void setup_multisample_state(int numRasterSamples,
+static void setup_multisample_state(int numSamples,
                                     const GrCaps* caps,
                                     VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
     memset(multisampleInfo, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    SkAssertResult(GrSampleCountToVkSampleCount(numRasterSamples,
+    SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
                                                 &multisampleInfo->rasterizationSamples));
     multisampleInfo->sampleShadingEnable = VK_FALSE;
     multisampleInfo->minSampleShading = 0.0f;
@@ -296,7 +296,7 @@ static void setup_multisample_state(int numRasterSamples,
 }
 
 static void setup_all_sample_locations_at_pixel_center(
-        int numRasterSamples,
+        int numSamples,
         VkPipelineSampleLocationsStateCreateInfoEXT* sampleLocations) {
     constexpr static VkSampleLocationEXT kCenteredSampleLocations[16] = {
             {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f},
@@ -308,27 +308,14 @@ static void setup_all_sample_locations_at_pixel_center(
     sampleLocations->sampleLocationsInfo.sType = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
     sampleLocations->sampleLocationsInfo.pNext = nullptr;
     SkAssertResult(GrSampleCountToVkSampleCount(
-            numRasterSamples,
+            numSamples,
             &sampleLocations->sampleLocationsInfo.sampleLocationsPerPixel));
     sampleLocations->sampleLocationsInfo.sampleLocationGridSize.width = 1;
     sampleLocations->sampleLocationsInfo.sampleLocationGridSize.height = 1;
-    SkASSERT(numRasterSamples < (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
+    SkASSERT(numSamples < (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
     sampleLocations->sampleLocationsInfo.sampleLocationsCount = std::min(
-            numRasterSamples, (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
+            numSamples, (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
     sampleLocations->sampleLocationsInfo.pSampleLocations = kCenteredSampleLocations;
-}
-
-static void setup_coverage_modulation_state(
-        VkPipelineCoverageModulationStateCreateInfoNV* coverageModulationInfo) {
-    memset(coverageModulationInfo, 0, sizeof(VkPipelineCoverageModulationStateCreateInfoNV));
-    coverageModulationInfo->sType =
-            VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV;
-    coverageModulationInfo->pNext = nullptr;
-    coverageModulationInfo->flags = 0;
-    coverageModulationInfo->coverageModulationMode = VK_COVERAGE_MODULATION_MODE_RGBA_NV;
-    coverageModulationInfo->coverageModulationTableEnable = false;
-    coverageModulationInfo->coverageModulationTableCount = 0;
-    coverageModulationInfo->pCoverageModulationTable = nullptr;
 }
 
 static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
@@ -510,9 +497,8 @@ sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
                                    GrPrimitiveType primitiveType,
                                    GrSurfaceOrigin origin,
                                    const GrStencilSettings& stencilSettings,
-                                   int numRasterSamples,
+                                   int numSamples,
                                    bool isHWAntialiasState,
-                                   bool isMixedSampled,
                                    const GrXferProcessor::BlendInfo& blendInfo,
                                    bool isWireframe,
                                    bool useConservativeRaster,
@@ -542,24 +528,14 @@ sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
     setup_viewport_scissor_state(&viewportInfo);
 
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
-    setup_multisample_state(numRasterSamples, gpu->caps(), &multisampleInfo);
+    setup_multisample_state(numSamples, gpu->caps(), &multisampleInfo);
 
     VkPipelineSampleLocationsStateCreateInfoEXT sampleLocations;
     if (gpu->caps()->multisampleDisableSupport()) {
-        if (numRasterSamples > 1 && !isHWAntialiasState) {
-            setup_all_sample_locations_at_pixel_center(numRasterSamples, &sampleLocations);
+        if (numSamples > 1 && !isHWAntialiasState) {
+            setup_all_sample_locations_at_pixel_center(numSamples, &sampleLocations);
             sampleLocations.pNext = multisampleInfo.pNext;
             multisampleInfo.pNext = &sampleLocations;
-        }
-    }
-
-    VkPipelineCoverageModulationStateCreateInfoNV coverageModulationInfo;
-    if (gpu->caps()->mixedSamplesSupport()) {
-        if (isMixedSampled) {
-            SkASSERT(gpu->caps()->mixedSamplesSupport());
-            setup_coverage_modulation_state(&coverageModulationInfo);
-            coverageModulationInfo.pNext = multisampleInfo.pNext;
-            multisampleInfo.pNext = &coverageModulationInfo;
         }
     }
 
@@ -645,9 +621,8 @@ sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
                 programInfo.primitiveType(),
                 programInfo.origin(),
                 programInfo.nonGLStencilSettings(),
-                programInfo.numRasterSamples(),
+                programInfo.numSamples(),
                 pipeline.isHWAntialiasState(),
-                programInfo.isMixedSampled(),
                 pipeline.getXferProcessor().getBlendInfo(),
                 pipeline.isWireframe(),
                 pipeline.usesConservativeRaster(),

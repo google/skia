@@ -215,7 +215,7 @@ inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
 enum class GrAAType : unsigned {
     /** No antialiasing */
     kNone,
-    /** Use fragment shader code or mixed samples to blend with a fractional pixel coverage. */
+    /** Use fragment shader code to blend with a fractional pixel coverage. */
     kCoverage,
     /** Use normal MSAA. */
     kMSAA,
