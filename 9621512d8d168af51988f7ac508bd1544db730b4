@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e575a55_30b1caa8",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-22T15:29:44Z",
+      "side": 1,
+      "message": "// This allocator is here specifically to store memory for ...\n// It can\u0027t be folded into \u0027fArenaAlloc\u0027 because ...\n\n?",
+      "revId": "9621512d8d168af51988f7ac508bd1544db730b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5994da25_10a0949a",
+        "filename": "src/gpu/GrSubRunAllocator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-22T15:29:44Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 49
+      },
+      "revId": "9621512d8d168af51988f7ac508bd1544db730b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eea50eb4_33e16403",
+        "filename": "src/gpu/GrSubRunAllocator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-22T15:29:44Z",
+      "side": 1,
+      "message": "Google, LLC\n\n?",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 49
+      },
+      "revId": "9621512d8d168af51988f7ac508bd1544db730b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
