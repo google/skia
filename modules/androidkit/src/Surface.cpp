@@ -18,6 +18,7 @@ namespace {
 class Surface : public SkRefCnt {
 public:
     virtual void release(JNIEnv*) = 0;
+    virtual void flushAndSubmit() = 0;
 
     SkCanvas* getCanvas() const { return fSurface->getCanvas(); }
 
@@ -57,6 +58,10 @@ private:
             fSurface.reset();
             env->DeleteGlobalRef(fBitmap);
         }
+    }
+
+    void flushAndSubmit() override {
+        // Nothing to do.
     }
 
     static SkColorType color_type(int32_t format) {
@@ -104,6 +109,12 @@ static jlong Surface_GetNativeCanvas(JNIEnv* env, jobject, jlong native_surface)
         : 0;
 }
 
+static void Surface_FlushAndSubmit(JNIEnv* env, jobject, jlong native_surface) {
+    if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
+        surface->flushAndSubmit();
+    }
+}
+
 }  // namespace
 
 int register_androidkit_Surface(JNIEnv* env) {
@@ -112,6 +123,7 @@ int register_androidkit_Surface(JNIEnv* env) {
             reinterpret_cast<void*>(Surface_CreateBitmap)},
         {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)},
         {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
+        {"nFlushAndSubmit" , "(J)V", reinterpret_cast<void*>(Surface_FlushAndSubmit)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Surface");
