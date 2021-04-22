@@ -846,6 +846,39 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
+    gm('paragraph_mixed_text_height_behavior', (canvas) => {
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
+        canvas.clear(CanvasKit.WHITE);
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.RED);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        const wrapTo = 220;
+        const behaviors = ["All", "DisableFirstAscent", "DisableLastDescent", "DisableAll"];
+
+        for (let i = 0; i < behaviors.length; i++) {
+            const style = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                    color: CanvasKit.BLACK,
+                    fontFamilies: ['Noto Serif'],
+                    fontSize: 20,
+                },
+                textHeightBehavior: CanvasKit.TextHeightBehavior[behaviors[i]],
+            });
+            const builder = CanvasKit.ParagraphBuilder.Make(style, fontMgr);
+            builder.addText('Text height behavior\nof '+behaviors[i]+'\nlast line');
+            const paragraph = builder.build();
+            paragraph.layout(wrapTo);
+            canvas.drawParagraph(paragraph, 0, 100 * i);
+            canvas.drawRect(CanvasKit.LTRBRect(0, 100 * i, wrapTo, 100 * i + 80), paint);
+            paragraph.delete();
+            builder.delete();
+        }
+        fontMgr.delete();
+    });
+
     it('should not crash if we omit font family on pushed textStyle', () => {
         const surface = CanvasKit.MakeCanvasSurface('test');
         expect(surface).toBeTruthy('Could not make surface');
