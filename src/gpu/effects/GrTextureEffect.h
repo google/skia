@@ -43,7 +43,9 @@ public:
      * filtering is used and a shader invocation reads from a level other than the base
      * then it may read texel values that were computed from in part from base level texels
      * outside the window. More specifically, we treat the MIP map case exactly like the
-     * linear case in terms of how the final texture coords are computed.
+     * linear case in terms of how the final texture coords are computed. If
+     * alwaysUseShaderTileMode is true then MakeSubset won't attempt to use HW wrap modes if the
+     * subset contains the entire texture.
      */
     static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
                                                            SkAlphaType,
@@ -51,7 +53,8 @@ public:
                                                            GrSamplerState,
                                                            const SkRect& subset,
                                                            const GrCaps& caps,
-                                                           const float border[4] = kDefaultBorder);
+                                                           const float border[4] = kDefaultBorder,
+                                                           bool alwaysUseShaderTileMode = false);
 
     /**
      * The same as above but also takes a 'domain' that specifies any known limit on the post-

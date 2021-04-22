@@ -30,6 +30,7 @@ struct GrTextureEffect::Sampling {
              const SkRect&,
              const SkRect*,
              const float border[4],
+             bool alwaysUseShaderTileMode,
              const GrCaps&,
              SkVector linearFilterInset = {0.5f, 0.5f});
     inline bool hasBorderAlpha() const;
@@ -40,6 +41,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     const SkRect& subset,
                                     const SkRect* domain,
                                     const float border[4],
+                                    bool alwaysUseShaderTileMode,
                                     const GrCaps& caps,
                                     SkVector linearFilterInset) {
     struct Span {
@@ -68,7 +70,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
 
     auto resolve = [&](int size, Wrap wrap, Span subset, Span domain, float linearFilterInset) {
         Result1D r;
-        bool canDoModeInHW = true;
+        bool canDoModeInHW = !alwaysUseShaderTileMode;
         // TODO: Use HW border color when available.
         if (wrap == Wrap::kClampToBorder &&
             (!caps.clampToBorderSupport() || border[0] || border[1] || border[2] || border[3])) {
@@ -103,7 +105,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                 domainIsSafe = true;
             }
         }
-        if (domainIsSafe) {
+        if (!alwaysUseShaderTileMode && domainIsSafe) {
             // The domain of coords that will be used won't access texels outside of the subset.
             // So the wrap mode effectively doesn't matter. We use kClamp since it is always
             // supported.
@@ -173,6 +175,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView vi
                       SkRect::Make(view.proxy()->dimensions()),
                       nullptr,
                       border,
+                      false,
                       caps);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
@@ -186,8 +189,15 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
                                                                  const GrCaps& caps,
-                                                                 const float border[4]) {
-    Sampling sampling(*view.proxy(), sampler, subset, nullptr, border, caps);
+                                                                 const float border[4],
+                                                                 bool alwaysUseShaderTileMode) {
+    Sampling sampling(*view.proxy(),
+                      sampler,
+                      subset,
+                      nullptr,
+                      border,
+                      alwaysUseShaderTileMode,
+                      caps);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
                                                                 sampling));
@@ -202,7 +212,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const SkRect& domain,
                                                                  const GrCaps& caps,
                                                                  const float border[4]) {
-    Sampling sampling(*view.proxy(), sampler, subset, &domain, border, caps);
+    Sampling sampling(*view.proxy(), sampler, subset, &domain, border, false, caps);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
                                                                 sampling));
@@ -221,7 +231,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeCustomLinearFilterInse
         const GrCaps& caps,
         const float border[4]) {
     GrSamplerState sampler(wx, wy, Filter::kLinear);
-    Sampling sampling(*view.proxy(), sampler, subset, domain, border, caps, inset);
+    Sampling sampling(*view.proxy(), sampler, subset, domain, border, false, caps, inset);
     std::unique_ptr<GrFragmentProcessor> te(new GrTextureEffect(std::move(view),
                                                                 alphaType,
                                                                 sampling));
