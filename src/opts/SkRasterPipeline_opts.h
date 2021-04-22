@@ -1446,7 +1446,11 @@ BLEND_MODE(softlight) {
     //    3. light src, light dst?
     F darkSrc = d*(sa + (s2 - sa)*(1.0f - m)),     // Used in case 1.
       darkDst = (m4*m4 + m4)*(m - 1.0f) + 7.0f*m,  // Used in case 2.
+    #if defined(SK_RASTER_PIPELINE_LEGACY_RCP_RSQRT)
       liteDst = rcp(rsqrt(m)) - m,                 // Used in case 3.
+    #else
+      liteDst = sqrt_(m) - m,
+    #endif
       liteSrc = d*sa + da*(s2 - sa) * if_then_else(two(two(d)) <= da, darkDst, liteDst); // 2 or 3?
     return s*inv(da) + d*inv(sa) + if_then_else(s2 <= sa, darkSrc, liteSrc);      // 1 or (2 or 3)?
 }
@@ -3096,23 +3100,31 @@ SI F mad(F f, F m, F a) { return f*m+a; }
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
 SI F rcp(F x) {
-#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
-    __m256 lo,hi;
-    split(x, &lo,&hi);
-    return join<F>(_mm256_rcp_ps(lo), _mm256_rcp_ps(hi));
-#elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
-    __m128 lo,hi;
-    split(x, &lo,&hi);
-    return join<F>(_mm_rcp_ps(lo), _mm_rcp_ps(hi));
-#elif defined(JUMPER_IS_NEON)
-    auto rcp = [](float32x4_t v) {
-        auto est = vrecpeq_f32(v);
-        return vrecpsq_f32(v,est)*est;
-    };
-    float32x4_t lo,hi;
-    split(x, &lo,&hi);
-    return join<F>(rcp(lo), rcp(hi));
+#if defined(SK_RASTER_PIPELINE_LEGACY_RCP_RSQRT)
+    #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
+        __m256 lo,hi;
+        split(x, &lo,&hi);
+        return join<F>(_mm256_rcp_ps(lo), _mm256_rcp_ps(hi));
+    #elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
+        __m128 lo,hi;
+        split(x, &lo,&hi);
+        return join<F>(_mm_rcp_ps(lo), _mm_rcp_ps(hi));
+    #elif defined(JUMPER_IS_NEON)
+        auto rcp = [](float32x4_t v) {
+            auto est = vrecpeq_f32(v);
+            return vrecpsq_f32(v,est)*est;
+        };
+        float32x4_t lo,hi;
+        split(x, &lo,&hi);
+        return join<F>(rcp(lo), rcp(hi));
+    #else
+        return 1.0f / x;
+    #endif
 #else
+    // Please don't use _mm[256_rcp_ps, vrecp[es]q_f32, etc. here.
+    // They deliver inconsistent results, both across arch (x86 vs ARM vs ARM64),
+    // but also even within (SSE/AVX vs AVX-512, Intel vs AMD).
+    // This annoys people who want pixel-exact golden tests.  (sia:11861)
     return 1.0f / x;
 #endif
 }
