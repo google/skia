@@ -1196,6 +1196,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
                        fUseDrawInsteadOfAllRenderTargetWrites);
     writer->appendBool("Max instances per draw without crashing (or zero)",
                        fMaxInstancesPerDrawWithoutCrashing);
+    writer->appendBool("Draw range elements support", fDrawRangeElementsSupport);
 
     writer->beginArray("formats");
 
