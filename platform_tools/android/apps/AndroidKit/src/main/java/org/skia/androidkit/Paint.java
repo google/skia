@@ -8,6 +8,7 @@
 package org.skia.androidkit;
 
 import org.skia.androidkit.Color;
+import org.skia.androidkit.Shader;
 
 public class Paint {
     private long mNativeInstance;
@@ -18,6 +19,10 @@ public class Paint {
 
     public void setColor(Color c) {
         nSetColor(mNativeInstance, c.r(), c.g(), c.b(), c.a());
+    }
+
+    public void setShader(Shader shader) {
+        nSetShader(mNativeInstance, shader != null ? shader.getNativeInstance() : 0);
     }
 
     /**
@@ -40,4 +45,5 @@ public class Paint {
     private static native void nRelease(long nativeInstance);
 
     private static native void nSetColor(long nativeInstance, float r, float g, float b, float a);
+    private static native void nSetShader(long nativeInstance, long nativeShader);
 }
