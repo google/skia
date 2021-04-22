@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d667c8a_e13e0b2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-22T13:45:43Z",
+      "side": 1,
+      "message": "Fixed the ASAN failure from before (cause outlined in CL description). It was straightforward, but led to more substantial cleanup in the computeConvexity function so I didn\u0027t want to just TBR this. The diff between PS1 -\u003e PS4 shows what\u0027s changed since the original CL.",
+      "revId": "26b85ef7c71c00e0e33609a9274d98da763f99bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
