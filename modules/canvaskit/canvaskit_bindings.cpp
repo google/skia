@@ -51,6 +51,7 @@
 #include "include/private/SkShadowFlags.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
+#include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkImagePriv.h"
@@ -2045,4 +2046,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("ShadowTransparentOccluder", (int)SkShadowFlags::kTransparentOccluder_ShadowFlag);
     constant("ShadowGeometricOnly", (int)SkShadowFlags::kGeometricOnly_ShadowFlag);
     constant("ShadowDirectionalLight", (int)SkShadowFlags::kDirectionalLight_ShadowFlag);
+
+    constant("WhiteSpace_GlyphRunFlag", (int)skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
 }
