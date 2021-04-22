@@ -16,6 +16,24 @@
       "message": "lgtm, will be happy to see GrTextureProducer minimized or removed entirely",
       "revId": "fcbfb4096301c4bb6f499b84cded702ca0cbc896",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2759223f_877bf713",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-22T13:00:59Z",
+      "side": 1,
+      "message": "Yep, goal is total removal. Right now I\u0027m just making all of the calls to its methods come from SkImage_Base overrides. The next step is to move the implementations into the overrides. We\u0027ll still need a method for creating a cached SkBitmap as texure, but I think it\u0027ll just be a function not a class.",
+      "parentUuid": "d1372ceb_99b0a9be",
+      "revId": "fcbfb4096301c4bb6f499b84cded702ca0cbc896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
