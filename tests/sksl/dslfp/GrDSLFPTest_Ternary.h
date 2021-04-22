@@ -14,19 +14,15 @@
 
 class GrDSLFPTest_Ternary : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f colorGreen, SkPMColor4f colorRed) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_Ternary(colorGreen, colorRed));
+    static std::unique_ptr<GrFragmentProcessor> Make() {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_Ternary());
     }
     GrDSLFPTest_Ternary(const GrDSLFPTest_Ternary& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DSLFPTest_Ternary"; }
-    SkPMColor4f colorGreen;
-    SkPMColor4f colorRed;
 private:
-    GrDSLFPTest_Ternary(SkPMColor4f colorGreen, SkPMColor4f colorRed)
-    : INHERITED(kGrDSLFPTest_Ternary_ClassID, kNone_OptimizationFlags)
-    , colorGreen(colorGreen)
-    , colorRed(colorRed) {
+    GrDSLFPTest_Ternary()
+    : INHERITED(kGrDSLFPTest_Ternary_ClassID, kNone_OptimizationFlags) {
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

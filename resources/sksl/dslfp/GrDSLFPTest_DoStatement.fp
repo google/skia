@@ -1,11 +1,9 @@
-layout(key) in bool shouldLoop;  // always equals false
-
 // (This test code was largely borrowed from shared/DoWhileControlFlow.sksl.)
 half4 main() {
     half4 color = half4(1, 1, 1, 1);
 
     // Simple do-while loop, with no Block.
-    do color.r -= 0.25; while (shouldLoop);
+    do color.r -= 0.25; while (color.r > 0.5);
 
     // Do-while loop with a Block and Break in the middle.
     do {
