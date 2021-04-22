@@ -76,6 +76,20 @@ public:
         return false;
     }
 
+    // In some scenarios (e.g. fill or convexity checking all but the last leading move to are
+    // irrelevant to behavior). SkPath::injectMoveToIfNeeded should ensure that this is always at
+    // least 1.
+    static int LeadingMoveToCount(const SkPath& path) {
+        int verbCount = path.countVerbs();
+        auto verbs = path.fPathRef->verbsBegin();
+        for (int i = 0; i < verbCount; i++) {
+            if (verbs[i] != SkPath::Verb::kMove_Verb) {
+                return i;
+            }
+        }
+        return verbCount; // path is all move verbs
+    }
+
     static void AddGenIDChangeListener(const SkPath& path, sk_sp<SkIDChangeListener> listener) {
         path.fPathRef->addGenIDChangeListener(std::move(listener));
     }
@@ -187,15 +201,6 @@ public:
     static const SkScalar* ConicWeightData(const SkPath& path) {
         return path.fPathRef->conicWeights();
     }
-
-    /** Returns true if path formed by pts is convex.
-
-        @param pts    SkPoint array of path
-        @param count  number of entries in array
-
-        @return       true if pts represent a convex geometry
-    */
-    static bool IsConvex(const SkPoint pts[], int count);
 
     /** Returns true if the underlying SkPathRef has one single owner. */
     static bool TestingOnly_unique(const SkPath& path) {
