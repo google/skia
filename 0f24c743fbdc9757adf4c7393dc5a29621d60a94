@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3f819c8c_6c2e4f75",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-22T15:20:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc2c342a_fc36d380",
+      "range": {
+        "startLine": 23,
+        "startChar": 29,
+        "endLine": 23,
+        "endChar": 52
+      },
+      "revId": "0f24c743fbdc9757adf4c7393dc5a29621d60a94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "01ed954d_90e6848e",
         "filename": "modules/androidkit/src/Surface.cpp",
         "patchSetId": 5
