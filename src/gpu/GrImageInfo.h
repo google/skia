@@ -37,7 +37,7 @@ public:
     GrImageInfo& operator=(GrImageInfo&&) = default;
 
     GrImageInfo makeColorType(GrColorType ct) const {
-        return {this->colorInfo().makeColorType(ct), this->dimensions()};
+        return {ct, this->alphaType(), this->refColorSpace(), this->width(), this->height()};
     }
 
     GrImageInfo makeAlphaType(SkAlphaType at) const {
