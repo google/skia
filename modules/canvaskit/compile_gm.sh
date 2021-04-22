@@ -172,6 +172,17 @@ fi
 
 GMS_TO_BUILD="gm/*.cpp"
 TESTS_TO_BUILD="tests/*.cpp"
+
+# DSL FP tests need to link in compiled test shaders from the `dslfp` subdirectory.
+TESTS_TO_BUILD+=\
+" tests/sksl/dslfp/GrDSLFPTest_DoStatement.*"\
+" tests/sksl/dslfp/GrDSLFPTest_ForStatement.*"\
+" tests/sksl/dslfp/GrDSLFPTest_IfStatement.*"\
+" tests/sksl/dslfp/GrDSLFPTest_SwitchStatement.*"\
+" tests/sksl/dslfp/GrDSLFPTest_Swizzle.*"\
+" tests/sksl/dslfp/GrDSLFPTest_Ternary.*"\
+" tests/sksl/dslfp/GrDSLFPTest_WhileStatement.*"
+
 # When developing locally, it can be faster to focus only on the gms or tests you care about
 # (since they all have to be recompiled/relinked) every time. To do so, mark the following as true
 if false; then
