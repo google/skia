@@ -31,10 +31,6 @@ public:
     }
     bool operator!=(const GrColorInfo& that) const { return !(*this == that); }
 
-    GrColorInfo makeColorType(GrColorType ct) const {
-        return GrColorInfo(ct, fAlphaType, this->refColorSpace());
-    }
-
     bool isLinearlyBlended() const { return fColorSpace && fColorSpace->gammaIsLinear(); }
 
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
