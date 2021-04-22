@@ -65,7 +65,8 @@ public:
                             const GrSurfaceProxy* const geomProcTextures[],
                             GrVkCommandBuffer*);
 
-    bool setAndBindInputAttachment(GrVkGpu*, GrVkRenderTarget* renderTarget, GrVkCommandBuffer*);
+    bool setAndBindInputAttachment(GrVkGpu*, gr_rp<const GrVkDescriptorSet> inputDescSet,
+                                   GrVkCommandBuffer*);
 
     void bindPipeline(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
 

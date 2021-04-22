@@ -7,6 +7,7 @@
 
 #include "src/gpu/vk/GrVkAttachment.h"
 
+#include "src/gpu/vk/GrVkDescriptorSet.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkImageView.h"
@@ -196,25 +197,93 @@ sk_sp<GrVkAttachment> GrVkAttachment::MakeWrapped(
                                                     backendOwnership, cacheable, forSecondaryCB));
 }
 
+static void write_input_desc_set(GrVkGpu* gpu, VkImageView view, VkImageLayout layout,
+                                 VkDescriptorSet descSet) {
+    VkDescriptorImageInfo imageInfo;
+    memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
+    imageInfo.sampler = VK_NULL_HANDLE;
+    imageInfo.imageView = view;
+    imageInfo.imageLayout = layout;
+
+    VkWriteDescriptorSet writeInfo;
+    memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
+    writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeInfo.pNext = nullptr;
+    writeInfo.dstSet = descSet;
+    writeInfo.dstBinding = GrVkUniformHandler::kInputBinding;
+    writeInfo.dstArrayElement = 0;
+    writeInfo.descriptorCount = 1;
+    writeInfo.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+    writeInfo.pImageInfo = &imageInfo;
+    writeInfo.pBufferInfo = nullptr;
+    writeInfo.pTexelBufferView = nullptr;
+
+    GR_VK_CALL(gpu->vkInterface(), UpdateDescriptorSets(gpu->device(), 1, &writeInfo, 0, nullptr));
+}
+
+gr_rp < const GrVkDescriptorSet> GrVkAttachment::inputDescSetForBlending(GrVkGpu* gpu) {
+    if (!this->supportsInputAttachmentUsage()) {
+        return nullptr;
+    }
+    if (fCachedBlendingInputDescSet) {
+        return fCachedBlendingInputDescSet;
+    }
+
+    fCachedBlendingInputDescSet.reset(gpu->resourceProvider().getInputDescriptorSet());
+    if (!fCachedBlendingInputDescSet) {
+        return nullptr;
+    }
+
+    write_input_desc_set(gpu,
+                         this->framebufferView()->imageView(),
+                         VK_IMAGE_LAYOUT_GENERAL,
+                         *fCachedBlendingInputDescSet->descriptorSet());
+
+    return fCachedBlendingInputDescSet;
+}
+
+gr_rp<const GrVkDescriptorSet> GrVkAttachment::inputDescSetForMSAALoad(GrVkGpu* gpu) {
+    if (!this->supportsInputAttachmentUsage()) {
+        return nullptr;
+    }
+    if (fCachedMSAALoadInputDescSet) {
+        return fCachedMSAALoadInputDescSet;
+    }
+
+    fCachedMSAALoadInputDescSet.reset(gpu->resourceProvider().getInputDescriptorSet());
+    if (!fCachedMSAALoadInputDescSet) {
+        return nullptr;
+    }
+
+    write_input_desc_set(gpu,
+                         this->framebufferView()->imageView(),
+                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                         *fCachedMSAALoadInputDescSet->descriptorSet());
+
+    return fCachedMSAALoadInputDescSet;
+}
+
 GrVkAttachment::~GrVkAttachment() {
     // should have been released or abandoned first
     SkASSERT(!fFramebufferView);
     SkASSERT(!fTextureView);
 }
 
-void GrVkAttachment::onRelease() {
+void GrVkAttachment::release() {
     this->releaseImage();
     fFramebufferView.reset();
     fTextureView.reset();
+    fCachedBlendingInputDescSet.reset();
+    fCachedMSAALoadInputDescSet.reset();
+}
 
+void GrVkAttachment::onRelease() {
+    this->release();
     GrAttachment::onRelease();
 }
 
 void GrVkAttachment::onAbandon() {
-    this->releaseImage();
-    fFramebufferView.reset();
-    fTextureView.reset();
-
+    this->release();
     GrAttachment::onAbandon();
 }
 

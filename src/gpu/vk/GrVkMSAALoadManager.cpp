@@ -121,21 +121,13 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
                                               GrVkCommandBuffer* commandBuffer,
                                               const GrVkRenderPass& renderPass,
-                                              GrSurface* dst,
-                                              GrSurface* src,
+                                              GrAttachment* dst,
+                                              GrVkAttachment* src,
                                               const SkIRect& rect) {
-    GrVkRenderTarget* dstRt = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
-    if (!dstRt) {
+    if (!dst) {
         return false;
     }
-
-    GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
-    if (!srcRT) {
-        return false;
-    }
-
-    if (!srcRT->resolveAttachment() ||
-        !srcRT->resolveAttachment()->supportsInputAttachmentUsage()) {
+    if (!src || !src->supportsInputAttachmentUsage()) {
         return false;
     }
 
@@ -151,8 +143,8 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
     GrVkResourceProvider& resourceProv = gpu->resourceProvider();
 
     sk_sp<const GrVkPipeline> pipeline =
-            resourceProv.findOrCreateMSAALoadPipeline(renderPass, dstRt, fShaderStageInfo,
-                                                      fPipelineLayout);
+            resourceProv.findOrCreateMSAALoadPipeline(renderPass, dst->numSamples(),
+                                                      fShaderStageInfo, fPipelineLayout);
     if (!pipeline) {
         return false;
     }
@@ -209,7 +201,7 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
     commandBuffer->addGrBuffer(std::move(uniformBuffer));
 
     // Update the input descriptor set
-    const GrVkDescriptorSet* inputDS = srcRT->inputDescSet(gpu, /*forResolve=*/true);
+    gr_rp<const GrVkDescriptorSet> inputDS = src->inputDescSetForMSAALoad(gpu);
     if (!inputDS) {
         return false;
     }
@@ -220,7 +212,7 @@ bool GrVkMSAALoadManager::loadMSAAFromResolve(GrVkGpu* gpu,
 
     // We don't need to add the src and dst resources here since those are all tracked by the main
     // render pass code out in GrVkOpsRenderPass and GrVkRenderTarget::adResources.
-    commandBuffer->addRecycledResource(inputDS);
+    commandBuffer->addRecycledResource(std::move(inputDS));
 
     commandBuffer->draw(gpu, 4, 1, 0, 0);
 

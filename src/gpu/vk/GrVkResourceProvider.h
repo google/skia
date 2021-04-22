@@ -150,7 +150,7 @@ public:
 
     sk_sp<const GrVkPipeline> findOrCreateMSAALoadPipeline(
             const GrVkRenderPass& renderPass,
-            const GrVkRenderTarget* dst,
+            int numSamples,
             VkPipelineShaderStageCreateInfo*,
             VkPipelineLayout);
 

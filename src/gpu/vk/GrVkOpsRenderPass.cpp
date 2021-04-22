@@ -203,10 +203,8 @@ bool GrVkOpsRenderPass::beginRenderPass(const VkClearValue& clearColor,
         adjustedBounds = nativeBounds;
     }
 
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-
-    if (!fGpu->beginRenderPass(fCurrentRenderPass, fFramebuffer, &clearColor, vkRT, adjustedBounds,
-                               firstSubpassUsesSecondaryCB)) {
+    if (!fGpu->beginRenderPass(fCurrentRenderPass, fFramebuffer, &clearColor, fRenderTarget,
+                               adjustedBounds, firstSubpassUsesSecondaryCB)) {
         if (fCurrentSecondaryCommandBuffer) {
             fCurrentSecondaryCommandBuffer->end(fGpu);
         }
@@ -295,8 +293,9 @@ GrVkCommandBuffer* GrVkOpsRenderPass::currentCommandBuffer() {
 }
 
 void GrVkOpsRenderPass::loadResolveIntoMSAA(const SkIRect& nativeBounds) {
-    fGpu->loadMSAAFromResolve(this->currentCommandBuffer(), *fCurrentRenderPass, fRenderTarget,
-                              fRenderTarget, nativeBounds);
+    fGpu->loadMSAAFromResolve(this->currentCommandBuffer(), *fCurrentRenderPass,
+                              fFramebuffer->colorAttachment(), fFramebuffer->resolveAttachment(),
+                              nativeBounds);
     fGpu->currentCommandBuffer()->nexSubpass(fGpu, SkToBool(fCurrentSecondaryCommandBuffer));
 
     // If we loaded the resolve attachment, then we would have set the image layout to be
@@ -705,8 +704,13 @@ bool GrVkOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,
         return false;
     }
     if (fSelfDependencyFlags == SelfDependencyFlags::kForInputAttachment) {
-        return fCurrentPipelineState->setAndBindInputAttachment(
-                fGpu, static_cast<GrVkRenderTarget*>(fRenderTarget), this->currentCommandBuffer());
+        // We bind the color attachment as an input attachment
+        auto ds = fFramebuffer->colorAttachment()->inputDescSetForBlending(fGpu);
+        if (!ds) {
+            return false;
+        }
+        return fCurrentPipelineState->setAndBindInputAttachment(fGpu, std::move(ds),
+                                                                this->currentCommandBuffer());
     }
     return true;
 }
