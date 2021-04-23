@@ -391,8 +391,9 @@ void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 }
 
 void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
-                          const GrProcessorSet::Analysis& processorAnalysis,
-                          GrAppliedClip&& clip, const DstProxyView& dstProxyView,
+                          GrDrawOp::FixedFunctionFlags fixedFunctionFlags,
+                          const GrProcessorSet::Analysis& processorAnalysis, GrAppliedClip&& clip,
+                          const DstProxyView& dstProxyView,
                           GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
     auto addDependency = [&](GrSurfaceProxy* p, GrMipmapped mipmapped) {
         this->addSampledTexture(p);
@@ -422,6 +423,7 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 
     this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
                    &dstProxyView, caps);
+    fUsesMSAASurface |= (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA);
 }
 
 void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
@@ -733,6 +735,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         fClippedContentBounds.join(opsTask->fClippedContentBounds);
         fTotalBounds.join(opsTask->fTotalBounds);
         fRenderPassXferBarriers |= opsTask->fRenderPassXferBarriers;
+        fUsesMSAASurface |= opsTask->fUsesMSAASurface;
         SkDEBUGCODE(fNumClips += opsTask->fNumClips);
     }
 
