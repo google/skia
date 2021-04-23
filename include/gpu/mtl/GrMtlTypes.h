@@ -44,6 +44,12 @@ public:
     }
 };
 
-#endif
+#else // __APPLE__
 
-#endif
+#define SK_API_AVAILABLE_CA_METAL_LAYER SK_API_AVAILABLE(macos(10.11), ios(13.0))
+
+struct GrMtlTextureInfo;
+
+#endif // __APPLE
+
+#endif // GrMtlTypes_DEFINED
