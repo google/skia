@@ -103,6 +103,14 @@ public:
     // Applies any necessary workarounds and returns the GL primitive type to use in draw calls.
     GrGLenum prepareToDraw(GrPrimitiveType primitiveType);
 
+    enum class ResolveDirection : bool {
+        kSingleToMSAA,
+        kMSAAToSingle
+    };
+
+    void resolveRenderFBOs(GrGLRenderTarget*, const SkIRect& resolveRect, ResolveDirection,
+                           bool invalidateReadBufferAfterBlit = false);
+
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLOpsRenderPass.
@@ -115,12 +123,12 @@ public:
     void clearStencilClip(const GrScissorState&, bool insideStencilMask,
                           GrRenderTarget*, bool useMultisampleFBO, GrSurfaceOrigin);
 
-    void beginCommandBuffer(GrRenderTarget*, bool useMultisampleFBO,
+    void beginCommandBuffer(GrGLRenderTarget*, bool useMultisampleFBO,
                             const SkIRect& bounds, GrSurfaceOrigin,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore);
 
-    void endCommandBuffer(GrRenderTarget*, bool useMultisampleFBO,
+    void endCommandBuffer(GrGLRenderTarget*, bool useMultisampleFBO,
                           const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                           const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore);
 
@@ -134,9 +142,7 @@ public:
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
                                            const GrBackendFormat& format,
                                            int numSamples,
-                                           GrProtected isProtected) override {
-        return nullptr;
-    }
+                                           GrProtected isProtected) override;
 
     void deleteBackendTexture(const GrBackendTexture&) override;
 
