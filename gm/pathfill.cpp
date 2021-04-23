@@ -683,3 +683,24 @@ DEF_SIMPLE_GM(path_arcto_skbug_9077, canvas, 200, 200) {
     path.arcTo(pts[3], pts[4], radius);
     canvas->drawPath(path.detach(), p);
 }
+
+DEF_SIMPLE_GM(path_skbug_11859, canvas, 512, 512) {
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setAntiAlias(true);
+
+    SkPath path;
+    path.moveTo(258, -2);
+    path.lineTo(258, 258);
+    path.lineTo(237, 258);
+    path.lineTo(240, -2);
+    path.lineTo(258, -2);
+    path.moveTo(-2, -2);
+    path.lineTo(240, -2);
+    path.lineTo(238, 131);
+    path.lineTo(-2, 131);
+    path.lineTo(-2, -2);
+
+    canvas->scale(2, 2);
+    canvas->drawPath(path, paint);
+}
