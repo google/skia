@@ -784,7 +784,7 @@ void DSLCPPCodeGenerator::writeStatement(const Statement& s) {
 }
 
 void DSLCPPCodeGenerator::writeSetting(const Setting& s) {
-    this->writef("sk_Caps.%s", s.name().c_str());
+    this->writef("sk_Caps.%s()", s.name().c_str());
 }
 
 bool DSLCPPCodeGenerator::writeSection(const char* name, const char* prefix) {
