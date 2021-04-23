@@ -53,6 +53,8 @@ private:
 
     void writeVar(const Variable& var);
 
+    void writeVarCtorExpression(const Variable& var);
+
     void writeVarDeclaration(const VarDeclaration& var, bool global);
 
     void writef(const char* s, va_list va) SK_PRINTF_LIKE(2, 0);
