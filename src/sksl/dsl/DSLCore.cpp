@@ -230,6 +230,14 @@ DSLExpression Any(DSLExpression x, PositionInfo pos) {
     return DSLExpression(DSLCore::Call("any", std::move(x)), pos);
 }
 
+DSLExpression Atan(DSLExpression y_over_x, PositionInfo pos) {
+    return DSLExpression(DSLCore::Call("atan", std::move(y_over_x)), pos);
+}
+
+DSLExpression Atan(DSLExpression y, DSLExpression x, PositionInfo pos) {
+    return DSLExpression(DSLCore::Call("atan", std::move(y), std::move(x)), pos);
+}
+
 DSLExpression Ceil(DSLExpression x, PositionInfo pos) {
     return DSLExpression(DSLCore::Call("ceil", std::move(x)), pos);
 }
