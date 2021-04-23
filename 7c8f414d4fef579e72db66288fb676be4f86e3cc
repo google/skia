@@ -70,6 +70,30 @@
       },
       "revId": "7c8f414d4fef579e72db66288fb676be4f86e3cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5e3bc5d_2f4e320f",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1476,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-23T14:41:16Z",
+      "side": 1,
+      "message": "I should add the backendformat variable is for the color attachment so the name would be something like colorAttachmentFormat",
+      "parentUuid": "d4869869_577a6a12",
+      "range": {
+        "startLine": 1476,
+        "startChar": 4,
+        "endLine": 1476,
+        "endChar": 52
+      },
+      "revId": "7c8f414d4fef579e72db66288fb676be4f86e3cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
