@@ -16,6 +16,24 @@
       "message": "Cool, I didn\u0027t realize we\u0027d got to the point where every type supported tracking. Although, has there also been discussion on whether or not tracking is a feature we want to keep? Or just always update values in onSetData?",
       "revId": "86e936c9344a6c2c0526830bd0b3129cd9292c18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbd40ae0_57315fd9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-23T15:21:59Z",
+      "side": 1,
+      "message": "It\u0027d save me a lot of effort if we no longer needed to support tracking :) But I hadn\u0027t heard of any effort to abolish it.",
+      "parentUuid": "e9b01161_303e5f92",
+      "revId": "86e936c9344a6c2c0526830bd0b3129cd9292c18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
