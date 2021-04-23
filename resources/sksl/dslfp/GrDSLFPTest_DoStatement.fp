@@ -16,7 +16,7 @@ half4 main() {
     // Do-while loop with a Block and Continue in the middle.
     do {
         color.b -= 0.25;
-        if (color.a == 1) continue; // should always happen
+        if (color.a == 1 || sk_Caps.builtinFMASupport) continue; // should always happen
         color.g = 0;
     } while (color.b > 0);
 
