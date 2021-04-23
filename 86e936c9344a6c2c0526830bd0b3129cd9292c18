@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8998daae_477fa7d3",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-23T15:24:06Z",
+      "side": 0,
+      "message": "Accidental vector\u003cstring\u003e copy",
+      "range": {
+        "startLine": 239,
+        "startChar": 12,
+        "endLine": 239,
+        "endChar": 53
+      },
+      "revId": "86e936c9344a6c2c0526830bd0b3129cd9292c18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
