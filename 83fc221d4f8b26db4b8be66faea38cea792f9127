@@ -46,6 +46,30 @@
       },
       "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a70b0ba7_34efa36f",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-23T19:07:32Z",
+      "side": 1,
+      "message": "http://go/cstyle#common_patterns\n\n• If all else fails, you can create an object dynamically and never delete it by using a function-local static pointer or reference (e.g., static const auto\u0026 impl \u003d *new T(args...);) or gtl::NoDestructor.",
+      "parentUuid": "d3048642_01f3e0a1",
+      "range": {
+        "startLine": 161,
+        "startChar": 44,
+        "endLine": 161,
+        "endChar": 48
+      },
+      "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
