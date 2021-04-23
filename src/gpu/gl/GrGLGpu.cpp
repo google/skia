@@ -1687,7 +1687,9 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
 }
 
 sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                  SkISize dimensions) {
+                                                                  SkISize dimensions,
+                                                                  int numStencilSamples) {
+    SkASSERT(numStencilSamples == rt->numSamples());
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 
@@ -1838,10 +1840,10 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
     if (programInfo.isStencilEnabled()) {
-        SkASSERT(glRT->getStencilAttachment());
+        SkASSERT(glRT->getStencilAttachment(useMultisampleFBO));
         stencil.reset(*programInfo.userStencilSettings(),
                       programInfo.pipeline().hasStencilClip(),
-                      glRT->numStencilBits());
+                      glRT->numStencilBits(useMultisampleFBO));
     }
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
@@ -2040,13 +2042,14 @@ void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, bool useMultisampleFBO,
 }
 
 void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask,
-                               GrRenderTarget* target, GrSurfaceOrigin origin) {
+                               GrRenderTarget* target, bool useMultisampleFBO,
+                               GrSurfaceOrigin origin) {
     SkASSERT(target);
     SkASSERT(!this->caps()->performStencilClearsAsDraws());
     SkASSERT(!scissor.enabled() || !this->caps()->performPartialClearsAsDraws());
     this->handleDirtyContext();
 
-    GrAttachment* sb = target->getStencilAttachment();
+    GrAttachment* sb = target->getStencilAttachment(useMultisampleFBO);
     if (!sb) {
         // We should only get here if we marked a proxy as requiring a SB. However,
         // the SB creation could later fail. Likely clipping is going to go awry now.
@@ -2072,7 +2075,7 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
         value = 0;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->flushRenderTargetNoColorWrites(glRT, glRT->stencilIsOnMultisampleFBO());
+    this->flushRenderTargetNoColorWrites(glRT, useMultisampleFBO);
 
     this->flushScissor(scissor, glRT->height(), origin);
     this->disableWindowRectangles();

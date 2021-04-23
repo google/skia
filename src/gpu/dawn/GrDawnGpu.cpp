@@ -294,7 +294,9 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRender
 }
 
 sk_sp<GrAttachment> GrDawnGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                    SkISize dimensions) {
+                                                                    SkISize dimensions,
+                                                                    int numStencilSamples) {
+    SkASSERT(numStencilSamples == rt->numSamples());
     fStats.incStencilAttachmentCreates();
     return GrDawnAttachment::MakeStencil(this, dimensions, rt->numSamples());
 }

@@ -31,7 +31,7 @@ public:
                             const GrGLRenderTarget::IDs&,
                             GrMipmapStatus);
 
-    bool canAttemptStencilAttachment() const override;
+    bool canAttemptStencilAttachment(bool useMSAASurface) const override;
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 

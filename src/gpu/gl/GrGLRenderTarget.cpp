@@ -100,11 +100,12 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
+    bool useMultisampleFBO = (this->numSamples() > 1);
     GrGLFramebufferInfo fbi;
-    fbi.fFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
+    fbi.fFBOID = (useMultisampleFBO) ? fMultisampleFBOID : fSingleSampleFBOID;
     fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
-    if (GrAttachment* stencil = this->getStencilAttachment()) {
+    if (GrAttachment* stencil = this->getStencilAttachment(useMultisampleFBO)) {
         numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
     }
 
@@ -123,13 +124,11 @@ size_t GrGLRenderTarget::onGpuMemorySize() const {
                                   fTotalMemorySamplesPerPixel, GrMipmapped::kNo);
 }
 
-bool GrGLRenderTarget::completeStencilAttachment() {
+bool GrGLRenderTarget::completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) {
     GrGLGpu* gpu = this->getGLGpu();
     const GrGLInterface* interface = gpu->glInterface();
-    GrAttachment* stencil = this->getStencilAttachment();
+    GrGLuint stencilFBOID = (this->numSamples() > 1) ? fMultisampleFBOID : fSingleSampleFBOID;
 
-    GrGLuint stencilFBOID = (this->stencilIsOnMultisampleFBO()) ? fMultisampleFBOID
-                                                                : fSingleSampleFBOID;
     gpu->invalidateBoundRenderTarget();
     gpu->bindFramebuffer(GR_GL_FRAMEBUFFER, stencilFBOID);
 
@@ -203,7 +202,7 @@ GrGLGpu* GrGLRenderTarget::getGLGpu() const {
     return static_cast<GrGLGpu*>(this->getGpu());
 }
 
-bool GrGLRenderTarget::canAttemptStencilAttachment() const {
+bool GrGLRenderTarget::canAttemptStencilAttachment(bool useMSAASurface) const {
     if (this->getGpu()->getContext()->priv().caps()->avoidStencilBuffers()) {
         return false;
     }
