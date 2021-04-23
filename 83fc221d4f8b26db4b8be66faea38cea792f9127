@@ -22,6 +22,30 @@
       },
       "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3048642_01f3e0a1",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-23T18:56:13Z",
+      "side": 1,
+      "message": "This is a trick I learned from my time in Google3. \n\nGoogle3 forbids statics or globals with non-trivial destructors, because you can\u0027t control destruction order and it is too easy to make brittle/fragile code. e.g. code like this is forbidden:\n\n    static MyObjectWithADestructor obj;  // what if another static object references it? destruction order fiasco.\n\nThe workaround is to create it with `new`; now the object is never deleted and lives until the process is terminated:\n\n    static MyObjectWithADestructor\u0026 obj \u003d *new MyObjectWithADestructor;  // lives forever, no destruction order fiasco.\n\nThe allocation is permanently owned and always reachable from the static.\nIt doesn\u0027t matter if it\u0027s on the heap or not, it uses the same amount of memory either way (modulo rounding error).",
+      "parentUuid": "b15f09e4_0fa035c2",
+      "range": {
+        "startLine": 161,
+        "startChar": 44,
+        "endLine": 161,
+        "endChar": 48
+      },
+      "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
