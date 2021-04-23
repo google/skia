@@ -16,6 +16,69 @@
       "message": "This has been revamped and is ready to go! PTAL",
       "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c2cabcc_b9c6a36c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-23T15:03:27Z",
+      "side": 1,
+      "message": "At the end of every render pass the single sample FBO is always authoritative, right? Could we disassociate the msaa attachment and let ensureDynamicMSAAAttachment() rebind at the next triggering render pass? Otherwise it seems like we have GrRenderTargets cycling through the scratch cache with no distinction between those that have dmsaa attachments and those that don\u0027t.",
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89c623eb_518af193",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1969,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-23T15:03:27Z",
+      "side": 1,
+      "message": "just \"rt\"?",
+      "range": {
+        "startLine": 1969,
+        "startChar": 51,
+        "endLine": 1969,
+        "endChar": 55
+      },
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fba8268_c76cfa1d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2009,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-23T15:03:27Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 2009,
+        "startChar": 49,
+        "endLine": 2009,
+        "endChar": 53
+      },
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
