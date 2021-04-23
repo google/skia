@@ -293,10 +293,10 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRender
     return GrDawnRenderTarget::MakeWrapped(this, dimensions, sampleCnt, info);
 }
 
-sk_sp<GrAttachment> GrDawnGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                    SkISize dimensions) {
+sk_sp<GrAttachment> GrDawnGpu::makeStencilAttachment(const GrBackendFormat& /*colorFormat*/,
+                                                     SkISize dimensions, int numStencilSamples) {
     fStats.incStencilAttachmentCreates();
-    return GrDawnAttachment::MakeStencil(this, dimensions, rt->numSamples());
+    return GrDawnAttachment::MakeStencil(this, dimensions, numStencilSamples);
 }
 
 GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,

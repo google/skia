@@ -157,8 +157,6 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
-    bool canChangeStencilAttachment() const;
-
     size_t onUninstantiatedGpuMemorySize() const override;
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 
