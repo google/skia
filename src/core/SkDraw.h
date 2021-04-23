@@ -59,7 +59,7 @@ public:
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
-                       const SkSamplingOptions&, const SkPaint&) const;
+                       const SkSamplingOptions&, const SkPaint&) const override;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                              const SkPaint& paint,

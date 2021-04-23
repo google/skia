@@ -395,7 +395,6 @@ void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
 
     if (blob == nullptr || !blob->canReuse(paint, drawMatrix)) {
         if (blob != nullptr) {
-            SkASSERT(!drawMatrix.hasPerspective());
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
             //      but we'd have to clear the SubRun information
