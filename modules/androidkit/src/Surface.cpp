@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "modules/androidkit/src/Surface.h"
+
 #include <android/bitmap.h>
 #include <android/log.h>
 #include <android/native_window_jni.h>
@@ -15,24 +17,32 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 
-#include "modules/androidkit/src/SurfaceThread.h"
+SkCanvas* Surface::getCanvas() const {
+    if (fSurface) {
+        return fSurface->getCanvas();
+    }
+    return nullptr;
+}
+
+// SkSurface created from being passed an android.view.Surface
+// For now, assume we are always rendering with OpenGL
+SurfaceSurface::SurfaceSurface(JNIEnv* env, jobject surface) {
+    // TODO: when creating multiple surfaces, they should use the same SurfaceThread
+    fWindow = ANativeWindow_fromSurface(env, surface);
+    Message message(kSurfaceCreated);
+    message.fNativeWindow = fWindow;
+    fThread.postMessage(message);
+}
+
+void SurfaceSurface::release(JNIEnv* env) {
+    fThread.postMessage(Message(kAllSurfacesDestroyed));
+    if (fWindow) {
+        ANativeWindow_release(fWindow);
+    }
+    fSurface.reset();
+}
 
 namespace {
-
-class Surface : public SkRefCnt {
-public:
-    virtual void release(JNIEnv*) = 0;
-
-    SkCanvas* getCanvas() const {
-        if (fSurface) {
-            return fSurface->getCanvas();
-        }
-        return nullptr;
-    }
-
-protected:
-    sk_sp<SkSurface> fSurface;
-};
 
 class BitmapSurface final : public Surface {
 public:
@@ -95,28 +105,6 @@ private:
     jobject fBitmap;
 };
 
-// SkSurface created from being passed an android.view.Surface
-// For now, assume we are always rendering with OpenGL
-class SurfaceSurface final : public Surface {
-public:
-    SurfaceSurface(JNIEnv* env, jobject surface) {
-        // TODO: when creating multiple surfaces, they should use the same SurfaceThread
-        fWindow = ANativeWindow_fromSurface(env, surface);
-    }
-
-private:
-    void release(JNIEnv* env) override {
-        fThread.postMessage(Message(kAllSurfacesDestroyed));
-        if (fWindow) {
-            ANativeWindow_release(fWindow);
-        }
-       fSurface.reset();
-    }
-
-    ANativeWindow* fWindow;
-    // TODO: Decouple thread from SurfaceSurface if user wants to manage their own thread
-    SurfaceThread fThread;
-};
 
 // JNI methods
 
@@ -128,7 +116,13 @@ static jlong Surface_CreateSurface(JNIEnv* env, jobject, jobject surface) {
     return reinterpret_cast<jlong>(new SurfaceSurface(env, surface));
 }
 
-//TODO support software surfaces and Vulkan surfaces
+static void Surface_UpdateSurface(JNIEnv* env, jobject, jobject surface, jlong native_surface, jint format, jint width, jint height) {
+    // if (auto* surface = reinterpret_cast<SurfaceSurface*>(native_surface)) {
+    //     Message message(kSurfaceChanged);
+    //     message.fNativeWindow = surface->fWindow;
+    //     surface->fThread.postMessage(message);
+    // }
+}
 
 static void Surface_Release(JNIEnv* env, jobject, jlong native_surface) {
     if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
@@ -152,6 +146,8 @@ int register_androidkit_Surface(JNIEnv* env) {
             reinterpret_cast<void*>(Surface_CreateBitmap)},
         {"nCreateSurface"  , "(Landroid/view/Surface;)J",
             reinterpret_cast<void*>(Surface_CreateSurface)},
+        {"nUpdateSurface"  , "(Landroid/view/Surface;JIII)V",
+            reinterpret_cast<void*>(Surface_UpdateSurface)},
         {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)},
         {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
     };

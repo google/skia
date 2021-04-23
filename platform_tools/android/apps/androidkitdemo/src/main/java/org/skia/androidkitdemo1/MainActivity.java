@@ -20,6 +20,8 @@ import org.skia.androidkit.Paint;
 import org.skia.androidkit.Surface;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
+    private Surface surfaceSurface;
+
     static {
         System.loadLibrary("androidkit");
     }
@@ -41,23 +43,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         image.setImageBitmap(bmp);
 
         //Surface
-        Surface surfaceSurface;
         SurfaceView surfaceView = findViewById(R.id.surface);
         surfaceView.getHolder().addCallback(this);
     }
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
-        Surface surfaceSurface = new Surface(holder.getSurface());
+        surfaceSurface = new Surface(holder.getSurface());
     }
 
     @Override
     public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-
+        surfaceSurface.updateSurface(holder.getSurface(), format, width, height);
     }
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-
+        surfaceSurface.release();
     }
 }
