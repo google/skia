@@ -5,6 +5,8 @@
 * found in the LICENSE file.
 */
 
+#include "tools/viewer/Viewer.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
@@ -43,13 +45,13 @@
 #include "tools/viewer/BisectSlide.h"
 #include "tools/viewer/GMSlide.h"
 #include "tools/viewer/ImageSlide.h"
+#include "tools/viewer/MSKPSlide.h"
 #include "tools/viewer/ParticlesSlide.h"
 #include "tools/viewer/SKPSlide.h"
 #include "tools/viewer/SampleSlide.h"
 #include "tools/viewer/SkSLSlide.h"
 #include "tools/viewer/SlideDir.h"
 #include "tools/viewer/SvgSlide.h"
-#include "tools/viewer/Viewer.h"
 
 #include <cstdlib>
 #include <map>
@@ -159,6 +161,7 @@ static DEFINE_string2(match, m, nullptr,
 #else
     static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
     static DEFINE_string(skps, "skps", "Directory to read skps from.");
+    static DEFINE_string(mskps, "mskps", "Directory to read mskps from.");
     static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
     static DEFINE_string(rives, "rives", "Directory to read Rive (Flare) files from.");
 #endif
@@ -735,6 +738,10 @@ void Viewer::initSlides() {
         const CommandLineFlags::StringArray&   fFlags;
         const SlideFactory                     fFactory;
     } gExternalSlidesInfo[] = {
+        { ".mskp", "mskp-dir", FLAGS_mskps,
+          [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+            return sk_make_sp<MSKPSlide>(name, path);}
+        },
         { ".skp", "skp-dir", FLAGS_skps,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SKPSlide>(name, path);}
