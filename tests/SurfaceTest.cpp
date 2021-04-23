@@ -1007,7 +1007,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             // our surface functions.
             auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
             GrRenderTarget* rt = sdc->accessRenderTarget();
-            REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt));
+            REPORTER_ASSERT(reporter,
+                            resourceProvider->attachStencilAttachment(rt, rt->numSamples() > 1));
         }
     }
 }
