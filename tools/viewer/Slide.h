@@ -36,7 +36,6 @@ public:
 
     const SkString& getName() { return fName; }
 
-
 protected:
     SkString    fName;
 };
