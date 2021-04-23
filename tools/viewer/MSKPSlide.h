@@ -28,10 +28,12 @@ public:
 
 private:
     std::unique_ptr<SkStreamSeekable> fStream;
-    std::unique_ptr<MSKPPlayer> fPlayer;
-    int fFrame = 0;
-    int fFPS = 15;  // TODO: make this adjustable. This happens to work well for calendar.mskp
-    double fLastFrameTime = 0;
+    std::unique_ptr<MSKPPlayer>       fPlayer;
+
+    int    fFrame         = 0;
+    int    fFPS           = 15;
+    bool   fPaused        = false;
+    double fLastFrameTime = -1;
 
     using INHERITED = Slide;
 };
