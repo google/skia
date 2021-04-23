@@ -184,10 +184,9 @@ static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext*
                                                              const SkMatrix& origViewMatrix,
                                                              const GrStyledShape& shape,
                                                              int sampleCnt) {
-    // We cache blur masks. Use the same surface props every time so we can use the same cached mask
-    // regardless of the final dst surface. Also allow dynamic msaa if supported since our policy is
-    // to draw everything antialiased in blurs anyway.
-    SkSurfaceProps surfaceProps(kDMSAA_SkSurfacePropsPrivateFlag, kUnknown_SkPixelGeometry);
+    // We cache blur masks. Use default surface props here so we can use the same cached mask
+    // regardless of the final dst surface.
+    SkSurfaceProps defaultSurfaceProps;
 
     // Use GrResourceProvider::MakeApprox to implement our own approximate size matching, but demand
     // a "SkBackingFit::kExact" size match on the actual render target. We do this because the
@@ -201,7 +200,7 @@ static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext*
     auto approxSize = GrResourceProvider::MakeApprox(maskRect.size());
     auto rtContext = GrSurfaceDrawContext::MakeWithFallback(context, GrColorType::kAlpha_8, nullptr,
                                                             SkBackingFit::kExact, approxSize,
-                                                            surfaceProps, sampleCnt,
+                                                            defaultSurfaceProps, sampleCnt,
                                                             GrMipmapped::kNo, GrProtected::kNo,
                                                             kMaskOrigin);
     if (!rtContext) {
