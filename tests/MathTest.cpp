@@ -8,6 +8,7 @@
 #include "include/core/SkPoint.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkFixed.h"
+#include "include/private/SkFloatRsqrt.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"

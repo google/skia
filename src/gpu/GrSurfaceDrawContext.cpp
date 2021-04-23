@@ -13,6 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrImageContext.h"
+#include "include/private/SkFloatRsqrt.h"
 #include "include/private/SkShadowFlags.h"
 #include "include/private/SkVx.h"
 #include "include/utils/SkShadowUtils.h"

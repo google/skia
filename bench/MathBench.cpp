@@ -11,6 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkFixed.h"
+#include "include/private/SkFloatRsqrt.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMathPriv.h"
 
