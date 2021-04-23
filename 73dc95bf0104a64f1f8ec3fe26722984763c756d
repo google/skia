@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0096ee26_127f8e5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T18:48:09Z",
+      "side": 1,
+      "message": "As discussed offline, for now we will share dmsaa attachments similar to how we share stencils. Once the new surface world is finished we will look into more radical departures from the old GrRenderTarget system.",
+      "parentUuid": "1c2cabcc_b9c6a36c",
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89c623eb_518af193",
@@ -58,6 +76,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4199ddd3_9dc878c0",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1969,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T18:48:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89c623eb_518af193",
+      "range": {
+        "startLine": 1969,
+        "startChar": 51,
+        "endLine": 1969,
+        "endChar": 55
+      },
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3fba8268_c76cfa1d",
@@ -71,6 +113,30 @@
       "writtenOn": "2021-04-23T15:03:27Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 2009,
+        "startChar": 49,
+        "endLine": 2009,
+        "endChar": 53
+      },
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6821e91e_f9810482",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2009,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T18:48:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fba8268_c76cfa1d",
       "range": {
         "startLine": 2009,
         "startChar": 49,
