@@ -56,6 +56,9 @@ public:
 
     GrGLFormat format() const { return fRTFormat; }
 
+    bool hasDynamicMSAAAttachment() const { return SkToBool(fDynamicMSAAAttachment); }
+    bool ensureDynamicMSAAAttachment();
+
 protected:
     // Constructor for subclasses.
     GrGLRenderTarget(GrGLGpu*,
@@ -82,6 +85,8 @@ private:
     bool completeStencilAttachment(GrAttachment* stencil, bool useMultisampleFBO) override;
 
     size_t onGpuMemorySize() const override;
+
+    sk_sp<GrGLAttachment> fDynamicMSAAAttachment;
 
     GrGLuint    fMultisampleFBOID;
     GrGLuint    fSingleSampleFBOID;
