@@ -70,8 +70,9 @@ public:
 
     void addOp(GrDrawingManager*, GrOp::Owner, GrTextureResolveManager, const GrCaps&);
 
-    void addDrawOp(GrDrawingManager*, GrOp::Owner, const GrProcessorSet::Analysis&,
-                   GrAppliedClip&&, const DstProxyView&, GrTextureResolveManager, const GrCaps&);
+    void addDrawOp(GrDrawingManager*, GrOp::Owner, GrDrawOp::FixedFunctionFlags,
+                   const GrProcessorSet::Analysis&, GrAppliedClip&&, const DstProxyView&,
+                   GrTextureResolveManager, const GrCaps&);
 
     void discard();
 

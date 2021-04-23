@@ -32,13 +32,34 @@ void GrGLOpsRenderPass::set(GrRenderTarget* rt, bool useMSAASurface, const SkIRe
 }
 
 void GrGLOpsRenderPass::onBegin() {
-    fGpu->beginCommandBuffer(fRenderTarget, fUseMultisampleFBO, fContentBounds, fOrigin,
+    auto glRT = static_cast<GrGLRenderTarget*>(fRenderTarget);
+    if (fUseMultisampleFBO && fColorLoadAndStoreInfo.fLoadOp == GrLoadOp::kLoad &&
+        glRT->hasDynamicMSAAAttachment()) {
+        // Blit the single sample fbo into the dmsaa attachment.
+        auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, fRenderTarget->height(),
+                                                         fContentBounds);
+        fGpu->resolveRenderFBOs(glRT, nativeBounds.asSkIRect(),
+                                GrGLGpu::ResolveDirection::kSingleToMSAA);
+    }
+
+    fGpu->beginCommandBuffer(glRT, fUseMultisampleFBO, fContentBounds, fOrigin,
                              fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
 }
 
 void GrGLOpsRenderPass::onEnd() {
-    fGpu->endCommandBuffer(fRenderTarget, fUseMultisampleFBO, fColorLoadAndStoreInfo,
+    auto glRT = static_cast<GrGLRenderTarget*>(fRenderTarget);
+    fGpu->endCommandBuffer(glRT, fUseMultisampleFBO, fColorLoadAndStoreInfo,
                            fStencilLoadAndStoreInfo);
+
+    if (fUseMultisampleFBO && fColorLoadAndStoreInfo.fStoreOp == GrStoreOp::kStore &&
+        glRT->hasDynamicMSAAAttachment()) {
+        // Blit the msaa attachment into the single sample fbo.
+        auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, fRenderTarget->height(),
+                                                         fContentBounds);
+        fGpu->resolveRenderFBOs(glRT, nativeBounds.asSkIRect(),
+                                GrGLGpu::ResolveDirection::kMSAAToSingle,
+                                true /*invalidateReadBufferAfterBlit*/);
+    }
 }
 
 bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,

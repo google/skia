@@ -431,3 +431,8 @@ GrDstSampleType GrCaps::getDstSampleTypeForProxy(const GrRenderTargetProxy* rt) 
     }
     return GrDstSampleType::kAsTextureCopy;
 }
+
+bool GrCaps::supportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
+    return this->internalMultisampleCount(rtProxy->backendFormat()) > 1 &&
+           this->onSupportsDynamicMSAA(rtProxy);
+}

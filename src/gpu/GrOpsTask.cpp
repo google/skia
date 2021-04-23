@@ -391,8 +391,9 @@ void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 }
 
 void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
-                          const GrProcessorSet::Analysis& processorAnalysis,
-                          GrAppliedClip&& clip, const DstProxyView& dstProxyView,
+                          GrDrawOp::FixedFunctionFlags fixedFunctionFlags,
+                          const GrProcessorSet::Analysis& processorAnalysis, GrAppliedClip&& clip,
+                          const DstProxyView& dstProxyView,
                           GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
     auto addDependency = [&](GrSurfaceProxy* p, GrMipmapped mipmapped) {
         this->addSampledTexture(p);
@@ -419,6 +420,16 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
     if (processorAnalysis.usesNonCoherentHWBlending()) {
         fRenderPassXferBarriers |= GrXferBarrierFlags::kBlend;
     }
+
+#ifdef SK_DEBUG
+    // Ensure we can support dynamic msaa if the caller is trying to trigger it.
+    GrRenderTargetProxy* rtProxy = this->target(0)->asRenderTargetProxy();
+    if (rtProxy->numSamples() == 1 &&
+        (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA)) {
+        SkASSERT(caps.supportsDynamicMSAA(rtProxy));
+    }
+#endif
+    fUsesMSAASurface |= (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA);
 
     this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
                    &dstProxyView, caps);
@@ -715,6 +726,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         fClippedContentBounds.join(opsTask->fClippedContentBounds);
         fTotalBounds.join(opsTask->fTotalBounds);
         fRenderPassXferBarriers |= opsTask->fRenderPassXferBarriers;
+        fUsesMSAASurface |= opsTask->fUsesMSAASurface;
         SkDEBUGCODE(fNumClips += opsTask->fNumClips);
     }
 

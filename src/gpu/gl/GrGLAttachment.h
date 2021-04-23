@@ -25,7 +25,8 @@ public:
                            GrProtected::kNo)
             , fFormat(format)
             , fRenderbufferID(idDesc.fRenderbufferID) {
-        SkASSERT(supportedUsages == UsageFlags::kStencilAttachment);
+        SkASSERT(supportedUsages == UsageFlags::kStencilAttachment ||
+                 supportedUsages == UsageFlags::kColorAttachment);
         this->registerWithCache(SkBudgeted::kYes);
     }
 
