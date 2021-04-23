@@ -282,10 +282,16 @@ void DSLCPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     const Variable& var = *ref.variable();
 
     if (!fCPPMode) {
-        if (var.modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
-            this->write("sk_SampleCoord()");
-            fAccessSampleCoordsDirectly = true;
-            return;
+        switch (var.modifiers().fLayout.fBuiltin) {
+            case SK_MAIN_COORDS_BUILTIN:
+                this->write("sk_SampleCoord()");
+                fAccessSampleCoordsDirectly = true;
+                return;
+            case SK_FRAGCOORD_BUILTIN:
+                this->write("sk_FragCoord()");
+                return;
+            default:
+                break;
         }
     }
 
