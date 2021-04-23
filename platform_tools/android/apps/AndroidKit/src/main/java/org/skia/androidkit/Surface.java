@@ -8,6 +8,8 @@
 package org.skia.androidkit;
 
 import android.graphics.Bitmap;
+import android.view.SurfaceHolder;
+
 import org.skia.androidkit.Canvas;
 
 public class Surface {
@@ -45,6 +47,10 @@ public class Surface {
         mNativeInstance = 0;
     }
 
+    public void updateSurface(android.view.Surface surface, int format, int width, int height) {
+        nUpdateSurface(surface, mNativeInstance, format, width, height);
+    }
+
     @Override
     protected void finalize() throws Throwable
     {
@@ -65,7 +71,8 @@ public class Surface {
 
     private static native long nCreateBitmap(Bitmap bitmap);
     private static native long nCreateSurface(android.view.Surface surface);
-
+    private static native void nUpdateSurface(android.view.Surface surface, long mNativeInstance,
+                                              int format, int w, int h);
     private static native void nRelease(long nativeInstance);
     private static native long nGetNativeCanvas(long nativeInstance);
 }
