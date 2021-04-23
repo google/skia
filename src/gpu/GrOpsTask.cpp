@@ -684,13 +684,25 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     }
 }
 
-void GrOpsTask::reset() {
-    fDeferredProxies.reset();
-    fSampledProxies.reset();
-    fClippedContentBounds = SkIRect::MakeEmpty();
-    fTotalBounds = SkRect::MakeEmpty();
-    this->deleteOps();
-    fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
+bool GrOpsTask::canBeSkippedDueToSubsequentClear(const SkTInternalLList<GrRenderTask>& list) const {
+    SkASSERT(list.isInList(this));
+    // If we are marked as preserving stencil, we can't be skipped. Too bad.
+    if (fMustPreserveStencil) {
+        return false;
+    }
+    for (auto task = fNext; task; task = task->fNext) {
+        auto opsTask = task->asOpsTask();
+        if (!opsTask || opsTask->target(0) != this->target(0)
+                     || this->fArenas != opsTask->fArenas) {
+            break;
+        }
+        SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
+        SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
+        if (GrLoadOp::kClear == opsTask->fColorLoadOp) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
@@ -703,11 +715,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         }
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
         SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
-        if (GrLoadOp::kClear == opsTask->fColorLoadOp) {
-            // TODO(11903): Go back to actually dropping ops tasks when we are merged with
-            // color clear.
-            return 0;
-        }
+        SkASSERT(GrLoadOp::kClear != opsTask->fColorLoadOp);
         mergedCount += 1;
     }
     if (0 == mergedCount) {

@@ -396,9 +396,24 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
         return false;
     }
 
+    // Move tasks that will be dropped to the end of the llist.
+    // Gather proxy intervals for tasks that we're keeping.
+    int droppedTasks = 0;
+    int i = 0;
     for (GrRenderTask* task : llist) {
-        task->gatherProxyIntervals(resourceAllocator);
+        if (i++ >= fDAG.count() - droppedTasks) {
+            break;
+        }
+        GrOpsTask* opsTask = task->asOpsTask();
+        if (opsTask && opsTask->canBeSkippedDueToSubsequentClear(llist)) {
+            droppedTasks++;
+            llist.remove(task);
+            llist.addToTail(task);
+        } else {
+            task->gatherProxyIntervals(resourceAllocator);
+        }
     }
+
     if (!resourceAllocator->planAssignment()) {
         return false;
     }
@@ -408,7 +423,13 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
         dContext->priv().getGpu()->stats()->incNumReorderedDAGsOverBudget();
         return false;
     }
+
+    // At this point we are committed, and we can
     reorder_array_by_llist(llist, &fDAG);
+    for (int i = fDAG.count() - droppedTasks; i < fDAG.count(); i++) {
+        fDAG[i]->disown(this);
+    }
+    fDAG.pop_back_n(droppedTasks);
 
     int newCount = 0;
     for (int i = 0; i < fDAG.count(); i++) {

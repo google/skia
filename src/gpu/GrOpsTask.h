@@ -19,6 +19,7 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkStringUtils.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -92,6 +93,11 @@ public:
     // Merge as many opsTasks as possible from the head of 'tasks'. They should all be
     // renderPass compatible. Return the number of tasks merged into 'this'.
     int mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks);
+
+    // Looking at the adjacent tasks in the provided LList, which 'this' must be a member of,
+    // returns true if 'this' can be skipped because an subsequent task in a series of ops tasks
+    // targeting the same surface performs a color-clear.
+    bool canBeSkippedDueToSubsequentClear(const SkTInternalLList<GrRenderTask>&) const;
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
@@ -234,9 +240,6 @@ private:
     void forwardCombine(const GrCaps&);
 
     ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
-
-    // Remove all ops, proxies, etc. Used in the merging algorithm when tasks can be skipped.
-    void reset();
 
     friend class OpsTaskTestingAccess;
 
