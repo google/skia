@@ -89,15 +89,6 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     return true;
 }
 
-bool GrRenderTargetProxy::canChangeStencilAttachment() const {
-    if (!fTarget) {
-        // If we aren't instantiated, then we definitely are an internal render target. Ganesh is
-        // free to change stencil attachments on internal render targets.
-        return true;
-    }
-    return fTarget->asRenderTarget()->canAttemptStencilAttachment();
-}
-
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
                                                        GrRenderable::kYes, GrMipmapped::kNo);

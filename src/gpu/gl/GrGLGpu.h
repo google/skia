@@ -113,7 +113,7 @@ public:
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
     // function on GrGLOpsrenderPass.
     void clearStencilClip(const GrScissorState&, bool insideStencilMask,
-                          GrRenderTarget*, GrSurfaceOrigin);
+                          GrRenderTarget*, bool useMultisampleFBO, GrSurfaceOrigin);
 
     void beginCommandBuffer(GrRenderTarget*, bool useMultisampleFBO,
                             const SkIRect& bounds, GrSurfaceOrigin,
@@ -128,8 +128,8 @@ public:
         fHWBoundRenderTargetUniqueID.makeInvalid();
     }
 
-    sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                             SkISize dimensions) override;
+    sk_sp<GrAttachment> makeStencilAttachment(const GrBackendFormat& colorFormat,
+                                              SkISize dimensions, int numStencilSamples) override;
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
                                            const GrBackendFormat& format,
@@ -332,7 +332,7 @@ private:
                          GrGpuFinishedContext finishedContext) override;
 
     GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
-                                        bool useMSAASurface,
+                                        bool useMultisampleFBO,
                                         GrAttachment*,
                                         GrSurfaceOrigin,
                                         const SkIRect&,
