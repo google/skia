@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2280ab4b_c50ade10",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-23T20:11:31Z",
+      "side": 1,
+      "message": "Also added override of Slide::gpuTeardown() to ensure that offscreen SkSurfaces are destroyed before WindowContext.",
+      "revId": "895f1f10b5f448f501f70f8788a503d501179c47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
