@@ -538,6 +538,8 @@ static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
+    SK_AT_SCOPE_EXIT(fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__));
     SkASSERT(this->numTargets() == 1);
     GrRenderTargetProxy* proxy = this->target(0)->asRenderTargetProxy();
     SkASSERT(proxy);
