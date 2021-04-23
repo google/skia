@@ -840,7 +840,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
-	if b.matchGpu("Adreno[56][0-9][0-9]") { // skia:11308, skia:11891 - disable on Adreno 5xx/6xx
+	if b.matchGpu("Adreno[456][0-9][0-9]") { // skia:11308, skia:11891 - disable on Adreno 4/5/6xx
 		skip("_", "tests", "_", "SkSLMatrixEquality_GPU")
 		skip("_", "tests", "_", "DSLFPTest_SwitchStatement")
 	}
