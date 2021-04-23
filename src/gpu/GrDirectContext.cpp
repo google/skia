@@ -402,15 +402,20 @@ GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
 
 bool GrDirectContext::submit(bool syncCpu) {
     ASSERT_SINGLE_OWNER
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
     if (this->abandoned()) {
+        fprintf(stderr, "end abandoned %s\n", __PRETTY_FUNCTION__);
         return false;
     }
 
     if (!fGpu) {
+        fprintf(stderr, "end no gpu %s\n", __PRETTY_FUNCTION__);
         return false;
     }
 
-    return fGpu->submitToGpu(syncCpu);
+    bool result = fGpu->submitToGpu(syncCpu);
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
+    return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

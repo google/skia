@@ -84,6 +84,7 @@ static GpuPathRenderers collect_gpu_path_renderers_from_flags() {
             gpuPathRenderers |= get_named_pathrenderers_flags(name);
         }
     }
+    gpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
     return gpuPathRenderers;
 }
 

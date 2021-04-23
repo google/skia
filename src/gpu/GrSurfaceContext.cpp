@@ -13,6 +13,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrColorSpaceXform.h"
@@ -171,6 +172,8 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
+    SK_AT_SCOPE_EXIT(fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__));
     if (!fContext->priv().matches(dContext)) {
         return false;
     }

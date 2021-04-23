@@ -1533,6 +1533,7 @@ bool GPUSink::readBack(SkSurface* surface, SkBitmap* dst) const {
 Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                        const GrContextOptions& baseOptions,
                        std::function<void(GrDirectContext*)> initContext) const {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
     GrContextOptions grOptions = baseOptions;
 
     // We don't expect the src to mess with the persistent cache or the executor.
@@ -1554,6 +1555,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
 
     sk_sp<SkSurface> surface = this->createDstSurface(direct, src.size());
+    fprintf(stderr, "did createDstSurface\n");
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -1562,10 +1564,13 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     SkCanvas* canvas = surface->getCanvas();
     Result result = src.draw(direct, canvas);
+    fprintf(stderr, "did src.draw\n");
     if (!result.isOk()) {
         return result;
     }
+    fprintf(stderr, "will surface->flushAndSubmit\n");
     surface->flushAndSubmit();
+    fprintf(stderr, "did surface->flushAndSubmit\n");
     if (FLAGS_gpuStats) {
         direct->priv().dumpCacheStats(log);
         direct->priv().dumpGpuStats(log);
@@ -1573,6 +1578,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
 
     this->readBack(surface.get(), dst);
+    fprintf(stderr, "did readBack\n");
 
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
@@ -1583,6 +1589,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (grOptions.fPersistentCache) {
         direct->storeVkPipelineCacheData();
     }
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
     return Result::Ok();
 }
 

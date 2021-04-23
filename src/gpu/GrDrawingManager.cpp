@@ -15,6 +15,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/core/SkScopeExit.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
@@ -86,6 +87,8 @@ bool GrDrawingManager::flush(
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
         const GrBackendSurfaceMutableState* newState) {
+    fprintf(stderr, "start flush\n");
+    SK_AT_SCOPE_EXIT(fprintf(stderr, "end flush\n"));
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
@@ -139,6 +142,13 @@ bool GrDrawingManager::flush(
 
     this->sortTasks();
 
+#if 0
+    // Enable this to print out verbose GrOp information
+    SkDEBUGCODE(SkDebugf("Unreordered DAG (%d):\n", fDAG.count()));
+    for (const auto& task : fDAG) {
+        SkDEBUGCODE(task->dump(SkString(), SkString("\t"), /* printDependencies */ false, false);)
+    }
+#endif
     bool usingReorderedDAG = false;
     GrResourceAllocator resourceAllocator(dContext);
     if (fReduceOpsTaskSplitting) {
@@ -162,6 +172,7 @@ bool GrDrawingManager::flush(
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
+        fprintf(stderr, "calling onFlushCBObjects\n");
         fFlushingRenderTaskIDs.reserve_back(fDAG.count());
         for (const auto& task : fDAG) {
             if (task) {
@@ -197,17 +208,20 @@ bool GrDrawingManager::flush(
 
 #if 0
     // Enable this to print out verbose GrOp information
-    SkDEBUGCODE(SkDebugf("onFlush renderTasks (%d):\n", fOnFlushRenderTasks.count()));
-    for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
-        SkDEBUGCODE(onFlushRenderTask->dump(/* printDependencies */ true);)
-    }
-    SkDEBUGCODE(SkDebugf("Normal renderTasks (%d):\n", fDAG.count()));
-    for (const auto& task : fDAG) {
-        SkDEBUGCODE(task->dump(/* printDependencies */ true);)
+//    SkDEBUGCODE(SkDebugf("onFlush renderTasks (%d):\n", fOnFlushRenderTasks.count()));
+//    for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
+//        SkDEBUGCODE(onFlushRenderTask->dump(/* printDependencies */ true);)
+//    }
+    if (usingReorderedDAG) {
+        SkDEBUGCODE(SkDebugf("Reordered DAG (%d):\n", fDAG.count()));
+        for (const auto& task : fDAG) {
+            SkDEBUGCODE(task->dump(SkString(), SkString("\t"), /* printDependencies */ false, false);)
+        }
     }
 #endif
 
     if (!resourceAllocator.failedInstantiation()) {
+        fprintf(stderr, "doing resource allocation\n");
         if (!usingReorderedDAG) {
             for (const auto& task : fDAG) {
                 SkASSERT(task);
@@ -224,14 +238,17 @@ bool GrDrawingManager::flush(
     gpu->executeFlushInfo(proxies, access, info, newState);
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
+    fprintf(stderr, "calling purgeAsNeeded 1\n");
     if (flushed) {
         resourceCache->purgeAsNeeded();
         flushed = false;
     }
+    fprintf(stderr, "calling onFlushCBObjects\n");
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
         onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingRenderTaskIDs);
         flushed = true;
     }
+    fprintf(stderr, "calling purgeAsNeeded 2\n");
     if (flushed) {
         resourceCache->purgeAsNeeded();
     }
@@ -255,6 +272,7 @@ bool GrDrawingManager::submitToGpu(bool syncToCpu) {
 }
 
 bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
 #if GR_FLUSH_TIME_OP_SPEW
     SkDebugf("Flushing %d opsTasks\n", fDAG.count());
     for (int i = 0; i < fDAG.count(); ++i) {
@@ -315,19 +333,24 @@ bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
             anyRenderTasksExecuted = true;
         }
         if (++numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+            fprintf(stderr, "went over max tasks before flush\n");
             flushState->gpu()->submitToGpu(false);
             numRenderTasksExecuted = 0;
+            fprintf(stderr, "handled over max tasks before flush\n");
         }
     }
+    fprintf(stderr, "finished iterating dag\n");
 
     SkASSERT(!flushState->opsRenderPass());
     SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextTokenToFlush());
 
+    fprintf(stderr, "will reset flushState\n");
     // We reset the flush state before the RenderTasks so that the last resources to be freed are
     // those that are written to in the RenderTasks. This helps to make sure the most recently used
     // resources are the last to be purged by the resource cache.
     flushState->reset();
 
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
     return anyRenderTasksExecuted;
 }
 
@@ -389,6 +412,8 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
 }
 
 bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
+    SK_AT_SCOPE_EXIT(fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__));
     SkASSERT(fReduceOpsTaskSplitting);
     SkTInternalLList<GrRenderTask> llist;
     bool clustered = GrClusterRenderTasks(fDAG, &llist);
@@ -495,6 +520,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
         const GrBackendSurfaceMutableState* newState) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
     if (this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -522,6 +548,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
 
     SkDEBUGCODE(this->validate());
 
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
     if (!didFlush || (!direct->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;
     }

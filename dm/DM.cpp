@@ -1484,6 +1484,8 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+#include <pthread.h>
+
 int main(int argc, char** argv) {
 #if defined(__MSVC_RUNTIME_CHECKS)
     _RTC_SetErrorFunc(RuntimeCheckErrorFunc);
@@ -1492,6 +1494,7 @@ int main(int argc, char** argv) {
     android::ProcessState::self()->startThreadPool();
 #endif
     CommandLineFlags::Parse(argc, argv);
+    FLAGS_match = CommandLineFlags::StringArray({ SkString("filterfastbounds") });
 
     initializeEventTracingForTools();
 
