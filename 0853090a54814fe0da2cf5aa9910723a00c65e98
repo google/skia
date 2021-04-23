@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82c07145_c6bb72d3",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2371,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-23T18:54:48Z",
+      "side": 1,
+      "message": "More just thoughts here. I really don\u0027t know the answer to this, but hopefully the binding of the msaa to the read fbo doesn\u0027t cause a write out to happen. Like some arm documentation on InvalidateFramebuffer says you should call it after rendering before unbinding the fbo (because unbinding can/will cause it to write out the memory). It is not obvious to me what the driver will do in this case where we bind the fbo to read and different to write.",
+      "range": {
+        "startLine": 2370,
+        "startChar": 7,
+        "endLine": 2371,
+        "endChar": 43
+      },
+      "revId": "0853090a54814fe0da2cf5aa9910723a00c65e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
