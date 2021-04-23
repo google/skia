@@ -473,6 +473,8 @@ public:
         return GrInternalSurfaceFlags::kNone;
     }
 
+    bool supportsDynamicMSAA(const GrRenderTargetProxy*) const;
+
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
         GrColorType fColorType;
@@ -487,6 +489,8 @@ protected:
     // the caps (including overrides requested by the client).
     // NOTE: this method will only reduce the caps, never expand them.
     void finishInitialization(const GrContextOptions& options);
+
+    virtual bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const { return false; }
 
     sk_sp<GrShaderCaps> fShaderCaps;
 

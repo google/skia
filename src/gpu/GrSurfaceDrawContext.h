@@ -729,7 +729,8 @@ private:
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
-    SkSurfaceProps fSurfaceProps;
+    const SkSurfaceProps fSurfaceProps;
+    const bool fCanUseDynamicMSAA;
 
     bool fNeedsStencil = false;
 
