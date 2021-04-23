@@ -307,6 +307,17 @@ GrSurfaceDrawContext::~GrSurfaceDrawContext() {
     ASSERT_SINGLE_OWNER
 }
 
+void GrSurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {
+    if (prevTask && fNeedsStencil) {
+        // Store the stencil values in memory upon completion of fOpsTask.
+        prevTask->setMustPreserveStencil();
+        // Reload the stencil buffer content at the beginning of newOpsTask.
+        // FIXME: Could the topo sort insert a task between these two that modifies the stencil
+        // values?
+        nextTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
+    }
+}
+
 inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
     if (GrAA::kNo == aa) {
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
