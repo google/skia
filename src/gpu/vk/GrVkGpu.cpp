@@ -1342,7 +1342,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
     SkASSERT(!backendRT.stencilBits());
     if (tgt) {
-        SkASSERT(tgt->canAttemptStencilAttachment());
+        SkASSERT(tgt->canAttemptStencilAttachment(tgt->numSamples() > 1));
     }
 
     return std::move(tgt);
@@ -1469,9 +1469,11 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
 ////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrAttachment> GrVkGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                  SkISize dimensions) {
+                                                                  SkISize dimensions,
+                                                                  int numStencilSamples) {
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
+    SkASSERT(numStencilSamples == rt->numSamples());
 
     VkFormat sFmt = this->vkCaps().preferredStencilFormat();
 

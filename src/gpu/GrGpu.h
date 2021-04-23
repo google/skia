@@ -606,7 +606,8 @@ public:
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrAttachment.
     virtual sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                     SkISize dimensions) = 0;
+                                                                     SkISize dimensions,
+                                                                     int numStencilSamples) = 0;
 
     virtual GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) = 0;
 
