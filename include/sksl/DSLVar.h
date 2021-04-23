@@ -94,6 +94,10 @@ public:
         return this->operator=(DSLExpression(expr));
     }
 
+    DSLPossibleExpression operator=(double expr) {
+        return this->operator=(DSLExpression(expr));
+    }
+
     DSLPossibleExpression operator[](DSLExpression&& index);
 
     DSLPossibleExpression operator++() {

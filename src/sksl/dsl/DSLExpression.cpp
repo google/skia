@@ -286,6 +286,10 @@ DSLPossibleExpression DSLPossibleExpression::operator=(float expr) {
     return this->operator=(DSLExpression(expr));
 }
 
+DSLPossibleExpression DSLPossibleExpression::operator=(double expr) {
+    return this->operator=(DSLExpression(expr));
+}
+
 DSLPossibleExpression DSLPossibleExpression::operator[](DSLExpression index) {
     return DSLExpression(this->release())[std::move(index)];
 }

@@ -206,6 +206,8 @@ public:
 
     DSLPossibleExpression operator=(float expr);
 
+    DSLPossibleExpression operator=(double expr);
+
     DSLPossibleExpression operator[](DSLExpression index);
 
     DSLPossibleExpression operator++();

@@ -162,6 +162,14 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
     EXPECT_EQUAL(Float4(0, 1, 2, 3),
                 "float4(0.0, 1.0, 2.0, 3.0)");
 
+    DSLVar x(kFloat_Type, "x");
+    EXPECT_EQUAL(x = 1.0, "(x = 1.0)");
+    EXPECT_EQUAL(x = 1.0f, "(x = 1.0)");
+
+    DSLVar y(kFloat2_Type, "y");
+    EXPECT_EQUAL(y.x() = 1.0, "(y.x = 1.0)");
+    EXPECT_EQUAL(y.x() = 1.0f, "(y.x = 1.0)");
+
     {
         ExpectError error(r, "error: floating point value is infinite\n");
         Float(std::numeric_limits<float>::infinity()).release();
