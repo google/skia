@@ -118,7 +118,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             bitmapDevice->paintPaths(
                     &fDrawable, strikeSpec.strikeToSourceRatio(), drawOrigin, pathPaint);
         }
-        if (!fRejects.source().empty()) {
+        if (!fRejects.source().empty() && !deviceMatrix.hasPerspective()) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                     runFont, paint, props, fScalerContextFlags, deviceMatrix);
 
@@ -127,7 +127,92 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             fDrawable.startBitmapDevice(
                     fRejects.source(), drawOrigin, deviceMatrix, strike->roundingSpec());
             strike->prepareForDrawingMasksCPU(&fDrawable);
+            fRejects.flipRejectsToSource();
             bitmapDevice->paintMasks(&fDrawable, paint);
+        }
+        if (!fRejects.source().empty()) {
+            SkMatrix runMatrix = deviceMatrix;
+            runMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+            std::vector<SkPoint> sourcePositions;
+
+            // Create a strike is source space to calculate scale information.
+            SkStrikeSpec scaleStrikeSpec = SkStrikeSpec::MakeMask(
+                    runFont, paint, props, fScalerContextFlags, SkMatrix::I());
+            SkBulkGlyphMetrics metrics{scaleStrikeSpec};
+
+            auto glyphIDs = fRejects.source().get<0>();
+            auto positions = fRejects.source().get<1>();
+            SkSpan<const SkGlyph*> glyphs = metrics.glyphs(glyphIDs);
+            SkScalar maxScale = SK_ScalarMin;
+
+            // Calculate the scale that makes the longest edge 1:1 with its side in the cache.
+            for (auto [glyph, pos] : SkMakeZip(glyphs, positions)) {
+                SkPoint corners[4];
+                SkPoint srcPos = pos + drawOrigin;
+                // Store off the positions in device space to position the glyphs during drawing.
+                sourcePositions.push_back(srcPos);
+                SkRect rect = glyph->rect();
+                rect.makeOffset(srcPos);
+                runMatrix.mapRectToQuad(corners, rect);
+                // left top -> right top
+                SkScalar scale = (corners[1] - corners[0]).length() / rect.width();
+                maxScale = std::max(maxScale, scale);
+                // right top -> right bottom
+                scale = (corners[2] - corners[1]).length() / rect.height();
+                maxScale = std::max(maxScale, scale);
+                // right bottom -> left bottom
+                scale = (corners[3] - corners[2]).length() / rect.width();
+                maxScale = std::max(maxScale, scale);
+                // left bottom -> left top
+                scale = (corners[0] - corners[3]).length() / rect.height();
+                maxScale = std::max(maxScale, scale);
+            }
+
+            if (maxScale * runFont.getSize() > 256) {
+                maxScale = 256.0f / runFont.getSize();
+            }
+
+            SkMatrix cacheScale = SkMatrix::Scale(maxScale, maxScale);
+            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
+                    runFont, paint, props, fScalerContextFlags, cacheScale);
+
+            auto strike = strikeSpec.findOrCreateStrike();
+
+            // Figure out all the positions and packed glyphIDs based on the device matrix.
+            fDrawable.startBitmapDevice(
+                    fRejects.source(), drawOrigin, deviceMatrix, strike->roundingSpec());
+
+            strike->prepareForDrawingMasksCPU(&fDrawable);
+            auto variants = fDrawable.drawable().get<0>();
+            for (auto [variant, srcPos] : SkMakeZip(variants, sourcePositions)) {
+                SkGlyph* glyph = variant.glyph();
+                SkMask mask = glyph->mask();
+                // TODO: is this needed will A8 and BW just work?
+                if (mask.fFormat != SkMask::kARGB32_Format) {
+                    continue;
+                }
+                SkBitmap bm;
+                bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
+                                 mask.fImage,
+                                 mask.fRowBytes);
+
+                // Since the glyph in the cache is scaled by maxScale, its top left vector is too
+                // long. Reduce it to find proper positions on the device.
+                SkPoint realPos = srcPos
+                        + SkPoint::Make(mask.fBounds.left(), mask.fBounds.top()) * (1.0f/maxScale);
+
+                // Calculate the preConcat matrix for drawBitmap to get the rectangle from the
+                // glyph cache (which is multiplied by maxScale) to land in the right place.
+                SkMatrix translate = SkMatrix::Translate(realPos);
+                translate.preScale(1.0f/maxScale, 1.0f/maxScale);
+
+                // Draw the bitmap using the rect from the scaled cache, and not the source
+                // rectangle for the glyph.
+                bitmapDevice->drawBitmap(
+                        bm, translate, nullptr, SkSamplingOptions{SkFilterMode::kLinear},
+                        paint);
+            }
+            fRejects.flipRejectsToSource();
         }
 
         // TODO: have the mask stage above reject the glyphs that are too big, and handle the
