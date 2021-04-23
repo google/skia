@@ -27,7 +27,7 @@ public:
                               const GrDawnTextureInfo& textureInfo,
                               GrMipmapStatus mipmapStatus);
 
-    bool canAttemptStencilAttachment() const override;
+    bool canAttemptStencilAttachment(bool useMSAASurface) const override;
 
     GrBackendFormat backendFormat() const override { return GrDawnTexture::backendFormat(); }
 

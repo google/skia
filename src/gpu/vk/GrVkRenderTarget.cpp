@@ -227,8 +227,9 @@ GrVkAttachment* GrVkRenderTarget::msaaAttachment() {
                                                       : this->colorAttachment();
 }
 
-bool GrVkRenderTarget::completeStencilAttachment() {
+bool GrVkRenderTarget::completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
+    SkASSERT(useMSAASurface == (this->numSamples() > 1));
     return true;
 }
 
