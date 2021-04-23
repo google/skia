@@ -1689,7 +1689,6 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
 sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
                                                                   SkISize dimensions,
                                                                   int numStencilSamples) {
-    SkASSERT(numStencilSamples == rt->numSamples());
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 
@@ -1711,8 +1710,8 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRender
     GrGLenum glFmt = GrGLFormatToEnum(sFmt);
     // we do this "if" so that we don't call the multisample
     // version on a GL that doesn't have an MSAA extension.
-    if (rt->numSamples() > 1) {
-        if (!this->renderbufferStorageMSAA(*fGLContext, rt->numSamples(), glFmt,
+    if (numStencilSamples > 1) {
+        if (!this->renderbufferStorageMSAA(*fGLContext, numStencilSamples, glFmt,
                                            dimensions.width(), dimensions.height())) {
             GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
             return nullptr;
@@ -1730,7 +1729,26 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRender
 
     return sk_sp<GrAttachment>(new GrGLAttachment(
             this, sbDesc, dimensions, GrAttachment::UsageFlags::kStencilAttachment,
-            rt->numSamples(), sFmt));
+            numStencilSamples, sFmt));
+}
+
+sk_sp<GrAttachment> GrGLGpu::makeMSAAAttachment(SkISize dimensions, const GrBackendFormat& format,
+                                                int numSamples, GrProtected isProtected) {
+    GrGLAttachment::IDDesc desc;
+    GL_CALL(GenRenderbuffers(1, &desc.fRenderbufferID));
+    if (!desc.fRenderbufferID) {
+        return nullptr;
+    }
+    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, desc.fRenderbufferID));
+    GrGLenum glFormat = this->glCaps().getRenderbufferInternalFormat(format.asGLFormat());
+    if (!this->renderbufferStorageMSAA(*fGLContext, numSamples, glFormat, dimensions.width(),
+                                       dimensions.height())) {
+        GL_CALL(DeleteRenderbuffers(1, &desc.fRenderbufferID));
+        return nullptr;
+    }
+    return sk_sp<GrAttachment>(new GrGLAttachment(this, desc, dimensions,
+                                                  GrAttachment::UsageFlags::kColorAttachment,
+                                                  numSamples, format.asGLFormat()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1948,15 +1966,14 @@ static bool use_tiled_rendering(const GrGLCaps& glCaps,
            GrStoreOp::kDiscard == stencilLoadStore.fStoreOp;
 }
 
-void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, bool useMultisampleFBO, const SkIRect& bounds,
-                                 GrSurfaceOrigin origin,
+void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* glRT, bool useMultisampleFBO,
+                                 const SkIRect& bounds, GrSurfaceOrigin origin,
                                  const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                  const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
     SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
 
     this->handleDirtyContext();
 
-    auto glRT = static_cast<GrGLRenderTarget*>(rt);
     this->flushRenderTarget(glRT, useMultisampleFBO);
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
 
@@ -1989,22 +2006,21 @@ void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, bool useMultisampleFBO, con
     }
 }
 
-void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, bool useMultisampleFBO,
+void GrGLGpu::endCommandBuffer(GrGLRenderTarget* glRT, bool useMultisampleFBO,
                                const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
     SkASSERT(fIsExecutingCommandBuffer_DebugOnly);
 
     this->handleDirtyContext();
 
-    if (rt->uniqueID() != fHWBoundRenderTargetUniqueID) {
+    if (glRT->uniqueID() != fHWBoundRenderTargetUniqueID ||
+        useMultisampleFBO != fHWBoundFramebufferIsMSAA) {
         // The framebuffer binding changed in the middle of a command buffer. We should have already
         // printed a warning during onFBOChanged.
         return;
     }
 
     if (GrGLCaps::kNone_InvalidateFBType != this->glCaps().invalidateFBType()) {
-        auto glRT = static_cast<GrGLRenderTarget*>(rt);
-
         SkSTArray<2, GrGLenum> discardAttachments;
         if (GrStoreOp::kDiscard == colorLoadStore.fStoreOp) {
             GrGLuint renderFBOID = (useMultisampleFBO) ? glRT->multisampleFBOID()
@@ -2178,7 +2194,14 @@ GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass = std::make_unique<GrGLOpsRenderPass>(this);
     }
-
+    if (useMultisampleFBO && rt->numSamples() == 1) {
+        // We will be using dynamic msaa. Ensure there is an attachment.
+        auto glRT = static_cast<GrGLRenderTarget*>(rt);
+        if (!glRT->ensureDynamicMSAAAttachment()) {
+            SkDebugf("WARNING: Failed to make dmsaa attachment. Render pass will be dropped.");
+            return nullptr;
+        }
+    }
     fCachedOpsRenderPass->set(rt, useMultisampleFBO, bounds, origin, colorInfo, stencilInfo);
     return fCachedOpsRenderPass.get();
 }
@@ -2289,19 +2312,33 @@ GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
+    this->resolveRenderFBOs(static_cast<GrGLRenderTarget*>(target), resolveRect,
+                            ResolveDirection::kMSAAToSingle);
+}
+
+void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect,
+                                ResolveDirection resolveDirection,
+                                bool invalidateReadBufferAfterBlit) {
+    this->handleDirtyContext();
+
     // Some extensions automatically resolves the texture when it is read.
     SkASSERT(this->glCaps().usesMSAARenderBuffers());
-
-    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
-    SkASSERT(rt->requiresManualMSAAResolve());
-    SkASSERT(rt->singleSampleFBOID() != 0 && rt->multisampleFBOID() != 0);
-    this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->multisampleFBOID());
-    this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
+    SkASSERT(rt->multisampleFBOID() != 0);
+    if (resolveDirection == ResolveDirection::kMSAAToSingle) {
+        this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->multisampleFBOID());
+        this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
+    } else {
+        SkASSERT(resolveDirection == ResolveDirection::kSingleToMSAA);
+        this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->singleSampleFBOID());
+        this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->multisampleFBOID());
+    }
 
     // make sure we go through flushRenderTarget() since we've modified
     // the bound DRAW FBO ID.
     fHWBoundRenderTargetUniqueID.makeInvalid();
     if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
+        // The Apple extension doesn't support blitting from single to multisample.
+        SkASSERT(resolveDirection != ResolveDirection::kSingleToMSAA);
         // Apple's extension uses the scissor as the blit bounds.
         // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
         // happens inside flushScissor since resolveRect is already in native device coordinates.
@@ -2316,8 +2353,8 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
             this->glCaps().blitFramebufferSupportFlags()) {
             l = 0;
             b = 0;
-            r = target->width();
-            t = target->height();
+            r = rt->width();
+            t = rt->height();
         } else {
             l = resolveRect.x();
             b = resolveRect.y();
@@ -2329,6 +2366,20 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
         this->flushScissorTest(GrScissorTest::kDisabled);
         this->disableWindowRectangles();
         GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t, GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+    }
+
+    if (this->glCaps().invalidateFBType() != GrGLCaps::kNone_InvalidateFBType &&
+        invalidateReadBufferAfterBlit) {
+        // Invalidate the read FBO attachment after the blit, in hopes that this allows the driver
+        // to perform tiling optimizations.
+        GrGLenum colorDiscardAttachment = (rt->multisampleFBOID() == 0) ? GR_GL_COLOR
+                                                                        : GR_GL_COLOR_ATTACHMENT0;
+        if (this->glCaps().invalidateFBType() == GrGLCaps::kInvalidate_InvalidateFBType) {
+            GL_CALL(InvalidateFramebuffer(GR_GL_READ_FRAMEBUFFER, 1, &colorDiscardAttachment));
+        } else {
+            SkASSERT(this->glCaps().invalidateFBType() == GrGLCaps::kDiscard_InvalidateFBType);
+            GL_CALL(DiscardFramebuffer(GR_GL_READ_FRAMEBUFFER, 1, &colorDiscardAttachment));
+        }
     }
 }
 
@@ -2419,7 +2470,8 @@ void GrGLGpu::disableStencil() {
 void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
     // rt is only optional if useHWAA is false.
     SkASSERT(rt || !useHWAA);
-    SkASSERT(!useHWAA || rt->numSamples() > 1);
+    SkASSERT(!useHWAA || rt->numSamples() > 1 ||
+             static_cast<GrGLRenderTarget*>(rt)->multisampleFBOID());
 
     if (this->caps()->multisampleDisableSupport()) {
         if (useHWAA) {
