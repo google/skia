@@ -79,7 +79,6 @@ protected:
             canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 10, y, font, paint);
             y += metrics.fDescent + metrics.fLeading;
         }
-
     }
 
 private:
@@ -112,8 +111,9 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
-        SkFont font;
-        font.setTypeface(fEmojiFont.fTypeface);
+        SkFont font(fEmojiFont.fTypeface);
+        font.setEdging(SkFont::Edging::kAlias);
+
         const char* text = fEmojiFont.fText;
 
         // draw text at different point sizes
@@ -123,6 +123,61 @@ protected:
         SkScalar y = 0;
         for (SkScalar textSize : { 70, 180, 270, 340 }) {
             font.setSize(textSize);
+            font.getMetrics(&metrics);
+            y += -metrics.fAscent;
+            canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 10, y, font, paint);
+            y += metrics.fDescent + metrics.fLeading;
+        }
+    }
+
+private:
+    using INHERITED = GM;
+};
+
+class ScaledEmojiPerspectiveGM : public GM {
+public:
+    ScaledEmojiPerspectiveGM() {}
+
+protected:
+    struct EmojiFont {
+        sk_sp<SkTypeface> fTypeface;
+        const char* fText;
+    } fEmojiFont;
+
+    void onOnceBeforeDraw() override {
+        fEmojiFont.fTypeface = ToolUtils::emoji_typeface();
+        fEmojiFont.fText     = ToolUtils::emoji_sample_text();
+    }
+
+    SkString onShortName() override {
+        return SkString("scaledemojiperspective");
+    }
+
+    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+
+    void onDraw(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorGRAY);
+        SkMatrix taper;
+        taper.setPerspY(-0.001);
+        SkMatrix perspective;
+        perspective.postTranslate(-600, -600);
+        perspective.postConcat(taper);
+        perspective.postTranslate(600, 600);
+        canvas->concat(perspective);
+
+        SkPaint paint;
+        SkFont font;
+        font.setTypeface(fEmojiFont.fTypeface);
+        const char* text = fEmojiFont.fText;
+
+        // draw text at different point sizes
+        // Testing GPU bitmap path, SDF path with no scaling,
+        // SDF path with scaling, path rendering with scaling
+        SkFontMetrics metrics;
+        SkScalar y = -300;
+        for (int i = 0; i < 5; i++) {
+            font.setSize(200);
             font.getMetrics(&metrics);
             y += -metrics.fAscent;
 
@@ -149,5 +204,7 @@ private:
 
 DEF_GM(return new ScaledEmojiGM;)
 DEF_GM(return new ScaledEmojiPosGM;)
+DEF_GM(return new ScaledEmojiPerspectiveGM;)
+
 
 }  // namespace skiagm

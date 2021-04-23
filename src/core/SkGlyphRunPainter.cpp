@@ -118,7 +118,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             bitmapDevice->paintPaths(
                     &fDrawable, strikeSpec.strikeToSourceRatio(), drawOrigin, pathPaint);
         }
-        if (!fRejects.source().empty()) {
+        if (!fRejects.source().empty() && !deviceMatrix.hasPerspective()) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                     runFont, paint, props, fScalerContextFlags, deviceMatrix);
 
@@ -127,7 +127,58 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             fDrawable.startBitmapDevice(
                     fRejects.source(), drawOrigin, deviceMatrix, strike->roundingSpec());
             strike->prepareForDrawingMasksCPU(&fDrawable);
+            fRejects.flipRejectsToSource();
             bitmapDevice->paintMasks(&fDrawable, paint);
+        }
+        if (!fRejects.source().empty()) {
+            SkScalar maxSide = 0;
+            SkMatrix runMatrix = deviceMatrix;
+            runMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+            std::vector<SkPoint> sourcePos;
+            for (auto [_, pos] : fRejects.source()) {
+                sourcePos.push_back(pos);
+                const SkPoint sourceBasis[] = {pos, pos + SkPoint{1,0}, pos + SkPoint{0,1}};
+                SkPoint dstBasis[SK_ARRAY_COUNT(sourceBasis)];
+                runMatrix.mapPoints(dstBasis, sourceBasis, SK_ARRAY_COUNT(sourceBasis));
+                SkScalar xLength = (dstBasis[1] - dstBasis[0]).length(),
+                         yLength = (dstBasis[2] - dstBasis[0]).length();
+                maxSide = std::max(maxSide, std::max(xLength, yLength));
+            }
+            SkMatrix perspective = SkMatrix::Scale(maxSide, maxSide);
+            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
+                    runFont, paint, props, fScalerContextFlags, perspective);
+
+            auto strike = strikeSpec.findOrCreateStrike();
+
+            fDrawable.startBitmapDevice(
+                    fRejects.source(), drawOrigin, deviceMatrix, strike->roundingSpec());
+
+            SkMatrix undoScaleMatrix = SkMatrix::Scale(1.0/maxSide, 1.0/maxSide);
+            strike->prepareForDrawingMasksCPU(&fDrawable);
+            auto variants = fDrawable.drawable().get<0>();
+            for (auto [variant, pos] : SkMakeZip(variants, sourcePos)) {
+                SkGlyph* glyph = variant.glyph();
+                SkMask mask = glyph->mask();
+                if (mask.fFormat != SkMask::kARGB32_Format) {
+                    continue;
+                }
+                SkBitmap bm;
+                bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
+                                 mask.fImage,
+                                 mask.fRowBytes);
+
+                SkPoint realPos = pos + drawOrigin
+                        + SkPoint::Make(mask.fBounds.left(), mask.fBounds.top()) * (1.0/maxSide);
+                SkMatrix translate = SkMatrix::Translate(realPos);
+                translate.preScale(1.0/maxSide, 1.0/maxSide);
+
+
+                bitmapDevice->drawBitmap(
+                        bm, translate, nullptr, SkSamplingOptions{SkFilterMode::kLinear},
+                        paint);
+            }
+            fRejects.flipRejectsToSource();
+            //bitmapDevice->paintMasks(&fDrawable, paint);
         }
 
         // TODO: have the mask stage above reject the glyphs that are too big, and handle the
