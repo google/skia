@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b15f09e4_0fa035c2",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-23T18:50:26Z",
+      "side": 1,
+      "message": "Why is this change necessary? It doesn\u0027t seem necessary for the rest of the changes to Get() and feels bad to do a heap allocation that\u0027s not owned (even though skslc will be short-lived and this\u0027ll go away on process close anyways).",
+      "range": {
+        "startLine": 161,
+        "startChar": 44,
+        "endLine": 161,
+        "endChar": 48
+      },
+      "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
