@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4aea42bc_df1c5d4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-23T19:58:20Z",
+      "side": 1,
+      "message": "Viewer integration LGTM",
+      "revId": "74cd9d5d3a0678af0da290d36a68ae00b33c64e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91e256b7_1b033a56",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1682,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-23T19:58:20Z",
+      "side": 1,
+      "message": "You could duplicate this for the mskps directory to get iOS support.",
+      "range": {
+        "startLine": 1678,
+        "startChar": 0,
+        "endLine": 1682,
+        "endChar": 9
+      },
+      "revId": "74cd9d5d3a0678af0da290d36a68ae00b33c64e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
