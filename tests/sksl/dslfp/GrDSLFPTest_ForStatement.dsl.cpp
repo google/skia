@@ -32,13 +32,13 @@ public:
 Var colorWhite(kConst_Modifier, DSLType(kHalf4_Type), "colorWhite", Half4(_outer.colorWhite.fR, _outer.colorWhite.fG, _outer.colorWhite.fB, _outer.colorWhite.fA));
 Declare(colorWhite);
 Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", colorWhite);
-Var a(kNo_Modifier, DSLType(kHalf_Type), "a", 0.0);
-Var r(kNo_Modifier, DSLType(kHalf_Type), "r", -5.0);
-Var b(kNo_Modifier, DSLType(kHalf_Type), "b", 5.0);
+Var a(kNo_Modifier, DSLType(kHalf_Type), "a", 0.0f);
+Var r(kNo_Modifier, DSLType(kHalf_Type), "r", -5.0f);
+Var b(kNo_Modifier, DSLType(kHalf_Type), "b", 5.0f);
 Declare(color);
-For(Declare(a), a <= 1.0, ++a, /*Body:*/ color.w() = a);
-For(Declare(r), r < 5.0, r += 1.0, /*Body:*/ Block(color.x() = r, If(color.x() == 0.0, /*Then:*/ Break())));
-For(Declare(b), b >= 0.0, b -= 1.0, /*Body:*/ Block(color.z() = b, If(color.w() == 1.0, /*Then:*/ Continue()), color.y() = 0.0));
+For(Declare(a), a <= 1.0f, ++a, /*Body:*/ color.w() = a);
+For(Declare(r), r < 5.0f, r += 1.0f, /*Body:*/ Block(color.x() = r, If(color.x() == 0.0f, /*Then:*/ Break())));
+For(Declare(b), b >= 0.0f, b -= 1.0f, /*Body:*/ Block(color.z() = b, If(color.w() == 1.0f, /*Then:*/ Continue()), color.y() = 0.0f));
 Return(color);
         EndFragmentProcessor();
     }

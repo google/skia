@@ -31,11 +31,11 @@ public:
         StartFragmentProcessor(this, &args);
 Var shouldLoop(kConst_Modifier, DSLType(kBool_Type), "shouldLoop", Bool(!!(_outer.shouldLoop)));
 Declare(shouldLoop);
-Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(1.0, 1.0, 1.0, 1.0));
+Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(1.0f, 1.0f, 1.0f, 1.0f));
 Declare(color);
-Do(color.x() -= 0.25, /*While:*/ shouldLoop);
-Do(Block(color.x() -= 0.25, If(color.x() <= 0.0, /*Then:*/ Break())), /*While:*/ color.w() == 1.0);
-Do(Block(color.z() -= 0.25, If(color.w() == 1.0 || sk_Caps.builtinFMASupport(), /*Then:*/ Continue()), color.y() = 0.0), /*While:*/ color.z() > 0.0);
+Do(color.x() -= 0.25f, /*While:*/ shouldLoop);
+Do(Block(color.x() -= 0.25f, If(color.x() <= 0.0f, /*Then:*/ Break())), /*While:*/ color.w() == 1.0f);
+Do(Block(color.z() -= 0.25f, If(color.w() == 1.0f || sk_Caps.builtinFMASupport(), /*Then:*/ Continue()), color.y() = 0.0f), /*While:*/ color.z() > 0.0f);
 Return(color);
         EndFragmentProcessor();
     }

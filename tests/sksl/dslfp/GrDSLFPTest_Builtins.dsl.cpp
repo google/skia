@@ -29,8 +29,8 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var m(kNo_Modifier, DSLType(kHalf4x4_Type), "m", Half4x4(1.0));
-Var n(kNo_Modifier, DSLType(kHalf4_Type), "n", Half4(1.0));
+Var m(kNo_Modifier, DSLType(kHalf4x4_Type), "m", Half4x4(1.0f));
+Var n(kNo_Modifier, DSLType(kHalf4_Type), "n", Half4(1.0f));
 Var b(kNo_Modifier, DSLType(kBool4_Type), "b", Bool4(true));
 Declare(m);
 Declare(n);
@@ -67,7 +67,7 @@ b = Not(b);
 n.x() = Pow(n.y(), n.z());
 Swizzle(n, X, Y, Z) = Radians(Swizzle(n, Y, Z, W));
 Swizzle(n, X, Y) = Reflect(Swizzle(n, X, Y), Swizzle(n, Z, W));
-Swizzle(n, W, Z) = Refract(Swizzle(n, X, Y), Swizzle(n, Z, W), 2.0);
+Swizzle(n, W, Z) = Refract(Swizzle(n, X, Y), Swizzle(n, Z, W), 2.0f);
 n = Saturate(n);
 n.x() = Sign(n.x());
 n.y() = Sin(n.y());
@@ -75,8 +75,8 @@ Swizzle(n, Z, W) = Smoothstep(Swizzle(n, X, X), Swizzle(n, Y, Y), Swizzle(n, Z, 
 n = Sqrt(n);
 Swizzle(n, X, Y) = Step(Swizzle(n, X, Y), Swizzle(n, Z, W));
 n.x() = Tan(n.x());
-n = Half4(Swizzle(n, W, W, W) / Max(n.w(), 9.9999997473787516e-05), n.w());
-Return(Half4(0.0, 1.0, 0.0, 1.0));
+n = Half4(Swizzle(n, W, W, W) / Max(n.w(), 9.9999997473787516e-05f), n.w());
+Return(Half4(0.0f, 1.0f, 0.0f, 1.0f));
         EndFragmentProcessor();
     }
 private:

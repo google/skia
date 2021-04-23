@@ -34,7 +34,7 @@ Declare(color);
 Switch(color.x(),
     Case(0, ++color.y()),
     Case(1, Break()),
-    Case(2, Return(Half4(0.0))),
+    Case(2, Return(Half4(0.0f))),
     Case(3),
     Case(4, ++color.x()),
     Case(5, Block(++color.z()), Break()),

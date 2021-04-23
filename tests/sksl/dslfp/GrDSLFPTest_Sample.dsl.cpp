@@ -29,9 +29,9 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var coords(kConst_Modifier, DSLType(kFloat2_Type), "coords", Float2(0.5));
-Var xform(kConst_Modifier, DSLType(kFloat3x3_Type), "xform", Float3x3(2.0));
-Var inColor(kConst_Modifier, DSLType(kHalf4_Type), "inColor", Half4(0.75));
+Var coords(kConst_Modifier, DSLType(kFloat2_Type), "coords", Float2(0.5f));
+Var xform(kConst_Modifier, DSLType(kFloat3x3_Type), "xform", Float3x3(2.0f));
+Var inColor(kConst_Modifier, DSLType(kHalf4_Type), "inColor", Half4(0.75f));
 Declare(coords);
 Declare(xform);
 Declare(inColor);

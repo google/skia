@@ -35,6 +35,8 @@ private:
 
     void writeDoStatement(const DoStatement& d);
 
+    void writeFloatLiteral(const FloatLiteral& f) override;
+
     void writeForStatement(const ForStatement& f);
 
     void writeFunctionBody(const Block& b);
