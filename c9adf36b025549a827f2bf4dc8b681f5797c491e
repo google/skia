@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "beb8c229_300221ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2021-04-23T17:25:36Z",
+      "side": 1,
+      "message": "Please take a look.\n\nDo you think it will take long to drop SK_LEGACY_FLOAT_RSQRT in chromium?\n\nIf it will take a while, one idea might be to move the rsqrt function, along with the intrinsics includes, into its own header that isn\u0027t so widely included.",
+      "revId": "c9adf36b025549a827f2bf4dc8b681f5797c491e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
