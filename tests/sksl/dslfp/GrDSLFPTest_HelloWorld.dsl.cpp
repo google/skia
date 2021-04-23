@@ -29,7 +29,7 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Return(Half4(0.0, 1.0, 0.0, 1.0));
+Return(Half4(0.0f, 1.0f, 0.0f, 1.0f));
         EndFragmentProcessor();
     }
 private:
