@@ -46,6 +46,30 @@
       },
       "revId": "7c8f414d4fef579e72db66288fb676be4f86e3cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4869869_577a6a12",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1476,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-23T14:29:27Z",
+      "side": 1,
+      "message": "So I guess I feel this function is actually pretty independent of dmsaa in the sense that it is just creating an attachment. From my scanning of the backends it seems like we just use the RT for asserts and getting numStencilSamples (which your asserting is the same as what is passed in). GL also happens to get the backend format and use that.\n\nSo what if we change this function to:\nGrGpu::makeStencilAttachment(const GrBackendFormat\u0026, SkISize dimensions, int numStencilSamples);\nAll backends besides GL would just ignore the backend format.\n\nThen up in GrResourceProvider where this function is called we can assert:\nSkASSERT(caps-\u003esupportsDMSAA() || numStencilSamples \u003d\u003d rt-\u003enumSamples());\n\nThis allows us to have this functions in the backends fully implemented in this CL and then don\u0027t need to be updated once we start turning on dmsaa.",
+      "parentUuid": "6a679147_c33b543a",
+      "range": {
+        "startLine": 1476,
+        "startChar": 4,
+        "endLine": 1476,
+        "endChar": 52
+      },
+      "revId": "7c8f414d4fef579e72db66288fb676be4f86e3cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
