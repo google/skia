@@ -160,7 +160,7 @@ protected:
 
     virtual void writeIntLiteral(const IntLiteral& i);
 
-    void writeFloatLiteral(const FloatLiteral& f);
+    virtual void writeFloatLiteral(const FloatLiteral& f);
 
     virtual void writeSetting(const Setting& s);
 
