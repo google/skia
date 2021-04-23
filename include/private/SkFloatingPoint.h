@@ -18,10 +18,12 @@
 #include <limits>
 
 
+#if defined(SK_LEGACY_FLOAT_RSQRT)
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>
 #elif defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
+#endif
 #endif
 
 // For _POSIX_VERSION
