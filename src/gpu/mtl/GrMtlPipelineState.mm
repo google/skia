@@ -77,7 +77,7 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 #ifdef SK_DEBUG
     if (programInfo.isStencilEnabled()) {
         SkASSERT(renderTarget->getStencilAttachment());
-        SkASSERT(renderTarget->numStencilBits() == 8);
+        SkASSERT(renderTarget->numStencilBits(renderTarget->numSamples() > 1) == 8);
     }
 #endif
 
