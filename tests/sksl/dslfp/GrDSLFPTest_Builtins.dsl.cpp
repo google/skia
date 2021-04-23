@@ -38,6 +38,8 @@ Declare(b);
 n.x() = Abs(n.x());
 b.z() = All(Swizzle(b, X, Y));
 b.w() = Any(Swizzle(b, X, Y, Z));
+Swizzle(n, X, Y) = Atan(Swizzle(n, X, Y));
+Swizzle(n, Z, W, X) = Atan(Swizzle(n, Y, Y, Y), Swizzle(n, Z, Z, Z));
 n = Ceil(n);
 n.x() = Clamp(n.y(), n.z(), n.w());
 n.y() = Cos(n.y());
