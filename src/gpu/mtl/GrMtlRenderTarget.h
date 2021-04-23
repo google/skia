@@ -28,7 +28,8 @@ public:
 
     ~GrMtlRenderTarget() override;
 
-    bool canAttemptStencilAttachment() const override {
+    bool canAttemptStencilAttachment(bool useMSAASurface) const override {
+        SkASSERT(useMSAASurface == (this->numSamples() > 1));
         return true;
     }
 
@@ -80,7 +81,7 @@ private:
                       Wrapped);
     GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, id<MTLTexture> colorTexture, Wrapped);
 
-    bool completeStencilAttachment() override;
+    bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override;
 
     using INHERITED = GrRenderTarget;
 };

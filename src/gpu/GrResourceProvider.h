@@ -267,10 +267,10 @@ public:
                                     const void* data = nullptr);
 
     /**
-     * If passed in render target already has a stencil buffer with at least "numSamples" samples,
-     * return true. Otherwise attempt to attach one and return true on success.
+     * If passed in render target already has a stencil buffer on the specified surface, return
+     * true. Otherwise attempt to attach one and return true on success.
      */
-    bool attachStencilAttachment(GrRenderTarget* rt);
+    bool attachStencilAttachment(GrRenderTarget* rt, bool useMSAASurface);
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
                                            const GrBackendFormat& format,
