@@ -22,6 +22,30 @@
       },
       "revId": "0853090a54814fe0da2cf5aa9910723a00c65e98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25cbf320_591e6bb1",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2371,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T19:14:55Z",
+      "side": 1,
+      "message": "I had the same thought. Ultimately we should probably be able to just bind the one to GL_DRAW_FRAMEBUFFER, which should leave the MSAA attachment on GL_READ_FRAMEBUFFER. It\u0027s worth experimenting with once we are in a better place to evaluate perf.",
+      "parentUuid": "82c07145_c6bb72d3",
+      "range": {
+        "startLine": 2370,
+        "startChar": 7,
+        "endLine": 2371,
+        "endChar": 43
+      },
+      "revId": "0853090a54814fe0da2cf5aa9910723a00c65e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
