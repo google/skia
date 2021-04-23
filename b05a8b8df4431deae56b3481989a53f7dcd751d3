@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "628fe6ce_2fdd730b",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-23T21:03:36Z",
+      "side": 1,
+      "message": "This is kind of an irrelevant change but the commment is outdated.",
+      "revId": "b05a8b8df4431deae56b3481989a53f7dcd751d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
