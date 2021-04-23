@@ -1788,6 +1788,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                     msg += arguments[i]->type().displayName();
                 }
                 msg += ")";
+                abort();
                 this->errorReporter().error(offset, msg);
                 return nullptr;
             }

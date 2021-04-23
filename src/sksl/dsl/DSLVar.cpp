@@ -117,6 +117,21 @@ DSLVar::~DSLVar() {
     }
 }
 
+void DSLVar::moveAssign(DSLVar&& other) {
+    fModifiers = other.fModifiers;
+    fType = other.fType;
+    fUniformHandle = other.fUniformHandle;
+    fDeclaration = std::move(other.fDeclaration);
+    fVar = other.fVar;
+    fRawName = other.fRawName;
+    fName = other.fName;
+    fInitialValue = std::move(other.fInitialValue);
+    fStorage = other.fStorage;
+    fDeclared = other.fDeclared;
+    // allow other to be destroyed without error
+    other.fDeclared = true;
+}
+
 DSLPossibleExpression DSLVar::operator[](DSLExpression&& index) {
     return DSLExpression(*this)[std::move(index)];
 }

@@ -282,6 +282,7 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class DSLParser;
     friend class dsl::DSLCore;
     friend class dsl::DSLFunction;
     friend class dsl::DSLVar;

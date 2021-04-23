@@ -10,10 +10,12 @@
 #include <memory>
 #include <unordered_set>
 
+#include "include/sksl/DSL.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -425,6 +427,12 @@ std::unique_ptr<Program> Compiler::convertProgram(
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
+    if (settings.fUseDSL) {
+        DSLParser(this, kind, text.c_str(), text.length()).program();
+        printf("DONE!\n");
+        return nullptr;
+    }
+
     SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
 
     // Loading and optimizing our base module might reset the inliner, so do that first,
@@ -476,10 +484,6 @@ std::unique_ptr<Program> Compiler::convertProgram(
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
     std::unique_ptr<Pool> pool;
-    if (fContext->fCaps.useNodePools()) {
-        pool = Pool::Create();
-        pool->attachToThread();
-    }
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
                                                             textPtr->c_str(), textPtr->size(),
                                                             externalFunctions);
@@ -898,6 +902,7 @@ Position Compiler::position(int offset) {
 }
 
 void Compiler::error(int offset, String msg) {
+    printf("%s\n", msg.c_str());
     fErrorCount++;
     Position pos = this->position(offset);
     fErrorTextLength.push_back(fErrorText.length());

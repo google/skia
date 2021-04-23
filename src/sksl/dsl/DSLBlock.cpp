@@ -14,6 +14,13 @@ namespace SkSL {
 
 namespace dsl {
 
+DSLBlock::DSLBlock(SkTArray<DSLStatement> statements) {
+    fStatements.reserve_back(statements.count());
+    for (DSLStatement& s : statements) {
+        fStatements.push_back(s.release());
+    }
+}
+
 DSLBlock::DSLBlock(SkSL::StatementArray statements)
     : fStatements(std::move(statements)) {}
 

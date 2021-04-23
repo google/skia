@@ -51,6 +51,9 @@ struct ASTNode {
         friend struct ASTFile;
         friend struct ASTNode;
         friend class Parser;
+
+        // FIXME remove
+        friend class DSLParser;
     };
 
     enum class Kind {

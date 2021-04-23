@@ -38,14 +38,16 @@ public:
         fStatements = std::move(other.fStatements);
     }
 
-    DSLBlock& operator=(DSLBlock&& other) {
-        fStatements = std::move(other.fStatements);
-        return *this;
-    }
+    DSLBlock(SkTArray<DSLStatement> statements);
 
     DSLBlock(SkSL::StatementArray statements);
 
     ~DSLBlock();
+
+    DSLBlock& operator=(DSLBlock&& other) {
+        fStatements = std::move(other.fStatements);
+        return *this;
+    }
 
     void append(DSLStatement stmt);
 

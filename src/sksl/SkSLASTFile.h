@@ -27,6 +27,7 @@ private:
 
     friend class IRGenerator;
     friend class Parser;
+    friend class DSLParser;
 };
 
 }  // namespace SkSL

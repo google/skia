@@ -11,6 +11,7 @@
 
 #include "src/gpu/GrShaderUtils.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLIRGenerator.h"
@@ -207,6 +208,9 @@ static bool detect_shader_settings(const SkSL::String& text,
                 if (settingsText.consumeSuffix(" Version450Core")) {
                     static auto s_version450CoreCaps = Factory::Version450Core();
                     *caps = s_version450CoreCaps.get();
+                }
+                if (settingsText.consumeSuffix(" DSL")) {
+                    settings->fUseDSL = true;
                 }
                 if (settingsText.consumeSuffix(" FlipY")) {
                     settings->fFlipY = true;

@@ -21,6 +21,8 @@ namespace dsl {
 
 class DSLVar {
 public:
+    DSLVar() {}
+
     /**
      * Constructs a new variable with the specified type and name. The name is used (in mangled
      * form) in the resulting shader code; it is not otherwise important. Since mangling prevents
@@ -36,7 +38,7 @@ public:
 
     DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
-    DSLVar(DSLVar&&) = delete;
+    DSLVar(DSLVar&&) = default;
 
     ~DSLVar();
 
@@ -119,6 +121,11 @@ private:
      */
     DSLVar(const char* name);
 
+    /**
+     * Performs the standard move operator=(). See DSLWrapper for more info.
+     */
+    void moveAssign(DSLVar&& other);
+
     DSLModifiers fModifiers;
     // We only need to keep track of the type here so that we can create the SkSL::Variable. For
     // predefined variables this field is unnecessary, so we don't bother tracking it and just set
@@ -140,6 +147,8 @@ private:
     friend class DSLExpression;
     friend class DSLFunction;
     friend class DSLWriter;
+
+    template<typename T> friend class DSLWrapper;
 };
 
 } // namespace dsl

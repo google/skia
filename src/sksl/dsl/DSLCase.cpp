@@ -17,6 +17,13 @@ DSLCase::DSLCase(DSLExpression value, SkSL::StatementArray statements)
     : fValue(std::move(value))
     , fStatements(std::move(statements)) {}
 
+DSLCase::DSLCase(DSLExpression value, SkTArray<DSLStatement> statements)
+    : fValue(std::move(value)) {
+    for (DSLStatement& stmt : statements) {
+        fStatements.push_back(stmt.release());
+    }
+}
+
 DSLCase::DSLCase(DSLCase&& other)
     : fValue(std::move(other.fValue))
     , fStatements(std::move(other.fStatements)) {}

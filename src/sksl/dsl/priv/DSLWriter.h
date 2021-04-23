@@ -150,6 +150,9 @@ public:
     static std::unique_ptr<SkSL::Expression> Call(const FunctionDeclaration& function,
                                                   ExpressionArray arguments);
 
+    static std::unique_ptr<SkSL::Expression> Call(std::unique_ptr<SkSL::Expression> expr,
+                                                  ExpressionArray arguments);
+
     /**
      * Reports an error if the argument is null. Returns its argument unmodified.
      */
@@ -206,7 +209,7 @@ public:
 
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
 
-private:
+//private:
     std::unique_ptr<SkSL::ProgramConfig> fConfig;
     SkSL::Compiler* fCompiler;
     std::unique_ptr<Pool> fPool;
