@@ -187,15 +187,15 @@ protected:
             canvas->translate(SkIntToScalar(off.fX), SkIntToScalar(off.fY));
             canvas->scale(1.5f, 1.5f);
 
-            const SkRect& fastBound = p.computeFastBounds(r, &storage);
+//            const SkRect& fastBound = p.computeFastBounds(r, &storage);
 
-            canvas->save();
-                canvas->clipRect(fastBound);
+//            canvas->save();
+//                canvas->clipRect(fastBound);
                 (*draw)(canvas, r, p);
-            canvas->restore();
+//            canvas->restore();
 
-            canvas->drawRect(r, redStroked);
-            canvas->drawRect(fastBound, blueStroked);
+//            canvas->drawRect(r, redStroked);
+//            canvas->drawRect(fastBound, blueStroked);
         canvas->restore();
     }
 
@@ -229,7 +229,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-
+        fprintf(stderr, "start onDraw\n");
         SkPaint blackFill;
 
         //-----------
@@ -277,43 +277,46 @@ protected:
         SkASSERT(paints.count() == bmsPaints.count());
 
         // horizontal separators
-        for (int i = 1; i < paints.count(); ++i) {
-            canvas->drawLine(0,
-                             i*SkIntToScalar(kTileHeight),
-                             SkIntToScalar((SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols)*kTileWidth),
-                             i*SkIntToScalar(kTileHeight),
-                             blackFill);
-        }
-        // vertical separators
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols; ++i) {
-            canvas->drawLine(SkIntToScalar(i * kTileWidth),
-                             0,
-                             SkIntToScalar(i * kTileWidth),
-                             SkIntToScalar(paints.count() * kTileWidth),
-                             blackFill);
-        }
-
-        // A column of saveLayers with PictureImageFilters
-        for (int i = 0; i < pifPaints.count(); ++i) {
-            draw_savelayer_with_paint(SkIPoint::Make(0, i*kTileHeight),
-                                      canvas, pifPaints[i]);
-        }
-
-        // A column of saveLayers with BitmapSources
-        for (int i = 0; i < pifPaints.count(); ++i) {
-            draw_savelayer_with_paint(SkIPoint::Make(kTileWidth, i*kTileHeight),
-                                      canvas, bmsPaints[i]);
-        }
+//        for (int i = 1; i < paints.count(); ++i) {
+//            canvas->drawLine(0,
+//                             i*SkIntToScalar(kTileHeight),
+//                             SkIntToScalar((SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols)*kTileWidth),
+//                             i*SkIntToScalar(kTileHeight),
+//                             blackFill);
+//        }
+//        // vertical separators
+//        for (int i = 0; i < (int)SK_ARRAY_COUNT(gDrawMthds) + kNumXtraCols; ++i) {
+//            canvas->drawLine(SkIntToScalar(i * kTileWidth),
+//                             0,
+//                             SkIntToScalar(i * kTileWidth),
+//                             SkIntToScalar(paints.count() * kTileWidth),
+//                             blackFill);
+//        }
+//
+//        // A column of saveLayers with PictureImageFilters
+//        for (int i = 0; i < pifPaints.count(); ++i) {
+//            draw_savelayer_with_paint(SkIPoint::Make(0, i*kTileHeight),
+//                                      canvas, pifPaints[i]);
+//        }
+//
+//        // A column of saveLayers with BitmapSources
+//        for (int i = 0; i < pifPaints.count(); ++i) {
+//            draw_savelayer_with_paint(SkIPoint::Make(kTileWidth, i*kTileHeight),
+//                                      canvas, bmsPaints[i]);
+//        }
 
         // Multiple columns with different geometry
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(gDrawMthds); ++i) {
-            for (int j = 0; j < paints.count(); ++j) {
+        // Use i=[0,4), j=[1,5) to fail @ glReadPixels.
+        // Use original to fail @ glClear.
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 1; j < 5; ++j) {
+                fprintf(stderr, "i=%d, j=%d\n", i, j);
                 draw_geom_with_paint(*gDrawMthds[i],
                                      SkIPoint::Make((i+kNumXtraCols) * kTileWidth, j*kTileHeight),
                                      canvas, paints[j]);
             }
         }
-
+        fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
     }
 
 private:

@@ -160,7 +160,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	}
 
 	if b.debug() || b.extraConfig("ASAN") || b.extraConfig("Valgrind") {
-		args = append(args, "--loops", "1")
+		// args = append(args, "--loops", "1")
 		args = append(args, "--samples", "1")
 		// Ensure that the bot framework does not think we have timed out.
 		args = append(args, "--keepAlive", "true")

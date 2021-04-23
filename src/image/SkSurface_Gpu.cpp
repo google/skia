@@ -214,6 +214,7 @@ void SkSurface_Gpu::onDiscard() { fDevice->surfaceDrawContext()->discard(); }
 
 GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
                                              const GrBackendSurfaceMutableState* newState) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
 
     auto dContext = fDevice->recordingContext()->asDirectContext();
     if (!dContext) {
@@ -222,7 +223,9 @@ GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const 
 
     GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
 
-    return dContext->priv().flushSurface(sdc->asSurfaceProxy(), access, info, newState);
+    auto result = dContext->priv().flushSurface(sdc->asSurfaceProxy(), access, info, newState);
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
+    return result;
 }
 
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
@@ -721,12 +724,15 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
 #endif
 
 void SkSurface::flushAndSubmit(bool syncCpu) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
     this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 
     auto direct = GrAsDirectContext(this->recordingContext());
     if (direct) {
+        fprintf(stderr, "will call dContext submit %s\n", __PRETTY_FUNCTION__);
         direct->submit(syncCpu);
     }
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
 }
 
 #endif

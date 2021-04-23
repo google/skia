@@ -586,6 +586,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
                              const GrFlushInfo& info,
                              const GrBackendSurfaceMutableState* newState) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
 
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
@@ -627,6 +628,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
     SkASSERT(!newState || proxies.count() == 1);
     SkASSERT(!newState || access == SkSurface::BackendSurfaceAccess::kNoAccess);
     this->prepareSurfacesForBackendAccessAndStateUpdates(proxies, access, newState);
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
 }
 
 GrOpsRenderPass* GrGpu::getOpsRenderPass(
@@ -648,6 +650,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
 }
 
 bool GrGpu::submitToGpu(bool syncCpu) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
     this->stats()->incNumSubmitToGpus();
 
     if (auto manager = this->stagingBufferManager()) {
@@ -664,6 +667,7 @@ bool GrGpu::submitToGpu(bool syncCpu) {
 
     this->reportSubmitHistograms();
 
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
     return submitted;
 }
 
