@@ -166,15 +166,21 @@ bool GrTriangulator::Edge::intersect(const Edge& other, SkPoint* p, uint8_t* alp
     p->fX = SkDoubleToScalar(fTop->fPoint.fX - s * fLine.fB);
     p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fLine.fA);
     if (alpha) {
-        if (fType == EdgeType::kConnector) {
-            *alpha = (1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha;
-        } else if (other.fType == EdgeType::kConnector) {
-            double t = tNumer / denom;
-            *alpha = (1.0 - t) * other.fTop->fAlpha + t * other.fBottom->fAlpha;
+        if (fType == EdgeType::kInner || other.fType == EdgeType::kInner) {
+            // If the intersection is on any interior edge, it needs to stay fully opaque or later
+            // triangulation could leech transparency into the inner fill region.
+            *alpha = 255;
         } else if (fType == EdgeType::kOuter && other.fType == EdgeType::kOuter) {
+            // Trivially, the intersection will be fully transparent since since it is by
+            // construction on the outer edge.
             *alpha = 0;
         } else {
-            *alpha = 255;
+            // Could be two connectors crossing, or a connector crossing an outer edge.
+            // Take the max interpolated alpha
+            SkASSERT(fType == EdgeType::kConnector || other.fType == EdgeType::kConnector);
+            double t = tNumer / denom;
+            *alpha = std::max((1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha,
+                              (1.0 - t) * other.fTop->fAlpha + t * other.fBottom->fAlpha);
         }
     }
     return true;
