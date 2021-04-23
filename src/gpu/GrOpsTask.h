@@ -92,6 +92,11 @@ public:
     // renderPass compatible. Return the number of tasks merged into 'this'.
     int mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks);
 
+    // Returns whether this task would be dropped during a mergeFrom, due to getting merged with
+    // subsequent tasks that contain a color clear of the same target. If the task chain has
+    // any stencil clears, returns false because those tasks will not merge.
+    bool isFollowedByColorClearOnSameTarget(SkSpan<const sk_sp<GrRenderTask>>) const;
+
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
