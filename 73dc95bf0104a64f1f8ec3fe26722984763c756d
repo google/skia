@@ -55,6 +55,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "73af9689_57e6023a",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-23T18:49:10Z",
+      "side": 1,
+      "message": "Is there a canMerge check somewhere for this? Or are there any restrictions on when we can merge based on this flag?",
+      "range": {
+        "startLine": 738,
+        "startChar": 8,
+        "endLine": 738,
+        "endChar": 54
+      },
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "380a7049_4fa67706",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-04-23T18:49:10Z",
+      "side": 1,
+      "message": "I was trying to follow the call stack up to see if this was just trivial so/we have other asserts catching it, but if not maybe add an assert for caps-\u003esupportsDynamicMSAA(rt); in this if.",
+      "range": {
+        "startLine": 499,
+        "startChar": 7,
+        "endLine": 499,
+        "endChar": 12
+      },
+      "revId": "73dc95bf0104a64f1f8ec3fe26722984763c756d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "89c623eb_518af193",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 8
