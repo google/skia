@@ -783,6 +783,11 @@ void DSLCPPCodeGenerator::writeStatement(const Statement& s) {
     }
 }
 
+void DSLCPPCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
+    this->write(to_string(f.value()));
+    this->write("f");
+}
+
 void DSLCPPCodeGenerator::writeSetting(const Setting& s) {
     this->writef("sk_Caps.%s()", s.name().c_str());
 }
