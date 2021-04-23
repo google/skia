@@ -21,39 +21,46 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                GrProtected isProtected,
                                GrAttachment* stencil)
         : INHERITED(gpu, dimensions, isProtected)
-        , fStencilAttachment(stencil)
         , fSampleCnt(sampleCount) {
+    if (this->numSamples() > 1) {
+        fMSAAStencilAttachment.reset(stencil);
+    } else {
+        fStencilAttachment.reset(stencil);
+    }
 }
 
 GrRenderTarget::~GrRenderTarget() = default;
 
 void GrRenderTarget::onRelease() {
     fStencilAttachment = nullptr;
+    fMSAAStencilAttachment = nullptr;
 
     INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
     fStencilAttachment = nullptr;
+    fMSAAStencilAttachment = nullptr;
 
     INHERITED::onAbandon();
 }
 
-void GrRenderTarget::attachStencilAttachment(sk_sp<GrAttachment> stencil) {
-    if (!stencil && !fStencilAttachment) {
+void GrRenderTarget::attachStencilAttachment(sk_sp<GrAttachment> stencil, bool useMSAASurface) {
+    auto stencilAttachment = (useMSAASurface) ? &GrRenderTarget::fMSAAStencilAttachment
+                                              : &GrRenderTarget::fStencilAttachment;
+    if (!stencil && !(this->*stencilAttachment)) {
         // No need to do any work since we currently don't have a stencil attachment and
         // we're not actually adding one.
         return;
     }
 
-    fStencilAttachment = std::move(stencil);
-    if (!this->completeStencilAttachment()) {
-        fStencilAttachment = nullptr;
+    if (!this->completeStencilAttachment(stencil.get(), useMSAASurface)) {
+        return;
     }
+
+    this->*stencilAttachment = std::move(stencil);
 }
 
-int GrRenderTarget::numStencilBits() const {
-    SkASSERT(this->getStencilAttachment());
-    return GrBackendFormatStencilBits(this->getStencilAttachment()->backendFormat());
+int GrRenderTarget::numStencilBits(bool useMSAASurface) const {
+    return GrBackendFormatStencilBits(this->getStencilAttachment(useMSAASurface)->backendFormat());
 }
-

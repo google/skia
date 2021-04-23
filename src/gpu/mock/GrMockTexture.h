@@ -100,8 +100,15 @@ public:
         this->registerWithCacheWrapped(GrWrapCacheable::kNo);
     }
 
-    bool canAttemptStencilAttachment() const override { return true; }
-    bool completeStencilAttachment() override { return true; }
+    bool canAttemptStencilAttachment(bool useMSAASurface) const override {
+        SkASSERT(useMSAASurface == (this->numSamples() > 1));
+        return true;
+    }
+
+    bool completeStencilAttachment(GrAttachment*, bool useMSAASurface) override {
+        SkASSERT(useMSAASurface == (this->numSamples() > 1));
+        return true;
+    }
 
     size_t onGpuMemorySize() const override {
         int numColorSamples = this->numSamples();
