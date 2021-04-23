@@ -1,4 +1,6 @@
-layout(ctype=SkPMColor4f) in uniform half4 colorGreen, colorRed;
+layout(key) in bool primaryColors;
+layout(ctype=SkPMColor4f, when=primaryColors) in uniform half4 colorGreen, colorRed;
+layout(ctype=SkPMColor4f, when=!primaryColors) in uniform half4 colorOrange, colorPurple;
 
 half4 main() {
     bool t = true;
