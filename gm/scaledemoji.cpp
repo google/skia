@@ -79,7 +79,6 @@ protected:
             canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 10, y, font, paint);
             y += metrics.fDescent + metrics.fLeading;
         }
-
     }
 
 private:
@@ -138,7 +137,72 @@ protected:
 
             y += metrics.fDescent + metrics.fLeading;
         }
+    }
 
+private:
+    using INHERITED = GM;
+};
+
+class ScaledEmojiPerspectiveGM : public GM {
+public:
+    ScaledEmojiPerspectiveGM() {}
+
+protected:
+    struct EmojiFont {
+        sk_sp<SkTypeface> fTypeface;
+        const char* fText;
+    } fEmojiFont;
+
+    void onOnceBeforeDraw() override {
+        fEmojiFont.fTypeface = ToolUtils::emoji_typeface();
+        fEmojiFont.fText     = ToolUtils::emoji_sample_text();
+    }
+
+    SkString onShortName() override {
+        return SkString("scaledemojiperspective");
+    }
+
+    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+
+    void onDraw(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorGRAY);
+        SkMatrix taper;
+        taper.setPerspY(-0.0025f);
+
+        SkPaint paint;
+        SkFont font;
+        font.setTypeface(fEmojiFont.fTypeface);
+        font.setSize(40);
+        const char* text = "\xF0\x9F\x98\x80"
+                           "\xE2\x99\xA2";  // 😀♢;
+        sk_sp<SkTextBlob> blob = make_hpos_test_blob_utf8(text, font);
+
+        // draw text at different point sizes
+        // Testing GPU bitmap path, SDF path with no scaling,
+        // SDF path with scaling, path rendering with scaling
+        SkFontMetrics metrics;
+        font.getMetrics(&metrics);
+        for (auto rotate : {0.0, 45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0}) {
+            canvas->save();
+            SkMatrix perspective;
+            perspective.postTranslate(-600, -600);
+            perspective.postConcat(taper);
+            perspective.postRotate(rotate);
+            perspective.postTranslate(600, 600);
+            canvas->concat(perspective);
+            SkScalar y = 670;
+            for (int i = 0; i < 5; i++) {
+
+                y += -metrics.fAscent;
+
+                // Draw with an origin.
+                canvas->drawTextBlob(blob, 565, y, paint);
+
+                y += metrics.fDescent + metrics.fLeading;
+            }
+            canvas->restore();
+        }
     }
 
 private:
@@ -149,5 +213,5 @@ private:
 
 DEF_GM(return new ScaledEmojiGM;)
 DEF_GM(return new ScaledEmojiPosGM;)
-
+DEF_GM(return new ScaledEmojiPerspectiveGM;)
 }  // namespace skiagm

@@ -1528,8 +1528,11 @@ bool GrTextBlob::hasPerspective() const { return fInitialMatrix.hasPerspective()
 
 bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) const {
     // A singular matrix will create a GrTextBlob with no SubRuns, but unknown glyphs can
-    // also cause empty runs. If there are no subRuns, then regenerate.
-    if ((fSubRunList.isEmpty() || fSomeGlyphsExcluded) && fInitialMatrix != drawMatrix) {
+    // also cause empty runs. If there are no subRuns or some glyphs were excluded or perspective,
+    // then regenerate when the matrices don't match.
+    if ((fSubRunList.isEmpty() || fSomeGlyphsExcluded || hasPerspective()) &&
+         fInitialMatrix != drawMatrix)
+    {
         return false;
     }
 
