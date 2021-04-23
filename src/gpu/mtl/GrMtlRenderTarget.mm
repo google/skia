@@ -145,7 +145,8 @@ void GrMtlRenderTarget::onRelease() {
     INHERITED::onRelease();
 }
 
-bool GrMtlRenderTarget::completeStencilAttachment() {
+bool GrMtlRenderTarget::completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) {
+    SkASSERT(useMSAASurface == (this->numSamples() > 1));
     return true;
 }
 

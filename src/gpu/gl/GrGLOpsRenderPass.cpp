@@ -390,5 +390,5 @@ void GrGLOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float,
 }
 
 void GrGLOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
-    fGpu->clearStencilClip(scissor, insideStencilMask, fRenderTarget, fOrigin);
+    fGpu->clearStencilClip(scissor, insideStencilMask, fRenderTarget, fUseMultisampleFBO, fOrigin);
 }

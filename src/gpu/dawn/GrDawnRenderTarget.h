@@ -22,7 +22,8 @@ public:
 
     ~GrDawnRenderTarget() override;
 
-    bool canAttemptStencilAttachment() const override {
+    bool canAttemptStencilAttachment(bool useMSAASurface) const override {
+        SkASSERT(useMSAASurface == (this->numSamples() > 1));
         return true;
     }
 
@@ -43,7 +44,7 @@ protected:
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;
 
-    bool completeStencilAttachment() override;
+    bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override;
     GrDawnRenderTargetInfo fInfo;
     using INHERITED = GrRenderTarget;
 };

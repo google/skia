@@ -493,15 +493,15 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     return buffer;
 }
 
-bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
+bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSAASurface) {
     SkASSERT(rt);
-    GrAttachment* stencil = rt->getStencilAttachment();
+    GrAttachment* stencil = rt->getStencilAttachment(useMSAASurface);
     if (stencil) {
         SkASSERT(stencil->numSamples() == rt->numSamples());
         return true;
     }
 
-    if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment()) {
+    if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment(useMSAASurface)) {
         GrUniqueKey sbKey;
 
 #if 0
@@ -510,8 +510,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
             height = SkNextPow2(height);
         }
 #endif
-        GrBackendFormat stencilFormat =
-                this->gpu()->getPreferredStencilFormat(rt->backendFormat());
+        GrBackendFormat stencilFormat = this->gpu()->getPreferredStencilFormat(rt->backendFormat());
         if (!stencilFormat.isValid()) {
             return false;
         }
@@ -523,15 +522,16 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
         auto stencil = this->findByUniqueKey<GrAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
-            stencil = this->gpu()->makeStencilAttachmentForRenderTarget(rt, rt->dimensions());
+            stencil = this->gpu()->makeStencilAttachment(rt->backendFormat(), rt->dimensions(),
+                                                         rt->numSamples());
             if (!stencil) {
                 return false;
             }
             this->assignUniqueKeyToResource(sbKey, stencil.get());
         }
-        rt->attachStencilAttachment(std::move(stencil));
+        rt->attachStencilAttachment(std::move(stencil), useMSAASurface);
     }
-    stencil = rt->getStencilAttachment();
+    stencil = rt->getStencilAttachment(useMSAASurface);
     SkASSERT(!stencil || stencil->numSamples() == rt->numSamples());
     return stencil != nullptr;
 }

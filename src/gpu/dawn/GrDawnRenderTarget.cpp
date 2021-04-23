@@ -35,7 +35,8 @@ size_t GrDawnRenderTarget::onGpuMemorySize() const {
                                   GrMipmapped::kNo);
 }
 
-bool GrDawnRenderTarget::completeStencilAttachment() {
+bool GrDawnRenderTarget::completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) {
+    SkASSERT(useMSAASurface == (this->numSamples() > 1));
     return true;
 }
 

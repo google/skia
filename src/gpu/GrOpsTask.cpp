@@ -563,11 +563,12 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 
     GrAttachment* stencil = nullptr;
     if (proxy->needsStencil()) {
-        if (!flushState->resourceProvider()->attachStencilAttachment(renderTarget)) {
+        if (!flushState->resourceProvider()->attachStencilAttachment(renderTarget,
+                                                                     fUsesMSAASurface)) {
             SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
             return false;
         }
-        stencil = renderTarget->getStencilAttachment();
+        stencil = renderTarget->getStencilAttachment(fUsesMSAASurface);
     }
 
     GrLoadOp stencilLoadOp;

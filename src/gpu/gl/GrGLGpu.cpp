@@ -1686,14 +1686,11 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
     return 0;
 }
 
-sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                  SkISize dimensions) {
-    SkASSERT(dimensions.width() >= rt->width());
-    SkASSERT(dimensions.height() >= rt->height());
-
+sk_sp<GrAttachment> GrGLGpu::makeStencilAttachment(const GrBackendFormat& colorFormat,
+                                                   SkISize dimensions, int numStencilSamples) {
     GrGLAttachment::IDDesc sbDesc;
 
-    int sIdx = this->getCompatibleStencilIndex(rt->backendFormat().asGLFormat());
+    int sIdx = this->getCompatibleStencilIndex(colorFormat.asGLFormat());
     if (sIdx < 0) {
         return nullptr;
     }
@@ -1709,8 +1706,8 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRender
     GrGLenum glFmt = GrGLFormatToEnum(sFmt);
     // we do this "if" so that we don't call the multisample
     // version on a GL that doesn't have an MSAA extension.
-    if (rt->numSamples() > 1) {
-        if (!this->renderbufferStorageMSAA(*fGLContext, rt->numSamples(), glFmt,
+    if (numStencilSamples > 1) {
+        if (!this->renderbufferStorageMSAA(*fGLContext, numStencilSamples, glFmt,
                                            dimensions.width(), dimensions.height())) {
             GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
             return nullptr;
@@ -1728,7 +1725,7 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRender
 
     return sk_sp<GrAttachment>(new GrGLAttachment(
             this, sbDesc, dimensions, GrAttachment::UsageFlags::kStencilAttachment,
-            rt->numSamples(), sFmt));
+            numStencilSamples, sFmt));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1838,10 +1835,10 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
     if (programInfo.isStencilEnabled()) {
-        SkASSERT(glRT->getStencilAttachment());
+        SkASSERT(glRT->getStencilAttachment(useMultisampleFBO));
         stencil.reset(*programInfo.userStencilSettings(),
                       programInfo.pipeline().hasStencilClip(),
-                      glRT->numStencilBits());
+                      glRT->numStencilBits(useMultisampleFBO));
     }
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
@@ -2040,13 +2037,14 @@ void GrGLGpu::endCommandBuffer(GrRenderTarget* rt, bool useMultisampleFBO,
 }
 
 void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask,
-                               GrRenderTarget* target, GrSurfaceOrigin origin) {
+                               GrRenderTarget* target, bool useMultisampleFBO,
+                               GrSurfaceOrigin origin) {
     SkASSERT(target);
     SkASSERT(!this->caps()->performStencilClearsAsDraws());
     SkASSERT(!scissor.enabled() || !this->caps()->performPartialClearsAsDraws());
     this->handleDirtyContext();
 
-    GrAttachment* sb = target->getStencilAttachment();
+    GrAttachment* sb = target->getStencilAttachment(useMultisampleFBO);
     if (!sb) {
         // We should only get here if we marked a proxy as requiring a SB. However,
         // the SB creation could later fail. Likely clipping is going to go awry now.
@@ -2072,7 +2070,7 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
         value = 0;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->flushRenderTargetNoColorWrites(glRT, glRT->stencilIsOnMultisampleFBO());
+    this->flushRenderTargetNoColorWrites(glRT, useMultisampleFBO);
 
     this->flushScissor(scissor, glRT->height(), origin);
     this->disableWindowRectangles();
@@ -2164,7 +2162,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
 GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
-        bool useMSAASurface,
+        bool useMultisampleFBO,
         GrAttachment*,
         GrSurfaceOrigin origin,
         const SkIRect& bounds,
@@ -2176,7 +2174,7 @@ GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
         fCachedOpsRenderPass = std::make_unique<GrGLOpsRenderPass>(this);
     }
 
-    fCachedOpsRenderPass->set(rt, useMSAASurface, bounds, origin, colorInfo, stencilInfo);
+    fCachedOpsRenderPass->set(rt, useMultisampleFBO, bounds, origin, colorInfo, stencilInfo);
     return fCachedOpsRenderPass.get();
 }
 

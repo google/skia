@@ -41,13 +41,20 @@ public:
 
     virtual GrBackendRenderTarget getBackendRenderTarget() const = 0;
 
-    GrAttachment* getStencilAttachment() const { return fStencilAttachment.get(); }
+    GrAttachment* getStencilAttachment(bool useMSAASurface) const {
+        return (useMSAASurface) ? fMSAAStencilAttachment.get() : fStencilAttachment.get();
+    }
+
+    GrAttachment* getStencilAttachment() const {
+        return getStencilAttachment(this->numSamples() > 1);
+    }
+
     // Checked when this object is asked to attach a stencil buffer.
-    virtual bool canAttemptStencilAttachment() const = 0;
+    virtual bool canAttemptStencilAttachment(bool useMSAASurface) const = 0;
 
-    void attachStencilAttachment(sk_sp<GrAttachment> stencil);
+    void attachStencilAttachment(sk_sp<GrAttachment> stencil, bool useMSAASurface);
 
-    int numStencilBits() const;
+    int numStencilBits(bool useMSAASurface) const;
 
     /**
      * Returns a unique key that identifies this render target's sample pattern. (Must be
@@ -75,9 +82,10 @@ private:
     // GrAttachment. When this is called, the GrAttachment has already been put onto
     // the GrRenderTarget. This function must return false if any failures occur when completing the
     // stencil attachment.
-    virtual bool completeStencilAttachment() = 0;
+    virtual bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) = 0;
 
     sk_sp<GrAttachment> fStencilAttachment;
+    sk_sp<GrAttachment> fMSAAStencilAttachment;
     int fSampleCnt;
 
     using INHERITED = GrSurface;

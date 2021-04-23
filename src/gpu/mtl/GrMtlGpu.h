@@ -233,8 +233,8 @@ private:
                               GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
                               size_t imageBytes, size_t rowBytes);
 
-    sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(
-            const GrRenderTarget*, SkISize dimensions) override;
+    sk_sp<GrAttachment> makeStencilAttachment(const GrBackendFormat& /*colorFormat*/,
+                                              SkISize dimensions, int numStencilSamples) override;
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
         return GrBackendFormat::MakeMtl(this->mtlCaps().preferredStencilFormat());

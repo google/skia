@@ -100,7 +100,8 @@ public:
     bool wrapsSecondaryCommandBuffer() const { return SkToBool(fExternalFramebuffer); }
     sk_sp<GrVkFramebuffer> externalFramebuffer() const;
 
-    bool canAttemptStencilAttachment() const override {
+    bool canAttemptStencilAttachment(bool useMSAASurface) const override {
+        SkASSERT(useMSAASurface == (this->numSamples() > 1));
         // We don't know the status of the stencil attachment for wrapped external secondary command
         // buffers so we just assume we don't have one.
         return !this->wrapsSecondaryCommandBuffer();
@@ -168,7 +169,7 @@ private:
                            SelfDependencyFlags selfDepFlags,
                            LoadFromResolve);
 
-    bool completeStencilAttachment() override;
+    bool completeStencilAttachment(GrAttachment* stencil, bool useMSAASurface) override;
 
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).

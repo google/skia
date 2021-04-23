@@ -21,7 +21,8 @@ GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
         , GrDawnRenderTarget(gpu, dimensions, sampleCnt,
                              GrDawnRenderTargetInfo(textureInfo)) {}
 
-bool GrDawnTextureRenderTarget::canAttemptStencilAttachment() const {
+bool GrDawnTextureRenderTarget::canAttemptStencilAttachment(bool useMSAASurface) const {
+    SkASSERT(useMSAASurface == (this->numSamples() > 1));
     return true;
 }
 

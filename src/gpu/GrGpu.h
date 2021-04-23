@@ -605,8 +605,9 @@ public:
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrAttachment.
-    virtual sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                     SkISize dimensions) = 0;
+    virtual sk_sp<GrAttachment> makeStencilAttachment(const GrBackendFormat& colorFormat,
+                                                      SkISize dimensions,
+                                                      int numStencilSamples) = 0;
 
     virtual GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) = 0;
 
