@@ -158,7 +158,7 @@ static UniformCTypeMapper register_type(Layout::CType ctype, const std::vector<S
 //////////////////////////////
 
 static const std::vector<UniformCTypeMapper>& get_mappers() {
-    static const std::vector<UniformCTypeMapper> registeredMappers = {
+    static const auto& kRegisteredMappers = *new std::vector<UniformCTypeMapper>{
     register_type(Layout::CType::kSkRect, { "half4", "float4", "double4" },
         "${pdman}.set4fv(${uniform}, ${count}, reinterpret_cast<const float*>(&${var}))", // to gpu
         "SkRect::MakeEmpty()",                                                     // default value
@@ -193,12 +193,12 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
         "SkMatrix::Scale(SK_FloatNaN, SK_FloatNaN)",                               // default value
         "!${oldVar}.cheapEqualTo(${newVar})"),                                     // dirty check
 
-    register_type(Layout::CType::kSkM44,  { "half4x4", "float4x4", "double4x4" },
+    register_type(Layout::CType::kSkM44, { "half4x4", "float4x4", "double4x4" },
         "static_assert(${count} == 1); ${pdman}.setSkM44(${uniform}, ${var})",     // to gpu
         "SkM44(SkM44::kNaN_Constructor)",                                          // default value
         "${oldVar} != (${newVar})"),                                               // dirty check
 
-    register_array(Layout::CType::kFloat,  { "half", "float", "double" },
+    register_array(Layout::CType::kFloat, { "half", "float", "double" },
         "${pdman}.set1f(${uniform}, ${var})",                                      // single
         "${pdman}.set1fv(${uniform}, ${count}, &${var})",                          // array
         "SK_FloatNaN"),                                                            // default value
@@ -209,7 +209,7 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
         "SK_NaN32"),                                                               // default value
     };
 
-    return registeredMappers;
+    return kRegisteredMappers;
 }
 
 /////
@@ -230,24 +230,20 @@ const UniformCTypeMapper* UniformCTypeMapper::Get(const Context& context, const 
         ctype = HCodeGenerator::ParameterCType(context, type, layout);
     }
 
-    const String& skslType = type.name();
-
-    for (size_t i = 0; i < registeredMappers.size(); i++) {
-        if (registeredMappers[i].ctype() == ctype) {
-            // Check for sksl support, since some c types (e.g. SkMatrix) can be used in multiple
-            // uniform types and send data to the gpu differently in those conditions
-            const std::vector<String> supportedSKSL = registeredMappers[i].supportedTypeNames();
-            for (size_t j = 0; j < supportedSKSL.size(); j++) {
-                if (supportedSKSL[j] == skslType) {
-                    // Found a match, so return it or an explicitly untracked version if tracking is
-                    // disabled in the layout
-                    return &registeredMappers[i];
+    for (const UniformCTypeMapper& mapper : registeredMappers) {
+        if (mapper.ctype() == ctype) {
+            // Check for SkSL support, since some C types (e.g. SkMatrix) can be used in multiple
+            // uniform types and send data to the GPU differently depending on the uniform type.
+            for (const String& mapperSupportedType : mapper.supportedTypeNames()) {
+                if (mapperSupportedType == type.name()) {
+                    // Return the match that we found.
+                    return &mapper;
                 }
             }
         }
     }
 
-    // Didn't find a match
+    // Didn't find a match.
     return nullptr;
 }
 
