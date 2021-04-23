@@ -493,11 +493,19 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     return buffer;
 }
 
+static int num_stencil_samples(const GrRenderTarget* rt, bool useMSAASurface, const GrCaps& caps) {
+    int numSamples = rt->numSamples();
+    if (numSamples == 1 && useMSAASurface) {  // Are we using dynamic msaa?
+        numSamples = caps.internalMultisampleCount(rt->backendFormat());
+    }
+    return numSamples;
+}
+
 bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSAASurface) {
     SkASSERT(rt);
     GrAttachment* stencil = rt->getStencilAttachment(useMSAASurface);
     if (stencil) {
-        SkASSERT(stencil->numSamples() == rt->numSamples());
+        SkASSERT(stencil->numSamples() == num_stencil_samples(rt, useMSAASurface, *this->caps()));
         return true;
     }
 
@@ -515,15 +523,16 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
             return false;
         }
         GrProtected isProtected = rt->isProtected() ? GrProtected::kYes : GrProtected::kNo;
+        int numStencilSamples = num_stencil_samples(rt, useMSAASurface, *this->caps());
         GrAttachment::ComputeSharedAttachmentUniqueKey(
                 *this->caps(), stencilFormat, rt->dimensions(),
-                GrAttachment::UsageFlags::kStencilAttachment, rt->numSamples(), GrMipmapped::kNo,
+                GrAttachment::UsageFlags::kStencilAttachment, numStencilSamples, GrMipmapped::kNo,
                 isProtected, &sbKey);
         auto stencil = this->findByUniqueKey<GrAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
             stencil = this->gpu()->makeStencilAttachmentForRenderTarget(rt, rt->dimensions(),
-                                                                        rt->numSamples());
+                                                                        numStencilSamples);
             if (!stencil) {
                 return false;
             }
@@ -532,7 +541,8 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
         rt->attachStencilAttachment(std::move(stencil), useMSAASurface);
     }
     stencil = rt->getStencilAttachment(useMSAASurface);
-    SkASSERT(!stencil || stencil->numSamples() == rt->numSamples());
+    SkASSERT(!stencil ||
+             stencil->numSamples() == num_stencil_samples(rt, useMSAASurface, *this->caps()));
     return stencil != nullptr;
 }
 

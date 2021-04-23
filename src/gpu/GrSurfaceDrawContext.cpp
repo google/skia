@@ -299,6 +299,9 @@ GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
                                {colorType, kPremul_SkAlphaType, std::move(colorSpace)},
                                flushTimeOpsTask)
         , fSurfaceProps(surfaceProps)
+        , fCanUseDynamicMSAA(
+                (fSurfaceProps.flags() & kDMSAA_SkSurfacePropsPrivateFlag) &&
+                context->priv().caps()->supportsDynamicMSAA(this->asRenderTargetProxy()))
         , fGlyphPainter(*this) {
     SkDEBUGCODE(this->validate();)
 }
@@ -308,6 +311,12 @@ GrSurfaceDrawContext::~GrSurfaceDrawContext() {
 }
 
 inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
+    if (fCanUseDynamicMSAA) {
+        // Trigger dmsaa by default if the render target has it. Coverage ops that know how to
+        // handle both single and multisample targets without popping will do so without calling
+        // chooseAAType.
+        return GrAAType::kMSAA;
+    }
     if (GrAA::kNo == aa) {
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
         // that.
@@ -608,8 +617,17 @@ void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
     if (opt >= QuadOptimization::kClipApplied) {
         // These optimizations require caller to add an op themselves
         const GrClip* finalClip = opt == QuadOptimization::kClipApplied ? nullptr : clip;
-        GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
-                             : this->chooseAAType(aa);
+        GrAAType aaType;
+        if (ss) {
+            aaType = (aa == GrAA::kYes) ? GrAAType::kMSAA : GrAAType::kNone;
+        } else if (fCanUseDynamicMSAA && aa == GrAA::kNo) {
+            // The SkGpuDevice ensures GrAA is always kYes when using dmsaa. If the caller calls
+            // into here with GrAA::kNo, trust that they know what they're doing and that the
+            // rendering will be equal with or without msaa.
+            aaType = GrAAType::kNone;
+        } else {
+            aaType = this->chooseAAType(aa);
+        }
         this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType,
                                                       quad, ss));
     }
@@ -732,7 +750,7 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
                (rect.width() && rect.height())) {
         // Only use the StrokeRectOp for non-empty rectangles. Empty rectangles will be processed by
         // GrStyledShape to handle stroke caps and dashing properly.
-        GrAAType aaType = this->chooseAAType(aa);
+        GrAAType aaType = (fCanUseDynamicMSAA) ? GrAAType::kCoverage : this->chooseAAType(aa);
         GrOp::Owner op = GrStrokeRectOp::Make(
                 fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
         // op may be null if the stroke is not supported or if using coverage aa and the view matrix
@@ -1068,7 +1086,7 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
         op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect, rrect.rect(),
                                  GrAA(aaType != GrAAType::kNone));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && (GrAAType::kCoverage == aaType || fCanUseDynamicMSAA)) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeRRectOp(
                 fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
@@ -1381,7 +1399,7 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
         op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, SkRRect::MakeOval(oval),
                                  oval, GrAA(aaType != GrAAType::kNone));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && (GrAAType::kCoverage == aaType || fCanUseDynamicMSAA)) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
                                          this->caps()->shaderCaps());
@@ -1414,7 +1432,7 @@ void GrSurfaceDrawContext::drawArc(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->chooseAAType(aa);
-    if (GrAAType::kCoverage == aaType) {
+    if (GrAAType::kCoverage == aaType || fCanUseDynamicMSAA) {
         const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         GrOp::Owner op = GrOvalOpFactory::MakeArcOp(fContext,
                                                     std::move(paint),
@@ -1927,9 +1945,9 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
-    opsTask->addDrawOp(this->drawingManager(), std::move(op), analysis, std::move(appliedClip),
-                       dstProxyView, GrTextureResolveManager(this->drawingManager()),
-                       *this->caps());
+    opsTask->addDrawOp(this->drawingManager(), std::move(op), fixedFunctionFlags, analysis,
+                       std::move(appliedClip), dstProxyView,
+                       GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
 bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,
