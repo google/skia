@@ -22,6 +22,30 @@
       },
       "revId": "7c8f414d4fef579e72db66288fb676be4f86e3cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a679147_c33b543a",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1476,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T14:13:15Z",
+      "side": 1,
+      "message": "Yes, you\u0027re right. The rt will have 1 sample. The next CL in this chain implements that and deletes this assert. I just figured I might as well match the asserts in the other backends until dmsaa is implemented.",
+      "parentUuid": "b5d5475c_7aef3935",
+      "range": {
+        "startLine": 1476,
+        "startChar": 4,
+        "endLine": 1476,
+        "endChar": 52
+      },
+      "revId": "7c8f414d4fef579e72db66288fb676be4f86e3cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
