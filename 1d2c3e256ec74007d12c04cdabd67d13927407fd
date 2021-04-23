@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "db8ef595_3ff28e16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T08:47:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ee83e50_a4fb3ed6",
+      "revId": "1d2c3e256ec74007d12c04cdabd67d13927407fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ffbd2050_478e61d7",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec5f7d0b_8db05862",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T08:47:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ffbd2050_478e61d7",
+      "range": {
+        "startLine": 41,
+        "startChar": 15,
+        "endLine": 43,
+        "endChar": 38
+      },
+      "revId": "1d2c3e256ec74007d12c04cdabd67d13927407fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e4b2733_9a838f77",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-04-14T14:55:05Z",
       "side": 1,
       "message": "Can we just do at the end here:\nfDynamicMSAASupport \u003d fMSFBOType !\u003d kNone_MSFBOType \u0026\u0026 fMSFBOType !\u003d kES_Apple_MSFBOType;\n\nCan drop the apply part if we remove support for that extension in general.",
+      "range": {
+        "startLine": 1038,
+        "startChar": 4,
+        "endLine": 1038,
+        "endChar": 5
+      },
+      "revId": "1d2c3e256ec74007d12c04cdabd67d13927407fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6418ad25_87dd4b01",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T08:47:55Z",
+      "side": 1,
+      "message": "Done. Moved onto onSupportsDynamicMSAA since Vulkan needs it to be virtual also.",
+      "parentUuid": "3e4b2733_9a838f77",
       "range": {
         "startLine": 1038,
         "startChar": 4,
