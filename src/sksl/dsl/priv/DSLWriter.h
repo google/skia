@@ -19,6 +19,7 @@
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include <list>
 #include <stack>
 
 class AutoDSLContext;
@@ -220,8 +221,9 @@ private:
     struct StackFrame {
         GrGLSLFragmentProcessor* fProcessor;
         GrGLSLFragmentProcessor::EmitArgs* fEmitArgs;
+        SkSL::StatementArray fSavedDeclarations;
     };
-    std::stack<StackFrame> fStack;
+    std::stack<StackFrame, std::list<StackFrame>> fStack;
 #endif // !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
     friend class DSLCore;

@@ -95,14 +95,16 @@ const char* DSLWriter::Name(const char* name) {
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 void DSLWriter::StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
                                        GrGLSLFragmentProcessor::EmitArgs* emitArgs) {
-    Instance().fStack.push({processor, emitArgs});
+    DSLWriter& instance = Instance();
+    instance.fStack.push({processor, emitArgs, StatementArray{}});
+    CurrentEmitArgs()->fFragBuilder->fDeclarations.swap(instance.fStack.top().fSavedDeclarations);
     IRGenerator().pushSymbolTable();
 }
 
 void DSLWriter::EndFragmentProcessor() {
     DSLWriter& instance = Instance();
     SkASSERT(!instance.fStack.empty());
-    CurrentEmitArgs()->fFragBuilder->fDeclarations.reset();
+    CurrentEmitArgs()->fFragBuilder->fDeclarations.swap(instance.fStack.top().fSavedDeclarations);
     instance.fStack.pop();
     IRGenerator().popSymbolTable();
 }
