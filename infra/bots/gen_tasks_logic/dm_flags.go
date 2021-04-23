@@ -308,12 +308,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 		}
 
-		if b.model("Pixelbook") {
-			// skbug.com/10232
-			skip("_ test _ ProcessorCloneTest")
-
-		}
-
 		if b.model("AndroidOne", "GalaxyS6", "Nexus5", "Nexus7") {
 			// skbug.com/9019
 			skip("_ test _ ProcessorCloneTest")
