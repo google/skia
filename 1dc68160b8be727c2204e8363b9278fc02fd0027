@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb1b36c5_9c99a98e",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T18:29:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db920db9_bf0eca9c",
+      "range": {
+        "startLine": 608,
+        "startChar": 53,
+        "endLine": 608,
+        "endChar": 68
+      },
+      "revId": "1dc68160b8be727c2204e8363b9278fc02fd0027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3629731f_0fe9a673",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-23T18:04:01Z",
       "side": 1,
       "message": "tiny nit which you can feel free to ignore, but you could leave off the param name here or put it in /**/",
+      "range": {
+        "startLine": 885,
+        "startChar": 31,
+        "endLine": 885,
+        "endChar": 42
+      },
+      "revId": "1dc68160b8be727c2204e8363b9278fc02fd0027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a670310_13c12c5c",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-23T18:29:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3629731f_0fe9a673",
       "range": {
         "startLine": 885,
         "startChar": 31,
