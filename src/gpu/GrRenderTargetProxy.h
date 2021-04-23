@@ -54,6 +54,10 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     bool instantiate(GrResourceProvider*) override;
 
+    // Returns true if this proxy does not represent a wrapped, stencil-less render target. (If we
+    // are a wrapped target without stencil, then we cannot attach one during flush.)
+    bool supportsStencil(const GrCaps& caps) const;
+
     /*
      * Indicate that a draw to this proxy requires stencil.
      */

@@ -89,6 +89,23 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     return true;
 }
 
+bool GrRenderTargetProxy::supportsStencil(const GrCaps& caps) const {
+    if (caps.avoidStencilBuffers()) {
+        return false;
+    }
+    if (!fTarget) {
+        // If we aren't instantiated, then we definitely are an internal render target. Ganesh is
+        // free to change stencil attachments on internal render targets.
+        return true;
+    }
+    GrRenderTarget* rt = this->peekRenderTarget();
+    // The dmsaa attachment (if any) always supports stencil. The real question is whether the
+    // non-dmsaa attachment supports stencil.
+    bool useMSAASurface = rt->numSamples() > 1;
+    return rt->getStencilAttachment(useMSAASurface) ||
+           rt->canAttemptStencilAttachment(useMSAASurface);
+}
+
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
                                                        GrRenderable::kYes, GrMipmapped::kNo);
