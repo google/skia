@@ -408,8 +408,6 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
         dContext->priv().getGpu()->stats()->incNumReorderedDAGsOverBudget();
         return false;
     }
-    // TODO: Handle case where proposed order would blow our memory budget.
-    // Such cases are currently pathological, so we could just return here and keep current order.
     reorder_array_by_llist(llist, &fDAG);
 
     int newCount = 0;
