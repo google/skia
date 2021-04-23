@@ -8,7 +8,7 @@
 #ifndef SkCFObject_DEFINED
 #define SkCFObject_DEFINED
 
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS) || defined(SK_METAL)
 
 #import <CoreFoundation/CoreFoundation.h>
 
