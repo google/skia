@@ -254,6 +254,7 @@ void GrPathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    SkDebugf("@@@@@@> GrPathInnerTriangulateOp::onExecute!\n");
     if (fStencilCurvesProgram) {
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fStencilCurvesProgram, this->bounds());

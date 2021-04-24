@@ -700,7 +700,8 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
             args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
     if (!(single_pass_shape(*args.fShape) || isHairline) &&
-        (args.fCaps->avoidStencilBuffers() || args.fTargetIsWrappedVkSecondaryCB)) {
+        (args.fSurfaceDrawContext->caps()->avoidStencilBuffers() ||
+         args.fSurfaceDrawContext->wrapsVkSecondaryCB())) {
         return CanDrawPath::kNo;
     }
     // If antialiasing is required, we only support MSAA.
@@ -716,17 +717,17 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
                               "GrDefaultPathRenderer::onDrawPath");
     GrAAType aaType = (GrAAType::kNone != args.fAAType) ? GrAAType::kMSAA : GrAAType::kNone;
 
     return this->internalDrawPath(
-            args.fRenderTargetContext, std::move(args.fPaint), aaType, *args.fUserStencilSettings,
+            args.fSurfaceDrawContext, std::move(args.fPaint), aaType, *args.fUserStencilSettings,
             args.fClip, *args.fViewMatrix, *args.fShape, false);
 }
 
 void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
                               "GrDefaultPathRenderer::onStencilPath");
     SkASSERT(!args.fShape->inverseFilled());
 
@@ -736,7 +737,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     auto aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
 
     this->internalDrawPath(
-            args.fRenderTargetContext, std::move(paint), aaType, GrUserStencilSettings::kUnused,
+            args.fSurfaceDrawContext, std::move(paint), aaType, GrUserStencilSettings::kUnused,
             args.fClip, *args.fViewMatrix, *args.fShape, true);
 }
 
