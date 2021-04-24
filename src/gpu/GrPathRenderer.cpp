@@ -18,7 +18,7 @@
 #ifdef SK_DEBUG
 void GrPathRenderer::StencilPathArgs::validate() const {
     SkASSERT(fContext);
-    SkASSERT(fRenderTargetContext);
+    SkASSERT(fSurfaceDrawContext);
     SkASSERT(fClipConservativeBounds);
     SkASSERT(fViewMatrix);
     SkASSERT(fShape);
@@ -45,14 +45,12 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
 #ifdef SK_DEBUG
     args.validate();
     CanDrawPathArgs canArgs;
-    canArgs.fCaps = args.fContext->priv().caps();
-    canArgs.fProxy = args.fRenderTargetContext->asRenderTargetProxy();
+    canArgs.fSurfaceDrawContext = args.fSurfaceDrawContext;
     canArgs.fClipConservativeBounds = args.fClipConservativeBounds;
     canArgs.fViewMatrix = args.fViewMatrix;
     canArgs.fShape = args.fShape;
     canArgs.fPaint = &args.fPaint;
     canArgs.fAAType = args.fAAType;
-    canArgs.fTargetIsWrappedVkSecondaryCB = args.fRenderTargetContext->wrapsVkSecondaryCB();
     canArgs.validate();
 
     canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
@@ -110,7 +108,7 @@ void GrPathRenderer::onStencilPath(const StencilPathArgs& args) {
     DrawPathArgs drawArgs{args.fContext,
                           std::move(paint),
                           &kIncrementStencil,
-                          args.fRenderTargetContext,
+                          args.fSurfaceDrawContext,
                           nullptr,  // clip
                           args.fClipConservativeBounds,
                           args.fViewMatrix,

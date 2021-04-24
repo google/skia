@@ -310,7 +310,7 @@ static void stencil_path(GrRecordingContext* context,
                          const GrStyledShape& shape, GrAA aa) {
     GrPathRenderer::StencilPathArgs args;
     args.fContext = context;
-    args.fRenderTargetContext = rtc;
+    args.fSurfaceDrawContext = rtc;
     args.fClip = &clip;
     args.fClipConservativeBounds = &clip.scissorRect();
     args.fViewMatrix = &matrix;
@@ -411,15 +411,13 @@ bool GrStencilMaskHelper::drawPath(const SkPath& path,
     SkASSERT(!shape.inverseFilled());
 
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = fContext->priv().caps();
-    canDrawArgs.fProxy = fRTC->asRenderTargetProxy();
+    canDrawArgs.fSurfaceDrawContext = fRTC;
     canDrawArgs.fClipConservativeBounds = &fClip.fixedClip().scissorRect();
     canDrawArgs.fViewMatrix = &matrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = nullptr;
     canDrawArgs.fAAType = pathAAType;
     canDrawArgs.fHasUserStencilSettings = false;
-    canDrawArgs.fTargetIsWrappedVkSecondaryCB = fRTC->wrapsVkSecondaryCB();
 
     GrPathRenderer* pr =  fContext->priv().drawingManager()->getPathRenderer(
             canDrawArgs, false, GrPathRendererChain::DrawType::kStencil, &stencilSupport);
