@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5aeef050_902275e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-24T05:03:19Z",
+      "side": 1,
+      "message": "This is mostly ready, but I\u0027m having trouble figuring out how a proxy can tell if its render target will be wrapped and not have stencil. Any suggestions?",
+      "revId": "ef4d15dccac41f66d10e4f395174965b2224420e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afd8e5d6_6d7a742e",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-24T05:03:19Z",
+      "side": 1,
+      "message": "This logic doesn\u0027t hold true with lazy proxies, and unfortunately, that\u0027s what DDL uses in SkDeferredDisplayListRecorder.\n\nIs it at all possible for a proxy to know whether we will be able to use stencil?",
+      "range": {
+        "startLine": 97,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 73
+      },
+      "revId": "ef4d15dccac41f66d10e4f395174965b2224420e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
