@@ -117,6 +117,19 @@ DSLVar::~DSLVar() {
     }
 }
 
+void DSLVar::swap(DSLVar& other) {
+    std::swap(fModifiers, other.fModifiers);
+    std::swap(fType, other.fType);
+    std::swap(fUniformHandle, other.fUniformHandle);
+    std::swap(fDeclaration, other.fDeclaration);
+    std::swap(fVar, other.fVar);
+    std::swap(fRawName, other.fRawName);
+    std::swap(fName, other.fName);
+    std::swap(fInitialValue.fExpression, other.fInitialValue.fExpression);
+    std::swap(fStorage, other.fStorage);
+    std::swap(fDeclared, other.fDeclared);
+}
+
 DSLPossibleExpression DSLVar::operator[](DSLExpression&& index) {
     return DSLExpression(*this)[std::move(index)];
 }

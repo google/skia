@@ -1372,6 +1372,21 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
                 "a.z");
 }
 
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLVarSwap, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+
+    // We should be able to convert `a` into a proper var by swapping it, even from within a scope.
+    Var a;
+    if (true)
+    {
+        Var(kInt_Type, "a").swap(a);
+    }
+
+    EXPECT_EQUAL(Statement(Block(Declare(a), a = 123)),
+                "{ int a; (a = 123); }");
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Statement x = While(true, Block());
