@@ -52,7 +52,6 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
     canArgs.fShape = args.fShape;
     canArgs.fPaint = &args.fPaint;
     canArgs.fAAType = args.fAAType;
-    canArgs.fTargetIsWrappedVkSecondaryCB = args.fRenderTargetContext->wrapsVkSecondaryCB();
     canArgs.validate();
 
     canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
