@@ -65,9 +65,7 @@ class RuntimeShaderRenderThread extends Thread {
 
     public RuntimeShaderRenderThread(android.view.Surface surface) {
         mAndroidSurface = surface;
-        // TODO: this is too slow without GPU acceleration
-        // mBuilder = new RuntimeShaderBuilder(SkSLShader);
-        mBuilder = new RuntimeShaderBuilder(SkSLShader2);
+        mBuilder = new RuntimeShaderBuilder(SkSLShader);
     }
 
     public void finish() {
@@ -78,31 +76,18 @@ class RuntimeShaderRenderThread extends Thread {
     public void run() {
         mRunning = true;
 
+        Surface surface = Surface.CreateVulkan(mAndroidSurface);
+
         Log.d(TAG, "start");
 
         long time_base = java.lang.System.currentTimeMillis();
 
-        // TODO: convert to native AK surface.
         while (mRunning) {
-            android.graphics.Canvas android_canvas = mAndroidSurface.lockHardwareCanvas();
-
-            int w = android_canvas.getWidth(),
-                h = android_canvas.getHeight();
-
-            android.graphics.Bitmap bm =
-                    android.graphics.Bitmap.createBitmap(w, h,
-                                                         android.graphics.Bitmap.Config.ARGB_8888,
-                                                         true);
-            Surface surface = new Surface(bm);
-            renderFrame(surface.getCanvas(),
+            Canvas canvas = surface.getCanvas();
+            renderFrame(canvas,
                         (double)(java.lang.System.currentTimeMillis() - time_base) / 1000,
-                        w, h);
+                        surface.getWidth(), surface.getHeight());
             surface.flushAndSubmit();
-            surface.release();
-
-            android_canvas.drawBitmap(bm, 0, 0, new android.graphics.Paint());
-
-            mAndroidSurface.unlockCanvasAndPost(android_canvas);
         }
 
         Log.d(TAG, "finish");

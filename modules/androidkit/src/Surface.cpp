@@ -12,19 +12,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "modules/androidkit/src/Surface.h"
 
 namespace {
-
-class Surface : public SkRefCnt {
-public:
-    virtual void release(JNIEnv*) = 0;
-    virtual void flushAndSubmit() = 0;
-
-    SkCanvas* getCanvas() const { return fSurface->getCanvas(); }
-
-protected:
-    sk_sp<SkSurface> fSurface;
-};
 
 class BitmapSurface final : public Surface {
 public:
@@ -115,15 +105,36 @@ static void Surface_FlushAndSubmit(JNIEnv* env, jobject, jlong native_surface) {
     }
 }
 
+static int Surface_GetWidth(JNIEnv* env, jobject, jlong native_surface) {
+    if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
+        return surface->width();
+    }
+    return 0;
+}
+
+static int Surface_GetHeight(JNIEnv* env, jobject, jlong native_surface) {
+    if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
+        return surface->height();
+    }
+    return 0;
+}
+
 }  // namespace
+
+// Surface_VK.cpp
+jlong Surface_CreateVK(JNIEnv*, jobject, jobject);
 
 int register_androidkit_Surface(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
         {"nCreateBitmap"   , "(Landroid/graphics/Bitmap;)J",
             reinterpret_cast<void*>(Surface_CreateBitmap)},
+        {"nCreateVK"       , "(Landroid/view/Surface;)J",
+            reinterpret_cast<void*>(Surface_CreateVK)},
         {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)},
         {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
         {"nFlushAndSubmit" , "(J)V", reinterpret_cast<void*>(Surface_FlushAndSubmit)},
+        {"nGetWidth"       , "(J)I", reinterpret_cast<void*>(Surface_GetWidth)},
+        {"nGetHeight"      , "(J)I", reinterpret_cast<void*>(Surface_GetHeight)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Surface");

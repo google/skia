@@ -23,11 +23,25 @@ public class Surface {
         this(CreateBitmapInstance(bitmap));
     }
 
+    public static Surface CreateVulkan(android.view.Surface surface) {
+        return new Surface(nCreateVK(surface));
+    }
+
     /**
      * The Canvas associated with this Surface.
      */
     public Canvas getCanvas() {
-        return mCanvas;
+        // hmm...
+        return new Canvas(this, nGetNativeCanvas(mNativeInstance));
+        //return mCanvas;
+    }
+
+    public int getWidth() {
+        return nGetWidth(mNativeInstance);
+    }
+
+    public int getHeight() {
+        return nGetHeight(mNativeInstance);
     }
 
     /***
@@ -44,8 +58,10 @@ public class Surface {
      * Releases any resources associated with this Surface.
      */
     public void release() {
-        nRelease(mNativeInstance);
-        mNativeInstance = 0;
+        if (mNativeInstance != 0) {
+            nRelease(mNativeInstance);
+            mNativeInstance = 0;
+        }
     }
 
     @Override
@@ -67,7 +83,10 @@ public class Surface {
     }
 
     private static native long nCreateBitmap(Bitmap bitmap);
+    private static native long nCreateVK(android.view.Surface surface);
     private static native void nRelease(long nativeInstance);
     private static native long nGetNativeCanvas(long nativeInstance);
     private static native void nFlushAndSubmit(long nativeInstance);
+    private static native int  nGetWidth(long nativeInstance);
+    private static native int  nGetHeight(long nativeInstance);
 }
