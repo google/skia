@@ -16,10 +16,6 @@
 #include "src/sksl/dsl/priv/DSLFPs.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wcomma"
-#endif
-
 class GrGLSLDSLFPTest_Sample : public GrGLSLFragmentProcessor {
 public:
     GrGLSLDSLFPTest_Sample() {}

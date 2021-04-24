@@ -282,10 +282,16 @@ void DSLCPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     const Variable& var = *ref.variable();
 
     if (!fCPPMode) {
-        if (var.modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
-            this->write("sk_SampleCoord()");
-            fAccessSampleCoordsDirectly = true;
-            return;
+        switch (var.modifiers().fLayout.fBuiltin) {
+            case SK_MAIN_COORDS_BUILTIN:
+                this->write("sk_SampleCoord()");
+                fAccessSampleCoordsDirectly = true;
+                return;
+            case SK_FRAGCOORD_BUILTIN:
+                this->write("sk_FragCoord()");
+                return;
+            default:
+                break;
         }
     }
 
@@ -356,7 +362,7 @@ void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 {"exp2", "Exp2"},
                 {"faceforward", "Faceforward"},
                 {"floor", "Floor"},
-                {"fract", "Fract"},
+                {"fract", "SkSL::dsl::Fract"},
                 {"greaterThan", "GreaterThan"},
                 {"greaterThanEqual", "GreaterThanEqual"},
                 {"inversesqrt", "Inversesqrt"},
@@ -1099,12 +1105,9 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 const Variable& variable = decl.var();
 
                 if (needs_uniform_var(variable)) {
-                    const char* varCppName = this->getVariableCppName(variable);
-
-                    this->writef("        UniformHandle& %s = %.*sVar;\n"
-                                 "        (void) %s;\n",
-                                 varCppName, (int)variable.name().size(),
-                                 variable.name().data(), varCppName);
+                    this->writef("        [[maybe_unused]] UniformHandle& %.*s = %.*sVar;\n",
+                                 (int)variable.name().size(), variable.name().data(),
+                                 (int)variable.name().size(), variable.name().data());
                 } else if (SectionAndParameterHelper::IsParameter(variable) &&
                            !variable.type().isFragmentProcessor()) {
                     if (!wroteProcessor) {
@@ -1114,12 +1117,9 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                     }
 
                     if (!variable.type().isFragmentProcessor()) {
-                        const char* varCppName = this->getVariableCppName(variable);
-
-                        this->writef("        auto %s = _outer.%.*s;\n"
-                                     "        (void) %s;\n",
-                                     varCppName, (int)variable.name().size(),
-                                     variable.name().data(), varCppName);
+                        this->writef("        [[maybe_unused]] const auto& %.*s = _outer.%.*s;\n",
+                                     (int)variable.name().size(), variable.name().data(),
+                                     (int)variable.name().size(), variable.name().data());
                     }
                 }
             }
@@ -1375,10 +1375,6 @@ bool DSLCPPCodeGenerator::generateCode() {
                  "#include \"src/sksl/SkSLUtil.h\"\n"
                  "#include \"src/sksl/dsl/priv/DSLFPs.h\"\n"
                  "#include \"src/sksl/dsl/priv/DSLWriter.h\"\n"
-                 "\n"
-                 "#if defined(__clang__)\n"
-                 "#pragma clang diagnostic ignored \"-Wcomma\"\n"
-                 "#endif\n"
                  "\n"
                  "class GrGLSL%s : public GrGLSLFragmentProcessor {\n"
                  "public:\n"
