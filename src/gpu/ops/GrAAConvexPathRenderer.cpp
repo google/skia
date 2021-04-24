@@ -692,7 +692,7 @@ GrPathRenderer::CanDrawPath
 GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This check requires convexity and known direction, since the direction is used to build
     // the geometry segments. Degenerate convex paths will fall through to some other path renderer.
-    if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
+    if (args.fSurfaceDrawContext->caps()->shaderCaps()->shaderDerivativeSupport() &&
         (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
         !args.fShape->inverseFilled() && args.fShape->knownToBeConvex() &&
         args.fShape->knownDirection()) {
@@ -918,9 +918,9 @@ private:
 }  // anonymous namespace
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(args.fRenderTargetContext->numSamples() <= 1);
+    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
     SkASSERT(!args.fShape->isEmpty());
 
     SkPath path;
@@ -929,7 +929,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrOp::Owner op = AAConvexPathOp::Make(args.fContext, std::move(args.fPaint),
                                           *args.fViewMatrix,
                                           path, args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
+    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 

@@ -155,6 +155,7 @@ void GrTessellatingStencilFillOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void GrTessellatingStencilFillOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    SkDebugf("@@@@@@> GrTessellatingStencilFillOp::onExecute!\n");
     if (!fTessellator) {
         return;
     }

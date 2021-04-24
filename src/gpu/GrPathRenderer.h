@@ -11,11 +11,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/GrPaint.h"
 
 class GrCaps;
 class GrClip;
 class GrHardClip;
-class GrPaint;
 class GrRecordingContext;
 class GrSurfaceDrawContext;
 class GrRenderTargetProxy;
@@ -77,22 +77,19 @@ public:
     struct CanDrawPathArgs {
         SkDEBUGCODE(CanDrawPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
-        const GrCaps*               fCaps;
-        const GrRenderTargetProxy*  fProxy;
+        const GrSurfaceDrawContext* fSurfaceDrawContext;
         const SkIRect*              fClipConservativeBounds;
         const SkMatrix*             fViewMatrix;
         const GrStyledShape*        fShape;
         const GrPaint*              fPaint;
         GrAAType                    fAAType;
-        bool                        fTargetIsWrappedVkSecondaryCB;
 
         // This is only used by GrTessellationPathRenderer
         bool                        fHasUserStencilSettings;
 
 #ifdef SK_DEBUG
         void validate() const {
-            SkASSERT(fCaps);
-            SkASSERT(fProxy);
+            SkASSERT(fSurfaceDrawContext);
             SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
@@ -114,7 +111,7 @@ public:
         GrRecordingContext*          fContext;
         GrPaint&&                    fPaint;
         const GrUserStencilSettings* fUserStencilSettings;
-        GrSurfaceDrawContext*        fRenderTargetContext;
+        GrSurfaceDrawContext*        fSurfaceDrawContext;
         const GrClip*                fClip;
         const SkIRect*               fClipConservativeBounds;
         const SkMatrix*              fViewMatrix;
@@ -125,7 +122,7 @@ public:
         void validate() const {
             SkASSERT(fContext);
             SkASSERT(fUserStencilSettings);
-            SkASSERT(fRenderTargetContext);
+            SkASSERT(fSurfaceDrawContext);
             SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
@@ -145,7 +142,7 @@ public:
         SkDEBUGCODE(StencilPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
         GrRecordingContext*    fContext;
-        GrSurfaceDrawContext*  fRenderTargetContext;
+        GrSurfaceDrawContext*  fSurfaceDrawContext;
         const GrHardClip*      fClip;
         const SkIRect*         fClipConservativeBounds;
         const SkMatrix*        fViewMatrix;

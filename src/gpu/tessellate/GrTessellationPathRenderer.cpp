@@ -140,8 +140,8 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
     // we find that cached triangulations of strokes can render slightly faster. Let cacheable paths
     // go to the triangulator on these platforms for now.
     // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
-    if (!args.fCaps->nativeDrawIndirectSupport() &&
-        !args.fCaps->shaderCaps()->tessellationSupport() &&
+    if (!args.fSurfaceDrawContext->caps()->nativeDrawIndirectSupport() &&
+        !args.fSurfaceDrawContext->caps()->shaderCaps()->tessellationSupport() &&
         shape.hasUnstyledKey()) {  // Is the path cacheable?
         return CanDrawPath::kNo;
     }
@@ -244,7 +244,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GrSurfaceDrawContext* surfaceDrawContext = args.fRenderTargetContext;
+    GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
 
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
@@ -355,7 +355,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
 }
 
 void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GrSurfaceDrawContext* surfaceDrawContext = args.fRenderTargetContext;
+    GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
     GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
