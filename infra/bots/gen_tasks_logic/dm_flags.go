@@ -449,7 +449,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test dynamic MSAA.
 		if b.extraConfig("DMSAA") {
 			configs = []string{glPrefix + "dmsaa"}
-			args = append(args, "--hwtess")
+			if !b.os("Android") {
+				// Also enable hardware tessellation if not on android.
+				args = append(args, "--hwtess")
+			}
 		}
 
 		// DDL is a GPU-only feature
