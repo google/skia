@@ -915,15 +915,13 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
     GrStyledShape shape(path, GrStyledShape::DoSimplify::kNo);
 
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = fContext->priv().caps();
-    canDrawArgs.fProxy = this->asRenderTargetProxy();
+    canDrawArgs.fSurfaceDrawContext = this;
     canDrawArgs.fClipConservativeBounds = &clipBounds;
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = nullptr;
     canDrawArgs.fAAType = (doStencilMSAA == GrAA::kYes) ? GrAAType::kMSAA : GrAAType::kNone;
     canDrawArgs.fHasUserStencilSettings = false;
-    canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     GrPathRenderer* pr = this->drawingManager()->getPathRenderer(
             canDrawArgs, false, GrPathRendererChain::DrawType::kStencil);
     if (!pr) {
@@ -933,7 +931,7 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
 
     GrPathRenderer::StencilPathArgs args;
     args.fContext = fContext;
-    args.fRenderTargetContext = this;
+    args.fSurfaceDrawContext = this;
     args.fClip = clip;
     args.fClipConservativeBounds = &clipBounds;
     args.fViewMatrix = &viewMatrix;
@@ -1608,15 +1606,12 @@ bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
 
     GrStyledShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = this->caps();
-    canDrawArgs.fProxy = this->asRenderTargetProxy();
+    canDrawArgs.fSurfaceDrawContext = this;
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = &paint;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fAAType = aaType;
-    SkASSERT(!this->wrapsVkSecondaryCB());
-    canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
     // Don't allow the SW renderer
@@ -1772,13 +1767,11 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     GrAAType aaType = this->chooseAAType(aa);
 
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = this->caps();
-    canDrawArgs.fProxy = this->asRenderTargetProxy();
+    canDrawArgs.fSurfaceDrawContext = this;
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = &paint;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
-    canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     canDrawArgs.fHasUserStencilSettings = false;
     canDrawArgs.fAAType = aaType;
 

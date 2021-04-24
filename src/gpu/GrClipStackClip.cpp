@@ -119,15 +119,12 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
 
         GrStyledShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
-        canDrawArgs.fCaps = context->priv().caps();
-        canDrawArgs.fProxy = surfaceDrawContext->asRenderTargetProxy();
+        canDrawArgs.fSurfaceDrawContext = surfaceDrawContext;
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
         canDrawArgs.fPaint = nullptr;
         canDrawArgs.fAAType = aaType;
-        SkASSERT(!surfaceDrawContext->wrapsVkSecondaryCB());
-        canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
         // the 'false' parameter disallows use of the SW path renderer
