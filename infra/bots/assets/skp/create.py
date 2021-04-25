@@ -33,6 +33,14 @@ def get_flutter_skps(target_dir):
     utils.git_clone('https://github.com/flutter/tests.git', '.')
     os.chdir('skp_generator')
     subprocess.check_call(['bash', 'build.sh'])
+    # Fix invalid SKP file names.
+    for f in os.listdir('skps'):
+      original_file_name = os.path.splitext(f)[0]
+      new_file_name = ''.join([x if x.isalnum() else "_"
+                               for x in original_file_name])
+      if new_file_name != original_file_name:
+        os.rename(os.path.join('skps', f),
+                  os.path.join('skps', new_file_name + '.skp'))
     copy_tree('skps', target_dir)
 
 
