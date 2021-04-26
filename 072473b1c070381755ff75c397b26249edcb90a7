@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61a5e133_14624c57",
+        "filename": "gm/scaledemoji.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-26T19:39:08Z",
+      "side": 1,
+      "message": "Normally I prefer adding to an existing related gm, but this gm is so funky I think I\u0027m fine with it.",
+      "revId": "072473b1c070381755ff75c397b26249edcb90a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88f06619_ae14cceb",
+        "filename": "gm/scaledemoji.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-26T19:39:08Z",
+      "side": 1,
+      "message": "Any reason to not use fEmojiFont.fText?",
+      "revId": "072473b1c070381755ff75c397b26249edcb90a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3284adf4_dd511fe6",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-26T19:39:08Z",
+      "side": 1,
+      "message": "It seems like in perspective maxScale could get really big. Should it have a limit? \n\nPicking dynamically like this produces nice results, but should we just pick the scale which would have been used if flat and just perspective that? (Not saying we should, just thinking about it.)",
+      "revId": "072473b1c070381755ff75c397b26249edcb90a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
