@@ -2403,6 +2403,7 @@ void GrSubRunNoCachePainter::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoi
 }
 
 void GrSubRunNoCachePainter::draw(GrAtlasSubRunOwner subRun) {
+    if (subRun == nullptr) { return; }
     GrAtlasSubRun* subRunPtr = subRun.get();
     auto [drawingClip, op] = subRunPtr->makeAtlasTextOp(
             fClip, fViewMatrix, fGlyphRunList, fPaint, fSDC, std::move(subRun));
