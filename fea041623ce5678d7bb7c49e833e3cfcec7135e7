@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a66112dd_1093ffe7",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-26T18:01:14Z",
+      "side": 1,
+      "message": "If we\u0027re going to separate thread-vs-backend concerns, I think this should be ThreadedSurface (a threaded proxy for a WindowSurface).\n\nWe can rename later though.",
+      "range": {
+        "startLine": 105,
+        "startChar": 6,
+        "endLine": 105,
+        "endChar": 19
+      },
+      "revId": "fea041623ce5678d7bb7c49e833e3cfcec7135e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dce93f17_8f01cbf4",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-26T18:01:14Z",
+      "side": 1,
+      "message": "This will have to be more specific, as the same android surface can be used for e.g. GL and Vulkan.  Surface_CreateThreadedGLSurface, Surface_CreateThreadedVulkanSurface when the time comes.",
+      "range": {
+        "startLine": 136,
+        "startChar": 13,
+        "endLine": 136,
+        "endChar": 42
+      },
+      "revId": "fea041623ce5678d7bb7c49e833e3cfcec7135e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
