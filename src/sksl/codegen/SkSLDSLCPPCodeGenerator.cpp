@@ -343,6 +343,7 @@ void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 {"abs", "Abs"},
                 {"all", "All"},
                 {"any", "Any"},
+                {"atan", "Atan"},
                 {"ceil", "Ceil"},
                 {"clamp", "Clamp"},
                 {"cos", "Cos"},

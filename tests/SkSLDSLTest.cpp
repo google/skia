@@ -1435,6 +1435,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
     EXPECT_EQUAL(Abs(a),                 "abs(a)");
     EXPECT_EQUAL(All(b4),                "all(b4)");
     EXPECT_EQUAL(Any(b4),                "any(b4)");
+    EXPECT_EQUAL(Atan(a),                "atan(a)");
+    EXPECT_EQUAL(Atan(a, b),             "atan(a, b)");
     EXPECT_EQUAL(Ceil(a),                "ceil(a)");
     EXPECT_EQUAL(Clamp(a, 0, 1),         "clamp(a, 0.0, 1.0)");
     EXPECT_EQUAL(Cos(a),                 "cos(a)");

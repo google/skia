@@ -6,6 +6,8 @@ half4 main() {
     n.x = abs(n.x);
     b.z = all(b.xy);
     b.w = any(b.xyz);
+    n.xy = atan(n.xy);
+    n.zwx = atan(n.yyy, n.zzz);
     n.xyzw = ceil(n.xyzw);
     n.x = clamp(n.y, n.z, n.w);
     n.y = cos(n.y);
