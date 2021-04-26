@@ -31,11 +31,12 @@ static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* sr
     }
     REPORTER_ASSERT(r, success);
     output.reset();
-    success = compiler.toCPP(*program, "Test", output);
+    success = compiler.toDSLCPP(*program, "Test", output);
     if (!success) {
         SkDebugf("Unexpected error generating .cpp file for %s\n%s",
                  src, compiler.errorText().c_str());
     }
+    SkDebugf("%s", output.str().c_str());
     REPORTER_ASSERT(r, success);
 }
 
@@ -43,6 +44,7 @@ DEF_TEST(SkSLFPTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
+             float2 prevRadii = float2(-1);
              half4 main(float2 coord) {
                  return half4(0);
              }
