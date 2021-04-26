@@ -20,7 +20,14 @@
         android:layout_height="200px"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
     </ImageView>
+    <SurfaceView
+        android:id="@+id/surface"
+        android:layout_width="200px"
+        android:layout_height="200px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image"
+        >
+    </SurfaceView>
 
 </android.support.constraint.ConstraintLayout>

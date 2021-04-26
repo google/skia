@@ -7,11 +7,15 @@
 
 #include <android/bitmap.h>
 #include <android/log.h>
+#include <android/native_window_jni.h>
+#include <android/native_window.h>
 #include <jni.h>
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+
+#include "modules/androidkit/src/SurfaceThread.h"
 
 namespace {
 
@@ -20,7 +24,12 @@ public:
     virtual void release(JNIEnv*) = 0;
     virtual void flushAndSubmit() = 0;
 
-    SkCanvas* getCanvas() const { return fSurface->getCanvas(); }
+    SkCanvas* getCanvas() const {
+        if (fSurface) {
+            return fSurface->getCanvas();
+        }
+        return nullptr;
+    }
 
 protected:
     sk_sp<SkSurface> fSurface;
@@ -91,9 +100,44 @@ private:
     jobject fBitmap;
 };
 
+// SkSurface created from being passed an android.view.Surface
+// For now, assume we are always rendering with OpenGL
+class WindowSurface final : public Surface {
+public:
+    WindowSurface(JNIEnv* env, jobject surface) {
+        // TODO: when creating multiple surfaces, they should use the same SurfaceThread
+        fWindow = ANativeWindow_fromSurface(env, surface);
+    }
+
+private:
+    void release(JNIEnv* env) override {
+        fThread.postMessage(Message(kAllSurfacesDestroyed));
+        if (fWindow) {
+            ANativeWindow_release(fWindow);
+        }
+       fSurface.reset();
+    }
+
+    void flushAndSubmit() override{
+        // implented in followup CL (issue:400816)
+    }
+
+    ANativeWindow* fWindow;
+    // TODO: Decouple thread from WindowSurface if user wants to manage their own thread
+    SurfaceThread fThread;
+};
+
+// JNI methods
+
 static jlong Surface_CreateBitmap(JNIEnv* env, jobject, jobject bitmap) {
     return reinterpret_cast<jlong>(new BitmapSurface(env, bitmap));
 }
+
+static jlong Surface_CreateThreadedSurface(JNIEnv* env, jobject, jobject surface) {
+    return reinterpret_cast<jlong>(new WindowSurface(env, surface));
+}
+
+//TODO support software surfaces and Vulkan surfaces
 
 static void Surface_Release(JNIEnv* env, jobject, jlong native_surface) {
     if (auto* surface = reinterpret_cast<Surface*>(native_surface)) {
@@ -121,6 +165,8 @@ int register_androidkit_Surface(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
         {"nCreateBitmap"   , "(Landroid/graphics/Bitmap;)J",
             reinterpret_cast<void*>(Surface_CreateBitmap)},
+        {"nCreateThreadedSurface"  , "(Landroid/view/Surface;)J",
+            reinterpret_cast<void*>(Surface_CreateThreadedSurface)},
         {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)},
         {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
         {"nFlushAndSubmit" , "(J)V", reinterpret_cast<void*>(Surface_FlushAndSubmit)},
