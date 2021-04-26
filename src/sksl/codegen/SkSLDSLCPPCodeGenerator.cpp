@@ -941,8 +941,7 @@ static bool is_accessible(const Variable& var) {
 
 bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     this->writef("    void emitCode(EmitArgs& args) override {\n"
-                 "        const %s& _outer = args.fFp.cast<%s>();\n"
-                 "        (void) _outer;\n"
+                 "        [[maybe_unused]] const %s& _outer = args.fFp.cast<%s>();\n"
                  "\n"
                  "        using namespace SkSL::dsl;\n"
                  "        StartFragmentProcessor(this, &args);\n",
@@ -1369,10 +1368,6 @@ bool DSLCPPCodeGenerator::generateCode() {
                  "#include \"src/sksl/SkSLUtil.h\"\n"
                  "#include \"src/sksl/dsl/priv/DSLFPs.h\"\n"
                  "#include \"src/sksl/dsl/priv/DSLWriter.h\"\n"
-                 "\n"
-                 "#if defined(__clang__)\n"
-                 "#pragma clang diagnostic ignored \"-Wcomma\"\n"
-                 "#endif\n"
                  "\n"
                  "class GrGLSL%s : public GrGLSLFragmentProcessor {\n"
                  "public:\n"
