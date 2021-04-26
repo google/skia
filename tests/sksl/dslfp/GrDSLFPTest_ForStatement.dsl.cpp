@@ -16,16 +16,11 @@
 #include "src/sksl/dsl/priv/DSLFPs.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wcomma"
-#endif
-
 class GrGLSLDSLFPTest_ForStatement : public GrGLSLFragmentProcessor {
 public:
     GrGLSLDSLFPTest_ForStatement() {}
     void emitCode(EmitArgs& args) override {
-        const GrDSLFPTest_ForStatement& _outer = args.fFp.cast<GrDSLFPTest_ForStatement>();
-        (void) _outer;
+        [[maybe_unused]] const GrDSLFPTest_ForStatement& _outer = args.fFp.cast<GrDSLFPTest_ForStatement>();
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
