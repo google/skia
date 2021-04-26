@@ -17,7 +17,7 @@
 class GrEagerVertexAllocator;
 struct SkRect;
 
-#define TRIANGULATOR_LOGGING 0
+#define TRIANGULATOR_LOGGING 1
 #define TRIANGULATOR_WIREFRAME 0
 
 /**
@@ -465,21 +465,8 @@ struct GrTriangulator::MonotonePoly {
 };
 
 struct GrTriangulator::Poly {
-    Poly(Vertex* v, int winding)
-        : fFirstVertex(v)
-        , fWinding(winding)
-        , fHead(nullptr)
-        , fTail(nullptr)
-        , fNext(nullptr)
-        , fPartner(nullptr)
-        , fCount(0)
-    {
-#if TRIANGULATOR_LOGGING
-        static int gID = 0;
-        fID = gID++;
-        TESS_LOG("*** created Poly %d\n", fID);
-#endif
-    }
+    Poly(Vertex* v, int winding);
+
     Poly* addEdge(Edge* e, Side side, SkArenaAlloc* alloc);
     Vertex* lastVertex() const { return fTail ? fTail->fLastEdge->fBottom : fFirstVertex; }
     Vertex* fFirstVertex;

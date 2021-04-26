@@ -35,6 +35,22 @@ using Poly = GrTriangulator::Poly;
 using MonotonePoly = GrTriangulator::MonotonePoly;
 using Comparator = GrTriangulator::Comparator;
 
+Poly::Poly(Vertex* v, int winding)
+    : fFirstVertex(v)
+    , fWinding(winding)
+    , fHead(nullptr)
+    , fTail(nullptr)
+    , fNext(nullptr)
+    , fPartner(nullptr)
+    , fCount(0)
+{
+#if TRIANGULATOR_LOGGING
+    static int gID = 0;
+    fID = gID++;
+    TESS_LOG("*** created Poly %d\n", fID);
+#endif
+}
+
 template <class T, T* T::*Prev, T* T::*Next>
 static void list_insert(T* t, T* prev, T* next, T** head, T** tail) {
     t->*Prev = prev;
@@ -142,7 +158,7 @@ bool GrTriangulator::Line::intersect(const Line& other, SkPoint* point) const {
 }
 
 bool GrTriangulator::Edge::intersect(const Edge& other, SkPoint* p, uint8_t* alpha) const {
-    TESS_LOG("intersecting %g -> %g with %g -> %g\n",
+    TESS_LOG("intersecting edge (%g -> %g) with edge (%g -> %g)\n",
              fTop->fID, fBottom->fID, other.fTop->fID, other.fBottom->fID);
     if (fTop == other.fTop || fBottom == other.fBottom) {
         return false;
@@ -312,7 +328,7 @@ void* GrTriangulator::emitPoly(const Poly* poly, void *data) const {
     if (poly->fCount < 3) {
         return data;
     }
-    TESS_LOG("emit() %d, size %d\n", fID, fCount);
+    TESS_LOG("emitPoly() %d, size %d\n", poly->fID, poly->fCount);
     for (MonotonePoly* m = poly->fHead; m != nullptr; m = m->fNext) {
         data = this->emitMonotonePoly(m, data);
     }
@@ -504,7 +520,7 @@ Edge* GrTriangulator::makeEdge(Vertex* prev, Vertex* next, EdgeType type,
 }
 
 void EdgeList::insert(Edge* edge, Edge* prev) {
-    TESS_LOG("inserting edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
+    TESS_LOG("inserting edge (%g -> %g)\n", edge->fTop->fID, edge->fBottom->fID);
     SkASSERT(!this->contains(edge));
     Edge* next = prev ? prev->fRight : fHead;
     this->insert(edge, prev, next);
@@ -1156,11 +1172,25 @@ static void validate_edge_list(EdgeList* edges, const Comparator& c) {
 
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
 
+static void dump(VertexList* mesh) {
+    TESS_LOG("mesh\n");
+    for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
+        if (!v->isConnected()) {
+            continue;
+        }
+
+        TESS_LOG("%g: %g,%g\n", v->fID, v->fPoint.fX, v->fPoint.fY);
+    }
+}
+
 GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                                                         const Comparator& c) const {
     TESS_LOG("simplifying complex polygons\n");
     EdgeList activeEdges;
     auto result = SimplifyResult::kAlreadySimple;
+
+    dump(mesh);
+
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
         if (!v->isConnected()) {
             continue;
