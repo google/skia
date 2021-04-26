@@ -511,21 +511,20 @@ static bool variable_exists_with_name(const std::unordered_map<const Variable*, 
 const char* DSLCPPCodeGenerator::getVariableCppName(const Variable& var) {
     String& cppName = fVariableCppNames[&var];
     if (cppName.empty()) {
-        if (!variable_exists_with_name(fVariableCppNames, var.name())) {
-            // Nothing needs to change; use the name as-is.
-            cppName = var.name();
-        } else {
-            // Another variable with the same name exists in the function, at a different scope.
-            // Append a numeric prefix to disambiguate the two. (This check could be more efficient,
-            // but it really doesn't matter much; this case is rare, and we don't compile DSL CPPs
-            // at Skia runtime.)
-            for (int prefix=0;; ++prefix) {
-                String prefixedName = String::printf("_%d_%.*s", prefix, (int)var.name().size(),
-                                                                 var.name().data());
-                if (!variable_exists_with_name(fVariableCppNames, prefixedName)) {
-                    cppName = std::move(prefixedName);
-                    break;
-                }
+        // Append a prefix to the variable name. This serves two purposes:
+        // - disambiguates variables with the same name that live in different SkSL scopes
+        // - gives the DSLVar a distinct name, leaving the original name free to be given to a
+        //   C++ constant, for the case of layout-keys that need to work in C++ `when` expressions
+        // Probing for a unique name could be more efficient, but it really doesn't matter much;
+        // overlapping names are super rare, and we only compile DSLs in skslc at build time.
+        for (int prefix = 0;; ++prefix) {
+            String prefixedName = (prefix > 0 || !islower(var.name()[0]))
+                    ? String::printf("_%d_%.*s", prefix, (int)var.name().size(), var.name().data())
+                    : String::printf("_%.*s", (int)var.name().size(), var.name().data());
+
+            if (!variable_exists_with_name(fVariableCppNames, prefixedName)) {
+                cppName = std::move(prefixedName);
+                break;
             }
         }
     }
@@ -533,20 +532,24 @@ const char* DSLCPPCodeGenerator::getVariableCppName(const Variable& var) {
     return cppName.c_str();
 }
 
-void DSLCPPCodeGenerator::writeVar(const Variable& var) {
-    this->write("Var ");
-    this->write(this->getVariableCppName(var));
-    this->write("(");
+void DSLCPPCodeGenerator::writeVarCtorExpression(const Variable& var) {
     this->write(this->getDSLModifiers(var.modifiers()));
     this->write(", ");
     this->write(this->getDSLType(var.type()));
     this->write(", \"");
-    this->write(this->getVariableCppName(var));
+    this->write(var.name());
     this->write("\"");
     if (var.initialValue()) {
         this->write(", ");
         this->writeExpression(*var.initialValue(), Precedence::kTopLevel);
     }
+}
+
+void DSLCPPCodeGenerator::writeVar(const Variable& var) {
+    this->write("Var ");
+    this->write(this->getVariableCppName(var));
+    this->write("(");
+    this->writeVarCtorExpression(var);
     this->write(");\n");
 }
 
@@ -738,6 +741,17 @@ String DSLCPPCodeGenerator::getDSLModifiers(const Modifiers& modifiers) {
     return text;
 }
 
+String DSLCPPCodeGenerator::getDefaultDSLValue(const Variable& var) {
+    // TODO: default_value returns half4(NaN) for colors, but DSL aborts if passed a literal NaN.
+    // Theoretically this really shouldn't matter.
+    switch (var.type().typeKind()) {
+        case Type::TypeKind::kScalar:
+        case Type::TypeKind::kVector: return this->getTypeName(var.type()) + "(0)";
+        case Type::TypeKind::kMatrix: return this->getTypeName(var.type()) + "(1)";
+        default: SK_ABORT("unsupported type: %s", var.type().description().c_str());
+    }
+}
+
 void DSLCPPCodeGenerator::writeStatement(const Statement& s) {
     switch (s.kind()) {
         case Statement::Kind::kBlock:
@@ -829,16 +843,35 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     if (!needs_uniform_var(var)) {
         return;
     }
+
+    const char* varCppName = this->getVariableCppName(var);
     if (var.modifiers().fLayout.fWhen.fLength) {
-        this->writef("        if (%s) {\n    ", String(var.modifiers().fLayout.fWhen).c_str());
+        // In cases where the `when` clause is true, we set up the Var normally.
+        this->writef(
+                "Var %s;\n"
+                "if (%.*s) {\n"
+                "    Var(",
+                varCppName,
+                (int)var.modifiers().fLayout.fWhen.size(), var.modifiers().fLayout.fWhen.data());
+        this->writeVarCtorExpression(var);
+        this->writef(").swap(%s);\n    ", varCppName);
+    } else {
+        this->writeVar(var);
     }
-    this->writeVar(var);
 
     this->writef("%.*sVar = VarUniformHandle(%s);\n",
                  (int)var.name().size(), var.name().data(), this->getVariableCppName(var));
 
     if (var.modifiers().fLayout.fWhen.fLength) {
-        this->write("        }\n");
+        // In cases where the `when` is false, we declare the Var as a const with a default value.
+        this->writef("} else {\n"
+                     "    Var(kConst_Modifier, %s, \"%.*s\", %s).swap(%s);\n"
+                     "    Declare(%s);\n"
+                     "}\n",
+                     this->getDSLType(var.type()).c_str(),
+                     (int)var.name().size(), var.name().data(),
+                     this->getDefaultDSLValue(var).c_str(),
+                     varCppName, varCppName);
     }
 }
 
@@ -927,12 +960,16 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
                 // the variable (which we do need, to fill in the Var's initial value).
                 std::vector<String> argumentList;
                 (void) this->formatRuntimeValue(var.type(), var.modifiers().fLayout,
-                                                "_outer." + var.name(), &argumentList);
+                                                var.name(), &argumentList);
 
                 const char* varCppName = this->getVariableCppName(var);
-                this->writef("Var %s(kConst_Modifier, %s, \"%s\", %s(",
+                this->writef("[[maybe_unused]] const auto& %.*s = _outer.%.*s;\n"
+                             "Var %s(kConst_Modifier, %s, \"%.*s\", %s(",
+                             (int)var.name().size(), var.name().data(),
+                             (int)var.name().size(), var.name().data(),
                              varCppName, this->getDSLType(var.type()).c_str(),
-                             varCppName, this->getTypeName(var.type()).c_str());
+                             (int)var.name().size(), var.name().data(),
+                             this->getTypeName(var.type()).c_str());
                 const char* separator = "";
                 for (const String& arg : argumentList) {
                     this->write(separator);
@@ -1061,12 +1098,9 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 const Variable& variable = decl.var();
 
                 if (needs_uniform_var(variable)) {
-                    const char* varCppName = this->getVariableCppName(variable);
-
-                    this->writef("        UniformHandle& %s = %.*sVar;\n"
-                                 "        (void) %s;\n",
-                                 varCppName, (int)variable.name().size(),
-                                 variable.name().data(), varCppName);
+                    this->writef("        [[maybe_unused]] UniformHandle& %.*s = %.*sVar;\n",
+                                 (int)variable.name().size(), variable.name().data(),
+                                 (int)variable.name().size(), variable.name().data());
                 } else if (SectionAndParameterHelper::IsParameter(variable) &&
                            !variable.type().isFragmentProcessor()) {
                     if (!wroteProcessor) {
@@ -1076,12 +1110,9 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                     }
 
                     if (!variable.type().isFragmentProcessor()) {
-                        const char* varCppName = this->getVariableCppName(variable);
-
-                        this->writef("        auto %s = _outer.%.*s;\n"
-                                     "        (void) %s;\n",
-                                     varCppName, (int)variable.name().size(),
-                                     variable.name().data(), varCppName);
+                        this->writef("        [[maybe_unused]] const auto& %.*s = _outer.%.*s;\n",
+                                     (int)variable.name().size(), variable.name().data(),
+                                     (int)variable.name().size(), variable.name().data());
                     }
                 }
             }

@@ -29,17 +29,18 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var colorWhite(kConst_Modifier, DSLType(kHalf4_Type), "colorWhite", Half4(_outer.colorWhite.fR, _outer.colorWhite.fG, _outer.colorWhite.fB, _outer.colorWhite.fA));
-Declare(colorWhite);
-Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", colorWhite);
-Var a(kNo_Modifier, DSLType(kHalf_Type), "a", 0.0f);
-Var r(kNo_Modifier, DSLType(kHalf_Type), "r", -5.0f);
-Var b(kNo_Modifier, DSLType(kHalf_Type), "b", 5.0f);
-Declare(color);
-For(Declare(a), a <= 1.0f, ++a, /*Body:*/ color.w() = a);
-For(Declare(r), r < 5.0f, r += 1.0f, /*Body:*/ Block(color.x() = r, If(color.x() == 0.0f, /*Then:*/ Break())));
-For(Declare(b), b >= 0.0f, b -= 1.0f, /*Body:*/ Block(color.z() = b, If(color.w() == 1.0f, /*Then:*/ Continue()), color.y() = 0.0f));
-Return(color);
+[[maybe_unused]] const auto& colorWhite = _outer.colorWhite;
+Var _colorWhite(kConst_Modifier, DSLType(kHalf4_Type), "colorWhite", Half4(colorWhite.fR, colorWhite.fG, colorWhite.fB, colorWhite.fA));
+Declare(_colorWhite);
+Var _color(kNo_Modifier, DSLType(kHalf4_Type), "color", _colorWhite);
+Var _a(kNo_Modifier, DSLType(kHalf_Type), "a", 0.0f);
+Var _r(kNo_Modifier, DSLType(kHalf_Type), "r", -5.0f);
+Var _b(kNo_Modifier, DSLType(kHalf_Type), "b", 5.0f);
+Declare(_color);
+For(Declare(_a), _a <= 1.0f, ++_a, /*Body:*/ _color.w() = _a);
+For(Declare(_r), _r < 5.0f, _r += 1.0f, /*Body:*/ Block(_color.x() = _r, If(_color.x() == 0.0f, /*Then:*/ Break())));
+For(Declare(_b), _b >= 0.0f, _b -= 1.0f, /*Body:*/ Block(_color.z() = _b, If(_color.w() == 1.0f, /*Then:*/ Continue()), _color.y() = 0.0f));
+Return(_color);
         EndFragmentProcessor();
     }
 private:
