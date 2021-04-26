@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0800a6f6_0a4965dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-26T15:56:59Z",
+      "side": 1,
+      "message": "got",
+      "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b15f09e4_0fa035c2",
@@ -62,6 +79,30 @@
       "side": 1,
       "message": "http://go/cstyle#common_patterns\n\n• If all else fails, you can create an object dynamically and never delete it by using a function-local static pointer or reference (e.g., static const auto\u0026 impl \u003d *new T(args...);) or gtl::NoDestructor.",
       "parentUuid": "d3048642_01f3e0a1",
+      "range": {
+        "startLine": 161,
+        "startChar": 44,
+        "endLine": 161,
+        "endChar": 48
+      },
+      "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b34cfb9f_d7bd36cf",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-26T15:56:59Z",
+      "side": 1,
+      "message": "Ack, I was unfamiliar with that, but since it\u0027s a named thing, I withdraw my objections :)",
+      "parentUuid": "a70b0ba7_34efa36f",
       "range": {
         "startLine": 161,
         "startChar": 44,
