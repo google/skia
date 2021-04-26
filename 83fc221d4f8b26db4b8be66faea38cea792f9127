@@ -111,6 +111,30 @@
       },
       "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0e2a268_5e63a820",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-26T15:58:04Z",
+      "side": 1,
+      "message": "Yeah, I hadn\u0027t heard of this approach before joining Google either. At my previous team this would have registered as a memory leak.",
+      "parentUuid": "b34cfb9f_d7bd36cf",
+      "range": {
+        "startLine": 161,
+        "startChar": 44,
+        "endLine": 161,
+        "endChar": 48
+      },
+      "revId": "83fc221d4f8b26db4b8be66faea38cea792f9127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
