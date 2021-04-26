@@ -24,6 +24,14 @@ public class Surface {
     }
 
     /**
+     * Create a Surface backed by the provided Android Surface (android.view.Surface).
+     * AndroidKit handles thread management. Assumes OpenGL backend.
+     */
+    static public Surface createThreadedSurface(android.view.Surface surface) {
+        return new Surface(nCreateThreadedSurface(surface));
+    }
+
+    /**
      * The Canvas associated with this Surface.
      */
     public Canvas getCanvas() {
@@ -67,6 +75,8 @@ public class Surface {
     }
 
     private static native long nCreateBitmap(Bitmap bitmap);
+    private static native long nCreateThreadedSurface(android.view.Surface surface);
+
     private static native void nRelease(long nativeInstance);
     private static native long nGetNativeCanvas(long nativeInstance);
     private static native void nFlushAndSubmit(long nativeInstance);
