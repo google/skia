@@ -1492,6 +1492,7 @@ int main(int argc, char** argv) {
     android::ProcessState::self()->startThreadPool();
 #endif
     CommandLineFlags::Parse(argc, argv);
+    FLAGS_match = CommandLineFlags::StringArray({ SkString("filterfastbounds") });
 
     initializeEventTracingForTools();
 

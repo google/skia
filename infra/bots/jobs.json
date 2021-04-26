@@ -220,6 +220,7 @@
   "Perf-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android_Vulkan_Skpbench",
   "Perf-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android_AllPathsVolatile_Skpbench",
   "Perf-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android_Vulkan_AllPathsVolatile_Skpbench",
+  "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Debug-All-Android",
   "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android",
   "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan",
   "Perf-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Release-All-Android",

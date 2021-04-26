@@ -1966,6 +1966,7 @@ void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
                                  const SkIRect& bounds, GrSurfaceOrigin origin,
                                  const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                  const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
     SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
 
     this->handleDirtyContext();
@@ -1978,8 +1979,10 @@ void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
         GrGLbitfield preserveMask = (GrLoadOp::kLoad == colorLoadStore.fLoadOp)
                 ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
         SkASSERT(GrLoadOp::kLoad != stencilLoadStore.fLoadOp);  // Handled by use_tiled_rendering().
+        fprintf(stderr, "will call GL StartTiling\n");
         GL_CALL(StartTiling(nativeBounds.fX, nativeBounds.fY, nativeBounds.fWidth,
                             nativeBounds.fHeight, preserveMask));
+        fprintf(stderr, "did call GL StartTiling\n");
     }
 
     GrGLbitfield clearMask = 0;
@@ -1998,7 +2001,9 @@ void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
     if (clearMask) {
         this->flushScissorTest(GrScissorTest::kDisabled);
         this->disableWindowRectangles();
+        fprintf(stderr, "will call GL clear %d\n", clearMask);
         GL_CALL(Clear(clearMask));
+        fprintf(stderr, "did call GL clear\n");
     }
 }
 
@@ -2138,15 +2143,19 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
     if (rowWidthInPixels != width) {
         SkASSERT(this->glCaps().readPixelsRowBytesSupport());
+        fprintf(stderr, "will call PixelStorei ROW_LENGTH\n");
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, rowWidthInPixels));
     }
+    fprintf(stderr, "will call PixelStorei PACK_ALIGNMENT\n");
     GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, 1));
 
+    fprintf(stderr, "will call ReadPixels\n");
     GL_CALL(ReadPixels(readRect.fX, readRect.fY, readRect.fWidth, readRect.fHeight,
                        externalFormat, externalType, offsetOrPtr));
 
     if (rowWidthInPixels != width) {
         SkASSERT(this->glCaps().readPixelsRowBytesSupport());
+        fprintf(stderr, "will call PixelStorei\n ROW_LENGTH again");
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
     }
 
@@ -2160,6 +2169,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                            GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
                            size_t rowBytes) {
     SkASSERT(surface);
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
 
     size_t bytesPerPixel = GrColorTypeBytesPerPixel(dstColorType);
 
@@ -2173,8 +2183,10 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         rowPixelWidth = rowBytes / bytesPerPixel;
     }
     this->unbindXferBuffer(GrGpuBufferType::kXferGpuToCpu);
-    return this->readOrTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
+    bool res = this->readOrTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
                                           dstColorType, buffer, rowPixelWidth);
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
+    return res;
 }
 
 GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
@@ -2772,14 +2784,18 @@ void GrGLGpu::flushPatchVertexCount(uint8_t count) {
 void GrGLGpu::flushColorWrite(bool writeColor) {
     if (!writeColor) {
         if (kNo_TriState != fHWWriteToColor) {
+            fprintf(stderr, "will call GL ColorMask FALSE\n");
             GL_CALL(ColorMask(GR_GL_FALSE, GR_GL_FALSE,
                               GR_GL_FALSE, GR_GL_FALSE));
+            fprintf(stderr, "did call GL ColorMask\n");
             fHWWriteToColor = kNo_TriState;
         }
     } else {
         if (kYes_TriState != fHWWriteToColor) {
+            fprintf(stderr, "will call GL ColorMask true\n");
             GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
+            fprintf(stderr, "did call GL ColorMask\n");
         }
     }
 }
@@ -2794,7 +2810,9 @@ void GrGLGpu::flushClearColor(std::array<float, 4> color) {
     }
     if (r != fHWClearColor[0] || g != fHWClearColor[1] ||
         b != fHWClearColor[2] || a != fHWClearColor[3]) {
+        fprintf(stderr, "will call GL ClearColor\n");
         GL_CALL(ClearColor(r, g, b, a));
+        fprintf(stderr, "did call GL ClearColor\n");
         fHWClearColor[0] = r;
         fHWClearColor[1] = g;
         fHWClearColor[2] = b;
@@ -3933,6 +3951,7 @@ void GrGLGpu::flush(FlushType flushType) {
 }
 
 bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
     if (syncCpu || (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
         this->finishOutstandingGpuWork();
         fFinishCallbacks.callAll(true);
@@ -3944,6 +3963,7 @@ bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
     if (!this->glCaps().skipErrorChecks()) {
         this->clearErrorsAndCheckForOOM();
     }
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
     return true;
 }
 

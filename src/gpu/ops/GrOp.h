@@ -190,16 +190,19 @@ public:
 
     /** Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state, const SkRect& chainBounds) {
+        fprintf(stderr, "running opID: %d\n", this->uniqueID());
+        PushSegfaultContext(SkString(this->name()));
         TRACE_EVENT0("skia.gpu", name());
         this->onExecute(state, chainBounds);
+        PopSegfaultContext();
     }
 
     /** Used for spewing information about ops when debugging. */
 #if GR_TEST_UTILS
     virtual SkString dumpInfo() const final {
-        return SkStringPrintf("%s\nOpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
+        return SkStringPrintf("%s\nOpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f] opID: %d",
                               this->onDumpInfo().c_str(), fBounds.fLeft, fBounds.fTop,
-                              fBounds.fRight, fBounds.fBottom);
+                              fBounds.fRight, fBounds.fBottom, this->uniqueID());
     }
 #endif
 

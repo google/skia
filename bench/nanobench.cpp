@@ -62,6 +62,8 @@
 #include <memory>
 #include <thread>
 
+#include <signal.h>
+
 extern bool gSkForceRasterPipelineBlitter;
 extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
@@ -1159,8 +1161,33 @@ class NanobenchShaderErrorHandler : public GrContextOptions::ShaderErrorHandler 
     }
 };
 
+static std::thread::id gMainThread;
+void segfault_sigaction(int signal, siginfo_t *si, void *arg)
+{
+    for (const auto& str : GetSegfaultContext()) {
+        fprintf(stderr, "%s\n", str.c_str());
+    }
+    fprintf(stderr, "Caught segfault at address %p, main thread: %d\n", si->si_addr, std::this_thread::get_id() == gMainThread);
+    dump_stack();
+    exit(1);
+}
+
+void install_segfault_handler() {
+    gMainThread = std::this_thread::get_id();
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(struct sigaction));
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = segfault_sigaction;
+    sa.sa_flags     = SA_SIGINFO;
+
+    sigaction(SIGSEGV, &sa, NULL);
+}
+
 int main(int argc, char** argv) {
+    install_segfault_handler();
     CommandLineFlags::Parse(argc, argv);
+    FLAGS_match = CommandLineFlags::StringArray({ SkString("desk_motionmarksuitsclip.skp") });
 
     initializeEventTracingForTools();
 
@@ -1277,6 +1304,8 @@ int main(int argc, char** argv) {
             // During HWUI output this canvas may be nullptr.
             SkCanvas* canvas = target->getCanvas();
             const char* config = target->config.name.c_str();
+            PushSegfaultContext(SkString(config));
+            SK_AT_SCOPE_EXIT(PopSegfaultContext());
 
             if (FLAGS_pre_log || FLAGS_dryRun) {
                 SkDebugf("Running %s\t%s\n"

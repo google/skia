@@ -168,14 +168,18 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
 
 bool SkGpuDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
     ASSERT_SINGLE_OWNER
+    fprintf(stderr, "start %s\n", __PRETTY_FUNCTION__);
 
     // Context TODO: Elevate direct context requirement to public API
     auto dContext = fContext->asDirectContext();
     if (!dContext || !SkImageInfoValidConversion(pm.info(), this->imageInfo())) {
+        fprintf(stderr, "fail %s\n", __PRETTY_FUNCTION__);
         return false;
     }
 
-    return fSurfaceDrawContext->readPixels(dContext, pm, {x, y});
+    bool result = fSurfaceDrawContext->readPixels(dContext, pm, {x, y});
+    fprintf(stderr, "end %s\n", __PRETTY_FUNCTION__);
+    return result;
 }
 
 bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {

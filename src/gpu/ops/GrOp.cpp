@@ -14,6 +14,7 @@ GrOp::GrOp(uint32_t classID) : fClassID(classID) {
     SkASSERT(classID == SkToU32(fClassID));
     SkASSERT(classID);
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
+    fprintf(stderr, "created op %d\n", this->uniqueID());
 }
 
 GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, SkArenaAlloc* alloc, const GrCaps& caps) {
