@@ -22,6 +22,11 @@ namespace dsl {
 class DSLVar {
 public:
     /**
+     * Creates an empty, unpopulated DSLVar. Can be replaced with a real DSLVar later via `swap`.
+     */
+    DSLVar() : fType(kVoid_Type), fDeclared(true) {}
+
+    /**
      * Constructs a new variable with the specified type and name. The name is used (in mangled
      * form) in the resulting shader code; it is not otherwise important. Since mangling prevents
      * name conflicts and the variable's name is only important when debugging shaders, the name
@@ -43,6 +48,8 @@ public:
     const char* name() const {
         return fName;
     }
+
+    void swap(DSLVar& other);
 
     DSLExpression x() {
         return DSLExpression(*this).x();
@@ -125,11 +132,11 @@ private:
     // it to kVoid; in other words, you shouldn't generally be relying on this field to be correct.
     // If you need to determine the variable's type, look at DSLWriter::Var(...).type() instead.
     DSLType fType;
-    int fUniformHandle;
+    int fUniformHandle = -1;
     std::unique_ptr<SkSL::Statement> fDeclaration;
     const SkSL::Variable* fVar = nullptr;
-    const char* fRawName; // for error reporting
-    const char* fName;
+    const char* fRawName = nullptr; // for error reporting
+    const char* fName = nullptr;
     DSLExpression fInitialValue;
     VariableStorage fStorage;
     bool fDeclared = false;
