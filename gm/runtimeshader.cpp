@@ -216,6 +216,48 @@ public:
 };
 DEF_GM(return new SpiralRT;)
 
+// Test case for sampling with both unmodified input coordinates, and explicit coordinates.
+// The first version of skbug.com/11869 suffered a bug where all samples of a child were treated
+// as pass-through if *at least one* used the unmodified coordinates. This was detected & tracked
+// in b/181092919. This GM is similar, and demonstrates the bug before the fix was applied.
+class UnsharpRT : public RuntimeShaderGM {
+public:
+    UnsharpRT() : RuntimeShaderGM("unsharp_rt", {512, 256}, R"(
+        uniform shader input;
+        half4 main(float2 xy) {
+            half4 c = sample(input, xy) * 5;
+            c -= sample(input, xy + float2( 1,  0));
+            c -= sample(input, xy + float2(-1,  0));
+            c -= sample(input, xy + float2( 0,  1));
+            c -= sample(input, xy + float2( 0, -1));
+            return c;
+        }
+    )") {}
+
+    sk_sp<SkImage> fMandrill;
+
+    void onOnceBeforeDraw() override {
+        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
+        this->RuntimeShaderGM::onOnceBeforeDraw();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        // First we draw the unmodified image
+        canvas->drawImage(fMandrill,      0,   0);
+
+        // Now draw the image with our unsharp mask applied
+        SkRuntimeShaderBuilder builder(fEffect);
+        const SkSamplingOptions sampling(SkFilterMode::kNearest);
+        builder.child("input") = fMandrill->makeShader(sampling);
+
+        SkPaint paint;
+        paint.setShader(builder.makeShader(nullptr, true));
+        canvas->translate(256, 0);
+        canvas->drawRect({ 0, 0, 256, 256 }, paint);
+    }
+};
+DEF_GM(return new UnsharpRT;)
+
 class ColorCubeRT : public RuntimeShaderGM {
 public:
     ColorCubeRT() : RuntimeShaderGM("color_cube_rt", {512, 512}, R"(
