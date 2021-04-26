@@ -178,19 +178,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     settings.fForceNoInline = options.forceNoInline;
     settings.fAllowNarrowingConversions = true;
 
-    // Find 'main', then locate the sample coords parameter. (It might not be present.)
-    const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
-    if (!main) {
-        RETURN_FAILURE("missing 'main' function");
-    }
-    const auto& mainParams = main->declaration().parameters();
-    auto iter = std::find_if(mainParams.begin(), mainParams.end(), [](const SkSL::Variable* p) {
-        return p->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
-    });
-    const SkSL::ProgramUsage::VariableCounts sampleCoordsUsage =
-            iter != mainParams.end() ? program->usage()->get(**iter)
-                                     : SkSL::ProgramUsage::VariableCounts{};
-
+    const SkSL::FunctionDefinition* main = nullptr;
     uint32_t flags = 0;
     switch (kind) {
         case SkSL::ProgramKind::kRuntimeColorFilter: flags |= kAllowColorFilter_Flag; break;
@@ -199,9 +187,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                                                                kAllowShader_Flag);    break;
         default: SkUNREACHABLE;
     }
-
-
-    if (sampleCoordsUsage.fRead || sampleCoordsUsage.fWrite) {
+    if (SkSL::Analysis::ReferencesSampleCoords(*program)) {
         flags |= kUsesSampleCoords_Flag;
     }
 
@@ -215,7 +201,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     // this can be simpler. There is no way for color filters to refer to sk_FragCoord or sample
     // coords in that mode.
     if ((flags & kAllowColorFilter_Flag) &&
-        ((flags & kUsesSampleCoords_Flag) || SkSL::Analysis::ReferencesFragCoords(*program))) {
+        (SkSL::Analysis::ReferencesFragCoords(*program) || (flags & kUsesSampleCoords_Flag))) {
         flags &= ~kAllowColorFilter_Flag;
     }
 
@@ -247,8 +233,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
             // Child effects that can be sampled ('shader' or 'colorFilter')
             else if (varType.isEffectChild()) {
                 children.push_back(var.name());
-                sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(
-                        *program, var, sampleCoordsUsage.fWrite != 0));
+                sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
             }
             // 'uniform' variables
             else if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
@@ -289,6 +274,18 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                 uniforms.push_back(uni);
             }
         }
+        // Functions
+        else if (elem->is<SkSL::FunctionDefinition>()) {
+            const auto& func = elem->as<SkSL::FunctionDefinition>();
+            const SkSL::FunctionDeclaration& decl = func.declaration();
+            if (decl.isMain()) {
+                main = &func;
+            }
+        }
+    }
+
+    if (!main) {
+        RETURN_FAILURE("missing 'main' function");
     }
 
 #undef RETURN_FAILURE
