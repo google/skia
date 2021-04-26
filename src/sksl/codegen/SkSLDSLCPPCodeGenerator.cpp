@@ -347,58 +347,64 @@ void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 
     if (function.isBuiltin()) {
-        static const auto* kBuiltinNames = new std::unordered_map<String, String>{
-                {"abs", "Abs"},
-                {"all", "All"},
-                {"any", "Any"},
-                {"atan", "Atan"},
-                {"ceil", "Ceil"},
-                {"clamp", "Clamp"},
-                {"cos", "Cos"},
-                {"cross", "Cross"},
-                {"degrees", "Degrees"},
-                {"distance", "Distance"},
-                {"dot", "Dot"},
-                {"equal", "Equal"},
-                {"exp", "Exp"},
-                {"exp2", "Exp2"},
-                {"faceforward", "Faceforward"},
-                {"floor", "Floor"},
-                {"fract", "Fract"},
-                {"greaterThan", "GreaterThan"},
-                {"greaterThanEqual", "GreaterThanEqual"},
-                {"inversesqrt", "Inversesqrt"},
-                {"inverse", "Inverse"},
-                {"length", "Length"},
-                {"lessThan", "LessThan"},
-                {"lessThanEqual", "LessThanEqual"},
-                {"log", "Log"},
-                {"max", "Max"},
-                {"min", "Min"},
-                {"mix", "Mix"},
-                {"mod", "Mod"},
-                {"normalize", "Normalize"},
-                {"not", "Not"},
-                {"pow", "Pow"},
-                {"radians", "Radians"},
-                {"reflect", "Reflect"},
-                {"refract", "Refract"},
-                {"saturate", "Saturate"},
-                {"sign", "Sign"},
-                {"sin", "Sin"},
-                {"smoothstep", "Smoothstep"},
-                {"sqrt", "Sqrt"},
-                {"step", "Step"},
-                {"tan", "Tan"},
-                {"unpremul", "Unpremul"}};
+        if (fCPPMode) {
+            this->write(function.name());
+        } else {
+            static const auto* kBuiltinNames = new std::unordered_map<String, String>{
+                    {"abs", "Abs"},
+                    {"all", "All"},
+                    {"any", "Any"},
+                    {"atan", "Atan"},
+                    {"ceil", "Ceil"},
+                    {"clamp", "Clamp"},
+                    {"cos", "Cos"},
+                    {"cross", "Cross"},
+                    {"degrees", "Degrees"},
+                    {"distance", "Distance"},
+                    {"dot", "Dot"},
+                    {"equal", "Equal"},
+                    {"exp", "Exp"},
+                    {"exp2", "Exp2"},
+                    {"faceforward", "Faceforward"},
+                    {"floor", "Floor"},
+                    {"fract", "SkSL::dsl::Fract"},
+                    {"greaterThan", "GreaterThan"},
+                    {"greaterThanEqual", "GreaterThanEqual"},
+                    {"inversesqrt", "Inversesqrt"},
+                    {"inverse", "Inverse"},
+                    {"length", "Length"},
+                    {"lessThan", "LessThan"},
+                    {"lessThanEqual", "LessThanEqual"},
+                    {"log", "Log"},
+                    {"max", "Max"},
+                    {"min", "Min"},
+                    {"mix", "Mix"},
+                    {"mod", "Mod"},
+                    {"normalize", "Normalize"},
+                    {"not", "Not"},
+                    {"pow", "Pow"},
+                    {"radians", "Radians"},
+                    {"reflect", "Reflect"},
+                    {"refract", "Refract"},
+                    {"saturate", "Saturate"},
+                    {"sign", "Sign"},
+                    {"sin", "Sin"},
+                    {"smoothstep", "Smoothstep"},
+                    {"sqrt", "Sqrt"},
+                    {"step", "Step"},
+                    {"tan", "Tan"},
+                    {"unpremul", "Unpremul"}};
 
-        auto iter = kBuiltinNames->find(function.name());
-        if (iter == kBuiltinNames->end()) {
-            fErrors.error(c.fOffset, "unrecognized built-in function '" + function.name() + "'");
-            return;
+            auto iter = kBuiltinNames->find(function.name());
+            if (iter == kBuiltinNames->end()) {
+                fErrors.error(c.fOffset,
+                              "unrecognized built-in function '" + function.name() + "'");
+                return;
+            }
+
+            this->write(iter->second);
         }
 
-        this->write(iter->second);
         this->write("(");
         const char* separator = "";
         for (const std::unique_ptr<Expression>& argument : c.arguments()) {
