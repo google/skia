@@ -26,8 +26,12 @@
         android:layout_width="200px"
         android:layout_height="200px"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image"
-        >
+        app:layout_constraintTop_toBottomOf="@+id/image">
     </SurfaceView>
+    <org.skia.androidkitdemo1.NavigationSpinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+    </org.skia.androidkitdemo1.NavigationSpinner>
 
 </android.support.constraint.ConstraintLayout>
