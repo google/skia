@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e062a975_af2df201",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-26T17:08:25Z",
+      "side": 1,
+      "message": "Seems ok but if it\u0027s limited to S20 maybe this could be more specific?",
+      "revId": "c1aff70ce6a46ef1cce7986fcf9a703e76271cfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
