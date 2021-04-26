@@ -537,7 +537,8 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
         // launch a single non separable kernel vs two launches.
         const int kernelSize = (2 * radiusX + 1) * (2 * radiusY + 1);
         if (radiusX > 0 && radiusY > 0 &&
-            kernelSize <= GrMatrixConvolutionEffect::kMaxUniformSize) {
+            kernelSize <= GrMatrixConvolutionEffect::kMaxUniformSize &&
+            !context->priv().caps()->reducedShaderMode()) {
             // Apply the proxy offset to src bounds and offset directly
             return convolve_gaussian_2d(context, std::move(srcView), srcColorType, srcBounds,
                                         dstBounds, radiusX, radiusY, sigmaX, sigmaY, mode,
