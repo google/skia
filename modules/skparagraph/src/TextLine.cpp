@@ -364,9 +364,9 @@ SkRect TextLine::paintShadow(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange
 
         SkPaint paint;
         paint.setColor(shadow.fColor);
-        if (shadow.fBlurRadius != 0.0) {
+        if (shadow.fBlurSigma != 0.0) {
             auto filter = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
-                                                 SkDoubleToScalar(shadow.fBlurRadius), false);
+                                                 SkDoubleToScalar(shadow.fBlurSigma), false);
             paint.setMaskFilter(filter);
         }
 
