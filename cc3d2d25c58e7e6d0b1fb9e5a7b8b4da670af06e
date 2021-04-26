@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd999124_d2c1aa0f",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-26T20:13:42Z",
+      "side": 0,
+      "message": "This was the wrong check to do here: Merging sample usages combines all flags, so this just means that the child is sampled in pass-through mode at least once. It might *also* be sampled in other ways (eg, as part of a blur kernel).",
+      "range": {
+        "startLine": 116,
+        "startChar": 20,
+        "endLine": 116,
+        "endChar": 53
+      },
+      "revId": "cc3d2d25c58e7e6d0b1fb9e5a7b8b4da670af06e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
