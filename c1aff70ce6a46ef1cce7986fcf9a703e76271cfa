@@ -34,6 +34,24 @@
       "parentUuid": "e062a975_af2df201",
       "revId": "c1aff70ce6a46ef1cce7986fcf9a703e76271cfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04121f5f_a99b1f13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-26T23:40:27Z",
+      "side": 1,
+      "message": "Here\u0027s the breakdown of the ARM devices we have on the bots:\n\nNot supported:\nMali400MP2\n\nBroken:\nMaliT760\nMaliT880\nMaliG76\nMaliG77\n\nWorks:\nMaliG72\n\nBased on this I\u0027m inclined to just block it from ARM. Thoughts?",
+      "parentUuid": "88929e5e_7ae958c9",
+      "revId": "c1aff70ce6a46ef1cce7986fcf9a703e76271cfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
