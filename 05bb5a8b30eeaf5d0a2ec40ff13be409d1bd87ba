@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84d2efa3_99bee7c8",
+        "filename": "modules/androidkit/src/RuntimeShaderBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-26T13:09:24Z",
+      "side": 1,
+      "message": "Can you switch this to call MakeForShader instead? Make is deprecated (it\u0027s more lenient so it can accept things with signatures we don\u0027t want to support).",
+      "revId": "05bb5a8b30eeaf5d0a2ec40ff13be409d1bd87ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
