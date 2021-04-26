@@ -133,7 +133,8 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         args.fViewMatrix->hasPerspective() ||
         shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
         shape.inverseFilled() ||
-        args.fHasUserStencilSettings) {
+        args.fHasUserStencilSettings ||
+        args.fTargetIsWrappedVkSecondaryCB) {
         return CanDrawPath::kNo;
     }
     // On platforms that don't have native support for indirect draws and/or hardware tessellation,
