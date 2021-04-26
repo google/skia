@@ -176,6 +176,12 @@ DSLExpression All(DSLExpression x, PositionInfo pos = PositionInfo());
 DSLExpression Any(DSLExpression x, PositionInfo pos = PositionInfo());
 
 /**
+ * Returns the arctangent of y over x. Operates componentwise on vectors.
+ */
+DSLExpression Atan(DSLExpression y_over_x, PositionInfo pos = PositionInfo());
+DSLExpression Atan(DSLExpression y, DSLExpression x, PositionInfo pos = PositionInfo());
+
+/**
  * Returns x rounded towards positive infinity. If x is a vector, operates componentwise.
  */
 DSLExpression Ceil(DSLExpression x, PositionInfo pos = PositionInfo());
