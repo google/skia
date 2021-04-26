@@ -10,6 +10,6 @@ inline half4 MakeTempVar(half4 c) {
     }
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return MakeTempVar(colorWhite);
 }

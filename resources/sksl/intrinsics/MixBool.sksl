@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed, colorBlack, colorWhite, testInputs;
 
-half4 main(float2 coords) {
+half4 main() {
     int4 intGreen  = int4(colorGreen * 100);
     int4 intRed    = int4(colorRed   * 100);
 

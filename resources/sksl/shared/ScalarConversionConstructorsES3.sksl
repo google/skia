@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main(float2 coords) {
+half4 main() {
     float f = colorGreen.g;
     int   i = int(colorGreen.g);
     uint  u = uint(colorGreen.g);

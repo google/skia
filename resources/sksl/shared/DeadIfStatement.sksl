@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main(float2 coords) {
+half4 main() {
     const bool x = true;
     if (!x) return colorRed;
     if (x) return colorGreen;

@@ -5,7 +5,7 @@ struct S {
     half j;
 };
 
-half4 main(float2 coords) {
+half4 main() {
     // All of these assignments can be preserved.
     half4 x = half4(3, 2, 1, 0);
     x.xyz = x.zyx;

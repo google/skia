@@ -1,6 +1,6 @@
 uniform half4 colorRed, colorGreen;
 
-half4 main(float2 coords) {
+half4 main() {
     bool ok = true;
 
     int a = 1;

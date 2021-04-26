@@ -16,8 +16,8 @@ OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %color RelaxedPrecision
-OpDecorate %25 RelaxedPrecision
-OpDecorate %90 RelaxedPrecision
+OpDecorate %20 RelaxedPrecision
+OpDecorate %85 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -27,13 +27,10 @@ OpDecorate %90 RelaxedPrecision
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %void = OpTypeVoid
 %12 = OpTypeFunction %void
-%v2float = OpTypeVector %float 2
-%float_0 = OpConstant %float 0
-%16 = OpConstantComposite %v2float %float_0 %float_0
-%_ptr_Function_v2float = OpTypePointer Function %v2float
-%20 = OpTypeFunction %v4float %_ptr_Function_v2float
+%15 = OpTypeFunction %v4float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%25 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%float_0 = OpConstant %float 0
+%20 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
 %int_0 = OpConstant %int 0
@@ -45,117 +42,114 @@ OpDecorate %90 RelaxedPrecision
 %int_3 = OpConstant %int 3
 %_entrypoint_v = OpFunction %void None %12
 %13 = OpLabel
-%17 = OpVariable %_ptr_Function_v2float Function
-OpStore %17 %16
-%19 = OpFunctionCall %v4float %main %17
-OpStore %sk_FragColor %19
+%14 = OpFunctionCall %v4float %main
+OpStore %sk_FragColor %14
 OpReturn
 OpFunctionEnd
-%main = OpFunction %v4float None %20
-%21 = OpFunctionParameter %_ptr_Function_v2float
-%22 = OpLabel
+%main = OpFunction %v4float None %15
+%16 = OpLabel
 %color = OpVariable %_ptr_Function_v4float Function
 %counter = OpVariable %_ptr_Function_int Function
 %counter_0 = OpVariable %_ptr_Function_int Function
 %counter_1 = OpVariable %_ptr_Function_int Function
-OpStore %color %25
+OpStore %color %20
 OpStore %counter %int_0
-OpBranch %30
-%30 = OpLabel
-OpLoopMerge %34 %33 None
-OpBranch %31
-%31 = OpLabel
-%35 = OpLoad %int %counter
-%37 = OpSLessThan %bool %35 %int_10
-OpBranchConditional %37 %32 %34
-%32 = OpLabel
-OpBranch %33
-%33 = OpLabel
-%39 = OpLoad %int %counter
-%40 = OpIAdd %int %39 %int_1
-OpStore %counter %40
-OpBranch %30
-%34 = OpLabel
+OpBranch %25
+%25 = OpLabel
+OpLoopMerge %29 %28 None
+OpBranch %26
+%26 = OpLabel
+%30 = OpLoad %int %counter
+%32 = OpSLessThan %bool %30 %int_10
+OpBranchConditional %32 %27 %29
+%27 = OpLabel
+OpBranch %28
+%28 = OpLabel
+%34 = OpLoad %int %counter
+%35 = OpIAdd %int %34 %int_1
+OpStore %counter %35
+OpBranch %25
+%29 = OpLabel
 OpStore %counter_0 %int_0
-OpBranch %42
-%42 = OpLabel
-OpLoopMerge %46 %45 None
-OpBranch %43
-%43 = OpLabel
-%47 = OpLoad %int %counter_0
-%48 = OpSLessThan %bool %47 %int_10
-OpBranchConditional %48 %44 %46
-%44 = OpLabel
-OpBranch %45
-%45 = OpLabel
-%49 = OpLoad %int %counter_0
-%50 = OpIAdd %int %49 %int_1
-OpStore %counter_0 %50
-OpBranch %42
-%46 = OpLabel
+OpBranch %37
+%37 = OpLabel
+OpLoopMerge %41 %40 None
+OpBranch %38
+%38 = OpLabel
+%42 = OpLoad %int %counter_0
+%43 = OpSLessThan %bool %42 %int_10
+OpBranchConditional %43 %39 %41
+%39 = OpLabel
+OpBranch %40
+%40 = OpLabel
+%44 = OpLoad %int %counter_0
+%45 = OpIAdd %int %44 %int_1
+OpStore %counter_0 %45
+OpBranch %37
+%41 = OpLabel
 OpStore %counter_1 %int_0
-OpBranch %52
-%52 = OpLabel
-OpLoopMerge %56 %55 None
-OpBranch %53
-%53 = OpLabel
-%57 = OpLoad %int %counter_1
-%58 = OpSLessThan %bool %57 %int_10
-OpBranchConditional %58 %54 %56
-%54 = OpLabel
-OpBranch %55
-%55 = OpLabel
-%59 = OpLoad %int %counter_1
-%60 = OpIAdd %int %59 %int_1
-OpStore %counter_1 %60
-OpBranch %52
-%56 = OpLabel
-%61 = OpExtInst %float %1 Sqrt %float_1
-%63 = OpFOrdEqual %bool %61 %float_1
-OpSelectionMerge %65 None
-OpBranchConditional %63 %64 %65
-%64 = OpLabel
-%66 = OpAccessChain %_ptr_Function_float %color %int_1
-OpStore %66 %float_1
-OpBranch %65
-%65 = OpLabel
-%68 = OpExtInst %float %1 Sqrt %float_1
-%70 = OpFOrdEqual %bool %68 %float_2
-OpSelectionMerge %73 None
-OpBranchConditional %70 %71 %72
+OpBranch %47
+%47 = OpLabel
+OpLoopMerge %51 %50 None
+OpBranch %48
+%48 = OpLabel
+%52 = OpLoad %int %counter_1
+%53 = OpSLessThan %bool %52 %int_10
+OpBranchConditional %53 %49 %51
+%49 = OpLabel
+OpBranch %50
+%50 = OpLabel
+%54 = OpLoad %int %counter_1
+%55 = OpIAdd %int %54 %int_1
+OpStore %counter_1 %55
+OpBranch %47
+%51 = OpLabel
+%56 = OpExtInst %float %1 Sqrt %float_1
+%58 = OpFOrdEqual %bool %56 %float_1
+OpSelectionMerge %60 None
+OpBranchConditional %58 %59 %60
+%59 = OpLabel
+%61 = OpAccessChain %_ptr_Function_float %color %int_1
+OpStore %61 %float_1
+OpBranch %60
+%60 = OpLabel
+%63 = OpExtInst %float %1 Sqrt %float_1
+%65 = OpFOrdEqual %bool %63 %float_2
+OpSelectionMerge %68 None
+OpBranchConditional %65 %66 %67
+%66 = OpLabel
+OpBranch %68
+%67 = OpLabel
+%69 = OpAccessChain %_ptr_Function_float %color %int_3
+OpStore %69 %float_1
+OpBranch %68
+%68 = OpLabel
+OpBranch %71
 %71 = OpLabel
-OpBranch %73
+OpLoopMerge %75 %74 None
+OpBranch %72
 %72 = OpLabel
-%74 = OpAccessChain %_ptr_Function_float %color %int_3
-OpStore %74 %float_1
-OpBranch %73
+%76 = OpExtInst %float %1 Sqrt %float_1
+%77 = OpFOrdEqual %bool %76 %float_2
+OpBranchConditional %77 %73 %75
 %73 = OpLabel
-OpBranch %76
-%76 = OpLabel
-OpLoopMerge %80 %79 None
-OpBranch %77
-%77 = OpLabel
-%81 = OpExtInst %float %1 Sqrt %float_1
-%82 = OpFOrdEqual %bool %81 %float_2
-OpBranchConditional %82 %78 %80
+OpBranch %74
+%74 = OpLabel
+OpBranch %71
+%75 = OpLabel
+OpBranch %78
 %78 = OpLabel
+OpLoopMerge %82 %81 None
 OpBranch %79
 %79 = OpLabel
-OpBranch %76
+OpBranch %80
 %80 = OpLabel
-OpBranch %83
-%83 = OpLabel
-OpLoopMerge %87 %86 None
-OpBranch %84
-%84 = OpLabel
-OpBranch %85
-%85 = OpLabel
-OpBranch %86
-%86 = OpLabel
-%88 = OpExtInst %float %1 Sqrt %float_1
-%89 = OpFOrdEqual %bool %88 %float_2
-OpBranchConditional %89 %83 %87
-%87 = OpLabel
-%90 = OpLoad %v4float %color
-OpReturnValue %90
+OpBranch %81
+%81 = OpLabel
+%83 = OpExtInst %float %1 Sqrt %float_1
+%84 = OpFOrdEqual %bool %83 %float_2
+OpBranchConditional %84 %78 %82
+%82 = OpLabel
+%85 = OpLoad %v4float %color
+OpReturnValue %85
 OpFunctionEnd

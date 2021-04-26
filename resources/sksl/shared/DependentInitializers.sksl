@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main(float2 coords) {
+half4 main() {
     float x = 0.5, y = x * 2;
     return (y == 1) ? colorGreen : colorRed;
 }

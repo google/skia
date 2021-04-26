@@ -11,6 +11,6 @@ bool test_equality() {
     return ok;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return test_equality() ? colorGreen : colorRed;
 }

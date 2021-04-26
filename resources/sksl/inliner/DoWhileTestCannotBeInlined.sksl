@@ -4,7 +4,7 @@ inline bool shouldLoop(half4 value) {
     return value != colorGreen;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     half4 result = colorRed;
     do {
         result = colorGreen;

@@ -26,7 +26,7 @@ void modifies_a_struct(inout S s) {
     s.y++;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     S s = returns_a_struct();
     float x = accepts_a_struct(s);
     modifies_a_struct(s);

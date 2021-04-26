@@ -26,6 +26,6 @@ inline half branchyAndBlocky() {
     }}}
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return bool(branchy() * branchyAndBlocky()) ? colorGreen : colorRed;
 }

@@ -8,7 +8,7 @@ bool test() {
     return (x == xx) && !(x != xx) && (x != y) && !(x == y);
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return test() ? colorGreen : colorRed;
 }
 

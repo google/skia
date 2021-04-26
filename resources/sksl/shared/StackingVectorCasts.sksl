@@ -1,6 +1,6 @@
 uniform half4 colorGreen, colorRed;
 
-half4 main(float2 coords) {
+half4 main() {
     if (half4(0, 0, 1, 1) == half4(int4(0, 0, 1, 1)))
         return colorGreen;
     else

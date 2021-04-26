@@ -5,7 +5,7 @@ inline void outParameter(inout half4 x) {
     x *= x;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     half4 c = colorGreen;
     outParameter(c);
     return c;
