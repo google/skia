@@ -1,4 +1,6 @@
-layout(key) in half one;  // always equals 1.0
+layout(key) in half one;                       // always equals 1.0
+layout(key, when=one != 1.0f) in half unused;  // never used
+layout(key) float alsoUnused = one + one;      // also never used
 
 half4 main() {
     half4 color = half4(0);
