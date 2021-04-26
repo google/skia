@@ -1,7 +1,7 @@
 uniform half4 testInputs;
 uniform half4 colorGreen, colorRed;
 
-half4 main(float2 coords) {
+half4 main() {
     half4 expectedA = half4(-1.25, 0, 0.5, 0.5);
     half4 expectedB = half4(-1.25, 0, 0, 1);
     return (min(testInputs.x,    0.5)             == expectedA.x     &&

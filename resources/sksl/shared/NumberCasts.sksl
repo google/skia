@@ -1,4 +1,4 @@
-half4 main(float2 coords) {
+half4 main() {
     bool3  B;
     B.x = bool(1.23);
     B.y = bool(1);

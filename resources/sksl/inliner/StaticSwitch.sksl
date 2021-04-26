@@ -11,7 +11,7 @@ float get() {
     return abs(5);
 }
 
-half4 main(float2 coords) {
+half4 main() {
     float result = get();
     return result == 2 ? colorGreen : colorRed;
 }

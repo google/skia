@@ -1,6 +1,6 @@
 uniform half4 colorWhite, colorGreen, colorRed;
 
-half4 main(float2 coords) {
+half4 main() {
     half2 x = colorWhite.rg;
     x = +x;
     x = -x;

@@ -5,7 +5,7 @@ inline bool ifTest(half4 color) {
     return result;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     if (ifTest(colorGreen))
         return colorGreen;
     else

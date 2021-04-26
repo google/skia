@@ -1,4 +1,4 @@
-half4 main(float2 coords) {
+half4 main() {
     half4 result = half4(0);
 
     // Two variables, both used

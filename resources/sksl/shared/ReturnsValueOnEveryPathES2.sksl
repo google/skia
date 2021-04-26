@@ -37,7 +37,7 @@ bool if_else_chain() {
         return true;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return  simple() &&
             return_on_both_sides() &&
             for_inside_body() &&

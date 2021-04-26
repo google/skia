@@ -8,6 +8,6 @@ inline half4 falseSide(half4 v) {
     return v.r0ba;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return bool(colorGreen.g) ? trueSide(colorGreen) : falseSide(colorRed);
 }

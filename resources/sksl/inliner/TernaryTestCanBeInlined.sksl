@@ -4,6 +4,6 @@ inline bool test(half4 v) {
     return bool(v.g);
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return test(colorGreen) ? colorGreen : colorRed;
 }

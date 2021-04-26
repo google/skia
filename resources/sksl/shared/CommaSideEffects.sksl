@@ -6,7 +6,7 @@ void setToColorBlack(out half4 x) {
     x = colorBlack;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     half4 a, b, c, d;
 
     (b = colorRed), (c = colorGreen);

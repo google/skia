@@ -26,6 +26,6 @@ bool test_int() {
     return bool(-(-result.r) * result.g * result.b * result.a);
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return test_float() && test_int() ? colorGreen : colorRed;
 }

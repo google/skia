@@ -7,6 +7,6 @@ inline half4 loopy() {
     return colorRed;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return loopy();
 }

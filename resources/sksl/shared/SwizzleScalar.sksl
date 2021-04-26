@@ -1,6 +1,6 @@
 uniform half unknownInput; // 1
 
-half4 main(float2 coords) {
+half4 main() {
     half x = unknownInput;
 
     half4 v = x.xx01;

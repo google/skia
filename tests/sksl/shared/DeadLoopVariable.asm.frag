@@ -19,7 +19,7 @@ OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %40 RelaxedPrecision
+OpDecorate %34 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -32,11 +32,7 @@ OpDecorate %40 RelaxedPrecision
 %10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
-%v2float = OpTypeVector %float 2
-%float_0 = OpConstant %float 0
-%19 = OpConstantComposite %v2float %float_0 %float_0
-%_ptr_Function_v2float = OpTypePointer Function %v2float
-%23 = OpTypeFunction %v4float %_ptr_Function_v2float
+%18 = OpTypeFunction %v4float
 %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
 %int_0 = OpConstant %int 0
@@ -44,31 +40,28 @@ OpDecorate %40 RelaxedPrecision
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %_entrypoint_v = OpFunction %void None %15
 %16 = OpLabel
-%20 = OpVariable %_ptr_Function_v2float Function
-OpStore %20 %19
-%22 = OpFunctionCall %v4float %main %20
-OpStore %sk_FragColor %22
+%17 = OpFunctionCall %v4float %main
+OpStore %sk_FragColor %17
 OpReturn
 OpFunctionEnd
-%main = OpFunction %v4float None %23
-%24 = OpFunctionParameter %_ptr_Function_v2float
-%25 = OpLabel
+%main = OpFunction %v4float None %18
+%19 = OpLabel
 %x = OpVariable %_ptr_Function_int Function
 OpStore %x %int_0
-OpBranch %30
-%30 = OpLabel
-OpLoopMerge %34 %33 None
-OpBranch %31
-%31 = OpLabel
-%35 = OpLoad %int %x
-%37 = OpSLessThan %bool %35 %int_4
-OpBranchConditional %37 %32 %34
-%32 = OpLabel
-OpBranch %34
-%33 = OpLabel
-OpBranch %30
-%34 = OpLabel
-%38 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%40 = OpLoad %v4float %38
-OpReturnValue %40
+OpBranch %24
+%24 = OpLabel
+OpLoopMerge %28 %27 None
+OpBranch %25
+%25 = OpLabel
+%29 = OpLoad %int %x
+%31 = OpSLessThan %bool %29 %int_4
+OpBranchConditional %31 %26 %28
+%26 = OpLabel
+OpBranch %28
+%27 = OpLabel
+OpBranch %24
+%28 = OpLabel
+%32 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%34 = OpLoad %v4float %32
+OpReturnValue %34
 OpFunctionEnd

@@ -10,6 +10,6 @@ half4 non_constant_swizzle() {
     return half4(x, y, z, w); // -1.25, -1.25, -1.25, 0
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return non_constant_swizzle() == half4(-1.25, -1.25, -1.25, 0) ? colorGreen : colorRed;
 }

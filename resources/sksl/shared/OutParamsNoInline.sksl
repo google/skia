@@ -30,7 +30,7 @@ void out_bool2(out bool2 v) { v = bool2(colorWhite.g); }
 void out_bool3(out bool3 v) { v = bool3(colorWhite.b); }
 void out_bool4(out bool4 v) { v = bool4(colorWhite.a); }
 
-half4 main(float2 coords) {
+half4 main() {
     half4 result;
 
     half     h;    out_half (h);

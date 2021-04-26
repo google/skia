@@ -5,7 +5,7 @@ inline half4 elseBody() {
     return x;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     half4 c = colorRed;
     if (colorGreen.g == 0)
         ;

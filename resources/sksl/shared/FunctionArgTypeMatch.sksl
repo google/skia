@@ -23,7 +23,7 @@ bool takes_int2    (int2     x)         { return true; }
 bool takes_int3    (int3     x)         { return true; }
 bool takes_int4    (int4     x)         { return true; }
 
-half4 main(float2 coords) {
+half4 main() {
     return takes_float   (float    (1))    &&
            takes_float2  (float2   (2))    &&
            takes_float3  (float3   (3))    &&

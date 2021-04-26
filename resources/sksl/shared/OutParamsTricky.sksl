@@ -12,7 +12,7 @@ void func(inout half4 color) {
     color.ga = t;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     half4 result = half4(0, 1, 2, 3);
     func(result);
     return result == half4(2, 3, 0, 5) ? colorGreen : colorRed;

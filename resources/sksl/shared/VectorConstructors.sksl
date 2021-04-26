@@ -12,7 +12,7 @@ bool check(float2 v1, float2 v2, float2 v3, float3 v4, int2 v5, int2 v6, float2 
            half(v17.x) == 17;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     float2 v1 = float2(1);
     float2 v2 = float2(1, 2);
     float2 v3 = float2(float2(1));

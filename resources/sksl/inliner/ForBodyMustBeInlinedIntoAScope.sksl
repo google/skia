@@ -5,7 +5,7 @@ inline half4 multiply(half4 x, half y) {
     return value;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     half4 result;
     for (int x=0; x<4; ++x)
         result = multiply(colorGreen, 1);

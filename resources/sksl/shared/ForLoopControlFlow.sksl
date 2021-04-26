@@ -1,6 +1,6 @@
 uniform half4 colorWhite;
 
-half4 main(float2 coords) {
+half4 main() {
     half4 x = colorWhite;
 
     // Verify that break is allowed in a for loop.

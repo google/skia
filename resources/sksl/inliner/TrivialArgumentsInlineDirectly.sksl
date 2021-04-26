@@ -30,7 +30,7 @@ half4 func4(half4 h4) {
     return h4 * h4;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     S s;
     s.ah4[0] = half4(unknownInput);
     s.ah[0] = unknownInput;

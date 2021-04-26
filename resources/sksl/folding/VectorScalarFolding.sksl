@@ -203,6 +203,6 @@ bool test_int() {
     return ok;
 }
 
-half4 main(float2 coords) {
+half4 main() {
     return test_half() && test_int() ? colorGreen : colorRed;
 }

@@ -1,6 +1,6 @@
 uniform half4 colorRed, colorGreen;
 
-half4 main(float2 coords) {
+half4 main() {
     half4 result = colorRed;
     const float x = 5;
     const float y = 10;
