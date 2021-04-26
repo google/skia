@@ -27,17 +27,42 @@ if not os.path.isfile(clangFormat + exeSuffix):
 for p in processors:
     noExt, _ = os.path.splitext(p)
     head, tail = os.path.split(noExt)
+    dsl = ".dsl" if (# effects
+                     tail == "GrAARectEffect" or
+                     tail == "GrAlphaThresholdFragmentProcessor" or
+                     tail == "GrArithmeticProcessor" or
+                     tail == "GrBlurredEdgeFragmentProcessor" or
+                     tail == "GrCircleBlurFragmentProcessor" or
+                     tail == "GrCircleEffect" or
+                     tail == "GrColorMatrixFragmentProcessor" or
+                     tail == "GrConfigConversionEffect" or
+                     tail == "GrClampedGradientEffect" or
+                     tail == "GrDeviceSpaceEffect" or
+                     tail == "GrDualIntervalGradientColorizer" or
+                     tail == "GrEllipseEffect" or
+                     tail == "GrHSLToRGBFilterEffect" or
+                     tail == "GrMagnifierEffect" or
+                     tail == "GrRectBlurEffect" or
+                     # gradients
+                     tail == "GrLinearGradientLayout" or
+                     tail == "GrRadialGradientLayout" or
+                     tail == "GrSingleIntervalGradientColorizer" or
+                     tail == "GrSweepGradientLayout" or
+                     tail == "GrTiledGradientEffect" or
+                     tail == "GrTwoPointConicalGradientLayout" or
+                     tail == "GrUnrolledBinaryGradientColorizer" or
+                     (0==1)) else ""
     targetDir = os.path.join(head, "generated")
     if not os.path.isdir(targetDir):
         os.mkdir(targetDir)
     target = os.path.join(targetDir, tail)
     targets.append(target + ".h")
-    targets.append(target + ".cpp")
+    targets.append(target + dsl + ".cpp")
 
     worklist.write(p + "\n")
     worklist.write(target + ".h\n\n")
     worklist.write(p + "\n")
-    worklist.write(target + ".cpp\n\n")
+    worklist.write(target + dsl + ".cpp\n\n")
 
 # Invoke skslc, passing in the worklist.
 worklist.close()
