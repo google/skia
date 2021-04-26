@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7e1077e_6f98417c",
+        "filename": "gm/scaledemoji.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-26T22:29:31Z",
+      "side": 1,
+      "message": "The space made the glyph run too wide to see things clearly near the middle.",
+      "parentUuid": "88f06619_ae14cceb",
+      "revId": "072473b1c070381755ff75c397b26249edcb90a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3284adf4_dd511fe6",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-04-26T19:39:08Z",
       "side": 1,
       "message": "It seems like in perspective maxScale could get really big. Should it have a limit? \n\nPicking dynamically like this produces nice results, but should we just pick the scale which would have been used if flat and just perspective that? (Not saying we should, just thinking about it.)",
+      "revId": "072473b1c070381755ff75c397b26249edcb90a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42f01870_c8d53a9f",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-04-26T22:29:31Z",
+      "side": 1,
+      "message": "We should probably limit it to font.getSize() * maxScale \u003c 256.\n\nThe strategy of picking the source size is what happens in the GPU when the emojis are smallish (\u003c256). You can see the result if fuzzy in the GM for the GPU. Also, people complain about perspective emoji GPU drawing. I\u0027m going to look into this next Friday.",
+      "parentUuid": "3284adf4_dd511fe6",
       "revId": "072473b1c070381755ff75c397b26249edcb90a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
