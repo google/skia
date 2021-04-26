@@ -31,11 +31,12 @@ static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* sr
     }
     REPORTER_ASSERT(r, success);
     output.reset();
-    success = compiler.toCPP(*program, "Test", output);
+    success = compiler.toDSLCPP(*program, "Test", output);
     if (!success) {
         SkDebugf("Unexpected error generating .cpp file for %s\n%s",
                  src, compiler.errorText().c_str());
     }
+        SkDebugf("%s",output.str().c_str());
     REPORTER_ASSERT(r, success);
 }
 
@@ -43,8 +44,50 @@ DEF_TEST(SkSLFPTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             half4 main(float2 coord) {
-                 return half4(0);
-             }
+layout(key) in half one;                       // always equals 1.0
+layout(key, when one != 1.0f) in half unused;  // never true
+
+half4 main() {
+    half4 color = half4(0);
+
+    // Basic if statement. (00 == 00: true --> color=0001)
+    if (color.rg == color.ba) color.a = one;
+
+    // Basic if statement with Block. (00 == 01: false)
+    if (color.rg == color.ba) {
+        color.r = color.a;
+    }
+
+    // TODO(skia:11872): Add test for If statement with comma-expression statement instead of Block.
+
+    // Basic if-else statement. (0 == 0: true --> color=1011)
+    if (color.r == color.g) color = color.araa; else color = color.rrra;
+
+    // Chained if-else statements.
+    if (color.r + color.g + color.b + color.a == one) {  // (3 == 1: false)
+        color = half4(-1);
+    } else if (color.r + color.g + color.b + color.a == 2) {  // (3 == 2: false)
+        color = half4(-2);
+    } else {
+        color = color.ggaa; // (color=0011)
+    }
+
+    // Nested if-else statements.
+    if (color.r == one) {  // (0 == 1: false)
+        if (color.r == 2) {
+            color = color.rrrr;
+        } else {
+            color = color.gggg;
+        }
+    } else {
+        if (color.b * color.a == one) { // (1*1 == 1: true)
+            color = color.rbga; // (color = 0101)
+        } else {
+            color = color.aaaa;
+        }
+    }
+
+    return color;
+}
          )__SkSL__");
 }
