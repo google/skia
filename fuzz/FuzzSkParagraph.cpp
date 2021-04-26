@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#if 0
 #include "fuzz/Fuzz.h"
 #include "fuzz/FuzzCommon.h"
 #include "include/core/SkBitmap.h"
@@ -280,3 +281,4 @@ DEF_FUZZ(SkParagraph, fuzz) {
     paragraph->layout(layout_width);
     paragraph->paint(&canvas, 0, 0);
 }
+#endif

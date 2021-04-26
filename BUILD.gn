@@ -2153,7 +2153,14 @@ if (skia_enable_tools) {
       ]
     }
     test_app("ddlbench") {
-      sources = [ "experimental/ddlbench/ddlbench.cpp" ]
+      sources = [
+        "experimental/ddlbench/Cmds.cpp",
+        "experimental/ddlbench/Cmds.h",
+        "experimental/ddlbench/Fake.cpp",
+        "experimental/ddlbench/Fake.h",
+        "experimental/ddlbench/Key.h",
+        "experimental/ddlbench/ddlbench.cpp",
+      ]
       deps = [
         ":flags",
         ":skia",
@@ -2325,7 +2332,7 @@ if (skia_enable_tools) {
       "fuzz/FuzzPathop.cpp",
       "fuzz/FuzzPolyUtils.cpp",
       "fuzz/FuzzRegionOp.cpp",
-      "fuzz/FuzzSkParagraph.cpp",
+#      "fuzz/FuzzSkParagraph.cpp",
       "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
       "fuzz/oss_fuzz/FuzzAnimatedImage.cpp",
       "fuzz/oss_fuzz/FuzzImage.cpp",
@@ -2342,7 +2349,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
       "fuzz/oss_fuzz/FuzzSVG.cpp",
       "fuzz/oss_fuzz/FuzzSkDescriptorDeserialize.cpp",
-      "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
+#      "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
       "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
@@ -3133,14 +3140,14 @@ if (skia_enable_tools) {
       ]
     }
 
-    libfuzzer_app("api_skparagraph") {
-      sources = [
-        "fuzz/FuzzSkParagraph.cpp",
-        "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
-        "tools/Resources.cpp",
-      ]
-      deps = [ "modules/skparagraph" ]
-    }
+#    libfuzzer_app("api_skparagraph") {
+#      sources = [
+#        "fuzz/FuzzSkParagraph.cpp",
+#        "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
+#        "tools/Resources.cpp",
+#      ]
+#      deps = [ "modules/skparagraph" ]
+#    }
 
     libfuzzer_app("api_svg_canvas") {
       include_dirs = [
