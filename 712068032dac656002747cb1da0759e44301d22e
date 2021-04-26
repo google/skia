@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63cb72e0_acbf5194",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-26T12:13:49Z",
+      "side": 1,
+      "message": "How bad of an idea is this?\n\nI started off copying a bunch of code into AK (patchset #1), only to realize sk_app::WindowContext is *exactly* what we need.  Maybe we can split it off into into a separate component usable independently of sk_app?",
+      "revId": "712068032dac656002747cb1da0759e44301d22e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
