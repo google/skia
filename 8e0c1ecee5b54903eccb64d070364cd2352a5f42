@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d5bed47_17c913f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-26T14:54:56Z",
+      "side": 1,
+      "message": "This will probably set the fuzzer back a bit (stricter rules about main\u0027s signature, etc...), but it aligns with the API that all clients are using now.",
+      "revId": "8e0c1ecee5b54903eccb64d070364cd2352a5f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
