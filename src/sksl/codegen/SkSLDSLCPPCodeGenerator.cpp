@@ -364,7 +364,7 @@ void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 {"exp2", "Exp2"},
                 {"faceforward", "Faceforward"},
                 {"floor", "Floor"},
-                {"fract", "Fract"},
+                {"fract", "SkSL::dsl::Fract"},
                 {"greaterThan", "GreaterThan"},
                 {"greaterThanEqual", "GreaterThanEqual"},
                 {"inversesqrt", "Inversesqrt"},

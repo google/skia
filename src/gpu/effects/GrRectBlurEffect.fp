@@ -24,8 +24,10 @@
 in fragmentProcessor inputFP;
 in float4 rect;
 
-layout(key) bool highPrecision = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
-                                 abs(rect.z) > 16000 || abs(rect.w) > 16000;
+layout(key) bool highPrecision = rect.x < -16000 || rect.x > 16000 ||
+                                 rect.y < -16000 || rect.y > 16000 ||
+                                 rect.z < -16000 || rect.z > 16000 ||
+                                 rect.w < -16000 || rect.w > 16000;
 
 layout(when= highPrecision) uniform float4 rectF;
 layout(when=!highPrecision) uniform half4  rectH;
