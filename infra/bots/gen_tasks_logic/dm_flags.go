@@ -1036,6 +1036,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("ReleaseAndAbandonGpuContext") {
 		args = append(args, "--releaseAndAbandonGpuContext")
 	}
+    args = append(args, "--match", "aaxfermodes")
 
 	// Finalize the DM flags and properties.
 	b.recipeProp("dm_flags", marshalJson(args))
