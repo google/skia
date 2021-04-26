@@ -921,6 +921,7 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = nullptr;
+    canDrawArgs.fSurfaceProps = &fSurfaceProps;
     canDrawArgs.fAAType = (doStencilMSAA == GrAA::kYes) ? GrAAType::kMSAA : GrAAType::kNone;
     canDrawArgs.fHasUserStencilSettings = false;
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
@@ -1613,6 +1614,7 @@ bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = &paint;
+    canDrawArgs.fSurfaceProps = &fSurfaceProps;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fAAType = aaType;
     SkASSERT(!this->wrapsVkSecondaryCB());
@@ -1777,6 +1779,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = &paint;
+    canDrawArgs.fSurfaceProps = &fSurfaceProps;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     canDrawArgs.fHasUserStencilSettings = false;

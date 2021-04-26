@@ -125,6 +125,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
         canDrawArgs.fPaint = nullptr;
+        canDrawArgs.fSurfaceProps = &surfaceDrawContext->surfaceProps();
         canDrawArgs.fAAType = aaType;
         SkASSERT(!surfaceDrawContext->wrapsVkSecondaryCB());
         canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;

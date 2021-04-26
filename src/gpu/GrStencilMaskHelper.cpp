@@ -417,6 +417,7 @@ bool GrStencilMaskHelper::drawPath(const SkPath& path,
     canDrawArgs.fViewMatrix = &matrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fPaint = nullptr;
+    canDrawArgs.fSurfaceProps = &fRTC->surfaceProps();
     canDrawArgs.fAAType = pathAAType;
     canDrawArgs.fHasUserStencilSettings = false;
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = fRTC->wrapsVkSecondaryCB();
