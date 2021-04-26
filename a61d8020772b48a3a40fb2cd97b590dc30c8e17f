@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e62d329_bc7f695b",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 12
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-26T23:25:41Z",
+      "side": 1,
+      "message": "Needs skia:11909 before being converted",
+      "range": {
+        "startLine": 360,
+        "startChar": 31,
+        "endLine": 360,
+        "endChar": 67
+      },
+      "revId": "a61d8020772b48a3a40fb2cd97b590dc30c8e17f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
