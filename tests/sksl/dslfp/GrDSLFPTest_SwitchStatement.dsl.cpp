@@ -29,21 +29,21 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var color(kNo_Modifier, DSLType(kInt4_Type), "color", Int4(0));
-Declare(color);
-Switch(color.x(),
-    Case(0, ++color.y()),
+Var _color(kNo_Modifier, DSLType(kInt4_Type), "color", Int4(0));
+Declare(_color);
+Switch(_color.x(),
+    Case(0, ++_color.y()),
     Case(1, Break()),
     Case(2, Return(Half4(0.0f))),
     Case(3),
-    Case(4, ++color.x()),
-    Case(5, Block(++color.z()), Break()),
-    Default(Block(--color.y(), Break())));
-Switch(color.y(),
+    Case(4, ++_color.x()),
+    Case(5, Block(++_color.z()), Break()),
+    Default(Block(--_color.y(), Break())));
+Switch(_color.y(),
     Case(1, Break()),
-    Case(0, Block(color.x() = 1, color.z() = 1)));
-Block(color.w() = color.y());
-Return(Half4(color));
+    Case(0, Block(_color.x() = 1, _color.z() = 1)));
+Block(_color.w() = _color.y());
+Return(Half4(_color));
         EndFragmentProcessor();
     }
 private:

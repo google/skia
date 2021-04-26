@@ -29,16 +29,17 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var one(kConst_Modifier, DSLType(kHalf_Type), "one", Half(_outer.one));
-Declare(one);
-Var color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(0.0f));
-Declare(color);
-If(Swizzle(color, X, Y) == Swizzle(color, Z, W), /*Then:*/ color.w() = one);
-If(Swizzle(color, X, Y) == Swizzle(color, Z, W), /*Then:*/ Block(color.x() = color.w()));
-If(color.x() == color.y(), /*Then:*/ color = Swizzle(color, W, X, W, W), /*Else:*/ color = Swizzle(color, X, X, X, W));
-If(((color.x() + color.y()) + color.z()) + color.w() == one, /*Then:*/ Block(color = Half4(-1.0f)), /*Else:*/ If(((color.x() + color.y()) + color.z()) + color.w() == 2.0f, /*Then:*/ Block(color = Half4(-2.0f)), /*Else:*/ Block(color = Swizzle(color, Y, Y, W, W))));
-If(color.x() == one, /*Then:*/ Block(If(color.x() == 2.0f, /*Then:*/ Block(color = Swizzle(color, X, X, X, X)), /*Else:*/ Block(color = Swizzle(color, Y, Y, Y, Y)))), /*Else:*/ Block(If(color.z() * color.w() == one, /*Then:*/ Block(color = Swizzle(color, X, Z, Y, W)), /*Else:*/ Block(color = Swizzle(color, W, W, W, W)))));
-Return(color);
+[[maybe_unused]] const auto& one = _outer.one;
+Var _one(kConst_Modifier, DSLType(kHalf_Type), "one", Half(one));
+Declare(_one);
+Var _color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(0.0f));
+Declare(_color);
+If(Swizzle(_color, X, Y) == Swizzle(_color, Z, W), /*Then:*/ _color.w() = _one);
+If(Swizzle(_color, X, Y) == Swizzle(_color, Z, W), /*Then:*/ Block(_color.x() = _color.w()));
+If(_color.x() == _color.y(), /*Then:*/ _color = Swizzle(_color, W, X, W, W), /*Else:*/ _color = Swizzle(_color, X, X, X, W));
+If(((_color.x() + _color.y()) + _color.z()) + _color.w() == _one, /*Then:*/ Block(_color = Half4(-1.0f)), /*Else:*/ If(((_color.x() + _color.y()) + _color.z()) + _color.w() == 2.0f, /*Then:*/ Block(_color = Half4(-2.0f)), /*Else:*/ Block(_color = Swizzle(_color, Y, Y, W, W))));
+If(_color.x() == _one, /*Then:*/ Block(If(_color.x() == 2.0f, /*Then:*/ Block(_color = Swizzle(_color, X, X, X, X)), /*Else:*/ Block(_color = Swizzle(_color, Y, Y, Y, Y)))), /*Else:*/ Block(If(_color.z() * _color.w() == _one, /*Then:*/ Block(_color = Swizzle(_color, X, Z, Y, W)), /*Else:*/ Block(_color = Swizzle(_color, W, W, W, W)))));
+Return(_color);
         EndFragmentProcessor();
     }
 private:
