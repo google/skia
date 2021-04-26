@@ -11,4 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"/>
+
+    <org.skia.androidkitdemo1.NavigationSpinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+    </org.skia.androidkitdemo1.NavigationSpinner>
 </android.support.constraint.ConstraintLayout>
