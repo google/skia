@@ -19,7 +19,6 @@ canvas {
   <div id=scale_text></div>
   <div class="slidecontainer">
       <input type="range" min="100" max="500" value="100"   class="slider" id="scale_slider">
-      <input type="range" min="0" max="900" value="0"   class="slider" id="sharpen">
   </div>
 
   <canvas id=draw width=1000 height=400></canvas>
@@ -102,11 +101,30 @@ function init() {
                                               CanvasKit.FilterMode.Nearest,
                                               CanvasKit.MipmapMode.None);
 
-  sharpen.oninput = () => { surface.requestAnimationFrame(drawFrame); }
   scale_slider.oninput = () => { surface.requestAnimationFrame(drawFrame); }
 
   const fract = function(value) {
       return value - Math.floor(value);
+  }
+
+  // Uses custom sampling (4 sample points per-pixel)
+  draw_one_pass = function(canvas, y, scale) {
+      canvas.save();
+      canvas.scale(scale, 1.0);
+      shader_paint.setShader(effect.makeShaderWithChildren([Math.round(scale)], true, [imageShader], null));
+      canvas.drawRect([0, 0, size, y], shader_paint);
+      canvas.restore();
+  }
+
+  // First creates an upscaled image, and then bilerps it
+  draw_two_pass = function(canvas, y, scale) {
+      let intScale = Math.max(1, Math.floor(scale + 0.5));
+      let intImage = imageAtScale(intScale);
+
+      canvas.save();
+      canvas.scale(scale / intScale, 1);
+      canvas.drawImageOptions(intImage, 0, y, CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None, null);
+      canvas.restore();
   }
 
   drawFrame = function(canvas) {
@@ -115,26 +133,10 @@ function init() {
 
       canvas.clear();
 
-      // Draw the prog version.
-      canvas.save();
-      canvas.scale(scale, 1.0);
-      shader_paint.setShader(effect.makeShaderWithChildren([Math.round(scale)], true, [imageShader], null));
-      canvas.drawRect([0, 0, size, 100], shader_paint);
-      canvas.restore();
-
-      // magify
+      draw_one_pass(canvas, 100, scale);
       drawMagnified(canvas, 0, 100);
 
-      // Draw the two-pass version
-      let intScale = Math.max(1, Math.floor(scale + 0.5));
-      let intImage = imageAtScale(intScale);
-
-      canvas.save();
-      canvas.scale(scale / intScale, 1);
-      canvas.drawImageOptions(intImage, 0, 200, CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None, null);
-      canvas.restore();
-
-      // magnify
+      draw_two_pass(canvas, 200, scale);
       drawMagnified(canvas, 200, 300);
   }
 
