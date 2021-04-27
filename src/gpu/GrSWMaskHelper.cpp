@@ -9,12 +9,12 @@
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkMatrixProvider.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
 /*
@@ -145,7 +145,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
     return true;
 }
 
-GrSurfaceProxyView GrSWMaskHelper::toTextureView(GrRecordingContext* context, SkBackingFit fit) {
+GrSurfaceProxyView GrSWMaskHelper::toTextureView(GrRecordingContext* rContext, SkBackingFit fit) {
     SkImageInfo ii = SkImageInfo::MakeA8(fPixels->width(), fPixels->height());
     size_t rowBytes = fPixels->rowBytes();
 
@@ -155,6 +155,5 @@ GrSurfaceProxyView GrSWMaskHelper::toTextureView(GrRecordingContext* context, Sk
                                         nullptr));
     bitmap.setImmutable();
 
-    GrBitmapTextureMaker maker(context, bitmap, fit);
-    return maker.view(GrMipmapped::kNo);
+    return std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bitmap, GrMipmapped::kNo, fit));
 }

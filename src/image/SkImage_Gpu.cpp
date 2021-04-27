@@ -22,7 +22,6 @@
 #include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrBackendTextureImageGenerator.h"
 #include "src/gpu/GrBackendUtils.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
@@ -666,9 +665,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrDirectContext* dContext,
     // Turn the pixmap into a GrTextureProxy
     SkBitmap bmp;
     bmp.installPixels(*pixmap);
-    GrBitmapTextureMaker bitmapMaker(dContext, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    GrMipmapped mipMapped = buildMips ? GrMipmapped::kYes : GrMipmapped::kNo;
-    auto view = bitmapMaker.view(mipMapped);
+    GrMipmapped mipmapped = buildMips ? GrMipmapped::kYes : GrMipmapped::kNo;
+    auto [view, ct] = GrMakeUncachedBitmapProxyView(dContext, bmp, mipmapped);
     if (!view) {
         return SkImage::MakeRasterCopy(*pixmap);
     }
@@ -681,7 +679,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrDirectContext* dContext,
 
     std::unique_ptr<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
-    SkColorType skCT = GrColorTypeToSkColorType(bitmapMaker.colorType());
+    SkColorType skCT = GrColorTypeToSkColorType(ct);
     auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), view.origin(),
                                                     std::move(sema), skCT,
                                                     pixmap->alphaType(),

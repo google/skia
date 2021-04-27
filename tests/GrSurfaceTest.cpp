@@ -12,7 +12,6 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrBackendUtils.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
@@ -21,6 +20,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/SkGr.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
@@ -398,11 +398,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         copySrcBitmap.installPixels(write);
         copySrcBitmap.setImmutable();
 
-        GrBitmapTextureMaker maker(dContext, copySrcBitmap,
-                                   GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto copySrc = maker.view(GrMipmapped::kNo);
+        auto copySrc = std::get<0>(GrMakeUncachedBitmapProxyView(dContext, copySrcBitmap));
 
-        REPORTER_ASSERT(reporter, copySrc.proxy());
+        REPORTER_ASSERT(reporter, copySrc);
         auto copyResult = surfContext->testCopy(copySrc.refProxy());
         REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
         // Try the low level copy.
