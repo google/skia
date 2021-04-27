@@ -24,8 +24,14 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var _m(kNo_Modifier, DSLType(kHalf4x4_Type), "m", Half4x4(1.0f));
-Var _n(kNo_Modifier, DSLType(kHalf4_Type), "n", Half4(1.0f));
+zero = floor(0.5f);
+one = ceil(0.5f);
+Var _zero(kNo_Modifier, DSLType(kFloat_Type), "zero", Floor(0.5f));
+Declare(_zero);
+Var _one(kNo_Modifier, DSLType(kFloat_Type), "one", Ceil(0.5f));
+Declare(_one);
+Var _m(kNo_Modifier, DSLType(kHalf4x4_Type), "m", Half4x4(Half(_one)));
+Var _n(kNo_Modifier, DSLType(kHalf4_Type), "n", Half4(Half(_zero)));
 Var _b(kNo_Modifier, DSLType(kBool4_Type), "b", Bool4(true));
 Declare(_m);
 Declare(_n);
@@ -47,7 +53,7 @@ Swizzle(_n, Y, Z) = Exp(Swizzle(_n, W, X));
 Swizzle(_n, Z, W) = Exp2(Swizzle(_n, X, Y));
 _n.x() = Faceforward(_n.y(), _n.z(), _n.w());
 _n = Floor(_n);
-Swizzle(_n, Y, Z, W) = Fract(Swizzle(_n, Y, Z, W));
+Swizzle(_n, Y, Z, W) = SkSL::dsl::Fract(Swizzle(_n, Y, Z, W));
 Swizzle(_b, X, Y) = GreaterThan(Swizzle(_n, X, Y), Swizzle(_n, Z, W));
 Swizzle(_b, X, Y) = GreaterThanEqual(Swizzle(_n, X, Y), Swizzle(_n, Z, W));
 _n = Inversesqrt(_n);
@@ -79,11 +85,17 @@ Return(Half4(0.0f, 1.0f, 0.0f, 1.0f));
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
+float zero = 0;
+float one = 0;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_Builtins::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLFPTest_Builtins>();
 }
 void GrDSLFPTest_Builtins::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+float zero = floor(0.5f);
+    b->add32(sk_bit_cast<uint32_t>(zero), "zero");
+float one = ceil(0.5f);
+    b->add32(sk_bit_cast<uint32_t>(one), "one");
 }
 bool GrDSLFPTest_Builtins::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_Builtins& that = other.cast<GrDSLFPTest_Builtins>();

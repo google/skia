@@ -339,58 +339,64 @@ void DSLCPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 
     if (function.isBuiltin()) {
-        static const auto* kBuiltinNames = new std::unordered_map<String, String>{
-                {"abs", "Abs"},
-                {"all", "All"},
-                {"any", "Any"},
-                {"atan", "Atan"},
-                {"ceil", "Ceil"},
-                {"clamp", "Clamp"},
-                {"cos", "Cos"},
-                {"cross", "Cross"},
-                {"degrees", "Degrees"},
-                {"distance", "Distance"},
-                {"dot", "Dot"},
-                {"equal", "Equal"},
-                {"exp", "Exp"},
-                {"exp2", "Exp2"},
-                {"faceforward", "Faceforward"},
-                {"floor", "Floor"},
-                {"fract", "Fract"},
-                {"greaterThan", "GreaterThan"},
-                {"greaterThanEqual", "GreaterThanEqual"},
-                {"inversesqrt", "Inversesqrt"},
-                {"inverse", "Inverse"},
-                {"length", "Length"},
-                {"lessThan", "LessThan"},
-                {"lessThanEqual", "LessThanEqual"},
-                {"log", "Log"},
-                {"max", "Max"},
-                {"min", "Min"},
-                {"mix", "Mix"},
-                {"mod", "Mod"},
-                {"normalize", "Normalize"},
-                {"not", "Not"},
-                {"pow", "Pow"},
-                {"radians", "Radians"},
-                {"reflect", "Reflect"},
-                {"refract", "Refract"},
-                {"saturate", "Saturate"},
-                {"sign", "Sign"},
-                {"sin", "Sin"},
-                {"smoothstep", "Smoothstep"},
-                {"sqrt", "Sqrt"},
-                {"step", "Step"},
-                {"tan", "Tan"},
-                {"unpremul", "Unpremul"}};
+        if (fCPPMode) {
+            this->write(function.name());
+        } else {
+            static const auto* kBuiltinNames = new std::unordered_map<String, String>{
+                    {"abs", "Abs"},
+                    {"all", "All"},
+                    {"any", "Any"},
+                    {"atan", "Atan"},
+                    {"ceil", "Ceil"},
+                    {"clamp", "Clamp"},
+                    {"cos", "Cos"},
+                    {"cross", "Cross"},
+                    {"degrees", "Degrees"},
+                    {"distance", "Distance"},
+                    {"dot", "Dot"},
+                    {"equal", "Equal"},
+                    {"exp", "Exp"},
+                    {"exp2", "Exp2"},
+                    {"faceforward", "Faceforward"},
+                    {"floor", "Floor"},
+                    {"fract", "SkSL::dsl::Fract"},
+                    {"greaterThan", "GreaterThan"},
+                    {"greaterThanEqual", "GreaterThanEqual"},
+                    {"inversesqrt", "Inversesqrt"},
+                    {"inverse", "Inverse"},
+                    {"length", "Length"},
+                    {"lessThan", "LessThan"},
+                    {"lessThanEqual", "LessThanEqual"},
+                    {"log", "Log"},
+                    {"max", "Max"},
+                    {"min", "Min"},
+                    {"mix", "Mix"},
+                    {"mod", "Mod"},
+                    {"normalize", "Normalize"},
+                    {"not", "Not"},
+                    {"pow", "Pow"},
+                    {"radians", "Radians"},
+                    {"reflect", "Reflect"},
+                    {"refract", "Refract"},
+                    {"saturate", "Saturate"},
+                    {"sign", "Sign"},
+                    {"sin", "Sin"},
+                    {"smoothstep", "Smoothstep"},
+                    {"sqrt", "Sqrt"},
+                    {"step", "Step"},
+                    {"tan", "Tan"},
+                    {"unpremul", "Unpremul"}};
 
-        auto iter = kBuiltinNames->find(function.name());
-        if (iter == kBuiltinNames->end()) {
-            fErrors.error(c.fOffset, "unrecognized built-in function '" + function.name() + "'");
-            return;
+            auto iter = kBuiltinNames->find(function.name());
+            if (iter == kBuiltinNames->end()) {
+                fErrors.error(c.fOffset,
+                              "unrecognized built-in function '" + function.name() + "'");
+                return;
+            }
+
+            this->write(iter->second);
         }
 
-        this->write(iter->second);
         this->write("(");
         const char* separator = "";
         for (const std::unique_ptr<Expression>& argument : c.arguments()) {
@@ -1277,21 +1283,21 @@ void DSLCPPCodeGenerator::writeGetKey() {
                     fErrors.error(var.fOffset, "layout(key) may not be specified on uniforms");
                 }
                 if (is_private(var)) {
-                    this->writef("%s %s =",
+                    this->writef("%s %.*s = ",
                                  HCodeGenerator::FieldType(fContext, varType,
                                                            var.modifiers().fLayout).c_str(),
-                                 this->getVariableCppName(var));
+                                 (int)var.name().size(), var.name().data());
                     if (decl.value()) {
                         fCPPMode = true;
                         this->writeExpression(*decl.value(), Precedence::kAssignment);
                         fCPPMode = false;
                     } else {
-                        this->writef("%s", default_value(var).c_str());
+                        this->write(default_value(var));
                     }
                     this->write(";\n");
                 }
                 if (var.modifiers().fLayout.fWhen.fLength) {
-                    this->writef("if (%s) {", String(var.modifiers().fLayout.fWhen).c_str());
+                    this->writef("if (%s) {\n", String(var.modifiers().fLayout.fWhen).c_str());
                 }
                 if (varType == *fContext.fTypes.fHalf4) {
                     this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
@@ -1324,7 +1330,7 @@ void DSLCPPCodeGenerator::writeGetKey() {
                              varType.displayName().c_str());
                 }
                 if (var.modifiers().fLayout.fWhen.fLength) {
-                    this->write("}");
+                    this->write("}\n");
                 }
             }
         }
