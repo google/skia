@@ -11,6 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/Registry.h"
 
 #define DEF_BENCH3(code, N) \
@@ -78,6 +79,7 @@ public:
     void draw(int loops, SkCanvas*);
 
     virtual void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) {}
+    virtual bool getDMSAAStats(GrRecordingContext*) { return false; }
 
     // Count of units (pixels, whatever) being exercised, to scale timing by.
     int getUnits() const { return fUnits; }

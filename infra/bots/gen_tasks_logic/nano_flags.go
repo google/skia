@@ -253,6 +253,15 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		args = append(args, "--gpuResourceCacheLimit", "16777216")
 	}
 
+	if b.extraConfig("DMSAAStats") {
+		// Render svgs with a clip large enough to tile the entire content height.
+		args = append(args,
+			"--sourceType", "skp", "--clip", "0,0,1600,8192", "--ms", "0", "--loops", "1",
+			"--config", "gldmsaa", "--dmsaaStatsDump")
+		// Don't collect stats on svgs since we actually want them to trigger dmsaa anyway.
+		match = append(match, "~svg", "~chalkboard", "~motionmark", "~ccpr")
+	}
+
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
 	match = append(match, "~inc0.gif")
