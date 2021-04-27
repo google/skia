@@ -26,9 +26,9 @@ public:
         StartFragmentProcessor(this, &args);
 zero = floor(0.5f);
 one = ceil(0.5f);
-Var _zero(kNo_Modifier, DSLType(kFloat_Type), "zero", Floor(0.5f));
+Var _zero(kConst_Modifier, DSLType(kFloat_Type), "zero", Float(zero));
 Declare(_zero);
-Var _one(kNo_Modifier, DSLType(kFloat_Type), "one", Ceil(0.5f));
+Var _one(kConst_Modifier, DSLType(kFloat_Type), "one", Float(one));
 Declare(_one);
 Var _m(kNo_Modifier, DSLType(kHalf4x4_Type), "m", Half4x4(Half(_one)));
 Var _n(kNo_Modifier, DSLType(kHalf4_Type), "n", Half4(Half(_zero)));
