@@ -22,6 +22,30 @@
       },
       "revId": "758a08d68554527a62932cd33294ad7d093912b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7bc2c60_9d137a1f",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-27T17:00:38Z",
+      "side": 1,
+      "message": "Doh. Leftover because the initial commit inserted a new member variable with a long type name. I removed that in the fixed implementation, but not the formatting that went with it. Sigh.",
+      "parentUuid": "3be2ed23_ab24d4ce",
+      "range": {
+        "startLine": 134,
+        "startChar": 32,
+        "endLine": 134,
+        "endChar": 50
+      },
+      "revId": "758a08d68554527a62932cd33294ad7d093912b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
