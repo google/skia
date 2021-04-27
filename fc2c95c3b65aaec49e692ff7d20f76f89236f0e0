@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72174b71_6312e200",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-27T16:02:40Z",
+      "side": 1,
+      "message": "Should consider what happens and have a test for crazy large perspective (like the emoji goes through or passes near the camera) but this seems fine for now.",
+      "revId": "fc2c95c3b65aaec49e692ff7d20f76f89236f0e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
