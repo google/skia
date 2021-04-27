@@ -555,24 +555,25 @@ void DSLCPPCodeGenerator::writeVar(const Variable& var) {
 }
 
 void DSLCPPCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, bool global) {
+    const Variable& var = varDecl.var();
     if (!global) {
-        const Variable& var = varDecl.var();
-        {
-            // We want to divert our output into fFunctionHeader, but fFunctionHeader is just a
-            // String, not a StringStream. So instead, we divert into a temporary stream and append
-            // that stream into fFunctionHeader afterwards.
-            StringStream stream;
-            AutoOutputStream divert(this, &stream);
+        // We want to divert our output into fFunctionHeader, but fFunctionHeader is just a
+        // String, not a StringStream. So instead, we divert into a temporary stream and append
+        // that stream into fFunctionHeader afterwards.
+        StringStream stream;
+        AutoOutputStream divert(this, &stream);
 
-            this->writeVar(var);
+        this->writeVar(var);
 
-            fFunctionHeader += stream.str();
-        }
-
-        this->write("Declare(");
-        this->write(this->getVariableCppName(var));
-        this->write(")");
+        fFunctionHeader += stream.str();
+    } else {
+        // For global variables, we can write the Var directly into the code stream.
+        this->writeVar(var);
     }
+
+    this->write("Declare(");
+    this->write(this->getVariableCppName(var));
+    this->write(")");
 }
 
 void DSLCPPCodeGenerator::writeForStatement(const ForStatement& f) {
@@ -655,6 +656,9 @@ void DSLCPPCodeGenerator::writeAnyConstructor(const AnyConstructor& c,
 }
 
 String DSLCPPCodeGenerator::getTypeName(const Type& type) {
+    if (fCPPMode) {
+        return type.name();
+    }
     switch (type.typeKind()) {
         case Type::TypeKind::kScalar:
             return get_scalar_type_name(fContext, type);
@@ -765,7 +769,7 @@ void DSLCPPCodeGenerator::writeStatement(const Statement& s) {
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
         case Statement::Kind::kVarDeclaration:
-            this->writeVarDeclaration(s.as<VarDeclaration>(), false);
+            this->writeVarDeclaration(s.as<VarDeclaration>(), /*global=*/false);
             break;
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
@@ -820,20 +824,23 @@ void DSLCPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
     switch (p.kind()) {
         case ProgramElement::Kind::kSection:
             return;
+
         case ProgramElement::Kind::kGlobalVar: {
             const GlobalVarDeclaration& decl = p.as<GlobalVarDeclaration>();
             const Variable& var = decl.declaration()->as<VarDeclaration>().var();
+            // Don't write builtin uniforms.
             if (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
                 -1 != var.modifiers().fLayout.fBuiltin) {
                 return;
             }
-            break;
-        }
-        case ProgramElement::Kind::kFunctionPrototype: {
-            // Function prototypes are handled at the C++ level (in writeEmitCode).
-            // We don't want prototypes to be emitted inside the FP's main() function.
+            this->writeVarDeclaration(decl.declaration()->as<VarDeclaration>(), /*global=*/true);
+            this->write(";\n");
             return;
         }
+        case ProgramElement::Kind::kFunctionPrototype:
+            SK_ABORT("not yet implemented: function prototypes in DSL");
+            return;
+
         default:
             break;
     }
@@ -890,10 +897,10 @@ void DSLCPPCodeGenerator::writePrivateVars() {
                                   "fragmentProcessor variables must be declared 'in'");
                     return;
                 }
-                this->writef("%s %s = %s;\n",
+                this->writef("%s %.*s = %s;\n",
                              HCodeGenerator::FieldType(fContext, var.type(),
                                                        var.modifiers().fLayout).c_str(),
-                             this->getVariableCppName(var),
+                             (int)var.name().size(), var.name().data(),
                              default_value(var).c_str());
             } else if (var.modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                 // An auto-tracked uniform in variable, so add a field to hold onto the prior
@@ -923,11 +930,14 @@ void DSLCPPCodeGenerator::writePrivateVarValues() {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
             const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
             if (is_private(decl.var()) && decl.value()) {
-                this->writef("%s = ", String(decl.var().name()).c_str());
+                // This function writes class member variables.
+                // We need to emit plain C++ names and types, not DSL.
                 fCPPMode = true;
+                this->write(decl.var().name());
+                this->write(" = ");
                 this->writeExpression(*decl.value(), Precedence::kAssignment);
-                fCPPMode = false;
                 this->write(";\n");
+                fCPPMode = false;
             }
         }
     }
