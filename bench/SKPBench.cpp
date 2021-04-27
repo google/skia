@@ -167,3 +167,15 @@ void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<
     direct->priv().getGpu()->resetShaderCacheForTesting();
     draw_pic_for_stats(canvas, direct, fPic.get(), keys, values);
 }
+
+bool SKPBench::getDMSAAStats(GrRecordingContext* rContext) {
+    if (!rContext) {
+        return false;
+    }
+    // Do a special single draw and then dump the key/value pairs.
+    rContext->asDirectContext()->flushAndSubmit();
+    rContext->priv().dmsaaStats() = {};
+    this->drawPicture();  // Draw tiled for DMSAA stats.
+    rContext->asDirectContext()->flush();
+    return true;
+}
