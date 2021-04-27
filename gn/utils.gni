@@ -23,6 +23,7 @@ skia_utils_public = [
   "$_include/utils/SkParsePath.h",
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
+  "$_include/utils/SkTypefaceMgr.h",
 
   #mac
   "$_include/utils/mac/SkCGUtils.h",
@@ -76,6 +77,7 @@ skia_utils_sources = [
   "$_src/utils/SkTextUtils.cpp",
   "$_src/utils/SkThreadUtils_pthread.cpp",
   "$_src/utils/SkThreadUtils_win.cpp",
+  "$_src/utils/SkTypefaceMgr.cpp",
   "$_src/utils/SkUTF.cpp",
   "$_src/utils/SkUTF.h",
 

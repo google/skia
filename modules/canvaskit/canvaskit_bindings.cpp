@@ -1248,6 +1248,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
             return SkFontMgr_New_Custom_Data(skdatas.get(), numFonts);
         }), allow_raw_pointers())
+        .class_function("_fromTypefaces", optional_override([](uintptr_t /* SkTypeface**  */ array,
+                                                               int count)->sk_sp<SkFontMgr> {
+            auto faces = reinterpret_cast<const SkTypeface**>(array);
+
+            std::unique_ptr<sk_sp<SkData>[]> skdatas(new sk_sp<SkData>[numFonts]);
+            for (int i = 0; i < numFonts; ++i) {
+                skdatas[i] = SkData::MakeFromMalloc(datas[i], sizes[i]);
+            }
+
+            return SkFontMgr_New_Custom_Data(skdatas.get(), numFonts);
+        }), allow_raw_pointers())
         .class_function("RefDefault", &SkFontMgr::RefDefault)
         .function("countFamilies", &SkFontMgr::countFamilies)
         .function("getFamilyName", optional_override([](SkFontMgr& self, int index)->JSString {
