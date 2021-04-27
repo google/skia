@@ -223,6 +223,19 @@ SkTypeface* SkFontMgr_Custom::onMatchFamilyStyleCharacter(const char familyName[
     return nullptr;
 }
 
+SkTypeface* SkFontMgr_Custom::onMatchFaceStyle(const SkTypeface* familyMember,
+                                               const SkFontStyle& fontStyle) const
+{
+    for (int i = 0; i < fFamilies.count(); ++i) {
+        for (int j = 0; j < fFamilies[i]->fStyles.count(); ++j) {
+            if (fFamilies[i]->fStyles[j].get() == familyMember) {
+                return fFamilies[i]->matchStyle(fontStyle);
+            }
+        }
+    }
+    return nullptr;
+}
+
 sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromData(sk_sp<SkData> data, int ttcIndex) const {
     return this->makeFromStream(std::make_unique<SkMemoryStream>(std::move(data)), ttcIndex);
 }

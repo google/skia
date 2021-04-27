@@ -157,6 +157,12 @@ public:
         return this->matchFamilyStyle(familyName, style);
     }
 
+    SkTypeface* onMatchFaceStyle(const SkTypeface* tf, const SkFontStyle& style) const override {
+        SkString familyName;
+        tf->getFamilyName(&familyName);
+        return this->matchFamilyStyle(familyName.c_str(), style);
+    }
+
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override { return nullptr; }
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                             int ttcIndex) const override {
