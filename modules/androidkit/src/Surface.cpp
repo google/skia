@@ -171,7 +171,7 @@ private:
     SurfaceThread fThread;
 };
 
-// JNI methods
+// *** JNI methods ***
 
 static jlong Surface_CreateBitmap(JNIEnv* env, jobject, jobject bitmap) {
     return reinterpret_cast<jlong>(new BitmapSurface(env, bitmap));
@@ -182,6 +182,7 @@ static jlong Surface_CreateThreadedSurface(JNIEnv* env, jobject, jobject surface
 }
 
 static jlong Surface_CreateVK(JNIEnv* env, jobject, jobject jsurface) {
+#ifdef SK_VULKAN
     auto* win = ANativeWindow_fromSurface(env, jsurface);
     if (!win) {
         return 0;
@@ -195,6 +196,27 @@ static jlong Surface_CreateVK(JNIEnv* env, jobject, jobject jsurface) {
     }
 
     return reinterpret_cast<jlong>(sk_make_sp<WindowSurface>(win, std::move(winctx)).release());
+#endif // SK_VULKAN
+    return 0;
+}
+
+static jlong Surface_CreateGL(JNIEnv* env, jobject, jobject jsurface) {
+#ifdef SK_GL
+    auto* win = ANativeWindow_fromSurface(env, jsurface);
+    if (!win) {
+        return 0;
+    }
+
+    // TODO: match window params?
+    sk_app::DisplayParams params;
+    auto winctx = sk_app::window_context_factory::MakeGLForAndroid(win, params);
+    if (!winctx) {
+        return 0;
+    }
+
+    return reinterpret_cast<jlong>(sk_make_sp<WindowSurface>(win, std::move(winctx)).release());
+#endif // SK_GL
+    return 0;
 }
 
 static void Surface_Release(JNIEnv* env, jobject, jlong native_surface) {
@@ -227,6 +249,8 @@ static int Surface_GetHeight(JNIEnv* env, jobject, jlong native_surface) {
     return surface ? surface->height() : 0;
 }
 
+// *** End of JNI methods ***
+
 }  // namespace
 
 int register_androidkit_Surface(JNIEnv* env) {
@@ -237,6 +261,8 @@ int register_androidkit_Surface(JNIEnv* env) {
             reinterpret_cast<void*>(Surface_CreateThreadedSurface)                   },
         {"nCreateVKSurface", "(Landroid/view/Surface;)J",
             reinterpret_cast<void*>(Surface_CreateVK)                                },
+        {"nCreateGLSurface", "(Landroid/view/Surface;)J",
+            reinterpret_cast<void*>(Surface_CreateGL)                                },
         {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)        },
         {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
         {"nFlushAndSubmit" , "(J)V", reinterpret_cast<void*>(Surface_FlushAndSubmit) },
