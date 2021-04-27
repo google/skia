@@ -1071,7 +1071,6 @@ public:
                 return true;
 
             // These should never appear in final IR
-            case Expression::Kind::kDefined:
             case Expression::Kind::kExternalFunctionReference:
             case Expression::Kind::kFunctionReference:
             case Expression::Kind::kTypeReference:
@@ -1160,7 +1159,6 @@ bool ProgramVisitor::visit(const Program& program) {
 template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expression& e) {
     switch (e.kind()) {
         case Expression::Kind::kBoolLiteral:
-        case Expression::Kind::kDefined:
         case Expression::Kind::kExternalFunctionReference:
         case Expression::Kind::kFloatLiteral:
         case Expression::Kind::kFunctionReference:
