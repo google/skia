@@ -199,6 +199,8 @@ struct Program {
         return result;
     }
 
+    const ProgramUsage* usage() const { return fUsage.get(); }
+
     std::unique_ptr<String> fSource;
     std::unique_ptr<ProgramConfig> fConfig;
     std::shared_ptr<Context> fContext;

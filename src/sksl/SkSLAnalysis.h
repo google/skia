@@ -33,7 +33,14 @@ enum class VariableRefKind : int8_t;
  * Provides utilities for analyzing SkSL statically before it's composed into a full program.
  */
 struct Analysis {
-    static SampleUsage GetSampleUsage(const Program& program, const Variable& fp);
+    /**
+     * Determines how `program` samples `fp`. By default, assumes that the sample coords
+     * (SK_MAIN_COORDS_BUILTIN) might be modified, so `sample(fp, sampleCoords)` is treated as
+     * Explicit. If writesToSampleCoords is false, treats that as PassThrough, instead.
+     */
+    static SampleUsage GetSampleUsage(const Program& program,
+                                      const Variable& fp,
+                                      bool writesToSampleCoords = true);
 
     static bool ReferencesBuiltin(const Program& program, int builtin);
 
