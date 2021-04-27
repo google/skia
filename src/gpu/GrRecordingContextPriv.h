@@ -105,6 +105,10 @@ public:
         return &fContext->fStats;
     }
 
+    using DMSAAStats = GrRecordingContext::DMSAAStats;
+
+    GrRecordingContext::DMSAAStats& dmsaaStats() { return fContext->fDMSAAStats; }
+
     GrSDFTControl getSDFTControl(bool useSDFTForSmallText) const;
 
     /**
