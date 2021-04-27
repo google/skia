@@ -45,6 +45,8 @@ const char* SKPBench::onGetUniqueName() {
 
 void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     SkIRect bounds = canvas->getDeviceClipBounds();
+    bounds.intersect(fClip);
+    bounds.intersect(fPic->cullRect().roundOut());
     SkAssertResult(!bounds.isEmpty());
 
     const bool gpu = canvas->recordingContext() != nullptr;
