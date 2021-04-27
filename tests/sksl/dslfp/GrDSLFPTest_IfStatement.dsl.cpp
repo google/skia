@@ -27,6 +27,12 @@ public:
 [[maybe_unused]] const auto& one = _outer.one;
 Var _one(kConst_Modifier, DSLType(kHalf_Type), "one", Half(one));
 Declare(_one);
+[[maybe_unused]] const auto& unused = _outer.unused;
+Var _unused(kConst_Modifier, DSLType(kHalf_Type), "unused", Half(unused));
+Declare(_unused);
+alsoUnused = float(one + one);
+Var _alsoUnused(kConst_Modifier, DSLType(kFloat_Type), "alsoUnused", Float(alsoUnused));
+Declare(_alsoUnused);
 Var _color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(0.0f));
 Declare(_color);
 If(Swizzle(_color, X, Y) == Swizzle(_color, Z, W), /*Then:*/ _color.w() = _one);
@@ -40,22 +46,30 @@ Return(_color);
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
+float alsoUnused = 0;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_IfStatement::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLDSLFPTest_IfStatement>();
 }
 void GrDSLFPTest_IfStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     b->add32(sk_bit_cast<uint32_t>(one), "one");
+if (one != 1.0f) {
+    b->add32(sk_bit_cast<uint32_t>(unused), "unused");
+}
+float alsoUnused = float(one + one);
+    b->add32(sk_bit_cast<uint32_t>(alsoUnused), "alsoUnused");
 }
 bool GrDSLFPTest_IfStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_IfStatement& that = other.cast<GrDSLFPTest_IfStatement>();
     (void) that;
     if (one != that.one) return false;
+    if (unused != that.unused) return false;
     return true;
 }
 GrDSLFPTest_IfStatement::GrDSLFPTest_IfStatement(const GrDSLFPTest_IfStatement& src)
 : INHERITED(kGrDSLFPTest_IfStatement_ClassID, src.optimizationFlags())
-, one(src.one) {
+, one(src.one)
+, unused(src.unused) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_IfStatement::clone() const {
@@ -63,6 +77,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_IfStatement::clone() const {
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_IfStatement::onDumpInfo() const {
-    return SkStringPrintf("(one=%f)", one);
+    return SkStringPrintf("(one=%f, unused=%f)", one, unused);
 }
 #endif

@@ -14,17 +14,19 @@
 
 class GrDSLFPTest_IfStatement : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(float one) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_IfStatement(one));
+    static std::unique_ptr<GrFragmentProcessor> Make(float one, float unused) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_IfStatement(one, unused));
     }
     GrDSLFPTest_IfStatement(const GrDSLFPTest_IfStatement& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DSLFPTest_IfStatement"; }
     float one;
+    float unused;
 private:
-    GrDSLFPTest_IfStatement(float one)
+    GrDSLFPTest_IfStatement(float one, float unused)
     : INHERITED(kGrDSLFPTest_IfStatement_ClassID, kNone_OptimizationFlags)
-    , one(one) {
+    , one(one)
+    , unused(unused) {
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
