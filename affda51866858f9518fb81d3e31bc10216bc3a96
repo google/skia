@@ -93,6 +93,30 @@
       },
       "revId": "affda51866858f9518fb81d3e31bc10216bc3a96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ede4ed9_af019b18",
+        "filename": "modules/skparagraph/include/Paragraph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-27T20:42:01Z",
+      "side": 1,
+      "message": "Yes, but this is documenting the C++ visitor, not the JS behavior",
+      "parentUuid": "c6e5d469_968aec84",
+      "range": {
+        "startLine": 85,
+        "startChar": 39,
+        "endLine": 85,
+        "endChar": 46
+      },
+      "revId": "affda51866858f9518fb81d3e31bc10216bc3a96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
