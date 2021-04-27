@@ -576,8 +576,17 @@ bool OneLineShaper::shape() {
                 // Create one more font to try
                 SkFont font(std::move(typeface), block.fStyle.getFontSize());
                 font.setEdging(SkFont::Edging::kAntiAlias);
-                font.setHinting(SkFontHinting::kSlight);
-                font.setSubpixel(true);
+                /*
+                 * Slight hinting is for subpixel rendering, but since we typically
+                 * render to texture, subpixel rendering is impossible. As a result,
+                 * we want normal hinting. TODO: Maybe expose this as a flag later.
+                 */
+                if (false /* can support subpixel */) {
+                    font.setHinting(SkFontHinting::kSlight);
+                    font.setSubpixel(true);
+                } else {
+                    font.setHinting(SkFontHinting::kNormal);
+                }
 
                 // Apply fake bold and/or italic settings to the font if the
                 // typeface's attributes do not match the intended font style.
