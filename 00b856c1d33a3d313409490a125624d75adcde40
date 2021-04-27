@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adfb2d3c_9b011aae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-27T15:42:24Z",
+      "side": 1,
+      "message": "In this CL can we also remove all overrides of this in Skia (as was done in the previous CL). I think this is the same as the previous CL except instead of removing the method making it non-pure instead. It seems easier to remove the Skia side stuff now (the change exists) than do it later.",
+      "revId": "00b856c1d33a3d313409490a125624d75adcde40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
