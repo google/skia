@@ -922,7 +922,6 @@ public:
 
         switch ((*expr)->kind()) {
             case Expression::Kind::kBoolLiteral:
-            case Expression::Kind::kDefined:
             case Expression::Kind::kExternalFunctionReference:
             case Expression::Kind::kFieldAccess:
             case Expression::Kind::kFloatLiteral:
