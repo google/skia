@@ -79,9 +79,10 @@ public:
     struct VisitorInfo {
         const SkFont&   font;
         SkPoint         origin;
+        SkScalar        advanceX;
         int             count;
         const uint16_t* glyphs;     // count values
-        const SkPoint*  positions;  // count+1 values
+        const SkPoint*  positions;  // count values
         const uint32_t* utf8Starts; // count+1 values
         unsigned        flags;
     };
