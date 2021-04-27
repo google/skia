@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d754c2a_1b1d4980",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-27T16:11:41Z",
+      "side": 1,
+      "message": "good catch\n\nnit: no indentation for #ifdefs",
+      "revId": "084023502c6786efddb4b5e9c90db50562f2267f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
