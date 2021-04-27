@@ -16,6 +16,24 @@
       "message": "Mildly curious - does the MSL compiler handle this all okay? (No reason it shouldn\u0027t, of course).",
       "revId": "6b3367eb866e8fd03c0012b476586d6c7c850932",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e9b6d2c_a0bf459d",
+        "filename": "tests/sksl/shared/StructMaxDepth.metal",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-27T21:20:31Z",
+      "side": 1,
+      "message": "Actually, yes. After 2-3 seconds it emitted a 92 byte shader.",
+      "parentUuid": "f5bab8c8_181df412",
+      "revId": "6b3367eb866e8fd03c0012b476586d6c7c850932",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
