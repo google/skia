@@ -5,10 +5,24 @@ struct S {
     float x;
     int y;
 };
+thread bool operator==(thread const S& left, thread const S& right) {
+    return (left.x == right.x) &&
+           (left.y == right.y);
+}
+thread bool operator!=(thread const S& left, thread const S& right) {
+    return !(left == right);
+}
 struct Nested {
     S a;
     S b;
 };
+thread bool operator==(thread const Nested& left, thread const Nested& right) {
+    return (left.a == right.a) &&
+           (left.b == right.b);
+}
+thread bool operator!=(thread const Nested& left, thread const Nested& right) {
+    return !(left == right);
+}
 struct Uniforms {
     float4 colorRed;
     float4 colorGreen;
