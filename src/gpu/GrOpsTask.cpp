@@ -858,7 +858,7 @@ void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrOpsTask::onCanSkip() {
+void GrOpsTask::onMakeSkippable() {
     this->deleteOps();
     fDeferredProxies.reset();
     fColorLoadOp = GrLoadOp::kLoad;

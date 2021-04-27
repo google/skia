@@ -42,9 +42,12 @@ void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
     }
 }
 
-void GrRenderTask::canSkip() {
+void GrRenderTask::makeSkippable() {
     SkASSERT(this->isClosed());
-    this->onCanSkip();
+    if (!this->isSkippable()) {
+        this->setFlag(kSkippable_Flag);
+        this->onMakeSkippable();
+    }
 }
 
 #ifdef SK_DEBUG
