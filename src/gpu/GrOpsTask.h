@@ -19,6 +19,7 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkStringUtils.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -89,9 +90,15 @@ public:
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
 
-    // Merge as many opsTasks as possible from the head of 'tasks'. They should all be
-    // renderPass compatible. Return the number of tasks merged into 'this'.
-    int mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks);
+    // Called on all tasks in the reordered DAG asking them to determine what will happen when
+    // they're merged. Tasks that will be dropped because they are overwritten by a color-clear
+    // will be made skippable. Tasks that will be merged with prior tasks are marked with
+    // kMerged_Flag. No other mutations to the tasks occur.
+    void computeMergeability(const SkTInternalLList<GrRenderTask>&);
+
+    // Execute the merge planned earlier in computeMergeability. That method must be called before
+    // this one. This method irrevocably mutates the tasks.
+    void mergeForward(const SkTInternalLList<GrRenderTask>&);
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
@@ -234,9 +241,6 @@ private:
     void forwardCombine(const GrCaps&);
 
     ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
-
-    // Remove all ops, proxies, etc. Used in the merging algorithm when tasks can be skipped.
-    void reset();
 
     friend class OpsTaskTestingAccess;
 

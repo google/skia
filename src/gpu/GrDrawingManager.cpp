@@ -374,18 +374,30 @@ void GrDrawingManager::sortTasks() {
 #endif
 }
 
-// Reorder the array to match the llist without reffing & unreffing sk_sp's.
-// Both args must contain the same objects.
-// This is basically a shim because clustering uses LList but the rest of drawmgr uses array.
-template <typename T>
-static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk_sp<T>>* array) {
-    int i = 0;
-    for (T* t : llist) {
+// Precondition:  llist and array have the same set of tasks.
+// Postcondition: array is modified to contain only the unskippable tasks from llist, in order.
+//                finalize fn will be called on skippable tasks before they are unreffed.
+static void reorder_array_by_llist(const SkTInternalLList<GrRenderTask>& llist,
+                                   SkTArray<sk_sp<GrRenderTask>>* array,
+                                   const std::function<void(GrRenderTask*)>& finalize) {
+    int kept = 0;
+    int dropped = 0;
+
+    for (GrRenderTask* t : llist) {
+        // Insert unskipped tasks at front, skipped tasks at end.
+        int i;
+        if (t->isSkippable()) {
+            i = array->count() - 1 - dropped++;
+            finalize(t);
+        } else {
+            i = kept++;
+        }
         // Release the pointer that used to live here so it doesn't get unreffed.
-        [[maybe_unused]] T* old = array->at(i).release();
-        array->at(i++).reset(t);
+        [[maybe_unused]] GrRenderTask* old = array->at(i).release();
+        array->at(i).reset(t);
     }
-    SkASSERT(i == array->count());
+    SkASSERT(kept + dropped == array->count());
+    array->resize_back(kept);
 }
 
 bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
@@ -396,7 +408,11 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
         return false;
     }
 
+    // Compute mergeability – thereby dropping skippable tasks – and gather proxy intervals.
     for (GrRenderTask* task : llist) {
+        if (GrOpsTask* opsTask = task->asOpsTask()) {
+            opsTask->computeMergeability(llist);
+        }
         task->gatherProxyIntervals(resourceAllocator);
     }
     if (!resourceAllocator->planAssignment()) {
@@ -408,23 +424,17 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
         dContext->priv().getGpu()->stats()->incNumReorderedDAGsOverBudget();
         return false;
     }
-    reorder_array_by_llist(llist, &fDAG);
 
-    int newCount = 0;
-    for (int i = 0; i < fDAG.count(); i++) {
-        sk_sp<GrRenderTask>& task = fDAG[i];
-        if (auto opsTask = task->asOpsTask()) {
-            size_t remaining = fDAG.size() - i - 1;
-            SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
-            int removeCount = opsTask->mergeFrom(nextTasks);
-            for (const auto& removed : nextTasks.first(removeCount)) {
-                removed->disown(this);
-            }
-            i += removeCount;
+    // At this point we're committed. Execute our merge.
+    for (GrRenderTask* task : llist) {
+        if (GrOpsTask* opsTask = task->asOpsTask()) {
+            opsTask->mergeForward(llist);
         }
-        fDAG[newCount++] = std::move(task);
     }
-    fDAG.resize_back(newCount);
+
+    reorder_array_by_llist(llist, &fDAG, [this](GrRenderTask* task) {
+        task->disown(this);
+    });
     return true;
 }
 
