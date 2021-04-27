@@ -96,6 +96,22 @@ public:
             }
 
             String sampleChild(int index, String coords) override {
+                // If the child was sampled using the coords passed to main (and they are never
+                // modified), then we will have marked the child as PassThrough. The code generator
+                // doesn't know that, and still supplies coords. Inside invokeChild, we assert that
+                // any coords passed for a PassThrough child match args.fSampleCoords exactly.
+                //
+                // Normally, this is valid. Here, we *copied* the sample coords to a local variable
+                // (so that they're mutable in the runtime effect SkSL). Thus, the coords string we
+                // get here is the name of the local copy, and fSampleCoords still points to the
+                // unmodified original (which might be a varying, for example).
+                // To prevent the assert, we pass the empty string in this case. Note that for
+                // children sampled like this, invokeChild doesn't even use the coords parameter,
+                // except for that assert.
+                const GrFragmentProcessor* child = fArgs.fFp.childProcessor(index);
+                if (child && !child->isSampledWithExplicitCoords()) {
+                    coords.clear();
+                }
                 return String(fSelf->invokeChild(index, fInputColor, fArgs, coords).c_str());
             }
 
