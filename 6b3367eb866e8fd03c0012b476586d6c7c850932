@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "633150d2_f7ab8b85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-27T22:04:01Z",
+      "side": 1,
+      "message": "Doh, this worked before but then http://review.skia.org/401836 landed :) \nApparently array\u003d\u003d is missing as well.",
+      "revId": "6b3367eb866e8fd03c0012b476586d6c7c850932",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "f5bab8c8_181df412",
         "filename": "tests/sksl/shared/StructMaxDepth.metal",
         "patchSetId": 2
