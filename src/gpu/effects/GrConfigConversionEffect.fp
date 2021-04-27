@@ -123,7 +123,7 @@ in fragmentProcessor inputFP;
 layout(key) in PMConversion pmConversion;
 
 @emitCode {
-    fragBuilder->forceHighPrecision();
+    args.fFragBuilder->forceHighPrecision();
 }
 
 half4 main() {
