@@ -220,9 +220,6 @@ DEF_TEST(Skottie_Properties, reporter) {
                                                 SkUnichar character) const override {
             return nullptr;
         }
-        SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
-            return nullptr;
-        }
         sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override {
             return fTestFont;
         }
@@ -641,9 +638,6 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
                                                 int bcp47Count,
                                                 SkUnichar character) const override {
             fFallbackCount++;
-            return nullptr;
-        }
-        SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
             return nullptr;
         }
 
