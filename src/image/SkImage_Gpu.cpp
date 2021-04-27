@@ -69,7 +69,7 @@ inline SkImage_Gpu::ProxyChooser::~ProxyChooser() {
     // The image is being destroyed. If there is a stable copy proxy but we've been able to use
     // the volatile proxy for all requests then we can skip the copy.
     if (fVolatileToStableCopyTask) {
-        fVolatileToStableCopyTask->canSkip();
+        fVolatileToStableCopyTask->makeSkippable();
     }
 }
 
@@ -102,7 +102,7 @@ inline sk_sp<GrSurfaceProxy> SkImage_Gpu::ProxyChooser::makeVolatileProxyStable(
     SkAutoSpinlock hold(fLock);
     if (fVolatileProxy) {
         fStableProxy = std::move(fVolatileProxy);
-        fVolatileToStableCopyTask->canSkip();
+        fVolatileToStableCopyTask->makeSkippable();
         fVolatileToStableCopyTask.reset();
     }
     return fStableProxy;

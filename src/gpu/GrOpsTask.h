@@ -222,7 +222,7 @@ private:
         SkRect fBounds;
     };
 
-    void onCanSkip() override;
+    void onMakeSkippable() override;
 
     bool onIsUsed(GrSurfaceProxy*) const override;
 
