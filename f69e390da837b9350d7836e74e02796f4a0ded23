@@ -22,6 +22,30 @@
       },
       "revId": "f69e390da837b9350d7836e74e02796f4a0ded23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7780d296_e0bedb37",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-27T11:41:52Z",
+      "side": 1,
+      "message": "Looks fine to me. For infra code, we generally wrap comments at/before 100 cols. Otherwise, we wrap long lines for readability, which is achieved here.",
+      "parentUuid": "583f51a5_013e904f",
+      "range": {
+        "startLine": 257,
+        "startChar": 87,
+        "endLine": 257,
+        "endChar": 94
+      },
+      "revId": "f69e390da837b9350d7836e74e02796f4a0ded23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
