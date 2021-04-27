@@ -564,7 +564,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kVariableReference_Command: {
             const Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             VariableReference::RefKind refKind = (VariableReference::RefKind) this->readU8();
-            return std::make_unique<VariableReference>(-1, var, refKind);
+            return VariableReference::Make(/*offset=*/-1, var, refKind);
         }
         case Rehydrator::kVoid_Command:
             return nullptr;

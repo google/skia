@@ -702,12 +702,12 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     const Variable* loopIdx = &(*fSymbolTable)["sk_InvocationID"]->as<Variable>();
     auto test = BinaryExpression::Make(
             fContext,
-            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx),
+            VariableReference::Make(/*offset=*/-1, loopIdx),
             Token::Kind::TK_LT,
             IntLiteral::Make(fContext, /*offset=*/-1, fInvocations));
     auto next = PostfixExpression::Make(
             fContext,
-            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx,VariableRefKind::kReadWrite),
+            VariableReference::Make(/*offset=*/-1, loopIdx, VariableRefKind::kReadWrite),
             Token::Kind::TK_PLUSPLUS);
     ASTNode endPrimitiveID(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier, "EndPrimitive");
     std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
@@ -723,7 +723,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                                       ExpressionArray{})));
     auto assignment = BinaryExpression::Make(
             fContext,
-            std::make_unique<VariableReference>(/*offset=*/-1, loopIdx, VariableRefKind::kWrite),
+            VariableReference::Make(/*offset=*/-1, loopIdx, VariableRefKind::kWrite),
             Token::Kind::TK_EQ,
             IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
     auto initializer = ExpressionStatement::Make(fContext, std::move(assignment));
@@ -750,12 +750,10 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     //                      sk_Position.w);
     SkASSERT(skPerVertex && fRTAdjust);
     auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
-        return std::make_unique<VariableReference>(/*offset=*/-1, var,
-                                                   VariableReference::RefKind::kRead);
+        return VariableReference::Make(/*offset=*/-1, var, VariableReference::RefKind::kRead);
     };
     auto WRef = [](const Variable* var) -> std::unique_ptr<Expression> {
-        return std::make_unique<VariableReference>(/*offset=*/-1, var,
-                                                   VariableReference::RefKind::kWrite);
+        return VariableReference::Make(/*offset=*/-1, var, VariableReference::RefKind::kWrite);
     };
     auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
         return FieldAccess::Make(fContext, Ref(var), idx,
@@ -1590,14 +1588,12 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
                 }
             }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return std::make_unique<VariableReference>(offset,
-                                                       var,
-                                                       VariableReference::RefKind::kRead);
+            return VariableReference::Make(offset, var, VariableReference::RefKind::kRead);
         }
         case Symbol::Kind::kField: {
             const Field* field = &result->as<Field>();
-            auto base = std::make_unique<VariableReference>(offset, &field->owner(),
-                                                            VariableReference::RefKind::kRead);
+            auto base = VariableReference::Make(offset, &field->owner(),
+                                                VariableReference::RefKind::kRead);
             return FieldAccess::Make(fContext, std::move(base), field->fieldIndex(),
                                      FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
         }

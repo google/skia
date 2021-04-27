@@ -550,7 +550,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                      variable.type().clone(symbolTableForStatement),
                                                      isBuiltinCode,
                                                      variable.storage());
-            (*varMap)[&variable] = std::make_unique<VariableReference>(offset, clonedVar.get());
+            (*varMap)[&variable] = VariableReference::Make(offset, clonedVar.get());
             auto result = VarDeclaration::Make(*fContext,
                                                clonedVar.get(),
                                                decl.baseType().clone(symbolTableForStatement),
@@ -646,7 +646,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                       symbolTable.get(), Modifiers{},
                                                       caller->isBuiltin(), &noInitialValue);
         inlineStatements.push_back(std::move(var.fVarDecl));
-        resultExpr = std::make_unique<VariableReference>(/*offset=*/-1, var.fVarSymbol);
+        resultExpr = VariableReference::Make(/*offset=*/-1, var.fVarSymbol);
     }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
@@ -670,7 +670,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                       symbolTable.get(), param->modifiers(),
                                                       caller->isBuiltin(), &arguments[i]);
         inlineStatements.push_back(std::move(var.fVarDecl));
-        varMap[param] = std::make_unique<VariableReference>(/*offset=*/-1, var.fVarSymbol);
+        varMap[param] = VariableReference::Make(/*offset=*/-1, var.fVarSymbol);
     }
 
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
