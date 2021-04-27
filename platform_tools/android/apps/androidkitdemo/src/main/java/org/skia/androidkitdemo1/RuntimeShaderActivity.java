@@ -80,7 +80,7 @@ class RuntimeShaderRenderThread extends Thread {
 
         long time_base = java.lang.System.currentTimeMillis();
 
-        Surface surface = Surface.CreateVulkan(mAndroidSurface);
+        Surface surface = Surface.CreateGL(mAndroidSurface);
 
         while (mRunning) {
             renderFrame(surface.getCanvas(),
