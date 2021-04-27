@@ -583,8 +583,8 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   CanvasKit.Canvas.prototype.drawGlyphs = function(glyphs, positions, x, y, font, paint) {
-    if (!(glyphs.length*2 == positions.length)) {
-        throw 'Need glyphs and positions array to agree on the length';
+    if (!(glyphs.length*2 <= positions.length)) {
+        throw 'Not enough positions for the array of gyphs';
     }
 
     const glyphs_ptr    = copy1dArray(glyphs, 'HEAPU16');

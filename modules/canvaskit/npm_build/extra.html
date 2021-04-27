@@ -258,13 +258,6 @@
 
       canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
 
-      const offset = function(array, dx, dy) {
-          array[0] += dx;
-          array[1] += dy;
-          array[2] += dx;
-          array[3] += dy;
-      }
-
       {
           const p = new CanvasKit.Paint();
           let runs = paragraph.getShapedRuns();
@@ -278,17 +271,16 @@
               let bounds = [
                  r.positions[0],
                  r.positions[1] + fm.ascent,
-                 r.positions[r.positions.length-2] + font.getGlyphWidths(r.glyphs.slice(-1))[0],
+                 r.positions[r.positions.length-2],
                  r.positions[r.positions.length-1] + fm.descent
               ];
-              offset(bounds, r.origin_x, r.origin_y);
               canvas.drawRect(bounds, p);
           }
           p.delete();
 
           fontPaint.setColor(CanvasKit.BLUE);
           for (let r of runs) {
-              canvas.drawGlyphs(r.glyphs, r.positions, r.origin_x, r.origin_y, font, fontPaint);
+              canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, font, fontPaint);
           }
           fontPaint.setColor(CanvasKit.BLACK);
       }

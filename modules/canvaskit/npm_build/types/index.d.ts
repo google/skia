@@ -649,12 +649,23 @@ export interface LineMetrics {
     lineNumber: number;
 }
 
+readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whitespace(s)
+
+/**
+ * Information for a run of shaped text. See Paragraph.getShapedRuns()
+ *
+ * Notes:
+ * positions is documented as Float32, but it holds twice as many as you expect, and they
+ * are treated logically as pairs of floats: {x0, y0}, {x1, y1}, ... for each glyph.
+ *
+ * positions and offsets arrays have 1 extra slot (actually 2 for positions)
+ * to describe the location "after" the last glyph in the glyphs array.
+ */
 export interface GlyphRun {
     glyphs: Uint16Array;
     positions: Float32Array;    // alternating x0, y0, x1, y1, ...
     offsets: Uint32Array;
-    origin_x: number;
-    origin_y: number;
+    flags: number;              // see ..._GlyphRunFlag values
 }
 
 /**
