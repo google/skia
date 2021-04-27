@@ -1,6 +1,6 @@
 {
   "name": "@bluescape/canvaskit-wasm",
-  "version": "0.20.0-bluescape-2.4",
+  "version": "0.20.0-bluescape-2.5",
   "description": "A WASM version of Skia's Canvas API",
   "main": "bin/canvaskit.js",
   "homepage": "https://github.com/google/skia/tree/master/modules/canvaskit",
