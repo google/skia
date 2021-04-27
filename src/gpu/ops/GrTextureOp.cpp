@@ -293,7 +293,12 @@ public:
         auto iter = fQuads.metadata();
         while(iter.next()) {
             auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor);
-            fMetadata.fColorType = std::max(fMetadata.fColorType, static_cast<uint16_t>(colorType));
+            colorType = std::max(static_cast<GrQuadPerEdgeAA::ColorType>(fMetadata.fColorType),
+                                 colorType);
+            if (caps.reducedShaderMode()) {
+                colorType = std::max(colorType, GrQuadPerEdgeAA::ColorType::kByte);
+            }
+            fMetadata.fColorType = static_cast<uint16_t>(colorType);
         }
         return GrProcessorSet::EmptySetAnalysis();
     }
