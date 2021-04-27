@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010255931",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/401576?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1a67bc4d_abc62a98",
+        "filename": "src/utils/SkOrderedFontMgr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-27T00:13:31Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 4
+      },
+      "revId": "1c2808cc792f66ee8fa3ba7c55c9848a939227bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010255931",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/401576?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "76aeb4bd_2f87cc43",
+        "filename": "src/utils/SkOrderedFontMgr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-04-27T00:13:31Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 4
+      },
+      "revId": "1c2808cc792f66ee8fa3ba7c55c9848a939227bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
