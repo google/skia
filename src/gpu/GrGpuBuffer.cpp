@@ -15,7 +15,13 @@ GrGpuBuffer::GrGpuBuffer(GrGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
         , fMapPtr(nullptr)
         , fSizeInBytes(sizeInBytes)
         , fAccessPattern(pattern)
-        , fIntendedType(type) {}
+        , fIntendedType(type) {
+//    if (fSizeInBytes == 49152) {
+//        int i = 0;
+//    }
+
+    SkDebugf("B new %p (%d) %d\n", this, sizeInBytes, this->testingOnly_getRefCnt());
+}
 
 void* GrGpuBuffer::map() {
     if (this->wasDestroyed()) {

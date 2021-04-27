@@ -19,6 +19,20 @@ class GrTexture;
 
 class GrSurface : public GrGpuResource {
 public:
+    void ref() const override {
+        uint32_t refCnt = this->testingOnly_getRefCnt();
+        SkDebugf("S ref %p (%dx%d) %d -> %d\n",
+                 this, fDimensions.width(), fDimensions.height(), refCnt, refCnt+1);
+        GrGpuResource::ref();
+    }
+
+    void unref() const override {
+        uint32_t refCnt = this->testingOnly_getRefCnt();
+        SkDebugf("S unref %p (%dx%d) %d -> %d\n",
+                 this, fDimensions.width(), fDimensions.height(), refCnt, refCnt-1);
+        GrGpuResource::unref();
+    }
+
     /**
      * Retrieves the dimensions of the surface.
      */
@@ -123,7 +137,10 @@ protected:
             : INHERITED(gpu)
             , fDimensions(dimensions)
             , fSurfaceFlags(GrInternalSurfaceFlags::kNone)
-            , fIsProtected(isProtected) {}
+            , fIsProtected(isProtected) {
+        SkDebugf("S new %p (%dx%d) %d\n",
+                 this, fDimensions.width(), fDimensions.height(), this->testingOnly_getRefCnt());
+    }
 
     ~GrSurface() override {
         // check that invokeReleaseProc has been called (if needed)
