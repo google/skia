@@ -34,7 +34,7 @@ private:
 };
 
 static jlong Create(JNIEnv* env, jobject, jstring jsksl) {
-    auto [eff,err] = SkRuntimeEffect::Make(SkString(CString(env, jsksl)));
+    auto [eff,err] = SkRuntimeEffect::MakeForShader(SkString(CString(env, jsksl)));
 
     if (!eff) {
         // TODO: throw exception?
