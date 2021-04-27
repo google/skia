@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "803a7dcc_c2687364",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-27T14:42:56Z",
+      "side": 1,
+      "message": "I think this is now \"Remove SkFontMgr::onMatchFaceStyle\"?",
+      "revId": "dbb97bb56b157301161c017738dda20f95e85736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "b129d120_f6f6dae5",
@@ -14,6 +31,23 @@
       "writtenOn": "2021-04-27T12:28:02Z",
       "side": 1,
       "message": "accidentally merge in the rm-matchfacestyle changes -- will wait for a rebase",
+      "revId": "dbb97bb56b157301161c017738dda20f95e85736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8083ace1_05adda97",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-27T14:42:56Z",
+      "side": 1,
+      "message": "I removed the public part of the API to start getting rid of this with https://skia-review.googlesource.com/c/skia/+/299198 . I believe a the time there were some external implementers of onMatchFaceStyle so removing would break them (since they would no longer be overriding a base class method). So long as this doesn\u0027t break anyone, I\u0027m good with this.",
       "revId": "dbb97bb56b157301161c017738dda20f95e85736",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
