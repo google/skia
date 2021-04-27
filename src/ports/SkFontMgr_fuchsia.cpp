@@ -242,6 +242,7 @@ protected:
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override;
+    SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override;
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                             int ttcIndex) const override;
@@ -367,6 +368,10 @@ SkTypeface* SkFontMgr_Fuchsia::onMatchFamilyStyleCharacter(const char familyName
             FetchTypeface(familyName, style, bcp47, bcp47Count, character, /*allow_fallback=*/true,
                           /*exact_style_match=*/false);
     return typeface.release();
+}
+
+SkTypeface* SkFontMgr_Fuchsia::onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const {
+    return nullptr;
 }
 
 sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMakeFromData(sk_sp<SkData>, int ttcIndex) const {
