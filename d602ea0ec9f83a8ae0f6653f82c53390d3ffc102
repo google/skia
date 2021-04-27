@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7262dd5_d2f95060",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-27T12:14:44Z",
+      "side": 1,
+      "message": "SkParagraph seems to have this in its impl. Is it clearer to just make it a utility?",
+      "revId": "d602ea0ec9f83a8ae0f6653f82c53390d3ffc102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
