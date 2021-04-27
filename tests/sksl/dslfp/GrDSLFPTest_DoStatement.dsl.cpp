@@ -31,7 +31,7 @@ Var _color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(1.0f, 1.0f, 1.0f, 
 Declare(_color);
 Do(_color.x() -= 0.25f, /*While:*/ _shouldLoop);
 Do(Block(_color.x() -= 0.25f, If(_color.x() <= 0.0f, /*Then:*/ Break())), /*While:*/ _color.w() == 1.0f);
-Do(Block(_color.z() -= 0.25f, If(_color.w() == 1.0f || sk_Caps.builtinFMASupport(), /*Then:*/ Continue()), _color.y() = 0.0f), /*While:*/ _color.z() > 0.0f);
+Do(Block(_color.z() -= 0.25f, If(_color.w() == 1.0f || sk_Caps.builtinFMASupport, /*Then:*/ Continue()), _color.y() = 0.0f), /*While:*/ _color.z() > 0.0f);
 Return(_color);
         EndFragmentProcessor();
     }
