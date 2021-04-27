@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac06d1bb_aa138393",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-27T21:26:44Z",
+      "side": 1,
+      "message": "Looks like we were already using Metal 2.0 on iOS as well, in other ways:\n\n program_source:11:44: error: \u0027index\u0027 attribute requires Metal language standard ios-metal2.0 or higher\n     float4 fsSecondaryColorOut [[color(0), index(1)]];\n                                            ^~~~~~~~\n",
+      "revId": "657eb15f3e7314d0210fb42105569bbbec9fffbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
