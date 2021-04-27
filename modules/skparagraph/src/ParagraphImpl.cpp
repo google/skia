@@ -1075,6 +1075,7 @@ void ParagraphImpl::visit(const Visitor& visitor) {
                     run.glyphs,
                     run.positions,
                     clusterPtr,
+                    0,  // flags
                 });
                 clusterPtr += run.count;
             }

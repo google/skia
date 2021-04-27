@@ -314,49 +314,34 @@ JSArray GetLineMetrics(para::Paragraph& self) {
 /*
  *  Returns Runs[K]
  *
- *  Run --> { font: ???, glyphs[N], positions[N*2], offsets[N], origin: x,y }
+ *  Run --> { font: ???, glyphs[N], positions[N*2], offsets[N], flags }
  *
  *  K = number of runs
  *  N = number of glyphs in a given run
  */
 JSArray GetShapedRuns(para::Paragraph& self) {
-    struct Run {
-        SkFont  font;
-        SkPoint origin;
-        int     index;
-        int     count;
-    };
-    std::vector<Run>      runs;
-    std::vector<uint16_t> glyphs;
-    std::vector<SkPoint>  positions;
-    std::vector<uint32_t> offsets;
-
-    self.visit([&](const para::Paragraph::VisitorInfo& info) {
-        // add 1 Run
-        runs.push_back({info.font, info.origin, (int)glyphs.size(), info.count});
-        // append the arrays
-        glyphs.insert(glyphs.end(), info.glyphs, info.glyphs + info.count);
-        positions.insert(positions.end(), info.positions, info.positions + info.count);
-        offsets.insert(offsets.end(), info.utf8Starts, info.utf8Starts + info.count);
-    });
-
+    // where we accumulate our js output
     JSArray jruns = emscripten::val::array();
 
-    for (const auto& crun : runs) {
-        const int N = crun.count;
-        const int I = crun.index;
+    self.visit([&](const para::Paragraph::VisitorInfo& info) {
+        const int N = info.count;   // glyphs
+        const int N1 = N + 1;       // positions, offsets have 1 extra (trailing) slot
 
         JSObject jrun = emscripten::val::object();
 
-        jrun.set("glyphs"   , MakeTypedArray(N,   &glyphs[I],       "Uint16Array"));
-        jrun.set("positions", MakeTypedArray(N*2, &positions[I].fX, "Float32Array"));
-        jrun.set("offsets"  , MakeTypedArray(N,   &offsets[I],      "Uint32Array"));
-        jrun.set("origin_x" , crun.origin.fX);
-        jrun.set("origin_y" , crun.origin.fY);
+        jrun.set("flags",   info.flags);
+        jrun.set("glyphs",  MakeTypedArray(N,  info.glyphs,     "Uint16Array"));
+        jrun.set("offsets", MakeTypedArray(N1, info.utf8Starts, "Uint32Array"));
+
+        // we need to modify the positions, so make a temp copy
+        SkAutoSTMalloc<32, SkPoint> positions(N);
+        for (int i = 0; i < N; ++i) {
+            positions.get()[i] = info.positions[i] + info.origin;
+        }
+        jrun.set("positions", MakeTypedArray(N1*2, (const float*)positions.get(), "Float32Array"));
 
         jruns.call<void>("push", jrun);
-
-    }
+    });
     return jruns;
 }
 
