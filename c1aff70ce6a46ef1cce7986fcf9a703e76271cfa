@@ -52,6 +52,24 @@
       "parentUuid": "88929e5e_7ae958c9",
       "revId": "c1aff70ce6a46ef1cce7986fcf9a703e76271cfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "952d7e7d_203cf85e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-27T13:21:18Z",
+      "side": 1,
+      "message": "Ok maybe add that to comment. Also, it\u0027s probably a good idea to dump the renderer/version strings so we can document what driver versions we know are affected so that N years from now when someone encounters this and is wondering if it\u0027s fixed they have a starting point. But I agree, blanket block for now makes sense.",
+      "parentUuid": "04121f5f_a99b1f13",
+      "revId": "c1aff70ce6a46ef1cce7986fcf9a703e76271cfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
