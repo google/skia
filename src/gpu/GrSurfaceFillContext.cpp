@@ -342,9 +342,7 @@ GrOpsTask* GrSurfaceFillContext::getOpsTask() {
     if (!fOpsTask || fOpsTask->isClosed()) {
         sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(
                 this->writeSurfaceView(), this->arenas(), fFlushTimeOpsTask);
-        if (fOpsTask) {
-            this->willReplaceOpsTask(fOpsTask.get(), newOpsTask.get());
-        }
+        this->willReplaceOpsTask(fOpsTask.get(), newOpsTask.get());
         fOpsTask = std::move(newOpsTask);
     }
     SkASSERT(!fOpsTask->isClosed());

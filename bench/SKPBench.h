@@ -29,6 +29,7 @@ public:
     }
 
     void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) override;
+    bool getDMSAAStats(GrRecordingContext*) override;
 
 protected:
     const char* onGetName() override;
