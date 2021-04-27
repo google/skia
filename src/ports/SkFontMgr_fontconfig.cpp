@@ -952,15 +952,6 @@ protected:
         return createTypefaceFromFcPattern(std::move(font)).release();
     }
 
-    SkTypeface* onMatchFaceStyle(const SkTypeface* typeface,
-                                 const SkFontStyle& style) const override
-    {
-        //TODO: should the SkTypeface_fontconfig know its family?
-        const SkTypeface_fontconfig* fcTypeface =
-                static_cast<const SkTypeface_fontconfig*>(typeface);
-        return this->matchFamilyStyle(get_string(fcTypeface->fPattern, FC_FAMILY), style);
-    }
-
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
         const size_t length = stream->getLength();

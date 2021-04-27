@@ -47,9 +47,6 @@ protected:
                                             int bcp47Count,
                                             SkUnichar character) const override;
 
-    SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                 const SkFontStyle& fontStyle) const override;
-
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
                                            const SkFontArguments& args) const override;

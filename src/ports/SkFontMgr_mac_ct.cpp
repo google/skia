@@ -557,11 +557,6 @@ protected:
         return SkTypeface_Mac::Make(std::move(fallbackFont), OpszVariation(), nullptr).release();
     }
 
-    SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                 const SkFontStyle&) const override {
-        return nullptr;
-    }
-
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
         if (ttcIndex != 0) {
             return nullptr;
