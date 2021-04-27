@@ -8,6 +8,9 @@
 package org.skia.androidkit;
 
 import android.graphics.Bitmap;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 import org.skia.androidkit.Canvas;
 
 public class Surface {
@@ -22,8 +25,13 @@ public class Surface {
         this(CreateBitmapInstance(bitmap));
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     static public Surface CreateVulkan(android.view.Surface surface) {
         return new Surface(nCreateVKSurface(surface));
+    }
+
+    static public Surface CreateGL(android.view.Surface surface) {
+        return new Surface(nCreateGLSurface(surface));
     }
 
     /**
@@ -89,6 +97,7 @@ public class Surface {
     private static native long nCreateBitmap(Bitmap bitmap);
     private static native long nCreateThreadedSurface(android.view.Surface surface);
     private static native long nCreateVKSurface(android.view.Surface surface);
+    private static native long nCreateGLSurface(android.view.Surface surface);
 
     private static native void nRelease(long nativeInstance);
     private static native long nGetNativeCanvas(long nativeInstance);
