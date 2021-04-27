@@ -42,9 +42,6 @@ private:
                                             SkUnichar character) const override {
         return nullptr;
     }
-    SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
-        return nullptr;
-    }
 
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override {
         return nullptr;
