@@ -137,8 +137,6 @@ protected:
     virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                                     const char* bcp47[], int bcp47Count,
                                                     SkUnichar character) const = 0;
-    virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                         const SkFontStyle&) const = 0;
 
     virtual sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
@@ -149,6 +147,12 @@ protected:
     virtual sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const = 0;
 
     virtual sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const = 0;
+
+    // this method is never called -- will be removed
+    virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
+                                         const SkFontStyle&) const {
+        return nullptr;
+    }
 
 private:
 
