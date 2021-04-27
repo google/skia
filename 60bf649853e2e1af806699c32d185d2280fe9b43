@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "167b5a3b_c6e40b3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-04-27T17:22:38Z",
+      "side": 1,
+      "message": "LGTM if LGT @jlavrova",
+      "revId": "60bf649853e2e1af806699c32d185d2280fe9b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68dfeff2_7ad29468",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-04-27T17:22:38Z",
+      "side": 1,
+      "message": "nit: s/gyphs/glyphs/",
+      "revId": "60bf649853e2e1af806699c32d185d2280fe9b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
