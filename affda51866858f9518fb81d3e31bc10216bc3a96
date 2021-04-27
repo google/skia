@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3e6f91b0_2278eb9f",
+        "filename": "modules/skparagraph/include/Paragraph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-04-27T20:40:45Z",
+      "side": 1,
+      "message": "We don\u0027t have to... Honestly, I used it for testing. I will remove it.",
+      "parentUuid": "1f75ce08_f86a9418",
+      "range": {
+        "startLine": 82,
+        "startChar": 24,
+        "endLine": 82,
+        "endChar": 28
+      },
+      "revId": "affda51866858f9518fb81d3e31bc10216bc3a96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9188f117_911312ce",
         "filename": "modules/skparagraph/include/Paragraph.h",
         "patchSetId": 1
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-27T20:36:07Z",
       "side": 1,
       "message": "change to just count...?",
+      "range": {
+        "startLine": 85,
+        "startChar": 39,
+        "endLine": 85,
+        "endChar": 46
+      },
+      "revId": "affda51866858f9518fb81d3e31bc10216bc3a96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6e5d469_968aec84",
+        "filename": "modules/skparagraph/include/Paragraph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-04-27T20:40:45Z",
+      "side": 1,
+      "message": "No! I add one more position in the line 339 of paragraph bindings",
+      "parentUuid": "9188f117_911312ce",
       "range": {
         "startLine": 85,
         "startChar": 39,
