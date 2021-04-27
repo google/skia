@@ -280,13 +280,21 @@ void DSLCPPCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
 
 void DSLCPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     const Variable& var = *ref.variable();
+    if (fCPPMode) {
+        this->write(var.name());
+        return;
+    }
 
-    if (!fCPPMode) {
-        if (var.modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
+    switch (var.modifiers().fLayout.fBuiltin) {
+        case SK_MAIN_COORDS_BUILTIN:
             this->write("sk_SampleCoord()");
             fAccessSampleCoordsDirectly = true;
             return;
-        }
+        case SK_FRAGCOORD_BUILTIN:
+            this->write("sk_FragCoord()");
+            return;
+        default:
+            break;
     }
 
     this->write(this->getVariableCppName(var));
@@ -539,6 +547,25 @@ const char* DSLCPPCodeGenerator::getVariableCppName(const Variable& var) {
     return cppName.c_str();
 }
 
+void DSLCPPCodeGenerator::writeCppInitialValue(const Variable& var) {
+    // `formatRuntimeValue` generates a C++ format string (which we don't need, since
+    // we're not formatting anything at runtime) and a vector of the arguments within
+    // the variable (which we do need, to fill in the Var's initial value).
+    std::vector<String> argumentList;
+    (void) this->formatRuntimeValue(var.type(), var.modifiers().fLayout,
+                                    var.name(), &argumentList);
+
+    this->write(this->getTypeName(var.type()));
+    this->write("(");
+    const char* separator = "";
+    for (const String& arg : argumentList) {
+        this->write(separator);
+        this->write(arg);
+        separator = ", ";
+    }
+    this->write(")");
+}
+
 void DSLCPPCodeGenerator::writeVarCtorExpression(const Variable& var) {
     this->write(this->getDSLModifiers(var.modifiers()));
     this->write(", ");
@@ -548,7 +575,14 @@ void DSLCPPCodeGenerator::writeVarCtorExpression(const Variable& var) {
     this->write("\"");
     if (var.initialValue()) {
         this->write(", ");
-        this->writeExpression(*var.initialValue(), Precedence::kTopLevel);
+        if (is_private(var)) {
+            // The initial value was calculated in C++ (see writePrivateVarValues). This value can
+            // be baked into the DSL as a constant.
+            this->writeCppInitialValue(var);
+        } else {
+            // Write the variable's initial-value expression in DSL.
+            this->writeExpression(*var.initialValue(), Precedence::kTopLevel);
+        }
     }
 }
 
@@ -728,7 +762,8 @@ String DSLCPPCodeGenerator::getDSLModifiers(const Modifiers& modifiers) {
     } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
         text += "kIn_Modifier | ";
     }
-    if (modifiers.fFlags & Modifiers::kConst_Flag) {
+    if ((modifiers.fFlags & Modifiers::kConst_Flag) ||
+        (modifiers.fLayout.fFlags & Layout::kKey_Flag)) {
         text += "kConst_Modifier | ";
     }
     if (modifiers.fFlags & Modifiers::kOut_Flag) {
@@ -971,28 +1006,15 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
                 continue;
             }
             if (SectionAndParameterHelper::IsParameter(var) && is_accessible(var)) {
-                // `formatRuntimeValue` generates a C++ format string (which we don't need, since
-                // we're not formatting anything at runtime) and a vector of the arguments within
-                // the variable (which we do need, to fill in the Var's initial value).
-                std::vector<String> argumentList;
-                (void) this->formatRuntimeValue(var.type(), var.modifiers().fLayout,
-                                                var.name(), &argumentList);
-
                 const char* varCppName = this->getVariableCppName(var);
                 this->writef("[[maybe_unused]] const auto& %.*s = _outer.%.*s;\n"
-                             "Var %s(kConst_Modifier, %s, \"%.*s\", %s(",
+                             "Var %s(kConst_Modifier, %s, \"%.*s\", ",
                              (int)var.name().size(), var.name().data(),
                              (int)var.name().size(), var.name().data(),
                              varCppName, this->getDSLType(var.type()).c_str(),
-                             (int)var.name().size(), var.name().data(),
-                             this->getTypeName(var.type()).c_str());
-                const char* separator = "";
-                for (const String& arg : argumentList) {
-                    this->write(separator);
-                    this->write(arg);
-                    separator = ", ";
-                }
-                this->writef("));\n"
+                             (int)var.name().size(), var.name().data());
+                this->writeCppInitialValue(var);
+                this->writef(");\n"
                              "Declare(%s);\n", varCppName);
             }
         }

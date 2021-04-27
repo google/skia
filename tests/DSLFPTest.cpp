@@ -74,7 +74,7 @@ static void test_dsl_fp(skiatest::Reporter* r,
                                         ##__VA_ARGS__);                                   \
     }
 
-DSL_FP_TEST_ES2(DSLFPTest_IfStatement, /*one:*/ 1.0f)
+DSL_FP_TEST_ES2(DSLFPTest_IfStatement, /*one:*/ 1.0f, /*unused:*/ 555.0f)
 DSL_FP_TEST_ES2(DSLFPTest_Swizzle)
 DSL_FP_TEST_ES2(DSLFPTest_Ternary, /*primaryColors:*/true,
                                    /*colorGreen:*/   SkPMColor4f{0.0, 1.0, 0.0, 1.0},

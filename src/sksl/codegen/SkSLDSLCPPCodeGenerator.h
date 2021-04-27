@@ -65,6 +65,8 @@ private:
 
     void writeHeader() override;
 
+    void writeCppInitialValue(const Variable& var);
+
     bool usesPrecisionModifiers() const override;
 
     String getTypeName(const Type& type) override;
