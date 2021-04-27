@@ -20,9 +20,10 @@
 #include "src/shaders/SkBitmapProcShader.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #endif
 
 // fixes https://bug.skia.org/5096
@@ -212,15 +213,15 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        GrBitmapTextureMaker maker(rContext, fBitmap, GrImageTexGenPolicy::kDraw);
-        fPinnedView = maker.view(GrMipmapped::kNo);
+        std::tie(fPinnedView, fPinnedColorType) = GrMakeCachedBitmapProxyView(rContext,
+                                                                              fBitmap,
+                                                                              GrMipmapped::kNo);
         if (!fPinnedView) {
+            fPinnedColorType = GrColorType::kUnknown;
             return false;
         }
-        SkASSERT(fPinnedView.asTextureProxy());
         fPinnedUniqueID = fBitmap.getGenerationID();
         fPinnedContextID = rContext->priv().contextID();
-        fPinnedColorType = maker.colorType();
     }
     // Note: we only increment if the texture was successfully pinned
     ++fPinnedCount;
@@ -425,9 +426,17 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         GrTextureAdjuster adjuster(rContext, fPinnedView, colorInfo, fPinnedUniqueID);
         return {adjuster.view(mipmapped), adjuster.colorType()};
     }
-
-    GrBitmapTextureMaker maker(rContext, fBitmap, policy);
-    return {maker.view(mipmapped), maker.colorType()};
+    if (policy == GrImageTexGenPolicy::kDraw) {
+        return GrMakeCachedBitmapProxyView(rContext, fBitmap, mipmapped);
+    }
+    auto budgeted = (policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted)
+            ? SkBudgeted::kNo
+            : SkBudgeted::kYes;
+    return GrMakeUncachedBitmapProxyView(rContext,
+                                         fBitmap,
+                                         mipmapped,
+                                         SkBackingFit::kExact,
+                                         budgeted);
 }
 
 std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
@@ -437,13 +446,67 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
         const SkMatrix& m,
         const SkRect* subset,
         const SkRect* domain) const {
+    auto mm = sampling.mipmap == SkMipmapMode::kNone ? GrMipmapped::kNo : GrMipmapped::kYes;
+    auto [view, ct] = this->asView(context, mm);
+    if (!view) {
+        return nullptr;
+    }
+    const GrCaps& caps = *context->priv().caps();
     auto wmx = SkTileModeToWrapMode(tileModes[0]);
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
-    GrBitmapTextureMaker maker(context, fBitmap, GrImageTexGenPolicy::kDraw);
     if (sampling.useCubic) {
-        return maker.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
+        if (subset) {
+            if (domain) {
+                return GrBicubicEffect::MakeSubset(std::move(view),
+                                                   this->alphaType(),
+                                                   m,
+                                                   wmx,
+                                                   wmy,
+                                                   *subset,
+                                                   *domain,
+                                                   sampling.cubic,
+                                                   GrBicubicEffect::Direction::kXY,
+                                                   *context->priv().caps());
+            }
+            return GrBicubicEffect::MakeSubset(std::move(view),
+                                               this->alphaType(),
+                                               m,
+                                               wmx,
+                                               wmy,
+                                               *subset,
+                                               sampling.cubic,
+                                               GrBicubicEffect::Direction::kXY,
+                                               *context->priv().caps());
+        }
+        return GrBicubicEffect::Make(std::move(view),
+                                     this->alphaType(),
+                                     m,
+                                     wmx,
+                                     wmy,
+                                     sampling.cubic,
+                                     GrBicubicEffect::Direction::kXY,
+                                     *context->priv().caps());
     }
+
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
-    return maker.createFragmentProcessor(m, subset, domain, sampler);
+    if (subset) {
+        if (domain) {
+            return GrTextureEffect::MakeSubset(std::move(view),
+                                               this->alphaType(),
+                                               m,
+                                               sampler,
+                                               *subset,
+                                               *domain,
+                                               caps);
+        }
+        return GrTextureEffect::MakeSubset(std::move(view),
+                                           this->alphaType(),
+                                           m,
+                                           sampler,
+                                           *subset,
+                                           caps);
+    } else {
+        return GrTextureEffect::Make(std::move(view), this->alphaType(), m, sampler, caps);
+    }
 }
 #endif
