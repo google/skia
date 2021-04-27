@@ -1071,6 +1071,7 @@ void ParagraphImpl::visit(const Visitor& visitor) {
                 visitor({
                     run.font,
                     rec.fOffset,
+                    rec.fClipRect,
                     run.count,
                     run.glyphs,
                     run.positions,

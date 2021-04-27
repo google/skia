@@ -332,10 +332,11 @@ JSArray GetShapedRuns(para::Paragraph& self) {
         jrun.set("offsets", MakeTypedArray(N1, info.utf8Starts, "Uint32Array"));
 
         // we need to modify the positions, so make a temp copy
-        SkAutoSTMalloc<32, SkPoint> positions(N);
+        SkAutoSTMalloc<32, SkPoint> positions(N1);
         for (int i = 0; i < N; ++i) {
             positions.get()[i] = info.positions[i] + info.origin;
         }
+        positions.get()[N] = { info.rect.fRight, positions.get()[N - 1].fY };
         jrun.set("positions", MakeTypedArray(N1*2, (const float*)positions.get(), "Float32Array"));
 
         jruns.call<void>("push", jrun);
