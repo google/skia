@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8661e1f2_6499d569",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2406,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-27T13:05:07Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027?",
+      "range": {
+        "startLine": 2406,
+        "startChar": 36,
+        "endLine": 2406,
+        "endChar": 37
+      },
+      "revId": "a25f1f690ba9f05f83f7d709944a0e3b28b07075",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8d833c3_8cc7eb21",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2406,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-27T13:05:07Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 ?",
+      "range": {
+        "startLine": 2406,
+        "startChar": 28,
+        "endLine": 2406,
+        "endChar": 29
+      },
+      "revId": "a25f1f690ba9f05f83f7d709944a0e3b28b07075",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
