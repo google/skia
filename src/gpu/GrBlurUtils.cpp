@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFixedClip.h"
@@ -20,6 +19,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrThreadSafeCache.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
@@ -157,9 +157,12 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
         }
         bm.setImmutable();
 
-        GrBitmapTextureMaker maker(rContext, bm, SkBackingFit::kApprox);
-        filteredMaskView = maker.view(GrMipmapped::kNo);
-        if (!filteredMaskView.proxy()) {
+        std::tie(filteredMaskView, std::ignore) = GrMakeUncachedBitmapProxyView(
+                rContext,
+                bm,
+                GrMipmapped::kNo,
+                SkBackingFit::kApprox);
+        if (!filteredMaskView) {
             return {};
         }
 

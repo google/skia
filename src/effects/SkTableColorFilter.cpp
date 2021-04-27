@@ -184,7 +184,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
-    auto view = GrMakeCachedBitmapProxyView(context, bitmap);
+    auto [view, ct] = GrMakeCachedBitmapProxyView(context, bitmap, GrMipmapped::kNo);
     if (!view) {
         return nullptr;
     }

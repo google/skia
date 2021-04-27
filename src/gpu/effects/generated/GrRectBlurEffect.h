@@ -21,11 +21,11 @@
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkMathPriv.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrThreadSafeCache.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
@@ -60,12 +60,7 @@ public:
             return {};
         }
 
-        GrBitmapTextureMaker maker(rContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        view = maker.view(GrMipmapped::kNo);
-        if (!view) {
-            return {};
-        }
-
+        view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bitmap));
         view = threadSafeCache->add(key, view);
 
         SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);

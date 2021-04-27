@@ -8,8 +8,8 @@
 #include "gm/gm.h"
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
@@ -214,7 +214,6 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
 DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
     SkBitmap bmp = make_test_bitmap();
 
-    GrBitmapTextureMaker maker(ctx, bmp, GrImageTexGenPolicy::kDraw);
     int x = 10, y = 10;
 
     auto nextCol = [&] { x += (64 + 10); };
@@ -227,8 +226,8 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
 #if 0
         auto fp = std::unique_ptr<GrFragmentProcessor>(new TestPatternEffect());
 #else
-        auto view = maker.view(GrMipmapped::kNo);
-        auto fp = GrTextureEffect::Make(std::move(view), maker.alphaType());
+        auto view = std::get<0>(GrMakeCachedBitmapProxyView(ctx, bmp, GrMipmapped::kNo));
+        auto fp = GrTextureEffect::Make(std::move(view), bmp.alphaType());
 #endif
         for (EffectType effectType : effects) {
             fp = wrap(std::move(fp), effectType);
