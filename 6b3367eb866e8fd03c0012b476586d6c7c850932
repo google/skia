@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5bab8c8_181df412",
+        "filename": "tests/sksl/shared/StructMaxDepth.metal",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-27T21:14:50Z",
+      "side": 1,
+      "message": "Mildly curious - does the MSL compiler handle this all okay? (No reason it shouldn\u0027t, of course).",
+      "revId": "6b3367eb866e8fd03c0012b476586d6c7c850932",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
