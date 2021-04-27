@@ -145,8 +145,6 @@ protected:
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override;
-    SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                 const SkFontStyle& fontStyle) const override;
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>, const SkFontArguments&) const override;
