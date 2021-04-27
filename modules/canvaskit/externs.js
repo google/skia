@@ -352,10 +352,12 @@ var CanvasKit = {
     RefDefault: function() {},
     countFamilies: function() {},
     getFamilyName: function() {},
+    addFont: function() {},
 
     // private API
     _makeTypefaceFromData: function() {},
     _fromData: function() {},
+    _addFont: function() {},
   },
 
   TypefaceFontProvider: {

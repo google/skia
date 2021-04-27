@@ -157,7 +157,7 @@ SkTypeface* SkFontStyleSet_Custom::matchStyle(const SkFontStyle& pattern) {
 SkString SkFontStyleSet_Custom::getFamilyName() { return fFamilyName; }
 
 
-SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader) : fDefaultFamily(nullptr) {
+SkFontMgr_Custom::SkFontMgr_Custom(const SkFontMgr_Custom_SystemFontLoader& loader) : fDefaultFamily(nullptr) {
     loader.loadSystemFonts(fScanner, &fFamilies);
 
     // Try to pick a default font.
@@ -183,6 +183,31 @@ SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader) : fDefaultFam
     if (nullptr == fDefaultFamily && !fFamilies.empty()) {
         fDefaultFamily = fFamilies[0].get();
     }
+}
+
+// Unfortunately there are no easy way to pick up the fontName or fontFamilyName
+// after this operation. All doable, but ... too much of the API change for this
+// simple boot-strap solution.
+//
+// Another problem is that if something fails internally no information is
+// reported either. Same story, by the way with constructor - so no
+// improvement on that matter. There are at least two obvious reasons for the
+// failure memory overflow and bad buffer is suppiled. Bottom line problem
+// remains open.
+//
+// Even returning a newly added font family, if any, is questinable. Technically
+// this is doable, but ... it will be basically a hack. I.e. access the last
+// added family and fetch its Skia name. Just better not to.
+//
+// On a positive side for now we need only fontFamilyName. In fact we just need
+// the knowledge if anything got added and a list of all already loaded
+// fontFamilyNames. The result is to be acquired via standard API of:
+// countFamilies() and  getFamilyName(...) . A bit inefficient, but ... correct
+// in terms of getting the Skia's internal name.
+//
+// Note: it seems that Skia's intrnal naming is exactly the same as real name.
+void SkFontMgr_Custom::addFont(const SkFontMgr_Custom_SystemFontLoader& loader) {
+    loader.loadSystemFonts(fScanner, &fFamilies);
 }
 
 int SkFontMgr_Custom::onCountFamilies() const {

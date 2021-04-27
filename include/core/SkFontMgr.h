@@ -12,12 +12,13 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/core/SkString.h"
 
 class SkData;
 class SkFontData;
 class SkStreamAsset;
-class SkString;
 class SkTypeface;
+class SkFontMgr_Custom_SystemFontLoader;
 
 class SK_API SkFontStyleSet : public SkRefCnt {
 public:
@@ -40,6 +41,7 @@ public:
     int countFamilies() const;
     void getFamilyName(int index, SkString* familyName) const;
     SkFontStyleSet* createStyleSet(int index) const;
+    virtual void addFont(const SkFontMgr_Custom_SystemFontLoader& loader) {};
 
     /**
      *  The caller must call unref() on the returned object.

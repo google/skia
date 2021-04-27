@@ -89,6 +89,7 @@
 #endif
 
 #ifndef SK_NO_FONTS
+#include "src/ports/SkFontMgr_custom.h"
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
 #endif
 
@@ -1188,6 +1189,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkString s;
             self.getFamilyName(index, &s);
             return emscripten::val(s.c_str());
+        }))
+        .function("_addFont", optional_override([](SkFontMgr& self,
+                                                   uintptr_t /* uint8_t*  */ dPtr,
+                                                   size_t /* size_t*  */ size) {
+            if (!dPtr || size <= 0) {
+                return;
+            }
+
+            auto datas = reinterpret_cast<const uint8_t*>(dPtr);
+            self.addFont(DataFontLoader(&datas, &size, 1));
         }))
 #ifdef SK_DEBUG
         .function("dumpFamilies", optional_override([](SkFontMgr& self) {

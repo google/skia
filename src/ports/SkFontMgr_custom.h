@@ -118,6 +118,14 @@ private:
     friend class SkFontMgr_Custom;
 };
 
+typedef SkTArray<sk_sp<SkFontStyleSet_Custom>> SkFontMgr_Custom_Families;
+
+class SkFontMgr_Custom_SystemFontLoader {
+public:
+    virtual ~SkFontMgr_Custom_SystemFontLoader() { }
+    virtual void loadSystemFonts(const SkTypeface_FreeType::Scanner&, SkFontMgr_Custom_Families*) const = 0;
+};
+
 /**
  *  SkFontMgr_Custom
  *
@@ -127,13 +135,8 @@ private:
  */
 class SkFontMgr_Custom : public SkFontMgr {
 public:
-    typedef SkTArray<sk_sp<SkFontStyleSet_Custom>> Families;
-    class SystemFontLoader {
-    public:
-        virtual ~SystemFontLoader() { }
-        virtual void loadSystemFonts(const SkTypeface_FreeType::Scanner&, Families*) const = 0;
-    };
-    explicit SkFontMgr_Custom(const SystemFontLoader& loader);
+    explicit SkFontMgr_Custom(const SkFontMgr_Custom_SystemFontLoader& loader);
+    void addFont(const SkFontMgr_Custom_SystemFontLoader& loader) override final;
 
 protected:
     int onCountFamilies() const override;
@@ -155,9 +158,22 @@ protected:
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override;
 
 private:
-    Families fFamilies;
+    SkFontMgr_Custom_Families fFamilies;
     SkFontStyleSet_Custom* fDefaultFamily;
     SkTypeface_FreeType::Scanner fScanner;
+};
+
+class DataFontLoader : public SkFontMgr_Custom_SystemFontLoader {
+public:
+    explicit DataFontLoader(const uint8_t** datas, const size_t* sizes, int n);
+
+    void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
+                         SkFontMgr_Custom_Families* families) const override final;
+
+private:
+    const uint8_t** fDatas;
+    const size_t* fSizes;
+    const int fNum;
 };
 
 #endif

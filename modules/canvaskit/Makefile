@@ -45,7 +45,7 @@ bluescape_release:
 	rm -rf ../../out/canvaskit_wasm
 	./compile.sh \
 				no_skp_serialization \
-	            no_effects_deserialization \
+				no_effects_deserialization \
 				no_skottie \
 				no_managed_skottie \
 				no_particles \
@@ -69,7 +69,7 @@ bluescape_debug:
 	rm -rf ../../out/canvaskit_wasm_debug
 	./compile.sh debug \
 				no_skp_serialization \
-	            no_effects_deserialization \
+				no_effects_deserialization \
 				no_skottie \
 				no_managed_skottie \
 				no_particles \

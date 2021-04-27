@@ -127,7 +127,7 @@ CanvasKit._extraInitializations.push(function() {
   // arguments should all be arrayBuffers or be an array of arrayBuffers.
   CanvasKit.FontMgr.FromData = function() {
     if (!arguments.length) {
-      Debug('Could not make FontMgr from no font sources');
+      Debug('Make empty FontMgr from no font sources');
       return null;
     }
     var fonts = arguments;
@@ -135,7 +135,7 @@ CanvasKit._extraInitializations.push(function() {
       fonts = arguments[0];
     }
     if (!fonts.length) {
-      Debug('Could not make FontMgr from no font sources');
+      Debug('Make empty FontMgr from no font sources');
       return null;
     }
     var dPtrs = [];
@@ -154,6 +154,14 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(datasPtr);
     CanvasKit._free(sizesPtr);
     return fm;
+  }
+
+  // fontData should an ArrayBuffer.
+  CanvasKit.FontMgr.prototype.addFont = function(fontData) {
+    var data = new Uint8Array(fontData);
+    var dataPtr = copy1dArray(data, 'HEAPU8');
+    this._addFont(dataPtr, data.byteLength);
+	  // The FontMgr has taken ownership of the bytes we allocated.
   }
 
   // fontData should be an arrayBuffer

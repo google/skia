@@ -14,14 +14,14 @@ struct SkEmbeddedResourceHeader { const SkEmbeddedResource* entries; int count; 
 
 static int load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
                                 const uint8_t* data, size_t size, int index,
-                                SkFontMgr_Custom::Families* families);
+                                SkFontMgr_Custom_Families* families);
 
-class EmbeddedSystemFontLoader : public SkFontMgr_Custom::SystemFontLoader {
+class EmbeddedSystemFontLoader : public SkFontMgr_Custom_SystemFontLoader {
 public:
     EmbeddedSystemFontLoader(const SkEmbeddedResourceHeader* header) : fHeader(header) { }
 
     void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
-                         SkFontMgr_Custom::Families* families) const override
+                         SkFontMgr_Custom_Families* families) const override
     {
         int loaded = 0;
         if (fHeader) {
@@ -42,32 +42,30 @@ private:
     const SkEmbeddedResourceHeader* fHeader;
 };
 
-class DataFontLoader : public SkFontMgr_Custom::SystemFontLoader {
-public:
-    DataFontLoader(const uint8_t** datas, const size_t* sizes, int n) : fDatas(datas), fSizes(sizes), fNum(n) { }
+DataFontLoader::DataFontLoader(const uint8_t** datas, const size_t* sizes, int n)
+    : fDatas(datas)
+    , fSizes(sizes)
+    , fNum(n)
+{
+    printf("Here51 %zu %d\n", *sizes, n);
+}
 
-    void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
-                         SkFontMgr_Custom::Families* families) const override
-    {
-        int loaded = 0;
-        for (int i = 0; i < fNum; ++i) {
-            loaded += load_font_from_data(scanner, fDatas[i], fSizes[i], i, families);
-        }
-
-        if (families->empty() && loaded) {
-            SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
-            families->push_back().reset(family);
-            family->appendTypeface(sk_make_sp<SkTypeface_Empty>());
-        }
+void DataFontLoader::loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
+                                     SkFontMgr_Custom_Families* families) const
+{
+    int loaded = 0;
+    for (int i = 0; i < fNum; ++i) {
+        loaded += load_font_from_data(scanner, fDatas[i], fSizes[i], i, families);
     }
 
-private:
-    const uint8_t** fDatas;
-    const size_t* fSizes;
-    const int fNum;
-};
+    if (families->empty() && loaded) {
+        SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
+        families->push_back().reset(family);
+        family->appendTypeface(sk_make_sp<SkTypeface_Empty>());
+    }
+}
 
-static SkFontStyleSet_Custom* find_family(SkFontMgr_Custom::Families& families,
+static SkFontStyleSet_Custom* find_family(SkFontMgr_Custom_Families& families,
                                           const char familyName[])
 {
    for (int i = 0; i < families.count(); ++i) {
@@ -80,7 +78,7 @@ static SkFontStyleSet_Custom* find_family(SkFontMgr_Custom::Families& families,
 
 static int load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
                                 const uint8_t* data, size_t size, int index,
-                                SkFontMgr_Custom::Families* families)
+                                SkFontMgr_Custom_Families* families)
 {
     if (!data || !size) {
         SkDebugf("---- either because of data=%p or size=%d fail to open <%d> as a font\n", data, size, index);

@@ -8,12 +8,12 @@
 #include "include/ports/SkFontMgr_empty.h"
 #include "src/ports/SkFontMgr_custom.h"
 
-class EmptyFontLoader : public SkFontMgr_Custom::SystemFontLoader {
+class EmptyFontLoader : public SkFontMgr_Custom_SystemFontLoader {
 public:
     EmptyFontLoader() { }
 
     void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
-                         SkFontMgr_Custom::Families* families) const override
+                         SkFontMgr_Custom_Families* families) const override
     {
         SkFontStyleSet_Custom* family = new SkFontStyleSet_Custom(SkString());
         families->push_back().reset(family);

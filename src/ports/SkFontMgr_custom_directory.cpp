@@ -11,12 +11,12 @@
 #include "src/ports/SkFontMgr_custom.h"
 #include "src/utils/SkOSPath.h"
 
-class DirectorySystemFontLoader : public SkFontMgr_Custom::SystemFontLoader {
+class DirectorySystemFontLoader : public SkFontMgr_Custom_SystemFontLoader {
 public:
     DirectorySystemFontLoader(const char* dir) : fBaseDirectory(dir) { }
 
     void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
-                         SkFontMgr_Custom::Families* families) const override
+                         SkFontMgr_Custom_Families* families) const override
     {
         load_directory_fonts(scanner, fBaseDirectory, ".ttf", families);
         load_directory_fonts(scanner, fBaseDirectory, ".ttc", families);
@@ -31,7 +31,7 @@ public:
     }
 
 private:
-    static SkFontStyleSet_Custom* find_family(SkFontMgr_Custom::Families& families,
+    static SkFontStyleSet_Custom* find_family(SkFontMgr_Custom_Families& families,
                                               const char familyName[])
     {
        for (int i = 0; i < families.count(); ++i) {
@@ -44,7 +44,7 @@ private:
 
     static void load_directory_fonts(const SkTypeface_FreeType::Scanner& scanner,
                                      const SkString& directory, const char* suffix,
-                                     SkFontMgr_Custom::Families* families)
+                                     SkFontMgr_Custom_Families* families)
     {
         SkOSFile::Iter iter(directory.c_str(), suffix);
         SkString name;

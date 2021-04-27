@@ -1543,6 +1543,13 @@ export interface FontMgr extends EmbindObject<FontMgr> {
      * @param fontData
      */
     makeTypefaceFromData(fontData: ArrayBuffer): Typeface;
+
+    /**
+     * Add font to font manager.
+     * @param ArrayBuffer
+     * @param size - size of the buffer
+     */
+    addFont(fontData: ArrayBuffer, size: number): void;
 }
 
 /**
