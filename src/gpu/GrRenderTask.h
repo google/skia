@@ -53,7 +53,7 @@ public:
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
     /**
-     * A task can be marked as able to be skipped. It must be used purely for optimization purposes
+     * Make this task skippable. This must be used purely for optimization purposes
      * at this point as not all tasks will actually skip their work. It would be better if we could
      * detect tasks that can be skipped automatically. We'd need to support minimal flushes (i.e.,
      * only flush that which is required for SkSurfaces/SkImages) and the ability to detect
@@ -62,7 +62,9 @@ public:
      * exported to the client in case the client is doing direct reads outside of Skia and thus
      * may require tasks targeting the proxy to execute even if our DAG contains no reads.
      */
-    void canSkip();
+    void makeSkippable();
+
+    bool isSkippable() const { return this->isSetFlag(kSkippable_Flag); }
 
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
@@ -173,9 +175,10 @@ protected:
     enum Flags {
         kClosed_Flag    = 0x01,   //!< This task can't accept any more dependencies.
         kDisowned_Flag  = 0x02,   //!< This task is disowned by its creating GrDrawingManager.
+        kSkippable_Flag = 0x04,   //!< This task is skippable.
 
-        kWasOutput_Flag = 0x04,   //!< Flag for topological sorting
-        kTempMark_Flag  = 0x08,   //!< Flag for topological sorting
+        kWasOutput_Flag = 0x08,   //!< Flag for topological sorting
+        kTempMark_Flag  = 0x10,   //!< Flag for topological sorting
     };
 
     void setFlag(uint32_t flag) {
@@ -192,13 +195,13 @@ protected:
 
     void setIndex(uint32_t index) {
         SkASSERT(!this->isSetFlag(kWasOutput_Flag));
-        SkASSERT(index < (1 << 28));
-        fFlags |= index << 4;
+        SkASSERT(index < (1 << 27));
+        fFlags |= index << 5;
     }
 
     uint32_t getIndex() const {
         SkASSERT(this->isSetFlag(kWasOutput_Flag));
-        return fFlags >> 4;
+        return fFlags >> 5;
     }
 
 private:
@@ -246,9 +249,9 @@ private:
         }
     };
 
-    virtual void onCanSkip() {}
-    virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
-    virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
+    virtual void onMakeSkippable() {}
+    virtual void onPrePrepare(GrRecordingContext*) {} // Only GrOpsTask currently overrides this
+    virtual void onPrepare(GrOpFlushState*) {} // GrOpsTask and GrDDLTask override this
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;

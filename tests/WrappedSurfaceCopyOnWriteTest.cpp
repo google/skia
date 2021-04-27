@@ -110,7 +110,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
         return;
     }
 
-    task->canSkip();
+    task->makeSkippable();
 
     SkAutoPixmapStorage pixels;
     pixels.alloc(SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
@@ -151,7 +151,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo) {
     temp->clear(SkPMColor4f{0, 0, 0, 0});
 
     GrSurfaceProxyView readView = dst->readSurfaceView();
-    task->canSkip();
+    task->makeSkippable();
 
     SkAutoPixmapStorage pixels;
     pixels.alloc(SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType));

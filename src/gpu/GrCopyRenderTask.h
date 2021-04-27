@@ -31,7 +31,7 @@ private:
                      SkIPoint dstPoint,
                      GrSurfaceOrigin);
 
-    void onCanSkip() override { fSrc.reset(); }
+    void onMakeSkippable() override { fSrc.reset(); }
     bool onIsUsed(GrSurfaceProxy* proxy) const override { return proxy == fSrc.get(); }
     void gatherProxyIntervals(GrResourceAllocator*) const override;
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) override;
