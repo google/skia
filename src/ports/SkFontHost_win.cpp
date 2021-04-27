@@ -2271,14 +2271,6 @@ protected:
         return nullptr;
     }
 
-    virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                         const SkFontStyle& fontstyle) const override {
-        // could be in base impl
-        SkString familyName;
-        ((LogFontTypeface*)familyMember)->getFamilyName(&familyName);
-        return this->matchFamilyStyle(familyName.c_str(), fontstyle);
-    }
-
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
         if (ttcIndex != 0) {

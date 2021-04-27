@@ -216,10 +216,6 @@ protected:
         SK_ABORT("Not implemented.");
     }
 
-    SkTypeface* onMatchFaceStyle(const SkTypeface*, const SkFontStyle&) const override {
-        SK_ABORT("Not implemented.");
-    }
-
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
         return this->onMakeFromStreamIndex(SkMemoryStream::Make(std::move(data)), ttcIndex);
     }
