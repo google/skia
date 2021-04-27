@@ -2489,7 +2489,10 @@ if (skia_enable_tools) {
         "jnigraphics",
       ]
 
-      deps = [ ":skia" ]
+      deps = [
+        ":sk_app",
+        ":skia",
+      ]
     }
   }
 
