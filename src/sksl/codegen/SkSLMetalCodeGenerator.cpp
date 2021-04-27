@@ -160,6 +160,35 @@ void MetalCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     this->writeFields(type.fields(), type.fOffset);
     fIndentation--;
     this->writeLine("};");
+
+    // Write operator== and operator!= for this struct, since those are assumed to exist in SkSL
+    // and GLSL but do not exist by default in Metal.
+    this->write("thread bool operator==(thread const ");
+    this->write(type.name());
+    this->write("& left, thread const ");
+    this->write(type.name());
+    this->writeLine("& right) {");
+    this->write("    return ");
+
+    const char* separator = "";
+    for (const Type::Field& field : type.fields()) {
+        this->write(separator);
+        this->write("(left.");
+        this->write(field.fName);
+        this->write(" == right.");
+        this->write(field.fName);
+        this->write(")");
+        separator = " &&\n           ";
+    }
+    this->writeLine(";");
+    this->writeLine("}");
+    this->write("thread bool operator!=(thread const ");
+    this->write(type.name());
+    this->write("& left, thread const ");
+    this->write(type.name());
+    this->writeLine("& right) {");
+    this->writeLine("    return !(left == right);");
+    this->writeLine("}");
 }
 
 void MetalCodeGenerator::writeType(const Type& type) {
@@ -1720,7 +1749,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
                                      const InterfaceBlock* parentIntf) {
     MemoryLayout memoryLayout(MemoryLayout::kMetal_Standard);
     int currentOffset = 0;
-    for (const auto& field: fields) {
+    for (const Type::Field& field : fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
         if (!MemoryLayout::LayoutIsSupported(*fieldType)) {

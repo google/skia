@@ -5,6 +5,13 @@ struct S {
     int x;
     int y;
 };
+thread bool operator==(thread const S& left, thread const S& right) {
+    return (left.x == right.x) &&
+           (left.y == right.y);
+}
+thread bool operator!=(thread const S& left, thread const S& right) {
+    return !(left == right);
+}
 struct Uniforms {
     float4 colorGreen;
     float4 colorRed;

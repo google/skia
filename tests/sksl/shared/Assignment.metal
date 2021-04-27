@@ -7,6 +7,15 @@ struct S {
     float4 h4;
     array<float4, 5> ah4;
 };
+thread bool operator==(thread const S& left, thread const S& right) {
+    return (left.f == right.f) &&
+           (left.af == right.af) &&
+           (left.h4 == right.h4) &&
+           (left.ah4 == right.ah4);
+}
+thread bool operator!=(thread const S& left, thread const S& right) {
+    return !(left == right);
+}
 struct Uniforms {
     float4 colorGreen;
 };

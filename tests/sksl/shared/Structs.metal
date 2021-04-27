@@ -5,11 +5,26 @@ struct A {
     int x;
     int y;
 };
+thread bool operator==(thread const A& left, thread const A& right) {
+    return (left.x == right.x) &&
+           (left.y == right.y);
+}
+thread bool operator!=(thread const A& left, thread const A& right) {
+    return !(left == right);
+}
 struct B {
     float x;
     array<float, 2> y;
     A z;
 };
+thread bool operator==(thread const B& left, thread const B& right) {
+    return (left.x == right.x) &&
+           (left.y == right.y) &&
+           (left.z == right.z);
+}
+thread bool operator!=(thread const B& left, thread const B& right) {
+    return !(left == right);
+}
 struct Inputs {
 };
 struct Outputs {

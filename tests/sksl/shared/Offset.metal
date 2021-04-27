@@ -6,6 +6,14 @@ struct Test {
     int y;
     int z;
 };
+thread bool operator==(thread const Test& left, thread const Test& right) {
+    return (left.x == right.x) &&
+           (left.y == right.y) &&
+           (left.z == right.z);
+}
+thread bool operator!=(thread const Test& left, thread const Test& right) {
+    return !(left == right);
+}
 struct Inputs {
 };
 struct Outputs {
