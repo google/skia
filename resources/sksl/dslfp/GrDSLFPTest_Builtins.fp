@@ -1,6 +1,9 @@
+layout(key) float zero = floor(0.5);
+layout(key) float one = ceil(0.5);
+
 half4 main() {
-    half4x4 m = half4x4(1);
-    half4 n = half4(1);
+    half4x4 m = half4x4(one);
+    half4 n = half4(zero);
     bool4 b = bool4(true);
 
     n.x = abs(n.x);
