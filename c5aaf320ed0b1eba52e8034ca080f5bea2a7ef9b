@@ -52,6 +52,24 @@
       "parentUuid": "6e3c09eb_5ec770c6",
       "revId": "c5aaf320ed0b1eba52e8034ca080f5bea2a7ef9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40da13b8_45a6a0ab",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-28T19:19:48Z",
+      "side": 1,
+      "message": "I can do that, but we risk an ODR violation if a build has GR_TEST_UTILS declared inconsistently... is there any value-add to offset the increased risk?",
+      "parentUuid": "3d641e02_ce830c41",
+      "revId": "c5aaf320ed0b1eba52e8034ca080f5bea2a7ef9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
