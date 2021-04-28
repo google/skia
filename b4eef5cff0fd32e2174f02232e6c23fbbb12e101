@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebceec43_fd4a5521",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-28T19:06:05Z",
+      "side": 1,
+      "message": "Rename to specify 4x4 vs 3x3?",
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "171838e0_1ec4fc04",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-28T19:06:05Z",
+      "side": 1,
+      "message": "For operator methods, do we want to have them be non-static like this and modify Matrix A? Or would we prefer static methods that take in 2 matrices and return a new Matrix C?",
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
