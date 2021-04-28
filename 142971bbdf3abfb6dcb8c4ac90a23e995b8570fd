@@ -33,6 +33,24 @@
       "message": "Forgive the ignorance, I see the removal of the usages of sample-with-matrix but where is the removal of the implementation? Or is that coming later?",
       "revId": "142971bbdf3abfb6dcb8c4ac90a23e995b8570fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "affc7b00_dc15779c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T14:24:27Z",
+      "side": 1,
+      "message": "Tagged the declarations of these versions of sample. Much of the implementation still exists (and is spread across a bunch of files). Planning to remove that next, but with the declarations gone, it\u0027s impossible to invoke.",
+      "parentUuid": "547de8ed_836532c7",
+      "revId": "142971bbdf3abfb6dcb8c4ac90a23e995b8570fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

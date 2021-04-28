@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ab2ef39_2743b817",
+        "filename": "src/sksl/sksl_fp_raw.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T14:24:27Z",
+      "side": 0,
+      "message": "^",
+      "revId": "e4fef3a8dadd8f5bbfbbd7e689b28de6ba44f304",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0031e72b_1561be0e",
+        "filename": "src/sksl/sksl_runtime.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T14:24:27Z",
+      "side": 0,
+      "message": "^",
+      "revId": "e4fef3a8dadd8f5bbfbbd7e689b28de6ba44f304",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
