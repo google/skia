@@ -30,32 +30,4 @@ private:
     using INHERITED = GrTextureMaker;
 };
 
-/** This class manages the conversion of generator-backed YUVA images to GrTextures. */
-class GrYUVAImageTextureMaker final : public GrTextureMaker {
-public:
-    GrYUVAImageTextureMaker(GrRecordingContext* context, const SkImage* client);
-
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(const SkMatrix& textureMatrix,
-                                                                 const SkRect* subset,
-                                                                 const SkRect* domain,
-                                                                 GrSamplerState) override;
-
-    std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessor(
-            const SkMatrix& textureMatrix,
-            const SkRect* subset,
-            const SkRect* domain,
-            GrSamplerState::WrapMode wrapX,
-            GrSamplerState::WrapMode wrapY,
-            SkImage::CubicResampler) override;
-
-    bool isPlanar() const override { return true; }
-
-private:
-    GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) override;
-
-    const SkImage_GpuYUVA*  fImage;
-
-    using INHERITED = GrTextureMaker;
-};
-
 #endif

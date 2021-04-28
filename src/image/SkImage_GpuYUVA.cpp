@@ -20,13 +20,12 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageContextPriv.h"
-#include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkImage_GpuYUVA.h"
@@ -192,14 +191,33 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
     if (!fContext->priv().matches(context)) {
         return {};
     }
-    GrYUVAImageTextureMaker maker(context, this);
     auto wmx = SkTileModeToWrapMode(tileModes[0]);
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
-    if (sampling.useCubic) {
-        return maker.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
-    }
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
-    return maker.createFragmentProcessor(m, subset, domain, sampler);
+    if (sampler.mipmapped() == GrMipmapped::kYes && !this->setupMipmapsForPlanes(context)) {
+        sampler.setMipmapMode(GrSamplerState::MipmapMode::kNone);
+    }
+
+    const auto& yuvM = sampling.useCubic ? SkMatrix::I() : m;
+    auto fp = GrYUVtoRGBEffect::Make(fYUVAProxies,
+                                     sampler,
+                                     *context->priv().caps(),
+                                     yuvM,
+                                     subset,
+                                     domain);
+    if (sampling.useCubic) {
+        fp = GrBicubicEffect::Make(std::move(fp),
+                                   this->alphaType(),
+                                   m,
+                                   sampling.cubic,
+                                   GrBicubicEffect::Direction::kXY);
+    }
+    if (fFromColorSpace) {
+        fp = GrColorSpaceXformEffect::Make(std::move(fp),
+                                           fFromColorSpace.get(), this->alphaType(),
+                                           this->colorSpace()   , this->alphaType());
+    }
+    return fp;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
