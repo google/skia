@@ -187,6 +187,30 @@
       },
       "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93f0a6d6_6f108ffb",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-28T16:48:05Z",
+      "side": 1,
+      "message": "Yeah Make separate from MakeSubset seems like a good thing given the perf implications. I\u0027m fine with keeping it as is for now, but we should just keep in mind having an optional domain argument if this control pattern keeps cropping up.",
+      "parentUuid": "7e692dce_fb6c497d",
+      "range": {
+        "startLine": 458,
+        "startChar": 0,
+        "endLine": 510,
+        "endChar": 5
+      },
+      "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
