@@ -447,12 +447,6 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                                                   coords.empty() ? "" : ", ",
                                                   coords.c_str());
                         }
-                        String sampleChildWithMatrix(int index, String matrix) override {
-                            return String::printf("sample(child_%d%s%s)",
-                                                  index,
-                                                  matrix.empty() ? "" : ", ",
-                                                  matrix.c_str());
-                        }
 
                         String              fOutput;
                     };
