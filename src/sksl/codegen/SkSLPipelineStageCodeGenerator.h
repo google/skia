@@ -29,7 +29,6 @@ namespace PipelineStage {
 
         virtual String declareUniform(const VarDeclaration*) = 0;
         virtual String sampleChild(int index, String coords) = 0;
-        virtual String sampleChildWithMatrix(int index, String matrix) = 0;
     };
 
     /*
@@ -43,8 +42,8 @@ namespace PipelineStage {
      *   the declaration, and return the (possibly different) name to use for the variable.
      * - Each function definition triggers a call to 'defineFunction', which should emit the
      *   definition, and return the (possibly different) name to use for calls to that function.
-     * - Each invocation of sample() triggers a call to 'sampleChild' or 'sampleChildWithMatrix',
-     *   which should return the full text of the call expression.
+     * - Each invocation of sample() triggers a call to 'sampleChild', which should return the full
+     *   text of the call expression.
      */
     void ConvertProgram(const Program& program,
                         const char* sampleCoords,

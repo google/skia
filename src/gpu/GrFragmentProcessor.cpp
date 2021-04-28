@@ -156,30 +156,16 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
     SkASSERT(!child->fParent && !child->sampleUsage().isSampled() &&
              !child->isSampledWithExplicitCoords() && !child->hasPerspectiveTransform());
 
-    // If a child is sampled directly (sample(child)), and with a single uniform matrix, we need to
-    // treat it as if it were sampled with multiple matrices (eg variable).
-    bool variableMatrix = sampleUsage.hasVariableMatrix() ||
-                          (sampleUsage.fPassThrough && sampleUsage.hasUniformMatrix());
-
     // Configure child's sampling state first
     child->fUsage = sampleUsage;
 
-    // When an FP is sampled using variable matrix expressions, it is effectively being sampled
-    // explicitly, except that the call site will automatically evaluate the matrix expression to
-    // produce the float2 passed into this FP.
-    if (sampleUsage.fExplicitCoords || variableMatrix) {
+    if (sampleUsage.isExplicit()) {
         child->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
     }
 
     // Push perspective matrix type to children
     if (sampleUsage.fHasPerspective) {
         child->addAndPushFlagToChildren(kNetTransformHasPerspective_Flag);
-    }
-
-    // If the child is sampled with a variable matrix expression, auto-generated code in
-    // invokeChildWithMatrix() for this FP will refer to the local coordinates.
-    if (variableMatrix) {
-        this->setUsesSampleCoordsDirectly();
     }
 
     // If the child is not sampled explicitly and not already accessing sample coords directly

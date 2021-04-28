@@ -165,19 +165,14 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         SkASSERT(found);
 
-        String coordsOrMatrix;
+        String coords;
         if (arguments.size() > 1) {
             AutoOutputBuffer outputToBuffer(this);
             this->writeExpression(*arguments[1], Precedence::kSequence);
-            coordsOrMatrix = outputToBuffer.fBuffer.str();
+            coords = outputToBuffer.fBuffer.str();
         }
 
-        bool matrixCall = arguments.size() == 2 && arguments[1]->type().isMatrix();
-        if (matrixCall) {
-            this->write(fCallbacks->sampleChildWithMatrix(index, std::move(coordsOrMatrix)));
-        } else {
-            this->write(fCallbacks->sampleChild(index, std::move(coordsOrMatrix)));
-        }
+        this->write(fCallbacks->sampleChild(index, std::move(coords)));
         return;
     }
 

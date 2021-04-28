@@ -1010,19 +1010,8 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         skvm::Coord coord = fLocalCoord;
         if (nargs == 2) {
             Value arg = this->writeExpression(*c.arguments()[1]);
-            if (arg.slots() == 2) {
-                // explicit sampling
-                coord = {f32(arg[0]), f32(arg[1])};
-            } else {
-                // matrix sampling
-                SkASSERT(arg.slots() == 9);
-                skvm::F32 x = f32(arg[0])**coord.x + f32(arg[3])**coord.y + f32(arg[6]),
-                          y = f32(arg[1])**coord.x + f32(arg[4])**coord.y + f32(arg[7]),
-                          w = f32(arg[2])**coord.x + f32(arg[5])**coord.y + f32(arg[8]);
-                x = x ** (1.0f / w);
-                y = y ** (1.0f / w);
-                coord = {x, y};
-            }
+            SkASSERT(arg.slots() == 2);
+            coord = {f32(arg[0]), f32(arg[1])};
         }
 
         skvm::Color color = fSampleChild(fp_it->second, coord);

@@ -41,11 +41,6 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
             return SkSL::String::printf("sample(%d%s%s)", index, coords.empty() ? "" : ", ",
                                         coords.c_str());
         }
-
-        String sampleChildWithMatrix(int index, String matrix) override {
-            return SkSL::String::printf("sample(%d%s%s)", index, matrix.empty() ? "" : ", ",
-                                        matrix.c_str());
-        }
     };
 
     Callbacks callbacks;
