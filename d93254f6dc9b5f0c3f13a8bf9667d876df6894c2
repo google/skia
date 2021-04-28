@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8300ea10_2cfaf711",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-28T14:57:27Z",
+      "side": 1,
+      "message": "So to confirm, sample(matrix) as a language feature is gone, but GrMatrixEffect and the rest of the shader building pipeline uses invokeChildWithMatrix and related code? Or will are we planning to remove invokeChildWithMatrix too?",
+      "revId": "d93254f6dc9b5f0c3f13a8bf9667d876df6894c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
