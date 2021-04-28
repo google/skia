@@ -148,6 +148,10 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
 
     fResourceProvider.prepForSubmit();
+    for (int i = 0; i < fTemporaryCPUDescriptors.count(); ++i) {
+        fResourceProvider.recycleShaderView(fTemporaryCPUDescriptors[i]);
+    }
+    fTemporaryCPUDescriptors.reset();
 
     GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.get());
     if (result == GrD3DDirectCommandList::SubmitResult::kFailure) {
@@ -869,6 +873,213 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     }
 
     return std::move(tgt);
+}
+
+static DXGI_FORMAT get_uav_compatable_format(DXGI_FORMAT format) {
+    DXGI_FORMAT uavFormat = format;
+
+    switch (format) {
+    case DXGI_FORMAT_R8G8B8A8_TYPELESS:
+    case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+    case DXGI_FORMAT_B8G8R8A8_UNORM:
+    case DXGI_FORMAT_B8G8R8X8_UNORM:
+    case DXGI_FORMAT_B8G8R8A8_TYPELESS:
+    case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+    case DXGI_FORMAT_B8G8R8X8_TYPELESS:
+    case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+        uavFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+        break;
+    case DXGI_FORMAT_R32_TYPELESS:
+    case DXGI_FORMAT_D32_FLOAT:
+        uavFormat = DXGI_FORMAT_R32_FLOAT;
+        break;
+    }
+
+    return uavFormat;
+}
+
+bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
+    auto * d3dTex = static_cast<GrD3DTexture*>(tex);
+    SkASSERT(tex->textureType() == GrTextureType::k2D);
+    int width = tex->width();
+    int height = tex->height();
+    //*** TODO: check for NPOT
+
+    // determine if we can read from and mipmap this format
+    //*** TODO: check for typed format support?
+    const GrD3DCaps & caps = this->d3dCaps();
+    if (!caps.isFormatTexturable(d3dTex->dxgiFormat()) ||
+        !caps.mipmapSupport()) {
+        return false;
+    }
+
+    DXGI_FORMAT originalFormat = d3dTex->d3dResource()->GetDesc().Format;
+    bool isBGR = SkToBool(originalFormat == DXGI_FORMAT_B8G8R8A8_UNORM);
+
+    // if the format is not unordered accessible and not bgra, copy to resource with
+    // R8G8B8A8 format and flag set. If SRGB adjust shader to sample in linear.
+
+    // if the format is bgra
+    // * use R8G8B8A8 copy to generate mips
+    // * insert aliasing barrier R8G8B8A8->alias
+    // * copy alias back to original
+
+    sk_sp<GrD3DTexture> bgrAlias;
+    sk_sp<GrD3DTexture> uavTexture;
+
+    // if the format is unordered accessible and resource flag is set, use resource for uav
+    if (caps.isFormatUnorderedAccessible(d3dTex->dxgiFormat()) &&
+        (d3dTex->d3dResource()->GetDesc().Flags & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS)) {
+        uavTexture = sk_ref_sp(d3dTex);
+    } else {
+        // need to make a copy and use that for our uav
+        D3D12_RESOURCE_DESC uavDesc = d3dTex->d3dResource()->GetDesc();
+        uavDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+        // if the format is unordered accessible, copy to resource
+        // with same format (or typeless?) and flag set
+        if (caps.isFormatUnorderedAccessible(d3dTex->dxgiFormat())) {
+            //*** set typeless format?
+        } else {
+            uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        }
+        uavTexture = GrD3DTexture::MakeNewTexture(this, SkBudgeted::kNo, tex->dimensions(),
+                                                  uavDesc, GrProtected::kNo /*for now*/,
+                                                  tex->mipmapStatus());
+
+        d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+        if (isBGR) {
+            // create bgrAlias and copy to that
+            bgrAlias = GrD3DTexture::MakeAliasingTexture(this, uavTexture, originalFormat);
+            bgrAlias->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+            this->currentCommandList()->copyTextureToTexture(bgrAlias.get(), d3dTex);
+            // transition alias to uavTexture
+            this->currentCommandList()->aliasingBarrier(bgrAlias->resource(),
+                                                        bgrAlias->d3dResource(),
+                                                        uavTexture->resource(),
+                                                        uavTexture->d3dResource());
+        } else {
+            // otherwise just copy directly to uavTexture
+            uavTexture->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+            this->currentCommandList()->copyTextureToTexture(uavTexture.get(), d3dTex);
+        }
+    }
+
+    // SkMipmap doesn't include the base level in the level count so we have to add 1
+    uint32_t levelCount = SkMipmap::ComputeLevelCount(tex->width(), tex->height()) + 1;
+    SkASSERT(levelCount == d3dTex->mipLevels());
+
+    sk_sp<GrD3DRootSignature> rootSig = fResourceProvider.findOrCreateRootSignature(1, 1);
+    this->currentCommandList()->setComputeRootSignature(rootSig);
+
+    //*** TODO: use linear vs. srgb shader based on texture format
+    //*** TODO: use NPOT shader if necessary
+    //*** use &?
+    sk_sp<GrD3DPipeline> pipeline = this->resourceProvider().findOrCreateMipmapPipeline(
+                                      GrD3DResourceProvider::MipmapType::kLinear);
+    this->currentCommandList()->setPipelineState(std::move(pipeline));
+
+    // set sampler
+    GrSamplerState samplerState(SkFilterMode::kLinear, SkMipmapMode::kNearest);
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> samplers(1);
+    samplers[0] = fResourceProvider.findOrCreateCompatibleSampler(samplerState);
+    this->currentCommandList()->addSampledTextureRef(d3dTex); //*** necessary?
+    sk_sp<GrD3DDescriptorTable> samplerTable = fResourceProvider.findOrCreateSamplerTable(samplers);
+    this->currentCommandList()->setComputeRootDescriptorTable(
+            static_cast<unsigned int>(GrD3DRootSignature::ParamIndex::kSamplerDescriptorTable),
+            samplerTable->baseGpuDescriptor());
+
+    D3D12_RESOURCE_STATES currentResourceState = uavTexture->currentState();
+    D3D12_RESOURCE_TRANSITION_BARRIER barrier;
+    barrier.pResource = uavTexture->d3dResource();
+    barrier.Subresource = 0;
+    barrier.StateBefore = currentResourceState;
+    barrier.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+    this->addResourceBarriers(uavTexture->resource(), 1, &barrier);
+
+    // Draw the miplevels
+    for (unsigned int dstMip = 1; dstMip < levelCount; ++dstMip) {
+        unsigned int srcMip = dstMip - 1;
+        int prevWidth = width;
+        int prevHeight = height;
+        width = std::max(1, width / 2);
+        height = std::max(1, height / 2);
+
+        // set constants
+        struct {
+            uint32_t mipLevel;
+            SkSize inverseSize;
+        } constantData = { srcMip, 1.f / width, 1.f / height };
+
+        D3D12_GPU_VIRTUAL_ADDRESS constantsAddress =
+            fResourceProvider.uploadConstantData(&constantData, sizeof(constantData));
+        this->currentCommandList()->setComputeRootConstantBufferView(
+                (unsigned int)GrD3DRootSignature::ParamIndex::kConstantBufferView,
+                constantsAddress);
+
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> shaderViews;
+        // create SRV
+        GrD3DDescriptorHeap::CPUHandle srvHandle =
+                fResourceProvider.createShaderResourceView(uavTexture->d3dResource(), srcMip, 1);
+        shaderViews.push_back(srvHandle.fHandle);
+        fTemporaryCPUDescriptors.push_back(srvHandle);
+        // create UAV
+        GrD3DDescriptorHeap::CPUHandle uavHandle =
+                fResourceProvider.createUnorderedAccessView(uavTexture->d3dResource(), dstMip);
+        shaderViews.push_back(uavHandle.fHandle);
+        fTemporaryCPUDescriptors.push_back(uavHandle);
+
+        // set up and bind shaderView descriptor table
+        sk_sp<GrD3DDescriptorTable> srvTable =
+                fResourceProvider.findOrCreateShaderViewTable(shaderViews);
+        this->currentCommandList()->setComputeRootDescriptorTable(
+                (unsigned int)GrD3DRootSignature::ParamIndex::kShaderViewDescriptorTable,
+                srvTable->baseGpuDescriptor());
+
+        // change resource state of dstMip subresource so we can write to it
+        barrier.Subresource = dstMip;
+        barrier.StateBefore = currentResourceState;
+        barrier.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+        this->addResourceBarriers(d3dTex->resource(), 1, &barrier);
+
+        this->currentCommandList()->dispatch(std::max(width/8, 1), std::max(height/8, 1));
+
+        // guarantee UAV writes have completed
+        this->currentCommandList()->uavBarrier(uavTexture->resource(), uavTexture->d3dResource());
+
+        // change resource state of dstMip subresource so we can read in the next stage
+        barrier.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+        barrier.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+        this->addResourceBarriers(uavTexture->resource(), 1, &barrier);
+    }
+
+    // copy back if necessary
+    if (uavTexture.get() != d3dTex) {
+        d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+        if (bgrAlias) {
+            // transition alias to bgrAlias
+            this->currentCommandList()->aliasingBarrier(uavTexture->resource(),
+                                                        uavTexture->d3dResource(),
+                                                        bgrAlias->resource(),
+                                                        bgrAlias->d3dResource());
+            // copy to bgrAlias
+            bgrAlias->setResourceState(this, D3D12_RESOURCE_STATE_COPY_SOURCE);
+            this->currentCommandList()->copyTextureToTexture(d3dTex, bgrAlias.get());
+        } else {
+            barrier.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+            barrier.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+            barrier.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+            this->addResourceBarriers(uavTexture->resource(), 1, &barrier);
+            this->currentCommandList()->copyTextureToTexture(d3dTex, uavTexture.get());
+        }
+    } else {
+        // patch up resource state back to original
+        barrier.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+        barrier.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+        barrier.StateAfter = currentResourceState;
+        this->addResourceBarriers(d3dTex->resource(), 1, &barrier);
+    }
+
+    return true;
 }
 
 sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,

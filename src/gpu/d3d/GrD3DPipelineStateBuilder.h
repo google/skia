@@ -32,6 +32,9 @@ public:
                                                                  const GrProgramDesc&,
                                                                  const GrProgramInfo&);
 
+    static sk_sp<GrD3DPipeline> MakeComputePipeline(GrD3DGpu*, GrD3DRootSignature*,
+                                                    const char* shader);
+
     const GrCaps* caps() const override;
 
     GrD3DGpu* gpu() const { return fGpu; }

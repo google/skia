@@ -74,6 +74,15 @@ public:
     GrD3DPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
                                                             const GrProgramInfo&);
 
+    enum class MipmapType {
+        kLinear,
+        kSRGB,
+
+        kLast = kSRGB
+    };
+    static const int kMipmapTypeCount = static_cast<int>(MipmapType::kLast) + 1;
+    sk_sp<GrD3DPipeline> findOrCreateMipmapPipeline(MipmapType pipelineType);
+
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
     void prepForSubmit();
 
@@ -160,6 +169,7 @@ private:
     GrD3DDescriptorTableManager fDescriptorTableManager;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
+    sk_sp<GrD3DPipeline> fMipmapPipelines[kMipmapTypeCount];
 
     SkTHashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
 
