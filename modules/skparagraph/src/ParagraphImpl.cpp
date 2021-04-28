@@ -903,16 +903,7 @@ void ParagraphImpl::computeEmptyMetrics() {
     SkFont font(typeface, textStyle.getFontSize());
     fEmptyMetrics = InternalLineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
 
-    if (emptyParagraph) {
-        // For an empty text we apply both TextHeightBehaviour flags
-        // In case of non-empty paragraph TextHeightBehaviour flags will be applied at the appropriate place
-        auto disableFirstAscent = (paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent) == TextHeightBehavior::kDisableFirstAscent;
-        auto disableLastDescent = (paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent) == TextHeightBehavior::kDisableLastDescent;
-        fEmptyMetrics.update(
-            disableFirstAscent ? fEmptyMetrics.rawAscent() : fEmptyMetrics.ascent(),
-            disableLastDescent ? fEmptyMetrics.rawDescent() : fEmptyMetrics.descent(),
-            fEmptyMetrics.leading());
-    } else if (!paragraphStyle().getStrutStyle().getForceStrutHeight() &&
+    if (!paragraphStyle().getStrutStyle().getForceStrutHeight() &&
         textStyle.getHeightOverride()) {
         const auto intrinsicHeight = fEmptyMetrics.height();
         const auto strutHeight = textStyle.getHeight() * textStyle.getFontSize();
@@ -928,6 +919,18 @@ void ParagraphImpl::computeEmptyMetrics() {
                 fEmptyMetrics.descent() * multiplier,
                 fEmptyMetrics.leading() * multiplier);
         }
+    }
+
+    if (emptyParagraph) {
+        // For an empty text we apply both TextHeightBehaviour flags
+        // In case of non-empty paragraph TextHeightBehaviour flags will be applied at the appropriate place
+        // We have to do it here because we skip wrapping for an empty text
+        auto disableFirstAscent = (paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent) == TextHeightBehavior::kDisableFirstAscent;
+        auto disableLastDescent = (paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent) == TextHeightBehavior::kDisableLastDescent;
+        fEmptyMetrics.update(
+            disableFirstAscent ? fEmptyMetrics.rawAscent() : fEmptyMetrics.ascent(),
+            disableLastDescent ? fEmptyMetrics.rawDescent() : fEmptyMetrics.descent(),
+            fEmptyMetrics.leading());
     }
 
     if (fParagraphStyle.getStrutStyle().getStrutEnabled()) {
