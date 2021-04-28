@@ -70,6 +70,24 @@
       "parentUuid": "3d641e02_ce830c41",
       "revId": "c5aaf320ed0b1eba52e8034ca080f5bea2a7ef9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64b2fc79_39e02ae4",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T19:33:51Z",
+      "side": 1,
+      "message": "On one hand - we\u0027re already going to get ODR violations if that happens, but on the other hand, it\u0027s probably fine as-is. As long as this flag doesn\u0027t do anything for non-dev builds, I think we\u0027re in the clear.",
+      "parentUuid": "40da13b8_45a6a0ab",
+      "revId": "c5aaf320ed0b1eba52e8034ca080f5bea2a7ef9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
