@@ -76,6 +76,10 @@ public:
         // For testing purposes, completely disable the inliner. (Normally, Runtime Effects don't
         // run the inliner directly, but they still get an inlining pass once they are painted.)
         bool forceNoInline = false;
+        // For testing purposes only, ES2 restrictions can be lifted. Normally, Runtime Effects are
+        // limited to the ES2 feature set only. Be aware that the software renderer may crash if
+        // post-ES2 features are used, so never use this flag in shipping code.
+        bool enforceES2Restrictions = true;
     };
 
     // If the effect is compiled successfully, `effect` will be non-null.

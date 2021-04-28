@@ -64,6 +64,9 @@ struct ProgramSettings {
     // producing H and CPP code; the static tests don't have to have constant values *yet*, but
     // the generated code will contain a static test which then does have to be a constant.
     bool fPermitInvalidStaticTests = false;
+    // If true, configurations which demand strict ES2 conformance (runtime effects, generic
+    // programs, and SkVM rendering) will fail during compilation if ES2 restrictions are violated.
+    bool fEnforceES2Restrictions = true;
 };
 
 /**
@@ -74,10 +77,11 @@ struct ProgramConfig {
     ProgramSettings fSettings;
 
     bool strictES2Mode() const {
-        return fKind == ProgramKind::kRuntimeEffect ||
-               fKind == ProgramKind::kRuntimeColorFilter ||
-               fKind == ProgramKind::kRuntimeShader ||
-               fKind == ProgramKind::kGeneric;
+        return fSettings.fEnforceES2Restrictions &&
+               (fKind == ProgramKind::kRuntimeEffect ||
+                fKind == ProgramKind::kRuntimeColorFilter ||
+                fKind == ProgramKind::kRuntimeShader ||
+                fKind == ProgramKind::kGeneric);
     }
 };
 

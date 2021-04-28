@@ -133,6 +133,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
         SkSL::Program::Settings settings;
         settings.fInlineThreshold = 0;
         settings.fForceNoInline = options.forceNoInline;
+        settings.fEnforceES2Restrictions = options.enforceES2Restrictions;
         settings.fAllowNarrowingConversions = true;
         program = compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
 
@@ -380,9 +381,12 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
     // be accounted for in `fHash`. If you've added a new field to Options and caused the static-
     // assert below to trigger, please incorporate your field into `fHash` and update KnownOptions
     // to match the layout of Options.
-    struct KnownOptions { bool b; };
+    struct KnownOptions { bool a, b; };
     static_assert(sizeof(Options) == sizeof(KnownOptions));
-    fHash = SkOpts::hash_fn(&options.forceNoInline, sizeof(options.forceNoInline), fHash);
+    fHash = SkOpts::hash_fn(&options.forceNoInline,
+                      sizeof(options.forceNoInline), fHash);
+    fHash = SkOpts::hash_fn(&options.enforceES2Restrictions,
+                      sizeof(options.enforceES2Restrictions), fHash);
 }
 
 SkRuntimeEffect::~SkRuntimeEffect() = default;
