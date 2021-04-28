@@ -115,19 +115,6 @@ public:
                 return String(fSelf->invokeChild(index, fInputColor, fArgs, coords).c_str());
             }
 
-            String sampleChildWithMatrix(int index, String matrix) override {
-                // If the child is sampled with a uniform matrix, we need to pass the empty string.
-                // 'invokeChildWithMatrix' will assert that the passed-in matrix matches the one
-                // extracted from the SkSL when the sample usages were determined. We've mangled
-                // the uniform names, though, so it won't match.
-                const GrFragmentProcessor* child = fArgs.fFp.childProcessor(index);
-                const bool hasUniformMatrix = child && child->sampleUsage().hasUniformMatrix();
-                return String(
-                        fSelf->invokeChildWithMatrix(
-                                     index, fInputColor, fArgs, hasUniformMatrix ? "" : matrix)
-                                .c_str());
-            }
-
             GrGLSLSkSLFP*        fSelf;
             EmitArgs&            fArgs;
             const char*          fInputColor;
