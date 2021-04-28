@@ -74,17 +74,76 @@ public:
     DSLType(const SkSL::Type* type)
         : fSkSLType(type) {}
 
+    /**
+     * Returns true if this type is a bool.
+     */
+    bool isBoolean() const;
+
+    /**
+     * Returns true if this is a numeric scalar type.
+     */
+    bool isNumber() const;
+
+    /**
+     * Returns true if this is a floating-point scalar type (float or half).
+     */
+    bool isFloat() const;
+
+    /**
+     * Returns true if this is a signed scalar type (int or short).
+     */
+    bool isSigned() const;
+
+    /**
+     * Returns true if this is an unsigned scalar type (uint or ushort).
+     */
+    bool isUnsigned() const;
+
+    /**
+     * Returns true if this is a signed or unsigned integer.
+     */
+    bool isInteger() const;
+
+    /**
+     * Returns true if this is a scalar type.
+     */
+    bool isScalar() const;
+
+    /**
+     * Returns true if this is a vector type.
+     */
+    bool isVector() const;
+
+    /**
+     * Returns true if this is a matrix type.
+     */
+    bool isMatrix() const;
+
+    /**
+     * Returns true if this is a array type.
+     */
+    bool isArray() const;
+
+    /**
+     * Returns true if this is a struct type.
+     */
+    bool isStruct() const;
+
+
     template<typename... Args>
-    static DSLExpression Construct(TypeConstant type, Args&&... args) {
+    static DSLExpression Construct(DSLType type, Args&&... args) {
         SkTArray<DSLExpression> argArray;
         argArray.reserve_back(sizeof...(args));
         CollectArgs(argArray, std::forward<Args>(args)...);
         return Construct(type, std::move(argArray));
     }
 
-    static DSLExpression Construct(TypeConstant type, SkTArray<DSLExpression> argArray);
+    static DSLExpression Construct(DSLType type, SkTArray<DSLExpression> argArray);
 
 private:
+    DSLType()
+        : DSLType(kVoid_Type) {}
+
     const SkSL::Type& skslType() const;
 
     const SkSL::Type* fSkSLType = nullptr;

@@ -37,6 +37,7 @@ public:
     , fBuiltin(builtin)
     , fErrorReporter(parent->fErrorReporter) {}
 
+    ~SymbolTable() {}
     /**
      * If the input is a built-in symbol table, returns a new empty symbol table as a child of the
      * input table. If the input is not a built-in symbol table, returns it as-is. Built-in symbol

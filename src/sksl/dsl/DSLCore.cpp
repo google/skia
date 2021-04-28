@@ -25,8 +25,8 @@ namespace SkSL {
 
 namespace dsl {
 
-void Start(SkSL::Compiler* compiler, ProgramKind kind) {
-    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind));
+void Start(SkSL::Compiler* compiler, ProgramKind kind, DSLFlag flags) {
+    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, flags));
 }
 
 void End() {
@@ -76,7 +76,15 @@ public:
             DSLWriter::ReportError("error: variable has already been declared\n", &pos);
         }
         var.fDeclared = true;
+        // force creation of the var, with the side effect of adding it to the symbol table
+        DSLWriter::Var(var);
         return DSLWriter::Declaration(var);
+    }
+
+    static void DeclareGlobal(DSLVar& var, PositionInfo pos) {
+        std::unique_ptr<SkSL::Statement> stmt = Declare(var, pos).release();
+        SkASSERT(stmt);
+        DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(std::move(stmt)));
     }
 
     static DSLStatement Discard() {
@@ -94,7 +102,8 @@ public:
                                      DSLWriter::SymbolTable());
     }
 
-    static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse) {
+    static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
+                                   bool isStatic = false) {
         return IfStatement::Convert(DSLWriter::Context(), /*offset=*/-1, /*isStatic=*/false,
                                     test.release(), ifTrue.release(), ifFalse.release());
     }
@@ -150,8 +159,13 @@ public:
                                           ifTrue.release(), ifFalse.release());
     }
 
-    static DSLPossibleStatement Switch(DSLExpression value, SkSL::ExpressionArray values,
-                                       SkTArray<StatementArray> statements) {
+    static DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases) {
+        ExpressionArray values;
+        SkTArray<StatementArray> statements;
+        for (DSLCase& c : cases) {
+            values.push_back(c.fValue.release());
+            statements.push_back(std::move(c.fStatements));
+        }
         return DSLWriter::ConvertSwitch(value.release(), std::move(values), std::move(statements));
     }
 
@@ -181,6 +195,10 @@ DSLStatement Declare(DSLVar& var, PositionInfo pos) {
     return DSLCore::Declare(var, pos);
 }
 
+void DeclareGlobal(DSLVar& var, PositionInfo pos) {
+    return DSLCore::DeclareGlobal(var, pos);
+}
+
 DSLStatement Discard() {
     return DSLCore::Discard();
 }
@@ -195,8 +213,10 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
                                      std::move(stmt), pos), pos);
 }
 
-DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, PositionInfo pos) {
-    return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse)), pos);
+DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, bool isStatic,
+                PositionInfo pos) {
+    return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
+                                    isStatic), pos);
 }
 
 DSLStatement Return(DSLExpression expr, PositionInfo pos) {
@@ -209,9 +229,8 @@ DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifF
                          pos);
 }
 
-DSLPossibleStatement Switch(DSLExpression value, SkSL::ExpressionArray values,
-                            SkTArray<StatementArray> statements) {
-    return DSLCore::Switch(std::move(value), std::move(values), std::move(statements));
+DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases) {
+    return DSLCore::Switch(std::move(value), std::move(cases));
 }
 
 DSLStatement While(DSLExpression test, DSLStatement stmt, PositionInfo pos) {
