@@ -23,8 +23,6 @@ class GrTexture;
 // proxy will be stored and used for any future rendering.
 class SkImage_GpuYUVA final : public SkImage_GpuBase {
 public:
-    friend class GrYUVAImageTextureMaker;
-
     SkImage_GpuYUVA(sk_sp<GrImageContext>,
                     uint32_t uniqueID,
                     GrYUVATextureProxies proxies,
