@@ -1941,6 +1941,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Medium", SkFilterQuality::kMedium_SkFilterQuality)
         .value("High",   SkFilterQuality::kHigh_SkFilterQuality);
 
+    enum_<skia::textlayout::Paragraph::VisitorFlags>("GlyphRunFlags")
+        .value("IsWhiteSpace", skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
+
     // Only used to control the encode function.
     // TODO(kjlubick): compile these out when the appropriate encoder is disabled.
     enum_<SkEncodedImageFormat>("ImageFormat")
@@ -2038,6 +2041,4 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("ShadowTransparentOccluder", (int)SkShadowFlags::kTransparentOccluder_ShadowFlag);
     constant("ShadowGeometricOnly", (int)SkShadowFlags::kGeometricOnly_ShadowFlag);
     constant("ShadowDirectionalLight", (int)SkShadowFlags::kDirectionalLight_ShadowFlag);
-
-    constant("WhiteSpace_GlyphRunFlag", (int)skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
 }
