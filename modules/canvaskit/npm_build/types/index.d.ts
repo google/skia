@@ -649,8 +649,6 @@ export interface LineMetrics {
     lineNumber: number;
 }
 
-readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whitespace(s)
-
 /**
  * Information for a run of shaped text. See Paragraph.getShapedRuns()
  *
@@ -662,6 +660,8 @@ readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whit
  * to describe the location "after" the last glyph in the glyphs array.
  */
 export interface GlyphRun {
+    readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whitespace(s)
+
     glyphs: Uint16Array;
     positions: Float32Array;    // alternating x0, y0, x1, y1, ...
     offsets: Uint32Array;
