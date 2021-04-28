@@ -314,17 +314,8 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 
 #if SK_SUPPORT_GPU
 
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
-#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorInfo.h"
-#include "src/gpu/GrImageTextureMaker.h"
-#include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrTextureAdjuster.h"
-#include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/effects/GrTextureEffect.h"
 
 std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         const GrFPArgs& args) const {
