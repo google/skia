@@ -1,3 +1,12 @@
+struct S {
+    float2 v;
+};
+
+void initialize(out S[2] z) {
+    z[0].v = float2(0, 1);
+    z[1].v = float2(2, 1);
+}
+
 half4 main(float2 coords) {
     float2 x[2];
     x[0] = float2( 0, 0);
@@ -5,9 +14,11 @@ half4 main(float2 coords) {
     float2 y[2];
     y[0] = float2( 0, 1);
     y[1] = float2(-1, 2);
+    S z[2];
+    initialize(z);
 
-    return half4(x[0][0] * x[0][1],   // R=0
-                 x[1][0] - x[1][1],   // G=1
-                 y[0][0] / y[0][1],   // B=0
-                 y[1][0] + y[1][1]);  // A=1
+    return half4(x[0][0] * x[0][1] + z[0].v[0],   // R=0
+                 x[1][0] - x[1][1] * z[0].v[1],   // G=1
+                 y[0][0] / y[0][1] / z[1].v[0],   // B=0
+                 y[1][0] + y[1][1] * z[1].v[1]);  // A=1
 }
