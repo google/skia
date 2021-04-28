@@ -17,6 +17,11 @@ Milestone 92
     new Ganesh architecture both rely on full MSAA, and any platform where mixed samples is
     supported will ultimately not use the old architecture.
 
+  * SkRuntimeEffect::Make has been removed. It is replaced by MakeForShader and MakeForColorFilter.
+    These functions do stricter error checking on the SkSL, to ensure it is valid for a particular
+    stage of the Skia pipeline.
+    https://review.skia.org/402156
+
 * * *
 
 Milestone 91

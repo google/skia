@@ -102,10 +102,6 @@ public:
     // Most shaders don't use the input color, so that parameter is optional.
     static Result MakeForShader(SkString sksl, const Options&);
 
-    // [DEPRECATED] Make supports SkSL that is legal as either an SkShader or SkColorFilter.
-    // makeColorFilter might return nullptr, if the effect is dependent on position in any way.
-    static Result Make(SkString sksl, const Options&);
-
     // We can't use a default argument for `options` due to a bug in Clang.
     // https://bugs.llvm.org/show_bug.cgi?id=36684
     static Result MakeForColorFilter(SkString sksl) {
@@ -113,9 +109,6 @@ public:
     }
     static Result MakeForShader(SkString sksl) {
         return MakeForShader(std::move(sksl), Options{});
-    }
-    static Result Make(SkString sksl) {
-        return Make(std::move(sksl), Options{});
     }
 
     static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program);
@@ -182,6 +175,14 @@ public:
 #endif
 
 private:
+    // For internal use: Make supports SkSL that is legal as either an SkShader or SkColorFilter.
+    // makeColorFilter might return nullptr, if the effect is dependent on position in any way.
+    static Result Make(SkString sksl, const Options&);
+
+    static Result Make(SkString sksl) {
+        return Make(std::move(sksl), Options{});
+    }
+
     enum Flags {
         kUsesSampleCoords_Flag = 0x1,
         kAllowColorFilter_Flag = 0x2,
@@ -216,12 +217,14 @@ private:
     FilterColorInfo getFilterColorInfo();
 
 #if SK_SUPPORT_GPU
-    friend class GrSkSLFP;      // fBaseProgram, fSampleUsages
-    friend class GrGLSLSkSLFP;  //
+    friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
+    friend class GrGLSLSkSLFP;         //
+    friend class GrRuntimeFPBuilder;  // Make
 #endif
 
     friend class SkRTShader;            // fBaseProgram, fMain
     friend class SkRuntimeColorFilter;  //
+    friend sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString);
 
     uint32_t fHash;
     SkString fSkSL;
