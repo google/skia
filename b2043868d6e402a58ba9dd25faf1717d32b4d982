@@ -39,6 +39,30 @@
       },
       "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f435beff_3d596e9d",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-28T14:57:22Z",
+      "side": 1,
+      "message": "hmm, all three of\n\n   half4 main() { return mix(sample(cf0), sample(cf1), weight); }\n   half4 main(half4 color) { return mix(sample(cf0), sample(cf1), weight); }\n   half4 main(half4 color) { return mix(sample(cf0, color), sample(cf1, color), weight); }\n\nare failing for me.",
+      "parentUuid": "99a2b458_00d9b9e7",
+      "range": {
+        "startLine": 470,
+        "startChar": 19,
+        "endLine": 470,
+        "endChar": 21
+      },
+      "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
