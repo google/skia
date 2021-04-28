@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f003fed_6ad9e6b9",
+        "filename": "include/private/SkSLSampleUsage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T19:48:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e9a6176_88b377f5",
+      "range": {
+        "startLine": 26,
+        "startChar": 48,
+        "endLine": 26,
+        "endChar": 53
+      },
+      "revId": "8816ee9187dfcd704c42b826b29889ef2d146354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7b8ced3_d73b2d02",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-04-28T19:32:00Z",
       "side": 1,
       "message": "tiny nit: Not sure what is extra-safe or particularly valid about zeros? Isn\u0027t it just because we have to fill this value in with something?",
+      "range": {
+        "startLine": 566,
+        "startChar": 11,
+        "endLine": 566,
+        "endChar": 92
+      },
+      "revId": "8816ee9187dfcd704c42b826b29889ef2d146354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "634b7026_653c9eaa",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T19:48:20Z",
+      "side": 1,
+      "message": "Yeah, this really just means \"don\u0027t pass uninitialized values, those can anger the skvm Builder\".",
+      "parentUuid": "f7b8ced3_d73b2d02",
       "range": {
         "startLine": 566,
         "startChar": 11,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06d715a9_72c84bfe",
+        "filename": "src/sksl/SkSLSampleUsage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T19:48:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11ba181c_8a0f4b26",
+      "range": {
+        "startLine": 32,
+        "startChar": 39,
+        "endLine": 32,
+        "endChar": 48
+      },
+      "revId": "8816ee9187dfcd704c42b826b29889ef2d146354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b83ea3d_38d067f1",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-04-28T19:32:00Z",
       "side": 1,
       "message": "nit: \"processing\"",
+      "range": {
+        "startLine": 44,
+        "startChar": 39,
+        "endLine": 44,
+        "endChar": 48
+      },
+      "revId": "8816ee9187dfcd704c42b826b29889ef2d146354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15f5dd93_38d51036",
+        "filename": "src/sksl/SkSLSampleUsage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T19:48:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b83ea3d_38d067f1",
       "range": {
         "startLine": 44,
         "startChar": 39,
