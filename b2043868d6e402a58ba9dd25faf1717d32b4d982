@@ -87,6 +87,30 @@
       },
       "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e012e5f_24fe90a2",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T15:07:20Z",
+      "side": 1,
+      "message": "Hmm. I\u0027d expect\n  half4 main(half4 color) { return mix(sample(cf0), sample(cf1), weight); }\n\n... to be the one that works today. Oh, no ... doh. We\u0027re missing the sample variants that would let that work (I was waiting to add the one-and-only colorFilter version that takes a color as the 2nd arg.\n\nHmm. I bet you can make it work (with a comment explaining that this needs to be cleaned up) with:\n\n  half4 main(half4 color) { return mix(sample(cf0, float2(0)), sample(cf1, float2(0)), weight); }\n\nAll of the sample logic at this point is geared towards shaders, because all other color filters stopped needing it temporarily (when they started taking color as input). Treating the children like shaders should work for now. (I have other CLs lined up to rectify this...)",
+      "parentUuid": "f435beff_3d596e9d",
+      "range": {
+        "startLine": 470,
+        "startChar": 19,
+        "endLine": 470,
+        "endChar": 21
+      },
+      "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
