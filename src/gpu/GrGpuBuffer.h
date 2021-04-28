@@ -25,9 +25,25 @@ public:
 
     size_t size() const final { return fSizeInBytes; }
 
-    void ref() const final { GrGpuResource::ref(); }
+    void ref() const final {
+//        if (fSizeInBytes == 49152) {
+//            int i = 0;
+//        }
 
-    void unref() const final { GrGpuResource::unref(); }
+        uint32_t refCnt = this->testingOnly_getRefCnt();
+        SkDebugf("B ref %p (%d) %d -> %d\n", this, fSizeInBytes, refCnt, refCnt+1);
+        GrGpuResource::ref();
+    }
+
+    void unref() const final {
+//        if (fSizeInBytes == 49152) {
+//            int i = 0;
+//        }
+
+        uint32_t refCnt = this->testingOnly_getRefCnt();
+        SkDebugf("B unref %p (%d) %d -> %d\n", this, fSizeInBytes, refCnt, refCnt-1);
+        GrGpuResource::unref();
+    }
 
     /**
      * Maps the buffer to be read or written by the CPU.

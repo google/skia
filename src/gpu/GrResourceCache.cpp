@@ -834,10 +834,18 @@ void GrResourceCache::getStats(Stats* stats) const {
     stats->fNumNonPurgeable = fNonpurgeableResources.count();
     stats->fNumPurgeable = fPurgeableQueue.count();
 
+    SkDebugf("NonPurgeable:\n");
     for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        SkDebugf("%d: %s %p %d\n",
+                 i, fNonpurgeableResources[i]->getResourceType(),
+                 fNonpurgeableResources[i], fNonpurgeableResources[i]->testingOnly_getRefCnt());
         stats->update(fNonpurgeableResources[i]);
     }
+    SkDebugf("Purgeable:\n");
     for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        SkDebugf("%d: %s %p %d\n",
+                 i, fPurgeableQueue.at(i)->getResourceType(),
+                 fPurgeableQueue.at(i), fPurgeableQueue.at(i)->testingOnly_getRefCnt());
         stats->update(fPurgeableQueue.at(i));
     }
 }

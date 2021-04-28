@@ -1566,13 +1566,19 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         return result;
     }
     surface->flushAndSubmit();
+
+    this->readBack(surface.get(), dst);
+    surface = nullptr;
+
     if (FLAGS_gpuStats) {
+        auto oldSize = direct->getResourceCacheLimit();
+        direct->setResourceCacheLimit(0);
+        direct->setResourceCacheLimit(oldSize);
         direct->priv().dumpCacheStats(log);
         direct->priv().dumpGpuStats(log);
         direct->priv().dumpContextStats(log);
     }
 
-    this->readBack(surface.get(), dst);
 
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
