@@ -179,8 +179,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     switch (kind) {
         case SkSL::ProgramKind::kRuntimeColorFilter: flags |= kAllowColorFilter_Flag; break;
         case SkSL::ProgramKind::kRuntimeShader:      flags |= kAllowShader_Flag;      break;
-        case SkSL::ProgramKind::kRuntimeEffect:      flags |= (kAllowColorFilter_Flag |
-                                                               kAllowShader_Flag);    break;
         default: SkUNREACHABLE;
     }
 
@@ -189,16 +187,11 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
         flags |= kUsesSampleCoords_Flag;
     }
 
-    // Color filters are not allowed to depend on position (local or device) in any way, but they
-    // can sample children with matrices or explicit coords. Because the children are color filters,
-    // we know (by induction) that they don't use those coords, so we keep the overall invariant.
-    //
-    // TODO(skbug.com/11813): When ProgramKind is always kRuntimeColorFilter or kRuntimeShader,
-    // this can be simpler. There is no way for color filters to refer to sk_FragCoord or sample
-    // coords in that mode.
-    if ((flags & kAllowColorFilter_Flag) &&
-        ((flags & kUsesSampleCoords_Flag) || SkSL::Analysis::ReferencesFragCoords(*program))) {
-        flags &= ~kAllowColorFilter_Flag;
+    // Color filters are not allowed to depend on position (local or device) in any way.
+    // The signature of main, and the declarations in sksl_rt_colorfilter should guarantee this.
+    if (flags & kAllowColorFilter_Flag) {
+        SkASSERT(!(flags & kUsesSampleCoords_Flag));
+        SkASSERT(!SkSL::Analysis::ReferencesFragCoords(*program));
     }
 
     size_t offset = 0;
@@ -265,10 +258,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                                                       std::move(sampleUsages),
                                                       flags));
     return Result{std::move(effect), SkString()};
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
-    return Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeEffect);
 }
 
 SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(SkString sksl, const Options& options) {
