@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cce3c6f3_390018f3",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T14:22:51Z",
+      "side": 1,
+      "message": "Yeah, I was trying to figure out a way to avoid doing that (it means having two separate caches, or...), but it\u0027s the right thing to do, for sure.",
+      "parentUuid": "4d62b379_c7384cbd",
+      "revId": "9d3f3406722c145c932b9d4be668f42715919624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "edd8f75e_521b46cc",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 3
@@ -31,6 +49,24 @@
       "writtenOn": "2021-04-28T14:16:19Z",
       "side": 1,
       "message": "Think this test wants to move over to MakeFor...() and test that they work and don\u0027t work as expected?  Or perhaps just go away if that\u0027s already well-tested?",
+      "revId": "9d3f3406722c145c932b9d4be668f42715919624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16dd5452_9506d330",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T14:22:51Z",
+      "side": 1,
+      "message": "Once we move to having MakeFor on our internal uses as well, this test can go away.",
+      "parentUuid": "edd8f75e_521b46cc",
       "revId": "9d3f3406722c145c932b9d4be668f42715919624",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
