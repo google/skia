@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "032ce60e_2a0d66f5",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-28T16:39:55Z",
+      "side": 1,
+      "message": "Done. I think it\u0027s an improvement and makes some of the asserts unnecessary because they\u0027re more obviously true from the earlier control flow.",
+      "parentUuid": "0b5ad981_621cbb6c",
+      "range": {
+        "startLine": 193,
+        "startChar": 4,
+        "endLine": 217,
+        "endChar": 5
+      },
+      "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "87e8be88_e7339ba4",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-28T16:33:28Z",
       "side": 1,
       "message": "rm ?",
+      "range": {
+        "startLine": 201,
+        "startChar": 12,
+        "endLine": 201,
+        "endChar": 19
+      },
+      "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03b57b90_5a3e2d3c",
+        "filename": "src/gpu/SkGr.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-28T16:39:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87e8be88_e7339ba4",
       "range": {
         "startLine": 201,
         "startChar": 12,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4756de65_e08dbda5",
+        "filename": "src/gpu/effects/GrCircleBlurFragmentProcessor.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-28T16:39:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2352f95a_f8fe5804",
+      "range": {
+        "startLine": 273,
+        "startChar": 77,
+        "endLine": 273,
+        "endChar": 94
+      },
+      "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "497a8026_ebbe0603",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-04-28T15:56:04Z",
       "side": 1,
       "message": "Is this the only place where we end up going from optional subset and domain for TextureEffect and BicubicEffect to specific MakeSubset/Make calls? If it seems like we\u0027ll need to do this elsewhere as well, maybe we add Make for both that takes pointers and does the branching internally?",
+      "range": {
+        "startLine": 458,
+        "startChar": 0,
+        "endLine": 510,
+        "endChar": 5
+      },
+      "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e692dce_fb6c497d",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-28T16:39:55Z",
+      "side": 1,
+      "message": "Personally, I like calling out MakeSubset vs Make since MakeSubset has significant performance implications and I want to see very clearly where we\u0027re making a subset effect. I could see it being an improvement to have one version of MakeSubset that takes the domain as optional via pointer. But that seems like it should be its own change.\n\nI didn\u0027t follow the make vs makesubset with asFragmentProcessor because of the virtual, but it could be two functions at the non-virtual public level that call a shared virtual function.",
+      "parentUuid": "497a8026_ebbe0603",
       "range": {
         "startLine": 458,
         "startChar": 0,
