@@ -179,8 +179,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     switch (kind) {
         case SkSL::ProgramKind::kRuntimeColorFilter: flags |= kAllowColorFilter_Flag; break;
         case SkSL::ProgramKind::kRuntimeShader:      flags |= kAllowShader_Flag;      break;
-        case SkSL::ProgramKind::kRuntimeEffect:      flags |= (kAllowColorFilter_Flag |
-                                                               kAllowShader_Flag);    break;
         default: SkUNREACHABLE;
     }
 
@@ -265,10 +263,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                                                       std::move(sampleUsages),
                                                       flags));
     return Result{std::move(effect), SkString()};
-}
-
-SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& options) {
-    return Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeEffect);
 }
 
 SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(SkString sksl, const Options& options) {

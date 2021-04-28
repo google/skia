@@ -9,7 +9,7 @@ int return_loop_0()
 	}
 	return 0;
 }
-half4 main()
+half4 main(float2 xy)
 {
 	int _0_sum = 0;
 	for (int _1_i = 0;_1_i < 10; ++_1_i) 
