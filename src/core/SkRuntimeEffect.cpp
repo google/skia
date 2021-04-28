@@ -292,7 +292,8 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Pro
     return result;
 }
 
-sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString sksl) {
+sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString sksl),
+                                                 SkString sksl) {
     SK_BEGIN_REQUIRE_DENSE
     struct Key {
         uint32_t skslHashA;
@@ -320,7 +321,7 @@ sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString sksl) {
         }
     }
 
-    auto [effect, err] = SkRuntimeEffect::Make(std::move(sksl));
+    auto [effect, err] = make(std::move(sksl));
     if (!effect) {
         return nullptr;
     }
@@ -641,7 +642,7 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     buffer.readString(&sksl);
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
 
-    auto effect = SkMakeCachedRuntimeEffect(std::move(sksl));
+    auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, std::move(sksl));
     if (!buffer.validate(effect != nullptr)) {
         return nullptr;
     }
@@ -808,7 +809,7 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
-    auto effect = SkMakeCachedRuntimeEffect(std::move(sksl));
+    auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForShader, std::move(sksl));
     if (!buffer.validate(effect != nullptr)) {
         return nullptr;
     }

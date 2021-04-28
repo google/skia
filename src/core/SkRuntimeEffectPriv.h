@@ -15,13 +15,15 @@
 //     1) they're used in contexts where it's not useful to receive an error message;
 //     2) they're cached.
 //
-// Users of the public SkRuntimeEffect::Make() can of course cache however they like themselves;
+// Users of the public SkRuntimeEffect::Make*() can of course cache however they like themselves;
 // keeping these APIs private means users will not be forced into our cache or cache policy.
 
-sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString);
+sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString sksl),
+                                                 SkString sksl);
 
-inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(const char* sksl) {
-    return SkMakeCachedRuntimeEffect(SkString{sksl});
+inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString),
+                                                        const char* sksl) {
+    return SkMakeCachedRuntimeEffect(make, SkString{sksl});
 }
 
 // This is mostly from skvm's rgb->hsl code, with some GPU-related finesse pulled from
