@@ -39,7 +39,6 @@ uniform half blurRadius;
     #include "src/core/SkAutoMalloc.h"
     #include "src/core/SkGpuBlurUtils.h"
     #include "src/core/SkRRectPriv.h"
-    #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrCaps.h"
     #include "src/gpu/GrDirectContextPriv.h"
     #include "src/gpu/GrPaint.h"
@@ -48,6 +47,7 @@ uniform half blurRadius;
     #include "src/gpu/GrStyle.h"
     #include "src/gpu/GrSurfaceDrawContext.h"
     #include "src/gpu/GrThreadSafeCache.h"
+    #include "src/gpu/SkGr.h"
     #include "src/gpu/effects/GrTextureEffect.h"
 
     static constexpr auto kBlurredRRectMaskOrigin = kTopLeft_GrSurfaceOrigin;
@@ -235,8 +235,7 @@ uniform half blurRadius;
 
         result.setImmutable();
 
-        GrBitmapTextureMaker maker(rContext, result, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto view = maker.view(GrMipmapped::kNo);
+        auto view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, result));
         if (!view) {
             return {};
         }

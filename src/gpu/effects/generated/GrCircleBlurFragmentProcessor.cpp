@@ -12,10 +12,10 @@
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkGpuBlurUtils.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrThreadSafeCache.h"
+#include "src/gpu/SkGr.h"
 
 // Computes an unnormalized half kernel (right side). Returns the summation of all the half
 // kernel values.
@@ -250,11 +250,9 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
         create_circle_profile(
                 bm.getAddr8(0, 0), sigma * scale, circleR * scale, kProfileTextureWidth);
     }
-
     bm.setImmutable();
 
-    GrBitmapTextureMaker maker(rContext, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    profileView = maker.view(GrMipmapped::kNo);
+    profileView = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bm));
     if (!profileView) {
         return nullptr;
     }
