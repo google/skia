@@ -203,11 +203,12 @@ void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentPro
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeColor(SkPMColor4f color) {
+    // Use ColorFilter signature/factory to get the constant output for constant input optimization
     static constexpr char kCode[] = R"(
         uniform half4 color;
-        half4 main() { return color; }
+        half4 main(half4 inColor) { return color; }
     )";
-    auto builder = GrRuntimeFPBuilder::Make<kCode>();
+    auto builder = GrRuntimeFPBuilder::Make<kCode, SkRuntimeEffect::MakeForColorFilter>();
     builder.uniform("color") = color;
     return builder.makeFP();
 }
