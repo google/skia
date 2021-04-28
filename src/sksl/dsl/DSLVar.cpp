@@ -105,7 +105,6 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
                                                                  &name).toIndex();
             fName = name;
         }
-        fDeclared = true;
     }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
 }
