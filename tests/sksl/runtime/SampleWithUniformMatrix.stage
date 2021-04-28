@@ -1,5 +1,0 @@
-uniform float3x3 matrix;
-half4 main()
-{
-	return half4(sample(child_0, matrix));
-}

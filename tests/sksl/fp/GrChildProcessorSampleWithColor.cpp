@@ -20,34 +20,20 @@ public:
         const GrChildProcessorSampleWithColor& _outer = args.fFp.cast<GrChildProcessorSampleWithColor>();
         (void) _outer;
         CVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "C");
-        M0Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "M0");
-        M1Var = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "M1");
         SkString _input0(args.fUniformHandler->getUniformCStr(CVar));
         SkString _sample0 = this->invokeChild(0, _input0.c_str(), args);
         SkString _input1(args.fUniformHandler->getUniformCStr(CVar));
         SkString _coords1 = SkStringPrintf("%s / 2.0", args.fSampleCoord);
         SkString _sample1 = this->invokeChild(1, _input1.c_str(), args, _coords1.c_str());
-        SkString _input2(args.fUniformHandler->getUniformCStr(CVar));
-        SkString _sample2 = this->invokeChildWithMatrix(2, _input2.c_str(), args);
-        SkString _input3(args.fUniformHandler->getUniformCStr(CVar));
-        SkString _sample3 = this->invokeChildWithMatrix(3, _input3.c_str(), args);
-        SkString _input4(args.fUniformHandler->getUniformCStr(CVar));
-        SkString _matrix4(args.fUniformHandler->getUniformCStr(M0Var));
-        SkString _sample4 = this->invokeChildWithMatrix(4, _input4.c_str(), args, _matrix4.c_str());
-        SkString _input5(args.fUniformHandler->getUniformCStr(CVar));
-        SkString _matrix5(args.fUniformHandler->getUniformCStr(M1Var));
-        SkString _sample5 = this->invokeChildWithMatrix(4, _input5.c_str(), args, _matrix5.c_str());
         fragBuilder->codeAppendf(
-R"SkSL(return ((((%s + %s) + %s) + %s) + %s) + %s;
+R"SkSL(return %s + %s;
 )SkSL"
-, _sample0.c_str(), _sample1.c_str(), _sample2.c_str(), _sample3.c_str(), _sample4.c_str(), _sample5.c_str());
+, _sample0.c_str(), _sample1.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
     UniformHandle CVar;
-    UniformHandle M0Var;
-    UniformHandle M1Var;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrChildProcessorSampleWithColor::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLChildProcessorSampleWithColor>();
