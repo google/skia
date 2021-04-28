@@ -16,6 +16,75 @@
       "message": "Found another flaw, don\u0027t review yet",
       "revId": "3d4da53a30ac3837059a32970139efc56381137c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5049a899_c986d96b",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T15:36:07Z",
+      "side": 1,
+      "message": "nit: Want to decorate this with Matrix, for consistency with the others?",
+      "range": {
+        "startLine": 1271,
+        "startChar": 18,
+        "endLine": 1271,
+        "endChar": 26
+      },
+      "revId": "3d4da53a30ac3837059a32970139efc56381137c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f4c4420_6faf171e",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T15:36:07Z",
+      "side": 1,
+      "message": "So, this code is ensuring that each field\u0027s equality operator is written. But...",
+      "range": {
+        "startLine": 1338,
+        "startChar": 2,
+        "endLine": 1347,
+        "endChar": 0
+      },
+      "revId": "3d4da53a30ac3837059a32970139efc56381137c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d317807a_77f7881d",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1414,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T15:36:07Z",
+      "side": 1,
+      "message": "... if we have an array of structs (that\u0027s legal, right?), we\u0027ll never emit the struct helper, AFAICS.",
+      "range": {
+        "startLine": 1414,
+        "startChar": 0,
+        "endLine": 1414,
+        "endChar": 46
+      },
+      "revId": "3d4da53a30ac3837059a32970139efc56381137c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
