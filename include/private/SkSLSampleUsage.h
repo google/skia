@@ -23,9 +23,6 @@ struct SampleUsage {
         // uniforms, and thus the transform can be hoisted to the vertex shader (assuming that
         // its parent can also be hoisted, i.e. not sampled explicitly).
         kUniform,
-        // The FP is sampled with a non-literal/uniform value, or matrix-sampled multiple times,
-        // and thus the transform cannot be hoisted to the vertex shader.
-        kVariable
     };
 
     // Make a SampleUsage that corresponds to no sampling of the child at all
@@ -36,13 +33,6 @@ struct SampleUsage {
     // and uniform variables).
     static SampleUsage UniformMatrix(std::string expression, bool hasPerspective = true) {
         return SampleUsage(Kind::kUniform, std::move(expression), hasPerspective, false, false);
-    }
-
-    // This corresponds to sample(child, color, matrix) where the 3rd argument is an expression that
-    // can't be hoisted to the vertex shader, or where the expression used is not the same at all
-    // call sites in the FP.
-    static SampleUsage VariableMatrix(bool hasPerspective = true) {
-        return SampleUsage(Kind::kVariable, "", hasPerspective, false, false);
     }
 
     static SampleUsage Explicit() {
@@ -61,7 +51,6 @@ struct SampleUsage {
 
     bool hasMatrix()         const { return fKind != Kind::kNone; }
     bool hasUniformMatrix()  const { return fKind == Kind::kUniform; }
-    bool hasVariableMatrix() const { return fKind == Kind::kVariable; }
 
     Kind fKind = Kind::kNone;
     // The uniform expression representing the matrix (only valid when kind == kUniform)

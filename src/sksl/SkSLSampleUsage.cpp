@@ -33,23 +33,14 @@ SampleUsage SampleUsage::merge(const SampleUsage& other) {
     if (other.fPassThrough)    { fPassThrough    = true; }
     if (other.fHasPerspective) { fHasPerspective = true; }
 
-    if (other.fKind == Kind::kVariable) {
-        fKind = Kind::kVariable;
-        fExpression.clear();
-    } else if (other.fKind == Kind::kUniform) {
+    if (other.fKind == Kind::kUniform) {
         if (fKind == Kind::kUniform) {
-            if (fExpression != other.fExpression) {
-                fKind = Kind::kVariable;
-                fExpression.clear();
-            } else {
-                // Identical uniform expressions, so leave things as-is
-            }
-        } else if (fKind == Kind::kNone) {
+            // Identical uniform expressions, so leave things as-is
+            SkASSERT(fExpression == other.fExpression);
+        } else {
+            SkASSERT(fKind == Kind::kNone);
             fKind = Kind::kUniform;
             fExpression = other.fExpression;
-        } else {
-            // We were already variable, so leave things as-is
-            SkASSERT(fKind == Kind::kVariable);
         }
     } else {
         // other had no matrix information, so we're done
@@ -73,9 +64,7 @@ std::string SampleUsage::constructor(std::string perspectiveExpression) const {
         }
     }
     if (!fExplicitCoords && !fPassThrough) {
-        if (fKind == Kind::kVariable) {
-            return "SkSL::SampleUsage::VariableMatrix(" + perspectiveExpression + ")";
-        } else if (fKind == Kind::kUniform) {
+        if (fKind == Kind::kUniform) {
             return "SkSL::SampleUsage::UniformMatrix(\"" + fExpression + "\", " +
                    perspectiveExpression + ")";
         }
@@ -86,7 +75,6 @@ std::string SampleUsage::constructor(std::string perspectiveExpression) const {
     switch (fKind) {
         case Kind::kNone:     result += "kNone";     break;
         case Kind::kUniform:  result += "kUniform";  break;
-        case Kind::kVariable: result += "kVariable"; break;
     }
     result += ", \"";
     result += fExpression;

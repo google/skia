@@ -157,9 +157,8 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
              !child->isSampledWithExplicitCoords() && !child->hasPerspectiveTransform());
 
     // If a child is sampled directly (sample(child)), and with a single uniform matrix, we need to
-    // treat it as if it were sampled with multiple matrices (eg variable).
-    bool variableMatrix = sampleUsage.hasVariableMatrix() ||
-                          (sampleUsage.fPassThrough && sampleUsage.hasUniformMatrix());
+    // treat it as if it were sampled with explicit coords.
+    bool explicitCoords = (sampleUsage.fPassThrough && sampleUsage.hasUniformMatrix());
 
     // Configure child's sampling state first
     child->fUsage = sampleUsage;
@@ -167,7 +166,7 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
     // When an FP is sampled using variable matrix expressions, it is effectively being sampled
     // explicitly, except that the call site will automatically evaluate the matrix expression to
     // produce the float2 passed into this FP.
-    if (sampleUsage.fExplicitCoords || variableMatrix) {
+    if (sampleUsage.fExplicitCoords || explicitCoords) {
         child->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
     }
 
@@ -178,7 +177,7 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
 
     // If the child is sampled with a variable matrix expression, auto-generated code in
     // invokeChildWithMatrix() for this FP will refer to the local coordinates.
-    if (variableMatrix) {
+    if (explicitCoords) {
         this->setUsesSampleCoordsDirectly();
     }
 

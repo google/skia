@@ -119,8 +119,7 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
 
         const GrFragmentProcessor* node = &fp;
         while(node) {
-            SkASSERT(!node->isSampledWithExplicitCoords() &&
-                     !node->sampleUsage().hasVariableMatrix());
+            SkASSERT(!node->isSampledWithExplicitCoords());
 
             if (node->sampleUsage().hasUniformMatrix()) {
                 // We can stop once we hit an FP that adds transforms; this FP can reuse
