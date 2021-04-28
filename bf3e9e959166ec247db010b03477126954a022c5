@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8806c967_ce5f9e41",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-28T16:32:04Z",
+      "side": 0,
+      "message": "don\u0027t we need this for skp captures?",
+      "revId": "bf3e9e959166ec247db010b03477126954a022c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
