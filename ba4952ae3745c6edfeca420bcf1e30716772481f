@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b559131d_ca7c6a4e",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-28T16:28:00Z",
+      "side": 1,
+      "message": "In some distant future the standard library may eventually get real hash tables like flat_map and flat_set (and hopefully stop using generic sounding names for specific implementations). In any event, unordered_set is kinda bad, especially for this sort of constant pushing and popping. Can we use SkTHashSet here?\n\nThere are examples of how to use it and create the required hash function for SkTHashSet at tests/HashTest.cpp, in particular the part with CopyCounter. A more real example might be OneLineShaper::FontKey::Hasher::operator() in OneLineShaper.cpp.",
+      "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e37f89b_ea84d20c",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-28T16:28:00Z",
+      "side": 1,
+      "message": "Wow, I had forgotten that contains(key) was c++20 and we can\u0027t use it yet.",
+      "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "692e612a_82f2aeea",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-28T16:28:00Z",
+      "side": 1,
+      "message": "Separating the check that the key is not present from inserting and removing the key seems really awkward (since the remove relies on the the insert not overwriting). Can we just do\n\n    visited_set-\u003einsert(p);\n    SK_AT_SCOPE_EXIT(visited_set-\u003eerase(p));\n\nThis should be equivalent and not require ScopedSetInserter.",
+      "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
