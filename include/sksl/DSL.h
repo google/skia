@@ -22,6 +22,7 @@ using Function = DSLFunction;
 using Modifiers = DSLModifiers;
 using Statement = DSLStatement;
 using Var = DSLVar;
+#define Wrapper DSLWrapper
 
 } // namespace dsl
 
