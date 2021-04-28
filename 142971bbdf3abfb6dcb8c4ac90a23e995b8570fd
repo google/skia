@@ -16,6 +16,23 @@
       "message": "There is a bunch of additional support code related to this feature that can be removed in a follow-up. This just rips out the declarations and tests, so it\u0027s no longer possible to call sample(fp, matrix) in SkSL.",
       "revId": "142971bbdf3abfb6dcb8c4ac90a23e995b8570fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "547de8ed_836532c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-28T14:14:51Z",
+      "side": 1,
+      "message": "Forgive the ignorance, I see the removal of the usages of sample-with-matrix but where is the removal of the implementation? Or is that coming later?",
+      "revId": "142971bbdf3abfb6dcb8c4ac90a23e995b8570fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
