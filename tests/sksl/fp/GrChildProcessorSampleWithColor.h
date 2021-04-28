@@ -14,21 +14,18 @@
 
 class GrChildProcessorSampleWithColor : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> passthrough, std::unique_ptr<GrFragmentProcessor> explicit, std::unique_ptr<GrFragmentProcessor> matrix_const, std::unique_ptr<GrFragmentProcessor> matrix_uniform, std::unique_ptr<GrFragmentProcessor> matrix_uniform_multi) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrChildProcessorSampleWithColor(std::move(passthrough), std::move(explicit), std::move(matrix_const), std::move(matrix_uniform), std::move(matrix_uniform_multi)));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> passthrough, std::unique_ptr<GrFragmentProcessor> explicit) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrChildProcessorSampleWithColor(std::move(passthrough), std::move(explicit)));
     }
     GrChildProcessorSampleWithColor(const GrChildProcessorSampleWithColor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ChildProcessorSampleWithColor"; }
 private:
-    GrChildProcessorSampleWithColor(std::unique_ptr<GrFragmentProcessor> passthrough, std::unique_ptr<GrFragmentProcessor> explicit, std::unique_ptr<GrFragmentProcessor> matrix_const, std::unique_ptr<GrFragmentProcessor> matrix_uniform, std::unique_ptr<GrFragmentProcessor> matrix_uniform_multi)
+    GrChildProcessorSampleWithColor(std::unique_ptr<GrFragmentProcessor> passthrough, std::unique_ptr<GrFragmentProcessor> explicit)
     : INHERITED(kGrChildProcessorSampleWithColor_ClassID, kNone_OptimizationFlags) {
         this->setUsesSampleCoordsDirectly();
         this->registerChild(std::move(passthrough), SkSL::SampleUsage::PassThrough());
         this->registerChild(std::move(explicit), SkSL::SampleUsage::Explicit());
-        this->registerChild(std::move(matrix_const), SkSL::SampleUsage::UniformMatrix("float3x3(2.0)", true));
-        this->registerChild(std::move(matrix_uniform), SkSL::SampleUsage::UniformMatrix("M0", true));
-        this->registerChild(std::move(matrix_uniform_multi), SkSL::SampleUsage::VariableMatrix(true));
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

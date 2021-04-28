@@ -1,4 +1,0 @@
-half4 main()
-{
-	return half4(sample(child_0, float3x3(2.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)));
-}

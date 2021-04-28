@@ -1533,11 +1533,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleFragmentProcessor, r, ctxInfo) {
     DSLVar child(kUniform_Modifier, kFragmentProcessor_Type, "child");
     EXPECT_EQUAL(Sample(child), "sample(child)");
     EXPECT_EQUAL(Sample(child, Float2(0, 0)), "sample(child, float2(0.0, 0.0))");
-    EXPECT_EQUAL(Sample(child, Float3x3(1.0)), "sample(child, float3x3(1.0))");
     EXPECT_EQUAL(Sample(child, Half4(1)), "sample(child, half4(1.0))");
     EXPECT_EQUAL(Sample(child, Float2(0), Half4(1)), "sample(child, float2(0.0), half4(1.0))");
-    EXPECT_EQUAL(Sample(child, Float3x3(1.0), Half4(1)),
-                 "sample(child, float3x3(1.0), half4(1.0))");
 
     {
         ExpectError error(r, "error: no match for sample(fragmentProcessor, bool)\n");
@@ -1551,7 +1548,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     DSLVar shader(kUniform_Modifier, kShader_Type, "shader");
     EXPECT_EQUAL(Sample(shader), "sample(shader)");
     EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "sample(shader, float2(0.0, 0.0))");
-    EXPECT_EQUAL(Sample(shader, Float3x3(1)), "sample(shader, float3x3(1.0))");
 
     {
         ExpectError error(r, "error: no match for sample(shader, half4)\n");
