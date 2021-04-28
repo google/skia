@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "390e44ca_09946e7e",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-28T21:03:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5049a899_c986d96b",
+      "range": {
+        "startLine": 1271,
+        "startChar": 18,
+        "endLine": 1271,
+        "endChar": 26
+      },
+      "revId": "3d4da53a30ac3837059a32970139efc56381137c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f4c4420_6faf171e",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-04-28T15:36:07Z",
       "side": 1,
       "message": "So, this code is ensuring that each field\u0027s equality operator is written. But...",
+      "range": {
+        "startLine": 1338,
+        "startChar": 2,
+        "endLine": 1347,
+        "endChar": 0
+      },
+      "revId": "3d4da53a30ac3837059a32970139efc56381137c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "edc68aee_709fcc81",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-28T21:03:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4f4c4420_6faf171e",
       "range": {
         "startLine": 1338,
         "startChar": 2,
@@ -101,6 +149,30 @@
       "side": 1,
       "message": "You have independently arrived at the problem, yes.",
       "parentUuid": "d317807a_77f7881d",
+      "range": {
+        "startLine": 1414,
+        "startChar": 0,
+        "endLine": 1414,
+        "endChar": 46
+      },
+      "revId": "3d4da53a30ac3837059a32970139efc56381137c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92294050_3fa448d1",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1414,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-28T21:03:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50bcf954_2e226192",
       "range": {
         "startLine": 1414,
         "startChar": 0,
