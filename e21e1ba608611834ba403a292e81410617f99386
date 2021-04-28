@@ -16,6 +16,29 @@
       "message": "ptal",
       "revId": "e21e1ba608611834ba403a292e81410617f99386",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92220741_77e2160f",
+        "filename": "modules/canvaskit/npm_build/extra.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-28T13:52:48Z",
+      "side": 1,
+      "message": "You might want to check to see if this is actually a number. IIRC, enum values are objects, not numbers. Maybe that\u0027s changed?",
+      "range": {
+        "startLine": 270,
+        "startChar": 28,
+        "endLine": 270,
+        "endChar": 64
+      },
+      "revId": "e21e1ba608611834ba403a292e81410617f99386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
