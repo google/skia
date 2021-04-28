@@ -135,9 +135,8 @@ public:
         return this->invokeChild(childIndex, nullptr, parentArgs, skslCoords);
     }
 
-    inline SkString invokeChildWithMatrix(int childIndex, EmitArgs& parentArgs,
-                                          SkSL::String skslMatrix = "") {
-        return this->invokeChildWithMatrix(childIndex, nullptr, parentArgs, skslMatrix);
+    inline SkString invokeChildWithMatrix(int childIndex, EmitArgs& parentArgs) {
+        return this->invokeChildWithMatrix(childIndex, nullptr, parentArgs);
     }
 
     /** Invokes a child proc in its own scope. Pass in the parent's EmitArgs and invokeChild will
@@ -156,17 +155,11 @@ public:
                          SkSL::String skslCoords = "");
 
     /**
-     * As invokeChild, but transforms the coordinates according to the provided matrix. This variant
-     * corresponds to a call of "sample(child, color, matrix)" in SkSL, where skslMatrix is an SkSL
-     * expression that evaluates to a float3x3 and is passed in as the 3rd argument.
-     *
-     * If skslMatrix is the empty string, then it is automatically replaced with the expression
-     * attached to the child's SampleUsage object. This is only valid if the child is sampled with
-     * a const-uniform matrix. If the sample matrix is const-or-uniform, the expression will be
-     * automatically resolved to the mangled uniform name.
+     * As invokeChild, but transforms the coordinates according to the matrix expression attached
+     * to the child's SampleUsage object. This is only valid if the child is sampled with a
+     * const-uniform matrix.
      */
-    SkString invokeChildWithMatrix(int childIndex, const char* inputColor, EmitArgs& parentArgs,
-                                   SkSL::String skslMatrix = "");
+    SkString invokeChildWithMatrix(int childIndex, const char* inputColor, EmitArgs& parentArgs);
 
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of

@@ -326,7 +326,6 @@ gm_sources = [
   "$_gm/runtimeintrinsics.cpp",
   "$_gm/runtimeshader.cpp",
   "$_gm/sample_matrix_constant.cpp",
-  "$_gm/sample_matrix_variable.cpp",
   "$_gm/samplerstress.cpp",
   "$_gm/savelayer.cpp",
   "$_gm/scaledemoji.cpp",
