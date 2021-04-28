@@ -75,23 +75,6 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
             "unknown identifier 'sk_Caps'");
 }
 
-DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
-    auto test = [r](const char* sksl) {
-        auto effect = SkMakeCachedRuntimeEffect(sksl);
-        REPORTER_ASSERT(r, effect);
-
-        sk_sp<SkData> uniforms = SkData::MakeUninitialized(effect->uniformSize());
-
-        REPORTER_ASSERT(r, effect->makeShader(uniforms, nullptr, 0, nullptr, false));
-        REPORTER_ASSERT(r, !effect->makeColorFilter(uniforms));
-    };
-
-    // Runtime effects that use sample coords or sk_FragCoord are valid shaders,
-    // but not valid color filters
-    test("half4 main(float2 p) { return half2(p).xy01; }");
-    test("half4 main(float2 p) { return half2(sk_FragCoord.xy).xy01; }");
-}
-
 DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     // Tests that the color filter factory rejects or accepts certain SkSL constructs
     auto test_valid = [r](const char* sksl) {
