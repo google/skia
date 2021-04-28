@@ -512,4 +512,5 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
     constant("UnderlineDecoration", int(para::TextDecoration::kUnderline));
     constant("OverlineDecoration", int(para::TextDecoration::kOverline));
     constant("LineThroughDecoration", int(para::TextDecoration::kLineThrough));
+    constant("WhiteSpace_GlyphRunFlag", (int)para::Paragraph::kWhiteSpace_VisitorFlag);
 }
