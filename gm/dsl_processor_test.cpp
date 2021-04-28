@@ -8,7 +8,6 @@
 #include "gm/gm.h"
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"

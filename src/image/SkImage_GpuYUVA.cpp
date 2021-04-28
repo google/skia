@@ -16,7 +16,6 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkScopeExit.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -295,8 +294,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
         // Turn the pixmap into a GrTextureProxy
         SkBitmap bmp;
         bmp.installPixels(pixmapsToUpload->plane(i));
-        GrBitmapTextureMaker bitmapMaker(context, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        views[i] = bitmapMaker.view(buildMips);
+        std::tie(views[i], std::ignore) = GrMakeUncachedBitmapProxyView(context, bmp, buildMips);
         if (!views[i]) {
             return nullptr;
         }

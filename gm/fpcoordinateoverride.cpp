@@ -17,11 +17,11 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -77,8 +77,7 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
 
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
-    GrBitmapTextureMaker maker(ctx, bmp, GrImageTexGenPolicy::kDraw);
-    auto view = maker.view(GrMipmapped::kNo);
+    auto view = std::get<0>(GrMakeCachedBitmapProxyView(ctx, bmp, GrMipmapped::kNo));
     if (!view) {
         return;
     }

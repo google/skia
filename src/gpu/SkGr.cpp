@@ -13,7 +13,6 @@
 #include "include/core/SkPixelRef.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTPin.h"
@@ -29,8 +28,8 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrPaint.h"
@@ -125,22 +124,130 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
     return {GrCopyBaseMipMapToTextureProxy(context, proxy, origin, budgeted), origin, swizzle};
 }
 
-GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext* ctx, const SkBitmap& bitmap,
-                                         GrMipmapped mipMapped) {
-    GrBitmapTextureMaker maker(ctx, bitmap, GrImageTexGenPolicy::kDraw);
-    return maker.view(mipMapped);
+static GrMipmapped adjust_mipmapped(GrMipmapped mipmapped,
+                                    const SkBitmap& bitmap,
+                                    const GrCaps* caps) {
+    if (!caps->mipmapSupport() || bitmap.dimensions().area() <= 1) {
+        return GrMipmapped::kNo;
+    }
+    return mipmapped;
 }
 
-GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context,
-                                               const SkBitmap& bitmap) {
+static GrColorType choose_bmp_texture_colortype(const GrCaps* caps, const SkBitmap& bitmap) {
+    GrColorType ct = SkColorTypeToGrColorType(bitmap.info().colorType());
+    if (caps->getDefaultBackendFormat(ct, GrRenderable::kNo).isValid()) {
+        return ct;
+    }
+    return GrColorType::kRGBA_8888;
+}
+
+static sk_sp<GrTextureProxy> make_bmp_proxy(GrProxyProvider* proxyProvider,
+                                            const SkBitmap& bitmap,
+                                            GrColorType ct,
+                                            GrMipmapped mipmapped,
+                                            SkBackingFit fit,
+                                            SkBudgeted budgeted) {
+    SkBitmap bmpToUpload;
+    if (ct != SkColorTypeToGrColorType(bitmap.info().colorType())) {
+        SkColorType skCT = GrColorTypeToSkColorType(ct);
+        if (!bmpToUpload.tryAllocPixels(bitmap.info().makeColorType(skCT)) ||
+            !bitmap.readPixels(bmpToUpload.pixmap())) {
+            return {};
+        }
+        bmpToUpload.setImmutable();
+    } else {
+        bmpToUpload = bitmap;
+    }
+    auto proxy = proxyProvider->createProxyFromBitmap(bmpToUpload, mipmapped, fit, budgeted);
+    SkASSERT(!proxy || mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
+    return proxy;
+}
+
+std::tuple<GrSurfaceProxyView, GrColorType>
+GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
+                            const SkBitmap& bitmap,
+                            GrMipmapped mipmapped) {
     if (!bitmap.peekPixels(nullptr)) {
         return {};
     }
 
-    GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kDraw);
-    return maker.view(GrMipmapped::kNo);
+    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+    const GrCaps* caps = rContext->priv().caps();
+
+    GrUniqueKey key;
+    SkIPoint origin = bitmap.pixelRefOrigin();
+    SkIRect subset = SkIRect::MakePtSize(origin, bitmap.dimensions());
+    GrMakeKeyFromImageID(&key, bitmap.pixelRef()->getGenerationID(), subset);
+
+    mipmapped = adjust_mipmapped(mipmapped, bitmap, caps);
+    GrColorType ct = choose_bmp_texture_colortype(caps, bitmap);
+
+    auto installKey = [&](GrTextureProxy* proxy) {
+        auto listener = GrMakeUniqueKeyInvalidationListener(&key, proxyProvider->contextID());
+        bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
+        proxyProvider->assignUniqueKeyToProxy(key, proxy);
+    };
+
+    sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
+    if (!proxy) {
+        proxy = make_bmp_proxy(proxyProvider,
+                               bitmap,
+                               ct,
+                               mipmapped,
+                               SkBackingFit::kExact,
+                               SkBudgeted::kYes);
+        if (!proxy) {
+            return {};
+        }
+        SkASSERT(mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
+        installKey(proxy.get());
+    }
+
+    GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
+    if (mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes) {
+        return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
+    }
+
+    // We need a mipped proxy, but we found a proxy earlier that wasn't mipped. Thus we generate
+    // a new mipped surface and copy the original proxy into the base layer. We will then let
+    // the gpu generate the rest of the mips.
+    auto mippedProxy = GrCopyBaseMipMapToTextureProxy(rContext, proxy, kTopLeft_GrSurfaceOrigin);
+    if (!mippedProxy) {
+        // We failed to make a mipped proxy with the base copied into it. This could have
+        // been from failure to make the proxy or failure to do the copy. Thus we will fall
+        // back to just using the non mipped proxy; See skbug.com/7094.
+        return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
+    }
+    // In this case we are stealing the key from the original proxy which should only happen
+    // when we have just generated mipmaps for an originally unmipped proxy/texture. This
+    // means that all future uses of the key will access the mipmapped version. The texture
+    // backing the unmipped version will remain in the resource cache until the last texture
+    // proxy referencing it is deleted at which time it too will be deleted or recycled.
+    SkASSERT(proxy->getUniqueKey() == key);
+    proxyProvider->removeUniqueKeyFromProxy(proxy.get());
+    installKey(mippedProxy->asTextureProxy());
+    return {{std::move(mippedProxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
 }
 
+std::tuple<GrSurfaceProxyView, GrColorType>
+GrMakeUncachedBitmapProxyView(GrRecordingContext* rContext,
+                              const SkBitmap& bitmap,
+                              GrMipmapped mipmapped,
+                              SkBackingFit fit,
+                              SkBudgeted budgeted) {
+    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+    const GrCaps* caps = rContext->priv().caps();
+
+    mipmapped = adjust_mipmapped(mipmapped, bitmap, caps);
+    GrColorType ct = choose_bmp_texture_colortype(caps, bitmap);
+
+    if (auto proxy = make_bmp_proxy(proxyProvider, bitmap, ct, mipmapped, fit, budgeted)) {
+        GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
+        SkASSERT(mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
+        return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
+    }
+    return {};
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPMColor4f SkColorToPMColor4f(SkColor c, const GrColorInfo& colorInfo) {
