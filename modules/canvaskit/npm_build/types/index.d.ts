@@ -438,6 +438,7 @@ export interface CanvasKit {
     readonly FilterQuality: FilterQualityEnumValues;
     readonly FontEdging: FontEdgingEnumValues;
     readonly FontHinting: FontHintingEnumValues;
+    readonly GlyphRunFlags: GlyphRunFlagEnumValues;
     readonly ImageFormat: ImageFormatEnumValues;
     readonly MipmapMode: MipmapModeEnumValues;
     readonly PaintStyle: PaintStyleEnumValues;
@@ -649,8 +650,6 @@ export interface LineMetrics {
     lineNumber: number;
 }
 
-readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whitespace(s)
-
 /**
  * Information for a run of shaped text. See Paragraph.getShapedRuns()
  *
@@ -665,7 +664,7 @@ export interface GlyphRun {
     glyphs: Uint16Array;
     positions: Float32Array;    // alternating x0, y0, x1, y1, ...
     offsets: Uint32Array;
-    flags: number;              // see ..._GlyphRunFlag values
+    flags: number;              // see GlyphRunFlags
 }
 
 /**
@@ -3861,6 +3860,13 @@ export interface FontWidthEnumValues extends EmbindEnum {
     Expanded: FontWidth;
     ExtraExpanded: FontWidth;
     UltraExpanded: FontWidth;
+}
+
+/*
+ *  These values can be OR'd together
+ */
+export interface GlyphRunFlagEnumValues extends EmbindEnum {
+    IsWhiteSpace: number;
 }
 
 export interface ImageFormatEnumValues extends EmbindEnum {
