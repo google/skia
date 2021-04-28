@@ -199,12 +199,8 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
     }
 
     const auto& yuvM = sampling.useCubic ? SkMatrix::I() : m;
-    auto fp = GrYUVtoRGBEffect::Make(fYUVAProxies,
-                                     sampler,
-                                     *context->priv().caps(),
-                                     yuvM,
-                                     subset,
-                                     domain);
+    auto fp = GrYUVtoRGBEffect::Make(
+            fYUVAProxies, sampler, *context->priv().caps(), yuvM, subset, domain);
     if (sampling.useCubic) {
         fp = GrBicubicEffect::Make(std::move(fp),
                                    this->alphaType(),
@@ -214,8 +210,10 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
     }
     if (fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                           fFromColorSpace.get(), this->alphaType(),
-                                           this->colorSpace()   , this->alphaType());
+                                           fFromColorSpace.get(),
+                                           this->alphaType(),
+                                           this->colorSpace(),
+                                           this->alphaType());
     }
     return fp;
 }

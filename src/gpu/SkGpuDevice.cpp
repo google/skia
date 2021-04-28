@@ -33,7 +33,6 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"

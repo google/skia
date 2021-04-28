@@ -17,7 +17,6 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
