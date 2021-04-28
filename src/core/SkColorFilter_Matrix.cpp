@@ -203,7 +203,8 @@ static sk_sp<SkColorFilter> MakeMatrix(const float array[20],
     }
     code += "}";
 
-    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(std::move(code));
+    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+                                                              std::move(code));
     SkASSERT(effect);
 
     SkAlphaType       unpremul = kUnpremul_SkAlphaType;

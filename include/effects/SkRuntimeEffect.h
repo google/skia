@@ -224,7 +224,6 @@ private:
 
     friend class SkRTShader;            // fBaseProgram, fMain
     friend class SkRuntimeColorFilter;  //
-    friend sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkString);
 
     uint32_t fHash;
     SkString fSkSL;

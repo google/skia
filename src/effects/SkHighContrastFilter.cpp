@@ -41,7 +41,8 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
         }
     )";
 
-    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(std::move(code));
+    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+                                                              std::move(code));
     SkASSERT(effect);
 
     // A contrast setting of exactly +1 would divide by zero (1+c)/(1-c), so pull in to +1-ε.
