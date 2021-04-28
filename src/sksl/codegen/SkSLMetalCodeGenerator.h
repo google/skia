@@ -221,6 +221,10 @@ protected:
 
     void writeMatrixInequalityHelper(const Type& left, const Type& right);
 
+    void writeArrayEqualityHelpers();
+
+    void writeStructEqualityHelpers(const Type& s);
+
     void writeArgumentList(const ExpressionArray& arguments);
 
     void writeSimpleIntrinsic(const FunctionCall& c);

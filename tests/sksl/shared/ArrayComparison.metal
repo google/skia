@@ -15,6 +15,20 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
+template <typename T, size_t N>
+bool operator==(thread const array<T, N>& left, thread const array<T, N>& right) {
+    for (size_t index = 0; index < N; ++index) {
+        if (left[index] == right[index]) continue;
+        return false;
+    }
+    return true;
+}
+
+template <typename T, size_t N>
+bool operator!=(thread const array<T, N>& left, thread const array<T, N>& right) {
+    return !(left == right);
+}
+
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
