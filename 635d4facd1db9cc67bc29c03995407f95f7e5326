@@ -16,6 +16,24 @@
       "message": "can we just remove this (since the client can write sksl?)",
       "revId": "635d4facd1db9cc67bc29c03995407f95f7e5326",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5426dfaa_5bbb7359",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T20:58:03Z",
+      "side": 1,
+      "message": "Probably. I don\u0027t see it used in any of our usual clients. It is exposed in CanvasKit, but I doubt that\u0027s used, either.",
+      "parentUuid": "7f4a3b63_f6cd159d",
+      "revId": "635d4facd1db9cc67bc29c03995407f95f7e5326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
