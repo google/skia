@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fee6d99_9ea2637e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-04-28T16:10:16Z",
+      "side": 1,
+      "message": "I\u0027ve uploaded the difference in Android.bp and SkUserConfig.h to https://googleplex-android-review.git.corp.google.com/c/platform/external/skia/+/14340925",
+      "revId": "04fba8212786cda6d0986f5779d241f85da70168",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
