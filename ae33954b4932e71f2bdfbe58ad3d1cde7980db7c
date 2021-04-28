@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "406ca859_31eea2cf",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-28T12:32:10Z",
+      "side": 1,
+      "message": "This was conditionally included on line 87",
+      "range": {
+        "startLine": 54,
+        "startChar": 38,
+        "endLine": 54,
+        "endChar": 47
+      },
+      "revId": "ae33954b4932e71f2bdfbe58ad3d1cde7980db7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "95829da9_2270111d",
         "filename": "modules/canvaskit/npm_build/types/index.d.ts",
         "patchSetId": 7
