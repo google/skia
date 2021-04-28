@@ -69,6 +69,11 @@ DSLStatement Continue();
 DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo());
 
 /**
+ * Declares a global variable.
+ */
+void DeclareGlobal(DSLVar& var, PositionInfo pos = PositionInfo());
+
+/**
  * default: statements
  */
 template<class... Statements>
