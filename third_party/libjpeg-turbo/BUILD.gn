@@ -83,30 +83,35 @@ if (skia_use_system_libjpeg_turbo) {
       "../externals/libjpeg-turbo/jutils.c",
     ]
 
-    if (current_cpu == "arm" && !is_win) {
+    if (!is_win && (current_cpu == "arm" || current_cpu == "arm64")) {
+      defines += [ "NEON_INTRINSICS" ]
       sources += [
-        "../externals/libjpeg-turbo/simd/arm/arm/jsimd.c",
-        "../externals/libjpeg-turbo/simd/arm/arm/jsimd_neon.S",
-        "../externals/libjpeg-turbo/simd/arm/common/jcsample-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jdcolor-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jdmerge-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jdsample-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jidctfst-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jidctint-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jidctred-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jccolor-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jcgray-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jcphuff-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jcsample-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jdcolor-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jdmerge-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jdsample-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jfdctfst-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jfdctint-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jidctfst-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jidctint-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jidctred-neon.c",
+        "../externals/libjpeg-turbo/simd/arm/jquanti-neon.c",
       ]
-    } else if (current_cpu == "arm64" && !is_win) {
-      sources += [
-        "../externals/libjpeg-turbo/simd/arm/arm64/jsimd.c",
-        "../externals/libjpeg-turbo/simd/arm/arm64/jsimd_neon.S",
-        "../externals/libjpeg-turbo/simd/arm/common/jcsample-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jdcolor-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jdmerge-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jdsample-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jidctfst-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jidctint-neon.c",
-        "../externals/libjpeg-turbo/simd/arm/common/jidctred-neon.c",
-      ]
+      include_dirs = [ "../externals/libjpeg-turbo/simd/arm" ]
+      if (current_cpu == "arm") {
+        sources += [
+          "../externals/libjpeg-turbo/simd/arm/aarch32/jchuff-neon.c",
+          "../externals/libjpeg-turbo/simd/arm/aarch32/jsimd.c",
+        ]
+      } else if (current_cpu == "arm64") {
+        sources += [
+          "../externals/libjpeg-turbo/simd/arm/aarch64/jchuff-neon.c",
+          "../externals/libjpeg-turbo/simd/arm/aarch64/jsimd.c",
+        ]
+      }
     } else {
       sources += [ "../externals/libjpeg-turbo/jsimd_none.c" ]
     }
