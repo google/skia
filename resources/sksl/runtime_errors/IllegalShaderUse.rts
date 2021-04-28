@@ -4,13 +4,15 @@
 uniform shader s1;
 uniform shader s2;
 
+uniform float2 xy;
+
 // Incorrect shader declarations (they must be uniform)
 shader s3;
 in shader s4;
 
 // Various places that shaders should not be allowed:
-half4  local()             { shader s; return sample(s); }
-half4  parameter(shader s) { return sample(s); }
+half4  local()             { shader s; return sample(s, xy); }
+half4  parameter(shader s) { return sample(s, xy); }
 shader returned()          { return s1; }
-half4  constructed()       { return sample(shader(s1)); }
-half4  expression(bool b)  { return sample(b ? s1 : s2); }
+half4  constructed()       { return sample(shader(s1), xy); }
+half4  expression(bool b)  { return sample(b ? s1 : s2, xy); }

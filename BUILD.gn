@@ -675,7 +675,6 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
       "src/sksl/sksl_public.sksl",
       "src/sksl/sksl_rt_colorfilter.sksl",
       "src/sksl/sksl_rt_shader.sksl",
-      "src/sksl/sksl_runtime.sksl",
       "src/sksl/sksl_vert.sksl",
     ]
     outputs = [ "$root_out_dir/{{source_file_part}}" ]

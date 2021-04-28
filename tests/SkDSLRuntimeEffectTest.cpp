@@ -221,8 +221,9 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     {
         effect.start();
         Var child(kUniform_Modifier, kShader_Type, "child");
-        Function(kFloat4_Type, "main").define(
-            Return(Sample(child))
+        Var p2(kFloat2_Type, "p");
+        Function(kFloat4_Type, "main", p2).define(
+            Return(Sample(child, p2))
         );
         effect.end();
         effect.child("child") = nullptr;

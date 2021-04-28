@@ -20,7 +20,6 @@ enum class ProgramKind : int8_t {
     kVertex,
     kGeometry,
     kFragmentProcessor,
-    kRuntimeEffect,       // Legacy: Generic runtime effect that can be kColorFilter or kShader
     kRuntimeColorFilter,  // Runtime effect only suitable as SkColorFilter
     kRuntimeShader,       //   "       "     "      "     "  SkShader
     kGeneric,

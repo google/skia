@@ -8,7 +8,7 @@ void init_globals() {
     gUninitialized = gInitialized + 2;
 }
 
-float4 main() {
+float4 main(float2 xy) {
     init_globals();
     return float4(0, gInitializedFromOther, 0, gUninitialized);
 }

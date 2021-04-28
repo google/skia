@@ -2,7 +2,7 @@ uniform float u1[4];
 uniform float u2[4];
 uniform float u3[4];
 uniform float u4[16];
-float4 main()
+float4 main(float2 xy)
 {
 	float _0_sum = 0.0;
 	for (int _1_i = 3;_1_i >= 0; --_1_i) 

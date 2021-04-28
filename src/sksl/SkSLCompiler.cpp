@@ -65,7 +65,6 @@
 #include "src/sksl/generated/sksl_public.dehydrated.sksl"
 #include "src/sksl/generated/sksl_rt_colorfilter.dehydrated.sksl"
 #include "src/sksl/generated/sksl_rt_shader.dehydrated.sksl"
-#include "src/sksl/generated/sksl_runtime.dehydrated.sksl"
 #include "src/sksl/generated/sksl_vert.dehydrated.sksl"
 
 #define MODULE_DATA(name) MakeModuleData(SKSL_INCLUDE_sksl_##name,\
@@ -263,15 +262,6 @@ static void add_glsl_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Builti
     symbols->addAlias("mat4", types.fFloat4x4.get());
 }
 
-const ParsedModule& Compiler::loadRuntimeEffectModule() {
-    if (!fRuntimeEffectModule.fSymbols) {
-        fRuntimeEffectModule = this->parseModule(
-                ProgramKind::kRuntimeEffect, MODULE_DATA(runtime), this->loadPublicModule());
-        add_glsl_type_aliases(fRuntimeEffectModule.fSymbols.get(), fContext->fTypes);
-    }
-    return fRuntimeEffectModule;
-}
-
 const ParsedModule& Compiler::loadRuntimeColorFilterModule() {
     if (!fRuntimeColorFilterModule.fSymbols) {
         fRuntimeColorFilterModule = this->parseModule(ProgramKind::kRuntimeColorFilter,
@@ -297,7 +287,6 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
         case ProgramKind::kFragment:           return this->loadFragmentModule();           break;
         case ProgramKind::kGeometry:           return this->loadGeometryModule();           break;
         case ProgramKind::kFragmentProcessor:  return this->loadFPModule();                 break;
-        case ProgramKind::kRuntimeEffect:      return this->loadRuntimeEffectModule();      break;
         case ProgramKind::kRuntimeColorFilter: return this->loadRuntimeColorFilterModule(); break;
         case ProgramKind::kRuntimeShader:      return this->loadRuntimeShaderModule();      break;
         case ProgramKind::kGeneric:            return this->loadPublicModule();             break;

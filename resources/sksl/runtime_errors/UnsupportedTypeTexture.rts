@@ -1,5 +1,5 @@
 uniform texture2D s;
 
-half4 main() {
+half4 main(float2 xy) {
     return half4(0);
 }

@@ -293,8 +293,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                                         "'key' is only permitted within fragment processors");
         }
     }
-    if (this->programKind() == ProgramKind::kRuntimeEffect ||
-        this->programKind() == ProgramKind::kRuntimeColorFilter ||
+    if (this->programKind() == ProgramKind::kRuntimeColorFilter ||
         this->programKind() == ProgramKind::kRuntimeShader) {
         if (modifiers.fFlags & Modifiers::kIn_Flag) {
             this->errorReporter().error(offset, "'in' variables not permitted in runtime effects");
@@ -309,8 +308,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
         this->errorReporter().error(offset, "'key' is not permitted on 'uniform' variables");
     }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
-        if (this->programKind() != ProgramKind::kRuntimeEffect &&
-            this->programKind() != ProgramKind::kRuntimeColorFilter &&
+        if (this->programKind() != ProgramKind::kRuntimeColorFilter &&
             this->programKind() != ProgramKind::kRuntimeShader) {
             this->errorReporter().error(offset,
                                         "'srgb_unpremul' is only permitted in runtime effects");
@@ -1036,8 +1034,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         Modifiers m = pd.fModifiers;
-        if (isMain && (this->programKind() == ProgramKind::kRuntimeEffect ||
-                       this->programKind() == ProgramKind::kRuntimeColorFilter ||
+        if (isMain && (this->programKind() == ProgramKind::kRuntimeColorFilter ||
                        this->programKind() == ProgramKind::kRuntimeShader ||
                        this->programKind() == ProgramKind::kFragmentProcessor)) {
             // We verify that the signature is fully correct later. For now, if this is an .fp or
@@ -1082,27 +1079,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     // Check the function signature of `main`.
     if (isMain) {
         switch (this->programKind()) {
-            case ProgramKind::kRuntimeEffect: {
-                // Legacy/generic runtime effects take a wide variety of main() signatures.
-                // (half4|float4) main(float2?, (half4|float4)?)
-                if (!typeIsValidForColor(*returnType)) {
-                    this->errorReporter().error(f.fOffset,
-                                                "'main' must return: 'vec4', 'float4', or 'half4'");
-                    return;
-                }
-                bool validParams =
-                        (parameters.size() == 0) ||
-                        (parameters.size() == 1 && paramIsCoords(0)) ||
-                        (parameters.size() == 1 && paramIsInputColor(0)) ||
-                        (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
-                if (!validParams) {
-                    this->errorReporter().error(
-                            f.fOffset,
-                            "'main' parameters must be: ([float2 coords], [half4 color])");
-                    return;
-                }
-                break;
-            }
             case ProgramKind::kRuntimeColorFilter: {
                 // (half4|float4) main(half4|float4)
                 if (!typeIsValidForColor(*returnType)) {

@@ -180,14 +180,6 @@ public:
 #endif
 
 private:
-    // For internal use: Make supports SkSL that is legal as either an SkShader or SkColorFilter.
-    // makeColorFilter might return nullptr, if the effect is dependent on position in any way.
-    static Result Make(SkString sksl, const Options&);
-
-    static Result Make(SkString sksl) {
-        return Make(std::move(sksl), Options{});
-    }
-
     enum Flags {
         kUsesSampleCoords_Flag = 0x1,
         kAllowColorFilter_Flag = 0x2,
@@ -224,7 +216,6 @@ private:
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
     friend class GrGLSLSkSLFP;         //
-    friend class GrRuntimeFPBuilder;  // Make
 #endif
 
     friend class SkRTShader;            // fBaseProgram, fMain

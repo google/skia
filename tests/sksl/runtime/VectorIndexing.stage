@@ -9,7 +9,7 @@ float index_clamped_out_of_bounds_0()
 		return u4[i];
 	}
 }
-float4 main()
+float4 main(float2 xy)
 {
 	float _0_sum = 0.0;
 	for (int _1_i = 0;_1_i < 4; ++_1_i) 

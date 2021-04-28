@@ -189,7 +189,6 @@ private:
     const ParsedModule& loadFPModule();
     const ParsedModule& loadGeometryModule();
     const ParsedModule& loadPublicModule();
-    const ParsedModule& loadRuntimeEffectModule();
     const ParsedModule& loadRuntimeColorFilterModule();
     const ParsedModule& loadRuntimeShaderModule();
 
@@ -226,7 +225,6 @@ private:
     ParsedModule fFPModule;                  // [GPU] + FP features
 
     ParsedModule fPublicModule;              // [Root] + Public features
-    ParsedModule fRuntimeEffectModule;       // [Public] + Runtime effect decls
     ParsedModule fRuntimeColorFilterModule;  // [Public] + Runtime shader decls
     ParsedModule fRuntimeShaderModule;       // [Public] + Runtime color filter decls
 
