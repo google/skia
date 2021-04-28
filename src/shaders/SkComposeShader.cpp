@@ -12,6 +12,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkColorShader.h"
@@ -60,7 +61,22 @@ sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShade
     if (weight >= 1) {
         return src;
     }
-    return sk_sp<SkShader>(new SkShader_Lerp(weight, std::move(dst), std::move(src)));
+
+    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(
+        SkRuntimeEffect::MakeForShader,
+        "uniform shader a;"
+        "uniform shader b;"
+        "uniform half w;"
+        "half4 main(float2 xy) { return mix(sample(a, xy), sample(b, xy), w); }"
+    );
+    SkASSERT(effect);
+
+    sk_sp<SkShader> inputs[] = {dst, src};
+    return effect->makeShader(SkData::MakeWithCopy(&weight, sizeof(weight)),
+                              inputs,
+                              SK_ARRAY_COUNT(inputs),
+                              nullptr,
+                              false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -150,58 +166,11 @@ skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
     return {};
 }
 
-
-sk_sp<SkFlattenable> SkShader_Lerp::CreateProc(SkReadBuffer& buffer) {
-    sk_sp<SkShader> dst(buffer.readShader());
-    sk_sp<SkShader> src(buffer.readShader());
-    float t = buffer.readScalar();
-    return buffer.isValid() ? SkShaders::Lerp(t, std::move(dst), std::move(src)) : nullptr;
-}
-
-void SkShader_Lerp::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fDst.get());
-    buffer.writeFlattenable(fSrc.get());
-    buffer.writeScalar(fWeight);
-}
-
-bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
-    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
-
-    float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
-    if (!res0) {
-        return false;
-    }
-
-    rec.fPipeline->append(SkRasterPipeline::load_dst, res0);
-    rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fWeight);
-    return true;
-}
-
-skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
-                                     skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                     const SkMatrixProvider& mats, const SkMatrix* localM,
-                                     const SkColorInfo& dst,
-                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    skvm::Color d,s;
-    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, dst, uniforms,alloc)) &&
-        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, dst, uniforms,alloc)))
-    {
-        auto t = p->uniformF(uniforms->pushF(fWeight));
-        return {
-            p->lerp(d.r, s.r, t),
-            p->lerp(d.g, s.g, t),
-            p->lerp(d.b, s.b, t),
-            p->lerp(d.a, s.a, t),
-        };
-    }
-    return {};
-}
-
 #if SK_SUPPORT_GPU
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/effects/GrSkSLFP.h"
 
 static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader* shader) {
     return shader ? as_SB(shader)->asFragmentProcessor(args) : nullptr;
@@ -213,26 +182,5 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
     return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
-}
-
-std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
-        const GrFPArgs& orig_args) const {
-    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
-    auto fpA = as_fp(args, fDst.get());
-    auto fpB = as_fp(args, fSrc.get());
-
-    static constexpr char kCode[] = R"(
-        uniform shader a;
-        uniform shader b;
-        uniform half w;
-
-        half4 main() { return mix(sample(a), sample(b), w); }
-    )";
-
-    auto builder = GrRuntimeFPBuilder::Make<kCode>();
-    builder.uniform("w") = fWeight;
-    builder.child("a") = std::move(fpA);
-    builder.child("b") = std::move(fpB);
-    return builder.makeFP();
 }
 #endif

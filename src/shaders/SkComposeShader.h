@@ -41,36 +41,4 @@ private:
     using INHERITED = SkShaderBase;
 };
 
-class SkShader_Lerp final : public SkShaderBase {
-public:
-    SkShader_Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src)
-        : fDst(std::move(dst))
-        , fSrc(std::move(src))
-        , fWeight(weight)
-    {
-        SkASSERT(weight >= 0 && weight <= 1);
-    }
-
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
-#endif
-
-protected:
-    SkShader_Lerp(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const override;
-    bool onAppendStages(const SkStageRec&) const override;
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms*, SkArenaAlloc*) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkShader_Lerp)
-
-    sk_sp<SkShader> fDst;
-    sk_sp<SkShader> fSrc;
-    const float     fWeight;
-
-    using INHERITED = SkShaderBase;
-};
-
 #endif
