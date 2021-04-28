@@ -38,6 +38,7 @@ class SkShader;
 */
 class SK_API SkPaint {
 public:
+    bool isOpaque() const;
 
     /** Constructs SkPaint with default values.
 

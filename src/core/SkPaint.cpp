@@ -40,6 +40,32 @@
 //#define SK_REPORT_API_RANGE_CHECK
 
 
+bool SkPaint::isOpaque() const {
+    if (!fShader && !fColorFilter && !fImageFilter) {
+        return fColor4f.fA == 1.0f;
+    }
+
+    if (fImageFilter) {
+        return false;
+    }
+
+    if (!fColorFilter) {
+        return fShader->isOpaque();
+    }
+
+    if (!fShader) {
+        return fColorFilter->isAlphaUnchanged() && fColor4f.fA == 1.0f;
+    }
+
+    if (fColorFilter && fShader) {
+        return fColorFilter->isAlphaUnchanged() && fShader->isOpaque();;
+    }
+
+    // TODO: consider blend mode too
+    return false;
+}
+
+
 SkPaint::SkPaint()
     : fColor4f{0, 0, 0, 1}  // opaque black
     , fWidth{0}
