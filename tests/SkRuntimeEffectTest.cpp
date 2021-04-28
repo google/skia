@@ -75,11 +75,23 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
             "unknown identifier 'sk_Caps'");
 }
 
+DEF_TEST(SkRuntimeEffectCanDisableES2Restrictions, r) {
+    auto test_valid_es3 = [](skiatest::Reporter* r, const char* sksl) {
+        SkRuntimeEffect::Options opt;
+        opt.enforceES2Restrictions = false;
+        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl), opt);
+        REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
+    };
+
+    test_invalid_effect(r, "float f[2] = float[2](0, 1);" EMPTY_MAIN, "construction of array type");
+    test_valid_es3     (r, "float f[2] = float[2](0, 1);" EMPTY_MAIN);
+}
+
 DEF_TEST(SkRuntimeEffectForColorFilter, r) {
     // Tests that the color filter factory rejects or accepts certain SkSL constructs
     auto test_valid = [r](const char* sksl) {
         auto [effect, errorText] = SkRuntimeEffect::MakeForColorFilter(SkString(sksl));
-        REPORTER_ASSERT(r, effect, errorText.c_str());
+        REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
     };
 
     auto test_invalid = [r](const char* sksl, const char* expected) {
@@ -131,7 +143,7 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
     // Tests that the shader factory rejects or accepts certain SkSL constructs
     auto test_valid = [r](const char* sksl) {
         auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl));
-        REPORTER_ASSERT(r, effect, errorText.c_str());
+        REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
     };
 
     auto test_invalid = [r](const char* sksl, const char* expected) {
