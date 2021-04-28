@@ -3459,16 +3459,28 @@ protected:
         ParagraphStyle paragraph_style;
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontFamilies({SkString("Roboto")});
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         text_style.setFontSize(14);
         builder.pushStyle(text_style);
-        builder.addText("foo\u2060");
+        builder.addText("The quick brown fox ate a hamburgerfons and got sick.");
         auto paragraph = builder.Build();
-        paragraph->layout(320);
+        paragraph->layout(width());
+
         paragraph->paint(canvas, 0, 0);
-        auto result = paragraph->getGlyphPositionAtCoordinate(paragraph->getMaxIntrinsicWidth(), 0.0f);
-        SkDebugf("position = %d (%s)\n", result.position, result.affinity == Affinity::kDownstream ? "Down" :"Up");
+
+        paragraph->visit([&](const skia::textlayout::Paragraph::VisitorInfo& info) {
+            SkFontMetrics metrics;
+            info.font.getMetrics(&metrics);
+
+            auto first = info.positions[0]; first.offset(info.origin.fX, info.origin.fY);
+            SkRect rect = SkRect::MakeXYWH(first.fX, first.fY + metrics.fAscent, info.advanceX - first.fX, metrics.fDescent - metrics.fAscent);
+            SkPaint paint;
+            paint.setColor(SK_ColorLTGRAY);
+            canvas->drawRect(rect, paint);
+        });
+
+        paragraph->paint(canvas, 0, 0);
     }
 
 private:

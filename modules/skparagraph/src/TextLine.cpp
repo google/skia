@@ -323,6 +323,8 @@ void TextLine::buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange
     record.fClippingNeeded = context.clippingNeeded;
     if (context.clippingNeeded) {
         record.fClipRect = extendHeight(context).makeOffset(this->offset());
+    } else {
+        record.fClipRect = context.clip.makeOffset(this->offset());
     }
 
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
