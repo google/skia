@@ -7,13 +7,13 @@
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 
 #include "include/private/SkHalf.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrThreadSafeCache.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -128,8 +128,7 @@ GrMatrixConvolutionEffect::KernelWrapper::Make(GrRecordingContext* rContext,
     }
     bm.setImmutable();
 
-    GrBitmapTextureMaker maker(rContext, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    view = maker.view(GrMipmapped::kNo);
+    view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bm));
     if (!view) {
         return {};
     }

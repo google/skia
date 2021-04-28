@@ -179,14 +179,6 @@ enum class GrImageTexGenPolicy : int {
 };
 
 /**
- * Returns a view that wraps a texture representing the bitmap. The texture is inserted into the
- * cache (unless the bitmap is marked volatile and can be retrieved again via this function.
- * A MIP mapped texture may be returned even when GrMipmapped is kNo. The function will succeed
- * with a non-MIP mapped texture if GrMipmapped is kYes but MIP mapping is not supported.
- */
-GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext*, const SkBitmap&, GrMipmapped);
-
-/**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
  */
 sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
@@ -202,10 +194,28 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext*,
                                           SkBudgeted = SkBudgeted::kYes);
 
 /*
- * Create a texture proxy from the provided bitmap and add it to the texture cache
- * using the key also extracted from 'bitmp'.
+ * Create a texture proxy from the provided bitmap and add it to the texture cache using the key
+ * also extracted from the bitmap. If GrMipmapped is kYes a non-mipmapped result may be returned
+ * if mipmapping isn't supported or for a 1x1 bitmap. If GrMipmapped is kNo it indicates mipmaps
+ * aren't required but a previously created mipmapped texture may still be returned. A color type is
+ * returned as color type conversion may be performed if there isn't a texture format equivalent of
+ * the bitmap's color type.
  */
-GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext*, const SkBitmap& bitmap);
+std::tuple<GrSurfaceProxyView, GrColorType>
+GrMakeCachedBitmapProxyView(GrRecordingContext*,
+                            const SkBitmap&,
+                            GrMipmapped = GrMipmapped::kNo);
+
+/**
+ * Like above but always uploads the bitmap and never inserts into the cache. Unlike above, the
+ * texture may be approx or scratch and budgeted or not.
+ */
+std::tuple<GrSurfaceProxyView, GrColorType>
+GrMakeUncachedBitmapProxyView(GrRecordingContext*,
+                              const SkBitmap&,
+                              GrMipmapped = GrMipmapped::kNo,
+                              SkBackingFit = SkBackingFit::kExact,
+                              SkBudgeted = SkBudgeted::kYes);
 
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()
@@ -225,8 +235,6 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
  * are purged before listeners trigger).
  */
 sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(GrUniqueKey*, uint32_t contextID);
-
-constexpr SkCubicResampler kInvalidCubicResampler{-1.f, -1.f};
 
 static inline bool GrValidCubicResampler(SkCubicResampler cubic) {
     return cubic.B >= 0 && cubic.C >= 0;

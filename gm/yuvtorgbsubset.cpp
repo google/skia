@@ -18,13 +18,12 @@
 #include "include/core/SkString.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
-#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrYUVATextureProxies.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 #include <memory>
@@ -96,9 +95,7 @@ protected:
             SkBitmap bitmap;
             bitmap.installPixels(fPixmaps.plane(i));
             bitmap.setImmutable();
-            GrBitmapTextureMaker maker(
-                    context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-            views[i] = maker.view(GrMipmapped::kNo);
+            views[i] = std::get<0>(GrMakeCachedBitmapProxyView(context, bitmap, GrMipmapped::kNo));
             if (!views[i]) {
                 *errorMsg = "Failed to create proxy";
                 return context->abandoned() ? DrawResult::kSkip : DrawResult::kFail;

@@ -975,18 +975,13 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
         return GrFragmentProcessor::MakeColor(SK_PMColor4fTRANSPARENT);
     }
 
-    // Need to assert that the textures we'll create are power of 2 so that now copy is needed. We
-    // also know that we will not be using mipmaps. If things things weren't true we should go
-    // through GrBitmapTextureMaker to handle needed copies.
     const SkBitmap& permutationsBitmap = paintingData->getPermutationsBitmap();
-    SkASSERT(SkIsPow2(permutationsBitmap.width()) && SkIsPow2(permutationsBitmap.height()));
-    auto permutationsView = GrMakeCachedBitmapProxyView(context, permutationsBitmap);
+    const SkBitmap& noiseBitmap        = paintingData->getNoiseBitmap();
 
-    const SkBitmap& noiseBitmap = paintingData->getNoiseBitmap();
-    SkASSERT(SkIsPow2(noiseBitmap.width()) && SkIsPow2(noiseBitmap.height()));
-    auto noiseView = GrMakeCachedBitmapProxyView(context, noiseBitmap);
+    auto permutationsView = std::get<0>(GrMakeCachedBitmapProxyView(context, permutationsBitmap));
+    auto noiseView        = std::get<0>(GrMakeCachedBitmapProxyView(context, noiseBitmap));
 
-    if (permutationsView.proxy() && noiseView.proxy()) {
+    if (permutationsView && noiseView) {
         auto inner = GrPerlinNoise2Effect::Make(fType,
                                                 fNumOctaves,
                                                 fStitchTiles,

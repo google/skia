@@ -121,8 +121,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
     bitmap.installPixels(pmII, srcData, 4 * kSize);
     bitmap.setImmutable();
 
-    GrBitmapTextureMaker maker(dContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    auto dataView = maker.view(GrMipmapped::kNo);
+    auto dataView = std::get<0>(GrMakeUncachedBitmapProxyView(dContext, bitmap));
     if (!dataView) {
         return false;
     }

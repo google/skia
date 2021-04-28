@@ -184,13 +184,13 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
-    auto view = GrMakeCachedBitmapProxyView(context, bitmap);
+    auto view = std::get<0>(GrMakeCachedBitmapProxyView(context, bitmap, GrMipmapped::kNo));
     if (!view) {
         return nullptr;
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(
-               new ColorTableEffect(std::move(inputFP), std::move(view)));
+    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(std::move(inputFP),
+                                                                     std::move(view)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

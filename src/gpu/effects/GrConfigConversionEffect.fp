@@ -9,10 +9,10 @@ in fragmentProcessor inputFP;
 
 @header {
     #include "include/gpu/GrDirectContext.h"
-    #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrDirectContextPriv.h"
     #include "src/gpu/GrImageInfo.h"
     #include "src/gpu/GrSurfaceDrawContext.h"
+    #include "src/gpu/SkGr.h"
 }
 
 @class {
@@ -55,8 +55,7 @@ in fragmentProcessor inputFP;
         bitmap.installPixels(pmII, srcData, 4 * kSize);
         bitmap.setImmutable();
 
-        GrBitmapTextureMaker maker(dContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto dataView = maker.view(GrMipmapped::kNo);
+        auto dataView = std::get<0>(GrMakeUncachedBitmapProxyView(dContext, bitmap));
         if (!dataView) {
             return false;
         }

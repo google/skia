@@ -16,11 +16,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 
-class GrAccelData;
-class GrTextureMaker;
-class GrTextureProducer;
-struct GrCachedLayer;
-
 class SkSpecialImage;
 class SkSurface;
 class SkVertices;

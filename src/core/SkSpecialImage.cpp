@@ -217,7 +217,7 @@ public:
 #if SK_SUPPORT_GPU
     GrSurfaceProxyView onView(GrRecordingContext* context) const override {
         if (context) {
-            return GrMakeCachedBitmapProxyView(context, fBitmap);
+            return std::get<0>(GrMakeCachedBitmapProxyView(context, fBitmap, GrMipmapped::kNo));
         }
 
         return {};

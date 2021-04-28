@@ -13,11 +13,11 @@
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkMathPriv.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrThreadSafeCache.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 }
 
@@ -80,8 +80,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* r
         return {};
     }
 
-    GrBitmapTextureMaker maker(rContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    view = maker.view(GrMipmapped::kNo);
+    view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bitmap));
     if (!view) {
         return {};
     }

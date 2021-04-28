@@ -15,10 +15,10 @@
 #include "include/core/SkTypes.h"
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SkGr.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
 
