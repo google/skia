@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c20ea7f1_a671688b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10713
+      },
+      "writtenOn": "2021-04-28T02:43:34Z",
+      "side": 1,
+      "message": "goma side can be fixed by https://goma-internal-review.googlesource.com/c/goma/+/34400",
+      "revId": "299755fb9256293861283d6bfd4db07beb2079da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
