@@ -108,10 +108,7 @@ config("default") {
 
     if (is_clang) {
       foreach(dir, _include_dirs) {
-        cflags += [
-          "-imsvc",
-          dir,
-        ]
+        cflags += [ "-imsvc" + dir ]
       }
     } else {
       include_dirs = _include_dirs

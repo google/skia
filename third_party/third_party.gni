@@ -17,10 +17,7 @@ template("third_party_config") {
         include_dirs = invoker.include_dirs
         if (is_clang) {
           foreach(dir, invoker.include_dirs) {
-            cflags += [
-              "/imsvc",
-              rebase_path(dir),
-            ]
+            cflags += [ "-imsvc" + rebase_path(dir) ]
           }
         }
       } else {
