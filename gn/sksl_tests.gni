@@ -31,13 +31,6 @@ sksl_dsl_fp_tests = [
 sksl_fp_tests = [
   "/sksl/fp/GrChildProcessorAndGlobal.fp",
   "/sksl/fp/GrChildProcessorSampleCoords.fp",
-  "/sksl/fp/GrChildProcessorSampleMatrixAndCoords.fp",
-  "/sksl/fp/GrChildProcessorSampleMatrixConstant.fp",
-  "/sksl/fp/GrChildProcessorSampleMatrixConstantAndCoords.fp",
-  "/sksl/fp/GrChildProcessorSampleMatrixMultipleUniforms.fp",
-  "/sksl/fp/GrChildProcessorSampleMatrixSingleInUniform.fp",
-  "/sksl/fp/GrChildProcessorSampleMatrixSingleUniform.fp",
-  "/sksl/fp/GrChildProcessorSampleMatrixSingleUniformExpr.fp",
   "/sksl/fp/GrChildProcessorSampleWithColor.fp",
   "/sksl/fp/GrChildProcessorWithInputExpression.fp",
   "/sksl/fp/GrChildProcessors.fp",
@@ -579,10 +572,7 @@ sksl_rte_tests = [
   "/sksl/runtime/GlobalVariables.rte",
   "/sksl/runtime/LoopInt.rte",
   "/sksl/runtime/LoopFloat.rte",
-  "/sksl/runtime/SampleWithConstantMatrix.rte",
   "/sksl/runtime/SampleWithExplicitCoord.rte",
-  "/sksl/runtime/SampleWithUniformMatrix.rte",
-  "/sksl/runtime/SampleWithVariableMatrix.rte",
   "/sksl/runtime/VectorIndexing.rte",
 ]
 
