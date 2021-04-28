@@ -346,7 +346,7 @@ SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
 
 int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
     SkScalar t = SkFindQuadMaxCurvature(src);
-    if (t == 0 || t == 1) {
+    if (t == 0 || t == 1 || SkScalarIsNaN(t)) {
         memcpy(dst, src, 3 * sizeof(SkPoint));
         return 1;
     } else {
