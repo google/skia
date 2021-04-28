@@ -14,6 +14,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFragmentProcessor.h"
@@ -76,7 +77,7 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
 
 DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
     auto test = [r](const char* sksl) {
-        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(sksl));
+        auto effect = SkMakeCachedRuntimeEffect(sksl);
         REPORTER_ASSERT(r, effect);
 
         sk_sp<SkData> uniforms = SkData::MakeUninitialized(effect->uniformSize());
