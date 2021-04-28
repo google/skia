@@ -8,6 +8,8 @@
 #ifndef SkSLSampleUsage_DEFINED
 #define SkSLSampleUsage_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #include <string>
 
 namespace SkSL {
@@ -17,74 +19,55 @@ namespace SkSL {
  */
 struct SampleUsage {
     enum class Kind {
-        // No sample(child, matrix) call affects the FP.
+        // Child is never sampled
         kNone,
-        // The FP is sampled with a matrix whose value is fixed and based only on literals or
-        // uniforms, and thus the transform can be hoisted to the vertex shader (assuming that
-        // its parent can also be hoisted, i.e. not sampled explicitly).
-        kUniform,
-        // The FP is sampled with a non-literal/uniform value, or matrix-sampled multiple times,
-        // and thus the transform cannot be hoisted to the vertex shader.
-        kVariable
+        // Child is only sampled at the same coordinates as the parent
+        kPassThrough,
+        // Child is sampled with a matrix whose value is uniform
+        kUniformMatrix,
+        // Child is sampled using explicit coordinates
+        kExplicit,
     };
 
     // Make a SampleUsage that corresponds to no sampling of the child at all
     SampleUsage() = default;
 
-    // This corresponds to sample(child, color, matrix) calls where every call site in the FP has
-    // the same matrix, and that matrix's value is uniform (some expression only involving literals
-    // and uniform variables).
+    // Child is sampled with a matrix whose value is uniform (some expression only involving
+    // literals and uniform variables).
     static SampleUsage UniformMatrix(std::string expression, bool hasPerspective = true) {
-        return SampleUsage(Kind::kUniform, std::move(expression), hasPerspective, false, false);
-    }
-
-    // This corresponds to sample(child, color, matrix) where the 3rd argument is an expression that
-    // can't be hoisted to the vertex shader, or where the expression used is not the same at all
-    // call sites in the FP.
-    static SampleUsage VariableMatrix(bool hasPerspective = true) {
-        return SampleUsage(Kind::kVariable, "", hasPerspective, false, false);
+        return SampleUsage(Kind::kUniformMatrix, std::move(expression), hasPerspective);
     }
 
     static SampleUsage Explicit() {
-        return SampleUsage(Kind::kNone, "", false, true, false);
+        return SampleUsage(Kind::kExplicit, "", false);
     }
 
     static SampleUsage PassThrough() {
-        return SampleUsage(Kind::kNone, "", false, false, true);
+        return SampleUsage(Kind::kPassThrough, "", false);
     }
 
     SampleUsage merge(const SampleUsage& other);
 
-    bool isSampled() const {
-        return this->hasMatrix() || fExplicitCoords || fPassThrough;
-    }
-
-    bool hasMatrix()         const { return fKind != Kind::kNone; }
-    bool hasUniformMatrix()  const { return fKind == Kind::kUniform; }
-    bool hasVariableMatrix() const { return fKind == Kind::kVariable; }
+    bool isSampled()       const { return fKind != Kind::kNone; }
+    bool isPassThrough()   const { return fKind == Kind::kPassThrough; }
+    bool isExplicit()      const { return fKind == Kind::kExplicit; }
+    bool isUniformMatrix() const { return fKind == Kind::kUniformMatrix; }
 
     Kind fKind = Kind::kNone;
-    // The uniform expression representing the matrix (only valid when kind == kUniform)
+    // The uniform expression representing the matrix, or empty for non-matrix sampling
     std::string fExpression;
-    // FIXME: We can expand this to track a more general matrix type to allow for optimizations on
-    // identity or scale+translate matrices too.
     bool fHasPerspective = false;
 
-    bool fExplicitCoords = false;
-    bool fPassThrough    = false;
+    SampleUsage(Kind kind, std::string expression, bool hasPerspective)
+            : fKind(kind), fExpression(expression), fHasPerspective(hasPerspective) {
+        if (kind == Kind::kUniformMatrix) {
+            SkASSERT(!fExpression.empty());
+        } else {
+            SkASSERT(fExpression.empty() && !fHasPerspective);
+        }
+    }
 
-    SampleUsage(Kind kind,
-                std::string expression,
-                bool hasPerspective,
-                bool explicitCoords,
-                bool passThrough)
-            : fKind(kind)
-            , fExpression(expression)
-            , fHasPerspective(hasPerspective)
-            , fExplicitCoords(explicitCoords)
-            , fPassThrough(passThrough) {}
-
-    std::string constructor(std::string perspectiveExpression) const;
+    std::string constructor() const;
 };
 
 }  // namespace SkSL
