@@ -16,6 +16,24 @@
       "message": "don\u0027t we need this for skp captures?",
       "revId": "bf3e9e959166ec247db010b03477126954a022c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68e60925_03ee7c80",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-04-28T21:36:54Z",
+      "side": 0,
+      "message": "I would expect so, since we\u0027ll compress images to pngs, right? Then we\u0027ll need libz, too, since libpng uses it. And we use SkPngEncoder to encode, I believe, so we should add that. All that is included in patch set 4.\n\nThat said, this built (along with ag/14340929) without libpng etc, so I still need to figure out what\u0027s going on there. And adding libpng/libz/SkPngEncoder did not change the size (maybe it\u0027s just negligible on a scale of Mb?).\n\nI haven\u0027t been able to capture an MSKP from RE lately with or without these changes. Sometimes the device soft reboots with no useful error message I could find. Other times it just says\n\n  No new file written, probably no RenderEngine activity during recording period.",
+      "parentUuid": "8806c967_ce5f9e41",
+      "revId": "bf3e9e959166ec247db010b03477126954a022c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
