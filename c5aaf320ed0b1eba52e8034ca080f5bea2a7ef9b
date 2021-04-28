@@ -88,6 +88,24 @@
       "parentUuid": "40da13b8_45a6a0ab",
       "revId": "c5aaf320ed0b1eba52e8034ca080f5bea2a7ef9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "885227c1_9e23ea79",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-28T19:34:38Z",
+      "side": 1,
+      "message": "Let\u0027s do our part to minimize the ODR violations then? :)",
+      "parentUuid": "64b2fc79_39e02ae4",
+      "revId": "c5aaf320ed0b1eba52e8034ca080f5bea2a7ef9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
