@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b5ad981_621cbb6c",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-28T15:56:04Z",
+      "side": 1,
+      "message": "Can we simplify this to:\n\n   proxy \u003d proxyProvider-\u003efindOrCreateproxyByUniqueKey(key);\n   if (!proxy) {\n      proxy \u003d make_bmp_proxy(proxyProvider, bitmap, ct, mipmapped, \n                             SkBackingFit::kExact, SkBudgeted::kYes);\n      if (!proxy) {\n         return {};\n      }\n\n      SkASSERT(mipmapped \u003d\u003d GrMipmapped::kNo || \n               proxy-\u003emipmapped() \u003d\u003d GrMipmapped::kYes);\n      installKey(proxy.get());\n   }\n\n   SkASSERT(proxy);\n   swizzle \u003d caps-\u003egetReadSwizzle(proxy-\u003ebackendFormat(), ct);\n   if (mipmapped \u003d\u003d GrMipmapped::kNo || proxy-\u003emipmapped() \u003d\u003d GrMipmapped::kYes) {\n      return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};\n   }\n\n   SkASSERT(mipmapped \u003d\u003d GrMipmapped::kYes);\n   ...\n\nAfter writing this out, not 100% sure if it\u0027s that much simpler, but it does \nonly update the swizzle, return the non-mipmap-gen once, and I find the failed-to\nmake proxy return easier to spot in this case. But it\u0027s a little weird the way I\nhave the make_bmp_proxy path assert we\u0027ll hit the next if condition to return.\n\nSo an alternative that reads better for the failed-to-make case would be:\n\n   proxy \u003d proxyProvider-\u003efindOrCreateproxyByUniqueKey(key);\n   if (proxy) {\n      swizzle \u003d caps-\u003egetReadSwizzle(proxy-\u003ebackendFormat(), ct);\n      if (mipmapped \u003d\u003d GrMipmapped::kNo || \n          proxy-\u003emipmapped() \u003d\u003d GrMipmapped::kYes) {\n         return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};\n      }\n   }\n   if (!proxy) {\n      proxy \u003d make_bmp_proxy(proxyProvider, bitmap, ct, mipmapped,\n                             SkBackingFit::kExact, SkBudgeted::kYes);\n      if (!proxy) {\n         return {};\n      }\n      \n      swizzle \u003d caps-\u003egetReadSwizzle(proxy-\u003ebackendFormat(), ct);\n      SkASSERT(mipmapped \u003d\u003d GrMipmapped::kNo || \n               proxy-\u003emipmapped() \u003d\u003d GrMipmapped::kYes);\n      installKey(proxy.get());\n      return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};\n   }\n\n   SkASSERT(proxy);",
+      "range": {
+        "startLine": 193,
+        "startChar": 4,
+        "endLine": 217,
+        "endChar": 5
+      },
+      "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "497a8026_ebbe0603",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-28T15:56:04Z",
+      "side": 1,
+      "message": "Is this the only place where we end up going from optional subset and domain for TextureEffect and BicubicEffect to specific MakeSubset/Make calls? If it seems like we\u0027ll need to do this elsewhere as well, maybe we add Make for both that takes pointers and does the branching internally?",
+      "range": {
+        "startLine": 458,
+        "startChar": 0,
+        "endLine": 510,
+        "endChar": 5
+      },
+      "revId": "0e4ae3cd8653af2df9157679c74e6b14d2a503fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
