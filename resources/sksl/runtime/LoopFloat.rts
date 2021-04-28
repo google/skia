@@ -35,6 +35,6 @@ float float_loop() {
     return sum;
 }
 
-half4 main() {
+half4 main(float2 xy) {
     return half4(return_loop(), continue_loop(), break_loop(), float_loop());
 }

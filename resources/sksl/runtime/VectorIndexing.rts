@@ -28,7 +28,7 @@ float index_clamped_out_of_bounds() {
     }
 }
 
-float4 main() {
+float4 main(float2 xy) {
     return float4(
         index_by_literal(),
         index_by_loop(),

@@ -20,7 +20,7 @@ namespace dsl {
 #ifndef SKSL_STANDALONE
 
 void StartRuntimeShader(SkSL::Compiler* compiler) {
-    Start(compiler, SkSL::ProgramKind::kRuntimeEffect);
+    Start(compiler, SkSL::ProgramKind::kRuntimeShader);
     SkSL::ProgramSettings& settings = DSLWriter::IRGenerator().fContext.fConfig->fSettings;
     SkASSERT(settings.fInlineThreshold == SkSL::kDefaultInlineThreshold);
     settings.fInlineThreshold = 0;
