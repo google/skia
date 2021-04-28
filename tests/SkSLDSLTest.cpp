@@ -1544,13 +1544,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleFragmentProcessor, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/true,
-                           SkSL::ProgramKind::kRuntimeEffect);
+                           SkSL::ProgramKind::kRuntimeShader);
     DSLVar shader(kUniform_Modifier, kShader_Type, "shader");
-    EXPECT_EQUAL(Sample(shader), "sample(shader)");
     EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "sample(shader, float2(0.0, 0.0))");
 
     {
-        ExpectError error(r, "error: no match for sample(shader, half4)\n");
+        ExpectError error(r, "error: expected 'float2', but found 'half4'\n");
         Sample(shader, Half4(1)).release();
     }
 }

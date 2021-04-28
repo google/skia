@@ -4,7 +4,7 @@ void init_globals_0()
 {
 	gUninitialized_0 = 1.0;
 }
-float4 main()
+float4 main(float2 xy)
 {
 	init_globals_0();
 	return half4(float4(0.0, gInitializedFromOther_0, 0.0, gUninitialized_0));

@@ -2,7 +2,7 @@ uniform half f;
 uniform int i;
 uniform bool b;
 
-half4 main() {
+half4 main(float2 xy) {
     // Covers float -> bool, bool -> float, int -> float
     half x = bool(f) ? half(b) : half(i);
 
