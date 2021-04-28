@@ -65,8 +65,10 @@ class GrRuntimeFPBuilder : public SkRuntimeEffectBuilder<std::unique_ptr<GrFragm
 public:
     ~GrRuntimeFPBuilder();
 
-    template <const char* CODE> static GrRuntimeFPBuilder Make() {
-        static const SkRuntimeEffect::Result gResult = SkRuntimeEffect::Make(SkString(CODE));
+    // NOTE: We use a static variable as a cache. CODE and MAKE must remain template parameters.
+    template <const char* CODE, SkRuntimeEffect::Result (*MAKE)(SkString sksl)>
+    static GrRuntimeFPBuilder Make() {
+        static const SkRuntimeEffect::Result gResult = MAKE(SkString(CODE));
 #ifdef SK_DEBUG
         if (!gResult.effect) {
             SK_ABORT("Code failed: %s", gResult.errorText.c_str());
