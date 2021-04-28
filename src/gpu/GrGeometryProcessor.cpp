@@ -15,14 +15,11 @@
  */
 enum SampleFlag {
     kExplicitlySampled_Flag      = 0b0001,  // GrFP::isSampledWithExplicitCoords()
-
-    kNone_SampleMatrix_Flag      = 0b0010, // GrFP::sampleUsage()::hasMatrix() == false
-    kUniform_SampleMatrix_Flag   = 0b0100, // GrFP::sampleUsage()::hasUniformMatrix()
-    kVariable_SampleMatrix_Flag  = 0b0110, // GrFP::sampleUsage()::hasVariableMatrix()
+    kUniform_SampleMatrix_Flag   = 0b0010, // GrFP::sampleUsage()::isUniformMatrix()
 
     // Currently, sample(matrix) only specializes on no-perspective or general.
     // FIXME add new flags as more matrix types are supported.
-    kPersp_Matrix_Flag           = 0b1000, // GrFP::sampleUsage()::fHasPerspective
+    kPersp_Matrix_Flag           = 0b0100, // GrFP::sampleUsage()::fHasPerspective
 };
 
 GrGeometryProcessor::GrGeometryProcessor(ClassID classID) : GrProcessor(classID) {}
@@ -39,17 +36,8 @@ uint32_t GrGeometryProcessor::ComputeCoordTransformsKey(const GrFragmentProcesso
     if (fp.isSampledWithExplicitCoords()) {
         key |= kExplicitlySampled_Flag;
     }
-
-    switch(fp.sampleUsage().fKind) {
-        case SkSL::SampleUsage::Kind::kNone:
-            key |= kNone_SampleMatrix_Flag;
-            break;
-        case SkSL::SampleUsage::Kind::kUniform:
-            key |= kUniform_SampleMatrix_Flag;
-            break;
-        case SkSL::SampleUsage::Kind::kVariable:
-            key |= kVariable_SampleMatrix_Flag;
-            break;
+    if (fp.sampleUsage().isUniformMatrix()) {
+        key |= kUniform_SampleMatrix_Flag;
     }
     if (fp.sampleUsage().fHasPerspective) {
         key |= kPersp_Matrix_Flag;

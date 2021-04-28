@@ -79,36 +79,6 @@ public:
     }
 };
 
-// Samples child with a variable matrix
-// Translates along X
-// Typically, kVariable would be due to multiple sample(matrix) invocations, but this artificially
-// uses kVariable with a single (constant) matrix.
-class VariableMatrixEffect : public GrFragmentProcessor {
-public:
-    static constexpr GrProcessor::ClassID CLASS_ID = (GrProcessor::ClassID) 5;
-
-    VariableMatrixEffect(std::unique_ptr<GrFragmentProcessor> child)
-            : GrFragmentProcessor(CLASS_ID, kNone_OptimizationFlags) {
-        this->registerChild(std::move(child), SkSL::SampleUsage::VariableMatrix());
-    }
-
-    const char* name() const override { return "VariableMatrixEffect"; }
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
-    bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
-    std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
-
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-        class Impl : public GrGLSLFragmentProcessor {
-            void emitCode(EmitArgs& args) override {
-                SkString sample = this->invokeChildWithMatrix(
-                        0, args, "float3x3(1, 0, 0, 0, 1, 0, 8, 0, 1)");
-                args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
-            }
-        };
-        return std::make_unique<Impl>();
-    }
-};
-
 // Samples child with explicit coords
 // Translates along Y
 class ExplicitCoordEffect : public GrFragmentProcessor {
@@ -192,7 +162,6 @@ SkBitmap make_test_bitmap() {
 enum EffectType {
     kConstant,
     kUniform,
-    kVariable,
     kExplicit,
 };
 
@@ -203,15 +172,13 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
             return std::make_unique<ConstantMatrixEffect>(std::move(fp));
         case kUniform:
             return std::make_unique<UniformMatrixEffect>(std::move(fp));
-        case kVariable:
-            return std::make_unique<VariableMatrixEffect>(std::move(fp));
         case kExplicit:
             return std::make_unique<ExplicitCoordEffect>(std::move(fp));
     }
     SkUNREACHABLE;
 }
 
-DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
+DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 306, 232) {
     SkBitmap bmp = make_test_bitmap();
 
     int x = 10, y = 10;
@@ -247,7 +214,6 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
     draw({});             // Identity (4 rows and columns)
     draw({ kConstant });  // Scale X axis by 2x (2 visible columns)
     draw({ kUniform  });  // Scale Y axis by 2x (2 visible rows)
-    draw({ kVariable });  // Translate left by 8px
     draw({ kExplicit });  // Translate up by 8px
     nextRow();
 
@@ -255,21 +221,12 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
     draw({ kConstant, kUniform  });  // Scale XY by 2x (2 rows and columns)
     draw({ kConstant, kConstant });  // Scale X axis by 4x (1 visible column)
     draw({ kUniform,  kUniform  });  // Scale Y axis by 4x (1 visible row)
-    draw({ kVariable, kVariable });  // Translate left by 16px
     draw({ kExplicit, kExplicit });  // Translate up by 16px
     nextRow();
 
     // Remember, these are applied inside out:
     draw({ kConstant, kExplicit }); // Scale X by 2x and translate up by 8px
-    draw({ kConstant, kVariable }); // Scale X by 2x and translate left by 8px
-    draw({ kUniform,  kVariable }); // Scale Y by 2x and translate left by 8px
     draw({ kUniform,  kExplicit }); // Scale Y by 2x and translate up by 8px
-    draw({ kVariable, kExplicit }); // Translate left and up by 8px
-    nextRow();
-
     draw({ kExplicit, kExplicit, kConstant }); // Scale X by 2x and translate up by 16px
-    draw({ kVariable, kConstant }); // Scale X by 2x and translate left by 16px
-    draw({ kVariable, kVariable, kUniform }); // Scale Y by 2x and translate left by 16px
     draw({ kExplicit, kUniform }); // Scale Y by 2x and translate up by 16px
-    draw({ kExplicit, kUniform, kVariable, kConstant }); // Scale XY by 2x and translate xy 16px
 }

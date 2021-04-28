@@ -24,7 +24,7 @@ private:
     GrChildProcessorSampleCoords(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorSampleCoords_ClassID, kNone_OptimizationFlags) {
         this->setUsesSampleCoordsDirectly();
-        this->registerChild(std::move(child), SkSL::SampleUsage(SkSL::SampleUsage::Kind::kNone, "", false, true, true));
+        this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
