@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95829da9_2270111d",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-04-28T02:12:31Z",
+      "side": 1,
+      "message": "This has broken Housekeeper-PerCommit-PushAppsFromWASMDockerImage:\n\n    https://task-driver.skia.org/td/qoSri7mix4Na7DzBuOA2\n\n\nERROR in /home/skia/golib/src/go.skia.org/infra/particles/build/canvaskit/canvaskit.d.ts\n[tsl] ERROR in /home/skia/golib/src/go.skia.org/infra/particles/build/canvaskit/canvaskit.d.ts(652,1)\n      TS1128: Declaration or statement expected.\nChild HtmlWebpackCompiler:",
+      "revId": "ae33954b4932e71f2bdfbe58ad3d1cde7980db7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
