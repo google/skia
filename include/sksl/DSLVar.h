@@ -24,7 +24,7 @@ public:
     /**
      * Creates an empty, unpopulated DSLVar. Can be replaced with a real DSLVar later via `swap`.
      */
-    DSLVar() : fType(kVoid_Type), fDeclared(true) {}
+    DSLVar() : fDeclared(true) {}
 
     /**
      * Constructs a new variable with the specified type and name. The name is used (in mangled
@@ -41,7 +41,7 @@ public:
 
     DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
-    DSLVar(DSLVar&&) = delete;
+    DSLVar(DSLVar&&);
 
     ~DSLVar();
 
@@ -147,6 +147,8 @@ private:
     friend class DSLExpression;
     friend class DSLFunction;
     friend class DSLWriter;
+
+    template<typename T> friend class DSLWrapper;
 };
 
 } // namespace dsl

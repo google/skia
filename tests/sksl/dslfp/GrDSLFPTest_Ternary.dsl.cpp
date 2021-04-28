@@ -31,6 +31,7 @@ Var _colorGreen;
 if (primaryColors) {
     Var(kUniform_Modifier, DSLType(kHalf4_Type), "colorGreen").swap(_colorGreen);
     colorGreenVar = VarUniformHandle(_colorGreen);
+    DeclareGlobal(_colorGreen);
 } else {
     Var(kConst_Modifier, DSLType(kHalf4_Type), "colorGreen", Half4(0)).swap(_colorGreen);
     Declare(_colorGreen);
@@ -39,6 +40,7 @@ Var _colorRed;
 if (primaryColors) {
     Var(kUniform_Modifier, DSLType(kHalf4_Type), "colorRed").swap(_colorRed);
     colorRedVar = VarUniformHandle(_colorRed);
+    DeclareGlobal(_colorRed);
 } else {
     Var(kConst_Modifier, DSLType(kHalf4_Type), "colorRed", Half4(0)).swap(_colorRed);
     Declare(_colorRed);
@@ -47,6 +49,7 @@ Var _colorOrange;
 if (!primaryColors) {
     Var(kUniform_Modifier, DSLType(kHalf4_Type), "colorOrange").swap(_colorOrange);
     colorOrangeVar = VarUniformHandle(_colorOrange);
+    DeclareGlobal(_colorOrange);
 } else {
     Var(kConst_Modifier, DSLType(kHalf4_Type), "colorOrange", Half4(0)).swap(_colorOrange);
     Declare(_colorOrange);
@@ -55,6 +58,7 @@ Var _colorPurple;
 if (!primaryColors) {
     Var(kUniform_Modifier, DSLType(kHalf4_Type), "colorPurple").swap(_colorPurple);
     colorPurpleVar = VarUniformHandle(_colorPurple);
+    DeclareGlobal(_colorPurple);
 } else {
     Var(kConst_Modifier, DSLType(kHalf4_Type), "colorPurple", Half4(0)).swap(_colorPurple);
     Declare(_colorPurple);
