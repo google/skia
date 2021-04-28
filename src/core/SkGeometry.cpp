@@ -346,12 +346,12 @@ SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
 
 int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
     SkScalar t = SkFindQuadMaxCurvature(src);
-    if (t == 0 || t == 1) {
-        memcpy(dst, src, 3 * sizeof(SkPoint));
-        return 1;
-    } else {
+    if (t > 0 && t < 1) {
         SkChopQuadAt(src, dst, t);
         return 2;
+    } else {
+        memcpy(dst, src, 3 * sizeof(SkPoint));
+        return 1;
     }
 }
 
