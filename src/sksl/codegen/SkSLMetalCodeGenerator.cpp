@@ -1251,7 +1251,7 @@ void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
 
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
-    String key = "TimesEqual" + this->typeName(left) + ":" + this->typeName(right);
+    String key = "TimesEqual " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1268,7 +1268,7 @@ void MetalCodeGenerator::writeMatrixEqualityHelper(const Type& left, const Type&
     SkASSERTF(left.rows() == right.rows() && left.columns() == right.columns(), "left=%s, right=%s",
               left.description().c_str(), right.description().c_str());
 
-    String key = "Equality" + this->typeName(left) + ":" + this->typeName(right);
+    String key = "Equality " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1290,7 +1290,7 @@ void MetalCodeGenerator::writeMatrixInequalityHelper(const Type& left, const Typ
     SkASSERTF(left.rows() == right.rows() && left.columns() == right.columns(), "left=%s, right=%s",
               left.description().c_str(), right.description().c_str());
 
-    String key = "Inequality" + this->typeName(left) + ":" + this->typeName(right);
+    String key = "MatrixInequality " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1307,6 +1307,69 @@ void MetalCodeGenerator::writeMatrixInequalityHelper(const Type& left, const Typ
                                "}\n");
     }
 }
+
+void MetalCodeGenerator::writeArrayEqualityHelpers() {
+    auto [iter, wasInserted] = fHelpers.insert("ArrayEquality[]");
+    if (wasInserted) {
+        fExtraFunctions.writeText(R"(
+template <typename T, size_t N>
+bool operator==(thread const array<T, N>& left, thread const array<T, N>& right) {
+    for (size_t index = 0; index < N; ++index) {
+        if (left[index] == right[index]) continue;
+        return false;
+    }
+    return true;
+}
+
+template <typename T, size_t N>
+bool operator!=(thread const array<T, N>& left, thread const array<T, N>& right) {
+    return !(left == right);
+}
+)");
+    }
+}
+
+void MetalCodeGenerator::writeStructEqualityHelpers(const Type& type) {
+    SkASSERT(type.isStruct());
+    String key = "StructEquality:" + this->typeName(type);
+
+    auto [iter, wasInserted] = fHelpers.insert(key);
+    if (wasInserted) {
+        // If one of the struct fields is an array, we need to emit the array == helper first.
+        for (const Type::Field& field : type.fields()) {
+            if (field.fType->isArray()) {
+                this->writeArrayEqualityHelpers();
+                break;
+            }
+        }
+
+        // Write operator== and operator!= for this struct, since those are assumed to exist in SkSL
+        // and GLSL but do not exist by default in Metal.
+        fExtraFunctions.printf(
+                "thread bool operator==(thread const %.*s& left, thread const %.*s& right) {\n"
+                "    return ",
+                (int)type.name().size(), type.name().data(),
+                (int)type.name().size(), type.name().data());
+
+        const char* separator = "";
+        for (const Type::Field& field : type.fields()) {
+            fExtraFunctions.printf("%s(left.%.*s == right.%.*s)",
+                                   separator,
+                                   (int)field.fName.size(), field.fName.data(),
+                                   (int)field.fName.size(), field.fName.data());
+            separator = " &&\n           ";
+        }
+        fExtraFunctions.printf(
+                ";\n"
+                "}\n"
+                "thread bool operator!=(thread const %.*s& left, thread const %.*s& right) {\n"
+                "    return !(left == right);\n"
+                "}\n",
+                (int)type.name().size(), type.name().data(),
+                (int)type.name().size(), type.name().data());
+    }
+}
+
 
 void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence) {
@@ -1344,7 +1407,16 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         } else if (op.kind() == Token::Kind::TK_NEQ) {
             this->writeMatrixInequalityHelper(leftType, rightType);
         }
+    } else if (leftType.isArray() && rightType.isArray()) {
+        if (op.kind() == Token::Kind::TK_EQ || op.kind() == Token::Kind::TK_NEQ) {
+            this->writeArrayEqualityHelpers();
+        }
+    } else if (leftType.isStruct() && rightType.isStruct()) {
+        if (op.kind() == Token::Kind::TK_EQ || op.kind() == Token::Kind::TK_NEQ) {
+            this->writeStructEqualityHelpers(leftType);
+        }
     }
+
     this->writeExpression(left, precedence);
     if (op.kind() != Token::Kind::TK_EQ && op.isAssignment() &&
         left.kind() == Expression::Kind::kSwizzle && !left.hasSideEffects()) {
@@ -1720,7 +1792,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
                                      const InterfaceBlock* parentIntf) {
     MemoryLayout memoryLayout(MemoryLayout::kMetal_Standard);
     int currentOffset = 0;
-    for (const auto& field: fields) {
+    for (const Type::Field& field : fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
         if (!MemoryLayout::LayoutIsSupported(*fieldType)) {
