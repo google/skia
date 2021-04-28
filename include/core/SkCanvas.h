@@ -8,6 +8,12 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
+/*
+ *  Cumulative % of all draws that are opaque across all skps
+ *   w/ text drawscounted as transparent ~75% opaque
+ *   ignoring text draws                 ~92% opaque
+ */
+
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
@@ -87,6 +93,9 @@ class SkVertices;
 */
 class SK_API SkCanvas {
 public:
+    static void Clear();
+    static void Gather(bool isOpaque);
+    static void Dump(const char* name);
 
     /** Allocates raster SkCanvas that will draw directly into pixels.
 

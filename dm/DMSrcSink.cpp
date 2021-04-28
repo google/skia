@@ -1535,6 +1535,8 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                        std::function<void(GrDirectContext*)> initContext) const {
     GrContextOptions grOptions = baseOptions;
 
+    SkCanvas::Clear();
+
     // We don't expect the src to mess with the persistent cache or the executor.
     SkDEBUGCODE(auto cache = grOptions.fPersistentCache);
     SkDEBUGCODE(auto exec = grOptions.fExecutor);
@@ -1566,6 +1568,9 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         return result;
     }
     surface->flushAndSubmit();
+
+    SkCanvas::Dump(src.name().c_str());
+
     if (FLAGS_gpuStats) {
         direct->priv().dumpCacheStats(log);
         direct->priv().dumpGpuStats(log);

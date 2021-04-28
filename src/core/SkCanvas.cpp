@@ -591,8 +591,37 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
     return false;
 }
 
+int g_Total = 0;
+int g_Opaque = 0;
+
+int g_CumTotal = 0;
+int g_CumOpaque = 0;
+
+void SkCanvas::Clear() {
+    g_Total = 0;
+    g_Opaque = 0;
+}
+
+void SkCanvas::Gather(bool isOpaque) {
+    if (isOpaque) {
+        ++g_Opaque;
+        ++g_CumOpaque;
+    }
+
+    ++g_Total;
+    ++g_CumTotal;
+}
+
+void SkCanvas::Dump(const char* name) {
+    SkDebugf("%s %.2f%% opaque - (%d/%d) -- cumulative%.2f%%\n",
+             name, (100.0f * g_Opaque) / g_Total, g_Opaque, g_Total,
+             (100.0f * g_CumOpaque) / g_CumTotal);
+}
+
 bool SkCanvas::writePixels(const SkImageInfo& srcInfo, const void* pixels, size_t rowBytes,
                            int x, int y) {
+    Gather(srcInfo.isOpaque());
+
     SkBaseDevice* device = this->baseDevice();
 
     // This check gives us an early out and prevents generation ID churn on the surface.
@@ -970,6 +999,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     // saveLayer ignores mask filters, so force it to null
     if (paint.get() && paint->getMaskFilter()) {
         paint.writable()->setMaskFilter(nullptr);
+    }
+
+    if (paint) {
+        Gather(paint->isOpaque());
     }
 
     // If we have a backdrop filter, then we must apply it to the entire layer (clip-bounds)
@@ -1738,11 +1771,16 @@ void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
         return;
     }
 
+    Gather(paint.isOpaque());
+
     this->onDrawDRRect(outer, inner, paint);
 }
 
 void SkCanvas::drawPaint(const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+
+    Gather(paint.isOpaque());
+
     this->onDrawPaint(paint);
 }
 
@@ -1750,6 +1788,9 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     // To avoid redundant logic in our culling code and various backends, we always sort rects
     // before passing them along.
+
+    Gather(paint.isOpaque());
+
     this->onDrawRect(r.makeSorted(), paint);
 }
 
@@ -1768,6 +1809,8 @@ void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
         return this->drawIRect(region.getBounds(), paint);
     }
 
+    Gather(paint.isOpaque());
+
     this->onDrawRegion(region, paint);
 }
 
@@ -1775,16 +1818,25 @@ void SkCanvas::drawOval(const SkRect& r, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     // To avoid redundant logic in our culling code and various backends, we always sort rects
     // before passing them along.
+
+    Gather(paint.isOpaque());
+
     this->onDrawOval(r.makeSorted(), paint);
 }
 
 void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+
+    Gather(paint.isOpaque());
+
     this->onDrawRRect(rrect, paint);
 }
 
 void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+
+    Gather(paint.isOpaque());
+
     this->onDrawPoints(mode, count, pts, paint);
 }
 
@@ -1810,11 +1862,16 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     }
 #endif
 
+    Gather(paint.isOpaque());
+
     this->onDrawVerticesObject(vertices, mode, paint);
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+
+    Gather(paint.isOpaque());
+
     this->onDrawPath(path, paint);
 }
 
@@ -1887,6 +1944,11 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
     }
     SkASSERT(atlas);
     SkASSERT(tex);
+
+    if (paint) {
+        Gather(paint->isOpaque());
+    }
+
     this->onDrawAtlas2(atlas, xform, tex, colors, count, mode, sampling, cull, paint);
 }
 
@@ -2172,6 +2234,8 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
         return;
     }
 
+    Gather(realPaint.isOpaque());
+
     if (realPaint.getImageFilter() &&
         this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), sampling, realPaint)  &&
         !image_to_color_filter(&realPaint)) {
@@ -2212,6 +2276,8 @@ void SkCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const S
     if (this->internalQuickReject(dst, realPaint)) {
         return;
     }
+
+    Gather(realPaint.isOpaque());
 
     AutoLayerForImageFilter layer(this, realPaint, &dst, CheckForOverwrite::kYes,
                                   image->isOpaque() ? kOpaque_ShaderOverrideOpacity
@@ -2258,6 +2324,9 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst,
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
     auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(*blob, {x, y});
+
+//    Gather(false);
+
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
@@ -2266,6 +2335,9 @@ void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPa
     if (this->internalQuickReject(bounds, paint)) {
         return;
     }
+
+//    Gather(false);
+
     AutoLayerForImageFilter layer(this, paint, &bounds);
     this->topDevice()->drawGlyphRunList(glyphRunList, layer.paint());
 }
@@ -2387,6 +2459,8 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     if (nullptr == cubics) {
         return;
     }
+
+    Gather(paint.isOpaque());
 
     this->onDrawPatch(cubics, colors, texCoords, bmode, paint);
 }
@@ -2570,6 +2644,9 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
     if (oval.isEmpty() || !sweepAngle) {
         return;
     }
+
+    Gather(paint.isOpaque());
+
     this->onDrawArc(oval, startAngle, sweepAngle, useCenter, paint);
 }
 
