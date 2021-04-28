@@ -7,7 +7,6 @@
 
 #include "src/sksl/codegen/SkSLDSLCPPCodeGenerator.h"
 
-#include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCPPUniformCTypes.h"
 #include "src/sksl/SkSLCompiler.h"
