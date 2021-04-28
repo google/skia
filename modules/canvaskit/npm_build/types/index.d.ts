@@ -510,6 +510,7 @@ export interface CanvasKit {
     readonly UnderlineDecoration: number;
     readonly OverlineDecoration: number;
     readonly LineThroughDecoration: number;
+    readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whitespace(s)
 }
 
 export interface Camera {
@@ -648,8 +649,6 @@ export interface LineMetrics {
     /** Zero indexed line number. */
     lineNumber: number;
 }
-
-readonly WhiteSpace_GlyphRunFlag: number;   // the entire run is made up of whitespace(s)
 
 /**
  * Information for a run of shaped text. See Paragraph.getShapedRuns()
@@ -1131,7 +1130,7 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param glyphs the array of glyph IDs (Uint16TypedArray)
      * @param positions the array of x,y floats to position each glyph
      * @param x x-coordinate of the origin of the entire run
-     * @param x y-coordinate of the origin of the entire run
+     * @param y y-coordinate of the origin of the entire run
      * @param font the font that contains the glyphs
      * @param paint
      */
