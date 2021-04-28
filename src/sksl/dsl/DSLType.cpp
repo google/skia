@@ -15,6 +15,50 @@ namespace SkSL {
 
 namespace dsl {
 
+bool DSLType::isBoolean() const {
+    return fSkSLType->isBoolean();
+}
+
+bool DSLType::isNumber() const {
+    return fSkSLType->isNumber();
+}
+
+bool DSLType::isFloat() const {
+    return fSkSLType->isFloat();
+}
+
+bool DSLType::isSigned() const {
+    return fSkSLType->isSigned();
+}
+
+bool DSLType::isUnsigned() const {
+    return fSkSLType->isUnsigned();
+}
+
+bool DSLType::isInteger() const {
+    return fSkSLType->isInteger();
+}
+
+bool DSLType::isScalar() const {
+    return fSkSLType->isScalar();
+}
+
+bool DSLType::isVector() const {
+    return fSkSLType->isVector();
+}
+
+bool DSLType::isMatrix() const {
+    return fSkSLType->isMatrix();
+}
+
+bool DSLType::isArray() const {
+    return fSkSLType->isArray();
+}
+
+bool DSLType::isStruct() const {
+    return fSkSLType->isStruct();
+}
+
 const SkSL::Type& DSLType::skslType() const {
     if (fSkSLType) {
         return *fSkSLType;
@@ -108,8 +152,8 @@ const SkSL::Type& DSLType::skslType() const {
     }
 }
 
-DSLExpression DSLType::Construct(TypeConstant type, SkTArray<DSLExpression> argArray) {
-    return DSLWriter::Construct(DSLType(type).skslType(), std::move(argArray));
+DSLExpression DSLType::Construct(DSLType type, SkTArray<DSLExpression> argArray) {
+    return DSLWriter::Construct(type.skslType(), std::move(argArray));
 }
 
 DSLType Array(const DSLType& base, int count) {

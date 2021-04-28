@@ -76,9 +76,9 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
     , fInitialValue(std::move(initialValue))
     , fStorage(Variable::Storage::kLocal)
     , fDeclared(DSLWriter::Instance().fMarkVarsDeclared) {
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     if (fModifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
         fStorage = Variable::Storage::kGlobal;
+#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
         if (DSLWriter::InFragmentProcessor()) {
             const SkSL::Type& skslType = type.skslType();
             GrSLType grslType;
@@ -105,16 +105,46 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
                                                                  &name).toIndex();
             fName = name;
         }
-        fDeclared = true;
-    }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
+    }
 }
+
+DSLVar::DSLVar(DSLVar&& other)
+    : fModifiers(other.fModifiers)
+    , fType(other.fType)
+    , fUniformHandle(other.fUniformHandle)
+    , fDeclaration(std::move(other.fDeclaration))
+    , fVar(other.fVar)
+    , fRawName(other.fRawName)
+    , fName(other.fName)
+    , fInitialValue(std::move(other.fInitialValue))
+    , fStorage(other.fStorage)
+    , fDeclared(other.fDeclared) {
+    // allow other to be destroyed without error
+    other.fDeclared = true;
+}
+
 
 DSLVar::~DSLVar() {
     if (!fDeclared) {
         DSLWriter::ReportError(String::printf("error: variable '%s' was destroyed without being "
                                               "declared\n", fRawName).c_str());
     }
+}
+
+void DSLVar::moveAssign(DSLVar&& other) {
+    fModifiers = other.fModifiers;
+    fType = other.fType;
+    fUniformHandle = other.fUniformHandle;
+    fDeclaration = std::move(other.fDeclaration);
+    fVar = other.fVar;
+    fRawName = other.fRawName;
+    fName = other.fName;
+    fInitialValue = std::move(other.fInitialValue);
+    fStorage = other.fStorage;
+    fDeclared = other.fDeclared;
+    // allow other to be destroyed without error
+    other.fDeclared = true;
 }
 
 DSLPossibleExpression DSLVar::operator[](DSLExpression&& index) {

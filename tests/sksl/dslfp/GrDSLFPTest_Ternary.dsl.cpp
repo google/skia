@@ -30,8 +30,10 @@ public:
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
 Var colorGreen(kUniform_Modifier, DSLType(kHalf4_Type), "colorGreen");
+DeclareGlobal(colorGreen);
 colorGreenVar = VarUniformHandle(colorGreen);
 Var colorRed(kUniform_Modifier, DSLType(kHalf4_Type), "colorRed");
+DeclareGlobal(colorRed);
 colorRedVar = VarUniformHandle(colorRed);
 Var t(kNo_Modifier, DSLType(kBool_Type), "t", true);
 Var f(kNo_Modifier, DSLType(kBool_Type), "f", false);

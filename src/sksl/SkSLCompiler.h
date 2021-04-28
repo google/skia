@@ -182,7 +182,7 @@ public:
 
     const ParsedModule& moduleForProgramKind(ProgramKind kind);
 
-private:
+//private:
     const ParsedModule& loadGPUModule();
     const ParsedModule& loadFragmentModule();
     const ParsedModule& loadVertexModule();
@@ -247,6 +247,7 @@ private:
     friend class AutoSource;
     friend class ::SkSLCompileBench;
     friend class dsl::DSLWriter;
+    friend class DSLParser;
 };
 
 }  // namespace SkSL

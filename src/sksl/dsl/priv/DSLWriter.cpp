@@ -40,11 +40,12 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind)
     SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
     fOldConfig = fCompiler->fContext->fConfig;
     fCompiler->fContext->fConfig = fConfig.get();
+    ir.start(module, false, nullptr, &fProgramElements, &fSharedElements);
+    module.fSymbols = nullptr;
     if (compiler->context().fCaps.useNodePools()) {
         fPool = Pool::Create();
         fPool->attachToThread();
     }
-    ir.start(module, false, nullptr, &fProgramElements, &fSharedElements);
 }
 
 DSLWriter::~DSLWriter() {
@@ -119,6 +120,13 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& fun
     // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
     // IRGenerator::call.
     return IRGenerator().call(/*offset=*/-1, function, std::move(arguments));
+}
+
+std::unique_ptr<SkSL::Expression> DSLWriter::Call(std::unique_ptr<SkSL::Expression> expr,
+                                                  ExpressionArray arguments) {
+    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
+    // IRGenerator::call.
+    return IRGenerator().call(/*offset=*/-1, std::move(expr), std::move(arguments));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
@@ -217,14 +225,16 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
                                                                           var.fStorage);
         var.fVar = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
-        // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL.
+        // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL. We also do
+        // not want the variable added to the symbol table for several reasons - DSLParser handles
+        // the symbol table itself, parameters don't go into the symbol table until after the
+        // FunctionDeclaration is created which makes this the wrong spot for them, and outside of
+        // DSLParser we don't even need DSL variables to show up in the symbol table in the first
+        // place.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                        std::move(skslvar),
-                                                                       var.fInitialValue.release());
-        if (var.fStorage == Variable::Storage::kGlobal) {
-            DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
-                                                                      std::move(var.fDeclaration)));
-        }
+                                                                       var.fInitialValue.release(),
+                                                                       /*addToSymbolTable=*/false);
     }
     return *var.fVar;
 }
@@ -260,17 +270,7 @@ std::unique_ptr<SkSL::Program> DSLWriter::ReleaseProgram() {
     return result;
 }
 
-#if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
-
-DSLWriter& DSLWriter::Instance() {
-    SkUNREACHABLE;
-}
-
-void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> instance) {
-    SkDEBUGFAIL("unimplemented");
-}
-
-#elif SKSL_USE_THREAD_LOCAL
+#if SKSL_USE_THREAD_LOCAL
 
 thread_local DSLWriter* instance = nullptr;
 
