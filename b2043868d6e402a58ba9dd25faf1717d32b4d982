@@ -63,6 +63,30 @@
       },
       "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2426dd7a_cbc36f07",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-28T15:07:12Z",
+      "side": 1,
+      "message": "half4 main() { return mix(sample(cf0), sample(cf1), weight); }\nerror: 1: \u0027main\u0027 parameter must be \u0027vec4\u0027, \u0027float4\u0027, or \u0027half4\u0027\n\n\nhalf4 main(half4 color) { return mix(sample(cf0), sample(cf1), weight); }\nerror: 1: call to \u0027sample\u0027 expected 2 arguments, but found 1\n\n\nhalf4 main(half4 color) { return mix(sample(cf0, color), sample(cf1, color), weight); }\nerror: 1: expected \u0027float2\u0027, but found \u0027half4\u0027\n\nDoes my strange fourth version here seem ok?  I now see no local diffs.",
+      "parentUuid": "f435beff_3d596e9d",
+      "range": {
+        "startLine": 470,
+        "startChar": 19,
+        "endLine": 470,
+        "endChar": 21
+      },
+      "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

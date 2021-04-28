@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5804ebce_fdf5ca2b",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-28T15:07:12Z",
+      "side": 1,
+      "message": "Is there maybe a way I can say this takes a color filter and not shader here yet?",
+      "range": {
+        "startLine": 467,
+        "startChar": 17,
+        "endLine": 467,
+        "endChar": 23
+      },
+      "revId": "c307d44eda5497ed4b2dd5d7586c49c1d45c5f13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
