@@ -111,6 +111,30 @@
       },
       "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f1914a1_2774a890",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-28T15:08:36Z",
+      "side": 1,
+      "message": "crossed streams. But yes. No way to distinguish between color-filter and shader under the hood yet (or at least, no versions of sample that know what to do with colorFilter - the type actually exists).",
+      "parentUuid": "5e012e5f_24fe90a2",
+      "range": {
+        "startLine": 470,
+        "startChar": 19,
+        "endLine": 470,
+        "endChar": 21
+      },
+      "revId": "b2043868d6e402a58ba9dd25faf1717d32b4d982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
