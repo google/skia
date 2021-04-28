@@ -6,6 +6,7 @@
  */
 
 #include "fuzz/Fuzz.h"
+#if 0
 #include "fuzz/FuzzCommon.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -280,3 +281,4 @@ DEF_FUZZ(SkParagraph, fuzz) {
     paragraph->layout(layout_width);
     paragraph->paint(&canvas, 0, 0);
 }
+#endif
