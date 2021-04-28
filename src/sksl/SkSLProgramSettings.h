@@ -64,6 +64,8 @@ struct ProgramSettings {
     // producing H and CPP code; the static tests don't have to have constant values *yet*, but
     // the generated code will contain a static test which then does have to be a constant.
     bool fPermitInvalidStaticTests = false;
+
+    bool fUseDSL = false;
 };
 
 /**

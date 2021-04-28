@@ -95,8 +95,16 @@ DSLExpression::~DSLExpression() {
               "Expression destroyed without being incorporated into program");
 }
 
+void DSLExpression::swap(DSLExpression& other) {
+    std::swap(fExpression, other.fExpression);
+}
+
 std::unique_ptr<SkSL::Expression> DSLExpression::release() {
     return std::move(fExpression);
+}
+
+DSLType DSLExpression::type() {
+    return &fExpression->type();
 }
 
 DSLExpression DSLExpression::x(PositionInfo pos) {
@@ -141,6 +149,14 @@ DSLPossibleExpression DSLExpression::operator=(DSLExpression right) {
 
 DSLPossibleExpression DSLExpression::operator[](DSLExpression right) {
     return DSLWriter::ConvertIndex(this->release(), right.release());
+}
+
+DSLPossibleExpression DSLExpression::operator()(SkTArray<DSLWrapper<DSLExpression>> args) {
+    ExpressionArray converted;
+    for (DSLWrapper<DSLExpression>& arg : args) {
+        converted.push_back(arg->release());
+    }
+    return DSLWriter::Call(this->release(), std::move(converted));
 }
 
 #define OP(op, token)                                                                              \

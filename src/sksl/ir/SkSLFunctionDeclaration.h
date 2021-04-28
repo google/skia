@@ -36,7 +36,9 @@ public:
     , fParameters(std::move(parameters))
     , fReturnType(returnType)
     , fBuiltin(builtin)
-    , fIsMain(name == "main") {}
+    , fIsMain(name == "main") {
+        SkASSERT(fReturnType);
+    }
 
     const Modifiers& modifiers() const {
         return *fModifiers;
