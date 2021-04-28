@@ -30,6 +30,10 @@
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
 #include FT_SYNTHESIS_H
 
+#ifdef TT_SUPPORT_COLRV1
+#include <unordered_set>
+#endif
+
 // FT_LOAD_COLOR and the corresponding FT_Pixel_Mode::FT_PIXEL_MODE_BGRA
 // were introduced in FreeType 2.5.0.
 // The following may be removed once FreeType 2.5.0 is required to build.
@@ -53,6 +57,26 @@ const char* SkTraceFtrGetError(int e) {
     }
 }
 #endif  // SK_DEBUG
+
+#ifdef TT_SUPPORT_COLRV1
+
+template<> struct std::hash<FT_OpaquePaint>
+{
+    std::size_t operator()(FT_OpaquePaint const& p) const {
+        std::size_t h1 = std::hash<FT_Byte*>{}(p.p);
+        std::size_t h2 = std::hash<FT_Bool>{}(p.insert_root_transform);
+        return h1 ^ (h2 + (h1 << 6) + (h1 >> 2));
+    }
+};
+
+template<> struct std::equal_to<FT_OpaquePaint>
+{
+    bool operator()(const FT_OpaquePaint& lhs, const FT_OpaquePaint& rhs) const {
+        return lhs.p == rhs.p && lhs.insert_root_transform == rhs.insert_root_transform;
+    }
+};
+
+#endif
 
 namespace {
 
@@ -373,6 +397,25 @@ inline SkColorType SkColorType_for_SkMaskFormat(SkMask::Format format) {
 // additions. FreeType defines a macro in the ftoption header to tell us whether
 // it does support these features.
 #ifdef TT_SUPPORT_COLRV1
+
+using VisitedSet = std::unordered_set<FT_OpaquePaint>;
+
+class ScopedSetInserter {
+public:
+    ScopedSetInserter(VisitedSet* set, FT_OpaquePaint paint)
+        : visited_set(set), p(paint) {
+        visited_set->insert(p);
+    }
+
+    ~ScopedSetInserter() { visited_set->erase(p); }
+
+    ScopedSetInserter(const ScopedSetInserter&) = delete;
+    ScopedSetInserter& operator=(const ScopedSetInserter&) = delete;
+
+private:
+    VisitedSet* visited_set;
+    FT_OpaquePaint p;
+};
 
 bool generateFacePathCOLRv1(FT_Face face, SkGlyphID glyphID, SkPath* path);
 
@@ -795,7 +838,14 @@ bool colrv1_start_glyph(SkCanvas* canvas,
 bool colrv1_traverse_paint(SkCanvas* canvas,
                            const FT_Color* palette,
                            FT_Face face,
-                           FT_OpaquePaint opaque_paint) {
+                           FT_OpaquePaint opaque_paint,
+                           VisitedSet* visited_set) {
+    // Cycle detection, see section "5.7.11.1.9 Color glyphs as a directed acyclic graph".
+    if (visited_set->find(opaque_paint) != visited_set->end()) {
+        return false;
+    }
+    ScopedSetInserter scoped_set_inserter(visited_set, opaque_paint);
+
     FT_COLR_Paint paint;
     if (!FT_Get_Paint(face, opaque_paint, &paint)) {
       return false;
@@ -811,7 +861,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             FT_OpaquePaint opaque_paint_fetch;
             opaque_paint_fetch.p = nullptr;
             while (FT_Get_Paint_Layers(face, &layer_iterator, &opaque_paint_fetch)) {
-                colrv1_traverse_paint(canvas, palette, face, opaque_paint_fetch);
+                colrv1_traverse_paint(canvas, palette, face, opaque_paint_fetch, visited_set);
             }
             break;
         }
@@ -832,7 +882,8 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                 colrv1_draw_glyph_with_path(canvas, palette, face, paint, fillPaint);
             } else {
                 colrv1_draw_paint(canvas, palette, face, paint);
-                traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.glyph.paint);
+                traverse_result = colrv1_traverse_paint(canvas, palette, face,
+                                                        paint.u.glyph.paint, visited_set);
             }
             break;
         case FT_COLR_PAINTFORMAT_COLR_GLYPH:
@@ -841,30 +892,36 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             break;
         case FT_COLR_PAINTFORMAT_TRANSFORMED:
             colrv1_transform(canvas, face, paint);
-            traverse_result =
-                    colrv1_traverse_paint(canvas, palette, face, paint.u.transformed.paint);
+            traverse_result = colrv1_traverse_paint(canvas, palette, face,
+                                                    paint.u.transformed.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_TRANSLATE:
             colrv1_transform(canvas, face, paint);
-            traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.translate.paint);
+            traverse_result = colrv1_traverse_paint(canvas, palette, face,
+                                                    paint.u.translate.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_ROTATE:
             colrv1_transform(canvas, face, paint);
-            traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.rotate.paint);
+            traverse_result =
+                    colrv1_traverse_paint(canvas, palette, face,
+                                          paint.u.rotate.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_SKEW:
             colrv1_transform(canvas, face, paint);
-            traverse_result = colrv1_traverse_paint(canvas, palette, face, paint.u.skew.paint);
+            traverse_result =
+                    colrv1_traverse_paint(canvas, palette, face,
+                                          paint.u.skew.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_COMPOSITE: {
-            traverse_result =
-                    colrv1_traverse_paint(canvas, palette, face, paint.u.composite.backdrop_paint);
+            traverse_result = colrv1_traverse_paint(
+                    canvas, palette, face, paint.u.composite.backdrop_paint, visited_set);
             SkPaint blend_mode_paint;
             blend_mode_paint.setBlendMode(ToSkBlendMode(paint.u.composite.composite_mode));
             canvas->saveLayer(nullptr, &blend_mode_paint);
             traverse_result =
                     traverse_result &&
-                    colrv1_traverse_paint(canvas, palette, face, paint.u.composite.source_paint);
+                    colrv1_traverse_paint(
+                            canvas, palette, face, paint.u.composite.source_paint, visited_set);
             canvas->restore();
             break;
         }
@@ -892,7 +949,8 @@ bool colrv1_start_glyph(SkCanvas* canvas,
     bool has_colrv1_layers = false;
     if (FT_Get_Color_Glyph_Paint(ft_face, glyph_id, root_transform, &opaque_paint)) {
         has_colrv1_layers = true;
-        colrv1_traverse_paint(canvas, palette, ft_face, opaque_paint);
+        VisitedSet visited_set;
+        colrv1_traverse_paint(canvas, palette, ft_face, opaque_paint, &visited_set);
     }
     return has_colrv1_layers;
 }
