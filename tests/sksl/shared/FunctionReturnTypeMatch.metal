@@ -11,28 +11,13 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 thread bool operator==(const float2x2 left, const float2x2 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-thread bool operator!=(const float2x2 left, const float2x2 right) {
-    return !(left == right);
+    return all(left[0] == right[0]) && all(left[1] == right[1]);
 }
 thread bool operator==(const float3x3 left, const float3x3 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
-thread bool operator!=(const float3x3 left, const float3x3 right) {
-    return !(left == right);
+    return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]);
 }
 thread bool operator==(const float4x4 left, const float4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
-thread bool operator!=(const float4x4 left, const float4x4 right) {
-    return !(left == right);
+    return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]) && all(left[3] == right[3]);
 }
 
 float2 returns_float2_f2() {
