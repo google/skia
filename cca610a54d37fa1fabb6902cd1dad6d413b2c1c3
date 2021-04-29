@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e9dc5a5_65d6785e",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-29T13:30:01Z",
+      "side": 1,
+      "message": "This is interesting and something I hadn\u0027t really thought of about the shader/filter split until now.",
+      "revId": "cca610a54d37fa1fabb6902cd1dad6d413b2c1c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97660be1_b930da43",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-29T13:30:01Z",
+      "side": 1,
+      "message": "Is it worth mentioning in a comment that the `static` on this line means MAKE and CODE must stay template parameters?",
+      "revId": "cca610a54d37fa1fabb6902cd1dad6d413b2c1c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
