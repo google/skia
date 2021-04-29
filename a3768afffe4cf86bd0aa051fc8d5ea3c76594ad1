@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a137caf_d22003c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-04-29T19:29:10Z",
+      "side": 1,
+      "message": "\u003e Patch Set 4:\n\u003e \n\u003e Note: not hard to have the image-encoding step be entirely supplied by the client. SkSerializerProcs allows this today (in case you want to drop png code from the lib, and just put the burden on the caller)\n\n+1. I\u0027ve added a comment in the generator regarding this. At the moment, we only have a single client wanting a miniature version, but it would definitely make sense to do this if we had another client that wanted a mini version without encoding.",
+      "revId": "a3768afffe4cf86bd0aa051fc8d5ea3c76594ad1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
