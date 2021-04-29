@@ -30,20 +30,6 @@ void _skOutParamHelper1_modifies_a_struct_vS(thread Nested& n3) {
     modifies_a_struct_vS(_var0);
     n3.b = _var0;
 }
-thread bool operator==(thread const S& left, thread const S& right) {
-    return (left.x == right.x) &&
-           (left.y == right.y);
-}
-thread bool operator!=(thread const S& left, thread const S& right) {
-    return !(left == right);
-}
-thread bool operator==(thread const Nested& left, thread const Nested& right) {
-    return (left.a == right.a) &&
-           (left.b == right.b);
-}
-thread bool operator!=(thread const Nested& left, thread const Nested& right) {
-    return !(left == right);
-}
 
 S returns_a_struct_S() {
     S s;
