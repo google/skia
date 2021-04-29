@@ -34,6 +34,24 @@
       "parentUuid": "a0bcfffa_d5653eb4",
       "revId": "7f8ff27d5731860a98510e6caf6b41518023a1ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddef72f7_72f65e3f",
+        "filename": "modules/svg/src/SkSVGFeLighting.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-04-29T17:16:58Z",
+      "side": 1,
+      "message": "Not always, here\u0027s an example from https://www.w3.org/TR/SVG11/filters.html#feSpotLightElement:\n\n\u003e x \u003d \"\u003cnumber\u003e\"\n\u003e X location for the light source in the coordinate system established by attribute\n\u003e ‘primitiveUnits’ on the ‘filter’ element.\n\nSo it\u0027s a number type but the spec explicitly says to use the primitiveUnits coord system. Shrug - we\u0027ll go with this for now and address later if we misunderstand.",
+      "parentUuid": "ce0c3b2c_c51e7918",
+      "revId": "7f8ff27d5731860a98510e6caf6b41518023a1ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
