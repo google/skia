@@ -34,53 +34,6 @@ class GrTextureProducer : public SkNoncopyable {
 public:
     virtual ~GrTextureProducer() = default;
 
-    /**
-     * Helper for creating a fragment processor to sample the texture with a given filtering mode.
-     * Attempts to avoid unnecessary copies (e.g. for planar sources or subsets) by generating more
-     * complex shader code.
-     *
-     * @param textureMatrix                    Matrix used to access the texture. It is applied to
-     *                                         the local coords. The post-transformed coords should
-     *                                         be in texel units (rather than normalized) with
-     *                                         respect to this Producer's bounds (width()/height()).
-     * @param subset                           If not null, a subset of the texture to restrict
-     *                                         sampling to. The wrap modes apply to this subset.
-     * @param domain                           If not null, a known limit on the texture coordinates
-     *                                         that will be accessed. Applies after textureMatrix.
-     * @param sampler                          Sampler state. Wrap modes applies to subset if not
-     *                                         null, otherwise to the entire source.
-     **/
-    virtual std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
-            const SkMatrix& textureMatrix,
-            const SkRect* subset,
-            const SkRect* domain,
-            GrSamplerState sampler) = 0;
-
-    /**
-     * Similar createFragmentProcessor but produces a fragment processor that does bicubic
-     * interpolation of the source. Attempts to avoid unnecessary copies (e.g. for planar sources or
-     * subsets) by generating more complex shader code.
-     *
-     * @param textureMatrix                    Matrix used to access the texture. It is applied to
-     *                                         the local coords. The post-transformed coords should
-     *                                         be in texel units (rather than normalized) with
-     *                                         respect to this Producer's bounds (width()/height()).
-     * @param subset                           If not null, a subset of the texture to restrict
-     *                                         sampling to. The wrap modes apply to this subset.
-     * @param domain                           If not null, a known limit on the texture coordinates
-     *                                         that will be accessed. Applies after textureMatrix.
-     * @param wrapX                            Wrap mode on x axis. Applied to subset if not null,
-     *                                         otherwise to the entire source.
-     * @param wrapY                            Wrap mode on y axis. Applied to subset if not null,
-     *                                         otherwise to the entire source.
-     */
-    virtual std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessor(
-            const SkMatrix& textureMatrix,
-            const SkRect* subset,
-            const SkRect* domain,
-            GrSamplerState::WrapMode wrapX,
-            GrSamplerState::WrapMode wrapY,
-            SkImage::CubicResampler kernel) = 0;
 
     /**
      * Returns a texture view, possibly with MIP maps. The request for MIP maps may not be honored
@@ -89,38 +42,15 @@ public:
      */
     GrSurfaceProxyView view(GrMipmapped);
 
-    const GrColorInfo& colorInfo() const { return fImageInfo.colorInfo(); }
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkISize dimensions() const { return fImageInfo.dimensions(); }
     GrColorType colorType() const { return fImageInfo.colorType(); }
-    SkAlphaType alphaType() const { return fImageInfo.alphaType(); }
-    SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
-    bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fImageInfo.colorType()); }
-    /* Is it a planar image consisting of multiple textures that may have different resolutions? */
-    virtual bool isPlanar() const { return false; }
 
 protected:
     GrTextureProducer(GrRecordingContext* context, const GrImageInfo& imageInfo)
             : fContext(context), fImageInfo(imageInfo) {}
 
-    // Helper for making a texture effect from a single proxy view.
-    std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForView(
-            GrSurfaceProxyView view,
-            const SkMatrix& textureMatrix,
-            const SkRect* subset,
-            const SkRect* domain,
-            GrSamplerState sampler);
-
-    // Helper for making a bicubic effect from a single proxy view.
-    std::unique_ptr<GrFragmentProcessor> createBicubicFragmentProcessorForView(
-            GrSurfaceProxyView view,
-            const SkMatrix& textureMatrix,
-            const SkRect* subset,
-            const SkRect* domain,
-            GrSamplerState::WrapMode wrapX,
-            GrSamplerState::WrapMode wrapY,
-            SkImage::CubicResampler kernel);
 
     GrRecordingContext* context() const { return fContext; }
 

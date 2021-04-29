@@ -173,6 +173,15 @@ protected:
                                        GrSurfaceProxyView src,
                                        GrMipmapped,
                                        GrImageTexGenPolicy);
+
+    static std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(GrRecordingContext*,
+                                                                              GrSurfaceProxyView,
+                                                                              SkAlphaType,
+                                                                              SkSamplingOptions,
+                                                                              const SkTileMode[2],
+                                                                              const SkMatrix&,
+                                                                              const SkRect* subset,
+                                                                              const SkRect* domain);
 #endif
 
 private:
