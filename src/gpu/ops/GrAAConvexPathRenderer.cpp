@@ -678,10 +678,12 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
+    SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
+    bool usesLocalCoords = d->fRandom->nextBool();
+    bool wideColor = d->fRandom->nextBool();
     // Doesn't work without derivative instructions.
     return d->caps()->shaderCaps()->shaderDerivativeSupport()
-                   ? QuadEdgeEffect::Make(d->allocator(), GrTest::TestMatrix(d->fRandom),
-                                          d->fRandom->nextBool(), d->fRandom->nextBool())
+                   ? QuadEdgeEffect::Make(d->allocator(), localMatrix, usesLocalCoords, wideColor)
                    : nullptr;
 }
 #endif
