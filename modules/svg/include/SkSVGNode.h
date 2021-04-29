@@ -28,6 +28,7 @@ enum class SkSVGTag {
     kFeBlend,
     kFeColorMatrix,
     kFeComposite,
+    kFeDiffuseLighting,
     kFeDisplacementMap,
     kFeDistantLight,
     kFeFlood,
