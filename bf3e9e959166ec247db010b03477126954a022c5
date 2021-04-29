@@ -52,6 +52,24 @@
       "parentUuid": "68e60925_03ee7c80",
       "revId": "bf3e9e959166ec247db010b03477126954a022c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06ef10fc_f749a59a",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-04-29T17:34:45Z",
+      "side": 0,
+      "message": "PNG encoding is necessary for mskp capture.",
+      "parentUuid": "f1a996cf_c296c55c",
+      "revId": "bf3e9e959166ec247db010b03477126954a022c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
