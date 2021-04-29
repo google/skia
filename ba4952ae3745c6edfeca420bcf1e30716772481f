@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "126160f5_226e00ad",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-29T13:50:02Z",
+      "side": 1,
+      "message": "\u003e In some distant future the standard library may eventually get real hash tables like flat_map and flat_set (and hopefully stop using generic sounding names for specific implementations). In any event, unordered_set is kinda bad, especially for this sort of constant pushing and popping. Can we use SkTHashSet here?\n\nInteresting - can you elaborate - what\u0027s bad about unordered_set and how does its implementation differ from SkTHashSet?\n\nSwitched to SkTHashSet as suggested and added simple hash and operator\u003d().",
+      "parentUuid": "b559131d_ca7c6a4e",
+      "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3e37f89b_ea84d20c",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "writtenOn": "2021-04-28T16:28:00Z",
       "side": 1,
       "message": "Separating the check that the key is not present from inserting and removing the key seems really awkward (since the remove relies on the the insert not overwriting). Can we just do\n\n    visited_set-\u003einsert(p);\n    SK_AT_SCOPE_EXIT(visited_set-\u003eerase(p));\n\nThis should be equivalent and not require ScopedSetInserter.",
+      "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45206d63_7a3e842f",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-04-29T13:50:02Z",
+      "side": 1,
+      "message": "Done, SK_AT_SCOPE_EXIT is convenient, thanks for the suggestion.",
+      "parentUuid": "692e612a_82f2aeea",
       "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
