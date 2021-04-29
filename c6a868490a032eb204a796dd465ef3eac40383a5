@@ -16,6 +16,24 @@
       "message": "Maybe we could rewrite all our SkRandom APIs from\n\n   T nextT();\n\nto\n\n   void nextT(T*);\n\nwhich would mostly enforce consistent ordering.  That really helped reproducibility when we did the equivalent for fuzzers.",
       "revId": "c6a868490a032eb204a796dd465ef3eac40383a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8534841_8a6cbb3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-29T20:40:44Z",
+      "side": 1,
+      "message": "I like that idea. I think I\u0027ll cut a wishlist bug for it.",
+      "parentUuid": "82876d44_5a57d23f",
+      "revId": "c6a868490a032eb204a796dd465ef3eac40383a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
