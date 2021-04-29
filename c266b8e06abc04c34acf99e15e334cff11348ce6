@@ -39,6 +39,30 @@
       },
       "revId": "c266b8e06abc04c34acf99e15e334cff11348ce6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "297130bd_903695da",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-29T16:42:44Z",
+      "side": 1,
+      "message": "My policy has been to stick with the OS minimum -- if someone wanted to branch Skia and use it with 10.13 they still could without too many changes. I was originally planning on adding a GrContextOption to skip the version check in GrMtlGpu, but since SkSL is now requiring MSL 2.0 I didn\u0027t think there was much point to it.",
+      "parentUuid": "990db7e2_2f97a691",
+      "range": {
+        "startLine": 104,
+        "startChar": 25,
+        "endLine": 104,
+        "endChar": 30
+      },
+      "revId": "c266b8e06abc04c34acf99e15e334cff11348ce6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
