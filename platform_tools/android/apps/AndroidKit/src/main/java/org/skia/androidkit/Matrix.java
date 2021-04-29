@@ -41,7 +41,9 @@ public class Matrix {
     }
 
     /*
-     * Concat A * B, return new matrix as result
+     * A: this Matrix
+     * B: Matrix passed in
+     * Concat A * B, return new Matrix C as result
      */
     public static Matrix Concat(Matrix a, Matrix b) {
         long nativeA = a.mNativeInstance;
@@ -51,6 +53,8 @@ public class Matrix {
     }
 
     /*
+     * A: this Matrix
+     * B: Matrix passed in
      * Concat A * B, store result in Matrix A
      */
     public void postConcat(Matrix b) {
@@ -60,12 +64,28 @@ public class Matrix {
     }
 
     /*
+     * A: this Matrix
+     * B: Matrix passed in
      * Concat B * A, store result in Matrix A
      */
     public void preConcat(Matrix b) {
         long nativeA = this.mNativeInstance;
         long nativeB = b.mNativeInstance;
         nPreConcat(nativeA, nativeB);
+    }
+
+    /*
+     * Translates this Matrix by x, y, z
+     * Store result in Matrix A
+     * returns reference to Matrix A for operation chaining
+     */
+    public Matrix translate(float x, float y, float z) {
+        Matrix t = new Matrix(0, 0, 0, x,
+                              0, 0, 0, y,
+                              0, 0, 0, z,
+                              0, 0, 0, 10);
+        this.preConcat(t);
+        return this;
     }
 
     /**
