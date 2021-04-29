@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1cb95f56_ee290955",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-29T16:57:45Z",
+      "side": 1,
+      "message": "I took a look at this function in SkMatrix and it doesn\u0027t guard against w \u003c 0 when it projects to 2D. When w \u003c 0 we should skip the small path renderer too, I\u0027d think. In most situations with w \u003c 0, I\u0027d bet the mapRectToQuad bounds would exceed area/baseArea \u003e 4.\n\nIf we accept some approximations to the device area, we could do GrQuad::MakeFromRect(bounds, args.fViewMatrix) and then call GrQuad::bounds(). This projects and clips to w \u003e epsilon, but we\u0027re switching to using the device-space bounding box\u0027s area instead of the quad\u0027s area.\n\nAnother option would be to convert the SkRect to SkPoint3\u0027s and call SkMatrix::mapHomogeneousPoints, check w and return CanDrawPath::kNo if any w \u003c\u003d 0. If w \u003e 0 for every corner, divide by w and proceed as you\u0027ve already written for the exact quad area.\n\nWDYT?",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 54
+      },
+      "revId": "5a13c5ee7de8d5700cf0420391225f8591da8c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92d8a693_33ed7df4",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-29T16:57:45Z",
+      "side": 1,
+      "message": "These two conditions get visually lost because of the size of the if(perspective) case. Could we move the if(perspective)\u0027s body to a static helper function?",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 101,
+        "endChar": 46
+      },
+      "revId": "5a13c5ee7de8d5700cf0420391225f8591da8c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
