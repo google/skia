@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "dd33f756_0225bf10",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T19:43:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53833766_39dc8bc3",
+      "range": {
+        "startLine": 86,
+        "startChar": 39,
+        "endLine": 86,
+        "endChar": 41
+      },
+      "revId": "07b523aeb60ddc35411bd837913bd65ff36fb123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3542b370_0be3a2d8",
         "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-29T19:16:21Z",
       "side": 1,
       "message": "Note: this is 2 jni calls.  When we start to care about perf, we should consider plumbing a native translate method.  Or move the implementation to Java.",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 26
+      },
+      "revId": "07b523aeb60ddc35411bd837913bd65ff36fb123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cca1085_6a300790",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T19:43:29Z",
+      "side": 1,
+      "message": "I\u0027ll mark a TODO for this action item.",
+      "parentUuid": "3542b370_0be3a2d8",
       "range": {
         "startLine": 83,
         "startChar": 0,
