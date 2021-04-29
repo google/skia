@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4f6d0648_639719be",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-29T17:27:03Z",
+      "side": 1,
+      "message": "Good point on w \u003c 0. I think approximating based on the bounds of the quad is fine for this case -- I\u0027ll make that change.",
+      "parentUuid": "1cb95f56_ee290955",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 54
+      },
+      "revId": "5a13c5ee7de8d5700cf0420391225f8591da8c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "92d8a693_33ed7df4",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 2
