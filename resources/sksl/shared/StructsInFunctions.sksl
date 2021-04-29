@@ -34,8 +34,10 @@ half4 main(float2 coords) {
     S expected = constructs_a_struct();
 
     Nested n1, n2, n3;
-    n1.a = n1.b = returns_a_struct();
-    n3 = n2 = n1;
+    n1.a = returns_a_struct();
+    n1.b = n1.a;
+    n2 = n1;
+    n3 = n2;
     modifies_a_struct(n3.b);
 
     bool valid = (x == 3) && (s.x == 2) && (s.y == 3) &&

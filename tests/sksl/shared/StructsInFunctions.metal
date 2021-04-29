@@ -30,6 +30,20 @@ void _skOutParamHelper1_modifies_a_struct_vS(thread Nested& n3) {
     modifies_a_struct_vS(_var0);
     n3.b = _var0;
 }
+thread bool operator==(thread const S& left, thread const S& right) {
+    return (left.x == right.x) &&
+           (left.y == right.y);
+}
+thread bool operator!=(thread const S& left, thread const S& right) {
+    return !(left == right);
+}
+thread bool operator==(thread const Nested& left, thread const Nested& right) {
+    return (left.a == right.a) &&
+           (left.b == right.b);
+}
+thread bool operator!=(thread const Nested& left, thread const Nested& right) {
+    return !(left == right);
+}
 
 S returns_a_struct_S() {
     S s;
@@ -57,8 +71,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Nested n1;
     Nested n2;
     Nested n3;
-    n1.a = (n1.b = returns_a_struct_S());
-    n3 = (n2 = n1);
+    n1.a = returns_a_struct_S();
+    n1.b = n1.a;
+    n2 = n1;
+    n3 = n2;
     _skOutParamHelper1_modifies_a_struct_vS(n3);
     bool valid = (((((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s == S{2.0, 3}) && s != returns_a_struct_S()) && n1 == n2) && n1 != n3) && n3 == Nested{S{1.0, 2}, S{2.0, 3}};
     _out.sk_FragColor = valid ? _uniforms.colorGreen : _uniforms.colorRed;

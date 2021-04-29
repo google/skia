@@ -217,9 +217,13 @@ protected:
 
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
 
-    void writeMatrixEqualityHelper(const Type& left, const Type& right);
+    void writeMatrixEqualityHelpers(const Type& left, const Type& right);
 
-    void writeMatrixInequalityHelper(const Type& left, const Type& right);
+    void writeArrayEqualityHelpers(const Type& type);
+
+    void writeStructEqualityHelpers(const Type& type);
+
+    void writeEqualityHelpers(const Type& leftType, const Type& rightType);
 
     void writeArgumentList(const ExpressionArray& arguments);
 
