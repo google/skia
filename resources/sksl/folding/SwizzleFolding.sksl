@@ -1,0 +1,29 @@
+uniform half4 colorRed, colorGreen;
+
+bool test() {
+    const half4 colorWhite = half4(1);
+    const half2 point = half2(40, 60);
+
+    bool ok = true;
+    // Comparisons on swizzled constants should fold
+    ok = ok && (point.x >= 0 && point.x <= 100 && point.y >= 0 && point.y <= 100);
+
+    // Arithmetic on swizzled constants should fold
+    ok = ok && (colorWhite.x == 1);
+    ok = ok && (colorWhite.x + colorWhite.y == 2);
+    ok = ok && (colorWhite.x + colorWhite.y + colorWhite.z == 3);
+    ok = ok && (colorWhite.x + colorWhite.y + colorWhite.z + colorWhite.w == 4);
+
+    // No-op arithmetic using swizzled constants should fold away
+    ok = ok && ((colorGreen * colorWhite.x) != (colorRed * colorWhite.y));
+
+    // Folding on swizzles with more than one component should be optimized.
+    const half2 pointOffset = point.yx + colorWhite.xz;
+    ok = ok && (pointOffset == half2(61, 41));
+
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return test() ? colorGreen : colorRed;
+}

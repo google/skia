@@ -158,6 +158,7 @@ SKSL_TEST(SkSLFloatFolding,                    "folding/FloatFolding.sksl")
 SKSL_TEST_CPU(SkSLMatrixFoldingES2,            "folding/MatrixFoldingES2.sksl")
 SKSL_TEST(SkSLSelfAssignment,                  "folding/SelfAssignment.sksl")
 SKSL_TEST(SkSLShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
+SKSL_TEST(SkSLSwizzleFolding,                  "folding/SwizzleFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,             "folding/VectorVectorFolding.sksl")
 
