@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87fc1447_6593ef33",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-29T13:47:29Z",
+      "side": 1,
+      "message": "Yeah, it only really dawned on me in the last day or so. Of course, we can keep doing the analysis we do for things that happen to be shaders, but I suspect we\u0027re okay as-is. The place we really lose out is when an FP would previously be implemented as: \"My opt flags are based on my children\u0027s opt flags\". In the most extreme case:\n\n  uniform shader child;\n  half4 main(float2 xy) { return sample(child, xy); }\n\n... should implement const-for-const, and others, and defer everything to the child.",
+      "parentUuid": "5e9dc5a5_65d6785e",
+      "revId": "cca610a54d37fa1fabb6902cd1dad6d413b2c1c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97660be1_b930da43",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-04-29T13:30:01Z",
       "side": 1,
       "message": "Is it worth mentioning in a comment that the `static` on this line means MAKE and CODE must stay template parameters?",
+      "revId": "cca610a54d37fa1fabb6902cd1dad6d413b2c1c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5e9a9da_41d5f9e8",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-29T13:47:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97660be1_b930da43",
       "revId": "cca610a54d37fa1fabb6902cd1dad6d413b2c1c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
