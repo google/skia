@@ -1679,11 +1679,6 @@ if (skia_enable_tools) {
                                   "trim string")) {
           data_sources += [ "skps" ]
         }
-        if ("True" == exec_script("//gn/checkdir.py",
-                                  [ rebase_path("mskps", root_build_dir) ],
-                                  "trim string")) {
-          data_sources += [ "mskps" ]
-        }
       }
     } else {
       # !is_ios
@@ -1882,8 +1877,6 @@ if (skia_enable_tools) {
       "tools/DDLTileHelper.cpp",
       "tools/DDLTileHelper.h",
       "tools/LsanSuppressions.cpp",
-      "tools/MSKPPlayer.cpp",
-      "tools/MSKPPlayer.h",
       "tools/ProcStats.cpp",
       "tools/ProcStats.h",
       "tools/Resources.cpp",
@@ -2714,8 +2707,6 @@ if (skia_enable_tools) {
         "tools/viewer/ImGuiLayer.h",
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/ImageSlide.h",
-        "tools/viewer/MSKPSlide.cpp",
-        "tools/viewer/MSKPSlide.h",
         "tools/viewer/ParticlesSlide.cpp",
         "tools/viewer/ParticlesSlide.h",
         "tools/viewer/SKPSlide.cpp",

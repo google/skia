@@ -5,8 +5,6 @@
 * found in the LICENSE file.
 */
 
-#include "tools/viewer/Viewer.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
@@ -45,13 +43,13 @@
 #include "tools/viewer/BisectSlide.h"
 #include "tools/viewer/GMSlide.h"
 #include "tools/viewer/ImageSlide.h"
-#include "tools/viewer/MSKPSlide.h"
 #include "tools/viewer/ParticlesSlide.h"
 #include "tools/viewer/SKPSlide.h"
 #include "tools/viewer/SampleSlide.h"
 #include "tools/viewer/SkSLSlide.h"
 #include "tools/viewer/SlideDir.h"
 #include "tools/viewer/SvgSlide.h"
+#include "tools/viewer/Viewer.h"
 
 #include <cstdlib>
 #include <map>
@@ -152,17 +150,18 @@ static DEFINE_string2(match, m, nullptr,
                "it is skipped unless some list entry starts with ~");
 
 #if defined(SK_BUILD_FOR_ANDROID)
-#   define PATH_PREFIX "/data/local/tmp/"
+    static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
+    static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
+    static DEFINE_string(lotties, "/data/local/tmp/lotties",
+                         "Directory to read (Bodymovin) jsons from.");
+    static DEFINE_string(rives, "/data/local/tmp/rives",
+                         "Directory to read Rive (Flare) files from.");
 #else
-#   define PATH_PREFIX ""
+    static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
+    static DEFINE_string(skps, "skps", "Directory to read skps from.");
+    static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
+    static DEFINE_string(rives, "rives", "Directory to read Rive (Flare) files from.");
 #endif
-
-static DEFINE_string(jpgs   , PATH_PREFIX "jpgs"   , "Directory to read jpgs from.");
-static DEFINE_string(skps   , PATH_PREFIX "skps"   , "Directory to read skps from.");
-static DEFINE_string(mskps  , PATH_PREFIX "mskps"  , "Directory to read mskps from.");
-static DEFINE_string(lotties, PATH_PREFIX "lotties", "Directory to read (Bodymovin) jsons from.");
-static DEFINE_string(rives  , PATH_PREFIX "rives"  , "Directory to read Rive (Flare) files from.");
-#undef PATH_PREFIX
 
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
@@ -736,10 +735,6 @@ void Viewer::initSlides() {
         const CommandLineFlags::StringArray&   fFlags;
         const SlideFactory                     fFactory;
     } gExternalSlidesInfo[] = {
-        { ".mskp", "mskp-dir", FLAGS_mskps,
-          [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-            return sk_make_sp<MSKPSlide>(name, path);}
-        },
         { ".skp", "skp-dir", FLAGS_skps,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SKPSlide>(name, path);}
