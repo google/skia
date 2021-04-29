@@ -268,6 +268,9 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Lazy::onAsFragmentProcessor(
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
     auto mm = sampling.mipmap == SkMipmapMode::kNone ? GrMipmapped::kNo : GrMipmapped::kYes;
     auto [view, ct] = this->asView(rContext, mm);
+    if (!view) {
+        return nullptr;
+    }
     GrColorInfo info = this->imageInfo().colorInfo();
     info = info.makeColorType(ct);
     // We pass the invalid unique ID here because our above call to asView() should have already
