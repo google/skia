@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5c41230_0173af0a",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T17:40:51Z",
+      "side": 1,
+      "message": "To have it operate the same way we overload operators:\n  const auto m \u003d SkMatrix::Translate(10, 10) *\n                 SkMatrix::Scale(2.5, 2.5) *\n                 SkMatrix::RotateDeg(45);\nif we want:\n Matrix m \u003d Matrix().translate(x, y).scale(x, y).rotate(d);\n\nshould it be preConcat or should I switch it for postConcat?",
+      "revId": "3038f31b31e2eb3c5e9886d97bf34df9fa78e29c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
