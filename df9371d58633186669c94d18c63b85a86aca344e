@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86f21f09_f29cbc53",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-29T14:58:10Z",
+      "side": 1,
+      "message": "Can this be simpler?",
+      "range": {
+        "startLine": 195,
+        "startChar": 7,
+        "endLine": 195,
+        "endChar": 27
+      },
+      "revId": "df9371d58633186669c94d18c63b85a86aca344e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
