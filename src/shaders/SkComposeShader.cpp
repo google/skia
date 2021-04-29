@@ -130,6 +130,10 @@ void SkShader_Blend::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((int)fMode);
 }
 
+bool SkShader_Blend::requiresSkVM() const {
+    return as_SB(fSrc)->requiresSkVM() || as_SB(fDst)->requiresSkVM();
+}
+
 bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
     const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
 

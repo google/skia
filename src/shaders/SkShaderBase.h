@@ -61,6 +61,8 @@ public:
      */
     virtual bool isConstant() const { return false; }
 
+    virtual bool requiresSkVM() const { return false; }
+
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
     enum Flags {
