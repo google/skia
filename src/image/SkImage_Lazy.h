@@ -14,7 +14,6 @@
 
 #if SK_SUPPORT_GPU
 #include "include/core/SkYUVAPixmaps.h"
-#include "src/gpu/GrTextureMaker.h"
 #endif
 
 class SharedGenerator;
