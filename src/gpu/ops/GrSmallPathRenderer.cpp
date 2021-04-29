@@ -66,11 +66,39 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
         return CanDrawPath::kNo;
     }
 
+
     // Only support paths with bounds within kMaxDim by kMaxDim,
     // scaled to have bounds within kMaxSize by kMaxSize.
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar scaleFactors[2] = { 1, 1 };
-    if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
+    // Limit amount of distortion from perspective
+    if (args.fViewMatrix->hasPerspective()) {
+        // starting area
+        SkRect bounds = args.fShape->bounds();
+        SkScalar baseArea = bounds.width()*bounds.height();
+
+        // transform glyphRect to device space
+        SkPoint quad[4];
+        args.fViewMatrix->mapRectToQuad(quad, bounds);
+
+        // compute area of transformed glyph's quad
+        SkPoint v0 = quad[1] - quad[0];
+        SkPoint v1 = quad[2] - quad[0];
+        SkScalar area = v0.cross(v1);
+        SkPoint v2 = quad[3] - quad[0];
+        area += v1.cross(v2);
+        area = SkTAbs(0.5f*area);
+
+        // scaling up by more than 2x the original size (or 4x the area) can cause artifacts,
+        // fall back to next path renderer in that case
+        if (area/baseArea > 4) {
+            return CanDrawPath::kNo;
+        }
+    } else if (!args.fViewMatrix->getMinMaxScales(scaleFactors)) {
+        return CanDrawPath::kNo;
+    }
+    // Too much shear can also produce artifacts
+    if (scaleFactors[1]/scaleFactors[0] > 4) {
         return CanDrawPath::kNo;
     }
     SkRect bounds = args.fShape->styledBounds();
