@@ -689,12 +689,11 @@ std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcesso
     int      numOctaves = d->fRandom->nextRangeU(2, 10);
     bool     stitchTiles = d->fRandom->nextBool();
     SkScalar seed = SkIntToScalar(d->fRandom->nextU());
-    SkISize  tileSize = SkISize::Make(d->fRandom->nextRangeU(4, 4096),
-                                      d->fRandom->nextRangeU(4, 4096));
-    SkScalar baseFrequencyX = d->fRandom->nextRangeScalar(0.01f,
-                                                          0.99f);
-    SkScalar baseFrequencyY = d->fRandom->nextRangeScalar(0.01f,
-                                                          0.99f);
+    SkISize  tileSize;
+    tileSize.fWidth = d->fRandom->nextRangeU(4, 4096);
+    tileSize.fHeight = d->fRandom->nextRangeU(4, 4096);
+    SkScalar baseFrequencyX = d->fRandom->nextRangeScalar(0.01f, 0.99f);
+    SkScalar baseFrequencyY = d->fRandom->nextRangeScalar(0.01f, 0.99f);
 
     sk_sp<SkShader> shader(d->fRandom->nextBool() ?
         SkPerlinNoiseShader::MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed,

@@ -217,10 +217,11 @@ half4 main(float2 p) {
     SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
     SkScalar offset = scale / 32.0f;
 
-    SkPoint center1 = {d->fRandom->nextRangeScalar(0.0f, scale),
-                       d->fRandom->nextRangeScalar(0.0f, scale)};
-    SkPoint center2 = {d->fRandom->nextRangeScalar(0.0f, scale),
-                       d->fRandom->nextRangeScalar(0.0f, scale)};
+    SkPoint center1, center2;
+    center1.fX = d->fRandom->nextRangeScalar(0.0f, scale);
+    center1.fY = d->fRandom->nextRangeScalar(0.0f, scale);
+    center2.fX = d->fRandom->nextRangeScalar(0.0f, scale);
+    center2.fY = d->fRandom->nextRangeScalar(0.0f, scale);
     SkScalar radius1 = d->fRandom->nextRangeScalar(0.0f, scale);
     SkScalar radius2 = d->fRandom->nextRangeScalar(0.0f, scale);
 
