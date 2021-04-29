@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5810dad_03db7b8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-29T18:50:18Z",
+      "side": 1,
+      "message": "Given the gold diffs for the flutter text under perspective, do you think we should tune the scale factor that rejects SDFs under perspective? I\u0027m assuming they are the result of no longer using the small path renderer, but the prior positive results looked acceptable to me.",
+      "revId": "6f02371454d916f53f72e8dc68a7c73d066476c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acf6dffc_f4d6863b",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-29T18:50:18Z",
+      "side": 1,
+      "message": "minor note: bounds() isn\u0027t cached on GrQuad. We could just do auto deviceBounds \u003d GrQuad::Make().bounds() above, instead of \u0027quad\u0027. Rr do nothing, since it\u0027s probably not going to be significant source of perf anyways.",
+      "range": {
+        "startLine": 56,
+        "startChar": 16,
+        "endLine": 56,
+        "endChar": 61
+      },
+      "revId": "6f02371454d916f53f72e8dc68a7c73d066476c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
