@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82876d44_5a57d23f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-29T20:37:26Z",
+      "side": 1,
+      "message": "Maybe we could rewrite all our SkRandom APIs from\n\n   T nextT();\n\nto\n\n   void nextT(T*);\n\nwhich would mostly enforce consistent ordering.  That really helped reproducibility when we did the equivalent for fuzzers.",
+      "revId": "c6a868490a032eb204a796dd465ef3eac40383a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
