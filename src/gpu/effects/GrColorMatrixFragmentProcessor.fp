@@ -13,8 +13,7 @@ layout(key) in bool clampRGBOutput;
 layout(key) in bool premulOutput;
 
 @optimizationFlags {
-    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-    kConstantOutputForConstantInput_OptimizationFlag
+    ProcessorOptimizationFlags(inputFP.get()) & kConstantOutputForConstantInput_OptimizationFlag
 }
 
 half4 main() {

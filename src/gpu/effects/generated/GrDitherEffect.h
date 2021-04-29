@@ -33,8 +33,7 @@ public:
 private:
     GrDitherEffect(std::unique_ptr<GrFragmentProcessor> inputFP, float range)
             : INHERITED(kGrDitherEffect_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 kPreservesOpaqueInput_OptimizationFlag)
             , range(range) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());

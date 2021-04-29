@@ -43,8 +43,7 @@ layout(when=!sk_Caps.floatIs32Bits) uniform float2 scale;
 }
 
 @optimizationFlags {
-    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-            kCompatibleWithCoverageAsAlpha_OptimizationFlag
+    ProcessorOptimizationFlags(inputFP.get()) & kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
 @setData(pdman) {

@@ -40,8 +40,7 @@ public:
 private:
     GrClampFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, bool clampToPremul)
             : INHERITED(kGrClampFragmentProcessor_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 (kConstantOutputForConstantInput_OptimizationFlag |
                                  kPreservesOpaqueInput_OptimizationFlag))
             , clampToPremul(clampToPremul) {

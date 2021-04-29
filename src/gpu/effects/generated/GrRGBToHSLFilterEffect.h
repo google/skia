@@ -44,8 +44,7 @@ public:
 private:
     GrRGBToHSLFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP)
             : INHERITED(kGrRGBToHSLFilterEffect_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 (kConstantOutputForConstantInput_OptimizationFlag |
                                  kPreservesOpaqueInput_OptimizationFlag)) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());

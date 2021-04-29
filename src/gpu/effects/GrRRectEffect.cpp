@@ -92,12 +92,12 @@ GrFPResult CircularRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputF
 }
 
 CircularRRectEffect::CircularRRectEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                         GrClipEdgeType edgeType, uint32_t circularCornerFlags,
+                                         GrClipEdgeType edgeType,
+                                         uint32_t circularCornerFlags,
                                          const SkRRect& rrect)
-        : INHERITED(
-              kCircularRRectEffect_ClassID,
-              (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-                  kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        : INHERITED(kCircularRRectEffect_ClassID,
+                    ProcessorOptimizationFlags(inputFP.get()) &
+                            kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fEdgeType(edgeType)
         , fCircularCornerFlags(circularCornerFlags) {
@@ -444,11 +444,11 @@ GrFPResult EllipticalRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inpu
 }
 
 EllipticalRRectEffect::EllipticalRRectEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                             GrClipEdgeType edgeType, const SkRRect& rrect)
-        : INHERITED(
-              kEllipticalRRectEffect_ClassID,
-              (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-                  kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+                                             GrClipEdgeType edgeType,
+                                             const SkRRect& rrect)
+        : INHERITED(kEllipticalRRectEffect_ClassID,
+                    ProcessorOptimizationFlags(inputFP.get()) &
+                            kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fEdgeType(edgeType) {
     this->registerChild(std::move(inputFP));

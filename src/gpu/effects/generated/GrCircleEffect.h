@@ -43,8 +43,7 @@ private:
                    SkPoint center,
                    float radius)
             : INHERITED(kGrCircleEffect_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , edgeType(edgeType)
             , center(center)

@@ -168,8 +168,7 @@ private:
                      std::unique_ptr<GrFragmentProcessor> integral,
                      bool isFast)
             : INHERITED(kGrRectBlurEffect_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
             , applyInvVM(applyInvVM)

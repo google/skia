@@ -11,7 +11,7 @@ in uniform half innerThreshold;
 in uniform half outerThreshold;
 
 @optimizationFlags {
-    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+    ProcessorOptimizationFlags(inputFP.get()) &
     ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags)
 }
 

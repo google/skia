@@ -126,10 +126,9 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrColorSpaceXformEffect::onMakeProgramI
 
 GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
         const GrFragmentProcessor* child) {
-    return (child ? ProcessorOptimizationFlags(child) : kAll_OptimizationFlags) &
-              (kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-               kPreservesOpaqueInput_OptimizationFlag |
-               kConstantOutputForConstantInput_OptimizationFlag);
+    return ProcessorOptimizationFlags(child) & (kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+                                                kPreservesOpaqueInput_OptimizationFlag |
+                                                kConstantOutputForConstantInput_OptimizationFlag);
 }
 
 SkPMColor4f GrColorSpaceXformEffect::constantOutputForConstantInput(

@@ -35,8 +35,7 @@ private:
                    GrClipEdgeType edgeType,
                    SkRect rect)
             : INHERITED(kGrAARectEffect_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , edgeType(edgeType)
             , rect(rect) {
