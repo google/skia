@@ -182,6 +182,16 @@ protected:
                                                                               const SkMatrix&,
                                                                               const SkRect* subset,
                                                                               const SkRect* domain);
+
+    /**
+     * Input view must not be mipmapped. Attempts to make a mipmapped view with the same contents.
+     * If the a mipmapped copy is sucesfully created it will be cached using the image unique ID.
+     * A subsequent call with the same unique ID will return the cached view if it has not been
+     * purged. The view is cached with a key domain specific to this function.
+     */
+    static GrSurfaceProxyView CachedMipmappedView(GrRecordingContext*,
+                                                  GrSurfaceProxyView,
+                                                  uint32_t imageUniqueID);
 #endif
 
 private:
