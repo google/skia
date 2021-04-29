@@ -24,16 +24,19 @@ GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context,
 GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
     GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
 
-    GrUniqueKey baseKey, mipMappedKey;
-    GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeSize(this->dimensions()));
-    if (baseKey.isValid()) {
+    GrUniqueKey mipmappedKey;
+    if (fUniqueID != SK_InvalidUniqueID) {
+        GrUniqueKey baseKey;
+        GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeSize(this->dimensions()));
+        SkASSERT(baseKey.isValid());
         static const GrUniqueKey::Domain kMipMappedDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(&mipMappedKey, baseKey, kMipMappedDomain, 0);
-    }
-    sk_sp<GrTextureProxy> cachedCopy;
-    if (mipMappedKey.isValid()) {
-        cachedCopy = proxyProvider->findOrCreateProxyByUniqueKey(mipMappedKey);
-        if (cachedCopy) {
+        {   // No extra values beyond the domain are required. Must name the var to please
+            // clang-tidy.
+            GrUniqueKey::Builder b(&mipmappedKey, baseKey, kMipMappedDomain, 0);
+        }
+        SkASSERT(mipmappedKey.isValid());
+        if (sk_sp<GrTextureProxy> cachedCopy =
+                    proxyProvider->findOrCreateProxyByUniqueKey(mipmappedKey)) {
             return {std::move(cachedCopy), fOriginal.origin(), fOriginal.swizzle()};
         }
     }
@@ -42,9 +45,9 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
     if (!copy) {
         return {};
     }
-    if (mipMappedKey.isValid()) {
+    if (mipmappedKey.isValid()) {
         // TODO: If we move listeners up from SkImage_Lazy to SkImage_Base then add one here.
-        proxyProvider->assignUniqueKeyToProxy(mipMappedKey, copy.asTextureProxy());
+        proxyProvider->assignUniqueKeyToProxy(mipmappedKey, copy.asTextureProxy());
     }
     return copy;
 }

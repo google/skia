@@ -24,12 +24,12 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceFillContext.h"
+#include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
@@ -251,8 +251,8 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Lazy::onAsView(
         GrRecordingContext* context,
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
-    GrImageTextureMaker textureMaker(context, this, policy);
-    return {textureMaker.view(mipmapped), textureMaker.colorType()};
+    GrColorType ct = this->colorTypeOfLockTextureProxy(context->priv().caps());
+    return {this->lockTextureProxyView(context, policy, mipmapped), ct};
 }
 
 std::unique_ptr<GrFragmentProcessor> SkImage_Lazy::onAsFragmentProcessor(
@@ -262,14 +262,22 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Lazy::onAsFragmentProcessor(
         const SkMatrix& m,
         const SkRect* subset,
         const SkRect* domain) const {
+    // TODO: If the CPU data is extracted as planes return a FP that reconstructs the image from
+    // the planes.
     auto wmx = SkTileModeToWrapMode(tileModes[0]);
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
-    GrImageTextureMaker maker(rContext, this, GrImageTexGenPolicy::kDraw);
+    auto mm = sampling.mipmap == SkMipmapMode::kNone ? GrMipmapped::kNo : GrMipmapped::kYes;
+    auto [view, ct] = this->asView(rContext, mm);
+    GrColorInfo info = this->imageInfo().colorInfo();
+    info = info.makeColorType(ct);
+    // We pass the invalid unique ID here because our above call to asView() should have already
+    // made and cached a mipmapped texture if mipmapping was called for.
+    GrTextureAdjuster adjuster(rContext, std::move(view), std::move(info), SK_InvalidUniqueID);
     if (sampling.useCubic) {
-        return maker.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
+        return adjuster.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
     }
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
-    return maker.createFragmentProcessor(m, subset, domain, sampler);
+    return adjuster.createFragmentProcessor(m, subset, domain, sampler);
 }
 
 GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* ctx,
