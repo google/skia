@@ -20,16 +20,9 @@ static jlong Matrix_Create(JNIEnv* env, jobject, jfloat m0, jfloat m4, jfloat m8
                                              m2, m6, m10, m14,
                                              m3, m7, m11, m15));
 }
+
 static void Matrix_Release(JNIEnv* env, jobject, jlong native_matrix) {
     delete reinterpret_cast<SkM44*>(native_matrix);
-}
-
-static void Matrix_PostConcat(JNIEnv* env, jobject, jlong native_matrixA, jlong native_matrixB) {
-    if (auto* mA = reinterpret_cast<SkM44*>(native_matrixA),
-            * mB = reinterpret_cast<SkM44*>(native_matrixB); mA && mB) {
-        mA->postConcat(*mB);
-    }
-
 }
 
 static void Matrix_PreConcat(JNIEnv* env, jobject, jlong native_matrixA, jlong native_matrixB) {
@@ -52,7 +45,6 @@ int register_androidkit_Matrix(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
         {"nCreate"     , "(FFFFFFFFFFFFFFFF)J" , reinterpret_cast<void*>(Matrix_Create)},
         {"nRelease"    , "(J)V"                , reinterpret_cast<void*>(Matrix_Release)},
-        {"nPostConcat" , "(JJ)V"               , reinterpret_cast<void*>(Matrix_PostConcat)},
         {"nPreConcat"  , "(JJ)V"               , reinterpret_cast<void*>(Matrix_PreConcat)},
         {"nConcat"     , "(JJ)J"               , reinterpret_cast<void*>(Matrix_Concat)},
     };
