@@ -16,6 +16,29 @@
       "message": "PTAL",
       "revId": "c266b8e06abc04c34acf99e15e334cff11348ce6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "990db7e2_2f97a691",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-29T15:52:54Z",
+      "side": 1,
+      "message": "Hmm, not sure if 10.13 or 10.14 is the right choice here. (What OS X supports vs what Skia supports...)",
+      "range": {
+        "startLine": 104,
+        "startChar": 25,
+        "endLine": 104,
+        "endChar": 30
+      },
+      "revId": "c266b8e06abc04c34acf99e15e334cff11348ce6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
