@@ -29,13 +29,33 @@ DSLVar sk_SampleCoord() {
     return DSLVar("sk_SampleCoord");
 }
 
-DSLExpression SampleChild(int index, DSLExpression coords) {
-    std::unique_ptr<SkSL::Expression> coordsExpr = coords.release();
-    SkString code = DSLWriter::CurrentProcessor()->invokeChild(index, *DSLWriter::CurrentEmitArgs(),
-                                                              coordsExpr ? coordsExpr->description()
-                                                                         : "");
-    return DSLExpression(std::make_unique<SkSL::CodeStringExpression>(code.c_str(),
-                                                         DSLWriter::Context().fTypes.fHalf4.get()));
+DSLExpression SampleChild(int index, DSLExpression sampleExpr) {
+    std::unique_ptr<SkSL::Expression> expr = sampleExpr.release();
+    if (expr) {
+        SkASSERT(expr->type().isVector());
+        SkASSERT(expr->type().componentType().isFloat());
+    }
+
+    GrGLSLFragmentProcessor* proc = DSLWriter::CurrentProcessor();
+    GrGLSLFragmentProcessor::EmitArgs& emitArgs = *DSLWriter::CurrentEmitArgs();
+    SkString code;
+    switch (expr ? expr->type().columns() : 0) {
+        default:
+            SkASSERTF(0, "unsupported SampleChild type: %s", expr->type().description().c_str());
+            [[fallthrough]];
+        case 0:
+            code = proc->invokeChild(index, emitArgs);
+            break;
+        case 2:
+            code = proc->invokeChild(index, emitArgs, /*skslCoords=*/expr->description());
+            break;
+        case 4:
+            code = proc->invokeChild(index, /*inputColor=*/expr->description().c_str(), emitArgs);
+            break;
+    }
+
+    return DSLExpression(std::make_unique<SkSL::CodeStringExpression>(
+            code.c_str(), DSLWriter::Context().fTypes.fHalf4.get()));
 }
 
 GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var) {
