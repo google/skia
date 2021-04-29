@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bd75a06_b8d4152e",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-29T13:06:22Z",
+      "side": 1,
+      "message": "Since SkChopQuadAt asserts t \u003e 0 and t \u003c 1, could we rewrite this to \n\n   if (t \u003e 0 \u0026\u0026 t \u003c 1) {\n      SkChopQuadAt(src, dst, t);\n      return 2;\n   } else {\n      memcpy(dst, src, 3 * sizeof(SkPoint));\n      return 1;\n   }\n\nt being nan, infinity, or anything else will automatically hit the else condition",
+      "range": {
+        "startLine": 349,
+        "startChar": 4,
+        "endLine": 355,
+        "endChar": 5
+      },
+      "revId": "2210926e0b55a5457c240fdcb78649be97e6ca42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
