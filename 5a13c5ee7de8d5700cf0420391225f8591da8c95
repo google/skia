@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8e27410_eb3c8ebb",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-29T18:30:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f6d0648_639719be",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 54
+      },
+      "revId": "5a13c5ee7de8d5700cf0420391225f8591da8c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92d8a693_33ed7df4",
@@ -61,6 +85,30 @@
       "writtenOn": "2021-04-29T16:57:45Z",
       "side": 1,
       "message": "These two conditions get visually lost because of the size of the if(perspective) case. Could we move the if(perspective)\u0027s body to a static helper function?",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 101,
+        "endChar": 46
+      },
+      "revId": "5a13c5ee7de8d5700cf0420391225f8591da8c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f729e430_8d81b3c6",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-04-29T18:30:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92d8a693_33ed7df4",
       "range": {
         "startLine": 97,
         "startChar": 12,
