@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "a5ad07d5_b632c153",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-29T15:04:50Z",
+      "side": 1,
+      "message": "Sure, std::unordered_* is basically required to be chained and not open (see https://en.wikipedia.org/wiki/Hash_table#Collision_resolution ). SkTHashTable and related continues to exist because flat_map/flat_set (open addressed) haven\u0027t made it into the standard yet.\n\nThe biggest issue with chained is that it more or less requires new/delete for each insert or remove (there are implementations that try to work around this with lots of overhead though). When just adding everything once and then doing lots of reads open is still better, but it is something of a wash overall since cpus are good at pointer chasing. However, when adding and removing a lot but not dramatically changing the size often (like here) open tends to win by a lot (if not marking slots dead) since there is so much less memory management.\n\nNote that some open addressing implementations can run into issues with load factors when removing elements if it just marks slots dead, but SkTHashTable::removeSlot does the optimization of moving later colliders on removal. This means that one doesn\u0027t run into the delete load factor issues.",
+      "parentUuid": "126160f5_226e00ad",
+      "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3e37f89b_ea84d20c",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 1
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "Done, SK_AT_SCOPE_EXIT is convenient, thanks for the suggestion.",
       "parentUuid": "692e612a_82f2aeea",
+      "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58a6f4d1_f9b408b0",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-04-29T15:04:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "45206d63_7a3e842f",
       "revId": "ba4952ae3745c6edfeca420bcf1e30716772481f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
