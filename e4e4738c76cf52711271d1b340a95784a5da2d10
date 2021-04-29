@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8e2bf58_f3f52e01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-29T20:43:03Z",
+      "side": 1,
+      "message": "Today\u0027s version allows multiple calls to setting FontBlock and Decoration ranges. This is probably handy for some clients, but (I posit) unnecessary for others, who will have to track all of these ranges themselves anyway.\n\nFor a future revision, let\u0027s consider if we can layer this aspect, so that a lower level module would only need to support a single monotonic pass for all of its blocks (similar to Shape\u0027s iterator which is inherently monotonic and 1-pass), and an (optional) upper layer might provide this editable, mergeable facility for applying and reapplying ranges...\n\nAnother thought: at what level to offer (or illustrate) cursor management (loc \u003c--\u003e caret-offset)...\n",
+      "revId": "e4e4738c76cf52711271d1b340a95784a5da2d10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
