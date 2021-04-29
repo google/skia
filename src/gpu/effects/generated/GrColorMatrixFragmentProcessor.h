@@ -86,8 +86,7 @@ private:
                                    bool clampRGBOutput,
                                    bool premulOutput)
             : INHERITED(kGrColorMatrixFragmentProcessor_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 kConstantOutputForConstantInput_OptimizationFlag)
             , m(m)
             , v(v)

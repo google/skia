@@ -50,8 +50,8 @@ half4 main() {
 }
 
 @optimizationFlags {
-    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-    (kConstantOutputForConstantInput_OptimizationFlag | kPreservesOpaqueInput_OptimizationFlag)
+    ProcessorOptimizationFlags(inputFP.get()) & (kConstantOutputForConstantInput_OptimizationFlag |
+                                                 kPreservesOpaqueInput_OptimizationFlag)
 }
 
 @class {

@@ -37,8 +37,7 @@ private:
                                       float innerThreshold,
                                       float outerThreshold)
             : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag
                                                          : kNone_OptimizationFlags))
             , innerThreshold(innerThreshold)

@@ -38,8 +38,7 @@ private:
                                   float textureRadius,
                                   std::unique_ptr<GrFragmentProcessor> blurProfile)
             : INHERITED(kGrCircleBlurFragmentProcessor_ClassID,
-                        (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
-                                                    : kAll_OptimizationFlags) &
+                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , circleRect(circleRect)
             , solidRadius(solidRadius)

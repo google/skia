@@ -9,9 +9,8 @@ in fragmentProcessor inputFP;
 layout(key) in bool clampToPremul;
 
 @optimizationFlags {
-    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-    (kConstantOutputForConstantInput_OptimizationFlag |
-     kPreservesOpaqueInput_OptimizationFlag)
+    ProcessorOptimizationFlags(inputFP.get()) & (kConstantOutputForConstantInput_OptimizationFlag |
+                                                 kPreservesOpaqueInput_OptimizationFlag)
 }
 
 half4 clampedPM(half4 inputColor) {

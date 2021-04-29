@@ -123,15 +123,13 @@ private:
 
             // Is opaque if the dst is opaque.
             case SkBlendMode::kSrcATop:
-                flags = (dst ? ProcessorOptimizationFlags(dst) : kAll_OptimizationFlags) &
-                         kPreservesOpaqueInput_OptimizationFlag;
+                flags = ProcessorOptimizationFlags(dst) & kPreservesOpaqueInput_OptimizationFlag;
                 break;
 
             // DstATop is the converse of kSrcATop. Screen is also opaque if the src is a opaque.
             case SkBlendMode::kDstATop:
             case SkBlendMode::kScreen:
-                flags = (src ? ProcessorOptimizationFlags(src) : kAll_OptimizationFlags) &
-                         kPreservesOpaqueInput_OptimizationFlag;
+                flags = ProcessorOptimizationFlags(src) & kPreservesOpaqueInput_OptimizationFlag;
                 break;
 
             // These modes are all opaque if either src or dst is opaque. All the advanced modes
@@ -153,9 +151,8 @@ private:
             case SkBlendMode::kSaturation:
             case SkBlendMode::kColor:
             case SkBlendMode::kLuminosity:
-                flags = ((src ? ProcessorOptimizationFlags(src) : kAll_OptimizationFlags) |
-                         (dst ? ProcessorOptimizationFlags(dst) : kAll_OptimizationFlags)) &
-                         kPreservesOpaqueInput_OptimizationFlag;
+                flags = (ProcessorOptimizationFlags(src) | ProcessorOptimizationFlags(dst)) &
+                        kPreservesOpaqueInput_OptimizationFlag;
                 break;
         }
         if (does_cpu_blend_impl_match_gpu(mode) &&

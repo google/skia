@@ -43,8 +43,7 @@ in fragmentProcessor integral;
 layout(key) in bool isFast;
 
 @optimizationFlags {
-    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-            kCompatibleWithCoverageAsAlpha_OptimizationFlag
+    ProcessorOptimizationFlags(inputFP.get()) & kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
 @samplerParams(integral) {
