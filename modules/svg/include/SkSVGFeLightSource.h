@@ -8,6 +8,7 @@
 #ifndef SkSVGFeLightSource_DEFINED
 #define SkSVGFeLightSource_DEFINED
 
+#include "include/core/SkPoint3.h"
 #include "modules/svg/include/SkSVGHiddenContainer.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
@@ -29,6 +30,8 @@ public:
     static sk_sp<SkSVGFeDistantLight> Make() {
         return sk_sp<SkSVGFeDistantLight>(new SkSVGFeDistantLight());
     }
+
+    SkPoint3 computeDirection() const;
 
     SVG_ATTR(Azimuth  , SkSVGNumberType, 0)
     SVG_ATTR(Elevation, SkSVGNumberType, 0)
