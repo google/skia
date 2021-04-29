@@ -3,6 +3,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f0164f09_31621136",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "PreConcat (see below)",
+      "range": {
+        "startLine": 29,
+        "startChar": 19,
+        "endLine": 29,
+        "endChar": 27
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c692fb94_7875ca7e",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "mA-\u003epreConcat(*mB);",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 22
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea861eb9_8dcdf95f",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "nit/formatting: align with \u0027if\u0027",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 9
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ebceec43_fd4a5521",
         "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
         "patchSetId": 2
@@ -14,6 +83,70 @@
       "writtenOn": "2021-04-28T19:06:05Z",
       "side": 1,
       "message": "Rename to specify 4x4 vs 3x3?",
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efbe6c2d_ab4e4dbd",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "Just Matrix sgtm.  Don\u0027t think it\u0027s worth adding 3x3.",
+      "parentUuid": "ebceec43_fd4a5521",
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98e38615_1378d031",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "One useful feature in Skia is named factories for common operations.  That, in combination with C++ operator overloading yields nice \u0026 fluent code - e.g.\n\n  const auto m \u003d SkMatrix::Translate(10, 10) *\n                 SkMatrix::Scale(2.5, 2.5) *\n                 SkMatrix::RotateDeg(45);\n\nAlas, we don\u0027t get to overload operators here, but named factories would be nice to have still (not necessarily in this CL).",
+      "range": {
+        "startLine": 13,
+        "startChar": 13,
+        "endLine": 13,
+        "endChar": 19
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b85ea639_8103dff8",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "Nit: seems more natural for these to be zero-based",
+      "range": {
+        "startLine": 29,
+        "startChar": 25,
+        "endLine": 29,
+        "endChar": 27
+      },
       "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -31,6 +164,93 @@
       "writtenOn": "2021-04-28T19:06:05Z",
       "side": 1,
       "message": "For operator methods, do we want to have them be non-static like this and modify Matrix A? Or would we prefer static methods that take in 2 matrices and return a new Matrix C?",
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d020fd2_51473382",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "There might be a place for both.\n\nFor non-static, Skia makes the order super clear with \"pre\"/\"post\" prefixes - e.g. preConcat/postConcat.  So does the current android.graphics.Matrix, so it\u0027s probably a good idea to keep the familiar pattern.\n\nE.g.\n  Matrix a, b;\n  Matrix c \u003d a.preConcat(b);\n  Matrix d \u003d Matrix.Concat(a, b);",
+      "parentUuid": "171838e0_1ec4fc04",
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e68dcd6a_7ae9f374",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "\"add\" in particular is not very useful in practice.  I suggest we leave it out for now.",
+      "range": {
+        "startLine": 42,
+        "startChar": 16,
+        "endLine": 42,
+        "endChar": 19
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cffc73f7_0beb0542",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "Rename to \"preConcat\" to match Skia and android.graphics.\n\nhttps://developer.android.com/reference/android/graphics/Matrix#preConcat(android.graphics.Matrix)",
+      "range": {
+        "startLine": 51,
+        "startChar": 16,
+        "endLine": 51,
+        "endChar": 24
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ff32cac_6063e272",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T13:55:31Z",
+      "side": 1,
+      "message": "Nit: zero-based?",
+      "range": {
+        "startLine": 70,
+        "startChar": 45,
+        "endLine": 70,
+        "endChar": 48
+      },
       "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
