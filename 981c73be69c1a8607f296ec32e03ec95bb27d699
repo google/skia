@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78980020_dfc7baa4",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-29T13:24:18Z",
+      "side": 1,
+      "message": "This looks like either a formatting bug, or it\u0027s meant to be \u0027else if\u0027?",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 13
+      },
+      "revId": "981c73be69c1a8607f296ec32e03ec95bb27d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "028502de_094f9fc3",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-29T13:24:18Z",
+      "side": 1,
+      "message": "Is kGlobal also (already) the default? Seems like it would have to be, for the error check in Declare() to work?",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 90,
+        "endChar": 56
+      },
+      "revId": "981c73be69c1a8607f296ec32e03ec95bb27d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
