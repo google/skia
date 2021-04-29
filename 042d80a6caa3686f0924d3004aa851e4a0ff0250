@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2a2a293_dd268cb2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T15:59:14Z",
+      "side": 1,
+      "message": "LGTM with one tweak.",
+      "revId": "042d80a6caa3686f0924d3004aa851e4a0ff0250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da4b9d48_8172e8f7",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T15:59:14Z",
+      "side": 1,
+      "message": "new SkM44(m0, m4, ...);",
+      "range": {
+        "startLine": 18,
+        "startChar": 35,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "042d80a6caa3686f0924d3004aa851e4a0ff0250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "352dee26_9b1335d1",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T15:59:14Z",
+      "side": 1,
+      "message": "nit: indent",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 3
+      },
+      "revId": "042d80a6caa3686f0924d3004aa851e4a0ff0250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6859afbe_097c6305",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T15:59:14Z",
+      "side": 1,
+      "message": "nit: ditto",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 3
+      },
+      "revId": "042d80a6caa3686f0924d3004aa851e4a0ff0250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
