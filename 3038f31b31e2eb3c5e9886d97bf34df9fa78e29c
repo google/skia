@@ -34,6 +34,24 @@
       "parentUuid": "d5c41230_0173af0a",
       "revId": "3038f31b31e2eb3c5e9886d97bf34df9fa78e29c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a45aeff8_d844d6b1",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-29T19:16:21Z",
+      "side": 1,
+      "message": "We started with preConcat/postConcat - my OCD compels me to have this named explicitly to match: preTranslate().\n\nOTOH, if post operations are not that common (and can always be achieved by swapping operands), maybe we should only offer pre for now and drop the prefix?\n\nI.e. keep \"translate\", remove postConcat, rename preConcat-\u003econcat.",
+      "parentUuid": "661aba04_b1e17e3e",
+      "revId": "3038f31b31e2eb3c5e9886d97bf34df9fa78e29c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
