@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1400b43_9ff278e3",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0164f09_31621136",
+      "range": {
+        "startLine": 29,
+        "startChar": 19,
+        "endLine": 29,
+        "endChar": 27
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c692fb94_7875ca7e",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d750d69_2c250d82",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c692fb94_7875ca7e",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 22
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea861eb9_8dcdf95f",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-29T13:55:31Z",
       "side": 1,
       "message": "nit/formatting: align with \u0027if\u0027",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 9
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06aac4a6_c55a37bf",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea861eb9_8dcdf95f",
       "range": {
         "startLine": 33,
         "startChar": 0,
@@ -128,6 +200,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a22d48be_71396f8a",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "We can link methods together to get the same effect:\n\n Matrix m \u003d new Matrix().translate(10,10)\n                        .scale(2.5, 2.5)\n                        .rotateDeg(45);\n\nMatrix() returns identity, all other methods are non-static, and each one calls preConcat internally. Let me know how that sounds for a follow-up CL",
+      "parentUuid": "98e38615_1378d031",
+      "range": {
+        "startLine": 13,
+        "startChar": 13,
+        "endLine": 13,
+        "endChar": 19
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b85ea639_8103dff8",
@@ -141,6 +237,30 @@
       "writtenOn": "2021-04-29T13:55:31Z",
       "side": 1,
       "message": "Nit: seems more natural for these to be zero-based",
+      "range": {
+        "startLine": 29,
+        "startChar": 25,
+        "endLine": 29,
+        "endChar": 27
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf15c35e_c5e44e98",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "I was using math notation, but this makes sense too. If someone cares enough it can be changed later, but I\u0027ll start at 0. Done.",
+      "parentUuid": "b85ea639_8103dff8",
       "range": {
         "startLine": 29,
         "startChar": 25,
@@ -209,6 +329,48 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "02085f31_e2e4de1f",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "Added a static Concat. Done.",
+      "parentUuid": "1d020fd2_51473382",
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcb96af3_d6ce5b9a",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "Done, replaced with postConcat just so I could expose more than one function.",
+      "parentUuid": "e68dcd6a_7ae9f374",
+      "range": {
+        "startLine": 42,
+        "startChar": 16,
+        "endLine": 42,
+        "endChar": 19
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cffc73f7_0beb0542",
@@ -232,6 +394,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "373944fb_c5654af5",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cffc73f7_0beb0542",
+      "range": {
+        "startLine": 51,
+        "startChar": 16,
+        "endLine": 51,
+        "endChar": 24
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ff32cac_6063e272",
@@ -245,6 +431,30 @@
       "writtenOn": "2021-04-29T13:55:31Z",
       "side": 1,
       "message": "Nit: zero-based?",
+      "range": {
+        "startLine": 70,
+        "startChar": 45,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "b4eef5cff0fd32e2174f02232e6c23fbbb12e101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "116a53a5_fc3b6c2a",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T15:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ff32cac_6063e272",
       "range": {
         "startLine": 70,
         "startChar": 45,
