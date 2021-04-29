@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84ed6581_22b8b5c2",
+        "filename": "modules/svg/src/SkSVGFeLighting.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-04-29T19:22:37Z",
+      "side": 1,
+      "message": "The other attributes (e.g. \"surfaceScale\") are on the base class SkSVGFeLighting.",
+      "revId": "732c2f40558baf8945acd6fc20fc04f6da1936f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
