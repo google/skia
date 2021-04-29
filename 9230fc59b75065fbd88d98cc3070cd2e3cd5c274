@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aecb91e5_aa0d7689",
+        "filename": "tools/MSKPPlayer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-04-29T19:26:33Z",
+      "side": 1,
+      "message": "For root layers you may need to clear fSurface to transparent black at the start of the frame, I think that\u0027s what hwui\u0027s expecting of the buffers it draws to.",
+      "revId": "9230fc59b75065fbd88d98cc3070cd2e3cd5c274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
