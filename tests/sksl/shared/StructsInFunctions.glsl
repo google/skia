@@ -34,8 +34,10 @@ vec4 main() {
     Nested n1;
     Nested n2;
     Nested n3;
-    n1.a = (n1.b = returns_a_struct_S());
-    n3 = (n2 = n1);
+    n1.a = returns_a_struct_S();
+    n1.b = n1.a;
+    n2 = n1;
+    n3 = n2;
     modifies_a_struct_vS(n3.b);
     bool valid = (((((((x == 3.0 && s.x == 2.0) && s.y == 3) && s == expected) && s == S(2.0, 3)) && s != returns_a_struct_S()) && n1 == n2) && n1 != n3) && n3 == Nested(S(1.0, 2), S(2.0, 3));
     return valid ? colorGreen : colorRed;
