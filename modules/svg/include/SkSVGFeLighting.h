@@ -11,6 +11,7 @@
 #include "modules/svg/include/SkSVGFe.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
+class SkSVGFeDistantLight;
 class SkSVGFePointLight;
 
 class SkSVGFeLighting : public SkSVGFe {
@@ -32,6 +33,10 @@ protected:
 
     sk_sp<SkImageFilter> onMakeImageFilter(const SkSVGRenderContext&,
                                            const SkSVGFilterContext&) const final;
+
+    virtual sk_sp<SkImageFilter> makeDistantLight(const SkSVGRenderContext&,
+                                                  const SkSVGFilterContext&,
+                                                  const SkSVGFeDistantLight*) const = 0;
 
     virtual sk_sp<SkImageFilter> makePointLight(const SkSVGRenderContext&,
                                                 const SkSVGFilterContext&,
@@ -60,6 +65,10 @@ public:
 
 protected:
     bool parseAndSetAttribute(const char*, const char*) override;
+
+    sk_sp<SkImageFilter> makeDistantLight(const SkSVGRenderContext&,
+                                          const SkSVGFilterContext&,
+                                          const SkSVGFeDistantLight*) const final;
 
     sk_sp<SkImageFilter> makePointLight(const SkSVGRenderContext&,
                                         const SkSVGFilterContext&,
