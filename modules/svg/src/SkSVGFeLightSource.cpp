@@ -9,6 +9,18 @@
 #include "modules/svg/include/SkSVGFeLightSource.h"
 #include "modules/svg/include/SkSVGValue.h"
 
+SkPoint3 SkSVGFeDistantLight::computeDirection() const {
+    // Computing direction from azimuth+elevation is two 3D rotations:
+    //  - Rotate [1,0,0] about y axis first (elevation)
+    //  - Rotate result about z axis (azimuth)
+    // Which is just the first column vector in the 3x3 matrix Rz*Ry.
+    const float azimuthRad = SkDegreesToRadians(fAzimuth);
+    const float elevationRad = SkDegreesToRadians(fElevation);
+    const float sinAzimuth = sinf(azimuthRad), cosAzimuth = cosf(azimuthRad);
+    const float sinElevation = sinf(elevationRad), cosElevation = cosf(elevationRad);
+    return SkPoint3::Make(cosAzimuth * cosElevation, sinAzimuth * cosElevation, sinElevation);
+}
+
 bool SkSVGFeDistantLight::parseAndSetAttribute(const char* n, const char* v) {
     return INHERITED::parseAndSetAttribute(n, v) ||
            this->setAzimuth(SkSVGAttributeParser::parse<SkSVGNumberType>("azimuth", n, v)) ||
