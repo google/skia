@@ -44,6 +44,21 @@ GrSmallPathRenderer::GrSmallPathRenderer() {}
 
 GrSmallPathRenderer::~GrSmallPathRenderer() {}
 
+static bool exceeds_perspective_area_limit(const SkRect& bounds,
+                                           const SkMatrix& viewMatrix) {
+    // starting area
+    auto baseArea = bounds.width()*bounds.height();
+
+    // transform bounds to device space
+    auto quadBounds = GrQuad::MakeFromRect(bounds, viewMatrix).bounds();
+
+    // compute approximate area of transformed quad
+    auto area = quadBounds.width()*quadBounds.height();
+
+    // scaling up by more than 3x the original size (or 9x the area) can cause artifacts,
+    return (area/baseArea > 9);
+}
+
 GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
         return CanDrawPath::kNo;
@@ -66,13 +81,22 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
         return CanDrawPath::kNo;
     }
 
+    SkScalar scaleFactors[2] = { 1, 1 };
+    if (args.fViewMatrix->hasPerspective()) {
+        // For perspective transformations, too large a change in area can cause artifacts.
+        if (exceeds_perspective_area_limit(args.fShape->bounds(), *args.fViewMatrix)) {
+            return CanDrawPath::kNo;
+        }
+    } else if (!args.fViewMatrix->getMinMaxScales(scaleFactors)) {
+        return CanDrawPath::kNo;
+    }
+    // For affine transformations, too much shear can produce artifacts.
+    if (scaleFactors[1]/scaleFactors[0] > 4) {
+        return CanDrawPath::kNo;
+    }
     // Only support paths with bounds within kMaxDim by kMaxDim,
     // scaled to have bounds within kMaxSize by kMaxSize.
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
-    SkScalar scaleFactors[2] = { 1, 1 };
-    if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
-        return CanDrawPath::kNo;
-    }
     SkRect bounds = args.fShape->styledBounds();
     SkScalar minDim = std::min(bounds.width(), bounds.height());
     SkScalar maxDim = std::max(bounds.width(), bounds.height());
