@@ -16,6 +16,24 @@
       "message": "For root layers you may need to clear fSurface to transparent black at the start of the frame, I think that\u0027s what hwui\u0027s expecting of the buffers it draws to.",
       "revId": "9230fc59b75065fbd88d98cc3070cd2e3cd5c274",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "050b299b_3353b007",
+        "filename": "tools/MSKPPlayer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-29T19:40:10Z",
+      "side": 1,
+      "message": "That makes sense. Maybe that clearing should go in the viewer slide, though? It seems client-dependent what the initial color is. It may depend on client behavior that is outside of Skia, e.g. they may be getting a cleared buffer from the OS or some other subsystem such as a texture cache manager.\n\nNot that we can currently capture MSKPs from Chrome, but if we could I think they\u0027d always fully overwrite the dest bounds.\n\nIn the context of viewer it could be made pickable via IMGUI.",
+      "parentUuid": "aecb91e5_aa0d7689",
+      "revId": "9230fc59b75065fbd88d98cc3070cd2e3cd5c274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
