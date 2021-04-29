@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5364cf16_baaddd29",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-29T13:57:34Z",
+      "side": 1,
+      "message": "Incidentally, this does remind me that we probably could actually derive the isOpaque bit for shaders like we do alpha-unchanged for filters.  I\u0027d previously thought it was impractical, but if we enforce the isOpaque bit from sampled children, we can probably use that to bootstrap the parent, e.g. rewriting\n\n    half4 c \u003d sample(child, xy);\n    ...\n\n  ~~~\u003e\n  \n    half4 c \u003d sample(child, xy);\n    @if (child.isOpaque) {\n        c.a \u003d 1.0;\n    }\n    ...\n\nthen it might actually all propagate fine.  (Provided the leaf images are tagged opaque consistently with how we want their image shaders treated.)",
+      "parentUuid": "87fc1447_6593ef33",
+      "revId": "cca610a54d37fa1fabb6902cd1dad6d413b2c1c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97660be1_b930da43",
