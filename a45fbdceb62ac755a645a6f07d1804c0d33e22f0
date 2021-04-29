@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a73d6b99_fd444c3f",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-29T20:04:21Z",
+      "side": 1,
+      "message": "😎",
+      "range": {
+        "startLine": 467,
+        "startChar": 0,
+        "endLine": 473,
+        "endChar": 0
+      },
+      "revId": "a45fbdceb62ac755a645a6f07d1804c0d33e22f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3826fd71_b7db63bf",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-29T20:04:21Z",
+      "side": 1,
+      "message": "... Probably no point to doing this lazily. Planning to just do this work in the constructor whenever allowColorFilter is true, and this function can just return the cached result (which may be nullptr).",
+      "revId": "a45fbdceb62ac755a645a6f07d1804c0d33e22f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
