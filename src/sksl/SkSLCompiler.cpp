@@ -407,6 +407,8 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
     return {module.fSymbols, std::move(intrinsics)};
 }
 
+extern thread_local bool gEncounteredMysteriousSplat;
+
 std::unique_ptr<Program> Compiler::convertProgram(
         ProgramKind kind,
         String text,
@@ -472,6 +474,11 @@ std::unique_ptr<Program> Compiler::convertProgram(
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
                                                             textPtr->c_str(), textPtr->size(),
                                                             externalFunctions);
+
+    if (gEncounteredMysteriousSplat) {
+        SkDEBUGFAILF("ERROR: encountered mysterious splat!\n\n**********\n%s", textPtr->c_str());
+    }
+
     auto program = std::make_unique<Program>(std::move(textPtr),
                                              std::move(config),
                                              fContext,
