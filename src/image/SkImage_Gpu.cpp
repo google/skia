@@ -854,19 +854,15 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Gpu::onAsFragmentProcessor(
     if (!fContext->priv().matches(rContext)) {
         return {};
     }
-    GrSurfaceProxyView view = this->makeView(rContext);
-    GrColorType ct = SkColorTypeAndFormatToGrColorType(rContext->priv().caps(),
-                                                       this->colorType(),
-                                                       view.proxy()->backendFormat());
-    GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    GrTextureAdjuster adjuster(rContext, std::move(view), colorInfo, this->uniqueID());
-    auto wmx = SkTileModeToWrapMode(tileModes[0]);
-    auto wmy = SkTileModeToWrapMode(tileModes[1]);
-    if (sampling.useCubic) {
-        return adjuster.createBicubicFragmentProcessor(m, subset, domain, wmx, wmy, sampling.cubic);
-    }
-    GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
-    return adjuster.createFragmentProcessor(m, subset, domain, sampler);
+    auto mm = sampling.mipmap == SkMipmapMode::kNone ? GrMipmapped::kNo : GrMipmapped::kYes;
+    return MakeFragmentProcessorFromView(rContext,
+                                         std::get<0>(this->asView(rContext, mm)),
+                                         this->alphaType(),
+                                         sampling,
+                                         tileModes,
+                                         m,
+                                         subset,
+                                         domain);
 }
 
 GrSurfaceProxyView SkImage_Gpu::makeView(GrRecordingContext* rContext) const {
