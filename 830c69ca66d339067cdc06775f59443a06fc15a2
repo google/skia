@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ba04bf0_2cce10e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-04-29T13:36:30Z",
+      "side": 1,
+      "message": "This is failing on Pixel5 devices:\n\n Errors:\nAssertion failed: typeName\n../../../../../../skia/src/gpu/GrShaderUtils.cpp:219: fatal error: \"Shader compilation failed!\"\n\nhttps://logs.chromium.org/logs/skia/5336984472249111/+/steps/dm/0/stdout",
+      "revId": "830c69ca66d339067cdc06775f59443a06fc15a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
