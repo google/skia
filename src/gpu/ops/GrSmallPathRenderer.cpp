@@ -70,7 +70,12 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
     // scaled to have bounds within kMaxSize by kMaxSize.
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar scaleFactors[2] = { 1, 1 };
-    if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
+    // TODO: find a good metric for managing perspective distortion
+    if (args.fViewMatrix->hasPerspective() || !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
+        return CanDrawPath::kNo;
+    }
+    // Too much skew can produce artifacts
+    if (scaleFactors[1]/scaleFactors[0] > 4) {
         return CanDrawPath::kNo;
     }
     SkRect bounds = args.fShape->styledBounds();
