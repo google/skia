@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4e6c644_67a8ea35",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T16:08:27Z",
+      "side": 1,
+      "message": "Whoops, done.",
+      "parentUuid": "da4b9d48_8172e8f7",
+      "range": {
+        "startLine": 18,
+        "startChar": 35,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "042d80a6caa3686f0924d3004aa851e4a0ff0250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "352dee26_9b1335d1",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12932249_e0ce6278",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T16:08:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "352dee26_9b1335d1",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 3
+      },
+      "revId": "042d80a6caa3686f0924d3004aa851e4a0ff0250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6859afbe_097c6305",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-04-29T15:59:14Z",
       "side": 1,
       "message": "nit: ditto",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 3
+      },
+      "revId": "042d80a6caa3686f0924d3004aa851e4a0ff0250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6151b1e0_5be6e6bf",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-29T16:08:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6859afbe_097c6305",
       "range": {
         "startLine": 40,
         "startChar": 0,
