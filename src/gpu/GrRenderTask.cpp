@@ -220,6 +220,26 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     }
 }
 
+void GrRenderTask::replaceDependency(const GrRenderTask* toReplace, GrRenderTask* replaceWith) {
+    for (auto& target : fDependencies) {
+        if (target == toReplace) {
+            target = replaceWith;
+            replaceWith->fDependents.push_back(this);
+            break;
+        }
+    }
+}
+
+void GrRenderTask::replaceDependent(const GrRenderTask* toReplace, GrRenderTask* replaceWith) {
+    for (auto& target : fDependents) {
+        if (target == toReplace) {
+            target = replaceWith;
+            replaceWith->fDependencies.push_back(this);
+            break;
+        }
+    }
+}
+
 bool GrRenderTask::dependsOn(const GrRenderTask* dependedOn) const {
     for (int i = 0; i < fDependencies.count(); ++i) {
         if (fDependencies[i] == dependedOn) {

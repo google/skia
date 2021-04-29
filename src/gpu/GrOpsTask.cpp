@@ -715,38 +715,44 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         return 0;
     }
 
-    SkSpan<const sk_sp<GrOpsTask>> opsTasks(
+    SkSpan<const sk_sp<GrOpsTask>> mergingNodes(
             reinterpret_cast<const sk_sp<GrOpsTask>*>(tasks.data()), SkToSizeT(mergedCount));
     int addlDeferredProxyCount = 0;
     int addlProxyCount = 0;
     int addlOpChainCount = 0;
-    for (const auto& opsTask : opsTasks) {
-        addlDeferredProxyCount += opsTask->fDeferredProxies.count();
-        addlProxyCount += opsTask->fSampledProxies.count();
-        addlOpChainCount += opsTask->fOpChains.count();
-        fClippedContentBounds.join(opsTask->fClippedContentBounds);
-        fTotalBounds.join(opsTask->fTotalBounds);
-        fRenderPassXferBarriers |= opsTask->fRenderPassXferBarriers;
-        fUsesMSAASurface |= opsTask->fUsesMSAASurface;
-        SkDEBUGCODE(fNumClips += opsTask->fNumClips);
+    for (const auto& toMerge : mergingNodes) {
+        addlDeferredProxyCount += toMerge->fDeferredProxies.count();
+        addlProxyCount += toMerge->fSampledProxies.count();
+        addlOpChainCount += toMerge->fOpChains.count();
+        fClippedContentBounds.join(toMerge->fClippedContentBounds);
+        fTotalBounds.join(toMerge->fTotalBounds);
+        fRenderPassXferBarriers |= toMerge->fRenderPassXferBarriers;
+        fUsesMSAASurface |= toMerge->fUsesMSAASurface;
+        SkDEBUGCODE(fNumClips += toMerge->fNumClips);
     }
 
     fLastClipStackGenID = SK_InvalidUniqueID;
     fDeferredProxies.reserve_back(addlDeferredProxyCount);
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
-    for (const auto& opsTask : opsTasks) {
-        fDeferredProxies.move_back_n(opsTask->fDeferredProxies.count(),
-                                     opsTask->fDeferredProxies.data());
-        fSampledProxies.move_back_n(opsTask->fSampledProxies.count(),
-                                    opsTask->fSampledProxies.data());
-        fOpChains.move_back_n(opsTask->fOpChains.count(),
-                              opsTask->fOpChains.data());
-        opsTask->fDeferredProxies.reset();
-        opsTask->fSampledProxies.reset();
-        opsTask->fOpChains.reset();
+    for (const auto& toMerge : mergingNodes) {
+        for (GrRenderTask* renderTask : toMerge->dependents()) {
+            renderTask->replaceDependency(toMerge.get(), this);
+        }
+        for (GrRenderTask* renderTask : toMerge->dependencies()) {
+            renderTask->replaceDependent(toMerge.get(), this);
+        }
+        fDeferredProxies.move_back_n(toMerge->fDeferredProxies.count(),
+                                     toMerge->fDeferredProxies.data());
+        fSampledProxies.move_back_n(toMerge->fSampledProxies.count(),
+                                    toMerge->fSampledProxies.data());
+        fOpChains.move_back_n(toMerge->fOpChains.count(),
+                              toMerge->fOpChains.data());
+        toMerge->fDeferredProxies.reset();
+        toMerge->fSampledProxies.reset();
+        toMerge->fOpChains.reset();
     }
-    fMustPreserveStencil = opsTasks.back()->fMustPreserveStencil;
+    fMustPreserveStencil = mergingNodes.back()->fMustPreserveStencil;
     return mergedCount;
 }
 
