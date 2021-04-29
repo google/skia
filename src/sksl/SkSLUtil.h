@@ -375,6 +375,7 @@ public:
         result->fVersionDeclString = "#version 400";
         result->fGeometryShaderSupport = true;
         result->fGSInvocationsSupport = true;
+        result->fRewriteMatrixVectorMultiply = true;
         return result;
     }
 
