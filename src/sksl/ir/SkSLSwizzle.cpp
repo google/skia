@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -183,20 +184,24 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
             return Swizzle::Make(context, std::move(base.base()), combined);
         }
 
+        // If we are swizzling a constant expression, we can use its value instead here (so that
+        // swizzles like `colorWhite.x` can be simplified to `1`).
+        const Expression* value = ConstantFolder::GetConstantValueForVariable(*expr);
+
         // `half4(scalar).zyy` can be optimized to `half3(scalar)`, and `half3(scalar).y` can be
         // optimized to just `scalar`. The swizzle components don't actually matter, as every field
         // in a splat constructor holds the same value.
-        if (expr->is<ConstructorSplat>()) {
-            ConstructorSplat& splat = expr->as<ConstructorSplat>();
+        if (value->is<ConstructorSplat>()) {
+            const ConstructorSplat& splat = value->as<ConstructorSplat>();
             return ConstructorSplat::Make(
                     context, splat.fOffset,
                     splat.type().componentType().toCompound(context, components.size(), /*rows=*/1),
-                    std::move(splat.argument()));
+                    splat.argument()->clone());
         }
 
         // Optimize swizzles of constructors.
-        if (expr->isAnyConstructor()) {
-            AnyConstructor& base = expr->asAnyConstructor();
+        if (value->isAnyConstructor()) {
+            const AnyConstructor& base = value->asAnyConstructor();
             auto baseArguments = base.argumentSpan();
             std::unique_ptr<Expression> replacement;
             const Type& componentType = exprType.componentType();
@@ -299,18 +304,8 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                 ExpressionArray newArgs;
                 newArgs.reserve_back(swizzleSize);
                 for (const ReorderedArgument& reorderedArg : reorderedArgs) {
-                    std::unique_ptr<Expression>& origArg = baseArguments[reorderedArg.fArgIndex];
-
-                    // Clone the original argument if there are multiple references to it; just
-                    // steal it if there's only one reference left.
-                    std::unique_ptr<Expression> newArg;
-                    int8_t& exprRemainingRefs = exprUsed[reorderedArg.fArgIndex];
-                    SkASSERT(exprRemainingRefs > 0);
-                    if (--exprRemainingRefs == 0) {
-                        newArg = std::move(origArg);
-                    } else {
-                        newArg = origArg->clone();
-                    }
+                    std::unique_ptr<Expression> newArg =
+                            baseArguments[reorderedArg.fArgIndex]->clone();
 
                     if (reorderedArg.fComponents.empty()) {
                         newArgs.push_back(std::move(newArg));
