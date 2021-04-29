@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4f2812e_6f9488eb",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-29T20:53:13Z",
+      "side": 1,
+      "message": "If you sample a null color filter with an explicit color, do you get that explicit color or the original input color?  Which function does nullptr mean?\n\n   half4 identityWithDefault(half4 color \u003d inputColor) { return color; }\n\nor\n \n   half4 inputColorAlways(half4 color \u003d inputColor) { return inputColor; }",
+      "revId": "abf889994782cbbb96a2e2218e699637965710a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
