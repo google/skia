@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0bcfffa_d5653eb4",
+        "filename": "modules/svg/src/SkSVGFeLighting.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-04-29T15:51:51Z",
+      "side": 1,
+      "message": "It\u0027s not actually clear to me from the spec if this direction vector is in the primitiveUnits coord space, but it seems logical to assume so?",
+      "revId": "7f8ff27d5731860a98510e6caf6b41518023a1ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

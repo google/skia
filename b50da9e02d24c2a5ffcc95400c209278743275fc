@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e427695_6b5804e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-04-29T15:51:51Z",
+      "side": 1,
+      "message": "@Florin PTAL\n@Michael FYI -- we had previously discussed the discrepancy in filters-light-02",
+      "revId": "b50da9e02d24c2a5ffcc95400c209278743275fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
