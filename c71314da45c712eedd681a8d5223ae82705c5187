@@ -52,6 +52,24 @@
       "parentUuid": "aa797694_7ce0d653",
       "revId": "c71314da45c712eedd681a8d5223ae82705c5187",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38dc4095_cd0df868",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-04-30T19:17:11Z",
+      "side": 1,
+      "message": "I think in order to split it out, we would need to build a separate target for libgifcodec. This isn\u0027t straightforward, given that libgifcodec in turn depends on Skia. I think the best way to clean this up will be to switch Android to Wuffs.",
+      "parentUuid": "52103721_d6de5ce7",
+      "revId": "c71314da45c712eedd681a8d5223ae82705c5187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
