@@ -501,7 +501,7 @@ void DSLCPPCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 }
 
 void DSLCPPCodeGenerator::writeIfStatement(const IfStatement& stmt) {
-    this->write("If(");
+    this->write(stmt.isStatic() ? "StaticIf(" : "If(");
     this->writeExpression(*stmt.test(), Precedence::kTopLevel);
     this->write(", /*Then:*/ ");
     this->writeStatement(*stmt.ifTrue());
@@ -658,7 +658,7 @@ void DSLCPPCodeGenerator::writeDoStatement(const DoStatement& d) {
 }
 
 void DSLCPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
-    this->write("Switch(");
+    this->write(s.isStatic() ? "StaticSwitch(" : "Switch(");
     this->writeExpression(*s.value(), Precedence::kTopLevel);
     for (const std::unique_ptr<Statement>& stmt : s.cases()) {
         const SwitchCase& c = stmt->as<SwitchCase>();
