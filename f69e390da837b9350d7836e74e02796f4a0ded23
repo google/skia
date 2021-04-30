@@ -46,6 +46,30 @@
       },
       "revId": "f69e390da837b9350d7836e74e02796f4a0ded23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e69e0b28_ead121b4",
+        "filename": "infra/bots/gen_tasks_logic/nano_flags.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-30T23:17:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7780d296_e0bedb37",
+      "range": {
+        "startLine": 257,
+        "startChar": 87,
+        "endLine": 257,
+        "endChar": 94
+      },
+      "revId": "f69e390da837b9350d7836e74e02796f4a0ded23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
