@@ -172,7 +172,8 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,
 
 DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
-                                              SkTArray<SkSL::StatementArray> caseStatements) {
+                                              SkTArray<SkSL::StatementArray> caseStatements,
+                                              bool isStatic) {
     StatementArray caseBlocks;
     caseBlocks.resize(caseStatements.count());
     for (int index = 0; index < caseStatements.count(); ++index) {
@@ -182,7 +183,7 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                                           /*isScope=*/false);
     }
 
-    return SwitchStatement::Convert(Context(), /*offset=*/-1, /*isStatic=*/false, std::move(value),
+    return SwitchStatement::Convert(Context(), /*offset=*/-1, isStatic, std::move(value),
                                     std::move(caseValues), std::move(caseBlocks),
                                     IRGenerator().fSymbolTable);
 }

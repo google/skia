@@ -109,25 +109,33 @@ DSLStatement Return(DSLExpression value = DSLExpression(), PositionInfo pos = Po
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      PositionInfo info = PositionInfo());
 
-DSLPossibleStatement Switch(DSLExpression value, SkSL::ExpressionArray values,
-                            SkTArray<StatementArray> statements);
+DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue,
+                      DSLStatement ifFalse = DSLStatement(), PositionInfo pos = PositionInfo());
+
+DSLPossibleStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases);
+
+/**
+ * @switch (value) { cases }
+ */
+template<class... Cases>
+DSLPossibleStatement StaticSwitch(DSLExpression value, Cases... cases) {
+    SkTArray<DSLCase> caseArray;
+    caseArray.reserve_back(sizeof...(cases));
+    (caseArray.push_back(std::move(cases)), ...);
+    return StaticSwitch(std::move(value), std::move(caseArray));
+}
+
+DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases);
 
 /**
  * switch (value) { cases }
  */
 template<class... Cases>
 DSLPossibleStatement Switch(DSLExpression value, Cases... cases) {
-    SkSL::ExpressionArray caseValues;
-    SkTArray<StatementArray> caseStatements;
-    caseValues.reserve_back(sizeof...(cases));
-    caseStatements.reserve_back(sizeof...(cases));
-    // yet more workarounds until we can rely on C++17 support
-    int unused1[] = {0, (static_cast<void>(caseValues.push_back(cases.fValue.release())), 0)...};
-    static_cast<void>(unused1);
-    int unused2[] = {0, (static_cast<void>(caseStatements.push_back(std::move(cases.fStatements))),
-                         0)...};
-    static_cast<void>(unused2);
-    return Switch(std::move(value), std::move(caseValues), std::move(caseStatements));
+    SkTArray<DSLCase> caseArray;
+    caseArray.reserve_back(sizeof...(cases));
+    (caseArray.push_back(std::move(cases)), ...);
+    return Switch(std::move(value), std::move(caseArray));
 }
 
 /**
