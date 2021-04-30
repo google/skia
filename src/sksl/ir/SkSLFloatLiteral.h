@@ -29,7 +29,7 @@ public:
         : INHERITED(offset, kExpressionKind, type)
         , fValue(value) {}
 
-    // Makes a literal of $intLiteral type.
+    // Makes a literal of $floatLiteral type.
     static std::unique_ptr<FloatLiteral> Make(const Context& context, int offset, float value) {
         return std::make_unique<FloatLiteral>(offset, value, context.fTypes.fFloatLiteral.get());
     }
