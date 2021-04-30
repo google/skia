@@ -151,6 +151,30 @@
       },
       "revId": "75add16018d5107e5f730886ff4919314fa95602",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd886975_6197649a",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-30T15:02:53Z",
+      "side": 1,
+      "message": "Seeing my pseudo rewrite, might should scope the private field ...\n\nCanvasKit[\"_isWhiteSpace_GlyphRunFlag\"] or something",
+      "parentUuid": "3135b76d_889eff57",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 26
+      },
+      "revId": "75add16018d5107e5f730886ff4919314fa95602",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
