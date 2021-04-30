@@ -473,7 +473,9 @@ void SkSVGTextContext::commitRunBuffer(const RunInfo& ri) {
 
 void SkSVGTextFragment::renderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
                                    SkSVGXmlSpace xs) const {
-    SkSVGRenderContext localContext(ctx, this);
+    // N.B.: unlike regular elements, text fragments do not establish a new OBB scope -- they
+    // always defer to the root <text> element for OBB resolution.
+    SkSVGRenderContext localContext(ctx);
 
     if (this->onPrepareToRender(&localContext)) {
         this->onShapeText(localContext, tctx, xs);
