@@ -51,6 +51,24 @@
       "parentUuid": "f4f2812e_6f9488eb",
       "revId": "abf889994782cbbb96a2e2218e699637965710a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b2b3f02_7cfc0410",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-04-30T19:37:27Z",
+      "side": 1,
+      "message": "ok, just wanted to make sure since i\u0027d always heard \"sample(null) -\u003e inputColor\" back when that wasn\u0027t ambiguous.  identityWithDefault() is clearly more useful than inputColorAlways().",
+      "parentUuid": "8fdc0b67_e13cc9fd",
+      "revId": "abf889994782cbbb96a2e2218e699637965710a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
