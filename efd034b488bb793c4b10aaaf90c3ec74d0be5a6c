@@ -16,6 +16,23 @@
       "message": "How about this for a kludgy fix to https://bugs.chromium.org/p/chromium/issues/detail?id\u003d1196353 ?",
       "revId": "efd034b488bb793c4b10aaaf90c3ec74d0be5a6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0386fc90_c7cb8398",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-30T17:39:16Z",
+      "side": 1,
+      "message": "Nevermind. Chrome uses transparent colors when they show the layer boundaries.",
+      "revId": "efd034b488bb793c4b10aaaf90c3ec74d0be5a6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
