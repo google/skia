@@ -12,13 +12,13 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,12 +59,7 @@ void MSKPPlayer::DrawLayerCmd::draw(SkCanvas* canvas,
     LayerState* layerState = &(*layerStateMap)[fLayerId];
     if (!layerState->fSurface) {
         layerState->fCurrCmd = 0;
-        // Assume layer has same surface props and info as this (mskp doesn't currently record this
-        // data).
-        SkSurfaceProps props;
-        canvas->getProps(&props);
-        layerState->fSurface =
-                canvas->makeSurface(canvas->imageInfo().makeDimensions(layer.fDimensions), &props);
+        layerState->fSurface = MSKPPlayer::MakeSurfaceForLayer(layer, canvas);
         if (!layerState->fSurface) {
             SkDebugf("Couldn't create surface for layer");
             return;
@@ -409,4 +404,31 @@ bool MSKPPlayer::playFrame(SkCanvas* canvas, int i) {
     return true;
 }
 
+sk_sp<SkSurface> MSKPPlayer::MakeSurfaceForLayer(const Layer& layer, SkCanvas* rootCanvas) {
+    // Assume layer has same surface props and info as this (mskp doesn't currently record this
+    // data).
+    SkSurfaceProps props;
+    rootCanvas->getProps(&props);
+    return rootCanvas->makeSurface(rootCanvas->imageInfo().makeDimensions(layer.fDimensions),
+                                   &props);
+}
+
 void MSKPPlayer::resetLayers() { fOffscreenLayerStates.clear(); }
+
+void MSKPPlayer::rewindLayers() {
+    for (auto& [id, state] : fOffscreenLayerStates) {
+        state.fCurrCmd = -1;
+    }
+}
+
+void MSKPPlayer::allocateLayers(SkCanvas* canvas) {
+    // Iterate over layers not states as states are lazily created in playback but here we want to
+    // create any that don't already exist.
+    for (auto& [id, layer] : fOffscreenLayers) {
+        LayerState& state = fOffscreenLayerStates[id];
+        if (!state.fSurface || state.fSurface->recordingContext() != canvas->recordingContext()) {
+            state.fCurrCmd = -1;
+            state.fSurface = MakeSurfaceForLayer(fOffscreenLayers[id], canvas);
+        }
+    }
+}

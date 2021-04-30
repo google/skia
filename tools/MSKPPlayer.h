@@ -48,6 +48,18 @@ public:
     /** Destroys any cached offscreen layers. */
     void resetLayers();
 
+    /**
+     * Forces all offscreen layers to re-render the next time they're required for a frame but
+     * preserves the backing stores for them if already allocated.
+     */
+    void rewindLayers();
+
+    /**
+     * Creates backing stores for any offscreen layers using the passed canvas's makeSurface().
+     * Existing layers that match the canvas's recording context are not reallocated or rewound.
+     */
+    void allocateLayers(SkCanvas*);
+
 private:
     MSKPPlayer() = default;
     // noncopyable, nonmoveable.
@@ -78,6 +90,8 @@ private:
         size_t fCurrCmd = -1;
         sk_sp<SkSurface> fSurface;
     };
+
+    static sk_sp<SkSurface> MakeSurfaceForLayer(const Layer&, SkCanvas* rootCanvas);
 
     // MSKP layer ID -> Layer
     using LayerMap = std::unordered_map<int, Layer>;

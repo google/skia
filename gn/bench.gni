@@ -68,6 +68,7 @@ bench_sources = [
   "$_bench/JSONBench.cpp",
   "$_bench/LightingBench.cpp",
   "$_bench/LineBench.cpp",
+  "$_bench/MSKPBench.cpp",
   "$_bench/MathBench.cpp",
   "$_bench/Matrix44Bench.cpp",
   "$_bench/MatrixBench.cpp",

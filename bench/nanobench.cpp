@@ -14,6 +14,7 @@
 #include "bench/CodecBench.h"
 #include "bench/CodecBenchPriv.h"
 #include "bench/GMBench.h"
+#include "bench/MSKPBench.h"
 #include "bench/RecordingBench.h"
 #include "bench/ResultsWriter.h"
 #include "bench/SKPAnimationBench.h"
@@ -40,6 +41,7 @@
 #include "src/utils/SkOSPath.h"
 #include "tools/AutoreleasePool.h"
 #include "tools/CrashHandler.h"
+#include "tools/MSKPPlayer.h"
 #include "tools/ProcStats.h"
 #include "tools/Stats.h"
 #include "tools/flags/CommonFlags.h"
@@ -169,6 +171,7 @@ static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driv
 
 
 static DEFINE_string(skps, "skps", "Directory to read skps from.");
+static DEFINE_string(mskps, "mskps", "Directory to read mskps from.");
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 static DEFINE_string(texttraces, "", "Directory to read TextBlobTrace files from.");
 
@@ -650,6 +653,7 @@ public:
     BenchmarkStream() : fBenches(BenchRegistry::Head())
                       , fGMs(skiagm::GMRegistry::Head()) {
         collect_files(FLAGS_skps, ".skp", &fSKPs);
+        collect_files(FLAGS_mskps, ".mskp", &fMSKPs);
         collect_files(FLAGS_svgs, ".svg", &fSVGs);
         collect_files(FLAGS_texttraces, ".trace", &fTextBlobTraces);
 
@@ -699,6 +703,22 @@ public:
         }
 
         return SkPicture::MakeFromStream(stream.get());
+    }
+
+    static std::unique_ptr<MSKPPlayer> ReadMSKP(const char* path) {
+        // Not strictly necessary, as it will be checked again later,
+        // but helps to avoid a lot of pointless work if we're going to skip it.
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+            return nullptr;
+        }
+
+        std::unique_ptr<SkStreamSeekable> stream = SkStream::MakeFromFile(path);
+        if (!stream) {
+            SkDebugf("Could not read %s.\n", path);
+            return nullptr;
+        }
+
+        return MSKPPlayer::Make(stream.get());
     }
 
     static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
@@ -866,6 +886,19 @@ public:
                 return new SKPAnimationBench(name.c_str(), pic.get(), fClip, std::move(animation),
                                              FLAGS_loopSKP);
             }
+        }
+
+        // Read all MSKPs as benches
+        while (fCurrentMSKP < fMSKPs.count()) {
+            const SkString& path = fMSKPs[fCurrentMSKP++];
+            std::unique_ptr<MSKPPlayer> player = ReadMSKP(path.c_str());
+            if (!player) {
+                continue;
+            }
+            SkString name = SkOSPath::Basename(path.c_str());
+            fSourceType = "mskp";
+            fBenchType = "mskp";
+            return new MSKPBench(std::move(name), std::move(player));
         }
 
         for (; fCurrentCodec < fImages.count(); fCurrentCodec++) {
@@ -1104,6 +1137,7 @@ private:
     SkIRect            fClip;
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
+    SkTArray<SkString> fMSKPs;
     SkTArray<SkString> fSVGs;
     SkTArray<SkString> fTextBlobTraces;
     SkTArray<SkString> fImages;
@@ -1117,6 +1151,7 @@ private:
     const char* fBenchType;   // How we bench it: micro, recording, playback, ...
     int fCurrentRecording = 0;
     int fCurrentDeserialPicture = 0;
+    int fCurrentMSKP = 0;
     int fCurrentScale = 0;
     int fCurrentSKP = 0;
     int fCurrentSVG = 0;
