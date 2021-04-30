@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94bec2f5_f5fa09ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T13:50:37Z",
+      "side": 1,
+      "message": "This is to isolate some future obb changes.\n\nNo functional changes, but some tests may show trivial diffs due to FP arithmetic changes.",
+      "revId": "5779028e8214e8bfceec378f6fdc69c4e326d1ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
