@@ -37,8 +37,13 @@ half4 main() {
 }
 
 @test(d) {
+    SkV4 k;
+    k.x = d->fRandom->nextF();
+    k.y = d->fRandom->nextF();
+    k.z = d->fRandom->nextF();
+    k.w = d->fRandom->nextF();
+    bool enforcePMColor = d->fRandom->nextBool();
     return GrArithmeticProcessor::Make(
             GrProcessorUnitTest::MakeChildFP(d), GrProcessorUnitTest::MakeChildFP(d),
-            {d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF()},
-            d->fRandom->nextBool());
+            k, enforcePMColor);
 }

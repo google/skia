@@ -51,10 +51,11 @@ half4 main(float2 coord) {
 
 @test(d) {
     SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
-    SkPoint points[] = {{d->fRandom->nextRangeScalar(0.0f, scale),
-                         d->fRandom->nextRangeScalar(0.0f, scale)},
-                        {d->fRandom->nextRangeScalar(0.0f, scale),
-                         d->fRandom->nextRangeScalar(0.0f, scale)}};
+    SkPoint points[2];
+    points[0].fX = d->fRandom->nextRangeScalar(0.0f, scale);
+    points[0].fY = d->fRandom->nextRangeScalar(0.0f, scale);
+    points[1].fX = d->fRandom->nextRangeScalar(0.0f, scale);
+    points[1].fY = d->fRandom->nextRangeScalar(0.0f, scale);
 
     GrGradientShader::RandomParams params(d->fRandom);
     auto shader = params.fUseColors4f ?

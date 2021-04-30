@@ -579,10 +579,11 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData*
     if (flags & kSimilarity_DistanceFieldEffectFlag) {
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
-
+    SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
+    bool wideColor = d->fRandom->nextBool();
     return GrDistanceFieldPathGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(),
-                                            GrTest::TestMatrix(d->fRandom),
-                                            d->fRandom->nextBool(),
+                                            localMatrix,
+                                            wideColor,
                                             &view, 1,
                                             samplerState,
                                             flags);

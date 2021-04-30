@@ -721,9 +721,11 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return EllipseGeometryProcessor::Make(d->allocator(), d->fRandom->nextBool(),
-                                          d->fRandom->nextBool(), d->fRandom->nextBool(),
-                                          GrTest::TestMatrix(d->fRandom));
+    bool stroke = d->fRandom->nextBool();
+    bool wideColor = d->fRandom->nextBool();
+    bool useScale = d->fRandom->nextBool();
+    SkMatrix matrix = GrTest::TestMatrix(d->fRandom);
+    return EllipseGeometryProcessor::Make(d->allocator(), stroke, wideColor, useScale, matrix);
 }
 #endif
 
@@ -920,9 +922,11 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return DIEllipseGeometryProcessor::Make(d->allocator(), d->fRandom->nextBool(),
-                                            d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom),
-                                            (DIEllipseStyle)(d->fRandom->nextRangeU(0, 2)));
+    bool wideColor = d->fRandom->nextBool();
+    bool useScale = d->fRandom->nextBool();
+    SkMatrix matrix = GrTest::TestMatrix(d->fRandom);
+    auto style = (DIEllipseStyle)(d->fRandom->nextRangeU(0, 2));
+    return DIEllipseGeometryProcessor::Make(d->allocator(), wideColor, useScale, matrix, style);
 }
 #endif
 
