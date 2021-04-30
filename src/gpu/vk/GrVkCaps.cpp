@@ -714,6 +714,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
 
     shaderCaps->fIntegerSupport = true;
+    shaderCaps->fNonsquareMatrixSupport = true;
     shaderCaps->fVertexIDSupport = true;
     shaderCaps->fFPManipulationSupport = true;
 
