@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ead3913a_3a5cd1e2",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:28:45Z",
+      "side": 1,
+      "message": "nit: Let\u0027s initialize everything (\u003d nullptr). It\u0027s harmless and free; if the constructor initializes this with a value, the default is just ignored.",
+      "range": {
+        "startLine": 79,
+        "startChar": 22,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2df61216_6bb95b86",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:28:45Z",
+      "side": 1,
+      "message": "If this happens, all of the DSLVars now have stale `fVar` pointers inside of them. I\u0027d really like to avoid that. We\u0027ve had similar bugs in IR generation where encountering an error causes stale pointers to be left behind, and the fuzzer can take advantage of it in some clever way.",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 64,
+        "endChar": 19
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50714e56_4fabd2ed",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:28:45Z",
+      "side": 1,
+      "message": "nit: Maybe just \"MakeVariable\"? At its core this synthesizes a SkSL::Variable for a DSLVar; the `UniquePointer` aspect feels like an implementation detail about ownership that is sufficiently communicated by the return type.",
+      "range": {
+        "startLine": 96,
+        "startChar": 43,
+        "endLine": 96,
+        "endChar": 59
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
