@@ -14,14 +14,15 @@ layout(key) in bool clampToPremul;
      kPreservesOpaqueInput_OptimizationFlag)
 }
 
-half4 clampedPM(half4 inputColor) {
-    half alpha = saturate(inputColor.a);
-    return half4(clamp(inputColor.rgb, 0, alpha), alpha);
-}
-
 half4 main() {
     half4 inputColor = sample(inputFP);
-    return clampToPremul ? clampedPM(inputColor) : saturate(inputColor);
+    half alpha;
+    @if (clampToPremul) {
+        alpha = saturate(inputColor.a);
+        return half4(clamp(inputColor.rgb, 0, alpha), alpha);
+    } else {
+        return saturate(inputColor);
+    }
 }
 
 @class {
