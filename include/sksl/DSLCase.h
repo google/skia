@@ -48,6 +48,8 @@ private:
     DSLExpression fValue;
     SkSL::StatementArray fStatements;
 
+    friend class DSLCore;
+
     template<class... Cases>
     friend DSLPossibleStatement Switch(DSLExpression value, Cases... cases);
 };
