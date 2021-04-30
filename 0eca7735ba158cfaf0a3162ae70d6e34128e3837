@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4df0008_f3fa7fff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T20:10:32Z",
+      "side": 1,
+      "message": "Reads neat to me, but I barely speak JS :)",
+      "revId": "0eca7735ba158cfaf0a3162ae70d6e34128e3837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6460bbc_e5797b3f",
+        "filename": "modules/canvaskit/npm_build/extra.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T20:10:32Z",
+      "side": 1,
+      "message": "Yeah, how does that work - are we just leaking for now?",
+      "range": {
+        "startLine": 320,
+        "startChar": 42,
+        "endLine": 320,
+        "endChar": 79
+      },
+      "revId": "0eca7735ba158cfaf0a3162ae70d6e34128e3837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d86e6aee_42c6bf00",
+        "filename": "modules/canvaskit/npm_build/extra.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T20:10:32Z",
+      "side": 1,
+      "message": "Looks like this would return the last index when y \u003c top of first line - do we need a special case for that?\n\nif (y \u003c runs[0].positions[1] + fm.ascent) { return runs[0].offsets[0]; }\n\nOr we never receive events outside the box?",
+      "range": {
+        "startLine": 443,
+        "startChar": 14,
+        "endLine": 443,
+        "endChar": 23
+      },
+      "revId": "0eca7735ba158cfaf0a3162ae70d6e34128e3837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
