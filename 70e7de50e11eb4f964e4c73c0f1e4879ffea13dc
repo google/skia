@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3149321f_08b03120",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-30T14:55:14Z",
+      "side": 1,
+      "message": "Yeah - With the Typescript approach, some of this can hopefully be generated (and less error-prone).",
+      "revId": "70e7de50e11eb4f964e4c73c0f1e4879ffea13dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

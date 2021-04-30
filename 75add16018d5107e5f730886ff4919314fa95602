@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bac30ec0_7231088d",
+        "filename": "modules/canvaskit/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-30T14:55:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e357820e_a3bc63e8",
+      "range": {
+        "startLine": 101,
+        "startChar": 9,
+        "endLine": 101,
+        "endChar": 14
+      },
+      "revId": "75add16018d5107e5f730886ff4919314fa95602",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0b1801a_64253884",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-04-30T14:48:36Z",
       "side": 1,
       "message": "ok, you got me, what does this do, and why is it needed? :)",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 26
+      },
+      "revId": "75add16018d5107e5f730886ff4919314fa95602",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b72e2831_1ba14960",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-30T14:55:14Z",
+      "side": 1,
+      "message": "in JS the square brackets notation are the same functionality as accessing a field member.\n\nThe reason I\u0027ve done it here is because it tells the closure compiler/minifier to leave the name alone instead of trying to minify it. This may or may not be overkill with the additions in externs.js, but this will \"for sure\" work.",
+      "parentUuid": "a0b1801a_64253884",
       "range": {
         "startLine": 47,
         "startChar": 13,
