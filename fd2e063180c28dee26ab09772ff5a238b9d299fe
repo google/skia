@@ -22,6 +22,30 @@
       },
       "revId": "fd2e063180c28dee26ab09772ff5a238b9d299fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "215e9a31_0e913589",
+        "filename": "include/sksl/DSLCase.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-30T16:44:16Z",
+      "side": 1,
+      "message": "DSLCore.cpp:161-162 access fValue \u0026 fStatements.",
+      "parentUuid": "b6e3a7da_a870118d",
+      "range": {
+        "startLine": 51,
+        "startChar": 3,
+        "endLine": 51,
+        "endChar": 25
+      },
+      "revId": "fd2e063180c28dee26ab09772ff5a238b9d299fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

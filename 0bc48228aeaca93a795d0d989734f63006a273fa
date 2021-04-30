@@ -16,6 +16,24 @@
       "message": "nit: please undo",
       "revId": "0bc48228aeaca93a795d0d989734f63006a273fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fad4e49_39271d8d",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-04-30T16:44:16Z",
+      "side": 0,
+      "message": "Oops, fixed.",
+      "parentUuid": "e5addad5_eb96a1b7",
+      "revId": "0bc48228aeaca93a795d0d989734f63006a273fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
