@@ -51,14 +51,15 @@ static DEFINE_bool(listTests, false, "Print unit test names and exit.");
 static DEFINE_string2(sources, s, "", "Which GMs, .skps, or images to draw.");
 static DEFINE_string2(backend, b, "", "Backend used to create a canvas to draw into.");
 
-static DEFINE_string(ct    ,   "8888", "The color type for any raster backend.");
-static DEFINE_string(at    , "premul", "The alpha type for any raster backend.");
-static DEFINE_string(gamut ,   "srgb", "The color gamut for any raster backend.");
-static DEFINE_string(tf    ,   "srgb", "The transfer function for any raster backend.");
-static DEFINE_bool  (legacy,    false, "Use a null SkColorSpace instead of --gamut and --tf?");
-static DEFINE_bool  (skvm  ,    false, "Use SkVMBlitter when supported?");
-static DEFINE_bool  (jit   ,     true, "JIT SkVM?");
-static DEFINE_bool  (dylib ,    false, "JIT SkVM via dylib?");
+static DEFINE_string(ct            ,   "8888", "The color type for any raster backend.");
+static DEFINE_string(at            , "premul", "The alpha type for any raster backend.");
+static DEFINE_string(gamut         ,   "srgb", "The color gamut for any raster backend.");
+static DEFINE_string(tf            ,   "srgb", "The transfer function for any raster backend.");
+static DEFINE_bool  (legacy        ,    false, "Use a null SkColorSpace instead of --gamut and --tf?");
+static DEFINE_bool  (skvm          ,    false, "Use SkVMBlitter when supported?");
+static DEFINE_bool  (jit           ,     true, "JIT SkVM?");
+static DEFINE_bool  (dylib         ,    false, "JIT SkVM via dylib?");
+static DEFINE_bool  (reducedshaders,    false, "Use reduced shader set for any GPU backend.");
 
 static DEFINE_int   (samples ,         0, "Samples per pixel in GPU backends.");
 static DEFINE_bool  (stencils,      true, "If false, avoid stencil buffers in GPU backends.");
@@ -389,6 +390,7 @@ int main(int argc, char** argv) {
 
     GrContextOptions baseOptions;
     SetCtxOptionsFromCommonFlags(&baseOptions);
+    baseOptions.fReducedShaderVariations = FLAGS_reducedshaders;
 
     sk_gpu_test::MemoryCache memoryCache;
     if (!FLAGS_writeShaders.isEmpty()) {
