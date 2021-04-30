@@ -3,7 +3,7 @@
 error: 7: cannot assign to this expression
 error: 8: cannot modify immutable variable 'u'
 error: 9: cannot modify immutable variable 'x'
-error: 11: cannot modify immutable variable 'x'
+error: 11: cannot assign to this expression
 error: 12: cannot write to the same swizzle field more than once
 error: 14: cannot modify immutable variable 'l'
 error: 15: cannot modify immutable variable 'r'
