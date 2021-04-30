@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f60d202c_522ece03",
+        "filename": "modules/canvaskit/npm_build/extra.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-30T20:48:49Z",
+      "side": 1,
+      "message": "yup",
+      "parentUuid": "a6460bbc_e5797b3f",
+      "range": {
+        "startLine": 320,
+        "startChar": 42,
+        "endLine": 320,
+        "endChar": 79
+      },
+      "revId": "0eca7735ba158cfaf0a3162ae70d6e34128e3837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d86e6aee_42c6bf00",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-04-30T20:10:32Z",
       "side": 1,
       "message": "Looks like this would return the last index when y \u003c top of first line - do we need a special case for that?\n\nif (y \u003c runs[0].positions[1] + fm.ascent) { return runs[0].offsets[0]; }\n\nOr we never receive events outside the box?",
+      "range": {
+        "startLine": 443,
+        "startChar": 14,
+        "endLine": 443,
+        "endChar": 23
+      },
+      "revId": "0eca7735ba158cfaf0a3162ae70d6e34128e3837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "787e7640_cfc3bf07",
+        "filename": "modules/canvaskit/npm_build/extra.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-30T20:48:49Z",
+      "side": 1,
+      "message": "Ah, yea, my current test can\u0027t click \u0027above\u0027 the text, but I will need to check for that.",
+      "parentUuid": "d86e6aee_42c6bf00",
       "range": {
         "startLine": 443,
         "startChar": 14,
