@@ -467,6 +467,16 @@ SkSVGColorType SkSVGRenderContext::resolveSvgColor(const SkSVGColor& color) cons
     SkUNREACHABLE;
 }
 
+SkSVGRenderContext::OBBTransform
+SkSVGRenderContext::obbTransform(SkSVGObjectBoundingBoxUnits u) const {
+    if (!fNode || u.type() == SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse) {
+        return {{0,0},{1,1}};
+    }
+
+    const auto obb = fNode->objectBoundingBox(*this);
+    return {{obb.x(), obb.y()}, {obb.width(), obb.height()}};
+}
+
 SkRect SkSVGRenderContext::resolveOBBRect(const SkSVGLength& x, const SkSVGLength& y,
                                           const SkSVGLength& w, const SkSVGLength& h,
                                           SkSVGObjectBoundingBoxUnits obbu) const {
