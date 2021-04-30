@@ -32,6 +32,7 @@
 
 <h2> Paragraph </h2>
 <canvas id=para1 width=600 height=600></canvas>
+<canvas id=para2 width=600 height=600></canvas>
 
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
 <canvas id=skp width=500 height=500></canvas>
@@ -141,6 +142,7 @@
 
   Promise.all([ckLoaded, loadFont]).then((results) => {
     ParagraphAPI1(...results);
+    ParagraphAPI2(...results);
     GlyphGame(...results)
   });
   Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
@@ -302,6 +304,147 @@
     document.getElementById('para1').addEventListener('pointermove', interact);
     return surface;
   }
+
+    function MakeCursor(CanvasKit) {
+        const cursorPaint = new CanvasKit.Paint();
+        cursorPaint.setColor([0,0,1,1]);
+        cursorPaint.setStyle(CanvasKit.PaintStyle.Stroke);
+        cursorPaint.setStrokeWidth(2);
+        cursorPaint.setAntiAlias(true);
+
+        return {
+            _paint: cursorPaint,    // wrap in weak-ref so we can delete it?
+            _x: 0,
+            _top: 0,
+            _bottom: 0,
+            _draws_per_sec: 2,
+
+            // pass 0 for no-draw, pass inf. for always on
+            setBlinkRate: function(blinks_per_sec) {
+                this._draws_per_sec = blinks_per_sec;
+            },
+            place: function(x, y, fontMetrics) {
+                this._x = x;
+                this._top = y + fontMetrics.ascent;
+                this._bottom = y + fontMetrics.descent;
+            },
+            draw: function(canvas) {
+                if (Math.floor(Date.now() * this._draws_per_sec / 1000) & 1) {
+                    canvas.drawLine(this._x, this._top, this._x, this._bottom, this._paint);
+                }
+            },
+        };
+    }
+
+    function ParagraphAPI2(CanvasKit, fontData) {
+      if (!CanvasKit || !fontData) {
+        return;
+      }
+
+      const surface = CanvasKit.MakeCanvasSurface('para2');
+      if (!surface) {
+        console.error('Could not make surface');
+        return;
+      }
+
+      const cursor = MakeCursor(CanvasKit);
+      const canvas = surface.getCanvas();
+      const fontMgr = CanvasKit.FontMgr.FromData([fontData]);
+
+      const paraStyle = new CanvasKit.ParagraphStyle({
+          textStyle: {
+              color: CanvasKit.GRAY,
+              fontFamilies: ['Roboto'],
+              fontSize: 40,
+          },
+          textAlign: CanvasKit.TextAlign.Left,
+      });
+
+      const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+      const text =  "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
+                    "wet hole full of worms and oozy smells. This was a hobbit-hole and " +
+                    "that means good food, a warm hearth, and all the comforts of home.";
+      builder.addText(text);
+      const paragraph = builder.build();
+      paragraph.layout(600);
+
+      const tf = fontMgr.MakeTypefaceFromData(fontData);
+      const font = new CanvasKit.Font(tf, 40);
+      const fm = font.getMetrics();
+      const fontPaint = new CanvasKit.Paint();
+      fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+      fontPaint.setAntiAlias(true);
+
+      function mid(a, b) { return (a + b) * 0.5; }
+
+      function pos_to_index(x, y) {
+          for (const r of runs) {
+              if (y >= r.positions[1] + fm.ascent &&
+                  y <= r.positions[1] + fm.descent) {
+                  for (let i = 1; i < r.offsets.length; i += 1) {
+                      if (x < r.positions[i*2]) {
+                          if (x <= mid(r.positions[i*2-2], r.positions[i*2])) {
+                              return r.offsets[i-1];
+                          } else {
+                              return r.offsets[i];
+                          }
+                      }
+                  }
+                  return r.offsets[r.offsets.length-1];
+              }
+          }
+          return null;
+      }
+
+      function index_to_pos(runs, index) {
+          for (const r of runs) {
+              const last = r.offsets[r.offsets.length-1];
+              if (index <= last) {
+                  for (const i in r.offsets) {
+                      if (index == r.offsets[i]) {
+                          return r.positions.slice(i*2, i*2+2);
+                      }
+                  }
+              }
+          }
+          return null;
+      }
+
+      let INDEX = 30;
+      let runs;
+
+      function drawFrame(canvas) {
+        canvas.clear(CanvasKit.WHITE);
+        canvas.drawParagraph(paragraph, 0, 0);
+        if (!runs) {
+            runs = paragraph.getShapedRuns();
+        }
+
+        const pos = index_to_pos(runs, INDEX);
+        cursor.place(pos[0], pos[1], fm);
+        cursor.draw(canvas);
+        surface.requestAnimationFrame(drawFrame);
+      }
+      surface.requestAnimationFrame(drawFrame);
+
+      function interact(e) {
+        const type = e.type;
+        let eventPos = [e.offsetX, e.offsetY];
+        if (type === 'lostpointercapture' || type === 'pointerup' || type == 'pointerleave') {
+            INDEX = pos_to_index(e.offsetX, e.offsetY);
+            surface.requestAnimationFrame(drawFrame);
+        } else if (type === 'pointermove') {
+        } else if (type === 'pointerdown') {
+        }
+      };
+
+      document.getElementById('para2').addEventListener('pointermove', interact);
+      document.getElementById('para2').addEventListener('pointerdown', interact);
+//      document.getElementById('para2').addEventListener('lostpointercapture', interact);
+//      document.getElementById('para2').addEventListener('pointerleave', interact);
+      document.getElementById('para2').addEventListener('pointerup', interact);
+      return surface;
+    }
 
   function RTShaderAPI1(CanvasKit) {
     if (!CanvasKit) {
