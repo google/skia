@@ -1009,9 +1009,12 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
     AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashOp::kAAModeCnt));
+    GrColor color = GrRandomColor(d->fRandom);
+    SkMatrix matrix = GrTest::TestMatrix(d->fRandom);
     return DashingCircleEffect::Make(d->allocator(),
-                                     SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
-                                     aaMode, GrTest::TestMatrix(d->fRandom),
+                                     SkPMColor4f::FromBytes_RGBA(color),
+                                     aaMode,
+                                     matrix,
                                      d->fRandom->nextBool());
 }
 #endif
@@ -1245,9 +1248,12 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {
     AAMode aaMode = static_cast<AAMode>(d->fRandom->nextULessThan(GrDashOp::kAAModeCnt));
+    GrColor color = GrRandomColor(d->fRandom);
+    SkMatrix matrix = GrTest::TestMatrix(d->fRandom);
     return DashingLineEffect::Make(d->allocator(),
-                                   SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
-                                   aaMode, GrTest::TestMatrix(d->fRandom),
+                                   SkPMColor4f::FromBytes_RGBA(color),
+                                   aaMode,
+                                   matrix,
                                    d->fRandom->nextBool());
 }
 
