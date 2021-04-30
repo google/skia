@@ -22,7 +22,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"

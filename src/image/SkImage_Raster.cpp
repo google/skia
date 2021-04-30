@@ -20,7 +20,6 @@
 #include "src/shaders/SkBitmapProcShader.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
@@ -422,9 +421,11 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         if (policy != GrImageTexGenPolicy::kDraw) {
             return {CopyView(rContext, fPinnedView, mipmapped, policy), fPinnedColorType};
         }
-        GrColorInfo colorInfo(fPinnedColorType, this->alphaType(), this->refColorSpace());
-        GrTextureAdjuster adjuster(rContext, fPinnedView, colorInfo, fPinnedUniqueID);
-        return {adjuster.view(mipmapped), adjuster.colorType()};
+        if (mipmapped == GrMipmapped::kYes) {
+            auto view = FindOrMakeCachedMipmappedView(rContext, fPinnedView, fPinnedUniqueID);
+            return {std::move(view), fPinnedColorType};
+        }
+        return {fPinnedView, fPinnedColorType};
     }
     if (policy == GrImageTexGenPolicy::kDraw) {
         return GrMakeCachedBitmapProxyView(rContext, fBitmap, mipmapped);
