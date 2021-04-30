@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4505533_7286d724",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-30T13:45:50Z",
+      "side": 1,
+      "message": "I wrote up my API thoughts and performance thoughts + questions in the CL description, so it\u0027s worth a read. I need to add release notes once we have finalized the API names, too.\n\nCCing @mtklein since we discussed the simd code, and after our discussion I was able to rewrite things to avoid the horizontal min/maxes.",
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9938d7f_b6e4e89a",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-30T13:45:50Z",
+      "side": 1,
+      "message": "Without this, the PathEdgeIter doesn\u0027t report the first contour as a new contour, so the path clipper would insert a spurious moveTo(0,0) while building the clipped path. During rendering of filled clipped-paths, that extra line is degenerate and doesn\u0027t show up, but it does change the bounds reported by path.getBounds().\n\nI ran into it while trying to use path.getBounds() as the ground truth for mapRect. @reed, does this fix seem reasonable to you since you wrote the edge iter and path clipping?",
+      "range": {
+        "startLine": 486,
+        "startChar": 20,
+        "endLine": 486,
+        "endChar": 45
+      },
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15088d22_b9b55b47",
+        "filename": "tests/M44Test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-04-30T13:45:50Z",
+      "side": 1,
+      "message": "In this case, the clipped path\u0027s bounds had a bottom edge of 12003.3 and mapRect computed a bottom edge of 12004.01.",
+      "range": {
+        "startLine": 358,
+        "startChar": 57,
+        "endLine": 358,
+        "endChar": 61
+      },
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
