@@ -95,10 +95,15 @@ SkString GrArithmeticProcessor::onDumpInfo() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::TestCreate(GrProcessorTestData* d) {
-    return GrArithmeticProcessor::Make(
-            GrProcessorUnitTest::MakeChildFP(d),
-            GrProcessorUnitTest::MakeChildFP(d),
-            {d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF()},
-            d->fRandom->nextBool());
+    SkV4 k;
+    k.x = d->fRandom->nextF();
+    k.y = d->fRandom->nextF();
+    k.z = d->fRandom->nextF();
+    k.w = d->fRandom->nextF();
+    bool enforcePMColor = d->fRandom->nextBool();
+    return GrArithmeticProcessor::Make(GrProcessorUnitTest::MakeChildFP(d),
+                                       GrProcessorUnitTest::MakeChildFP(d),
+                                       k,
+                                       enforcePMColor);
 }
 #endif

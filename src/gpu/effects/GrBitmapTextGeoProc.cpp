@@ -231,10 +231,14 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
             break;
     }
 
+    GrColor color = GrRandomColor(d->fRandom);
+    bool wideColor = d->fRandom->nextBool();
+    SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
+    bool usesW = d->fRandom->nextBool();
     return GrBitmapTextGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(),
-                                     SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
-                                     d->fRandom->nextBool(),
+                                     SkPMColor4f::FromBytes_RGBA(color),
+                                     wideColor,
                                      &view, 1, samplerState, format,
-                                     GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
+                                     localMatrix, usesW);
 }
 #endif
