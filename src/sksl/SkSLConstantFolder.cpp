@@ -409,9 +409,9 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // precision to calculate the results and hope the result makes sense.
     // TODO(skia:10932): detect and handle integer overflow properly.
     using SKSL_UINT = uint64_t;
-    #define RESULT(t, op) t ## Literal::Make(context, offset, leftVal op rightVal)
-    #define URESULT(t, op) t ## Literal::Make(context, offset, (SKSL_UINT) leftVal op \
-                                                               (SKSL_UINT) rightVal)
+    #define RESULT(t, op)   t ## Literal::Make(offset, leftVal op rightVal, &resultType)
+    #define URESULT(t, op)  t ## Literal::Make(offset, (SKSL_UINT)(leftVal) op \
+                                                       (SKSL_UINT)(rightVal), &resultType)
     if (left->is<IntLiteral>() && right->is<IntLiteral>()) {
         SKSL_INT leftVal  = left->as<IntLiteral>().value();
         SKSL_INT rightVal = right->as<IntLiteral>().value();
