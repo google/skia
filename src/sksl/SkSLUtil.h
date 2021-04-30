@@ -164,6 +164,11 @@ public:
         return fIntegerSupport;
     }
 
+    bool fNonsquareMatrixSupport = false;
+    bool nonsquareMatrixSupport() const {
+        return fNonsquareMatrixSupport;
+    }
+
     bool fBuiltinFMASupport = false;
     bool builtinFMASupport() const {
         return fBuiltinFMASupport;
