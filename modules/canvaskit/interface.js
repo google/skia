@@ -44,6 +44,11 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.ColorSpace.DISPLAY_P3 = CanvasKit.ColorSpace._MakeDisplayP3();
   CanvasKit.ColorSpace.ADOBE_RGB = CanvasKit.ColorSpace._MakeAdobeRGB();
 
+  // Use quotes to tell closure compiler not to minify the names
+  CanvasKit['GlyphRunFlags'] = {
+    'IsWhiteSpace': CanvasKit['_GlyphRunFlags_isWhiteSpace'],
+  };
+
   CanvasKit.Path.MakeFromCmds = function(cmds) {
     var ptrLen = loadCmdsTypedArray(cmds);
     var path = CanvasKit.Path._MakeFromCmds(ptrLen[0], ptrLen[1]);

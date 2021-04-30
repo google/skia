@@ -512,7 +512,7 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     const l = p.getWordBoundary(10); // $ExpectType URange
     p.layout(300);
     const m = p.getLineMetrics(); // $ExpectType LineMetrics[]
-    const n = CK.WhiteSpace_GlyphRunFlag === 1;
+    const n = CK.GlyphRunFlags.IsWhiteSpace === 1;
 }
 
 function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) {

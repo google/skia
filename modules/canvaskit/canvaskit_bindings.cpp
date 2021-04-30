@@ -2039,5 +2039,5 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("ShadowGeometricOnly", (int)SkShadowFlags::kGeometricOnly_ShadowFlag);
     constant("ShadowDirectionalLight", (int)SkShadowFlags::kDirectionalLight_ShadowFlag);
 
-    constant("WhiteSpace_GlyphRunFlag", (int)skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
+    constant("_GlyphRunFlags_isWhiteSpace", (int)skia::textlayout::Paragraph::kWhiteSpace_VisitorFlag);
 }
