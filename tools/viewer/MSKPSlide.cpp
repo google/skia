@@ -31,6 +31,7 @@ void MSKPSlide::draw(SkCanvas* canvas) {
         return;
     }
     ImGui::Begin("MSKP");
+
     ImGui::BeginGroup();
     // Play/Pause button
     if (ImGui::Button(fPaused ? "Play " : "Pause")) {
@@ -69,10 +70,41 @@ void MSKPSlide::draw(SkCanvas* canvas) {
         fFrame = (fFrame + 1)%fPlayer->numFrames();
     }
     ImGui::PopButtonRepeat();
-
-    fPlayer->playFrame(canvas, fFrame);
     ImGui::EndGroup();
+
+    ImGui::BeginGroup();
+    ImGui::Checkbox("Show Frame Bounds", &fShowFrameBounds);
+    ImGui::SetNextItemWidth(200);
+    ImGui::ColorPicker4("background", fBackgroundColor, ImGuiColorEditFlags_AlphaBar);
+    // ImGui lets user enter out of range values by typing.
+    for (float& component : fBackgroundColor) {
+        component = SkTPin(component, 0.f, 1.f);
+    }
+    ImGui::EndGroup();
+
     ImGui::End();
+
+    auto bounds = SkIRect::MakeSize(fPlayer->frameDimensions(fFrame));
+
+    if (fShowFrameBounds) {
+        SkPaint boundsPaint;
+        boundsPaint.setStyle(SkPaint::kStroke_Style);
+        boundsPaint.setColor(SK_ColorRED);
+        boundsPaint.setStrokeWidth(0.f);
+        boundsPaint.setAntiAlias(true);
+        // Outset so that at default scale we draw at pixel centers of the rows/cols surrounding the
+        // bounds.
+        canvas->drawRect(SkRect::Make(bounds).makeOutset(0.5f, 0.5f), boundsPaint);
+    }
+
+    canvas->save();
+    canvas->clipIRect(bounds);
+    canvas->clear(SkColor4f{fBackgroundColor[0],
+                            fBackgroundColor[1],
+                            fBackgroundColor[2],
+                            fBackgroundColor[3]});
+    fPlayer->playFrame(canvas, fFrame);
+    canvas->restore();
 }
 
 bool MSKPSlide::animate(double nanos) {
