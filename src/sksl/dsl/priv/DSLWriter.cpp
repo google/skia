@@ -222,10 +222,6 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                        std::move(skslvar),
                                                                        var.fInitialValue.release());
-        if (var.fStorage == Variable::Storage::kGlobal) {
-            DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
-                                                                      std::move(var.fDeclaration)));
-        }
     }
     return *var.fVar;
 }

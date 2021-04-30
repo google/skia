@@ -75,8 +75,25 @@ public:
         if (var.fDeclared) {
             DSLWriter::ReportError("error: variable has already been declared\n", &pos);
         }
+        if (var.fStorage == SkSL::Variable::Storage::kGlobal) {
+            DSLWriter::ReportError("error: this variable must be declared with DeclareGlobal\n",
+                                   &pos);
+        }
         var.fDeclared = true;
         return DSLWriter::Declaration(var);
+    }
+
+    static void DeclareGlobal(DSLVar& var, PositionInfo pos) {
+        if (var.fDeclared) {
+            DSLWriter::ReportError("error: variable has already been declared\n", &pos);
+        }
+        var.fDeclared = true;
+        var.fStorage = SkSL::Variable::Storage::kGlobal;
+        std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
+        if (stmt) {
+            DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
+                    std::move(stmt)));
+        }
     }
 
     static DSLStatement Discard() {
@@ -189,6 +206,10 @@ DSLStatement Continue() {
 
 DSLStatement Declare(DSLVar& var, PositionInfo pos) {
     return DSLCore::Declare(var, pos);
+}
+
+void DeclareGlobal(DSLVar& var, PositionInfo pos) {
+    return DSLCore::DeclareGlobal(var, pos);
 }
 
 DSLStatement Discard() {

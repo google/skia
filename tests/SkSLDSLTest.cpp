@@ -1089,6 +1089,23 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
         ExpectError error(r, "error: variable has already been declared\n");
         Declare(d).release();
     }
+
+    {
+        Var e(kUniform_Modifier, kInt_Type, "e");
+        ExpectError error(r, "error: this variable must be declared with DeclareGlobal\n");
+        Declare(e).release();
+    }
+}
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    Var x(kInt_Type, "x", 0);
+    DeclareGlobal(x);
+    Var y(kUniform_Modifier, kFloat2_Type, "y");
+    DeclareGlobal(y);
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "int x = 0;");
+    EXPECT_EQUAL(*DSLWriter::ProgramElements()[1], "uniform float2 y;");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDiscard, r, ctxInfo) {
@@ -1550,6 +1567,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
 
     Var v8(kUniform_Modifier, kInt_Type, "v8");
     REPORTER_ASSERT(r, DSLWriter::Var(v8).modifiers().fFlags == SkSL::Modifiers::kUniform_Flag);
+    DSLWriter::MarkDeclared(v8);
     // Uniforms do not need to be explicitly declared
 }
 

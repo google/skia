@@ -42,7 +42,8 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
 
     using namespace SkSL::dsl;
     StartFragmentProcessor(this, &args);
-    Var edgeArray(kUniform_Modifier, Array(kHalf3_Type, cpe.getEdgeCount()));
+    Var edgeArray(kUniform_Modifier, Array(kHalf3_Type, cpe.getEdgeCount()), "edgeArray");
+    DeclareGlobal(edgeArray);
     fEdgeUniform = VarUniformHandle(edgeArray);
     Var alpha(kHalf_Type, "alpha", 1);
     Declare(alpha);
