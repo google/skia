@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a52ad0b_d35a6c2b",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T17:19:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42afee9e_fa341c3b",
+      "range": {
+        "startLine": 417,
+        "startChar": 33,
+        "endLine": 417,
+        "endChar": 52
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "84cad6a6_e0cc89db",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-30T15:58:17Z",
       "side": 1,
       "message": "This doesn\u0027t appear to be true",
+      "range": {
+        "startLine": 187,
+        "startChar": 7,
+        "endLine": 187,
+        "endChar": 39
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fd76d3c_3fc76100",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T17:19:37Z",
+      "side": 1,
+      "message": "Oh, yeah, changed my mind but not the comment. Done.",
+      "parentUuid": "84cad6a6_e0cc89db",
       "range": {
         "startLine": 187,
         "startChar": 7,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d0961cb_525cea58",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T17:19:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb67161e_6684e720",
+      "range": {
+        "startLine": 188,
+        "startChar": 34,
+        "endLine": 188,
+        "endChar": 45
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c718b763_dbabc755",
@@ -93,6 +165,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89f60bf3_65b8f1fc",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T17:19:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c718b763_dbabc755",
+      "range": {
+        "startLine": 827,
+        "startChar": 28,
+        "endLine": 827,
+        "endChar": 44
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d985323_5741719d",
@@ -106,6 +202,30 @@
       "writtenOn": "2021-04-30T15:58:17Z",
       "side": 1,
       "message": "std::move ?",
+      "range": {
+        "startLine": 842,
+        "startChar": 54,
+        "endLine": 842,
+        "endChar": 58
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b38143dd_634a9622",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T17:19:37Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "7d985323_5741719d",
       "range": {
         "startLine": 842,
         "startChar": 54,
