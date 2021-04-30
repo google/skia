@@ -266,6 +266,7 @@
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
+  "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DMSAAStats",
   "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM",
   "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL1",
   "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL2",
