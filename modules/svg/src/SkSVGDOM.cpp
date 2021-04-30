@@ -437,7 +437,7 @@ void SkSVGDOM::render(SkCanvas* canvas) const {
         SkSVGLengthContext       lctx(fContainerSize);
         SkSVGPresentationContext pctx;
         fRoot->render(SkSVGRenderContext(canvas, fFontMgr, fResourceProvider, fIDMapper, lctx, pctx,
-                                         nullptr));
+                                         {nullptr, nullptr}));
     }
 }
 
