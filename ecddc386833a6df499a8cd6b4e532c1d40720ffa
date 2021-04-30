@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a83b61df_71b4f0df",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T18:22:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a159eac8_2c3bf536",
+      "revId": "ecddc386833a6df499a8cd6b4e532c1d40720ffa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd910d2b_52ae744f",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-04-30T17:39:40Z",
       "side": 1,
       "message": "Nit: can you clarify this comment slightly? Something like \"preserve the OBB scope because some paints use object bounding box coords (like gradient stops), which requires access to the render context and node being rendered\". It\u0027s a little verbose or redundant but might help clarify.",
+      "revId": "ecddc386833a6df499a8cd6b4e532c1d40720ffa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89523e90_cd412c7c",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T18:22:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd910d2b_52ae744f",
       "revId": "ecddc386833a6df499a8cd6b4e532c1d40720ffa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
