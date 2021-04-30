@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e9ac3b4_5337fd86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-30T10:58:29Z",
+      "side": 1,
+      "message": "Thanks for putting this together Herb. Merge at will, comments are optional.",
+      "revId": "eda4059f076f08a8b4780ef60592a8ce4a6a7e7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d2026ed_30ee8570",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-30T10:58:29Z",
+      "side": 1,
+      "message": "[Both methods] Let\u0027s return early once we find the target – we don\u0027t allow duplicate dependencies.",
+      "revId": "eda4059f076f08a8b4780ef60592a8ce4a6a7e7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "277bcfe0_bf872cd3",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-04-30T10:58:29Z",
+      "side": 1,
+      "message": "[Both methods] We should avoid adding duplicates in `replaceWith`. Maybe check if we found the target, set a flag and break, then iterate through replaceWith\u0027s dependencies and only add if `this` isn\u0027t found.",
+      "revId": "eda4059f076f08a8b4780ef60592a8ce4a6a7e7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
