@@ -35,6 +35,70 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "67d45a26_d91d98e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T14:57:47Z",
+      "side": 1,
+      "message": "Agreed, mostly for mapRect. The factories seem ok to me in that they can be very well defined and less likely to change. mapRect() could evolve to take the extra dimension\u0027s value or maybe even the orthogonal axis or plane.",
+      "parentUuid": "1720cb85_f39f1591",
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "489877d6_b470cacb",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T14:57:47Z",
+      "side": 1,
+      "message": "I wonder if these would be more obvious if they were named UniformScale... or IsoScale...\n\nAlso maybe \"Cover\" instead of \"Fill\"? If I saw IsoScaleToCover I think I\u0027d know what to expect whereas ScaleToFill reads like it should do what RectToRect does.\n\nComment nit: it\u0027s not really the smallest or largest axis of dst, but rather the axis with the largest/smallest ratio of src and dst extents, right?",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 67
+      },
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fef1448e_809a49cb",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T14:57:47Z",
+      "side": 1,
+      "message": "Seems like we should note the assumed z value here.",
+      "range": {
+        "startLine": 391,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 36
+      },
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9938d7f_b6e4e89a",
