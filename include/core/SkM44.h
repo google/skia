@@ -9,6 +9,7 @@
 #define SkM44_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 
 struct SK_API SkV2 {
@@ -225,6 +226,16 @@ public:
         return m;
     }
 
+    // Scales and translates 'src' to fill 'dst' exactly.
+    static SkM44 RectToRect(const SkRect& src, const SkRect& dst);
+    // Maps the center of 'src' to the center of 'dst' and scales it to fill 'dst' while preserving
+    // 'src's aspect ratio. The scale factor is chosen so that 'src' fills 'dst's smallest axis,
+    // meaning dst might not be fully covered, but all of 'src' maps to within 'dst'.
+    static SkM44 ScaleToFit(const SkRect& src, const SkRect& dst);
+    // Like ScaleToFit, but 'src' is scaled to fill 'dst's largest axis instead, meaning all of
+    // dst is fully covered but not all of 'src' maps to within 'dst'.
+    static SkM44 ScaleToFill(const SkRect& src, const SkRect& dst);
+
     static SkM44 LookAt(const SkV3& eye, const SkV3& center, const SkV3& up);
     static SkM44 Perspective(float near, float far, float angle);
 
@@ -376,6 +387,11 @@ public:
         auto v4 = this->map(v.x, v.y, v.z, 0);
         return {v4.x, v4.y, v4.z};
     }
+
+    // Map the four corners of 'r' and return the bounding box of those points. If the matrix
+    // has perspective, the returned rectangle will be the bounding box of the projected points
+    // after being clipped to w > 0.
+    SkRect mapRect(const SkRect& r) const;
 
     ////////////////////// Converting to/from SkMatrix
 
