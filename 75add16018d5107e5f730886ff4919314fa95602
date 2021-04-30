@@ -127,6 +127,30 @@
       },
       "revId": "75add16018d5107e5f730886ff4919314fa95602",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3135b76d_889eff57",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-30T15:01:48Z",
+      "side": 1,
+      "message": "Ah, so this is equivalent to:\n\nCavnasKit.GlyphRunFlags.IsWhiteSpace \u003d CanvasKit._isWhiteSpace;\n\nGotcha. Let\u0027s just add a comment to explain why we think we want the [\u0027...\u0027] syntax right now.",
+      "parentUuid": "b72e2831_1ba14960",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 26
+      },
+      "revId": "75add16018d5107e5f730886ff4919314fa95602",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
