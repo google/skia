@@ -125,10 +125,11 @@ SkString GrAARectEffect::onDumpInfo() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAARectEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::TestCreate(GrProcessorTestData* d) {
-    SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
-                                   d->fRandom->nextSScalar1(),
-                                   d->fRandom->nextSScalar1(),
-                                   d->fRandom->nextSScalar1());
+    SkScalar l = d->fRandom->nextSScalar1();
+    SkScalar t = d->fRandom->nextSScalar1();
+    SkScalar r = d->fRandom->nextSScalar1();
+    SkScalar b = d->fRandom->nextSScalar1();
+    SkRect rect = SkRect::MakeLTRB(l, t, r, b);
     rect.sort();
     GrClipEdgeType edgeType =
             static_cast<GrClipEdgeType>(d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));

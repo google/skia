@@ -48,8 +48,9 @@ half4 main(float2 coord) {
     GrTest::TestAsFPArgs asFPArgs(d);
     do {
         GrGradientShader::RandomParams params(d->fRandom);
-        SkPoint center = {d->fRandom->nextRangeScalar(0.0f, scale),
-                          d->fRandom->nextRangeScalar(0.0f, scale)};
+        SkPoint center;
+        center.fX = d->fRandom->nextRangeScalar(0.0f, scale);
+        center.fY = d->fRandom->nextRangeScalar(0.0f, scale);
         SkScalar radius = d->fRandom->nextRangeScalar(0.0f, scale);
         sk_sp<SkShader> shader = params.fUseColors4f
                          ? SkGradientShader::MakeRadial(center, radius, params.fColors4f,
