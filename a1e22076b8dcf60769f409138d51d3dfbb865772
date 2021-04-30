@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f7dddfb_e6815bbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-30T11:35:39Z",
+      "side": 1,
+      "message": "In c, this technique is efficient (making a new matrix, and then calling concat.\n\nIn java, we\u0027re having to make a new object, and then let the GC clean it up. Certainly fine for now, but if we really like these helpers, we might inline them explicitly to avoid the allocs.",
+      "revId": "a1e22076b8dcf60769f409138d51d3dfbb865772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca3c3be3_eeedbcca",
