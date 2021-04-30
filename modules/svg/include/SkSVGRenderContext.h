@@ -9,6 +9,7 @@
 #define SkSVGRenderContext_DEFINED
 
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
@@ -122,9 +123,6 @@ public:
     // The local computed clip path (not inherited).
     const SkPath* clipPath() const { return fClipPath.getMaybeNull(); }
 
-    // The node being rendered (may be null).
-    const SkSVGNode* node() const { return fNode; }
-
     const sk_sp<skresources::ResourceProvider>& resourceProvider() const {
         return fResourceProvider;
     }
@@ -132,6 +130,11 @@ public:
     sk_sp<SkFontMgr> fontMgr() const {
         return fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
     }
+
+    struct OBBTransform {
+        SkV2 offset, scale;
+    };
+    OBBTransform obbTransform(SkSVGObjectBoundingBoxUnits) const;
 
     SkRect resolveOBBRect(const SkSVGLength& x, const SkSVGLength& y,
                           const SkSVGLength& w, const SkSVGLength& h,
