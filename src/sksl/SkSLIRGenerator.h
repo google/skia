@@ -142,6 +142,12 @@ public:
     void pushSymbolTable();
     void popSymbolTable();
 
+    static void CheckModifiers(ErrorReporter& errorReporter,
+                               int offset,
+                               const Modifiers& modifiers,
+                               int permittedModifierFlags,
+                               int permittedLayoutFlags);
+
     const Context& fContext;
 
 private:
