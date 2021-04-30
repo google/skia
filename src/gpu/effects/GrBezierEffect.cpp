@@ -207,10 +207,16 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
+    GrColor color = GrRandomColor(d->fRandom);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
+    bool usesLocalCoords = d->fRandom->nextBool();
     return GrConicEffect::Make(d->allocator(),
-                               SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
-                               GrTest::TestMatrix(d->fRandom), *d->caps(),
-                               GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
+                               SkPMColor4f::FromBytes_RGBA(color),
+                               viewMatrix,
+                               *d->caps(),
+                               localMatrix,
+                               usesLocalCoords);
 }
 #endif
 
@@ -377,9 +383,15 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
+    GrColor color = GrRandomColor(d->fRandom);
+    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
+    bool usesLocalCoords = d->fRandom->nextBool();
     return GrQuadEffect::Make(d->allocator(),
-                              SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
-                              GrTest::TestMatrix(d->fRandom), *d->caps(),
-                              GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
+                              SkPMColor4f::FromBytes_RGBA(color),
+                              viewMatrix,
+                              *d->caps(),
+                              localMatrix,
+                              usesLocalCoords);
 }
 #endif
