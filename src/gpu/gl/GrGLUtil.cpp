@@ -361,6 +361,9 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                 if (adrenoNumber == 615) {
                     return kAdreno615_GrGLRenderer;
                 }
+                if (adrenoNumber == 620) {
+                    return kAdreno620_GrGLRenderer;
+                }
                 if (adrenoNumber == 630) {
                     return kAdreno630_GrGLRenderer;
                 }
