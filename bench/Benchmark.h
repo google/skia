@@ -28,6 +28,7 @@
  */
 
 struct GrContextOptions;
+class GrRecordingContext;
 class SkCanvas;
 class SkPaint;
 
@@ -78,6 +79,9 @@ public:
     void draw(int loops, SkCanvas*);
 
     virtual void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) {}
+
+    // Replaces the GrRecordingContext's dmsaaStats() with a single frame of this benchmark.
+    virtual bool getDMSAAStats(GrRecordingContext*) { return false; }
 
     // Count of units (pixels, whatever) being exercised, to scale timing by.
     int getUnits() const { return fUnits; }
