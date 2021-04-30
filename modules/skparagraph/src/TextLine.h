@@ -168,6 +168,7 @@ private:
     bool fTextBlobCachePopulated;
 public:
     std::vector<TextBlobRecord> fTextBlobCache;
+    friend class ParagraphImpl;
 };
 }  // namespace textlayout
 }  // namespace skia
