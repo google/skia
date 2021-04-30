@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca3c3be3_eeedbcca",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T02:15:23Z",
+      "side": 1,
+      "message": "nit: relocate after rotateY",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 5
+      },
+      "revId": "a1e22076b8dcf60769f409138d51d3dfbb865772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
