@@ -55,9 +55,6 @@
 #include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
 
-#include <iostream>
-#include <string>
-
 #include "modules/canvaskit/WasmCommon.h"
 #include <emscripten.h>
 #include <emscripten/bind.h>
