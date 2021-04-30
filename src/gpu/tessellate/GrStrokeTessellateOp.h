@@ -50,7 +50,7 @@ private:
 
     const char* name() const override { return "GrStrokeTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
-    FixedFunctionFlags fixedFunctionFlags() const override;
+    FixedFunctionFlags fixedFunctionFlags() const override { return fFixedFunctionFlags; }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
@@ -67,6 +67,7 @@ private:
 
     const GrAAType fAAType;
     const SkMatrix fViewMatrix;
+    FixedFunctionFlags fFixedFunctionFlags;
     ShaderFlags fShaderFlags = ShaderFlags::kNone;
     PathStrokeList fPathStrokeList;
     PathStrokeList** fPathStrokeTail = &fPathStrokeList.fNext;
