@@ -19,7 +19,6 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrSwizzle.h"
-#include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
 
 class GrAttachment;

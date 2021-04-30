@@ -20,7 +20,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
@@ -316,7 +315,7 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
 
 /**
  * Checks whether the paint is compatible with using GrSurfaceDrawContext::drawTexture. It is more
- * efficient than the GrTextureProducer general case.
+ * efficient than the SkImage general case.
  */
 static bool can_use_draw_texture(const SkPaint& paint, bool useCubicResampler, SkMipmapMode mm) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
