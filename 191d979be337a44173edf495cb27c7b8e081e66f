@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1753b501_7d05a993",
+        "filename": "tools/fm/fm.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T15:18:21Z",
+      "side": 1,
+      "message": "Yeah, that makes sense. Will do.",
+      "parentUuid": "71c8cf3f_53d3a46d",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 89
+      },
+      "revId": "191d979be337a44173edf495cb27c7b8e081e66f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "63ba8225_41e2933d",
         "filename": "tools/fm/fm.cpp",
         "patchSetId": 1
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-30T15:08:53Z",
       "side": 1,
       "message": "Is this maybe something you want in here to cross fm/dm/nanobench?  (I\u0027m happy either way.)",
+      "range": {
+        "startLine": 392,
+        "startChar": 4,
+        "endLine": 392,
+        "endChar": 32
+      },
+      "revId": "191d979be337a44173edf495cb27c7b8e081e66f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a287bd92_07b178f3",
+        "filename": "tools/fm/fm.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-04-30T15:18:21Z",
+      "side": 1,
+      "message": "It\u0027s already in dm and nanobench, but as one of the many parameters to the GPU config.",
+      "parentUuid": "63ba8225_41e2933d",
       "range": {
         "startLine": 392,
         "startChar": 4,
