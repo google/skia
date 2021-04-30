@@ -149,7 +149,7 @@ SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
                                        const SkSVGIDMapper& mapper,
                                        const SkSVGLengthContext& lctx,
                                        const SkSVGPresentationContext& pctx,
-                                       const SkSVGNode* node)
+                                       const OBBScope& obbs)
     : fFontMgr(fmgr)
     , fResourceProvider(rp)
     , fIDMapper(mapper)
@@ -157,7 +157,7 @@ SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
     , fPresentationContext(pctx)
     , fCanvas(canvas)
     , fCanvasSaveCount(canvas->getSaveCount())
-    , fNode(node) {}
+    , fOBBScope(obbs) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
     : SkSVGRenderContext(other.fCanvas,
@@ -166,7 +166,7 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
-                         other.fNode) {}
+                         other.fOBBScope) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas* canvas)
     : SkSVGRenderContext(canvas,
@@ -175,7 +175,7 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
-                         other.fNode) {}
+                         other.fOBBScope) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, const SkSVGNode* node)
     : SkSVGRenderContext(other.fCanvas,
@@ -184,7 +184,7 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, const Sk
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
-                         node) {}
+                         OBBScope{node, this}) {}
 
 SkSVGRenderContext::~SkSVGRenderContext() {
     fCanvas->restoreToCount(fCanvasSaveCount);
@@ -396,6 +396,10 @@ SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selecto
         // hierarchy.  To avoid gross transgressions like leaf node presentation attributes
         // leaking into the paint server context, use a pristine presentation context when
         // following hrefs.
+        //
+        // Preserve the OBB scope because some paints use object bounding box coords
+        // (e.g. gradient control points), which requires access to the render context
+        // and node being rendered.
         SkSVGPresentationContext pctx;
         SkSVGRenderContext local_ctx(fCanvas,
                                      fFontMgr,
@@ -403,7 +407,7 @@ SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selecto
                                      fIDMapper,
                                      *fLengthContext,
                                      pctx,
-                                     fNode);
+                                     fOBBScope);
 
         const auto node = this->findNodeById(paint_selector.iri());
         if (!node || !node->asPaint(local_ctx, p.get())) {
@@ -469,11 +473,12 @@ SkSVGColorType SkSVGRenderContext::resolveSvgColor(const SkSVGColor& color) cons
 
 SkSVGRenderContext::OBBTransform
 SkSVGRenderContext::transformForCurrentOBB(SkSVGObjectBoundingBoxUnits u) const {
-    if (!fNode || u.type() == SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse) {
+    if (!fOBBScope.fNode || u.type() == SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse) {
         return {{0,0},{1,1}};
     }
+    SkASSERT(fOBBScope.fCtx);
 
-    const auto obb = fNode->objectBoundingBox(*this);
+    const auto obb = fOBBScope.fNode->objectBoundingBox(*fOBBScope.fCtx);
     return {{obb.x(), obb.y()}, {obb.width(), obb.height()}};
 }
 

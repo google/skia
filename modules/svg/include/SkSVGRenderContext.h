@@ -57,12 +57,19 @@ struct SkSVGPresentationContext {
 
 class SkSVGRenderContext {
 public:
+    // Captures data required for object bounding box resolution.
+    struct OBBScope {
+        const SkSVGNode*          fNode;
+        const SkSVGRenderContext* fCtx;
+    };
+
     SkSVGRenderContext(SkCanvas*, const sk_sp<SkFontMgr>&,
                        const sk_sp<skresources::ResourceProvider>&, const SkSVGIDMapper&,
                        const SkSVGLengthContext&, const SkSVGPresentationContext&,
-                       const SkSVGNode*);
+                       const OBBScope&);
     SkSVGRenderContext(const SkSVGRenderContext&);
     SkSVGRenderContext(const SkSVGRenderContext&, SkCanvas*);
+    // Establish a new OBB scope.  Normally used when entering a node's render scope.
     SkSVGRenderContext(const SkSVGRenderContext&, const SkSVGNode*);
     ~SkSVGRenderContext();
 
@@ -171,7 +178,8 @@ private:
     // Deferred opacity optimization for leaf nodes.
     float                                         fDeferredPaintOpacity = 1;
 
-    const SkSVGNode* fNode;
+    // Current object bounding box scope.
+    const OBBScope                                fOBBScope;
 };
 
 #endif // SkSVGRenderContext_DEFINED
