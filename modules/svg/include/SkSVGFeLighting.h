@@ -13,6 +13,7 @@
 
 class SkSVGFeDistantLight;
 class SkSVGFePointLight;
+class SkSVGFeSpotLight;
 
 class SkSVGFeLighting : public SkSVGFe {
 public:
@@ -41,6 +42,10 @@ protected:
     virtual sk_sp<SkImageFilter> makePointLight(const SkSVGRenderContext&,
                                                 const SkSVGFilterContext&,
                                                 const SkSVGFePointLight*) const = 0;
+
+    virtual sk_sp<SkImageFilter> makeSpotLight(const SkSVGRenderContext&,
+                                               const SkSVGFilterContext&,
+                                               const SkSVGFeSpotLight*) const = 0;
 
     SkColor resolveLightingColor(const SkSVGRenderContext&) const;
 
@@ -74,6 +79,10 @@ protected:
                                         const SkSVGFilterContext&,
                                         const SkSVGFePointLight*) const final;
 
+    sk_sp<SkImageFilter> makeSpotLight(const SkSVGRenderContext&,
+                                       const SkSVGFilterContext&,
+                                       const SkSVGFeSpotLight*) const final;
+
 private:
     SkSVGFeSpecularLighting() : INHERITED(SkSVGTag::kFeSpecularLighting) {}
 
@@ -98,6 +107,10 @@ protected:
     sk_sp<SkImageFilter> makePointLight(const SkSVGRenderContext&,
                                         const SkSVGFilterContext&,
                                         const SkSVGFePointLight*) const final;
+
+    sk_sp<SkImageFilter> makeSpotLight(const SkSVGRenderContext&,
+                                       const SkSVGFilterContext&,
+                                       const SkSVGFeSpotLight*) const final;
 
 private:
     SkSVGFeDiffuseLighting() : INHERITED(SkSVGTag::kFeDiffuseLighting) {}
