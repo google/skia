@@ -14,15 +14,17 @@
 
 class GrDSLFPTest_SwitchStatement : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make() {
-        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_SwitchStatement());
+    static std::unique_ptr<GrFragmentProcessor> Make(int32_t ten) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDSLFPTest_SwitchStatement(ten));
     }
     GrDSLFPTest_SwitchStatement(const GrDSLFPTest_SwitchStatement& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DSLFPTest_SwitchStatement"; }
+    int32_t ten;
 private:
-    GrDSLFPTest_SwitchStatement()
-    : INHERITED(kGrDSLFPTest_SwitchStatement_ClassID, kNone_OptimizationFlags) {
+    GrDSLFPTest_SwitchStatement(int32_t ten)
+    : INHERITED(kGrDSLFPTest_SwitchStatement_ClassID, kNone_OptimizationFlags)
+    , ten(ten) {
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

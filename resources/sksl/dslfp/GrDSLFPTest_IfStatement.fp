@@ -42,5 +42,9 @@ half4 main() {
         }
     }
 
+    @if (one != 1.0) {
+        color.r = 1;
+    }
+
     return color;
 }

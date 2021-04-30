@@ -40,6 +40,7 @@ If(Swizzle(_color, X, Y) == Swizzle(_color, Z, W), /*Then:*/ Block(_color.x() = 
 If(_color.x() == _color.y(), /*Then:*/ _color = Swizzle(_color, W, X, W, W), /*Else:*/ _color = Swizzle(_color, X, X, X, W));
 If(((_color.x() + _color.y()) + _color.z()) + _color.w() == _one, /*Then:*/ Block(_color = Half4(-1.0f)), /*Else:*/ If(((_color.x() + _color.y()) + _color.z()) + _color.w() == 2.0f, /*Then:*/ Block(_color = Half4(-2.0f)), /*Else:*/ Block(_color = Swizzle(_color, Y, Y, W, W))));
 If(_color.x() == _one, /*Then:*/ Block(If(_color.x() == 2.0f, /*Then:*/ Block(_color = Swizzle(_color, X, X, X, X)), /*Else:*/ Block(_color = Swizzle(_color, Y, Y, Y, Y)))), /*Else:*/ Block(If(_color.z() * _color.w() == _one, /*Then:*/ Block(_color = Swizzle(_color, X, Z, Y, W)), /*Else:*/ Block(_color = Swizzle(_color, W, W, W, W)))));
+StaticIf(_one != 1.0f, /*Then:*/ Block(_color.x() = 1.0f));
 Return(_color);
         EndFragmentProcessor();
     }

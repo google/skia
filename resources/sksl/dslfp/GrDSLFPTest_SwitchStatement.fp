@@ -1,3 +1,5 @@
+layout(key) in int ten; // always equals 10
+
 half4 main() {
     int4 color = int4(0);
 
@@ -16,7 +18,7 @@ half4 main() {
         case 0: { color.r = 1; color.b = 1; }
     }
 
-    @switch (10) {
+    @switch (ten) {
         case 0:  color.r = color.g; break;
         case 20: color.b = color.g; break;
         case 10: color.a = color.g; break;
