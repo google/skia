@@ -62,6 +62,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     using namespace SkSL::dsl;
     StartFragmentProcessor(this, &args);
     Var increment(kUniform_Modifier, kHalf2_Type, "Increment");
+    DeclareGlobal(increment);
     fIncrementUni = VarUniformHandle(increment);
 
     int width = SkGpuBlurUtils::LinearKernelWidth(ce.fRadius);
@@ -78,10 +79,12 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     }
 
     Var kernel(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Kernel");
+    DeclareGlobal(kernel);
     fKernelUni = VarUniformHandle(kernel);
 
 
     Var offsets(kUniform_Modifier, Array(kHalf4_Type, arrayCount), "Offsets");
+    DeclareGlobal(offsets);
     fOffsetsUni = VarUniformHandle(offsets);
 
     Var color(kHalf4_Type, "color", Half4(0));
@@ -106,6 +109,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
         }
         case LoopType::kVariableLength: {
             Var kernelWidth(kUniform_Modifier, kInt_Type, "kernelWidth");
+            DeclareGlobal(kernelWidth);
             fKernelWidthUni = VarUniformHandle(kernelWidth);
             Var i(kInt_Type, "i", 0);
             For(Declare(i), i < kernelWidth, i++,

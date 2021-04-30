@@ -911,6 +911,7 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
                  (int)var.name().size(), var.name().data(), this->getVariableCppName(var));
 
     if (var.modifiers().fLayout.fWhen.fLength) {
+        this->writef("    DeclareGlobal(%s);\n", varCppName);
         // In cases where the `when` is false, we declare the Var as a const with a default value.
         this->writef("} else {\n"
                      "    Var(kConst_Modifier, %s, \"%.*s\", %s).swap(%s);\n"
@@ -920,6 +921,8 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
                      (int)var.name().size(), var.name().data(),
                      this->getDefaultDSLValue(var).c_str(),
                      varCppName, varCppName);
+    } else {
+        this->writef("DeclareGlobal(%s);\n", varCppName);
     }
 }
 

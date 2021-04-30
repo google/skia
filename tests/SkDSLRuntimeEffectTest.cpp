@@ -127,6 +127,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     {
         effect.start();
         Var gColor(kUniform_Modifier, kFloat4_Type);
+        DeclareGlobal(gColor);
         Function(kHalf4_Type, "main").define(
             Return(Half4(gColor))
         );
@@ -141,6 +142,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     {
         effect.start();
         Var gColor(kUniform_Modifier, kInt4_Type);
+        DeclareGlobal(gColor);
         Function(kHalf4_Type, "main").define(
             Return(Half4(gColor) / 255)
         );
@@ -221,6 +223,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     {
         effect.start();
         Var child(kUniform_Modifier, kShader_Type, "child");
+        DeclareGlobal(child);
         Var p2(kFloat2_Type, "p");
         Function(kFloat4_Type, "main", p2).define(
             Return(Sample(child, p2))
