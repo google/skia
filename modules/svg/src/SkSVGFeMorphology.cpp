@@ -26,20 +26,13 @@ sk_sp<SkImageFilter> SkSVGFeMorphology::onMakeImageFilter(const SkSVGRenderConte
     const SkSVGColorspace colorspace = this->resolveColorspace(ctx, fctx);
     sk_sp<SkImageFilter> input = fctx.resolveInput(ctx, this->getIn(), colorspace);
 
-    SkScalar rx = fRadius.fX;
-    SkScalar ry = fRadius.fY;
-    if (fctx.primitiveUnits().type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        rx *= objBounds.width();
-        ry *= objBounds.height();
-    }
-
+    const auto r = SkV2{fRadius.fX, fRadius.fY}
+                 * ctx.transformForCurrentOBB(fctx.primitiveUnits()).scale;
     switch (fOperator) {
         case Operator::kErode:
-            return SkImageFilters::Erode(rx, ry, input, cropRect);
+            return SkImageFilters::Erode(r.x, r.y, input, cropRect);
         case Operator::kDilate:
-            return SkImageFilters::Dilate(rx, ry, input, cropRect);
+            return SkImageFilters::Dilate(r.x, r.y, input, cropRect);
     }
 
     SkUNREACHABLE;

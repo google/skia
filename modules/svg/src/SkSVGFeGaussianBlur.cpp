@@ -20,17 +20,11 @@ bool SkSVGFeGaussianBlur::parseAndSetAttribute(const char* name, const char* val
 
 sk_sp<SkImageFilter> SkSVGFeGaussianBlur::onMakeImageFilter(const SkSVGRenderContext& ctx,
                                                             const SkSVGFilterContext& fctx) const {
-    SkScalar sigmaX = fStdDeviation.fX;
-    SkScalar sigmaY = fStdDeviation.fY;
-    if (fctx.primitiveUnits().type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        sigmaX *= objBounds.width();
-        sigmaY *= objBounds.height();
-    }
+    const auto sigma = SkV2{fStdDeviation.fX, fStdDeviation.fY}
+                     * ctx.transformForCurrentOBB(fctx.primitiveUnits()).scale;
 
     return SkImageFilters::Blur(
-            sigmaX, sigmaY,
+            sigma.x, sigma.y,
             fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx, fctx)),
             this->resolveFilterSubregion(ctx, fctx));
 }

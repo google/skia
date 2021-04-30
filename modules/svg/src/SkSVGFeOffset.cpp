@@ -20,15 +20,10 @@ bool SkSVGFeOffset::parseAndSetAttribute(const char* name, const char* value) {
 
 sk_sp<SkImageFilter> SkSVGFeOffset::onMakeImageFilter(const SkSVGRenderContext& ctx,
                                                       const SkSVGFilterContext& fctx) const {
-    SkScalar dx = this->getDx(), dy = this->getDy();
-    if (fctx.primitiveUnits().type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        dx *= objBounds.width();
-        dy *= objBounds.height();
-    }
+    const auto d = SkV2{this->getDx(), this->getDy()}
+                 * ctx.transformForCurrentOBB(fctx.primitiveUnits()).scale;
 
     sk_sp<SkImageFilter> in =
             fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx, fctx));
-    return SkImageFilters::Offset(dx, dy, std::move(in), this->resolveFilterSubregion(ctx, fctx));
+    return SkImageFilters::Offset(d.x, d.y, std::move(in), this->resolveFilterSubregion(ctx, fctx));
 }

@@ -55,13 +55,9 @@ void SkSVGMask::renderMask(const SkSVGRenderContext& ctx) const {
     // Something to consider if masking performance ever becomes an issue.
     lctx.canvas()->saveLayer(nullptr, &mask_filter);
 
-    if (fMaskContentUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        // Fot maskContentUnits == OBB the mask content is rendered in a normalized coordinate
-        // system, which maps to the node OBB.
-        const auto obb = lctx.node()->objectBoundingBox(ctx);
-        lctx.canvas()->translate(obb.x(), obb.y());
-        lctx.canvas()->scale(obb.width(), obb.height());
-    }
+    const auto obbt = ctx.transformForCurrentOBB(fMaskContentUnits);
+    lctx.canvas()->translate(obbt.offset.x, obbt.offset.y);
+    lctx.canvas()->scale(obbt.scale.x, obbt.scale.y);
 
     for (const auto& child : fChildren) {
         child->render(lctx);

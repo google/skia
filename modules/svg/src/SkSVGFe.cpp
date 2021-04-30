@@ -23,26 +23,7 @@ SkRect SkSVGFe::resolveBoundaries(const SkSVGRenderContext& ctx,
     const auto w = fWidth.isValid() ? *fWidth : SkSVGLength(100, SkSVGLength::Unit::kPercentage);
     const auto h = fHeight.isValid() ? *fHeight : SkSVGLength(100, SkSVGLength::Unit::kPercentage);
 
-    // Resolve the x/y/w/h boundary rect depending on primitiveUnits setting
-    SkRect boundaries;
-    switch (fctx.primitiveUnits().type()) {
-        case SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse:
-            boundaries = ctx.lengthContext().resolveRect(x, y, w, h);
-            break;
-        case SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox: {
-            SkASSERT(ctx.node());
-            const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-            boundaries = SkSVGLengthContext({1, 1}).resolveRect(x, y, w, h);
-            boundaries = SkRect::MakeXYWH(objBounds.fLeft + boundaries.fLeft * objBounds.width(),
-                                          objBounds.fTop + boundaries.fTop * objBounds.height(),
-                                          boundaries.width() * objBounds.width(),
-                                          boundaries.height() * objBounds.height());
-
-            break;
-        }
-    }
-
-    return boundaries;
+    return ctx.resolveOBBRect(x, y, w, h, fctx.primitiveUnits());
 }
 
 static bool AnyIsStandardInput(const SkSVGFilterContext& fctx,
