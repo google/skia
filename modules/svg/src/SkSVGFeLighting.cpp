@@ -45,13 +45,16 @@ sk_sp<SkImageFilter> SkSVGFeLighting::onMakeImageFilter(const SkSVGRenderContext
             case SkSVGTag::kFePointLight:
                 return this->makePointLight(
                         ctx, fctx, static_cast<const SkSVGFePointLight*>(child.get()));
+            case SkSVGTag::kFeSpotLight:
+                return this->makeSpotLight(
+                        ctx, fctx, static_cast<const SkSVGFeSpotLight*>(child.get()));
             default:
                 // Ignore unknown children, such as <desc> elements
                 break;
         }
     }
 
-    SkDebugf("lighting filter effect needs exactly one light source");
+    SkDebugf("lighting filter effect needs exactly one light source\n");
     return nullptr;
 }
 
@@ -115,6 +118,26 @@ sk_sp<SkImageFilter> SkSVGFeSpecularLighting::makePointLight(const SkSVGRenderCo
             this->resolveFilterSubregion(ctx, fctx));
 }
 
+sk_sp<SkImageFilter> SkSVGFeSpecularLighting::makeSpotLight(const SkSVGRenderContext& ctx,
+                                                            const SkSVGFilterContext& fctx,
+                                                            const SkSVGFeSpotLight* light) const {
+    const auto& limitingConeAngle = light->getLimitingConeAngle();
+    const float cutoffAngle = limitingConeAngle.isValid() ? *limitingConeAngle : 180.f;
+
+    return SkImageFilters::SpotLitSpecular(
+            this->resolveXYZ(ctx, fctx, light->getX(), light->getY(), light->getZ()),
+            this->resolveXYZ(
+                    ctx, fctx, light->getPointsAtX(), light->getPointsAtY(), light->getPointsAtZ()),
+            light->getSpecularExponent(),
+            cutoffAngle,
+            this->resolveLightingColor(ctx),
+            this->getSurfaceScale(),
+            fSpecularConstant,
+            fSpecularExponent,
+            fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx, fctx)),
+            this->resolveFilterSubregion(ctx, fctx));
+}
+
 bool SkSVGFeDiffuseLighting::parseAndSetAttribute(const char* n, const char* v) {
     return INHERITED::parseAndSetAttribute(n, v) ||
            this->setDiffuseConstant(
@@ -140,6 +163,25 @@ sk_sp<SkImageFilter> SkSVGFeDiffuseLighting::makePointLight(const SkSVGRenderCon
                                                             const SkSVGFePointLight* light) const {
     return SkImageFilters::PointLitDiffuse(
             this->resolveXYZ(ctx, fctx, light->getX(), light->getY(), light->getZ()),
+            this->resolveLightingColor(ctx),
+            this->getSurfaceScale(),
+            this->getDiffuseConstant(),
+            fctx.resolveInput(ctx, this->getIn(), this->resolveColorspace(ctx, fctx)),
+            this->resolveFilterSubregion(ctx, fctx));
+}
+
+sk_sp<SkImageFilter> SkSVGFeDiffuseLighting::makeSpotLight(const SkSVGRenderContext& ctx,
+                                                           const SkSVGFilterContext& fctx,
+                                                           const SkSVGFeSpotLight* light) const {
+    const auto& limitingConeAngle = light->getLimitingConeAngle();
+    const float cutoffAngle = limitingConeAngle.isValid() ? *limitingConeAngle : 180.f;
+
+    return SkImageFilters::SpotLitDiffuse(
+            this->resolveXYZ(ctx, fctx, light->getX(), light->getY(), light->getZ()),
+            this->resolveXYZ(
+                    ctx, fctx, light->getPointsAtX(), light->getPointsAtY(), light->getPointsAtZ()),
+            light->getSpecularExponent(),
+            cutoffAngle,
             this->resolveLightingColor(ctx),
             this->getSurfaceScale(),
             this->getDiffuseConstant(),
