@@ -26,6 +26,7 @@ public class ViewerApplication extends Application {
     public void onCreate() {
         super.onCreate();
         mNativeHandle = createNativeApp(this.getResources().getAssets());
+        sdfsdfsdf
     }
 
     @Override
