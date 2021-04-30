@@ -226,6 +226,23 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
     return *var.fVar;
 }
 
+std::unique_ptr<SkSL::Variable> DSLWriter::VarUniquePointer(DSLVar& var) {
+    if (var.fVar) {
+        return nullptr;
+    }
+    SkASSERT(var.fStorage == SkSL::VariableStorage::kParameter);
+    std::unique_ptr<SkSL::Variable> skslVar = DSLWriter::IRGenerator().convertVar(
+                                                                      /*offset=*/-1,
+                                                                      var.fModifiers.fModifiers,
+                                                                      &var.fType.skslType(),
+                                                                      var.fName,
+                                                                      /*isArray=*/false,
+                                                                      /*arraySize=*/nullptr,
+                                                                      var.fStorage);
+    var.fVar = skslVar.get();
+    return skslVar;
+}
+
 std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
     Var(var);
     return std::move(var.fDeclaration);

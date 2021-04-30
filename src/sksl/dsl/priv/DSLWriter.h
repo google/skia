@@ -91,6 +91,11 @@ public:
     static const SkSL::Variable& Var(DSLVar& var);
 
     /**
+     * Creates a variable corresponding to a parameter and returns it.
+     */
+    static std::unique_ptr<SkSL::Variable> VarUniquePointer(DSLVar& var);
+
+    /**
      * Returns the SkSL declaration corresponding to a DSLVar.
      */
     static std::unique_ptr<SkSL::Statement> Declaration(DSLVar& var);
