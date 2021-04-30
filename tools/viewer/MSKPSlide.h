@@ -35,6 +35,11 @@ private:
     bool   fPaused        = false;
     double fLastFrameTime = -1;
 
+    bool fShowFrameBounds = false;
+
+    // Default to transparent black, which is correct for Android MSKPS.
+    float fBackgroundColor[4] = {0, 0, 0, 0};
+
     using INHERITED = Slide;
 };
 
