@@ -105,6 +105,11 @@ public:
         return &fContext->fStats;
     }
 
+#if GR_GPU_STATS && GR_TEST_UTILS
+    using DMSAAStats = GrRecordingContext::DMSAAStats;
+    DMSAAStats& dmsaaStats() { return fContext->fDMSAAStats; }
+#endif
+
     GrSDFTControl getSDFTControl(bool useSDFTForSmallText) const;
 
     /**
