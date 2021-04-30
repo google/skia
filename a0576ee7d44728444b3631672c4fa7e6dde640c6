@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42afee9e_fa341c3b",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-30T15:58:17Z",
+      "side": 1,
+      "message": "Maybe FindOrCreateCachedMipmappedView ?",
+      "range": {
+        "startLine": 417,
+        "startChar": 33,
+        "endLine": 417,
+        "endChar": 52
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84cad6a6_e0cc89db",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-30T15:58:17Z",
+      "side": 1,
+      "message": "This doesn\u0027t appear to be true",
+      "range": {
+        "startLine": 187,
+        "startChar": 7,
+        "endLine": 187,
+        "endChar": 39
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb67161e_6684e720",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-30T15:58:17Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 188,
+        "startChar": 34,
+        "endLine": 188,
+        "endChar": 45
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c718b763_dbabc755",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-30T15:58:17Z",
+      "side": 1,
+      "message": "rContext ?",
+      "range": {
+        "startLine": 827,
+        "startChar": 28,
+        "endLine": 827,
+        "endChar": 44
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d985323_5741719d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-04-30T15:58:17Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 842,
+        "startChar": 54,
+        "endLine": 842,
+        "endChar": 58
+      },
+      "revId": "a0576ee7d44728444b3631672c4fa7e6dde640c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
