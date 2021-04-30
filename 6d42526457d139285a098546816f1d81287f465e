@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "445fca28_0802bd09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-04-30T15:42:15Z",
+      "side": 1,
+      "message": "just chatted with florin. am definitely inspired by this api pattern for the JS side...",
+      "revId": "6d42526457d139285a098546816f1d81287f465e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
