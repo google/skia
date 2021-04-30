@@ -83,5 +83,5 @@ DSL_FP_TEST_ES2(DSLFPTest_Ternary, /*primaryColors:*/true,
                                    /*colorPurple:*/  SkPMColor4f{0.5, 0.0, 0.5, 1.0})
 DSL_FP_TEST(DSLFPTest_DoStatement, /*shouldLoop:*/ false)
 DSL_FP_TEST(DSLFPTest_ForStatement, /*colorWhite:*/ SkPMColor4f{1, 1, 1, 1})
-DSL_FP_TEST(DSLFPTest_SwitchStatement)
+DSL_FP_TEST(DSLFPTest_SwitchStatement, /*ten:*/ 10);
 DSL_FP_TEST(DSLFPTest_WhileStatement)

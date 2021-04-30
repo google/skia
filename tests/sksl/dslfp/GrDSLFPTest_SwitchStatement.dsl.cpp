@@ -24,6 +24,9 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
+[[maybe_unused]] const auto& ten = _outer.ten;
+Var _ten(kConst_Modifier, DSLType(kInt_Type), "ten", Int(ten));
+Declare(_ten);
 Var _color(kNo_Modifier, DSLType(kInt4_Type), "color", Int4(0));
 Declare(_color);
 Switch(_color.x(),
@@ -37,7 +40,10 @@ Switch(_color.x(),
 Switch(_color.y(),
     Case(1, Break()),
     Case(0, Block(_color.x() = 1, _color.z() = 1)));
-Block(_color.w() = _color.y());
+StaticSwitch(_ten,
+    Case(0, _color.x() = _color.y(), Break()),
+    Case(20, _color.z() = _color.y(), Break()),
+    Case(10, _color.w() = _color.y(), Break()));
 Return(Half4(_color));
         EndFragmentProcessor();
     }
@@ -49,14 +55,17 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_SwitchStatement::onMakeProg
     return std::make_unique<GrGLSLDSLFPTest_SwitchStatement>();
 }
 void GrDSLFPTest_SwitchStatement::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+    b->add32((uint32_t) ten, "ten");
 }
 bool GrDSLFPTest_SwitchStatement::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDSLFPTest_SwitchStatement& that = other.cast<GrDSLFPTest_SwitchStatement>();
     (void) that;
+    if (ten != that.ten) return false;
     return true;
 }
 GrDSLFPTest_SwitchStatement::GrDSLFPTest_SwitchStatement(const GrDSLFPTest_SwitchStatement& src)
-: INHERITED(kGrDSLFPTest_SwitchStatement_ClassID, src.optimizationFlags()) {
+: INHERITED(kGrDSLFPTest_SwitchStatement_ClassID, src.optimizationFlags())
+, ten(src.ten) {
         this->cloneAndRegisterAllChildProcessors(src);
 }
 std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_SwitchStatement::clone() const {
@@ -64,6 +73,6 @@ std::unique_ptr<GrFragmentProcessor> GrDSLFPTest_SwitchStatement::clone() const 
 }
 #if GR_TEST_UTILS
 SkString GrDSLFPTest_SwitchStatement::onDumpInfo() const {
-    return SkString();
+    return SkStringPrintf("(ten=%d)", ten);
 }
 #endif
