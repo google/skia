@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "740fc728_60e459e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-04-30T16:40:42Z",
+      "side": 1,
+      "message": "How about this for a kludgy fix to https://bugs.chromium.org/p/chromium/issues/detail?id\u003d1196353 ?",
+      "revId": "efd034b488bb793c4b10aaaf90c3ec74d0be5a6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
