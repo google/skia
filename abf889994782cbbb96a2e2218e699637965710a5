@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6f1483c_bba5b2e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-30T19:34:28Z",
+      "side": 1,
+      "message": "Addendum to this CL: Planning to stick with this simple approach to the per-effect program, but thought of a solution last night while falling asleep that covers nearly all important cases (including compose):\n\nInstead of allocating a uniform color slot per child, allocate one per sample() invocation. Do this on demand, as they\u0027re being captured in the callback. The code around/within the callback looks like:\n\nstruct SampleCall {\n  int childIdx;\n  enum Kind { kInputColor, kImmediate, kPrevious } kind;\n  union { SkColor4f immediate; int prevIndex; };\n};\n\nstd::vector\u003cSampleCall\u003e calls;\nstd::vector\u003cskvm::Color\u003e colorsForEachCall;\nauto sampleChild \u003d [\u0026](int index, skvm::Color color) {\n  skvm::Color c \u003d new uniform color;\n  colorsForEachCall.push_back(c);\n\n  SkColor4f immColor;\n  if (color \u003d\u003d inputColor) {  // eg, compare all four ids\n    calls.push_back({index, kInputColor});\n  } else if (allImm(color, \u0026immColor)) {  // per channel, etc...\n    calls.push_back({index, kImmediate, immColor});\n  } else if (std::find(colorsForEachCall, color)) { // eg, search for ids in prior returned colors\n    calls.push_back({index, kPrevious, find_result - begin()});\n  } else {\n    // Mark that we can\u0027t build a per-effect program\n  }\n  return c;\n};\n\nThen, just save off the vector of calls, and in filterColor4f, iterate over it. At each one, invoke children[index], and pass the correct input color (either the original input color, the saved immediate color, or a color we already got by running a prior filter - this covers the compose case). Those still go into a uniform buffer like today, and everything just works. If we want to get really fancy, we can even track the source of each channel in the color to each call, to handle things like:\n\n  uniform colorFilter child;\n  half4 main(half4 c) { return sample(child, c.rgb1); }\n\nThat would be three \"input color\" channels, and one immediate channel.\n\nAnyway ... wanted to write it out after my twilight brainstorm.",
+      "revId": "abf889994782cbbb96a2e2218e699637965710a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4f2812e_6f9488eb",
@@ -14,6 +31,24 @@
       "writtenOn": "2021-04-29T20:53:13Z",
       "side": 1,
       "message": "If you sample a null color filter with an explicit color, do you get that explicit color or the original input color?  Which function does nullptr mean?\n\n   half4 identityWithDefault(half4 color \u003d inputColor) { return color; }\n\nor\n \n   half4 inputColorAlways(half4 color \u003d inputColor) { return inputColor; }",
+      "revId": "abf889994782cbbb96a2e2218e699637965710a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fdc0b67_e13cc9fd",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-30T19:34:28Z",
+      "side": 1,
+      "message": "This CL is implementing the first version, mostly because that\u0027s the semantics that Ganesh has internally. I could see arguments for either.",
+      "parentUuid": "f4f2812e_6f9488eb",
       "revId": "abf889994782cbbb96a2e2218e699637965710a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
