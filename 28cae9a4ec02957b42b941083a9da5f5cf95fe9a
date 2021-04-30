@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa145f50_b63b1d48",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T14:49:55Z",
+      "side": 1,
+      "message": "Agreed, I like transformForCurrentOBB better -- done.",
+      "parentUuid": "95b1650a_d15a39be",
+      "revId": "28cae9a4ec02957b42b941083a9da5f5cf95fe9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f055216d_16a3171c",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-04-30T14:29:49Z",
       "side": 1,
       "message": "I\u0027m seeing two main patterns now at the various callsites of obbTransform():\n\n  SkV2{x,y} * obbt.scale + obbt.offset;\n\nand\n\n  someMatrix.preTranslate(obbt.offset);\n  someMatrix.preScale(obbt.scale);\n\nWe might be able to simplify the users of obbTransform() if it returned an SkMatrix, then you could do\n\n  obbt.mapXY(x, y);\n\nand\n\n  {canvas,someMatrix}.preConcat(obbt);\n\netc.",
+      "revId": "28cae9a4ec02957b42b941083a9da5f5cf95fe9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6ea54d0_8ace386a",
+        "filename": "modules/svg/src/SkSVGFeLighting.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-04-30T14:49:55Z",
+      "side": 1,
+      "message": "That would be nice, but there\u0027re a couple of spots which only apply the scale (and ignore the offset).  I\u0027m not crazy about all the variants either, maybe we can figure a way to clean up later.",
+      "parentUuid": "f055216d_16a3171c",
       "revId": "28cae9a4ec02957b42b941083a9da5f5cf95fe9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
