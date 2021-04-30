@@ -41,7 +41,9 @@ public class Matrix {
     }
 
     /*
-     * Concat A * B, return new matrix as result
+     * A: this Matrix
+     * B: Matrix passed in
+     * Concat A * B, return new Matrix C as result
      */
     public static Matrix Concat(Matrix a, Matrix b) {
         long nativeA = a.mNativeInstance;
@@ -51,21 +53,86 @@ public class Matrix {
     }
 
     /*
-     * Concat A * B, store result in Matrix A
-     */
-    public void postConcat(Matrix b) {
-        long nativeA = this.mNativeInstance;
-        long nativeB = b.mNativeInstance;
-        nPostConcat(nativeA, nativeB);
-    }
-
-    /*
+     * A: this Matrix
+     * B: Matrix passed in
      * Concat B * A, store result in Matrix A
      */
     public void preConcat(Matrix b) {
         long nativeA = this.mNativeInstance;
         long nativeB = b.mNativeInstance;
         nPreConcat(nativeA, nativeB);
+    }
+
+    /*
+     * Translates this Matrix by x, y, z
+     * Store result in caller Matrix
+     * returns reference to this Matrix for operation chaining
+     *
+     * TODO: optimize calls to JNI
+     */
+    public Matrix translate(float x, float y, float z) {
+        Matrix t = new Matrix(1, 0, 0, x,
+                              0, 1, 0, y,
+                              0, 0, 1, z,
+                              0, 0, 0, 1);
+        this.preConcat(t);
+        return this;
+    }
+
+    /*
+     * Scales this Matrix by x, y, z
+     * Store result in caller Matrix
+     * returns reference to this Matrix for operation chaining
+     */
+    public Matrix scale(float x, float y, float z) {
+        Matrix s = new Matrix(x, 0, 0, 0,
+                              0, y, 0, 0,
+                              0, 0, z, 0,
+                              0, 0, 0, 1);
+        this.preConcat(s);
+        return this;
+    }
+
+    /*
+     * Rotates this Matrix along the x-axis by rad radians
+     * Store result in caller Matrix
+     * returns reference to this Matrix for operation chaining
+     */
+    public Matrix rotateX(float rad) {
+        Matrix r = new Matrix(1, 0,                     0,                      0,
+                              0, (float) Math.cos(rad), (float) -Math.sin(rad), 0,
+                              0, (float) Math.sin(rad), (float) Math.cos(rad),  0,
+                              0, 0,                     0,                      1);
+        this.preConcat(r);
+        return this;
+    }
+
+    /*
+     * Rotates this Matrix along the y-axis by rad radians
+     * Store result in caller Matrix
+     * returns reference to this Matrix for operation chaining
+     */
+    public Matrix rotateY(float rad) {
+        Matrix r = new Matrix((float) Math.cos(rad),  0, (float) Math.sin(rad), 0,
+                              0,                      1, 0,                     0,
+                              (float) -Math.sin(rad), 0, (float) Math.cos(rad), 0,
+                              0,                      0, 0,                     1);
+        this.preConcat(r);
+        return this;
+    }
+
+    /*
+     * Rotates this Matrix along the z-axis by rad radians
+     * Store result in caller Matrix
+     * returns reference to this Matrix for operation chaining
+     */
+    public Matrix rotateZ(float rad) {
+        Matrix r = new Matrix((float) Math.cos(rad), (float) -Math.sin(rad), 0, 0,
+                (float) Math.sin(rad), (float) Math.cos(rad),  0, 0,
+                0,                     0,                      1, 0,
+                0,                     0,                      0, 1);
+        this.preConcat(r);
+        return this;
     }
 
     /**
@@ -87,7 +154,6 @@ public class Matrix {
                                        float m3, float m7, float m11, float m15);
     private static native void nRelease(long nativeInstance);
 
-    private static native void nPostConcat(long mNativeInstanceA, long mNativeInstanceB);
     private static native void nPreConcat(long mNativeInstanceA, long mNativeInstanceB);
     private static native long nConcat(long mNativeInstanceA, long mNativeInstanceB);
 }
