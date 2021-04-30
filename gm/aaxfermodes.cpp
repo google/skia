@@ -20,6 +20,8 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "tools/ToolUtils.h"
 
 enum {
@@ -181,6 +183,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        if (sdc && sdc->caps()->blendEquationSupport() == GrCaps::kBasic_BlendEquationSupport) {
+            canvas->clear(SK_ColorRED);
+        }
         draw_pass(canvas, kCheckerboard_Pass);
         canvas->saveLayer(nullptr, nullptr);
 

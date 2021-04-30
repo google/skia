@@ -269,6 +269,7 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
 }
 
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
+    SkDebugf("@@@@@@> GL_VENDOR=%s\n", vendorString);
     if (vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
@@ -303,6 +304,7 @@ static bool is_renderer_angle(const char* rendererString) {
 
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                                         const GrGLExtensions& extensions) {
+    SkDebugf("@@@@@@> GL_RENDERER=%s\n", rendererString);
     if (rendererString) {
         static const char kTegraStr[] = "NVIDIA Tegra";
         if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
