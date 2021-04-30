@@ -875,6 +875,10 @@ var CanvasKit = {
     UltraExpanded: {},
   },
 
+  GlyphRunFlags: {
+    IsWhiteSpace: {},
+  },
+
   ImageFormat: {
     PNG: {},
     JPEG: {},

@@ -260,15 +260,20 @@
 
       {
           const p = new CanvasKit.Paint();
-          let runs = paragraph.getShapedRuns();
-          let fm = font.getMetrics();
-          let colors = [ [1,0,0,0.5], [0,1,0,0.5] ];
+          const runs = paragraph.getShapedRuns();
+          const fm = font.getMetrics();
+          const colors = [ [1,0,0,0.5], [0,1,0,0.5] ];
 
           for (let i in runs) {
-              let r = runs[i];
-              p.setColor(colors[i & 1]);
+              const r = runs[i];
 
-              let bounds = [
+              if (r.flags & CanvasKit.GlyphRunFlags.IsWhiteSpace) {
+                  p.setColor([1, 1, 0, 0.5]);
+              } else {
+                  p.setColor(colors[i & 1]);
+              }
+
+              const bounds = [
                  r.positions[0],
                  r.positions[1] + fm.ascent,
                  r.positions[r.positions.length-2],
