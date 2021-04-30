@@ -44,6 +44,10 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.ColorSpace.DISPLAY_P3 = CanvasKit.ColorSpace._MakeDisplayP3();
   CanvasKit.ColorSpace.ADOBE_RGB = CanvasKit.ColorSpace._MakeAdobeRGB();
 
+  CanvasKit["GlyphRunFlags"] = {
+    "IsWhiteSpace": CanvasKit["_isWhiteSpace"],
+  };
+
   CanvasKit.Path.MakeFromCmds = function(cmds) {
     var ptrLen = loadCmdsTypedArray(cmds);
     var path = CanvasKit.Path._MakeFromCmds(ptrLen[0], ptrLen[1]);
