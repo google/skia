@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b63107a5_9e88dc95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-30T12:17:36Z",
+      "side": 1,
+      "message": "Ideally we move the transformation matrix construction to native code, but we can keep it like this for now.",
+      "parentUuid": "0f7dddfb_e6815bbf",
+      "revId": "a1e22076b8dcf60769f409138d51d3dfbb865772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca3c3be3_eeedbcca",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-04-30T02:15:23Z",
       "side": 1,
       "message": "nit: relocate after rotateY",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 5
+      },
+      "revId": "a1e22076b8dcf60769f409138d51d3dfbb865772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b875e03_c7828db8",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-04-30T12:17:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca3c3be3_eeedbcca",
       "range": {
         "startLine": 109,
         "startChar": 0,
