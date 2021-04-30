@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be10785a_b2eecf12",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 0,
+      "message": "Wow, -250 lines, not bad!!",
+      "range": {
+        "startLine": 972,
+        "startChar": 4,
+        "endLine": 972,
+        "endChar": 5
+      },
+      "revId": "e9c2c5a4c3e90dc49ee50ff4b9fa6c2d7c837839",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

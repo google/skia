@@ -26,6 +26,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "383b8174_f16457a8",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "optional: I\u0027ve been opting towards always passing the Context even if I only need one part of it. Ideally we\u0027d always have the whole Context at our disposal.",
+      "range": {
+        "startLine": 798,
+        "startChar": 33,
+        "endLine": 798,
+        "endChar": 61
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f2da7be_532a996f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 863,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "It looks like this is only called three times; shall we just fix up the call sites?",
+      "range": {
+        "startLine": 857,
+        "startChar": 0,
+        "endLine": 863,
+        "endChar": 1
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2df61216_6bb95b86",
         "filename": "src/sksl/dsl/DSLFunction.cpp",
         "patchSetId": 6
@@ -65,6 +111,282 @@
         "startChar": 43,
         "endLine": 96,
         "endChar": 59
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5cfc81a_89f4afa2",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "static",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2e555b0_45369c6c",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "static",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e873da3_35d74dcb",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "static",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cbbd1c4_b9248f5e",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "optional: we could lower the indent depth by using `if (a !\u003d b) { continue; }` here. Not important, but it\u0027s a pretty deep function so it might be nice to cut down a level.",
+      "range": {
+        "startLine": 222,
+        "startChar": 12,
+        "endLine": 222,
+        "endChar": 66
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a956ce2_9ea836ae",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "optional: Similarly, `if (!match) { continue; }` would reduce depth by one more level.",
+      "range": {
+        "startLine": 230,
+        "startChar": 16,
+        "endLine": 230,
+        "endChar": 28
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79e900a3_4cb3a599",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "paramPtrs.reserve_back(parameters.size());",
+      "range": {
+        "startLine": 232,
+        "startChar": 53,
+        "endLine": 232,
+        "endChar": 62
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b891f8b0_b9e51e13",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "std::unique_ptr\u003cVariable\u003e\u0026",
+      "range": {
+        "startLine": 233,
+        "startChar": 29,
+        "endLine": 233,
+        "endChar": 34
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d0225fd_a882b8ff",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "idea: maybe `invalidDecl` so we don\u0027t imply that this declaration is sticking around?",
+      "range": {
+        "startLine": 236,
+        "startChar": 44,
+        "endLine": 236,
+        "endChar": 51
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "610a9c0f_70ec6ffe",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "finalParameters.reserve(parameters.size());",
+      "range": {
+        "startLine": 284,
+        "startChar": 2,
+        "endLine": 284,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b941753_9d90a9f7",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "nit: auto",
+      "range": {
+        "startLine": 290,
+        "startChar": 4,
+        "endLine": 290,
+        "endChar": 40
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35138950_aac50eeb",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "nit: two blank lines in a row",
+      "range": {
+        "startLine": 294,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 0
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71bd2e9a_d741cde6",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T20:50:32Z",
+      "side": 1,
+      "message": "Did you need this inner cast? The outer cast should be handling type coercion for you. If not, it\u0027s a bug...",
+      "range": {
+        "startLine": 1170,
+        "startChar": 67,
+        "endLine": 1170,
+        "endChar": 72
       },
       "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
