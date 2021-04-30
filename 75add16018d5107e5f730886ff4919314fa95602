@@ -175,6 +175,30 @@
       },
       "revId": "75add16018d5107e5f730886ff4919314fa95602",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00cf9395_e1962763",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-04-30T15:12:39Z",
+      "side": 1,
+      "message": "Yep, that\u0027s exactly what the code is equivalent to. Comment added and private field renamed.",
+      "parentUuid": "bd886975_6197649a",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 26
+      },
+      "revId": "75add16018d5107e5f730886ff4919314fa95602",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
