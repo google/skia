@@ -72,7 +72,10 @@ bool GrRecordingContext::init() {
     }
 
     bool reduceOpsTaskSplitting = false;
-    if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
+    if (this->caps()->avoidReorderingRenderTasks()) {
+        fprintf(stderr, "Avoiding reordering for driver workaround.\n");
+        reduceOpsTaskSplitting = false;
+    } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
         reduceOpsTaskSplitting = true;
     } else if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
         reduceOpsTaskSplitting = false;

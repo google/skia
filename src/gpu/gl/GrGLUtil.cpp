@@ -304,6 +304,7 @@ static bool is_renderer_angle(const char* rendererString) {
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                                         const GrGLExtensions& extensions) {
     if (rendererString) {
+        fprintf(stderr, "Renderer string: '%s'\n", rendererString);
         static const char kTegraStr[] = "NVIDIA Tegra";
         if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
             // Tegra strings are not very descriptive. We distinguish between the modern and legacy
@@ -360,6 +361,9 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                 }
                 if (adrenoNumber == 615) {
                     return kAdreno615_GrGLRenderer;
+                }
+                if (adrenoNumber == 620) {
+                    return kAdreno620_GrGLRenderer;
                 }
                 if (adrenoNumber == 630) {
                     return kAdreno630_GrGLRenderer;
