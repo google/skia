@@ -66,13 +66,18 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
         return CanDrawPath::kNo;
     }
 
-    // Only support paths with bounds within kMaxDim by kMaxDim,
-    // scaled to have bounds within kMaxSize by kMaxSize.
-    // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar scaleFactors[2] = { 1, 1 };
+    // TODO: handle perspective distortion
     if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
         return CanDrawPath::kNo;
     }
+    // For affine transformations, too much shear can produce artifacts.
+    if (scaleFactors[1]/scaleFactors[0] > 4) {
+        return CanDrawPath::kNo;
+    }
+    // Only support paths with bounds within kMaxDim by kMaxDim,
+    // scaled to have bounds within kMaxSize by kMaxSize.
+    // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkRect bounds = args.fShape->styledBounds();
     SkScalar minDim = std::min(bounds.width(), bounds.height());
     SkScalar maxDim = std::max(bounds.width(), bounds.height());
