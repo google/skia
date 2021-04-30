@@ -467,6 +467,16 @@ SkSVGColorType SkSVGRenderContext::resolveSvgColor(const SkSVGColor& color) cons
     SkUNREACHABLE;
 }
 
+SkSVGRenderContext::OBBTransform
+SkSVGRenderContext::transformForCurrentOBB(SkSVGObjectBoundingBoxUnits u) const {
+    if (!fNode || u.type() == SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse) {
+        return {{0,0},{1,1}};
+    }
+
+    const auto obb = fNode->objectBoundingBox(*this);
+    return {{obb.x(), obb.y()}, {obb.width(), obb.height()}};
+}
+
 SkRect SkSVGRenderContext::resolveOBBRect(const SkSVGLength& x, const SkSVGLength& y,
                                           const SkSVGLength& w, const SkSVGLength& h,
                                           SkSVGObjectBoundingBoxUnits obbu) const {
@@ -477,13 +487,10 @@ SkRect SkSVGRenderContext::resolveOBBRect(const SkSVGLength& x, const SkSVGLengt
     }
 
     auto r = lctx->resolveRect(x, y, w, h);
-    if (obbu.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        const auto obb = fNode->objectBoundingBox(*this);
-        r = SkRect::MakeXYWH(obb.x() + r.x() * obb.width(),
-                             obb.y() + r.y() * obb.height(),
-                             r.width()  * obb.width(),
-                             r.height() * obb.height());
-    }
+    const auto obbt = this->transformForCurrentOBB(obbu);
 
-    return r;
+    return SkRect::MakeXYWH(obbt.scale.x * r.x() + obbt.offset.x,
+                            obbt.scale.y * r.y() + obbt.offset.y,
+                            obbt.scale.x * r.width(),
+                            obbt.scale.y * r.height());
 }

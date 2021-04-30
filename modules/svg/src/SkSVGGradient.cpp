@@ -86,14 +86,10 @@ bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) con
                   SkTileMode::kMirror, "SkSVGSpreadMethod::Type is out of sync");
     const auto tileMode = static_cast<SkTileMode>(fSpreadMethod.type());
 
-    SkMatrix localMatrix = SkMatrix::I();
-    if (fGradientUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        localMatrix.preTranslate(objBounds.fLeft, objBounds.fTop);
-        localMatrix.preScale(objBounds.width(), objBounds.height());
-    }
-    localMatrix.preConcat(fGradientTransform);
+    const auto obbt = ctx.transformForCurrentOBB(fGradientUnits);
+    const auto localMatrix = SkMatrix::Translate(obbt.offset.x, obbt.offset.y)
+                           * SkMatrix::Scale(obbt.scale.x, obbt.scale.y)
+                           * fGradientTransform;
 
     paint->setShader(this->onMakeShader(ctx, colors.begin(), pos.begin(), colors.count(), tileMode,
                                         localMatrix));

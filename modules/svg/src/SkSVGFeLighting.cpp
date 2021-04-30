@@ -71,16 +71,12 @@ SkPoint3 SkSVGFeLighting::resolveXYZ(const SkSVGRenderContext& ctx,
                                      SkSVGNumberType x,
                                      SkSVGNumberType y,
                                      SkSVGNumberType z) const {
-    if (fctx.primitiveUnits().type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        const SkSVGLengthContext lctx({objBounds.width(), objBounds.height()});
-        x = objBounds.left() + x * objBounds.width();
-        y = objBounds.top() + y * objBounds.height();
-        z = lctx.resolve(SkSVGLength(z * 100.f, SkSVGLength::Unit::kPercentage),
-                         SkSVGLengthContext::LengthType::kOther);
-    }
-    return SkPoint3::Make(x, y, z);
+    const auto obbt = ctx.transformForCurrentOBB(fctx.primitiveUnits());
+    const auto xy = SkV2{x,y} * obbt.scale + obbt.offset;
+    z = SkSVGLengthContext({obbt.scale.x, obbt.scale.y})
+            .resolve(SkSVGLength(z * 100.f, SkSVGLength::Unit::kPercentage),
+                     SkSVGLengthContext::LengthType::kOther);
+    return SkPoint3::Make(xy.x, xy.y, z);
 }
 
 bool SkSVGFeSpecularLighting::parseAndSetAttribute(const char* n, const char* v) {

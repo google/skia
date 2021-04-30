@@ -36,10 +36,9 @@ sk_sp<SkImageFilter> SkSVGFeDisplacementMap::onMakeImageFilter(
 
     SkScalar scale = fScale;
     if (fctx.primitiveUnits().type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
-        SkASSERT(ctx.node());
-        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        const SkSVGLengthContext lctx({objBounds.width(), objBounds.height()});
-        scale = lctx.resolve(SkSVGLength(scale, SkSVGLength::Unit::kPercentage),
+        const auto obbt = ctx.transformForCurrentOBB(fctx.primitiveUnits());
+        scale = SkSVGLengthContext({obbt.scale.x, obbt.scale.y})
+                    .resolve(SkSVGLength(scale, SkSVGLength::Unit::kPercentage),
                              SkSVGLengthContext::LengthType::kOther);
     }
 
