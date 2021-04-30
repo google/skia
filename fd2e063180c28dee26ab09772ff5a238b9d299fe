@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6e3a7da_a870118d",
+        "filename": "include/sksl/DSLCase.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T14:19:36Z",
+      "side": 1,
+      "message": "I\u0027m missing it, why was this necessary?",
+      "range": {
+        "startLine": 51,
+        "startChar": 3,
+        "endLine": 51,
+        "endChar": 25
+      },
+      "revId": "fd2e063180c28dee26ab09772ff5a238b9d299fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

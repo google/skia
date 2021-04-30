@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5addad5_eb96a1b7",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-04-30T14:19:36Z",
+      "side": 0,
+      "message": "nit: please undo",
+      "revId": "0bc48228aeaca93a795d0d989734f63006a273fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
