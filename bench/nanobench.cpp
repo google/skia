@@ -129,7 +129,8 @@ static DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 static DEFINE_int(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 static DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
-static DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
+static DEFINE_bool(gpuStatsDump, false, "Dump GPU stats after each benchmark to json");
+static DEFINE_bool(dmsaaStatsDump, false, "Dump DMSAA stats after each benchmark to json");
 static DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
 static DEFINE_bool(csv, false, "Print status in CSV format");
 static DEFINE_string(sourceType, "",
@@ -1275,6 +1276,8 @@ int main(int argc, char** argv) {
                  FLAGS_samples, "samples");
     }
 
+    GrRecordingContextPriv::DMSAAStats combinedDMSAAStats;
+
     SkTArray<Config> configs;
     create_configs(&configs);
 
@@ -1375,10 +1378,17 @@ int main(int argc, char** argv) {
 
             SkTArray<SkString> keys;
             SkTArray<double> values;
-            bool gpuStatsDump = FLAGS_gpuStatsDump && Benchmark::kGPU_Backend == configs[i].backend;
-            if (gpuStatsDump) {
-                // TODO cache stats
-                bench->getGpuStats(canvas, &keys, &values);
+            if (configs[i].backend == Benchmark::kGPU_Backend) {
+                if (FLAGS_gpuStatsDump) {
+                    // TODO cache stats
+                    bench->getGpuStats(canvas, &keys, &values);
+                }
+                if (FLAGS_dmsaaStatsDump && bench->getDMSAAStats(canvas->recordingContext())) {
+                    const auto& dmsaaStats = canvas->recordingContext()->priv().dmsaaStats();
+                    dmsaaStats.dumpKeyValuePairs(&keys, &values);
+                    dmsaaStats.dump();
+                    combinedDMSAAStats.merge(dmsaaStats);
+                }
             }
 
             bench->perCanvasPostDraw(canvas);
@@ -1412,7 +1422,7 @@ int main(int argc, char** argv) {
             }
             log.endArray(); // samples
             benchStream.fillCurrentMetrics(log);
-            if (gpuStatsDump) {
+            if (!keys.empty()) {
                 // dump to json, only SKPBench currently returns valid keys / values
                 SkASSERT(keys.count() == values.count());
                 for (int i = 0; i < keys.count(); i++) {
@@ -1492,6 +1502,11 @@ int main(int argc, char** argv) {
         if (!configs.empty()) {
             log.endBench();
         }
+    }
+
+    if (FLAGS_dmsaaStatsDump) {
+        SkDebugf("<<Total Combined DMSAA Stats>>\n");
+        combinedDMSAAStats.dump();
     }
 
     SkGraphics::PurgeAllCaches();

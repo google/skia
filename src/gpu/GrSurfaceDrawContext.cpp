@@ -319,6 +319,11 @@ void GrSurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* ne
         // values?
         nextTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
     }
+#if GR_GPU_STATS && GR_TEST_UTILS
+    if (fCanUseDynamicMSAA) {
+        fContext->priv().dmsaaStats().fNumRenderPasses++;
+    }
+#endif
 }
 
 inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
@@ -1958,9 +1963,25 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
+
+#if GR_GPU_STATS && GR_TEST_UTILS
+    if (fCanUseDynamicMSAA && usesHWAA) {
+        if (!opsTask->usesMSAASurface()) {
+            fContext->priv().dmsaaStats().fNumMultisampleRenderPasses++;
+        }
+        fContext->priv().dmsaaStats().fTriggerCounts[op->name()]++;
+    }
+#endif
+
     opsTask->addDrawOp(this->drawingManager(), std::move(op), fixedFunctionFlags, analysis,
                        std::move(appliedClip), dstProxyView,
                        GrTextureResolveManager(this->drawingManager()), *this->caps());
+
+#ifdef SK_DEBUG
+    if (fCanUseDynamicMSAA && usesHWAA) {
+        SkASSERT(opsTask->usesMSAASurface());
+    }
+#endif
 }
 
 bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,

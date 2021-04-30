@@ -253,6 +253,18 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		args = append(args, "--gpuResourceCacheLimit", "16777216")
 	}
 
+	if b.extraConfig("DMSAAStats") {
+		// Render tiled, single-frame skps with an extremely tall canvas that hopefully allows for
+		// us to tile most or all of the content.
+		args = append(args,
+			"--sourceType", "skp", "--clip", "0,0,1600,16384", "--GPUbenchTileW", "1600",
+			"--GPUbenchTileH", "512", "--samples", "1", "--loops", "1", "--config", "gldmsaa",
+			"--dmsaaStatsDump")
+		// Don't collect stats on the skps generated from vector content. We want these to actually
+		// trigger dmsaa.
+		match = append(match, "~svg", "~chalkboard", "~motionmark", "~ccpr")
+	}
+
 	// We do not need or want to benchmark the decodes of incomplete images.
 	// In fact, in nanobench we assert that the full image decode succeeds.
 	match = append(match, "~inc0.gif")
