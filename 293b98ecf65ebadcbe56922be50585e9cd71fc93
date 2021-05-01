@@ -16,6 +16,24 @@
       "message": "WDYT?",
       "revId": "293b98ecf65ebadcbe56922be50585e9cd71fc93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3843ba5_13ae45c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-01T18:55:30Z",
+      "side": 1,
+      "message": "This is one of the changes that are obvious now but somehow were not until you suggested it. \nWe shape text into glyph runs and then break/format them it into lines. Of course, the lines should be the part of the results. \nI am going to make this change in SkText, too.",
+      "parentUuid": "a6eef646_8ac408b3",
+      "revId": "293b98ecf65ebadcbe56922be50585e9cd71fc93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
