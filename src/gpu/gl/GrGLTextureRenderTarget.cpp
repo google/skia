@@ -54,9 +54,8 @@ void GrGLTextureRenderTarget::dumpMemoryStatistics(
 }
 
 bool GrGLTextureRenderTarget::canAttemptStencilAttachment(bool useMultisampleFBO) const {
-    // The RT FBO of GrGLTextureRenderTarget is never created from a
-    // wrapped FBO, so we only care about the flag.
-    return !this->getGpu()->getContext()->priv().caps()->avoidStencilBuffers();
+    // The RT FBO of GrGLTextureRenderTarget is never created from a wrapped FBO.
+    return true;
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
