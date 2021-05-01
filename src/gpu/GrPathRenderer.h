@@ -86,7 +86,6 @@ public:
         const GrPaint*              fPaint;
         const SkSurfaceProps*       fSurfaceProps;
         GrAAType                    fAAType;
-        bool                        fTargetIsWrappedVkSecondaryCB;
 
         // This is only used by GrTessellationPathRenderer
         bool                        fHasUserStencilSettings;

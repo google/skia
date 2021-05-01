@@ -89,6 +89,32 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     return true;
 }
 
+bool GrRenderTargetProxy::canUseStencil(const GrCaps& caps) const {
+    if (caps.avoidStencilBuffers()) {
+        return false;
+    }
+    if (this->isLazy()) {
+        // It's possible for wrapped GL render targets to not have stencil. We don't currently have
+        // an exact way of knowing whether the target will be able to use stencil, so we do the best
+        // we can: if a lazy proxy has a texture, we know we can change the stencil. Otherwise, be
+        // conservative and block stencil usage.
+        // FIXME: Lazy proxies need to tell us if we can use stencil.
+        return this->backendFormat().backend() != GrBackendApi::kOpenGL || this->asTextureProxy();
+    } else if (!this->isInstantiated()) {
+        // Uninstantiated, not-lazy proxies will definitely have internal targets. Ganesh is free to
+        // attach stencils on internal render targets.
+        return true;
+    } else {
+        // Just ask the actual target if we can use stencil.
+        GrRenderTarget* rt = this->peekRenderTarget();
+        // The dmsaa attachment (if any) always supports stencil. The real question is whether the
+        // non-dmsaa attachment supports stencil.
+        bool useMSAASurface = rt->numSamples() > 1;
+        return rt->getStencilAttachment(useMSAASurface) ||
+               rt->canAttemptStencilAttachment(useMSAASurface);
+    }
+}
+
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt,
                                                        GrRenderable::kYes, GrMipmapped::kNo);
