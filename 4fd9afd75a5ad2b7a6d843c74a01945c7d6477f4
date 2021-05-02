@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb19f6f8_671b7223",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-02T22:01:03Z",
+      "side": 1,
+      "message": "Do we need baseline + metrics (per-line) ?\n\nWhat about\n- top\n- baseline\n- bottom\n?",
+      "revId": "4fd9afd75a5ad2b7a6d843c74a01945c7d6477f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
