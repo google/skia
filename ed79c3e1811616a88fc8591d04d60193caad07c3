@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4941b47_5c5dcf70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-02T18:41:06Z",
+      "side": 1,
+      "message": "ptal\n\nStill wondering about what metrics to return per-line (and per-run for that matter)...",
+      "revId": "ed79c3e1811616a88fc8591d04d60193caad07c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
