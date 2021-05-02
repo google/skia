@@ -86,7 +86,12 @@ public:
         const uint32_t* utf8Starts; // count+1 values
         unsigned        flags;
     };
-    using Visitor = std::function<void(const VisitorInfo&)>;
+
+    // signature handles line boundaries and runs
+    //  lineNumber >= 0 && info == null:    begin new line
+    //  lineNumber >= 0 && info != null:    accumulate run into current line
+    //  lineNumber == -1:                   end of previous line
+    using Visitor = std::function<void(int lineNumber, const VisitorInfo*)>;
     virtual void visit(const Visitor&) = 0;
 
 protected:

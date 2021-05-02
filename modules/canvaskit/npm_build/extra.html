@@ -33,6 +33,7 @@
 <h2> Paragraph </h2>
 <canvas id=para1 width=600 height=600></canvas>
 <canvas id=para2 width=600 height=600></canvas>
+<canvas id=para3 width=600 height=600></canvas>
 
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
 <canvas id=skp width=500 height=500></canvas>
@@ -143,6 +144,7 @@
   Promise.all([ckLoaded, loadFont]).then((results) => {
     ParagraphAPI1(...results);
     ParagraphAPI2(...results);
+    ParagraphAPI3(...results);
     GlyphGame(...results)
   });
   Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
@@ -355,31 +357,33 @@
         };
     }
 
-    let mouse = {
-        _start_x: 0, _start_y: 0,
-        _curr_x:  0,  _curr_y: 0,
-        _active: false,
+    function MakeMouse() {
+        return {
+            _start_x: 0, _start_y: 0,
+            _curr_x:  0,  _curr_y: 0,
+            _active: false,
 
-        isActive: function() {
-            return this._active;
-        },
-        setDown: function(x, y) {
-            this._start_x = this._curr_x = x;
-            this._start_y = this._curr_y = y;
-            this._active = true;
-        },
-        setMove: function(x, y) {
-            this._curr_x = x;
-            this._curr_y = y;
-        },
-        setUp: function(x, y) {
-            this._curr_x = x;
-            this._curr_y = y;
-            this._active = false;
-        },
-        getPos: function() {
-            return [ this._start_x, this._start_y, this._curr_x, this._curr_y ];
-        },
+            isActive: function() {
+                return this._active;
+            },
+            setDown: function(x, y) {
+                this._start_x = this._curr_x = x;
+                this._start_y = this._curr_y = y;
+                this._active = true;
+            },
+            setMove: function(x, y) {
+                this._curr_x = x;
+                this._curr_y = y;
+            },
+            setUp: function(x, y) {
+                this._curr_x = x;
+                this._curr_y = y;
+                this._active = false;
+            },
+            getPos: function() {
+                return [ this._start_x, this._start_y, this._curr_x, this._curr_y ];
+            },
+        };
     }
 
     function ParagraphAPI2(CanvasKit, fontData) {
@@ -393,6 +397,7 @@
         return;
       }
 
+      const mouse = MakeMouse();
       const cursor = MakeCursor(CanvasKit);
       const canvas = surface.getCanvas();
       const fontMgr = CanvasKit.FontMgr.FromData([fontData]);
@@ -424,34 +429,43 @@
 
       function mid(a, b) { return (a + b) * 0.5; }
 
-      function pos_to_index(runs, x, y) {
-          if (y < runs[0].positions[1] + fm.ascent) {
-              return 0;
-          }
-          for (const r of runs) {
-              if (y >= r.positions[1] + fm.ascent &&
-                  y <= r.positions[1] + fm.descent) {
-                  for (let i = 1; i < r.offsets.length; i += 1) {
-                      if (x < r.positions[i*2]) {
-                          if (x <= mid(r.positions[i*2-2], r.positions[i*2])) {
-                              return r.offsets[i-1];
-                          } else {
-                              return r.offsets[i];
-                          }
+      function runs_pos_to_index(runs, x, y) {
+          for (const r of l.runs) {
+              for (let i = 1; i < r.offsets.length; i += 1) {
+                  if (x < r.positions[i*2]) {
+                      if (x <= mid(r.positions[i*2-2], r.positions[i*2])) {
+                          return r.offsets[i-1];
+                      } else {
+                          return r.offsets[i];
                       }
                   }
-                  return r.offsets[r.offsets.length-1];
               }
           }
           const r = runs[runs.length-1];
-          return r.offsets[r.offsets.length-1]; // last
+          return r.offsets[r.offsets.length-1];
+      }
+      function lines_pos_to_index(lines, x, y) {
+          if (y < lines[0].baseline_y + lines[0].metrics.ascent) {
+              return 0;
+          }
+          for (const l of lines) {
+              if (y <= l.baseline_y + l.metrics.descent) {
+                  return runs_pos_to_index(l.runs, x, y);
+              }
+          }
+          return text.length - 1;
       }
 
-      function find_run(runs, index) {
-          for (const r of runs) {
-              if (index <= r.offsets[r.offsets.length-1]) {
-                  return r;
+      function find_run(lines, index) {
+          for (const l of lines) {
+              if (index < l.textRange.last) {
+                  for (const r of l.runs) {
+                      if (index <= r.offsets[r.offsets.length-1]) {
+                          return r;
+                      }
+                  }
               }
+              break;
           }
           return null;
       }
@@ -465,12 +479,16 @@
           return null;
       }
 
-      function index_to_pos(runs, index) {
-          const r = find_run(runs, index);
-          return get_run_pos(r, index);
+      function index_to_pos(lines, index) {
+          for (const l of lines) {
+              if (index < l.textRange.last) {
+                  const r = find_run(l.runs, index);
+                  return get_run_pos(r, index);
+              }
+          }
       }
 
-      function indices_to_path(runs, a, b, fm, width) {
+      function indices_to_path(lines, a, b, fm, width) {
           if (a == b) {
               return null;
           }
@@ -480,8 +498,8 @@
               b = tmp;
           }
           const path = new CanvasKit.Path();
-          const first = find_run(runs, a);
-          const last = find_run(runs, b);
+          const first = find_run(lines, a);
+          const last = find_run(lines, b);
           const p = get_run_pos(first, a);
           const q = get_run_pos(last, b);
           if (first == last) {
@@ -549,6 +567,202 @@
 //      document.getElementById('para2').addEventListener('lostpointercapture', interact);
 //      document.getElementById('para2').addEventListener('pointerleave', interact);
       document.getElementById('para2').addEventListener('pointerup', interact);
+      return surface;
+    }
+
+    function ParagraphAPI3(CanvasKit, fontData) {
+      if (!CanvasKit || !fontData) {
+        return;
+      }
+
+      const surface = CanvasKit.MakeCanvasSurface('para3');
+      if (!surface) {
+        console.error('Could not make surface');
+        return;
+      }
+
+      const mouse = MakeMouse();
+      const cursor = MakeCursor(CanvasKit);
+      const canvas = surface.getCanvas();
+      const fontMgr = CanvasKit.FontMgr.FromData([fontData]);
+
+      const paraStyle = new CanvasKit.ParagraphStyle({
+          textStyle: {
+              color: CanvasKit.GRAY,
+              fontFamilies: ['Roboto'],
+              fontSize: 40,
+          },
+          textAlign: CanvasKit.TextAlign.Left,
+      });
+
+      const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+      const text =  "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
+                    "wet hole full of worms and oozy smells. This was a hobbit-hole and " +
+                    "that means good food, a warm hearth, and all the comforts of home.";
+      builder.addText(text);
+      const paragraph = builder.build();
+      const WIDTH = 600;
+      paragraph.layout(WIDTH);
+
+      const tf = fontMgr.MakeTypefaceFromData(fontData);
+      const font = new CanvasKit.Font(tf, 40);
+      const fm = font.getMetrics();
+      const fontPaint = new CanvasKit.Paint();
+      fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+      fontPaint.setAntiAlias(true);
+
+      function mid(a, b) { return (a + b) * 0.5; }
+
+      function runs_pos_to_index(runs, x, y) {
+          for (const r of runs) {
+              for (let i = 1; i < r.offsets.length; i += 1) {
+                  if (x < r.positions[i*2]) {
+                      if (x <= mid(r.positions[i*2-2], r.positions[i*2])) {
+                          return r.offsets[i-1];
+                      } else {
+                          return r.offsets[i];
+                      }
+                  }
+              }
+          }
+          const r = runs[runs.length-1];
+          return r.offsets[r.offsets.length-1];
+      }
+
+      function lines_pos_to_index(lines, x, y) {
+          if (y < lines[0].baseline_y + lines[0].metrics.ascent) {
+              return 0;
+          }
+          for (const l of lines) {
+              if (y <= l.baseline_y + l.metrics.descent) {
+                  return runs_pos_to_index(l.runs, x, y);
+              }
+          }
+          return text.length - 1;
+      }
+
+      function runs_index_to_run(runs, index) {
+          for (const r of runs) {
+              if (index <= r.offsets[r.offsets.length-1]) {
+                  return r;
+              }
+          }
+          return null;
+      }
+
+      function lines_index_to_pos(lines, index) {
+          for (const l of lines) {
+              if (index <= l.textRange.last) {
+                  const r = runs_index_to_run(l.runs, index);
+                  for (const i in r.offsets) {
+                      if (index == r.offsets[i]) {
+                          return r.positions.slice(i*2, i*2+2);
+                      }
+                  }
+              }
+          }
+      }
+
+      function lines_index_to_run(lines, index) {
+          for (const l of lines) {
+              if (index <= l.textRange.last) {
+                  for (const r of l.runs) {
+                      if (index <= r.offsets[r.offsets.length-1]) {
+                          return r;
+                      }
+                  }
+              }
+          }
+          return null;
+      }
+
+      function lines_indices_to_path(lines, a, b, fm, width) {
+          if (a == b) {
+              return null;
+          }
+          if (a > b) {
+              const tmp = a;
+              a = b;
+              b = tmp;
+          }
+          const path = new CanvasKit.Path();
+          const p = lines_index_to_pos(lines, a);
+          const q = lines_index_to_pos(lines, b);
+          if (p[1] == q[1]) {
+              path.addRect([p[0], p[1] + fm.ascent, q[0], q[1] + fm.descent]);
+          } else {
+              const p_top = p[1] + fm.ascent;
+              const p_bot = p[1] + fm.descent;
+              path.addRect([p[0], p_top, width, p_bot]);
+              const q_top = q[1] + fm.ascent;
+              const q_bot = q[1] + fm.descent;
+              path.addRect([   0, q_top, q[0],  q_bot]);
+              if (p_bot < q_top) {
+                  path.addRect([0, p_bot, width, q_top]);   // extra lines inbetween
+              }
+          }
+          return path;
+      }
+
+      let INDEX = 0;
+      let lines;
+
+      function drawFrame(canvas) {
+        canvas.clear(CanvasKit.WHITE);
+        canvas.drawParagraph(paragraph, 0, 0);
+        if (!lines) {
+            lines = paragraph.getShapedLines();
+        }
+
+        if (mouse.isActive()) {
+            const pos = mouse.getPos();
+            const a = lines_pos_to_index(lines, pos[0], pos[1]);
+            const b = lines_pos_to_index(lines, pos[2], pos[3]);
+            if (a == b) {
+                INDEX = a;
+                const p = lines_index_to_pos(lines, INDEX);
+                cursor.place(p[0], p[1], fm);
+            } else {
+                cursor.setPath(lines_indices_to_path(lines, a, b, fm, WIDTH));
+            }
+        }
+
+        const bgcolors = [[1,0,0,0.05], [0,1,0,0.05]];
+        let lineNo = 0;
+        cursor.draw_before(canvas);
+        for (const l of lines) {
+            if (true) { // test line bounds
+                const bounds = [0, l.baseline_y + l.metrics.ascent,
+                                WIDTH, l.baseline_y + l.metrics.descent];
+                fontPaint.setColor(bgcolors[lineNo & 1]);
+                canvas.drawRect(bounds, fontPaint);
+                fontPaint.setColor([0,0,0,1]);
+            }
+            for (let r of l.runs) {
+                canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, font, fontPaint);
+            }
+            lineNo += 1;
+        }
+        cursor.draw_after(canvas);
+
+        surface.requestAnimationFrame(drawFrame);
+      }
+      surface.requestAnimationFrame(drawFrame);
+
+      function interact(e) {
+        const type = e.type;
+        if (type === 'pointerup') {
+            mouse.setUp(e.offsetX, e.offsetY);
+        } else if (type === 'pointermove') {
+            mouse.setMove(e.offsetX, e.offsetY);
+        } else if (type === 'pointerdown') {
+            mouse.setDown(e.offsetX, e.offsetY);
+        }
+      };
+
+      document.getElementById('para3').addEventListener('pointermove', interact);
+      document.getElementById('para3').addEventListener('pointerdown', interact);
+      document.getElementById('para3').addEventListener('pointerup', interact);
       return surface;
     }
 
