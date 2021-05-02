@@ -1051,6 +1051,7 @@ void ParagraphImpl::ensureUTF16Mapping() {
 }
 
 void ParagraphImpl::visit(const Visitor& visitor) {
+    int lineNumber = 0;
     for (auto& line : fLines) {
         for (auto& rec : line.fTextBlobCache) {
             SkTextBlob::Iter iter(*rec.fBlob);
@@ -1071,7 +1072,7 @@ void ParagraphImpl::visit(const Visitor& visitor) {
             clusterPtr += rec.fVisitor_Pos;
 
             while (iter.experimentalNext(&run)) {
-                visitor({
+                const Paragraph::VisitorInfo info = {
                     run.font,
                     rec.fOffset,
                     rec.fClipRect.fRight,
@@ -1080,10 +1081,13 @@ void ParagraphImpl::visit(const Visitor& visitor) {
                     run.positions,
                     clusterPtr,
                     0,  // flags
-                });
+                };
+                visitor(lineNumber, &info);
                 clusterPtr += run.count;
             }
         }
+        visitor(lineNumber, nullptr);   // signal end of line
+        lineNumber += 1;
     }
 }
 

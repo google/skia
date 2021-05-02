@@ -650,6 +650,17 @@ export interface LineMetrics {
     lineNumber: number;
 }
 
+export interface Range {
+    first: number;
+    last:  number;
+}
+
+export interface YMetrics {
+    ascent: number;     // distance above the baseline (negative) to top of 'normal' letters
+    descent: number;    // distance below the baseline (positive) to bottom of 'normal' letters
+    leading: number;    // extra space recommended between lines (needed?)
+}
+
 /**
  * Information for a run of shaped text. See Paragraph.getShapedRuns()
  *
@@ -665,6 +676,13 @@ export interface GlyphRun {
     positions: Float32Array;    // alternating x0, y0, x1, y1, ...
     offsets: Uint32Array;
     flags: number;              // see GlyphRunFlags
+}
+
+export interface ShapedLine {
+    textRange: Range;
+    metrics: YMetrics;
+    baseline_y: number;
+    runs: GlyphRun[];
 }
 
 /**
@@ -824,7 +842,9 @@ export interface Paragraph extends EmbindObject<Paragraph> {
      */
     getWordBoundary(offset: number): URange;
 
-    getShapedRuns(): GlyphRun[];
+    getShapedRuns(): GlyphRun[];    // deprecated
+
+    getShapedLines(): ShapedLine[];
 
     /**
      * Lays out the text in the paragraph so it is wrapped to the given width.

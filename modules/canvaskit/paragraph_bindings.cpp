@@ -323,27 +323,120 @@ JSArray GetShapedRuns(para::Paragraph& self) {
     // where we accumulate our js output
     JSArray jruns = emscripten::val::array();
 
-    self.visit([&](const para::Paragraph::VisitorInfo& info) {
-        const int N = info.count;   // glyphs
+    self.visit([&](int, const para::Paragraph::VisitorInfo* info) {
+        if (!info) {
+            return;
+        }
+        const int N = info->count;   // glyphs
         const int N1 = N + 1;       // positions, offsets have 1 extra (trailing) slot
 
         JSObject jrun = emscripten::val::object();
 
-        jrun.set("flags",   info.flags);
-        jrun.set("glyphs",  MakeTypedArray(N,  info.glyphs,     "Uint16Array"));
-        jrun.set("offsets", MakeTypedArray(N1, info.utf8Starts, "Uint32Array"));
+        jrun.set("flags",   info->flags);
+        jrun.set("glyphs",  MakeTypedArray(N,  info->glyphs,     "Uint16Array"));
+        jrun.set("offsets", MakeTypedArray(N1, info->utf8Starts, "Uint32Array"));
 
         // we need to modify the positions, so make a temp copy
         SkAutoSTMalloc<32, SkPoint> positions(N1);
         for (int i = 0; i < N; ++i) {
-            positions.get()[i] = info.positions[i] + info.origin;
+            positions.get()[i] = info->positions[i] + info->origin;
         }
-        positions.get()[N] = { info.advanceX, positions.get()[N - 1].fY };
+        positions.get()[N] = { info->advanceX, positions.get()[N - 1].fY };
         jrun.set("positions", MakeTypedArray(N1*2, (const float*)positions.get(), "Float32Array"));
 
         jruns.call<void>("push", jrun);
     });
     return jruns;
+}
+
+/*
+ *  Returns Lines[]
+ */
+JSArray GetShapedLines(para::Paragraph& self) {
+    struct LineAccumulate {
+        int         lineNumber  = -1;   // deliberately -1 from starting value
+        uint32_t    minOffset   = 0xFFFFFFFF;
+        uint32_t    maxOffset   = 0;
+        float       minAscent   = 0;
+        float       maxDescent  = 0;
+        float       maxLeading  = 0;
+
+        void reset(int lineNumber) {
+            new (this) LineAccumulate;
+            this->lineNumber = lineNumber;
+        }
+    };
+
+    // where we accumulate our js output
+    JSArray  jlines = emscripten::val::array();
+    JSObject jline = emscripten::val::null();
+    JSArray  jruns = emscripten::val::null();
+    LineAccumulate accum;
+
+    self.visit([&](int lineNumber, const para::Paragraph::VisitorInfo* info) {
+        if (!info) {
+            // end of current line
+            JSObject range = emscripten::val::object();
+            range.set("first", accum.minOffset);
+            range.set("last",  accum.maxOffset);
+            jline.set("textRange", range);
+
+            JSObject metrics = emscripten::val::object();
+            metrics.set("ascent", accum.minAscent);
+            metrics.set("descent", accum.maxDescent);
+            metrics.set("leading", accum.maxLeading);
+            jline.set("metrics", metrics);
+            return;
+        }
+
+        if (lineNumber != accum.lineNumber) {
+            SkASSERT(lineNumber == accum.lineNumber + 1);   // assume monotonic
+
+            accum.reset(lineNumber);
+            jruns = emscripten::val::array();
+
+            jline = emscripten::val::array();
+            jline.set("baseline_y", info->origin.fY);
+            jline.set("runs", jruns);
+            // will assign textRange and metrics on end-of-line signal
+
+            jlines.call<void>("push", jline);
+        }
+
+        // append the run
+        const int N = info->count;   // glyphs
+        const int N1 = N + 1;       // positions, offsets have 1 extra (trailing) slot
+
+        JSObject jrun = emscripten::val::object();
+
+        jrun.set("flags",   info->flags);
+        jrun.set("glyphs",  MakeTypedArray(N,  info->glyphs,     "Uint16Array"));
+        jrun.set("offsets", MakeTypedArray(N1, info->utf8Starts, "Uint32Array"));
+
+        // we need to modify the positions, so make a temp copy
+        SkAutoSTMalloc<32, SkPoint> positions(N1);
+        for (int i = 0; i < N; ++i) {
+            positions.get()[i] = info->positions[i] + info->origin;
+        }
+        positions.get()[N] = { info->advanceX, positions.get()[N - 1].fY };
+        jrun.set("positions", MakeTypedArray(N1*2, (const float*)positions.get(), "Float32Array"));
+
+        jruns.call<void>("push", jrun);
+
+        // update accum
+        {   SkFontMetrics fm;
+            info->font.getMetrics(&fm);
+
+            accum.minAscent  = std::min(accum.minAscent,  fm.fAscent);
+            accum.maxDescent = std::max(accum.maxDescent, fm.fDescent);
+            accum.maxLeading = std::max(accum.maxLeading, fm.fLeading);
+
+            accum.minOffset  = std::min(accum.minOffset,  info->utf8Starts[0]);
+            accum.maxOffset  = std::max(accum.maxOffset,  info->utf8Starts[N]);
+        }
+
+    });
+    return jlines;
 }
 
 EMSCRIPTEN_BINDINGS(Paragraph) {
@@ -362,6 +455,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("_getRectsForPlaceholders", &GetRectsForPlaceholders)
         .function("_getRectsForRange", &GetRectsForRange)
         .function("getShapedRuns", &GetShapedRuns)
+        .function("getShapedLines", &GetShapedLines)
         .function("getWordBoundary", &para::Paragraph::getWordBoundary)
         .function("layout", &para::Paragraph::layout);
 

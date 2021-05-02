@@ -3469,12 +3469,18 @@ protected:
 
         paragraph->paint(canvas, 0, 0);
 
-        paragraph->visit([&](const skia::textlayout::Paragraph::VisitorInfo& info) {
+        paragraph->visit([&](int, const skia::textlayout::Paragraph::VisitorInfo* info) {
+            if (!info) {
+                return;
+            }
             SkFontMetrics metrics;
-            info.font.getMetrics(&metrics);
+            info->font.getMetrics(&metrics);
 
-            auto first = info.positions[0]; first.offset(info.origin.fX, info.origin.fY);
-            SkRect rect = SkRect::MakeXYWH(first.fX, first.fY + metrics.fAscent, info.advanceX - first.fX, metrics.fDescent - metrics.fAscent);
+            auto first = info->positions[0]; first.offset(info->origin.fX, info->origin.fY);
+            SkRect rect = SkRect::MakeXYWH(first.fX,
+                                           first.fY + metrics.fAscent,
+                                           info->advanceX - first.fX,
+                                           metrics.fDescent - metrics.fAscent);
             SkPaint paint;
             paint.setColor(SK_ColorLTGRAY);
             canvas->drawRect(rect, paint);
