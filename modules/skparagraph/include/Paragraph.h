@@ -86,7 +86,9 @@ public:
         const uint32_t* utf8Starts; // count+1 values
         unsigned        flags;
     };
-    using Visitor = std::function<void(const VisitorInfo&)>;
+
+    // lineNumber begins at 0. If info is null, this signals the end of that line.
+    using Visitor = std::function<void(int lineNumber, const VisitorInfo*)>;
     virtual void visit(const Visitor&) = 0;
 
 protected:
