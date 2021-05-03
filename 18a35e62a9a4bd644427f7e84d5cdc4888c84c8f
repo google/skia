@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38863ddb_60502906",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 1
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-03T17:30:51Z",
+      "side": 1,
+      "message": "I\u0027d expect this to talk about top, bottom, and baselineY, rather than positions and offsets, which are already documented in GlyphRun.",
+      "revId": "18a35e62a9a4bd644427f7e84d5cdc4888c84c8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28036ef9_99f2ad10",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 1
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-03T17:30:51Z",
+      "side": 1,
+      "message": "Outside of the scope of this CL, but something occurred to me, for future-proofing would it make sense to return some `ShapedLines` class here with a `ShapedLine[] lines` property? A class would be more extensible than an array. For example, we can later add more fields to a class, but we can\u0027t do that with an array.",
+      "revId": "18a35e62a9a4bd644427f7e84d5cdc4888c84c8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
