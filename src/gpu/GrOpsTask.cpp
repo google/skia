@@ -674,6 +674,12 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     return true;
 }
 
+void GrOpsTask::gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
+    idArray->reserve_back(1 + fMergedTaskIDs.count());
+    this->GrRenderTask::gatherIDs(idArray);
+    idArray->push_back_n(fMergedTaskIDs.count(), fMergedTaskIDs.data());
+}
+
 void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
@@ -734,6 +740,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     fDeferredProxies.reserve_back(addlDeferredProxyCount);
     fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
+    fMergedTaskIDs.reserve_back(opsTasks.count());
     for (const auto& opsTask : opsTasks) {
         fDeferredProxies.move_back_n(opsTask->fDeferredProxies.count(),
                                      opsTask->fDeferredProxies.data());
@@ -744,6 +751,7 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         opsTask->fDeferredProxies.reset();
         opsTask->fSampledProxies.reset();
         opsTask->fOpChains.reset();
+        fMergedTaskIDs.push_back(opsTask->uniqueID());
     }
     fMustPreserveStencil = opsTasks.back()->fMustPreserveStencil;
     return mergedCount;

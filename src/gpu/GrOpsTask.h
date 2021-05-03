@@ -58,6 +58,7 @@ public:
      */
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
+    void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const override;
 
     void addSampledTexture(GrSurfaceProxy* proxy) {
         // This function takes a GrSurfaceProxy because all subsequent uses of the proxy do not
@@ -276,6 +277,10 @@ private:
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
+
+    // TODO: CCPR uses an onFlushCallbackObject that needs to know the original task IDs for tasks
+    // that got merged away. When it goes away, this can go away.
+    SkSTArray<2, uint32_t, true> fMergedTaskIDs;
 };
 
 #endif
