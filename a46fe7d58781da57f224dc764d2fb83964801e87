@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b631a1af_5983e946",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-03T17:03:42Z",
+      "side": 1,
+      "message": "Will do",
+      "parentUuid": "32d8dae8_943975e7",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "35cf424c_9483e99b",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-05-03T16:12:08Z",
       "side": 1,
       "message": "Not a TS expert, but would `baselineY` be more idiomatic?",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "280592b9_366f699c",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-03T17:03:42Z",
+      "side": 1,
+      "message": "Will do",
+      "parentUuid": "35cf424c_9483e99b",
       "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -52,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c88fa176_abd1094b",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-03T17:03:42Z",
+      "side": 1,
+      "message": "Groovy, will remove it.",
+      "parentUuid": "6bfea56e_e6cc6127",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3d7d612_c9cb6e17",
@@ -65,6 +119,24 @@
       "writtenOn": "2021-05-03T16:12:08Z",
       "side": 1,
       "message": "Would an assert that jline is not null be useful here?",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abdd7300_e1c2ca81",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-03T17:03:42Z",
+      "side": 1,
+      "message": "null is an explicit signal that the current \"line\" is done. Useful to editors, not so much just to a drawing visitor like this one.",
+      "parentUuid": "f3d7d612_c9cb6e17",
       "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
