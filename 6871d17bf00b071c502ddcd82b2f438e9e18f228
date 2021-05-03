@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "503c67ef_7c12c5ba",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-03T21:39:50Z",
+      "side": 1,
+      "message": "Can a color filter ever (in the future) sample a shader?",
+      "range": {
+        "startLine": 998,
+        "startChar": 39,
+        "endLine": 998,
+        "endChar": 63
+      },
+      "revId": "6871d17bf00b071c502ddcd82b2f438e9e18f228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
