@@ -63,6 +63,30 @@
       },
       "revId": "3cb612518bf0a72bbe7fcf3a6a1a9c1975dab510",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b949d4b_96ecf972",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-03T17:44:51Z",
+      "side": 1,
+      "message": "Hmmm. ok. Goes against the mantra of reducing public methods, but I agree these seems well spec\u0027d. I won\u0027t object.",
+      "parentUuid": "51124b74_132a5c32",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 238,
+        "endChar": 32
+      },
+      "revId": "3cb612518bf0a72bbe7fcf3a6a1a9c1975dab510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
