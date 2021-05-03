@@ -2279,7 +2279,9 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
         const SkGlyphRunList& glyphRunList =
             fScratchGlyphRunBuilder->textToGlyphRunList(
                     font, paint, text, byteLength, {x, y}, encoding);
-        this->onDrawGlyphRunList(glyphRunList, paint);
+        if (!glyphRunList.empty()) {
+            this->onDrawGlyphRunList(glyphRunList, paint);
+        }
     }
 }
 

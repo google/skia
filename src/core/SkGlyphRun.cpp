@@ -193,8 +193,8 @@ const SkGlyphRunList& SkGlyphRunBuilder::textToGlyphRunList(
         SkTextEncoding encoding) {
     auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, encoding);
     SkRect bounds = SkRect::MakeEmpty();
+    this->prepareBuffers(glyphIDs.size(), 0);
     if (!glyphIDs.empty()) {
-        this->prepareBuffers(glyphIDs.size(), 0);
         SkSpan<const SkPoint> positions = draw_text_positions(font, glyphIDs, {0, 0}, fPositions);
         this->makeGlyphRun(font,
                            glyphIDs,
