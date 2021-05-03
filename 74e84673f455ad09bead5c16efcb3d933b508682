@@ -16,6 +16,24 @@
       "message": "Any chance we could have a unit test to avoid the regression?",
       "revId": "74e84673f455ad09bead5c16efcb3d933b508682",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4a40c64_b642bc0c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-03T16:40:40Z",
+      "side": 1,
+      "message": "I can\u0027t make a unit test that will fail during normal test, but I can make one that fails under asan.",
+      "parentUuid": "50370aff_67395b21",
+      "revId": "74e84673f455ad09bead5c16efcb3d933b508682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
