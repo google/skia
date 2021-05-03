@@ -100,6 +100,7 @@ struct SkSVGPresentationAttributes {
     // uninherited
     SkSVGProperty<SkSVGNumberType, false> fOpacity;
     SkSVGProperty<SkSVGFuncIRI   , false> fClipPath;
+    SkSVGProperty<SkSVGDisplay   , false> fDisplay;
     SkSVGProperty<SkSVGFuncIRI   , false> fMask;
     SkSVGProperty<SkSVGFuncIRI   , false> fFilter;
     SkSVGProperty<SkSVGColor     , false> fStopColor;

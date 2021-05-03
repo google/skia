@@ -16,6 +16,7 @@
 
 SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) {
     // Uninherited presentation attributes need a non-null default value.
+    fPresentationAttributes.fDisplay.set(SkSVGDisplay(SkSVGDisplay::Type::kInline));
     fPresentationAttributes.fStopColor.set(SkSVGColor(SK_ColorBLACK));
     fPresentationAttributes.fStopOpacity.set(SkSVGNumberType(1.0f));
     fPresentationAttributes.fFloodColor.set(SkSVGColor(SK_ColorBLACK));
@@ -63,9 +64,10 @@ bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     ctx->applyPresentationAttributes(fPresentationAttributes,
                                      this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
 
-    // visibility:hidden disables rendering
+    // visibility:hidden and display:none disable rendering
     const auto visibility = ctx->presentationContext().fInherited.fVisibility->type();
-    return visibility != SkSVGVisibility::Type::kHidden;
+    const auto display = fPresentationAttributes.fDisplay->fType;  // 'display' is uninherited
+    return visibility != SkSVGVisibility::Type::kHidden && display != SkSVGDisplay::kNone;
 }
 
 void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -94,6 +96,7 @@ bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
            || PARSE_AND_SET("color"                      , Color)
            || PARSE_AND_SET("color-interpolation"        , ColorInterpolation)
            || PARSE_AND_SET("color-interpolation-filters", ColorInterpolationFilters)
+           || PARSE_AND_SET("display"                    , Display)
            || PARSE_AND_SET("fill"                       , Fill)
            || PARSE_AND_SET("fill-opacity"               , FillOpacity)
            || PARSE_AND_SET("fill-rule"                  , FillRule)
