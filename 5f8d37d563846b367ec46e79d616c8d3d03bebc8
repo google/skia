@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4eaafafb_0f2f9104",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-03T19:59:26Z",
+      "side": 1,
+      "message": "Initializing window context here will be weird given how it\u0027s tied to sk_app. Do we want to refactor WindowContext out of sk_app before implementing SurfaceThread? Or do we want to do the same linker trick here as we did in Surface?",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
