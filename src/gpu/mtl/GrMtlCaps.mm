@@ -472,6 +472,7 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
 
     shaderCaps->fIntegerSupport = true;
+    shaderCaps->fNonsquareMatrixSupport = true;
     shaderCaps->fVertexIDSupport = false;
 
     // Metal uses IEEE float and half floats so assuming those values here.
