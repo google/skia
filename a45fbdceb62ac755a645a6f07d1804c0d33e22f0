@@ -39,6 +39,24 @@
       "message": "... Probably no point to doing this lazily. Planning to just do this work in the constructor whenever allowColorFilter is true, and this function can just return the cached result (which may be nullptr).",
       "revId": "a45fbdceb62ac755a645a6f07d1804c0d33e22f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0abcad2e_e851283b",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T21:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3826fd71_b7db63bf",
+      "revId": "a45fbdceb62ac755a645a6f07d1804c0d33e22f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
