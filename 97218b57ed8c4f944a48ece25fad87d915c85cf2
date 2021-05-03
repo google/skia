@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa326469_2cbab1e8",
+        "filename": "modules/canvaskit/npm_build/extra.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-03T16:30:09Z",
+      "side": 1,
+      "message": "Nit: these two are the same here\n\nYou could hoist out of the conditional and only keep one branch?\n\n  let index \u003d (dx \u003c 0) ? this._index.start : this._index.end;\n  if (this._index.start \u003d\u003d this._index.end) {\n    index \u003d max(min(index + dx, ...));\n  }",
+      "range": {
+        "startLine": 734,
+        "startChar": 37,
+        "endLine": 734,
+        "endChar": 72
+      },
+      "revId": "97218b57ed8c4f944a48ece25fad87d915c85cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
