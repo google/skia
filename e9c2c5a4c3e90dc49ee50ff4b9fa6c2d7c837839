@@ -22,6 +22,30 @@
       },
       "revId": "e9c2c5a4c3e90dc49ee50ff4b9fa6c2d7c837839",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bca9900e_55e6d8f1",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 0,
+      "message": "It was a very satisfying refactor :-)",
+      "parentUuid": "be10785a_b2eecf12",
+      "range": {
+        "startLine": 972,
+        "startChar": 4,
+        "endLine": 972,
+        "endChar": 5
+      },
+      "revId": "e9c2c5a4c3e90dc49ee50ff4b9fa6c2d7c837839",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

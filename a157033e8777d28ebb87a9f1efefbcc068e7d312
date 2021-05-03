@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f0d81c2_1ceaaf65",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ead3913a_3a5cd1e2",
+      "range": {
+        "startLine": 79,
+        "startChar": 22,
+        "endLine": 79,
+        "endChar": 34
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "383b8174_f16457a8",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-30T20:50:32Z",
       "side": 1,
       "message": "optional: I\u0027ve been opting towards always passing the Context even if I only need one part of it. Ideally we\u0027d always have the whole Context at our disposal.",
+      "range": {
+        "startLine": 798,
+        "startChar": 33,
+        "endLine": 798,
+        "endChar": 61
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea3cb5f1_1761d32d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "383b8174_f16457a8",
       "range": {
         "startLine": 798,
         "startChar": 33,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ad30727_306c4f85",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 863,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f2da7be_532a996f",
+      "range": {
+        "startLine": 857,
+        "startChar": 0,
+        "endLine": 863,
+        "endChar": 1
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2df61216_6bb95b86",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-04-30T20:28:45Z",
       "side": 1,
       "message": "If this happens, all of the DSLVars now have stale `fVar` pointers inside of them. I\u0027d really like to avoid that. We\u0027ve had similar bugs in IR generation where encountering an error causes stale pointers to be left behind, and the fuzzer can take advantage of it in some clever way.",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 64,
+        "endChar": 19
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e822f286_52231984",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Fixed this by making it so that VarUniquePointer can no longer return null.",
+      "parentUuid": "2df61216_6bb95b86",
       "range": {
         "startLine": 64,
         "startChar": 12,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f9bac2e_468cb0c4",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Of course I wouldn\u0027t normally include the return type in the name, but I needed to distinguish it from the very similar \"Var\" method. I feel like \"MakeVariable\" isn\u0027t clear enough (why would I need to call MakeVariable instead of just Var?), so I went with \"ParameterVar\" instead. Hopefully that addresses the concern.",
+      "parentUuid": "50714e56_4fabd2ed",
+      "range": {
+        "startLine": 96,
+        "startChar": 43,
+        "endLine": 96,
+        "endChar": 59
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b5cfc81a_89f4afa2",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-04-30T20:50:32Z",
       "side": 1,
       "message": "static",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76ec1a68_7c0b24e6",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Derp. Done.",
+      "parentUuid": "b5cfc81a_89f4afa2",
       "range": {
         "startLine": 16,
         "startChar": 0,
@@ -162,6 +306,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2d11188_053d421d",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2e555b0_45369c6c",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e873da3_35d74dcb",
@@ -175,6 +343,30 @@
       "writtenOn": "2021-04-30T20:50:32Z",
       "side": 1,
       "message": "static",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee359352_0b6ed6d8",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e873da3_35d74dcb",
       "range": {
         "startLine": 49,
         "startChar": 0,
@@ -208,6 +400,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "18111223_4c4087ca",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cbbd1c4_b9248f5e",
+      "range": {
+        "startLine": 222,
+        "startChar": 12,
+        "endLine": 222,
+        "endChar": 66
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a956ce2_9ea836ae",
@@ -221,6 +437,30 @@
       "writtenOn": "2021-04-30T20:50:32Z",
       "side": 1,
       "message": "optional: Similarly, `if (!match) { continue; }` would reduce depth by one more level.",
+      "range": {
+        "startLine": 230,
+        "startChar": 16,
+        "endLine": 230,
+        "endChar": 28
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b64e56e_fe1ad27d",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a956ce2_9ea836ae",
       "range": {
         "startLine": 230,
         "startChar": 16,
@@ -254,6 +494,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80ac32af_b97564c8",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79e900a3_4cb3a599",
+      "range": {
+        "startLine": 232,
+        "startChar": 53,
+        "endLine": 232,
+        "endChar": 62
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b891f8b0_b9e51e13",
@@ -267,6 +531,30 @@
       "writtenOn": "2021-04-30T20:50:32Z",
       "side": 1,
       "message": "std::unique_ptr\u003cVariable\u003e\u0026",
+      "range": {
+        "startLine": 233,
+        "startChar": 29,
+        "endLine": 233,
+        "endChar": 34
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d27232b_ac8adffa",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b891f8b0_b9e51e13",
       "range": {
         "startLine": 233,
         "startChar": 29,
@@ -300,6 +588,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcaebf26_998dbf0e",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d0225fd_a882b8ff",
+      "range": {
+        "startLine": 236,
+        "startChar": 44,
+        "endLine": 236,
+        "endChar": 51
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "610a9c0f_70ec6ffe",
@@ -313,6 +625,30 @@
       "writtenOn": "2021-04-30T20:50:32Z",
       "side": 1,
       "message": "finalParameters.reserve(parameters.size());",
+      "range": {
+        "startLine": 284,
+        "startChar": 2,
+        "endLine": 284,
+        "endChar": 4
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11f922b9_29954a9f",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "610a9c0f_70ec6ffe",
       "range": {
         "startLine": 284,
         "startChar": 2,
@@ -346,6 +682,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "85729035_34c83e82",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b941753_9d90a9f7",
+      "range": {
+        "startLine": 290,
+        "startChar": 4,
+        "endLine": 290,
+        "endChar": 40
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "35138950_aac50eeb",
@@ -369,6 +729,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b84914e4_1ba6f5dd",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35138950_aac50eeb",
+      "range": {
+        "startLine": 294,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 0
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "71bd2e9a_d741cde6",
@@ -382,6 +766,30 @@
       "writtenOn": "2021-04-30T20:50:32Z",
       "side": 1,
       "message": "Did you need this inner cast? The outer cast should be handling type coercion for you. If not, it\u0027s a bug...",
+      "range": {
+        "startLine": 1170,
+        "startChar": 67,
+        "endLine": 1170,
+        "endChar": 72
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb753890_73728840",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-03T15:06:02Z",
+      "side": 1,
+      "message": "This is just what convert_compound_constructor is producing in response to that constructor call.",
+      "parentUuid": "71bd2e9a_d741cde6",
       "range": {
         "startLine": 1170,
         "startChar": 67,
