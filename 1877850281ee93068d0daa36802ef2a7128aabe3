@@ -16,6 +16,24 @@
       "message": "This won\u0027t land. Just re-enabled reordering + CCPR to test this CL.",
       "revId": "1877850281ee93068d0daa36802ef2a7128aabe3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31b95a08_d0fe15ae",
+        "filename": "src/gpu/GrPathRendererChain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-05-03T21:37:59Z",
+      "side": 1,
+      "message": "(Resolved)",
+      "parentUuid": "5a3e28ff_a386ec84",
+      "revId": "1877850281ee93068d0daa36802ef2a7128aabe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
