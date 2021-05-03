@@ -917,6 +917,7 @@ static bool gather_srcs() {
 static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     std::unique_ptr<Sink> sink(s);
 
+#if 0
     // Try a simple Src as a canary.  If it fails, skip this sink.
     struct : public Src {
         Result draw(GrDirectContext*, SkCanvas* c) const override {
@@ -935,6 +936,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
         info("Could not run %s: %s\n", config.getTag().c_str(), result.c_str());
         exit(1);
     }
+#endif
 
     TaggedSink& ts = gSinks->push_back();
     ts.reset(sink.release());
