@@ -39,6 +39,30 @@
       },
       "revId": "3cb612518bf0a72bbe7fcf3a6a1a9c1975dab510",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51124b74_132a5c32",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-03T17:40:49Z",
+      "side": 1,
+      "message": "skottie needs them, can it use private headers?\n\nThat being said, their behavior seems pretty explicitly documented to me so I\u0027m comfortable having them be public.",
+      "parentUuid": "907e0224_964c55f6",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 238,
+        "endChar": 32
+      },
+      "revId": "3cb612518bf0a72bbe7fcf3a6a1a9c1975dab510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
