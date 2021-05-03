@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dc3abd2_aecda70b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T19:56:58Z",
+      "side": 1,
+      "message": "Earlier version of this CL had sample(shader, coords, color). After digging into the uncertainties around skbug/11942 (and questioning if \"input color\" is really a first-class concept of SkShader in the skia pipeline), I\u0027ve removed that. I did add a GM that implements compose-color-filter in SkSL, and draws it alongside the C++ version.",
+      "revId": "aae80d9044e7a716b102dbede6abf5a55c00da38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
