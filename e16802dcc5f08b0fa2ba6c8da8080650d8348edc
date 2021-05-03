@@ -34,6 +34,24 @@
       "parentUuid": "8f3b604e_46995ff4",
       "revId": "e16802dcc5f08b0fa2ba6c8da8080650d8348edc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc50d0d4_9dcf6f5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-03T18:59:02Z",
+      "side": 1,
+      "message": "I don\u0027t think there will be any conversion there either. I\u0027m passing this off of, https://docs.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-block-compression, scroll to the bottom. The d3d12 CopyResource spec links to that page for conversion info.",
+      "parentUuid": "1196adc7_8015c401",
+      "revId": "e16802dcc5f08b0fa2ba6c8da8080650d8348edc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
