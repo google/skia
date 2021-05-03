@@ -16,6 +16,24 @@
       "message": "Is this actually what we want? My read of the spec is that these copies don\u0027t do any real type conversion. Instead they just reinterpret the raw memory to be the new type. In other words the CopyResource is the same as doing a memcpy on the GPU. I\u0027m just worried this may lead to people accidentally trying to copy a float 32 texture to a uint 32 thinking that 1.0f will become 0xFFFFFFFF, which it won\u0027t",
       "revId": "e16802dcc5f08b0fa2ba6c8da8080650d8348edc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1196adc7_8015c401",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-03T18:55:45Z",
+      "side": 1,
+      "message": "Oh yeah, that makes sense. What about copying between the SRGB/non-SRGB formats?",
+      "parentUuid": "8f3b604e_46995ff4",
+      "revId": "e16802dcc5f08b0fa2ba6c8da8080650d8348edc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
