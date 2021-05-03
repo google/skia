@@ -16,6 +16,24 @@
       "message": "Could this be just an enum like SkSVGColorspace above?",
       "revId": "5f963768381f84f74b83bf7429b867bca1561924",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a17ec08_fe95a9a9",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-03T17:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be1627f5_03a48c70",
+      "revId": "5f963768381f84f74b83bf7429b867bca1561924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
