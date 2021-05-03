@@ -682,4 +682,10 @@ enum class SkSVGColorspace {
     kLinearRGB,
 };
 
+// https://www.w3.org/TR/SVG11/painting.html#DisplayProperty
+enum class SkSVGDisplay {
+    kInline,
+    kNone,
+};
+
 #endif // SkSVGTypes_DEFINED

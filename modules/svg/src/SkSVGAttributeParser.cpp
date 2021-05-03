@@ -963,3 +963,26 @@ bool SkSVGAttributeParser::parse(SkSVGColorspace* colorspace) {
 
     return this->parseEnumMap(gColorspaceMap, colorspace) && this->parseEOSToken();
 }
+
+// https://www.w3.org/TR/SVG11/painting.html#DisplayProperty
+template <>
+bool SkSVGAttributeParser::parse(SkSVGDisplay* display) {
+    static const struct {
+        SkSVGDisplay fType;
+        const char*  fName;
+    } gDisplayInfo[] = {
+        { SkSVGDisplay::kInline, "inline" },
+        { SkSVGDisplay::kNone  , "none"   },
+    };
+
+    bool parsedValue = false;
+    for (const auto& parseInfo : gDisplayInfo) {
+        if (this->parseExpectedStringToken(parseInfo.fName)) {
+            *display = SkSVGDisplay(parseInfo.fType);
+            parsedValue = true;
+            break;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
