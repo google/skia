@@ -33,7 +33,7 @@
 <h2> Paragraph </h2>
 <canvas id=para1 width=600 height=600></canvas>
 <canvas id=para2 width=600 height=600></canvas>
-<canvas id=para3 width=600 height=600></canvas>
+<canvas id=para3 width=600 height=600 tabindex='1'></canvas>
 
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
 <canvas id=skp width=500 height=500></canvas>
@@ -600,7 +600,7 @@
 
       function mid(a, b) { return (a + b) * 0.5; }
 
-      function runs_pos_to_index(runs, x, y) {
+      function runs_x_to_index(runs, x) {
           for (const r of runs) {
               for (let i = 1; i < r.offsets.length; i += 1) {
                   if (x < r.positions[i*2]) {
@@ -622,7 +622,7 @@
           }
           for (const l of lines) {
               if (y <= l.baseline_y + l.metrics.descent) {
-                  return runs_pos_to_index(l.runs, x, y);
+                  return runs_x_to_index(l.runs, x);
               }
           }
           return text.length;
@@ -646,13 +646,17 @@
         }
     }
 
-    function lines_index_to_line(lines, index) {
-        for (const l of lines) {
-            if (index <= l.textRange.last) {
-                return l;
+    function lines_index_to_line_index(lines, index) {
+        for (const i in lines) {
+            if (index <= lines[i].textRange.last) {
+                return i;
             }
         }
-        return lines[lines.length-1];
+        return lines.length-1;
+    }
+
+    function lines_index_to_line(lines, index) {
+        return lines[lines_index_to_line_index(lines, index)];
     }
 
     function lines_index_to_x(lines, index) {
@@ -699,7 +703,54 @@
           return path;
       }
 
-      let INDEX = 0;
+      let editor = {
+          _text: null,
+          _lines: null,
+          _cursor: null,
+          _width: 1e20,
+          _index: { start: 0, end: 0 },
+
+          init: function(text, lines, cursor, width) {
+              this._text = text;
+              this._lines = lines;
+              this._cursor = cursor;
+              this._width = width;
+          },
+          setIndex: function(i) {
+              this._index.start = this._index.end = i;
+              const l = lines_index_to_line(this._lines, i);
+              const x = runs_index_to_x(l.runs, i);
+              this._cursor.place(x, line_top(l), line_bottom(l));
+          },
+          setIndices: function(a, b) {
+              this._index.start = a;
+              this._index.end = b;
+              this._cursor.setPath(lines_indices_to_path(this._lines, a, b, fm, this._width));
+          },
+          moveDX: function(dx) {
+              let index;
+              if (this._index.start == this._index.end) {
+                  index = (dx < 0) ? this._index.start : this._index.end;
+                  index = Math.max(Math.min(index + dx, this._text.length), 0);
+              } else {
+                  index = dx < 0 ? this._index.start : this._index.end;
+              }
+              this.setIndex(index);
+          },
+          moveDY: function(dy) {
+              let index = (dy < 0) ? this._index.start : this._index.end;
+              const i = lines_index_to_line_index(this._lines, index);
+              if (i == 0) {
+                  index = 0;
+              } else if (i == this._lines.length - 1) {
+                  index = this._text.length;
+              } else {
+                  const x = lines_index_to_x(this._lines, index);
+                  index = runs_x_to_index(this._lines[i].runs, x);
+              }
+              this.setIndex(index);
+          },
+      };
       let lines;
 
       function drawFrame(canvas) {
@@ -707,6 +758,7 @@
         canvas.drawParagraph(paragraph, 0, 0);
         if (!lines) {
             lines = paragraph.getShapedLines();
+            editor.init(text, lines, cursor, WIDTH);
         }
 
         if (mouse.isActive()) {
@@ -714,12 +766,9 @@
             const a = lines_pos_to_index(lines, pos[0], pos[1]);
             const b = lines_pos_to_index(lines, pos[2], pos[3]);
             if (a == b) {
-                INDEX = a;
-                const l = lines_index_to_line(lines, INDEX);
-                const x = runs_index_to_x(l.runs, INDEX);
-                cursor.place(x, line_top(l), line_bottom(l));
+                editor.setIndex(a);
             } else {
-                cursor.setPath(lines_indices_to_path(lines, a, b, fm, WIDTH));
+                editor.setIndices(a, b);
             }
         }
 
@@ -756,9 +805,19 @@
         }
       };
 
+      function keyhandler(e) {
+          switch (e.key) {
+              case 'ArrowLeft':  editor.moveDX(-1); break;
+              case 'ArrowUp':    editor.moveDY(-1); break;
+              case 'ArrowRight': editor.moveDX(1); break;
+              case 'ArrowDown':  editor.moveDY(1); break;
+          }
+      }
+
       document.getElementById('para3').addEventListener('pointermove', interact);
       document.getElementById('para3').addEventListener('pointerdown', interact);
       document.getElementById('para3').addEventListener('pointerup', interact);
+      document.getElementById('para3').addEventListener('keydown', keyhandler);
       return surface;
     }
 
