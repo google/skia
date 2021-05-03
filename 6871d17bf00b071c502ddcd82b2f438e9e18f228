@@ -22,6 +22,30 @@
       },
       "revId": "6871d17bf00b071c502ddcd82b2f438e9e18f228",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c0a5507_4dbc8ad9",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T21:54:01Z",
+      "side": 1,
+      "message": "Yes, the plan is to allow sampling in both directions. Note that because shaders have to be sampled with explicit coords (and color filters don\u0027t originally have access to the sample coords), this doesn\u0027t break the spatial invariance. However, it allows writing things like table (or 3D LUT) color filters, which can\u0027t be done with today\u0027s runtime effects.",
+      "parentUuid": "503c67ef_7c12c5ba",
+      "range": {
+        "startLine": 998,
+        "startChar": 39,
+        "endLine": 998,
+        "endChar": 63
+      },
+      "revId": "6871d17bf00b071c502ddcd82b2f438e9e18f228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
