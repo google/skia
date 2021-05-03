@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf7d5679_e4947781",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-03T16:03:12Z",
+      "side": 1,
+      "message": "I moved mapRect to SkMatrixPriv::MapRect. I\u0027ve also updated the unit tests since the AVX2 tests suggest there\u0027s more difference in behavior between SkPath\u0027s clipping and what I do in mapRect (so even more reason to keep mapRect private for now).  I may have to tweak the tests further depending on the bot results.",
+      "revId": "3cb612518bf0a72bbe7fcf3a6a1a9c1975dab510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

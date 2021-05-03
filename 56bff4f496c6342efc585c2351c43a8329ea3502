@@ -76,6 +76,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "179c26b9_d3b47d07",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-03T16:03:12Z",
+      "side": 1,
+      "message": "I like the brevity of Iso over Uniform, and like the new names over what I\u0027d done, so I\u0027ve switched ScaleToFit -\u003e IsoScaleToFit and ScaleToFill -\u003e IsoScaleToCover.\n\nI kept RectToRect as is because it\u0027s the most commonly used factory in this family and will make porting from SkMatrix to SkM44 more straight forward.",
+      "parentUuid": "489877d6_b470cacb",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 67
+      },
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fef1448e_809a49cb",
@@ -89,6 +113,30 @@
       "writtenOn": "2021-04-30T14:57:47Z",
       "side": 1,
       "message": "Seems like we should note the assumed z value here.",
+      "range": {
+        "startLine": 391,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 36
+      },
+      "revId": "56bff4f496c6342efc585c2351c43a8329ea3502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4409441a_43a4abc8",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-03T16:03:12Z",
+      "side": 1,
+      "message": "Done, in the function that\u0027s now in SkMatrixPriv.",
+      "parentUuid": "fef1448e_809a49cb",
       "range": {
         "startLine": 391,
         "startChar": 0,
