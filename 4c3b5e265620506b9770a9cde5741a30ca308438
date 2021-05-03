@@ -70,6 +70,30 @@
       },
       "revId": "4c3b5e265620506b9770a9cde5741a30ca308438",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f15c40b2_0725e9ce",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-03T13:12:22Z",
+      "side": 1,
+      "message": "So, the same as fIntegerSupport?    (version \u003e\u003d GR_GL_VER(2, 0)) ?",
+      "parentUuid": "eef35e9e_a026d5fd",
+      "range": {
+        "startLine": 404,
+        "startChar": 0,
+        "endLine": 404,
+        "endChar": 96
+      },
+      "revId": "4c3b5e265620506b9770a9cde5741a30ca308438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
