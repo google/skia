@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbc066c5_b841e492",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T19:07:35Z",
+      "side": 1,
+      "message": "Something to note (maybe file a bug?) - this sidesteps the mechanism that we use to prevent unsigned types in runtime effects. (Those are currently not available in the symbol table that\u0027s used when compiling runtime effects, but if the IR already has direct references to the Type object, I suspect it will \"work\", but fail later in the code generator or backend)?",
+      "revId": "9baac9ce659fc39d29a6dba02b6351c14cc7808e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
