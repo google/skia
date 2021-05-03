@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0ca02f1_49994ab6",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 1
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-03T17:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38863ddb_60502906",
+      "revId": "18a35e62a9a4bd644427f7e84d5cdc4888c84c8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28036ef9_99f2ad10",
