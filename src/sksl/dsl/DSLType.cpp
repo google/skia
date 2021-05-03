@@ -15,6 +15,50 @@ namespace SkSL {
 
 namespace dsl {
 
+bool DSLType::isBoolean() const {
+    return this->skslType().isBoolean();
+}
+
+bool DSLType::isNumber() const {
+    return this->skslType().isNumber();
+}
+
+bool DSLType::isFloat() const {
+    return this->skslType().isFloat();
+}
+
+bool DSLType::isSigned() const {
+    return this->skslType().isSigned();
+}
+
+bool DSLType::isUnsigned() const {
+    return this->skslType().isUnsigned();
+}
+
+bool DSLType::isInteger() const {
+    return this->skslType().isInteger();
+}
+
+bool DSLType::isScalar() const {
+    return this->skslType().isScalar();
+}
+
+bool DSLType::isVector() const {
+    return this->skslType().isVector();
+}
+
+bool DSLType::isMatrix() const {
+    return this->skslType().isMatrix();
+}
+
+bool DSLType::isArray() const {
+    return this->skslType().isArray();
+}
+
+bool DSLType::isStruct() const {
+    return this->skslType().isStruct();
+}
+
 const SkSL::Type& DSLType::skslType() const {
     if (fSkSLType) {
         return *fSkSLType;
@@ -101,6 +145,22 @@ const SkSL::Type& DSLType::skslType() const {
             return *context.fTypes.fShort3;
         case kShort4_Type:
             return *context.fTypes.fShort4;
+        case kUInt_Type:
+            return *context.fTypes.fUInt;
+        case kUInt2_Type:
+            return *context.fTypes.fUInt2;
+        case kUInt3_Type:
+            return *context.fTypes.fUInt3;
+        case kUInt4_Type:
+            return *context.fTypes.fUInt4;
+        case kUShort_Type:
+            return *context.fTypes.fUShort;
+        case kUShort2_Type:
+            return *context.fTypes.fUShort2;
+        case kUShort3_Type:
+            return *context.fTypes.fUShort3;
+        case kUShort4_Type:
+            return *context.fTypes.fUShort4;
         case kVoid_Type:
             return *context.fTypes.fVoid;
         default:

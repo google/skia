@@ -63,6 +63,14 @@ enum TypeConstant : uint8_t {
     kShort2_Type,
     kShort3_Type,
     kShort4_Type,
+    kUInt_Type,
+    kUInt2_Type,
+    kUInt3_Type,
+    kUInt4_Type,
+    kUShort_Type,
+    kUShort2_Type,
+    kUShort3_Type,
+    kUShort4_Type,
     kVoid_Type,
 };
 
@@ -73,6 +81,61 @@ public:
 
     DSLType(const SkSL::Type* type)
         : fSkSLType(type) {}
+
+    /**
+     * Returns true if this type is a bool.
+     */
+    bool isBoolean() const;
+
+    /**
+     * Returns true if this is a numeric scalar type.
+     */
+    bool isNumber() const;
+
+    /**
+     * Returns true if this is a floating-point scalar type (float or half).
+     */
+    bool isFloat() const;
+
+    /**
+     * Returns true if this is a signed scalar type (int or short).
+     */
+    bool isSigned() const;
+
+    /**
+     * Returns true if this is an unsigned scalar type (uint or ushort).
+     */
+    bool isUnsigned() const;
+
+    /**
+     * Returns true if this is a signed or unsigned integer.
+     */
+    bool isInteger() const;
+
+    /**
+     * Returns true if this is a scalar type.
+     */
+    bool isScalar() const;
+
+    /**
+     * Returns true if this is a vector type.
+     */
+    bool isVector() const;
+
+    /**
+     * Returns true if this is a matrix type.
+     */
+    bool isMatrix() const;
+
+    /**
+     * Returns true if this is a array type.
+     */
+    bool isArray() const;
+
+    /**
+     * Returns true if this is a struct type.
+     */
+    bool isStruct() const;
 
     template<typename... Args>
     static DSLExpression Construct(DSLType type, Args&&... args) {
@@ -141,7 +204,9 @@ VECTOR_TYPE(Bool)
 VECTOR_TYPE(Float)
 VECTOR_TYPE(Half)
 VECTOR_TYPE(Int)
+VECTOR_TYPE(UInt)
 VECTOR_TYPE(Short)
+VECTOR_TYPE(UShort)
 
 MATRIX_TYPE(Float)
 MATRIX_TYPE(Half)

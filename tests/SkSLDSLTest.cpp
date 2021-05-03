@@ -282,6 +282,43 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInt, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUInt, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+
+    EXPECT_EQUAL(UInt(std::numeric_limits<uint32_t>::max()),
+                "4294967295");
+    EXPECT_EQUAL(UInt2(std::numeric_limits<uint32_t>::min()),
+                "uint2(0)");
+    EXPECT_EQUAL(UInt2(0, 1),
+                "uint2(0, 1)");
+    EXPECT_EQUAL(UInt3(0),
+                "uint3(0)");
+    EXPECT_EQUAL(UInt3(UInt2(0, 1), -2),
+                "uint3(0, 1, -2)");
+    EXPECT_EQUAL(UInt3(0, 1, 2),
+                "uint3(0, 1, 2)");
+    EXPECT_EQUAL(UInt4(0),
+                "uint4(0)");
+    EXPECT_EQUAL(UInt4(UInt2(0, 1), UInt2(2, 3)),
+                "uint4(0, 1, 2, 3)");
+    EXPECT_EQUAL(UInt4(0, 1, UInt2(2, 3)),
+                "uint4(0, 1, 2, 3)");
+    EXPECT_EQUAL(UInt4(0, 1, 2, 3),
+                "uint4(0, 1, 2, 3)");
+
+    {
+        ExpectError error(r, "error: invalid arguments to 'uint2' constructor (expected 2 scalars,"
+                             " but found 4)\n");
+        UInt2(UInt4(1)).release();
+    }
+
+    {
+        ExpectError error(r, "error: invalid arguments to 'uint4' constructor (expected 4 scalars,"
+                             " but found 3)\n");
+        UInt4(UInt3(1)).release();
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
@@ -319,6 +356,43 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUShort, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+
+    EXPECT_EQUAL(UShort(std::numeric_limits<uint16_t>::max()),
+                "65535");
+    EXPECT_EQUAL(UShort2(std::numeric_limits<uint16_t>::min()),
+                "ushort2(0)");
+    EXPECT_EQUAL(UShort2(0, 1),
+                "ushort2(0, 1)");
+    EXPECT_EQUAL(UShort3(0),
+                "ushort3(0)");
+    EXPECT_EQUAL(UShort3(UShort2(0, 1), -2),
+                "ushort3(0, 1, -2)");
+    EXPECT_EQUAL(UShort3(0, 1, 2),
+                "ushort3(0, 1, 2)");
+    EXPECT_EQUAL(UShort4(0),
+                "ushort4(0)");
+    EXPECT_EQUAL(UShort4(UShort2(0, 1), UShort2(2, 3)),
+                "ushort4(0, 1, 2, 3)");
+    EXPECT_EQUAL(UShort4(0, 1, UShort2(2, 3)),
+                "ushort4(0, 1, 2, 3)");
+    EXPECT_EQUAL(UShort4(0, 1, 2, 3),
+                "ushort4(0, 1, 2, 3)");
+
+    {
+        ExpectError error(r, "error: invalid arguments to 'ushort2' constructor (expected 2 "
+                             "scalars, but found 4)\n");
+        UShort2(UShort4(1)).release();
+    }
+
+    {
+        ExpectError error(r, "error: invalid arguments to 'ushort4' constructor (expected 4 "
+                             "scalars, but found 3)\n");
+        UShort4(UShort3(1)).release();
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
@@ -352,6 +426,93 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
                              " but found 3)\n");
         Bool4(Bool3(true)).release();
     }
+}
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    REPORTER_ASSERT(r,  DSLType(kBool_Type).isBoolean());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isNumber());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isFloat());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isSigned());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isUnsigned());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isInteger());
+    REPORTER_ASSERT(r,  DSLType(kBool_Type).isScalar());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isVector());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isMatrix());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isArray());
+    REPORTER_ASSERT(r, !DSLType(kBool_Type).isStruct());
+
+    REPORTER_ASSERT(r, !DSLType(kInt_Type).isBoolean());
+    REPORTER_ASSERT(r,  DSLType(kInt_Type).isNumber());
+    REPORTER_ASSERT(r, !DSLType(kInt_Type).isFloat());
+    REPORTER_ASSERT(r,  DSLType(kInt_Type).isSigned());
+    REPORTER_ASSERT(r, !DSLType(kInt_Type).isUnsigned());
+    REPORTER_ASSERT(r,  DSLType(kInt_Type).isInteger());
+    REPORTER_ASSERT(r,  DSLType(kInt_Type).isScalar());
+    REPORTER_ASSERT(r, !DSLType(kInt_Type).isVector());
+    REPORTER_ASSERT(r, !DSLType(kInt_Type).isMatrix());
+    REPORTER_ASSERT(r, !DSLType(kInt_Type).isArray());
+    REPORTER_ASSERT(r, !DSLType(kInt_Type).isStruct());
+
+    REPORTER_ASSERT(r, !DSLType(kUInt_Type).isBoolean());
+    REPORTER_ASSERT(r,  DSLType(kUInt_Type).isNumber());
+    REPORTER_ASSERT(r, !DSLType(kUInt_Type).isFloat());
+    REPORTER_ASSERT(r, !DSLType(kUInt_Type).isSigned());
+    REPORTER_ASSERT(r,  DSLType(kUInt_Type).isUnsigned());
+    REPORTER_ASSERT(r,  DSLType(kUInt_Type).isInteger());
+    REPORTER_ASSERT(r,  DSLType(kUInt_Type).isScalar());
+    REPORTER_ASSERT(r, !DSLType(kUInt_Type).isVector());
+    REPORTER_ASSERT(r, !DSLType(kUInt_Type).isMatrix());
+    REPORTER_ASSERT(r, !DSLType(kUInt_Type).isArray());
+    REPORTER_ASSERT(r, !DSLType(kUInt_Type).isStruct());
+
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isBoolean());
+    REPORTER_ASSERT(r,  DSLType(kFloat_Type).isNumber());
+    REPORTER_ASSERT(r,  DSLType(kFloat_Type).isFloat());
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isSigned());
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isUnsigned());
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isInteger());
+    REPORTER_ASSERT(r,  DSLType(kFloat_Type).isScalar());
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isVector());
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isMatrix());
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isArray());
+    REPORTER_ASSERT(r, !DSLType(kFloat_Type).isStruct());
+
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isBoolean());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isNumber());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isFloat());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isSigned());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isUnsigned());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isInteger());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isScalar());
+    REPORTER_ASSERT(r,  DSLType(kFloat2_Type).isVector());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isMatrix());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isArray());
+    REPORTER_ASSERT(r, !DSLType(kFloat2_Type).isStruct());
+
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isBoolean());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isNumber());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isFloat());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isSigned());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isUnsigned());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isInteger());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isScalar());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isVector());
+    REPORTER_ASSERT(r,  DSLType(kHalf2x2_Type).isMatrix());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isArray());
+    REPORTER_ASSERT(r, !DSLType(kHalf2x2_Type).isStruct());
+
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isBoolean());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isNumber());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isFloat());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isSigned());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isUnsigned());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isInteger());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isScalar());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isVector());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isMatrix());
+    REPORTER_ASSERT(r,  DSLType(Array(kFloat_Type, 2)).isArray());
+    REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isStruct());
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {

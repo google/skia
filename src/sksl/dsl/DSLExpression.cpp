@@ -54,9 +54,14 @@ DSLExpression::DSLExpression(float value)
 }
 
 DSLExpression::DSLExpression(int value)
-        : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
-                                             /*offset=*/-1,
-                                             value)) {}
+    : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+                                         /*offset=*/-1,
+                                         value)) {}
+
+DSLExpression::DSLExpression(unsigned int value)
+    : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+                                         /*offset=*/-1,
+                                         value)) {}
 
 DSLExpression::DSLExpression(bool value)
     : fExpression(SkSL::BoolLiteral::Make(DSLWriter::Context(),

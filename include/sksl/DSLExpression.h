@@ -53,6 +53,11 @@ public:
     DSLExpression(int value);
 
     /**
+     * Creates an expression representing a literal uint.
+     */
+    DSLExpression(unsigned int value);
+
+    /**
      * Creates an expression representing a literal bool.
      */
     DSLExpression(bool value);
