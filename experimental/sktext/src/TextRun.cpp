@@ -34,7 +34,7 @@ SkShaper::RunHandler::Buffer TextRun::newRunBuffer() {
     return {fGlyphs.data(), fPositions.data(), nullptr, fClusters.data(), {0.0f, 0.0f} };
 }
 
-SkScalar TextRun::calculateWidth(Range glyphRange) const {
+SkScalar TextRun::calculateWidth(GlyphRange glyphRange) const {
     SkASSERT(glyphRange.fStart <= glyphRange.fEnd && glyphRange.fEnd < fPositions.size());
     return fPositions[glyphRange.fEnd].fX - fPositions[glyphRange.fStart].fX;
 }

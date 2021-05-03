@@ -8,29 +8,29 @@
 namespace skia {
 namespace text {
 Line::Line(Processor* processor, const Stretch& stretch, const Stretch& spaces)
-    : fTextStart(stretch.fGlyphStart)
-    , fTextEnd(stretch.fGlyphEnd)
-    , fWhitespacesEnd (spaces.fGlyphEnd)
-    , fText(stretch.fTextRange)
-    , fWhitespaces(spaces.fTextRange)
-    , fTextWidth(stretch.fWidth)
-    , fSpacesWidth(spaces.fWidth) {
+    : fTextStart(stretch.glyphStart())
+    , fTextEnd(stretch.glyphEnd())
+    , fWhitespacesEnd (spaces.glyphEnd())
+    , fText(stretch.textRange())
+    , fWhitespaces(spaces.textRange())
+    , fTextWidth(stretch.width())
+    , fSpacesWidth(spaces.width()) {
 
     SkASSERT(stretch.isEmpty() ||
                     spaces.isEmpty() ||
-        (stretch.fGlyphEnd == spaces.fGlyphStart));
+        (stretch.glyphEnd() == spaces.glyphStart()));
 
     if (!stretch.isEmpty()) {
-        this->fTextMetrics.merge(stretch.fTextMetrics);
+        this->fTextMetrics.merge(stretch.textMetrics());
     }
     if (!spaces.isEmpty()) {
-        this->fTextMetrics.merge(spaces.fTextMetrics);
+        this->fTextMetrics.merge(spaces.textMetrics());
     }
 
     // This is just chosen to catch the common/fast cases. Feel free to tweak.
     constexpr int kPreallocCount = 4;
-    auto start = stretch.fGlyphStart.fRunIndex;
-    auto end = spaces.fGlyphEnd.fRunIndex;
+    auto start = stretch.glyphStart().runIndex();
+    auto end = spaces.glyphEnd().runIndex();
     auto numRuns = end - start + 1;
     SkAutoSTArray<kPreallocCount, SkUnicode::BidiLevel> runLevels(numRuns);
     size_t runLevelsIndex = 0;
