@@ -128,7 +128,8 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         effect.start();
         Var gColor(kUniform_Modifier, kFloat4_Type);
         DeclareGlobal(gColor);
-        Function(kHalf4_Type, "main").define(
+        Var p(kFloat2_Type, "p");
+        Function(kHalf4_Type, "main", p).define(
             Return(Half4(gColor))
         );
         effect.end();
@@ -143,7 +144,8 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         effect.start();
         Var gColor(kUniform_Modifier, kInt4_Type);
         DeclareGlobal(gColor);
-        Function(kHalf4_Type, "main").define(
+        Var p(kFloat2_Type, "p");
+        Function(kHalf4_Type, "main", p).define(
             Return(Half4(gColor) / 255)
         );
         effect.end();
@@ -158,7 +160,8 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // make sure we're not saturating unexpectedly.
     {
         effect.start();
-        Function(kHalf4_Type, "main").define(
+        Var p(kFloat2_Type, "p");
+        Function(kHalf4_Type, "main", p).define(
             Return(Half4(0.498 * (Half2(Swizzle(sk_FragCoord(), X, Y)) - 0.5), 0, 1))
         );
         effect.end();
