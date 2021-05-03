@@ -35,14 +35,11 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
-        // opsTask IDs for the atlas have an issue with --reduceOpsTaskSplitting: skbug.com/11731
-        if (context->priv().options().fReduceOpsTaskSplitting != GrContextOptions::Enable::kYes) {
-            fCoverageCountingPathRenderer = GrCoverageCountingPathRenderer::CreateIfSupported(caps);
-            if (fCoverageCountingPathRenderer) {
-                // Don't add to the chain. This is only for clips.
-                // TODO: Remove from here.
-                context->priv().addOnFlushCallbackObject(fCoverageCountingPathRenderer.get());
-            }
+        fCoverageCountingPathRenderer = GrCoverageCountingPathRenderer::CreateIfSupported(caps);
+        if (fCoverageCountingPathRenderer) {
+            // Don't add to the chain. This is only for clips.
+            // TODO: Remove from here.
+            context->priv().addOnFlushCallbackObject(fCoverageCountingPathRenderer.get());
         }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
