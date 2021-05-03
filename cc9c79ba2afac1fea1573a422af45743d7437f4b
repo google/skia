@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5e40d22_15dbe96a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-03T16:07:59Z",
+      "side": 1,
+      "message": "Did you check that it cleans up the compiler output for the example CL on the bug?",
+      "revId": "cc9c79ba2afac1fea1573a422af45743d7437f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
