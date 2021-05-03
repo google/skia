@@ -3462,7 +3462,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrGLInterface* glInterface,
                                                  GrShaderCaps* shaderCaps,
                                                  FormatWorkarounds* formatWorkarounds) {
-    // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
+    // A driver bug on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are disabling this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer() ||
@@ -4099,6 +4099,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // skbug.com/11204. Avoid recursion issue in GrSurfaceContext::writePixels.
     if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
         fReuseScratchTextures = false;
+    }
+
+    // skbug.com/11935. Don't reorder on these GPUs in GL.
+    if (kAdreno620_GrGLRenderer == ctxInfo.renderer() ||
+        kAdreno640_GrGLRenderer == ctxInfo.renderer()) {
+        fAvoidReorderingRenderTasks = true;
     }
 }
 

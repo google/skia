@@ -97,6 +97,7 @@ enum GrGLRenderer {
     kAdreno530_GrGLRenderer,
     kAdreno5xx_other_GrGLRenderer,
     kAdreno615_GrGLRenderer,  // Pixel3a
+    kAdreno620_GrGLRenderer,  // Pixel5
     kAdreno630_GrGLRenderer,  // Pixel3
     kAdreno640_GrGLRenderer,  // Pixel4
     kGoogleSwiftShader_GrGLRenderer,
