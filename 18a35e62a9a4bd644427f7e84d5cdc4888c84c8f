@@ -33,6 +33,24 @@
       "message": "Outside of the scope of this CL, but something occurred to me, for future-proofing would it make sense to return some `ShapedLines` class here with a `ShapedLine[] lines` property? A class would be more extensible than an array. For example, we can later add more fields to a class, but we can\u0027t do that with an array.",
       "revId": "18a35e62a9a4bd644427f7e84d5cdc4888c84c8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "157b0a70_9a461ef8",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 1
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-03T17:42:25Z",
+      "side": 1,
+      "message": "Sure! -- I just don\u0027t know anything about classes in JS yet :)",
+      "parentUuid": "28036ef9_99f2ad10",
+      "revId": "18a35e62a9a4bd644427f7e84d5cdc4888c84c8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
