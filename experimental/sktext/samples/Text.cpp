@@ -116,7 +116,54 @@ private:
     using INHERITED = Sample;
     std::unique_ptr<SkUnicode> fUnicode;
 };
+
+class TextSample_LongLTR : public Sample {
+protected:
+    SkString name() override { return SkString("TextSample_LongLTR"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        Processor::drawText("A very_very_very_very_very_very_very_very_very_very "
+                "very_very_very_very_very_very_very_very_very_very very very very very very very "
+                "very very very very very very very very very very very very very very very very "
+                "very very very very very very very very very very very very very long text", canvas, this->width());
+
+    }
+
+private:
+    using INHERITED = Sample;
+    std::unique_ptr<SkUnicode> fUnicode;
+};
+
+class TextSample_LongRTL : public Sample {
+protected:
+    SkString name() override { return SkString("TextSample_LongRTL"); }
+
+    SkString mirror(const std::string& text) {
+        std::u16string result;
+        result += u"\u202E";
+        for (auto i = text.size(); i > 0; --i) {
+          result += text[i - 1];
+        }
+        for (auto ch : text) {
+            result += ch;
+        }
+        result += u"\u202C";
+        return fUnicode->convertUtf16ToUtf8(result);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        Processor::drawText("LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)", canvas, 0, 0);
+    }
+
+private:
+    using INHERITED = Sample;
+    std::unique_ptr<SkUnicode> fUnicode;
+};
 }  // namespace
 
 DEF_SAMPLE(return new TextSample_HelloWorld();)
 DEF_SAMPLE(return new TextSample_Align_Dir();)
+DEF_SAMPLE(return new TextSample_LongLTR();)
+DEF_SAMPLE(return new TextSample_LongRTL();)
