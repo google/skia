@@ -275,8 +275,7 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
     }
 }
 
-void Inliner::reset(ModifiersPool* modifiers) {
-    fModifiers = modifiers;
+void Inliner::reset() {
     fMangler.reset();
     fInlinedStatementCounter = 0;
 }
@@ -589,7 +588,7 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
     // Create our new variable and add it to the symbol table.
     InlineVariable result;
     auto var = std::make_unique<Variable>(/*offset=*/-1,
-                                          fModifiers->addToPool(Modifiers()),
+                                          fContext->fModifiersPool->add(Modifiers{}),
                                           name->c_str(),
                                           type,
                                           isBuiltinCode,

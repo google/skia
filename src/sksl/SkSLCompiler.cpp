@@ -183,13 +183,13 @@ Compiler::Compiler(const ShaderCapsClass* caps)
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    fPrivateSymbolTable->add(
-            std::make_unique<Variable>(/*offset=*/-1,
-                                       fIRGenerator->fModifiers->addToPool(Modifiers()),
-                                       "sk_Caps",
-                                       fContext->fTypes.fSkCaps.get(),
-                                       /*builtin=*/false,
-                                       Variable::Storage::kGlobal));
+    static const Modifiers kNoModifiers{};
+    fPrivateSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
+                                                        &kNoModifiers,
+                                                        "sk_Caps",
+                                                        fContext->fTypes.fSkCaps.get(),
+                                                        /*builtin=*/false,
+                                                        Variable::Storage::kGlobal));
 
     fRootModule = {fRootSymbolTable, /*fIntrinsics=*/nullptr};
     fPrivateModule = {fPrivateSymbolTable, /*fIntrinsics=*/nullptr};
@@ -309,6 +309,11 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     }
     SkASSERT(base);
 
+    // Put a fresh modifier pool into the context.
+    auto modifiersPool = std::make_unique<ModifiersPool>();
+    fContext->fModifiersPool = modifiersPool.get();
+    SK_AT_SCOPE_EXIT(fContext->fModifiersPool = nullptr);
+
     // Built-in modules always use default program settings.
     ProgramConfig config;
     config.fKind = kind;
@@ -326,27 +331,22 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
     AutoSource as(this, source);
 
-    SkASSERT(fIRGenerator->fCanInline);
-    fIRGenerator->fCanInline = false;
-
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
                                                             source->c_str(), source->length(),
                                                             /*externalFunctions=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
-    LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
-    fIRGenerator->fCanInline = true;
+    LoadedModule module = {kind, std::move(ir.fSymbolTable), std::move(ir.fElements),
+                           std::move(modifiersPool)};
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
         SkDEBUGFAILF("%s %s\n", data.fPath, this->fErrorText.c_str());
     }
-    fModifiers.push_back(std::move(ir.fModifiers));
 #else
     SkASSERT(data.fData && (data.fSize != 0));
-    Rehydrator rehydrator(fContext.get(), fIRGenerator->fModifiers.get(), base, this,
-                          data.fData, data.fSize);
-    LoadedModule module = { kind, rehydrator.symbolTable(), rehydrator.elements() };
-    fModifiers.push_back(fIRGenerator->releaseModifiers());
+    Rehydrator rehydrator(fContext.get(), base, data.fData, data.fSize);
+    LoadedModule module = {kind, rehydrator.symbolTable(), rehydrator.elements(),
+                           std::move(modifiersPool)};
 #endif
 
     return module;
@@ -359,10 +359,11 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
     // For modules that just declare (but don't define) intrinsic functions, there will be no new
     // program elements. In that case, we can share our parent's intrinsic map:
     if (module.fElements.empty()) {
-        return {module.fSymbols, base.fIntrinsics};
+        return ParsedModule{module.fSymbols, base.fIntrinsics};
     }
 
-    auto intrinsics = std::make_shared<IRIntrinsicMap>(base.fIntrinsics.get());
+    auto intrinsics = std::make_shared<IRIntrinsicMap>(base.fIntrinsics.get(),
+                                                       std::move(module.fModifiersPool));
 
     // Now, transfer all of the program elements to an intrinsic map. This maps certain types of
     // global objects to the declaring ProgramElement.
@@ -404,7 +405,7 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
         }
     }
 
-    return {module.fSymbols, std::move(intrinsics)};
+    return ParsedModule{module.fSymbols, std::move(intrinsics)};
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(
@@ -419,6 +420,11 @@ std::unique_ptr<Program> Compiler::convertProgram(
     // Loading and optimizing our base module might reset the inliner, so do that first,
     // *then* configure the inliner with the settings for this program.
     const ParsedModule& baseModule = this->moduleForProgramKind(kind);
+
+    // Put a fresh modifier pool into the context.
+    auto modifiersPool = std::make_unique<ModifiersPool>();
+    fContext->fModifiersPool = modifiersPool.get();
+    SK_AT_SCOPE_EXIT(fContext->fModifiersPool = nullptr);
 
     // Update our context to point to the program configuration for the duration of compilation.
     auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
@@ -456,7 +462,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     fErrorText = "";
     fErrorCount = 0;
-    fInliner.reset(fIRGenerator->fModifiers.get());
+    fInliner.reset();
 
     // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     std::unique_ptr<String> textPtr(new String(std::move(text)));
@@ -477,7 +483,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
                                              fContext,
                                              std::move(ir.fElements),
                                              std::move(ir.fSharedElements),
-                                             std::move(ir.fModifiers),
+                                             std::move(modifiersPool),
                                              std::move(ir.fSymbolTable),
                                              std::move(pool),
                                              ir.fInputs);
@@ -557,7 +563,7 @@ bool Compiler::optimize(LoadedModule& module) {
     AutoProgramConfig autoConfig(fContext, &config);
 
     // Reset the Inliner.
-    fInliner.reset(fModifiers.back().get());
+    fInliner.reset();
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 

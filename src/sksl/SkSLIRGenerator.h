@@ -52,7 +52,9 @@ struct Swizzle;
  */
 class IRIntrinsicMap {
 public:
-    IRIntrinsicMap(IRIntrinsicMap* parent) : fParent(parent) {}
+    IRIntrinsicMap(IRIntrinsicMap* parent, std::unique_ptr<ModifiersPool> modifiersPool)
+            : fParent(parent)
+            , fModifiersPool(std::move(modifiersPool)) {}
 
     void insertOrDie(String key, std::unique_ptr<ProgramElement> element) {
         SkASSERT(fIntrinsics.find(key) == fIntrinsics.end());
@@ -95,8 +97,9 @@ private:
         bool fAlreadyIncluded = false;
     };
 
-    std::unordered_map<String, Intrinsic> fIntrinsics;
     IRIntrinsicMap* fParent = nullptr;
+    std::unique_ptr<ModifiersPool> fModifiersPool;
+    std::unordered_map<String, Intrinsic> fIntrinsics;
 };
 
 /**
@@ -110,7 +113,6 @@ public:
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
         std::vector<const ProgramElement*>           fSharedElements;
-        std::unique_ptr<ModifiersPool>               fModifiers;
         std::shared_ptr<SymbolTable>                 fSymbolTable;
         Program::Inputs                              fInputs;
     };
@@ -152,11 +154,6 @@ private:
                std::vector<const ProgramElement*>* sharedElements);
 
     IRGenerator::IRBundle finish();
-
-    /**
-     * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
-     */
-    std::unique_ptr<ModifiersPool> releaseModifiers();
 
     void checkModifiers(int offset,
                         const Modifiers& modifiers,
@@ -257,6 +254,10 @@ private:
         return fContext.fCaps;
     }
 
+    ModifiersPool* modifiersPool() const {
+        return fContext.fModifiersPool;
+    }
+
     Program::Inputs fInputs;
 
     std::unique_ptr<ASTFile> fFile;
@@ -272,10 +273,8 @@ private:
     const Variable* fRTAdjust = nullptr;
     const Variable* fRTAdjustInterfaceBlock = nullptr;
     int fRTAdjustFieldIndex;
-    bool fCanInline = true;
     // true if we are currently processing one of the built-in SkSL include files
     bool fIsBuiltinCode = false;
-    std::unique_ptr<ModifiersPool> fModifiers;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

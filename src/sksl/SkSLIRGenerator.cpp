@@ -80,8 +80,7 @@ public:
 };
 
 IRGenerator::IRGenerator(const Context* context)
-        : fContext(*context)
-        , fModifiers(new ModifiersPool()) {}
+        : fContext(*context) {}
 
 void IRGenerator::pushSymbolTable() {
     auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
@@ -133,12 +132,6 @@ std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragm
     }
 
     return std::make_unique<Extension>(offset, name);
-}
-
-std::unique_ptr<ModifiersPool> IRGenerator::releaseModifiers() {
-    std::unique_ptr<ModifiersPool> result = std::move(fModifiers);
-    fModifiers = std::make_unique<ModifiersPool>();
-    return result;
 }
 
 std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
@@ -358,8 +351,8 @@ std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& m
         }
         type = fSymbolTable->addArrayDimension(type, arraySizeValue);
     }
-    return std::make_unique<Variable>(offset, fModifiers->addToPool(modifiers), name, type,
-                                      fIsBuiltinCode, storage);
+    return std::make_unique<Variable>(offset, this->modifiersPool()->add(modifiers), name,
+                                      type, fIsBuiltinCode, storage);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Variable> var,
@@ -489,7 +482,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
         !this->caps().gsInvocationsSupport()) {
         modifiers.fLayout.fMaxVertices *= fInvocations;
     }
-    return std::make_unique<ModifiersDeclaration>(fModifiers->addToPool(modifiers));
+    return std::make_unique<ModifiersDeclaration>(this->modifiersPool()->add(modifiers));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
@@ -687,7 +680,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
     const FunctionDeclaration* invokeDecl = fSymbolTable->add(std::make_unique<FunctionDeclaration>(
             /*offset=*/-1,
-            fModifiers->addToPool(invokeModifiers),
+            this->modifiersPool()->add(invokeModifiers),
             "_invoke",
             std::vector<const Variable*>(),
             fContext.fTypes.fVoid.get(),
@@ -1056,8 +1049,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         const Variable* var = fSymbolTable->takeOwnershipOfSymbol(
-                std::make_unique<Variable>(param.fOffset, fModifiers->addToPool(m), pd.fName, type,
-                                           fIsBuiltinCode, Variable::Storage::kParameter));
+                std::make_unique<Variable>(param.fOffset, this->modifiersPool()->add(m), pd.fName,
+                                           type, fIsBuiltinCode, Variable::Storage::kParameter));
         parameters.push_back(var);
     }
 
@@ -1177,7 +1170,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 if (match) {
                     if (*returnType != other->returnType()) {
                         FunctionDeclaration newDecl(f.fOffset,
-                                                    fModifiers->addToPool(funcData.fModifiers),
+                                                    this->modifiersPool()->add(funcData.fModifiers),
                                                     funcData.fName,
                                                     parameters,
                                                     returnType,
@@ -1224,7 +1217,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         // Create a new declaration.
         decl = fSymbolTable->add(
                 std::make_unique<FunctionDeclaration>(f.fOffset,
-                                                      fModifiers->addToPool(declModifiers),
+                                                      this->modifiersPool()->add(declModifiers),
                                                       funcData.fName,
                                                       parameters,
                                                       returnType,
@@ -1344,7 +1337,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     }
     const Variable* var = old->takeOwnershipOfSymbol(
             std::make_unique<Variable>(intf.fOffset,
-                                       fModifiers->addToPool(id.fModifiers),
+                                       this->modifiersPool()->add(id.fModifiers),
                                        id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
                                        type,
                                        fIsBuiltinCode,
@@ -1415,7 +1408,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         }
         value = IntLiteral::Make(fContext, e.fOffset, currentValue);
         ++currentValue;
-        auto var = std::make_unique<Variable>(e.fOffset, fModifiers->addToPool(modifiers),
+        auto var = std::make_unique<Variable>(e.fOffset, this->modifiersPool()->add(modifiers),
                                               child.getString(), type, fIsBuiltinCode,
                                               Variable::Storage::kGlobal);
         // enum variables aren't really 'declared', but we have to create a declaration to store
@@ -2121,7 +2114,7 @@ void IRGenerator::start(const ParsedModule& base,
             m.fFlags = Modifiers::kIn_Flag;
             m.fLayout.fBuiltin = SK_INVOCATIONID_BUILTIN;
         }
-        auto var = std::make_unique<Variable>(/*offset=*/-1, fModifiers->addToPool(m),
+        auto var = std::make_unique<Variable>(/*offset=*/-1, this->modifiersPool()->add(m),
                                               "sk_InvocationID", fContext.fTypes.fInt.get(),
                                               /*builtin=*/false, Variable::Storage::kGlobal);
         auto decl = VarDeclaration::Make(fContext, var.get(), fContext.fTypes.fInt.get(),
@@ -2171,10 +2164,10 @@ IRGenerator::IRBundle IRGenerator::finish() {
         }
     }
 
-    IRBundle result{std::move(*fProgramElements), std::move(*fSharedElements),
-                    this->releaseModifiers(), fSymbolTable, fInputs};
-    fSymbolTable = nullptr;
-    return result;
+    return IRBundle{std::move(*fProgramElements),
+                    std::move(*fSharedElements),
+                    std::move(fSymbolTable),
+                    fInputs};
 }
 
 IRGenerator::IRBundle IRGenerator::convertProgram(

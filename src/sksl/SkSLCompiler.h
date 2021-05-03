@@ -55,6 +55,7 @@ struct LoadedModule {
     ProgramKind                                  fKind;
     std::shared_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
+    std::unique_ptr<ModifiersPool>               fModifiersPool;
 };
 
 struct ParsedModule {
@@ -227,10 +228,6 @@ private:
     ParsedModule fPublicModule;              // [Root] + Public features
     ParsedModule fRuntimeColorFilterModule;  // [Public] + Runtime shader decls
     ParsedModule fRuntimeShaderModule;       // [Public] + Runtime color filter decls
-
-    // holds ModifiersPools belonging to the core includes for lifetime purposes
-    std::vector<std::unique_ptr<ModifiersPool>> fModifiers;
-
     Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
 

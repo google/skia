@@ -41,6 +41,9 @@ public:
     // The Context holds a reference to our shader caps bits.
     const ShaderCapsClass& fCaps;
 
+    // The Context holds a reference to our pool of modifiers.
+    ModifiersPool* fModifiersPool;
+
     // The Context holds a pointer to the configuration of the program being compiled.
     ProgramConfig* fConfig = nullptr;
 };
