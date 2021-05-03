@@ -134,7 +134,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
         shape.inverseFilled() ||
         args.fHasUserStencilSettings ||
-        args.fTargetIsWrappedVkSecondaryCB) {
+        !args.fProxy->canUseStencil(*args.fCaps)) {
         return CanDrawPath::kNo;
     }
     // On platforms that don't have native support for indirect draws and/or hardware tessellation,
