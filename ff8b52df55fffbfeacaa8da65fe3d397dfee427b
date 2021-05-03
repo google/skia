@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "910ed7f7_1f14bd17",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-03T16:03:01Z",
+      "side": 0,
+      "message": "I removed this operator because it was not valid even before this change. fValue is const so the assignment operator for GrTFlagsMask was deleted. We never used this operator so the compiler probably never defined it which is why we never saw an error.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 1
+      },
+      "revId": "ff8b52df55fffbfeacaa8da65fe3d397dfee427b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
