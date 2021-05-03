@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be1627f5_03a48c70",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-03T16:43:05Z",
+      "side": 1,
+      "message": "Could this be just an enum like SkSVGColorspace above?",
+      "revId": "5f963768381f84f74b83bf7429b867bca1561924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
