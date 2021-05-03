@@ -375,6 +375,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+
+        shaderCaps->fNonsquareMatrixSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
     } else if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
 
@@ -399,11 +401,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
+        shaderCaps->fNonsquareMatrixSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
     } else if (GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(2, 0) ||
                                                ctxInfo.hasExtension("GL_OES_standard_derivatives") ||
                                                ctxInfo.hasExtension("OES_standard_derivatives");
         shaderCaps->fIntegerSupport = (version >= GR_GL_VER(2, 0));
+        shaderCaps->fNonsquareMatrixSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
     }
 
     if (ctxInfo.hasExtension("GL_NV_conservative_raster")) {

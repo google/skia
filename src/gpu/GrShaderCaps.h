@@ -47,6 +47,7 @@ public:
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
     bool integerSupport() const { return fIntegerSupport; }
+    bool nonsquareMatrixSupport() const { return fNonsquareMatrixSupport; }
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
@@ -273,6 +274,7 @@ private:
     bool fDstReadInShaderSupport            : 1;
     bool fDualSourceBlendingSupport         : 1;
     bool fIntegerSupport                    : 1;
+    bool fNonsquareMatrixSupport            : 1;
     bool fFBFetchSupport                    : 1;
     bool fFBFetchNeedsCustomOutput          : 1;
     bool fUsesPrecisionModifiers            : 1;
