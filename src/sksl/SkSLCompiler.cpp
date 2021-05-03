@@ -326,16 +326,12 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
     AutoSource as(this, source);
 
-    SkASSERT(fIRGenerator->fCanInline);
-    fIRGenerator->fCanInline = false;
-
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
                                                             source->c_str(), source->length(),
                                                             /*externalFunctions=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
-    fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
         SkDEBUGFAILF("%s %s\n", data.fPath, this->fErrorText.c_str());
