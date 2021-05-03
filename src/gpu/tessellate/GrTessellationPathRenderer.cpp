@@ -132,7 +132,12 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         args.fViewMatrix->hasPerspective() ||
         shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
         shape.inverseFilled() ||
+<<<<<<< HEAD   (b99622 Roll Chromium from 2c01c629347b to 1a1c57de9e55 (488 revisio)
         args.fHasUserStencilSettings) {
+=======
+        args.fHasUserStencilSettings ||
+        !args.fProxy->canUseStencil(*args.fCaps)) {
+>>>>>>> CHANGE (537293 Don't attempt to use stencil on wrapped, stencil-less target)
         return CanDrawPath::kNo;
     }
     if (GrAAType::kCoverage == args.fAAType) {

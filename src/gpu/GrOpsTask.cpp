@@ -557,9 +557,16 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     SkASSERT(renderTarget);
 
     GrAttachment* stencil = nullptr;
+<<<<<<< HEAD   (b99622 Roll Chromium from 2c01c629347b to 1a1c57de9e55 (488 revisio)
     if (int numStencilSamples = proxy->numStencilSamples()) {
         if (!flushState->resourceProvider()->attachStencilAttachment(
                 renderTarget, numStencilSamples)) {
+=======
+    if (proxy->needsStencil()) {
+        SkASSERT(proxy->canUseStencil(caps));
+        if (!flushState->resourceProvider()->attachStencilAttachment(renderTarget,
+                                                                     fUsesMSAASurface)) {
+>>>>>>> CHANGE (537293 Don't attempt to use stencil on wrapped, stencil-less target)
             SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
             return false;
         }

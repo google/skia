@@ -89,6 +89,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     return true;
 }
 
+<<<<<<< HEAD   (b99622 Roll Chromium from 2c01c629347b to 1a1c57de9e55 (488 revisio)
 bool GrRenderTargetProxy::canChangeStencilAttachment() const {
     if (!fTarget) {
         // If we aren't instantiated, then we definitely are an internal render target. Ganesh is
@@ -96,6 +97,33 @@ bool GrRenderTargetProxy::canChangeStencilAttachment() const {
         return true;
     }
     return fTarget->asRenderTarget()->canAttemptStencilAttachment();
+=======
+bool GrRenderTargetProxy::canUseStencil(const GrCaps& caps) const {
+    if (caps.avoidStencilBuffers() || this->wrapsVkSecondaryCB()) {
+        return false;
+    }
+    if (!this->isInstantiated()) {
+        if (this->isLazy() && this->backendFormat().backend() == GrBackendApi::kOpenGL) {
+            // It's possible for wrapped GL render targets to not have stencil. We don't currently
+            // have an exact way of knowing whether the target will be able to use stencil, so we do
+            // the best we can: if a lazy GL proxy doesn't have a texture, then it might be a
+            // wrapped target without stencil, so we conservatively block stencil.
+            // FIXME: skbug.com/11943: SkSurfaceCharacterization needs a "canUseStencil" flag.
+            return SkToBool(this->asTextureProxy());
+        } else {
+            // Otherwise the target will definitely not be wrapped. Ganesh is free to attach
+            // stencils on internal render targets.
+            return true;
+        }
+    }
+    // Just ask the actual target if we can use stencil.
+    GrRenderTarget* rt = this->peekRenderTarget();
+    // The dmsaa attachment (if any) always supports stencil. The real question is whether the
+    // non-dmsaa attachment supports stencil.
+    bool useMSAASurface = rt->numSamples() > 1;
+    return rt->getStencilAttachment(useMSAASurface) ||
+           rt->canAttemptStencilAttachment(useMSAASurface);
+>>>>>>> CHANGE (537293 Don't attempt to use stencil on wrapped, stencil-less target)
 }
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {

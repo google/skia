@@ -53,10 +53,18 @@ void GrGLTextureRenderTarget::dumpMemoryStatistics(
 #endif
 }
 
+<<<<<<< HEAD   (b99622 Roll Chromium from 2c01c629347b to 1a1c57de9e55 (488 revisio)
 bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
     // The RT FBO of GrGLTextureRenderTarget is never created from a
     // wrapped FBO, so we only care about the flag.
     return !this->getGpu()->getContext()->priv().caps()->avoidStencilBuffers();
+=======
+bool GrGLTextureRenderTarget::canAttemptStencilAttachment(bool useMultisampleFBO) const {
+    // This cap should have been handled at a higher level.
+    SkASSERT(!this->getGpu()->getContext()->priv().caps()->avoidStencilBuffers());
+    // The RT FBO of GrGLTextureRenderTarget is never created from a wrapped FBO.
+    return true;
+>>>>>>> CHANGE (537293 Don't attempt to use stencil on wrapped, stencil-less target)
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(

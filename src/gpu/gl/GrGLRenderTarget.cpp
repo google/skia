@@ -208,11 +208,17 @@ GrGLGpu* GrGLRenderTarget::getGLGpu() const {
     return static_cast<GrGLGpu*>(this->getGpu());
 }
 
+<<<<<<< HEAD   (b99622 Roll Chromium from 2c01c629347b to 1a1c57de9e55 (488 revisio)
 bool GrGLRenderTarget::canAttemptStencilAttachment() const {
     if (this->getGpu()->getContext()->priv().caps()->avoidStencilBuffers()) {
         return false;
     }
 
+=======
+bool GrGLRenderTarget::canAttemptStencilAttachment(bool useMultisampleFBO) const {
+    // This cap should have been handled at a higher level.
+    SkASSERT(!this->getGpu()->getContext()->priv().caps()->avoidStencilBuffers());
+>>>>>>> CHANGE (537293 Don't attempt to use stencil on wrapped, stencil-less target)
     // Only modify the FBO's attachments if we have created the FBO. Public APIs do not currently
     // allow for borrowed FBO ownership, so we can safely assume that if an object is owned,
     // Skia created it.

@@ -28,11 +28,23 @@ public:
     // Actually instantiate the backing rendertarget, if necessary.
     bool instantiate(GrResourceProvider*) override;
 
+<<<<<<< HEAD   (b99622 Roll Chromium from 2c01c629347b to 1a1c57de9e55 (488 revisio)
     bool canUseMixedSamples(const GrCaps& caps) const {
         return caps.mixedSamplesSupport() && !this->glRTFBOIDIs0() &&
                caps.internalMultisampleCount(this->backendFormat()) > 1 &&
                this->canChangeStencilAttachment();
     }
+=======
+    // Returns true if this proxy either has a stencil attachment already, or if we can attach one
+    // during flush. Wrapped render targets without stencil will return false, since we are unable
+    // to modify their attachments.
+    bool canUseStencil(const GrCaps& caps) const;
+
+    /*
+     * Indicate that a draw to this proxy requires stencil.
+     */
+    void setNeedsStencil() { fNeedsStencil = true; }
+>>>>>>> CHANGE (537293 Don't attempt to use stencil on wrapped, stencil-less target)
 
     /*
      * Indicate that a draw to this proxy requires stencil, and how many stencil samples it needs.

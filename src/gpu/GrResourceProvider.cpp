@@ -485,8 +485,16 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
 
 bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples) {
     SkASSERT(rt);
+<<<<<<< HEAD   (b99622 Roll Chromium from 2c01c629347b to 1a1c57de9e55 (488 revisio)
     GrAttachment* stencil = rt->getStencilAttachment();
     if (stencil && stencil->numSamples() == numStencilSamples) {
+=======
+    SkASSERT(!this->caps()->avoidStencilBuffers());
+
+    GrAttachment* stencil = rt->getStencilAttachment(useMSAASurface);
+    if (stencil) {
+        SkASSERT(stencil->numSamples() == num_stencil_samples(rt, useMSAASurface, *this->caps()));
+>>>>>>> CHANGE (537293 Don't attempt to use stencil on wrapped, stencil-less target)
         return true;
     }
 
