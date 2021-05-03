@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
@@ -160,4 +161,20 @@ DEF_TEST(DrawText_weirdMatricies, r) {
         canvas->setMatrix(mat);
         canvas->drawString("Hamburgefons", 10, 10, font, SkPaint());
     }
+}
+
+// This produces no glyphs, and is to check that buffers from previous draws don't get
+// reused.
+DEF_TEST(DrawText_noglyphs, r) {
+    auto surface = SkSurface::MakeRasterN32Premul(100,100);
+    auto canvas = surface->getCanvas();
+    auto text = "Hamburgfons";
+    {
+        // scoped to ensure blob is deleted.
+        auto blob = SkTextBlob::MakeFromText(text, strlen(text), SkFont());
+        canvas->drawTextBlob(blob, 10, 10, SkPaint());
+    }
+    canvas->drawString(
+            "\x0d\xf3\xf2\xf2\xe9\x0d\x0d\x0d\x05\x0d\x0d\xe3\xe3\xe3\xe3\xe3\xe3\xe3\xe3\xe3",
+            10, 20, SkFont(), SkPaint());
 }
