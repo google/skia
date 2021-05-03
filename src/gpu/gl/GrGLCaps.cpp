@@ -4106,6 +4106,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         kAdreno640_GrGLRenderer == ctxInfo.renderer()) {
         fAvoidReorderingRenderTasks = true;
     }
+
+    // skbug.com/11152.
+    if (kAdreno620_GrGLRenderer == ctxInfo.renderer()) {
+        fAvoidDefaultPathRendererWithMSAA = true;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

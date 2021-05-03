@@ -480,6 +480,10 @@ public:
         return fAvoidReorderingRenderTasks;
     }
 
+    // skbug.com/11152.
+    bool avoidDefaultPathRendererWithMSAA() const { return fAvoidDefaultPathRendererWithMSAA; }
+
+
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
         GrColorType fColorType;
@@ -542,6 +546,7 @@ protected:
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
     bool fAvoidReorderingRenderTasks                 : 1;
+    bool fAvoidDefaultPathRendererWithMSAA           : 1;  // skbug.com/11152
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

@@ -696,6 +696,10 @@ bool GrDefaultPathRenderer::internalDrawPath(GrSurfaceDrawContext* surfaceDrawCo
 
 GrPathRenderer::CanDrawPath
 GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // skbug.com/11152.
+    if (args.fCaps->avoidDefaultPathRendererWithMSAA() && args.fAAType == GrAAType::kMSAA) {
+        return CanDrawPath::kNo;
+    }
     bool isHairline = IsStrokeHairlineOrEquivalent(
             args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
