@@ -268,7 +268,13 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
     return GR_GLSL_INVALID_VER;
 }
 
+#ifdef SK_BUILD_FOR_ANDROID
+#include <sys/system_properties.h>
+#endif
+
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
+    SkDebugf("\n\n\n\n");
+    SkDebugf("GL_VENDOR=%s\n", vendorString);
     if (vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
@@ -303,6 +309,28 @@ static bool is_renderer_angle(const char* rendererString) {
 
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                                         const GrGLExtensions& extensions) {
+    SkDebugf("GL_RENDERER=%s\n", rendererString);
+#if defined(SK_BUILD_FOR_ANDROID)
+    for (const char* prop : {
+         "ro.vendor.build.fingerprint", "ro.vendor.build.id", "ro.vendor.build.version.incremental",
+         "ro.vendor.build.version.release", "ro.vendor.build.version.sdk",
+         "ro.vendor.build.version.sehi" "ro.build.2ndbrand", "ro.build.PDA", "ro.build.changelist",
+         "ro.build.characteristics", "ro.build.date", "ro.build.date.utc", "ro.build.description",
+         "ro.build.display.id", "ro.build.display_build_number", "ro.build.fingerprint",
+         "ro.build.flavor", "ro.build.host", "ro.build.id", "ro.build.keys",
+         "ro.build.official.release", "ro.build.product", "ro.build.selinux",
+         "ro.build.selinux.enforce", "ro.build.tags", "ro.build.type", "ro.build.user",
+         "ro.build.version.all_codenames", "ro.build.version.base_os", "ro.build.version.codename",
+         "ro.build.version.incremental", "ro.build.version.min_supported_target_sdk",
+         "ro.build.version.preview_sdk", "ro.build.version.preview_sdk_fingerprint",
+         "ro.build.version.release", "ro.build.version.sdk", "ro.build.version.security_index",
+         "ro.build.version.security_patch", "ro.build.version.sem", "ro.build.version.sep"}) {
+        char androidAPIVersionStr[PROP_VALUE_MAX];
+        __system_property_get(prop, androidAPIVersionStr);
+        SkDebugf("%s=%s\n", prop, androidAPIVersionStr);
+    }
+        SkDebugf("\n\n\n\n\n");
+#endif
     if (rendererString) {
         static const char kTegraStr[] = "NVIDIA Tegra";
         if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
