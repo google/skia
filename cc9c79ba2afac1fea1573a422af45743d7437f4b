@@ -16,6 +16,41 @@
       "message": "Did you check that it cleans up the compiler output for the example CL on the bug?",
       "revId": "cc9c79ba2afac1fea1573a422af45743d7437f4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "369d01fc_cee38689",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-03T16:45:58Z",
+      "side": 1,
+      "message": "Yes, the compile obviously still fails but it no longer has the extra not about trying to match the skia template or anything skia related.",
+      "parentUuid": "f5e40d22_15dbe96a",
+      "revId": "cc9c79ba2afac1fea1573a422af45743d7437f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd83060a_745c49a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-03T16:45:58Z",
+      "side": 1,
+      "message": "Well looks like we now get complaints about all the unused functions :(",
+      "revId": "cc9c79ba2afac1fea1573a422af45743d7437f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
