@@ -268,7 +268,12 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
     return GR_GLSL_INVALID_VER;
 }
 
+#ifdef SK_BUILD_FOR_ANDROID
+#include <sys/system_properties.h>
+#endif
+
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
+    SkDebugf("@@@@@@> GL_VENDOR=%s\n", vendorString);
     if (vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
@@ -303,6 +308,16 @@ static bool is_renderer_angle(const char* rendererString) {
 
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                                         const GrGLExtensions& extensions) {
+    SkDebugf("@@@@@@> GL_RENDERER=%s\n", rendererString);
+#if defined(SK_BUILD_FOR_ANDROID)
+    for (const char* prop : {"ro.vendor.build.fingerprint", "ro.vendor.build.id",
+         "ro.vendor.build.version.incremental", "ro.vendor.build.version.release",
+         "ro.vendor.build.version.sdk", "ro.vendor.build.version.sehi"}) {
+        char androidAPIVersionStr[PROP_VALUE_MAX];
+        __system_property_get(prop, androidAPIVersionStr);
+        SkDebugf("@@@@@@> %s=%s\n", prop, androidAPIVersionStr);
+    }
+#endif
     if (rendererString) {
         static const char kTegraStr[] = "NVIDIA Tegra";
         if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
