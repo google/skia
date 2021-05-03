@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32d8dae8_943975e7",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-03T16:12:08Z",
+      "side": 1,
+      "message": "It would be useful to have some docs on these interfaces.",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35cf424c_9483e99b",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-03T16:12:08Z",
+      "side": 1,
+      "message": "Not a TS expert, but would `baselineY` be more idiomatic?",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6bfea56e_e6cc6127",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-03T16:12:08Z",
+      "side": 1,
+      "message": "FWIW in Flutter this is only used in my PoC. This is not even on the master channel yet. I\u0027d be fine if you just deleted it, without deprecation. Up to you.",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3d7d612_c9cb6e17",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-03T16:12:08Z",
+      "side": 1,
+      "message": "Would an assert that jline is not null be useful here?",
+      "revId": "a46fe7d58781da57f224dc764d2fb83964801e87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
