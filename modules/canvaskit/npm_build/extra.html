@@ -33,7 +33,6 @@
 <h2> Paragraph </h2>
 <canvas id=para1 width=600 height=600></canvas>
 <canvas id=para2 width=600 height=600></canvas>
-<canvas id=para3 width=600 height=600></canvas>
 
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
 <canvas id=skp width=500 height=500></canvas>
@@ -144,7 +143,6 @@
   Promise.all([ckLoaded, loadFont]).then((results) => {
     ParagraphAPI1(...results);
     ParagraphAPI2(...results);
-    ParagraphAPI3(...results);
     GlyphGame(...results)
   });
   Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
@@ -261,38 +259,6 @@
       canvas.drawParagraph(paragraph, 0, 0);
 
       canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
-
-      {
-          const p = new CanvasKit.Paint();
-          const runs = paragraph.getShapedRuns();
-          const fm = font.getMetrics();
-          const colors = [ [1,0,0,0.5], [0,1,0,0.5] ];
-
-          for (let i in runs) {
-              const r = runs[i];
-
-              if (r.flags & CanvasKit.GlyphRunFlags.IsWhiteSpace) {
-                  p.setColor([1, 1, 0, 0.5]);
-              } else {
-                  p.setColor(colors[i & 1]);
-              }
-
-              const bounds = [
-                 r.positions[0],
-                 r.positions[1] + fm.ascent,
-                 r.positions[r.positions.length-2],
-                 r.positions[r.positions.length-1] + fm.descent
-              ];
-              canvas.drawRect(bounds, p);
-          }
-          p.delete();
-
-          fontPaint.setColor(CanvasKit.BLUE);
-          for (let r of runs) {
-              canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, font, fontPaint);
-          }
-          fontPaint.setColor(CanvasKit.BLACK);
-      }
 
       surface.requestAnimationFrame(drawFrame);
     }
@@ -429,177 +395,6 @@
 
       function mid(a, b) { return (a + b) * 0.5; }
 
-      function pos_to_index(runs, x, y) {
-          if (y < runs[0].positions[1] + fm.ascent) {
-              return 0;
-          }
-          for (const r of runs) {
-              if (y >= r.positions[1] + fm.ascent &&
-                  y <= r.positions[1] + fm.descent) {
-                  for (let i = 1; i < r.offsets.length; i += 1) {
-                      if (x < r.positions[i*2]) {
-                          if (x <= mid(r.positions[i*2-2], r.positions[i*2])) {
-                              return r.offsets[i-1];
-                          } else {
-                              return r.offsets[i];
-                          }
-                      }
-                  }
-                  return r.offsets[r.offsets.length-1];
-              }
-          }
-          const r = runs[runs.length-1];
-          return r.offsets[r.offsets.length-1]; // last
-      }
-
-      function find_run(runs, index) {
-          for (const r of runs) {
-              if (index <= r.offsets[r.offsets.length-1]) {
-                  return r;
-              }
-          }
-          return null;
-      }
-
-      function get_run_pos(r, index) {
-          for (const i in r.offsets) {
-              if (index == r.offsets[i]) {
-                  return r.positions.slice(i*2, i*2+2);
-              }
-          }
-          return null;
-      }
-
-      function index_to_pos(runs, index) {
-          const r = find_run(runs, index);
-          return get_run_pos(r, index);
-      }
-
-      function indices_to_path(runs, a, b, fm, width) {
-          if (a == b) {
-              return null;
-          }
-          if (a > b) {
-              const tmp = a;
-              a = b;
-              b = tmp;
-          }
-          const path = new CanvasKit.Path();
-          const first = find_run(runs, a);
-          const last = find_run(runs, b);
-          const p = get_run_pos(first, a);
-          const q = get_run_pos(last, b);
-          if (first == last) {
-              path.addRect([p[0], p[1] + fm.ascent, q[0], q[1] + fm.descent]);
-          } else {
-              const p_top = p[1] + fm.ascent;
-              const p_bot = p[1] + fm.descent;
-              path.addRect([p[0], p_top, width, p_bot]);
-              const q_top = q[1] + fm.ascent;
-              const q_bot = q[1] + fm.descent;
-              path.addRect([   0, q_top, q[0],  q_bot]);
-              if (p_bot < q_top) {
-                  path.addRect([0, p_bot, width, q_top]);   // extra lines inbetween
-              }
-          }
-          return path;
-      }
-
-      let INDEX = 0;
-      let runs;
-
-      function drawFrame(canvas) {
-        canvas.clear(CanvasKit.WHITE);
-        canvas.drawParagraph(paragraph, 0, 0);
-        if (!runs) {
-            runs = paragraph.getShapedRuns();
-        }
-
-        if (mouse.isActive()) {
-            const pos = mouse.getPos();
-            const a = pos_to_index(runs, pos[0], pos[1]);
-            const b = pos_to_index(runs, pos[2], pos[3]);
-            if (a == b) {
-                INDEX = a;
-                const p = index_to_pos(runs, INDEX);
-                cursor.place(p[0], p[1] + fm.ascent, p[1] + fm.descent);
-            } else {
-                cursor.setPath(indices_to_path(runs, a, b, fm, WIDTH));
-            }
-        }
-
-        cursor.draw_before(canvas);
-        for (let r of runs) {
-            canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, font, fontPaint);
-        }
-        cursor.draw_after(canvas);
-
-        surface.requestAnimationFrame(drawFrame);
-      }
-      surface.requestAnimationFrame(drawFrame);
-
-      function interact(e) {
-        const type = e.type;
-        if (type === 'pointerup') {
-            mouse.setUp(e.offsetX, e.offsetY);
-        } else if (type === 'pointermove') {
-            mouse.setMove(e.offsetX, e.offsetY);
-        } else if (type === 'pointerdown') {
-            mouse.setDown(e.offsetX, e.offsetY);
-        }
-      };
-
-      document.getElementById('para2').addEventListener('pointermove', interact);
-      document.getElementById('para2').addEventListener('pointerdown', interact);
-//      document.getElementById('para2').addEventListener('lostpointercapture', interact);
-//      document.getElementById('para2').addEventListener('pointerleave', interact);
-      document.getElementById('para2').addEventListener('pointerup', interact);
-      return surface;
-    }
-
-    function ParagraphAPI3(CanvasKit, fontData) {
-      if (!CanvasKit || !fontData) {
-        return;
-      }
-
-      const surface = CanvasKit.MakeCanvasSurface('para3');
-      if (!surface) {
-        console.error('Could not make surface');
-        return;
-      }
-
-      const mouse = MakeMouse();
-      const cursor = MakeCursor(CanvasKit);
-      const canvas = surface.getCanvas();
-      const fontMgr = CanvasKit.FontMgr.FromData([fontData]);
-
-      const paraStyle = new CanvasKit.ParagraphStyle({
-          textStyle: {
-              color: CanvasKit.GRAY,
-              fontFamilies: ['Roboto'],
-              fontSize: 40,
-          },
-          textAlign: CanvasKit.TextAlign.Left,
-      });
-
-      const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
-      const text =  "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
-                    "wet hole full of worms and oozy smells. This was a hobbit-hole and " +
-                    "that means good food, a warm hearth, and all the comforts of home.";
-      builder.addText(text);
-      const paragraph = builder.build();
-      const WIDTH = 600;
-      paragraph.layout(WIDTH);
-
-      const tf = fontMgr.MakeTypefaceFromData(fontData);
-      const font = new CanvasKit.Font(tf, 40);
-      const fm = font.getMetrics();
-      const fontPaint = new CanvasKit.Paint();
-      fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
-      fontPaint.setAntiAlias(true);
-
-      function mid(a, b) { return (a + b) * 0.5; }
-
       function runs_pos_to_index(runs, x, y) {
           for (const r of runs) {
               for (let i = 1; i < r.offsets.length; i += 1) {
@@ -617,11 +412,11 @@
       }
 
       function lines_pos_to_index(lines, x, y) {
-          if (y < lines[0].baseline_y + lines[0].metrics.ascent) {
+          if (y < lines[0].top) {
               return 0;
           }
           for (const l of lines) {
-              if (y <= l.baseline_y + l.metrics.descent) {
+              if (y <= l.bottom) {
                   return runs_pos_to_index(l.runs, x, y);
               }
           }
@@ -663,37 +458,24 @@
         }
     }
 
-    function line_top(line) {
-        return line.baseline_y + line.metrics.ascent;
-    }
-
-    function line_bottom(line) {
-        return line.baseline_y + line.metrics.descent;
-    }
-
     function lines_indices_to_path(lines, a, b, fm, width) {
           if (a == b) {
               return null;
           }
-          if (a > b) {
-              const tmp = a;
-              a = b;
-              b = tmp;
-          }
+          if (a > b) { [a, b] = [b, a]; }
+
           const path = new CanvasKit.Path();
           const la = lines_index_to_line(lines, a);
           const lb = lines_index_to_line(lines, b);
           const ax = runs_index_to_x(la.runs, a);
           const bx = runs_index_to_x(lb.runs, b);
           if (la == lb) {
-              path.addRect([ax, line_top(la), bx, line_bottom(la)]);
+              path.addRect([ax, la.top, bx, la.bottom]);
           } else {
-              const a_bot = line_bottom(la);
-              const b_top = line_top(lb);
-              path.addRect([ax, line_top(la), width, a_bot]);
-              path.addRect([0, b_top, bx, line_bottom(lb)]);
-              if (a_bot < b_top) {
-                  path.addRect([0, a_bot, width, b_top]);   // extra lines inbetween
+              path.addRect([ax, la.top, width, la.bottom]);
+              path.addRect([0, lb.top, bx, lb.bottom]);
+              if (la.bottom < lb.top) {
+                  path.addRect([0, la.bottom, width, lb.top]);   // extra lines inbetween
               }
           }
           return path;
@@ -717,7 +499,7 @@
                 INDEX = a;
                 const l = lines_index_to_line(lines, INDEX);
                 const x = runs_index_to_x(l.runs, INDEX);
-                cursor.place(x, line_top(l), line_bottom(l));
+                cursor.place(x, l.top, l.bottom);
             } else {
                 cursor.setPath(lines_indices_to_path(lines, a, b, fm, WIDTH));
             }
@@ -728,8 +510,7 @@
         cursor.draw_before(canvas);
         for (const l of lines) {
             if (true) { // test line bounds
-                const bounds = [0, l.baseline_y + l.metrics.ascent,
-                                WIDTH, l.baseline_y + l.metrics.descent];
+                const bounds = [0, l.top, WIDTH, l.bottom];
                 fontPaint.setColor(bgcolors[lineNo & 1]);
                 canvas.drawRect(bounds, fontPaint);
                 fontPaint.setColor([0,0,0,1]);
@@ -756,9 +537,9 @@
         }
       };
 
-      document.getElementById('para3').addEventListener('pointermove', interact);
-      document.getElementById('para3').addEventListener('pointerdown', interact);
-      document.getElementById('para3').addEventListener('pointerup', interact);
+      document.getElementById('para2').addEventListener('pointermove', interact);
+      document.getElementById('para2').addEventListener('pointerdown', interact);
+      document.getElementById('para2').addEventListener('pointerup', interact);
       return surface;
     }
 

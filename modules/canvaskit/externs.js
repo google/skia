@@ -134,7 +134,7 @@ var CanvasKit = {
     getMaxWidth: function() {},
     getMinIntrinsicWidth: function() {},
     getWordBoundary: function() {},
-    getShapedRuns: function() {},
+    getShapedLines: function() {},
     layout: function() {},
 
     // private API

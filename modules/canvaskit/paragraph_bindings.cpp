@@ -312,44 +312,6 @@ JSArray GetLineMetrics(para::Paragraph& self) {
 }
 
 /*
- *  Returns Runs[K]
- *
- *  Run --> { font: ???, glyphs[N], positions[N*2], offsets[N], flags }
- *
- *  K = number of runs
- *  N = number of glyphs in a given run
- */
-JSArray GetShapedRuns(para::Paragraph& self) {
-    // where we accumulate our js output
-    JSArray jruns = emscripten::val::array();
-
-    self.visit([&](int, const para::Paragraph::VisitorInfo* info) {
-        if (!info) {
-            return;
-        }
-        const int N = info->count;   // glyphs
-        const int N1 = N + 1;       // positions, offsets have 1 extra (trailing) slot
-
-        JSObject jrun = emscripten::val::object();
-
-        jrun.set("flags",   info->flags);
-        jrun.set("glyphs",  MakeTypedArray(N,  info->glyphs,     "Uint16Array"));
-        jrun.set("offsets", MakeTypedArray(N1, info->utf8Starts, "Uint32Array"));
-
-        // we need to modify the positions, so make a temp copy
-        SkAutoSTMalloc<32, SkPoint> positions(N1);
-        for (int i = 0; i < N; ++i) {
-            positions.get()[i] = info->positions[i] + info->origin;
-        }
-        positions.get()[N] = { info->advanceX, positions.get()[N - 1].fY };
-        jrun.set("positions", MakeTypedArray(N1*2, (const float*)positions.get(), "Float32Array"));
-
-        jruns.call<void>("push", jrun);
-    });
-    return jruns;
-}
-
-/*
  *  Returns Lines[]
  */
 JSArray GetShapedLines(para::Paragraph& self) {
@@ -359,7 +321,8 @@ JSArray GetShapedLines(para::Paragraph& self) {
         uint32_t    maxOffset   = 0;
         float       minAscent   = 0;
         float       maxDescent  = 0;
-        float       maxLeading  = 0;
+        // not really accumulated, but definitely set
+        float       baseline    = 0;
 
         void reset(int lineNumber) {
             new (this) LineAccumulate;
@@ -381,11 +344,9 @@ JSArray GetShapedLines(para::Paragraph& self) {
             range.set("last",  accum.maxOffset);
             jline.set("textRange", range);
 
-            JSObject metrics = emscripten::val::object();
-            metrics.set("ascent", accum.minAscent);
-            metrics.set("descent", accum.maxDescent);
-            metrics.set("leading", accum.maxLeading);
-            jline.set("metrics", metrics);
+            jline.set("top", accum.baseline + accum.minAscent);
+            jline.set("bottom", accum.baseline + accum.maxDescent);
+            jline.set("baseline", accum.baseline);
             return;
         }
 
@@ -396,7 +357,6 @@ JSArray GetShapedLines(para::Paragraph& self) {
             jruns = emscripten::val::array();
 
             jline = emscripten::val::array();
-            jline.set("baseline_y", info->origin.fY);
             jline.set("runs", jruns);
             // will assign textRange and metrics on end-of-line signal
 
@@ -429,7 +389,7 @@ JSArray GetShapedLines(para::Paragraph& self) {
 
             accum.minAscent  = std::min(accum.minAscent,  fm.fAscent);
             accum.maxDescent = std::max(accum.maxDescent, fm.fDescent);
-            accum.maxLeading = std::max(accum.maxLeading, fm.fLeading);
+            accum.baseline   = info->origin.fY;
 
             accum.minOffset  = std::min(accum.minOffset,  info->utf8Starts[0]);
             accum.maxOffset  = std::max(accum.maxOffset,  info->utf8Starts[N]);
@@ -454,7 +414,6 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("getMinIntrinsicWidth", &para::Paragraph::getMinIntrinsicWidth)
         .function("_getRectsForPlaceholders", &GetRectsForPlaceholders)
         .function("_getRectsForRange", &GetRectsForRange)
-        .function("getShapedRuns", &GetShapedRuns)
         .function("getShapedLines", &GetShapedLines)
         .function("getWordBoundary", &para::Paragraph::getWordBoundary)
         .function("layout", &para::Paragraph::layout);
