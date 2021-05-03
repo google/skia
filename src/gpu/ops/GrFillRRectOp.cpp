@@ -71,7 +71,13 @@ private:
     };
     constexpr static int kNumProcessorFlags = 5;
 
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ProcessorFlags);
+    // We can't use GR_DECL_BITFIELD_CLASS_OPS_FRIENDS here because we don't use all the functions
+    // and the compiler will complain
+    friend constexpr GrTFlagsMask<ProcessorFlags> operator~(ProcessorFlags);
+    friend constexpr ProcessorFlags operator|(ProcessorFlags, ProcessorFlags);
+    friend ProcessorFlags& operator|=(ProcessorFlags&, ProcessorFlags);
+    friend constexpr bool operator&(ProcessorFlags, ProcessorFlags);
+    friend constexpr ProcessorFlags operator&(ProcessorFlags, GrTFlagsMask<ProcessorFlags>);
 
     class Processor;
 
@@ -131,7 +137,26 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(FillRRectOp::ProcessorFlags)
+// We can't use GR_MAKE_BITFIELD_CLASS_OPS here because we don't use all the functions and the
+// compiler will complain.
+constexpr GrTFlagsMask<FillRRectOp::ProcessorFlags> operator~(FillRRectOp::ProcessorFlags a) {
+    return GrTFlagsMask<FillRRectOp::ProcessorFlags>(~static_cast<int>(a));
+}
+constexpr FillRRectOp::ProcessorFlags operator|(FillRRectOp::ProcessorFlags a,
+                                                FillRRectOp::ProcessorFlags b) {
+    return static_cast<FillRRectOp::ProcessorFlags>(static_cast<int>(a) | static_cast<int>(b));
+}
+inline FillRRectOp::ProcessorFlags& operator|=(FillRRectOp::ProcessorFlags& a,
+                                               FillRRectOp::ProcessorFlags b) {
+    return (a = a | b);
+}
+constexpr bool operator&(FillRRectOp::ProcessorFlags a, FillRRectOp::ProcessorFlags b) {
+    return SkToBool(static_cast<int>(a) & static_cast<int>(b));
+}
+constexpr FillRRectOp::ProcessorFlags operator&(FillRRectOp::ProcessorFlags a,
+                                                GrTFlagsMask<FillRRectOp::ProcessorFlags> b) {
+    return static_cast<FillRRectOp::ProcessorFlags>(static_cast<int>(a) & b.value());
+}
 
 // Hardware derivatives are not always accurate enough for highly elliptical corners. This method
 // checks to make sure the corners will still all look good if we use HW derivatives.
