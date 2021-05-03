@@ -28,22 +28,27 @@ enum class LineBreakType {
   kHardLineBreakBefore,
 };
 
-enum CodeUnitFlags : uint64_t {
-    kNoCodeUnitFlag = 0x0,
-    kPartOfWhiteSpace = 0x1,
-    kGraphemeStart = 0x2,
-    kSoftLineBreakBefore = 0x4,
-    kHardLineBreakBefore = 0x8,
+enum CodeUnitFlags : uint32_t {
+    kNoCodeUnitFlag = 0x000,
+    kPartOfWhiteSpace = 0x001,
+    kGraphemeStart = 0x002,
+    kSoftLineBreakBefore = 0x004,
+    kHardLineBreakBefore = 0x008,
     // This information we get from SkShaper
-    kGlyphStart = 0x16,
-    kGlyphClusterStart = 0x32,
-    kNonExistingFlag = 0x64,
+    kGlyphStart = 0x010,
+    kGlyphClusterStart = 0x020,
+    kNonExistingFlag = 0x040,
 };
 
+typedef size_t TextIndex;
+typedef size_t GlyphIndex;
+const size_t EMPTY_INDEX = std::numeric_limits<size_t>::max();
+
+template <typename T>
 class Range {
 public:
     Range() : fStart(0), fEnd(0) { }
-    Range(size_t start, size_t end) : fStart(start) , fEnd(end) { }
+    Range(T start, T end) : fStart(start) , fEnd(end) { }
 
     bool leftToRight() const {
         return fEnd >= fStart;
@@ -70,15 +75,17 @@ public:
     }
 
     void merge(Range tail) {
-        auto ltr = this->leftToRight();
-
+        auto ltr1 = this->leftToRight();
+        auto ltr2 = tail.leftToRight();
         this->normalize();
         tail.normalize();
         SkASSERT(this->fEnd == tail.fStart || this->fStart == tail.fEnd);
         this->fStart = std::min(this->fStart, tail.fStart);
         this->fEnd = std::max(this->fEnd, tail.fEnd);
-        if (!ltr) {
+        // TODO: Merging 2 different directions
+        if (!ltr1 || !ltr2) {
             std::swap(this->fStart, this->fEnd);
+            std::swap(tail.fStart, tail.fEnd);
         }
     }
 
@@ -110,11 +117,12 @@ public:
         }
     }
 
-    size_t fStart;
-    size_t fEnd;
+    T fStart;
+    T fEnd;
 };
 
-const size_t EMPTY_INDEX = std::numeric_limits<size_t>::max();
+typedef Range<TextIndex> TextRange;
+typedef Range<GlyphIndex> GlyphRange;
 const Range EMPTY_RANGE = Range(EMPTY_INDEX, EMPTY_INDEX);
 
 }  // namespace text

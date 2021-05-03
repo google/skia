@@ -21,17 +21,18 @@ public:
         spaces.clean();
     }
 
-    SkScalar glyphRangeWidth(const TextRun* run, const Range& glyphRange) {
+    SkScalar glyphRangeWidth(const TextRun* run, const GlyphRange& glyphRange) {
         return run->fPositions[glyphRange.fEnd].fX - run->fPositions[glyphRange.fStart].fX;
     }
 
-    static Range glyphRange(const TextRun* run, const Range& textRange);
-    static Range textRange(const TextRun* run, const Range& glyphRange);
+    static GlyphRange glyphRange(const TextRun* run, const TextRange& textRange);
+    static TextRange textRange(const TextRun* run, const GlyphRange& glyphRange);
     bool breakTextIntoLines(SkScalar width);
 
 private:
   Processor* fProcessor;
   SkScalar fWidth;
+  // TODO: Implement
   SkScalar fHeight;
 };
 

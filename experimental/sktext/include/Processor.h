@@ -25,16 +25,16 @@ public:
         kDecor,
         kFormat,
     };
-    Block(BlockType type, Range range)
+    Block(BlockType type, TextRange range)
         : fType(type)
         , fRange(range) { }
     BlockType fType;
-    Range fRange;
+    TextRange fRange;
 };
 
 class FontBlock : public Block {
 public:
-    FontBlock(const SkString& family, SkScalar size, SkFontStyle style, Range range)
+    FontBlock(const SkString& family, SkScalar size, SkFontStyle style, TextRange range)
         : Block(Block::kFont, range)
         , fFontFamily(family)
         , fFontSize(size)
@@ -48,12 +48,12 @@ public:
 
 class DecorBlock : public Block {
 public:
-    DecorBlock(const SkPaint* foreground, const SkPaint* background, Range range)
+    DecorBlock(const SkPaint* foreground, const SkPaint* background, TextRange range)
         : Block(Block::kDecor, range)
         , fForegroundColor(foreground)
         , fBackgroundColor(background) { }
 
-    DecorBlock(Range range)
+    DecorBlock(TextRange range)
         : DecorBlock(nullptr, nullptr, range) { }
 
     const SkPaint* fForegroundColor;
@@ -119,10 +119,10 @@ public:
     }
 
     bool isSoftLineBreak(size_t index) {
-        return this->hasProperty(index, CodeUnitFlags::kSoftLineBreakBefore);
+        return index != 0 && this->hasProperty(index, CodeUnitFlags::kSoftLineBreakBefore);
     }
 
-    bool isWhitespaces(Range range) {
+    bool isWhitespaces(TextRange range) {
         if (range.leftToRight()) {
             for (auto i = range.fStart; i < range.fEnd; ++i) {
                 if (!this->hasProperty(i, CodeUnitFlags::kPartOfWhiteSpace)) {
@@ -158,18 +158,17 @@ public:
 
     // Simplification (using default font manager, default font family and default everything possible)
     static bool drawText(const char* text, SkCanvas* canvas, SkScalar x, SkScalar y);
-    //static bool drawText(const char* text, SkCanvas* canvas, TextFormatStyle textFormat, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y);
+    static bool drawText(const char* text, SkCanvas* canvas, SkScalar width);
     static bool drawText(const char* text, SkCanvas* canvas, TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y);
+    static bool drawText(const char* text, SkCanvas* canvas,
+                         TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
+                         SkSize reqSize, SkScalar x, SkScalar y);
 
     void sortDecorBlocks(SkTArray<DecorBlock, true>& decorBlocks);
 
     bool computeCodeUnitProperties();
 
     void markGlyphs();
-
-    // Iterating through the input code units and breaking the runs by units flag (no breaking if units == CodeUnitFlags::kNonExistingFlag)
-    template<typename Visitor>
-    void iterateByLogicalOrder(CodeUnitFlags units, Visitor visitor);
 
     // Iterating through the output glyphs and breaking the runs by units flag (no breaking if units == CodeUnitFlags::kNonExistingFlag)
     template<typename Visitor>
