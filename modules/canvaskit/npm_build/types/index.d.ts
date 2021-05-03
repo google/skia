@@ -655,14 +655,8 @@ export interface Range {
     last:  number;
 }
 
-export interface YMetrics {
-    ascent: number;     // distance above the baseline (negative) to top of 'normal' letters
-    descent: number;    // distance below the baseline (positive) to bottom of 'normal' letters
-    leading: number;    // extra space recommended between lines (needed?)
-}
-
 /**
- * Information for a run of shaped text. See Paragraph.getShapedRuns()
+ * Information for a run of shaped text. See Paragraph.getShapedLines()
  *
  * Notes:
  * positions is documented as Float32, but it holds twice as many as you expect, and they
@@ -678,11 +672,22 @@ export interface GlyphRun {
     flags: number;              // see GlyphRunFlags
 }
 
-export interface ShapedLine {
-    textRange: Range;
-    metrics: YMetrics;
-    baseline_y: number;
-    runs: GlyphRun[];
+/**
+ * Information for a paragraph of text. See Paragraph.getShapedLines()
+ *
+ * Notes:
+ * positions is documented as Float32, but it holds twice as many as you expect, and they
+ * are treated logically as pairs of floats: {x0, y0}, {x1, y1}, ... for each glyph.
+ *
+ * positions and offsets arrays have 1 extra slot (actually 2 for positions)
+ * to describe the location "after" the last glyph in the glyphs array.
+ */
+ export interface ShapedLine {
+    textRange: Range;   // first and last character offsets for the line (derived from runs[])
+    top: number;        // top y-coordinate for the line
+    bottom: number;     // bottom y-coordinate for the line
+    baseline: number;   // baseline y-coordinate for the line
+    runs: GlyphRun[];   // array of GlyphRun objects for the line
 }
 
 /**
@@ -842,8 +847,9 @@ export interface Paragraph extends EmbindObject<Paragraph> {
      */
     getWordBoundary(offset: number): URange;
 
-    getShapedRuns(): GlyphRun[];    // deprecated
-
+    /**
+     * Returns an array of ShapedLine objects, describing the paragraph.
+     */
     getShapedLines(): ShapedLine[];
 
     /**
