@@ -66,6 +66,8 @@ bool GrD3DCaps::canCopyTexture(DXGI_FORMAT dstFormat, int dstSampleCnt,
         return false;
     }
 
+    // D3D allows us to copy within the same format family but doesn't do conversions
+    // so we require strict identity.
     return srcFormat == dstFormat;
 }
 
@@ -82,6 +84,8 @@ bool GrD3DCaps::canCopyAsResolve(DXGI_FORMAT dstFormat, int dstSampleCnt,
     }
 
     // Surfaces must have the same format.
+    // D3D12 can resolve between typeless and non-typeless formats, but we are not using
+    // typeless formats. It's not possible to resolve within the same format family otherwise.
     if (srcFormat != dstFormat) {
         return false;
     }
