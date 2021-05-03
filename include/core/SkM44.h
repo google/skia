@@ -9,6 +9,7 @@
 #define SkM44_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 
 struct SK_API SkV2 {
@@ -225,6 +226,17 @@ public:
         return m;
     }
 
+    // Scales and translates 'src' to fill 'dst' exactly.
+    static SkM44 RectToRect(const SkRect& src, const SkRect& dst);
+    // Maps the center of 'src' to the center of 'dst' and scales it to fit in 'dst' while
+    // preserving 'src's aspect ratio. The scale factor is chosen so that 'src' fills 'dst's axis
+    // with the smallest relative change (the scaled 'src' is as large as possible while still
+    // being contained in 'dst').
+    static SkM44 IsoScaleToFit(const SkRect& src, const SkRect& dst);
+    // Like IsoScaleToFit, but 'src' is scaled to fill 'dst's largest relative axis instead, meaning
+    // all of dst is fully covered (the scaled 'src' is as small as possible while containing 'dst')
+    static SkM44 IsoScaleToCover(const SkRect& src, const SkRect& dst);
+
     static SkM44 LookAt(const SkV3& eye, const SkV3& center, const SkV3& up);
     static SkM44 Perspective(float near, float far, float angle);
 
@@ -376,7 +388,6 @@ public:
         auto v4 = this->map(v.x, v.y, v.z, 0);
         return {v4.x, v4.y, v4.z};
     }
-
     ////////////////////// Converting to/from SkMatrix
 
     /* When converting from SkM44 to SkMatrix, the third row and

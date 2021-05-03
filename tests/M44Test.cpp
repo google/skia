@@ -6,6 +6,8 @@
  */
 
 #include "include/core/SkM44.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMatrixPriv.h"
 #include "tests/Test.h"
 
 static bool eq(const SkM44& a, const SkM44& b, float tol) {
@@ -183,4 +185,225 @@ DEF_TEST(M44_rotate, reporter) {
         REPORTER_ASSERT(reporter, my == -r.expectedY);
         REPORTER_ASSERT(reporter, mz == -r.expectedZ);
     }
+}
+
+DEF_TEST(M44_rectToRect, reporter) {
+    enum EdgeMapping {
+        kExactEdges,  // src edges map to dst edges exactly
+        kInsideEdges, // src edges map to within dst
+        kOutsideEdges, // src edges map to outside dst
+    };
+    using Factory = decltype(&SkM44::RectToRect);
+    struct {
+        Factory     factory;
+        SkV2        dstScale;
+        EdgeMapping xMapping;
+        EdgeMapping yMapping;
+    } recs[] = {
+        // no aspect ratio change, nor up/down scaling
+        {SkM44::RectToRect,      {1.f, 1.f},    kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {1.f, 1.f},    kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToCover, {1.f, 1.f},    kExactEdges,   kExactEdges},
+        // aspect ratio narrows, downscale x and y
+        {SkM44::RectToRect,      {0.25f, 0.5f}, kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {0.25f, 0.5f}, kExactEdges,   kInsideEdges},
+        {SkM44::IsoScaleToCover, {0.25f, 0.5f}, kOutsideEdges, kExactEdges},
+        // aspect ratio widens, downscale x and y
+        {SkM44::RectToRect,      {0.5f, 0.25f}, kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {0.5f, 0.25f}, kInsideEdges,  kExactEdges},
+        {SkM44::IsoScaleToCover, {0.5f, 0.25f}, kExactEdges,   kOutsideEdges},
+        // no aspect ratio change, downscale x and y
+        {SkM44::RectToRect,      {0.5f, 0.5f},  kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {0.5f, 0.5f},  kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToCover, {0.5f, 0.5f},  kExactEdges,   kExactEdges},
+        // aspect ratio narrows, upscale x and y
+        {SkM44::RectToRect,      {2.f, 3.f},    kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {2.f, 3.f},    kExactEdges,   kInsideEdges},
+        {SkM44::IsoScaleToCover, {2.f, 3.f},    kOutsideEdges, kExactEdges},
+        // aspect ratio widens, upscale x and y
+        {SkM44::RectToRect,      {3.f, 2.f},    kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {3.f, 2.f},    kInsideEdges,  kExactEdges},
+        {SkM44::IsoScaleToCover, {3.f, 2.f},    kExactEdges,   kOutsideEdges},
+        // no aspect ratio change, upscale x and y
+        {SkM44::RectToRect,      {2.f, 2.f},    kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {2.f, 2.f},    kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToCover, {2.f, 2.f},    kExactEdges,   kExactEdges},
+        // aspect ratio narrows, downscale x and upscale y
+        {SkM44::RectToRect,      {0.5f, 2.f},   kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {0.5f, 2.f},   kExactEdges,   kInsideEdges},
+        {SkM44::IsoScaleToCover, {0.5f, 2.f},   kOutsideEdges, kExactEdges},
+        // aspect ratio widens, upscale x and downscale y
+        {SkM44::RectToRect,      {2.f, 0.5f},   kExactEdges,   kExactEdges},
+        {SkM44::IsoScaleToFit,   {2.f, 0.5f},   kInsideEdges,  kExactEdges},
+        {SkM44::IsoScaleToCover, {2.f, 0.5f},   kExactEdges,   kOutsideEdges},
+    };
+
+    auto map2d = [&](const SkM44& m, SkV2 p) {
+        SkV4 mapped = m.map(p.x, p.y, 0.f, 1.f);
+        REPORTER_ASSERT(reporter, mapped.z == 0.f);
+        REPORTER_ASSERT(reporter, mapped.w == 1.f);
+        return SkV2{mapped.x, mapped.y};
+    };
+    auto assertNearlyEqual = [&](float actual, float expected) {
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(actual, expected),
+                        "Expected %g == %g", actual, expected);
+    };
+    auto assertEdges = [&](float actualLow, float actualHigh, float expectedLow, float expectedHigh,
+                           EdgeMapping mapping) {
+        SkASSERT(expectedLow < expectedHigh);
+        REPORTER_ASSERT(reporter, actualLow < actualHigh,
+                        "Expected %g < %g", actualLow, actualHigh);
+
+        switch(mapping) {
+            case kExactEdges:
+                assertNearlyEqual(actualLow, expectedLow);
+                assertNearlyEqual(actualHigh, expectedHigh);
+                break;
+            case kInsideEdges:
+                REPORTER_ASSERT(reporter, actualLow > expectedLow,
+                                "Expected %g > %g", actualLow, expectedLow);
+                REPORTER_ASSERT(reporter, actualHigh < expectedHigh,
+                                "Expected %g < %g", actualHigh, expectedHigh);
+                break;
+            case kOutsideEdges:
+                REPORTER_ASSERT(reporter, actualLow < expectedLow,
+                                "Expected %g < %g", actualLow, expectedLow);
+                REPORTER_ASSERT(reporter, actualHigh > expectedHigh,
+                                "Expected %g > %g", actualHigh, expectedHigh);
+                break;
+        }
+    };
+
+    SkRandom rand;
+    for (const auto& r : recs) {
+        SkRect src = SkRect::MakeXYWH(rand.nextRangeF(-10.f, 10.f),
+                                      rand.nextRangeF(-10.f, 10.f),
+                                      rand.nextRangeF(1.f, 10.f),
+                                      rand.nextRangeF(1.f, 10.f));
+        SkRect dst = SkRect::MakeXYWH(rand.nextRangeF(-10.f, 10.f),
+                                      rand.nextRangeF(-10.f, 10.f),
+                                      r.dstScale.x * src.width(),
+                                      r.dstScale.y * src.height());
+
+        SkM44 m = r.factory(src, dst);
+
+        // Regardless of the factory, center of src maps to center of dst
+        SkV2 center = map2d(m, {src.centerX(), src.centerY()});
+        assertNearlyEqual(center.x, dst.centerX());
+        assertNearlyEqual(center.y, dst.centerY());
+
+        // Map the four corners of src and validate against expected edge mapping
+        SkV2 tl = map2d(m, {src.fLeft, src.fTop});
+        SkV2 tr = map2d(m, {src.fRight, src.fTop});
+        SkV2 br = map2d(m, {src.fRight, src.fBottom});
+        SkV2 bl = map2d(m, {src.fLeft, src.fBottom});
+
+        assertEdges(tl.x, tr.x, dst.fLeft, dst.fRight, r.xMapping);
+        assertEdges(bl.x, br.x, dst.fLeft, dst.fRight, r.xMapping);
+        assertEdges(tl.y, bl.y, dst.fTop, dst.fBottom, r.yMapping);
+        assertEdges(tr.y, br.y, dst.fTop, dst.fBottom, r.yMapping);
+    }
+}
+
+DEF_TEST(M44_mapRect, reporter) {
+    auto assertRectsNearlyEqual = [&](const SkRect& actual, const SkRect& expected,
+                                      const SkRect& e) {
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(actual.fLeft, expected.fLeft, e.fLeft),
+                        "Expected %g == %g", actual.fLeft, expected.fLeft);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(actual.fTop, expected.fTop, e.fTop),
+                        "Expected %g == %g", actual.fTop, expected.fTop);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(actual.fRight, expected.fRight, e.fRight),
+                        "Expected %g == %g", actual.fRight, expected.fRight);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(actual.fBottom, expected.fBottom, e.fBottom),
+                        "Expected %g == %g", actual.fBottom, expected.fBottom);
+    };
+    auto assertMapRect = [&](const SkM44& m, const SkRect& src, const SkRect* expected) {
+        SkRect epsilon = {1e-5f, 1e-5f, 1e-5f, 1e-5f};
+
+        SkRect actual = SkMatrixPriv::MapRect(m, src);
+        REPORTER_ASSERT(reporter, !actual.isEmpty());
+
+        if (expected) {
+            assertRectsNearlyEqual(actual, *expected, epsilon);
+        }
+
+        SkV4 corners[4] = {{src.fLeft, src.fTop, 0.f, 1.f},
+                           {src.fRight, src.fTop, 0.f, 1.f},
+                           {src.fRight, src.fBottom, 0.f, 1.f},
+                           {src.fLeft, src.fBottom, 0.f, 1.f}};
+        bool leftFound = false;
+        bool topFound = false;
+        bool rightFound = false;
+        bool bottomFound = false;
+        bool clipped = false;
+        for (int i = 0; i < 4; ++i) {
+            SkV4 mapped = m * corners[i];
+            if (mapped.w > 0.f) {
+                // Should be contained in actual and might be on one or two of actual's edges
+                float x = mapped.x / mapped.w;
+                float y = mapped.y / mapped.w;
+
+                // Can't use SkRect::contains() since it treats right and bottom edges as exclusive
+                REPORTER_ASSERT(reporter, actual.fLeft <= x && x <= actual.fRight,
+                                "Expected %g contained in [%g, %g]",
+                                x, actual.fLeft, actual.fRight);
+                REPORTER_ASSERT(reporter, actual.fTop <= y && y <= actual.fBottom,
+                                "Expected %g contained in [%g, %g]",
+                                y, actual.fTop, actual.fBottom);
+
+                leftFound   |= SkScalarNearlyEqual(x, actual.fLeft);
+                topFound    |= SkScalarNearlyEqual(y, actual.fTop);
+                rightFound  |= SkScalarNearlyEqual(x, actual.fRight);
+                bottomFound |= SkScalarNearlyEqual(y, actual.fBottom);
+            } else {
+                // The mapped point would be clipped so the clipped mapped bounds don't necessarily
+                // contain it
+                clipped = true;
+            }
+        }
+
+        if (clipped) {
+            // At least one of the mapped corners should have contributed to the rect
+            REPORTER_ASSERT(reporter, leftFound || topFound || rightFound || bottomFound);
+            // For any edge that came from a clipped corner, increase its error tolerance relative
+            // to what SkPath::ApplyPerspectiveClip calculates
+            if (!leftFound) {   epsilon.fLeft   = 10.f; }
+            if (!topFound) {    epsilon.fTop    = 10.f; }
+            if (!rightFound) {  epsilon.fRight  = 10.f; }
+            if (!bottomFound) { epsilon.fBottom = 10.f; }
+        } else {
+            // The mapped corners should have contributed to all four edges of the returned rect
+            REPORTER_ASSERT(reporter, leftFound && topFound && rightFound && bottomFound);
+        }
+
+        SkPath path = SkPath::Rect(src);
+        path.transform(m.asM33(), SkApplyPerspectiveClip::kYes);
+        assertRectsNearlyEqual(actual, path.getBounds(), epsilon);
+    };
+
+    // src chosen arbitrarily
+    const SkRect src = SkRect::MakeLTRB(4.83f, -0.48f, 5.53f, 30.68f);
+
+    // Identity maps src to src
+    assertMapRect(SkM44(), src, &src);
+    // Scale+Translate just offsets src
+    SkRect st = SkRect::MakeLTRB(10.f + 2.f * src.fLeft,  8.f + 4.f * src.fTop,
+                                 10.f + 2.f * src.fRight, 8.f + 4.f * src.fBottom);
+    assertMapRect(SkM44::Scale(2.f, 4.f).postTranslate(10.f, 8.f), src, &st);
+    // Rotate 45 degrees about center
+    assertMapRect(SkM44::Rotate({0.f, 0.f, 1.f}, SK_ScalarPI / 4.f)
+                        .preTranslate(-src.centerX(), -src.centerY())
+                        .postTranslate(src.centerX(), src.centerY()),
+                  src, nullptr);
+
+    // Perspective matrix where src does not need to be clipped w > 0
+    SkM44 p = SkM44::Perspective(0.01f, 10.f, SK_ScalarPI / 3.f);
+    p.preTranslate(0.f, 5.f, -0.1f);
+    p.preConcat(SkM44::Rotate({0.f, 1.f, 0.f}, 0.008f /* radians */));
+    assertMapRect(p, src, nullptr);
+
+    // Perspective matrix where src *does* need to be clipped w > 0
+    p.setIdentity();
+    p.setRow(3, {-.2f, -.6f, 0.f, 8.f});
+    assertMapRect(p, src, nullptr);
 }
