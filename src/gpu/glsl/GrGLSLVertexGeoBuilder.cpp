@@ -16,20 +16,18 @@ void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char*
     if (this->getProgramBuilder()->snapVerticesToPixelCenters()) {
         if (kFloat3_GrSLType == devPosType) {
             const char* p = devPos;
-            out->appendf("{float2 _posTmp = float2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
+            out->appendf("{float2 _posTmp = %s.xy / %s.z;", p, p);
         } else {
             SkASSERT(kFloat2_GrSLType == devPosType);
             out->appendf("{float2 _posTmp = %s;", devPos);
         }
-        out->appendf("_posTmp = floor(_posTmp) + half2(0.5, 0.5);"
-                     "sk_Position = float4(_posTmp, 0, 1);}");
+        out->appendf("_posTmp = floor(_posTmp) + float2(0.5);"
+                     "sk_Position = _posTmp.xy01;}");
     } else if (kFloat3_GrSLType == devPosType) {
-        out->appendf("sk_Position = float4(%s.x , %s.y, 0, %s.z);",
-                     devPos, devPos, devPos);
+        out->appendf("sk_Position = %s.xy0z;", devPos);
     } else {
         SkASSERT(kFloat2_GrSLType == devPosType);
-        out->appendf("sk_Position = float4(%s.x , %s.y, 0, 1);",
-                     devPos, devPos);
+        out->appendf("sk_Position = %s.xy01;", devPos);
     }
 }
 
