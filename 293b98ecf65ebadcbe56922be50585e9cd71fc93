@@ -51,6 +51,24 @@
       "message": "What do you think about returning the \"baseline\" y value? I realize a complex line might contain different logical baselines, but I felt the need to anchor the whole line somewhere (if nothing else, so I know \u0027where\u0027 to draw its bounds)",
       "revId": "293b98ecf65ebadcbe56922be50585e9cd71fc93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c3dfa5f_f32df5dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-03T13:19:32Z",
+      "side": 1,
+      "message": "I recently struggled with that baseline exactly, so I know why we need it (and probably more information later).",
+      "parentUuid": "5466ae41_3915b1e7",
+      "revId": "293b98ecf65ebadcbe56922be50585e9cd71fc93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

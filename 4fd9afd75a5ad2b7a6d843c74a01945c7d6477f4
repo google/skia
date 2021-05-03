@@ -16,6 +16,24 @@
       "message": "Do we need baseline + metrics (per-line) ?\n\nWhat about\n- top\n- baseline\n- bottom\n?",
       "revId": "4fd9afd75a5ad2b7a6d843c74a01945c7d6477f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3777213b_60871370",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-03T13:19:32Z",
+      "side": 1,
+      "message": "Currently we need baseline. We will need more than top +  bottom later so I suggest to wait until we discover that need and sort it out later.",
+      "parentUuid": "cb19f6f8_671b7223",
+      "revId": "4fd9afd75a5ad2b7a6d843c74a01945c7d6477f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

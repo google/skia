@@ -33,6 +33,24 @@
       "message": "Yegor: given this new variant, do we need to keep getShapedRuns() for compatibility? (i.e. are you already relying on it?) Will the ShapedLines API suffice?",
       "revId": "ed79c3e1811616a88fc8591d04d60193caad07c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d98ab526_bae5c193",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-03T13:19:32Z",
+      "side": 1,
+      "message": "Metrics per line we need (baseline is one, could be more). \nLater we may need metrics per run (by run I now mean possibly broken by line shaped run).\nAt least, to calculate boxes around text with some precision.",
+      "parentUuid": "f4941b47_5c5dcf70",
+      "revId": "ed79c3e1811616a88fc8591d04d60193caad07c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
