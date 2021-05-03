@@ -32,7 +32,7 @@ public:
         kProtected  = 0x8,
     };
 
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AllocationPropertyFlags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AllocationPropertyFlags)
 
     enum class BufferUsage {
         // Buffers that will only be accessed from the device (large const buffers). Will always be
@@ -134,7 +134,5 @@ public:
     // Returns the total amount of memory that is allocated by this allocator.
     virtual uint64_t totalAllocatedMemory() const = 0;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrVkMemoryAllocator::AllocationPropertyFlags)
 
 #endif

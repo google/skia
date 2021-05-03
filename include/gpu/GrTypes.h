@@ -70,62 +70,52 @@ private:
     const int fValue;
 };
 
-// Or-ing a mask always returns another mask.
-template<typename TFlags> constexpr GrTFlagsMask<TFlags> operator|(GrTFlagsMask<TFlags> a,
-                                                                   GrTFlagsMask<TFlags> b) {
-    return GrTFlagsMask<TFlags>(a.value() | b.value());
-}
-template<typename TFlags> constexpr GrTFlagsMask<TFlags> operator|(GrTFlagsMask<TFlags> a,
-                                                                   TFlags b) {
-    return GrTFlagsMask<TFlags>(a.value() | static_cast<int>(b));
-}
-template<typename TFlags> constexpr GrTFlagsMask<TFlags> operator|(TFlags a,
-                                                                   GrTFlagsMask<TFlags> b) {
-    return GrTFlagsMask<TFlags>(static_cast<int>(a) | b.value());
-}
-template<typename TFlags> inline GrTFlagsMask<TFlags>& operator|=(GrTFlagsMask<TFlags>& a,
-                                                                  GrTFlagsMask<TFlags> b) {
-    return (a = a | b);
-}
-
-// And-ing two masks returns another mask; and-ing one with regular flags returns flags.
-template<typename TFlags> constexpr GrTFlagsMask<TFlags> operator&(GrTFlagsMask<TFlags> a,
-                                                                   GrTFlagsMask<TFlags> b) {
-    return GrTFlagsMask<TFlags>(a.value() & b.value());
-}
-template<typename TFlags> constexpr TFlags operator&(GrTFlagsMask<TFlags> a, TFlags b) {
-    return static_cast<TFlags>(a.value() & static_cast<int>(b));
-}
-template<typename TFlags> constexpr TFlags operator&(TFlags a, GrTFlagsMask<TFlags> b) {
-    return static_cast<TFlags>(static_cast<int>(a) & b.value());
-}
-template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFlags> b) {
-    return (a = a & b);
-}
+/**
+ * Defines bitwise operators that make it possible to use an enum class as a
+ * basic bitfield.
+ */
+#define GR_MAKE_BITFIELD_CLASS_OPSX(X, P) \
+    P constexpr GrTFlagsMask<X> operator~(X a) { \
+        return GrTFlagsMask<X>(~static_cast<int>(a)); \
+    } \
+    P constexpr X operator|(X a, X b) { \
+        return static_cast<X>(static_cast<int>(a) | static_cast<int>(b)); \
+    } \
+    P inline X& operator|=(X& a, X b) { \
+        return (a = a | b); \
+    } \
+    P constexpr bool operator&(X a, X b) { \
+        return SkToBool(static_cast<int>(a) & static_cast<int>(b)); \
+    } \
+    P constexpr GrTFlagsMask<X> operator|(GrTFlagsMask<X> a, GrTFlagsMask<X> b) { \
+        return GrTFlagsMask<X>(a.value() | b.value()); \
+    } \
+    P constexpr GrTFlagsMask<X> operator|(GrTFlagsMask<X> a, X b) { \
+        return GrTFlagsMask<X>(a.value() | static_cast<int>(b)); \
+    } \
+    P constexpr GrTFlagsMask<X> operator|(X a, GrTFlagsMask<X> b) { \
+        return GrTFlagsMask<X>(static_cast<int>(a) | b.value()); \
+    } \
+    P constexpr X operator&(GrTFlagsMask<X> a, GrTFlagsMask<X> b) { \
+        return static_cast<X>(a.value() & b.value()); \
+    } \
+    P constexpr X operator&(GrTFlagsMask<X> a, X b) { \
+        return static_cast<X>(a.value() & static_cast<int>(b)); \
+    } \
+    P constexpr X operator&(X a, GrTFlagsMask<X> b) { \
+        return static_cast<X>(static_cast<int>(a) & b.value()); \
+    } \
+    P inline X& operator&=(X& a, GrTFlagsMask<X> b) { \
+        return (a = a & b); \
+    } \
 
 /**
  * Defines bitwise operators that make it possible to use an enum class as a
  * basic bitfield.
  */
-#define GR_MAKE_BITFIELD_CLASS_OPS(X) \
-    constexpr GrTFlagsMask<X> operator~(X a) { \
-        return GrTFlagsMask<X>(~static_cast<int>(a)); \
-    } \
-    constexpr X operator|(X a, X b) { \
-        return static_cast<X>(static_cast<int>(a) | static_cast<int>(b)); \
-    } \
-    inline X& operator|=(X& a, X b) { \
-        return (a = a | b); \
-    } \
-    constexpr bool operator&(X a, X b) { \
-        return SkToBool(static_cast<int>(a) & static_cast<int>(b)); \
-    } \
+#define GR_MAKE_BITFIELD_CLASS_OPS(X) GR_MAKE_BITFIELD_CLASS_OPSX(X,)
 
-#define GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(X) \
-    friend constexpr GrTFlagsMask<X> operator ~(X); \
-    friend constexpr X operator |(X, X); \
-    friend X& operator |=(X&, X); \
-    friend constexpr bool operator &(X, X)
+#define GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(X) GR_MAKE_BITFIELD_CLASS_OPSX(X, friend)
 
 ///////////////////////////////////////////////////////////////////////////////
 

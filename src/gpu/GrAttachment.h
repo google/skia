@@ -29,7 +29,7 @@ public:
         kColorAttachment   = 0x2,
         kTexture           = 0x4,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags)
 
     ~GrAttachment() override {}
 
@@ -96,7 +96,5 @@ private:
 
     using INHERITED = GrSurface;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrAttachment::UsageFlags);
 
 #endif

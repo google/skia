@@ -175,7 +175,7 @@ public:
         kNone = 0,
     };
 
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(CustomFeatures);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(CustomFeatures)
 
     CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
@@ -205,7 +205,5 @@ protected:
     const ClassID fClassID;
     CustomFeatures fRequestedFeatures = CustomFeatures::kNone;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrProcessor::CustomFeatures)
 
 #endif

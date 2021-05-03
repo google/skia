@@ -92,7 +92,7 @@ public:
         kForInputAttachment =     1 << 0,
         kForNonCoherentAdvBlend = 1 << 1,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(SelfDependencyFlags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(SelfDependencyFlags)
 
     enum class LoadFromResolve {
         kNo,
@@ -199,6 +199,5 @@ private:
 };
 
 GR_MAKE_BITFIELD_OPS(GrVkRenderPass::AttachmentFlags);
-GR_MAKE_BITFIELD_CLASS_OPS(GrVkRenderPass::SelfDependencyFlags);
 
 #endif

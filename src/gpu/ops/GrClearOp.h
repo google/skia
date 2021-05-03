@@ -41,7 +41,7 @@ private:
 
         kBoth        = 0b11,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Buffer);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Buffer)
 
     GrClearOp(Buffer buffer,
               const GrScissorState& scissor,
@@ -78,7 +78,5 @@ private:
 
     using INHERITED = GrOp;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrClearOp::Buffer)
 
 #endif

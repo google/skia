@@ -33,7 +33,7 @@ public:
         /** Indices that the op reads and/or writes the stencil buffer */
         kUsesStencil = 0x2,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(FixedFunctionFlags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(FixedFunctionFlags)
     virtual FixedFunctionFlags fixedFunctionFlags() const = 0;
 
     /**
@@ -61,7 +61,5 @@ public:
 private:
     using INHERITED = GrOp;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrDrawOp::FixedFunctionFlags);
 
 #endif

@@ -281,7 +281,7 @@ public:
          */
         kUnaffectedByDstValue = 0x80,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties)
 
     static sk_sp<const GrXferProcessor> MakeXferProcessor(const GrXPFactory*,
                                                           const GrProcessorAnalysisColor&,
@@ -319,7 +319,5 @@ private:
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrXPFactory::AnalysisProperties)
 
 #endif

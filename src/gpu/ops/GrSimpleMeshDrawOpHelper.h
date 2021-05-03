@@ -42,7 +42,7 @@ public:
         kSnapVerticesToPixelCenters = (uint8_t)GrPipeline::InputFlags::kSnapVerticesToPixelCenters,
         kConservativeRaster = (uint8_t)GrPipeline::InputFlags::kConservativeRaster,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(InputFlags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(InputFlags)
 
     GrSimpleMeshDrawOpHelper(GrProcessorSet*, GrAAType, InputFlags = InputFlags::kNone);
     ~GrSimpleMeshDrawOpHelper();
@@ -212,7 +212,5 @@ GrOp::Owner GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingContext* context,
                 context, color, std::move(paint), std::forward<OpArgs>(opArgs)...);
     }
 }
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrSimpleMeshDrawOpHelper::InputFlags)
 
 #endif

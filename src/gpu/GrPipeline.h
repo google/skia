@@ -212,7 +212,7 @@ private:
         kScissorTestEnabled = (kLastInputFlag << 2),
     };
 
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags)
 
     friend bool operator&(Flags, InputFlags);
 
@@ -236,8 +236,7 @@ private:
     GrSwizzle fWriteSwizzle;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags);
-GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::Flags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags)
 
 inline bool operator&(GrPipeline::Flags flags, GrPipeline::InputFlags inputFlag) {
     return (flags & (GrPipeline::Flags)inputFlag);

@@ -41,7 +41,7 @@ public:
         kDynamicColor  = 1 << 3,  // Each patch or instance has its own color.
     };
 
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags)
 
     // Returns the fixed number of edges that are always emitted with the given join type. If the
     // join is round, the caller needs to account for the additional radial edges on their own.
@@ -207,7 +207,5 @@ private:
     class TessellationImpl;
     class InstancedImpl;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellateShader::ShaderFlags);
 
 #endif

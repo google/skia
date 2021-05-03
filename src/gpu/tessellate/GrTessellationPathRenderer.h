@@ -75,6 +75,6 @@ private:
     SkPath fAtlasUberPaths[4];  // 2 fillTypes * 2 antialias modes.
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::OpFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::OpFlags)
 
 #endif
