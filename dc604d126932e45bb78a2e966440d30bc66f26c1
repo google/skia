@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e03d968_d2dd0bf3",
+        "filename": "src/gpu/gl/GrGLRenderTarget.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-03T21:28:22Z",
+      "side": 1,
+      "message": "Should we have an:\n\nSkASSERT(!this-\u003egetGpu()-\u003egetContext()-\u003epriv().caps()-\u003eavoidStencilBuffers());\n\nhere?",
+      "revId": "dc604d126932e45bb78a2e966440d30bc66f26c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
