@@ -142,6 +142,12 @@ public:
     void pushSymbolTable();
     void popSymbolTable();
 
+    static void CheckModifiers(const Context& context,
+                               int offset,
+                               const Modifiers& modifiers,
+                               int permittedModifierFlags,
+                               int permittedLayoutFlags);
+
     const Context& fContext;
 
 private:
@@ -158,10 +164,6 @@ private:
      */
     std::unique_ptr<ModifiersPool> releaseModifiers();
 
-    void checkModifiers(int offset,
-                        const Modifiers& modifiers,
-                        int permittedModifierFlags,
-                        int permittedLayoutFlags);
     void checkVarDeclaration(int offset,
                              const Modifiers& modifiers,
                              const Type* baseType,

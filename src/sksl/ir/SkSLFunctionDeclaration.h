@@ -9,6 +9,7 @@
 #define SKSL_FUNCTIONDECLARATION
 
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTArray.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -37,6 +38,16 @@ public:
     , fReturnType(returnType)
     , fBuiltin(builtin)
     , fIsMain(name == "main") {}
+
+    static const FunctionDeclaration* Convert(const Context& context,
+                                              SymbolTable& symbols,
+                                              ModifiersPool& modifiersPool,
+                                              int offset,
+                                              const Modifiers* modifiers,
+                                              StringFragment name,
+                                              std::vector<std::unique_ptr<Variable>> parameters,
+                                              const Type* returnType,
+                                              bool isBuiltin);
 
     const Modifiers& modifiers() const {
         return *fModifiers;
