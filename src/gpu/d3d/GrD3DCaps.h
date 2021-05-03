@@ -31,7 +31,7 @@ public:
     bool isFormatTexturable(const GrBackendFormat&) const override;
     bool isFormatTexturable(DXGI_FORMAT) const;
 
-    bool isFormatCopyable(const GrBackendFormat&) const override { return false; }
+    bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                        int sampleCount = 1) const override;
