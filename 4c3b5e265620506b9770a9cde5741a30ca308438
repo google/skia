@@ -94,6 +94,30 @@
       },
       "revId": "4c3b5e265620506b9770a9cde5741a30ca308438",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "764b2378_a34cbd07",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-03T13:19:54Z",
+      "side": 1,
+      "message": "I think you can use the GLSLGeneration just like ES. (Though, logner term we ought the figure out how to excise that or at least limit it to the GL backend.)",
+      "parentUuid": "f15c40b2_0725e9ce",
+      "range": {
+        "startLine": 404,
+        "startChar": 0,
+        "endLine": 404,
+        "endChar": 96
+      },
+      "revId": "4c3b5e265620506b9770a9cde5741a30ca308438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
