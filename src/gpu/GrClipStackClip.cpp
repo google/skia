@@ -127,8 +127,6 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         canDrawArgs.fPaint = nullptr;
         canDrawArgs.fSurfaceProps = &surfaceDrawContext->surfaceProps();
         canDrawArgs.fAAType = aaType;
-        SkASSERT(!surfaceDrawContext->wrapsVkSecondaryCB());
-        canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
         // the 'false' parameter disallows use of the SW path renderer
@@ -155,10 +153,8 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
 
-    // If we're avoiding stencils, always use SW. This includes drawing into a wrapped vulkan
-    // secondary command buffer which can't handle stencils.
-    if (context->priv().caps()->avoidStencilBuffers() ||
-        surfaceDrawContext->wrapsVkSecondaryCB()) {
+    // If stencil isn't supported, always use SW.
+    if (!surfaceDrawContext->asRenderTargetProxy()->canUseStencil(*context->priv().caps())) {
         return true;
     }
 
@@ -214,8 +210,8 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     if (surfaceDrawContext->numSamples() > 1 || aa == GrAAType::kMSAA || hasUserStencilSettings) {
         // Disable analytic clips when we have MSAA. In MSAA we never conflate coverage and opacity.
         maxAnalyticElements = 0;
-        // We disable MSAA when avoiding stencil.
-        SkASSERT(!context->priv().caps()->avoidStencilBuffers());
+        // We disable MSAA when stencil isn't supported.
+        SkASSERT(surfaceDrawContext->asRenderTargetProxy()->canUseStencil(*context->priv().caps()));
     }
     auto* ccpr = context->priv().drawingManager()->getCoverageCountingPathRenderer();
 
@@ -274,8 +270,7 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
 #endif
 
     if ((surfaceDrawContext->numSamples() <= 1 && reducedClip.maskRequiresAA()) ||
-        context->priv().caps()->avoidStencilBuffers() ||
-        surfaceDrawContext->wrapsVkSecondaryCB()) {
+        !surfaceDrawContext->asRenderTargetProxy()->canUseStencil(*context->priv().caps())) {
         GrSurfaceProxyView result;
         if (UseSWOnlyPath(context, hasUserStencilSettings, surfaceDrawContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
@@ -295,8 +290,7 @@ bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
 
         // If alpha or software clip mask creation fails, fall through to the stencil code paths,
         // unless stencils are disallowed.
-        if (context->priv().caps()->avoidStencilBuffers() ||
-            surfaceDrawContext->wrapsVkSecondaryCB()) {
+        if (!surfaceDrawContext->asRenderTargetProxy()->canUseStencil(*context->priv().caps())) {
             SkDebugf("WARNING: Clip mask requires stencil, but stencil unavailable. "
                      "Clip will be ignored.\n");
             return false;
