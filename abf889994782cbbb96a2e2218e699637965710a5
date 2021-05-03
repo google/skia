@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "726cfef3_2f63f491",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T18:04:04Z",
+      "side": 1,
+      "message": "I thought about it. For color filters it makes sense, as does requiring coords on shaders. But the color argument (both in main\u0027s signature for shaders, and when sampling them) is so rarely important (or used at all) that it really seemed worth making it optional. 99% of the time, people are just using image shaders as children, and those don\u0027t do anything with the input color.",
+      "parentUuid": "f4070b70_e05a341f",
+      "revId": "abf889994782cbbb96a2e2218e699637965710a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4f2812e_6f9488eb",
@@ -88,6 +106,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "26143aa3_322bfe46",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T18:04:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5b2b3f02_7cfc0410",
+      "revId": "abf889994782cbbb96a2e2218e699637965710a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06706237_85c5722a",
@@ -101,6 +137,30 @@
       "writtenOn": "2021-05-03T13:36:14Z",
       "side": 1,
       "message": "This and similar asserts might be clearer as\n\n   (... \u003d\u003d 2 || ... \u003d\u003d 3)\n\n?",
+      "range": {
+        "startLine": 147,
+        "startChar": 17,
+        "endLine": 147,
+        "endChar": 63
+      },
+      "revId": "abf889994782cbbb96a2e2218e699637965710a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f5cf0a3_8597cbef",
+        "filename": "src/sksl/codegen/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T18:04:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06706237_85c5722a",
       "range": {
         "startLine": 147,
         "startChar": 17,
