@@ -75,16 +75,19 @@ public:
         : fSkSLType(type) {}
 
     template<typename... Args>
-    static DSLExpression Construct(TypeConstant type, Args&&... args) {
+    static DSLExpression Construct(DSLType type, Args&&... args) {
         SkTArray<DSLExpression> argArray;
         argArray.reserve_back(sizeof...(args));
         CollectArgs(argArray, std::forward<Args>(args)...);
         return Construct(type, std::move(argArray));
     }
 
-    static DSLExpression Construct(TypeConstant type, SkTArray<DSLExpression> argArray);
+    static DSLExpression Construct(DSLType type, SkTArray<DSLExpression> argArray);
 
 private:
+    DSLType()
+        : DSLType(kVoid_Type) {}
+
     const SkSL::Type& skslType() const;
 
     const SkSL::Type* fSkSLType = nullptr;

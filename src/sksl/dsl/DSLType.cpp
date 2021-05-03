@@ -108,8 +108,8 @@ const SkSL::Type& DSLType::skslType() const {
     }
 }
 
-DSLExpression DSLType::Construct(TypeConstant type, SkTArray<DSLExpression> argArray) {
-    return DSLWriter::Construct(DSLType(type).skslType(), std::move(argArray));
+DSLExpression DSLType::Construct(DSLType type, SkTArray<DSLExpression> argArray) {
+    return DSLWriter::Construct(type.skslType(), std::move(argArray));
 }
 
 DSLType Array(const DSLType& base, int count) {
