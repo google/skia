@@ -46,6 +46,30 @@
       },
       "revId": "4c3b5e265620506b9770a9cde5741a30ca308438",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eef35e9e_a026d5fd",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-03T13:11:04Z",
+      "side": 1,
+      "message": "Yes, I think if it\u0027s WebGL 2, it should be available.",
+      "parentUuid": "a83a323f_fbe274bd",
+      "range": {
+        "startLine": 404,
+        "startChar": 0,
+        "endLine": 404,
+        "endChar": 96
+      },
+      "revId": "4c3b5e265620506b9770a9cde5741a30ca308438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
