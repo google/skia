@@ -572,6 +572,8 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
 /////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+
     if (paint.getMaskFilter()) {
         SkPath path;
         region.getBoundaryPath(&path);
@@ -663,6 +665,8 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
+    ASSERT_SINGLE_OWNER
+
     // TODO: this makes a tight copy of 'bitmap' but it doesn't have to be (given SkSpecialImage's
     // semantics). Since this is cached we would have to bake the fit into the cache key though.
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(fContext.get(), bitmap));
@@ -684,6 +688,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
+    ASSERT_SINGLE_OWNER
+
     SkPixmap pm;
     if (image->isTextureBacked()) {
         auto [view, ct] = as_IB(image)->asView(this->recordingContext(), GrMipmapped::kNo);
@@ -707,6 +713,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool forceCopy) {
+    ASSERT_SINGLE_OWNER
+
     GrSurfaceDrawContext* sdc = fSurfaceDrawContext.get();
 
     // If we are wrapping a vulkan secondary command buffer, then we can't snap off a special image
@@ -773,7 +781,7 @@ void SkGpuDevice::drawViewLattice(GrSurfaceProxyView view,
                                   const SkRect& dst,
                                   SkFilterMode filter,
                                   const SkPaint& origPaint) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawViewLattice", fContext.get());
     SkASSERT(view);
 
     SkTCopyOnFirstWrite<SkPaint> paint(&origPaint);
@@ -938,6 +946,8 @@ void SkGpuDevice::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const S
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas) {
+    ASSERT_SINGLE_OWNER
+
     GrBackendApi api = this->recordingContext()->backend();
     if (GrBackendApi::kVulkan == api) {
         const SkMatrix& ctm = canvas->getLocalToDeviceAs3x3();

@@ -536,7 +536,7 @@ protected:
     bool isNoPixelsDevice() const override { return true; }
 
 private:
-struct ClipState {
+    struct ClipState {
         SkConservativeClip fClip;
         int fDeferredSaveCount = 0;
 

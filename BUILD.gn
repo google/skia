@@ -54,6 +54,9 @@ config("skia_public") {
       "SK_USE_WEBGL",
     ]
   }
+  if (skia_enable_nga) {
+    defines += [ "SK_NGA" ]
+  }
 
   # Some older versions of the Clang toolchain change the visibility of
   # symbols decorated with API_AVAILABLE macro to be visible. Users of such
@@ -904,6 +907,10 @@ optional("gpu") {
   if (!skia_enable_ccpr) {
     sources -= skia_ccpr_sources
     sources += [ "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp" ]
+  }
+
+  if (skia_enable_nga) {
+    sources += skia_nga_sources
   }
 
   libs = []

@@ -633,6 +633,12 @@ skia_gpu_sources += skia_ccpr_sources
 
 skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
 
+skia_nga_sources = [
+  # Sk files
+  "$_src/gpu/SkGpuDevice_nga.cpp",
+  "$_src/gpu/SkGpuDevice_nga.h",
+]
+
 skia_vk_sources = [
   "$_include/gpu/vk/GrVkBackendContext.h",
   "$_include/gpu/vk/GrVkExtensions.h",
