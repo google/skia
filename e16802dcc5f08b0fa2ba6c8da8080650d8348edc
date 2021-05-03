@@ -52,6 +52,24 @@
       "parentUuid": "1196adc7_8015c401",
       "revId": "e16802dcc5f08b0fa2ba6c8da8080650d8348edc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2e117f0_3925f57c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-03T19:15:33Z",
+      "side": 1,
+      "message": "Done, though that table might come back in the future for internal use.",
+      "parentUuid": "bc50d0d4_9dcf6f5e",
+      "revId": "e16802dcc5f08b0fa2ba6c8da8080650d8348edc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
