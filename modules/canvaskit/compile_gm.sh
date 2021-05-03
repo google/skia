@@ -129,6 +129,7 @@ echo "Compiling bitcode"
   ${GN_FONT} \
   skia_use_expat=true \
   skia_enable_ccpr=true \
+  skia_enable_nga=false \
   skia_enable_svg=true \
   skia_enable_skshaper=true \
   skia_enable_skparagraph=true \

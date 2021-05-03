@@ -164,6 +164,7 @@ echo "Compiling bitcode"
   \
   skia_enable_skshaper=true \
   skia_enable_ccpr=false \
+  skia_enable_nga=false \
   skia_enable_pdf=false"
 
 # Build all the libs we will need below
