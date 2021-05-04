@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42b58d51_e91fff33",
+        "filename": "src/gpu/GrPathRendererChain.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-04T16:52:43Z",
+      "side": 0,
+      "message": "Should this bug also be referenced in the comment ?",
+      "range": {
+        "startLine": 38,
+        "startChar": 92,
+        "endLine": 38,
+        "endChar": 97
+      },
+      "revId": "2776dd161e7679d6a35458a8da719f1d80f24356",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
