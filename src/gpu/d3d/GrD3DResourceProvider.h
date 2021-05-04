@@ -75,6 +75,8 @@ public:
     GrD3DPipelineState* findOrCreateCompatiblePipelineState(GrD3DRenderTarget*,
                                                             const GrProgramInfo&);
 
+    sk_sp<GrD3DPipeline> findOrCreateMipmapPipeline();
+
     D3D12_GPU_VIRTUAL_ADDRESS uploadConstantData(void* data, size_t size);
     void prepForSubmit();
 
@@ -161,6 +163,7 @@ private:
     GrD3DDescriptorTableManager fDescriptorTableManager;
 
     std::unique_ptr<PipelineStateCache> fPipelineStateCache;
+    sk_sp<GrD3DPipeline> fMipmapPipeline;
 
     SkTHashMap<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> fSamplers;
 
