@@ -16,6 +16,24 @@
       "message": "Modulo fixing the c_str\u0027s, lgtm",
       "revId": "e73505d8a3aefa1e9ee4cb3b228c5364a88cf14e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d24ad827_02cde79e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-04T20:19:06Z",
+      "side": 1,
+      "message": "Turns out my local debug build was set to gcc instead of clang.",
+      "parentUuid": "b987da9b_ecaae992",
+      "revId": "e73505d8a3aefa1e9ee4cb3b228c5364a88cf14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
