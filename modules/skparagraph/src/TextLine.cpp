@@ -160,6 +160,41 @@ TextLine::TextLine(ParagraphImpl* owner,
     }
 }
 
+void TextLine::ensureTextBlobsGenerated() {
+    if (this->fTextBlobCachePopulated) {
+        return;
+    }
+
+    SkRange ghostRange(this->trimmedText().end, this->textWithSpaces().end);
+    this->iterateThroughVisualRuns(true,
+            [&](const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            if (run->placeholderStyle() != nullptr) {
+                *runWidthInLine = run->advance().fX;
+                return true;
+            }
+            SkRange trimmedRange = intersected(this->trimmedText(), textRange);
+            *runWidthInLine = this->iterateThroughSingleRunByStyles(
+            run, runOffsetInLine, trimmedRange, StyleType::kForeground, true,
+                [&](TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+                this->buildTextBlob(0, 0, textRange, style, context);
+                TextBlobRecord& record = fTextBlobCache.back();
+                record.fVisitor_TrailingSpaces = false;
+            });
+
+            if (!intersected(ghostRange, textRange).empty()) {
+                *runWidthInLine = this->iterateThroughSingleRunByStyles(
+                run, runOffsetInLine + *runWidthInLine, ghostRange, StyleType::kForeground, false,
+                    [&](TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
+                    this->buildTextBlob(0, 0, textRange, style, context);
+                    TextBlobRecord& record = fTextBlobCache.back();
+                    record.fVisitor_TrailingSpaces = true;
+                });
+            }
+            return true;
+        });
+    this->fTextBlobCachePopulated = true;
+}
+
 SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
     auto bounds = SkRect::MakeEmpty();
     if (this->empty()) {
@@ -171,7 +206,7 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
             [textCanvas, x, y, this]
             (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
                 *runWidthInLine = this->iterateThroughSingleRunByStyles(
-                run, runOffsetInLine, textRange, StyleType::kBackground,
+                run, runOffsetInLine, textRange, StyleType::kBackground, true,
                 [textCanvas, x, y, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
                     this->paintBackground(textCanvas, x, y, textRange, style, context);
                 });
@@ -184,7 +219,7 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
             [textCanvas, x, y, &bounds, this]
             (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
-                run, runOffsetInLine, textRange, StyleType::kShadow,
+                run, runOffsetInLine, textRange, StyleType::kShadow, true,
                 [textCanvas, x, y, &bounds, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
                     auto shadowBounds = this->paintShadow(textCanvas, x, y, textRange, style, context);
                     bounds.joinPossiblyEmptyRect(shadowBounds);
@@ -202,9 +237,9 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
                     return true;
                 }
                 *runWidthInLine = this->iterateThroughSingleRunByStyles(
-                run, runOffsetInLine, textRange, StyleType::kForeground,
+                run, runOffsetInLine, textRange, StyleType::kForeground, true,
                 [textCanvas, x, y, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
-                    this->buildTextBlob(textCanvas, x, y, textRange, style, context);
+                    this->buildTextBlob(x, y, textRange, style, context);
                 });
                 return true;
             });
@@ -220,7 +255,7 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
             [textCanvas, x, y, this]
             (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
                 *runWidthInLine = this->iterateThroughSingleRunByStyles(
-                run, runOffsetInLine, textRange, StyleType::kDecorations,
+                run, runOffsetInLine, textRange, StyleType::kDecorations, true,
                 [textCanvas, x, y, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
                     this->paintDecorations(textCanvas, x, y, textRange, style, context);
                 });
@@ -260,7 +295,7 @@ void TextLine::scanStyles(StyleType styleType, const RunStyleVisitor& visitor) {
     this->iterateThroughVisualRuns(false,
         [this, visitor, styleType](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
             *width = this->iterateThroughSingleRunByStyles(
-                run, runOffset, textRange, styleType,
+                run, runOffset, textRange, styleType, true,
                 [visitor](TextRange textRange, const TextStyle& style, const ClipContext& context) {
                     visitor(textRange, style, context);
                 });
@@ -301,7 +336,7 @@ SkScalar TextLine::metricsWithoutMultiplier(TextHeightBehavior correction) {
     return delta;
 }
 
-void TextLine::buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) {
+void TextLine::buildTextBlob(SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) {
     if (context.run->placeholderStyle() != nullptr) {
         return;
     }
@@ -739,6 +774,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
                                                    SkScalar runOffset,
                                                    TextRange textRange,
                                                    StyleType styleType,
+                                                   bool trimSpaces,
                                                    const RunStyleVisitor& visitor) const {
 
     if (run->fEllipsis) {
@@ -820,7 +856,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         auto runStyleTextRange = TextRange(start, start + size);
         // Measure the text
         ClipContext clipContext = this->measureTextInsideOneRun(runStyleTextRange, run, runOffset,
-                                                                textOffsetInRun, false, true);
+                                                                textOffsetInRun, !trimSpaces, true);
         if (clipContext.clip.height() == 0) {
             continue;
         }
@@ -841,7 +877,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
     SkScalar width = 0;
     SkScalar runOffset = 0;
     SkScalar totalWidth = 0;
-    auto textRange = includingGhostSpaces ? this->textWithSpaces() : this->trimmedText();
+    SkRange textRange = includingGhostSpaces ? this->textWithSpaces() : this->trimmedText();
     for (auto& runIndex : fRunsInVisualOrder) {
 
         const auto run = &this->fOwner->run(runIndex);
@@ -917,7 +953,7 @@ LineMetrics TextLine::getMetrics() const {
             return true;
         }
         *runWidthInLine = this->iterateThroughSingleRunByStyles(
-        run, runOffsetInLine, textRange, StyleType::kForeground,
+        run, runOffsetInLine, textRange, StyleType::kForeground, true,
         [&result, &run](TextRange textRange, const TextStyle& style, const ClipContext& context) {
             SkFontMetrics fontMetrics;
             run->fFont.getMetrics(&fontMetrics);
@@ -957,7 +993,7 @@ void TextLine::getRectsForRange(TextRange textRange0,
         [textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
         *runWidthInLine = this->iterateThroughSingleRunByStyles(
-        run, runOffsetInLine, textRange, StyleType::kNone,
+        run, runOffsetInLine, textRange, StyleType::kNone, true,
         [run, runOffsetInLine, textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
         (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& lineContext) {
 
@@ -1151,7 +1187,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
             bool keepLooking = true;
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
-            run, runOffsetInLine, textRange, StyleType::kNone,
+            run, runOffsetInLine, textRange, StyleType::kNone, true,
             [this, run, dx, &result, &keepLooking]
             (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context0) {
 

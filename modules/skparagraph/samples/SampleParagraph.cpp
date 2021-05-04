@@ -3461,13 +3461,11 @@ protected:
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        text_style.setFontSize(14);
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
         builder.addText("The quick brown fox ate a hamburgerfons and got sick.");
         auto paragraph = builder.Build();
         paragraph->layout(width());
-
-        paragraph->paint(canvas, 0, 0);
 
         paragraph->visit([&](int, const skia::textlayout::Paragraph::VisitorInfo* info) {
             if (!info) {
@@ -3482,7 +3480,14 @@ protected:
                                            info->advanceX - first.fX,
                                            metrics.fDescent - metrics.fAscent);
             SkPaint paint;
-            paint.setColor(SK_ColorLTGRAY);
+            if (info->flags) {
+                paint.setColor(SK_ColorLTGRAY);
+            } else {
+                paint.setStyle(SkPaint::kStroke_Style);
+                paint.setAntiAlias(true);
+                paint.setStrokeWidth(1);
+                paint.setColor(SK_ColorRED);
+            }
             canvas->drawRect(rect, paint);
         });
 

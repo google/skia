@@ -78,7 +78,7 @@ public:
     void iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisitor& runVisitor) const;
     using RunStyleVisitor = std::function<void(TextRange textRange, const TextStyle& style, const ClipContext& context)>;
     SkScalar iterateThroughSingleRunByStyles(const Run* run, SkScalar runOffset, TextRange textRange,
-                                         StyleType styleType, const RunStyleVisitor& visitor) const;
+                                         StyleType styleType, bool trimSpaces, const RunStyleVisitor& visitor) const;
 
     using ClustersVisitor = std::function<bool(const Cluster* cluster, bool ghost)>;
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
@@ -86,6 +86,7 @@ public:
     void format(TextAlign align, SkScalar maxWidth);
     SkRect paint(SkCanvas* canvas, SkScalar x, SkScalar y);
     void visit(SkScalar x, SkScalar y);
+    void ensureTextBlobsGenerated();
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
@@ -122,7 +123,7 @@ private:
     std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, const Run& run);
     void justify(SkScalar maxWidth);
 
-    void buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context);
+    void buildTextBlob(SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context);
     void paintBackground(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     SkRect paintShadow(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintDecorations(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
@@ -164,6 +165,7 @@ private:
         // Extra fields only used for the (experimental) visitor
         const Run* fVisitor_Run;
         size_t     fVisitor_Pos;
+        bool       fVisitor_TrailingSpaces;
     };
     bool fTextBlobCachePopulated;
 public:

@@ -1053,6 +1053,8 @@ void ParagraphImpl::ensureUTF16Mapping() {
 void ParagraphImpl::visit(const Visitor& visitor) {
     int lineNumber = 0;
     for (auto& line : fLines) {
+        line.ensureTextBlobsGenerated();
+
         for (auto& rec : line.fTextBlobCache) {
             SkTextBlob::Iter iter(*rec.fBlob);
             SkTextBlob::Iter::ExperimentalRun run;
@@ -1080,7 +1082,7 @@ void ParagraphImpl::visit(const Visitor& visitor) {
                     run.glyphs,
                     run.positions,
                     clusterPtr,
-                    0,  // flags
+                    rec.fVisitor_TrailingSpaces,  // flags
                 };
                 visitor(lineNumber, &info);
                 clusterPtr += run.count;
