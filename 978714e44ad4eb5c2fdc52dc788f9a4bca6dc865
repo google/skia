@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "742b029c_de98a083",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-04T16:27:36Z",
+      "side": 1,
+      "message": "(Why? We haven\u0027t actually made a ModifiersPool yet at this stage in the process, because the IRGenerator no longer makes one as soon as it is instantiated.)",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 42
+      },
+      "revId": "978714e44ad4eb5c2fdc52dc788f9a4bca6dc865",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
