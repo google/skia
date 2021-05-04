@@ -115,7 +115,10 @@ private:
     bool isSafeToInline(const FunctionDefinition* functionDef);
 
     const Context* fContext = nullptr;
+
     ModifiersPool* fModifiers = nullptr;
+    ModifiersPool& modifiersPool() const { return *fModifiers; }
+
     Mangler fMangler;
     int fInlinedStatementCounter = 0;
 };

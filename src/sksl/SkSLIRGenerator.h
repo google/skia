@@ -257,6 +257,10 @@ private:
         return fContext.fCaps;
     }
 
+    ModifiersPool& modifiersPool() const {
+        return *fModifiers;
+    }
+
     Program::Inputs fInputs;
 
     std::unique_ptr<ASTFile> fFile;

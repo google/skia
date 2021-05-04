@@ -37,7 +37,7 @@ DSLVar::DSLVar(const char* name)
         fVar = DSLWriter::SymbolTable()->takeOwnershipOfIRNode(
                 std::make_unique<SkSL::Variable>(
                         /*offset=*/-1,
-                        DSLWriter::IRGenerator().fModifiers->addToPool(
+                        DSLWriter::IRGenerator().modifiersPool().add(
                                 SkSL::Modifiers(
                                         SkSL::Layout(/*flags=*/0, /*location=*/-1, /*offset=*/-1,
                                                      /*binding=*/-1, /*index=*/-1, /*set=*/-1,
