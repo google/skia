@@ -334,7 +334,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                      Modifiers::kFlat_Flag | Modifiers::kNoPerspective_Flag;
     }
     // TODO(skbug.com/11301): Migrate above checks into building a mask of permitted layout flags
-    this->checkModifiers(offset, modifiers, permitted, /*permittedLayoutFlags=*/~0);
+    CheckModifiers(fContext, offset, modifiers, permitted, /*permittedLayoutFlags=*/~0);
 }
 
 std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& modifiers,
@@ -795,15 +795,17 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     return ExpressionStatement::Make(fContext, std::move(result));
 }
 
-void IRGenerator::checkModifiers(int offset,
+void IRGenerator::CheckModifiers(const Context& context,
+                                 int offset,
                                  const Modifiers& modifiers,
                                  int permittedModifierFlags,
                                  int permittedLayoutFlags) {
+    ErrorReporter& errorReporter = context.fErrors;
     int flags = modifiers.fFlags;
     auto checkModifier = [&](Modifiers::Flag flag, const char* name) {
         if (flags & flag) {
             if (!(permittedModifierFlags & flag)) {
-                this->errorReporter().error(offset, "'" + String(name) + "' is not permitted here");
+                errorReporter.error(offset, "'" + String(name) + "' is not permitted here");
             }
             flags &= ~flag;
         }
@@ -824,8 +826,8 @@ void IRGenerator::checkModifiers(int offset,
     auto checkLayout = [&](Layout::Flag flag, const char* name) {
         if (layoutFlags & flag) {
             if (!(permittedLayoutFlags & flag)) {
-                this->errorReporter().error(
-                        offset, "layout qualifier '" + String(name) + "' is not permitted here");
+                errorReporter.error(offset, "layout qualifier '" + String(name) +
+                                            "' is not permitted here");
             }
             layoutFlags &= ~flag;
         }
@@ -969,49 +971,15 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (returnType == nullptr) {
         return;
     }
-    if (returnType->isArray()) {
-        this->errorReporter().error(
-                f.fOffset, "functions may not return type '" + returnType->displayName() + "'");
-        return;
-    }
-    if (this->strictES2Mode() && returnType->isOrContainsArray()) {
-        this->errorReporter().error(f.fOffset,
-                                    "functions may not return structs containing arrays");
-        return;
-    }
-    if (!fIsBuiltinCode && !returnType->isVoid() && returnType->componentType().isOpaque()) {
-        this->errorReporter().error(
-                f.fOffset,
-                "functions may not return opaque type '" + returnType->displayName() + "'");
-        return;
-    }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
     bool isMain = (funcData.fName == "main");
 
-    // Check function modifiers.
-    this->checkModifiers(
-            f.fOffset,
-            funcData.fModifiers,
-            Modifiers::kHasSideEffects_Flag | Modifiers::kInline_Flag | Modifiers::kNoInline_Flag,
-            /*permittedLayoutFlags=*/0);
-    if ((funcData.fModifiers.fFlags & Modifiers::kInline_Flag) &&
-        (funcData.fModifiers.fFlags & Modifiers::kNoInline_Flag)) {
-        this->errorReporter().error(f.fOffset, "functions cannot be both 'inline' and 'noinline'");
-    }
-
-    auto typeIsValidForColor = [&](const Type& type) {
-        return type == *fContext.fTypes.fHalf4 || type == *fContext.fTypes.fFloat4;
-    };
-
-    // Check modifiers on each function parameter.
-    std::vector<const Variable*> parameters;
+    std::vector<std::unique_ptr<Variable>> parameters;
+    parameters.reserve(funcData.fParameterCount);
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
         SkASSERT(param.fKind == ASTNode::Kind::kParameter);
         const ASTNode::ParameterData& pd = param.getParameterData();
-        this->checkModifiers(param.fOffset, pd.fModifiers,
-                             Modifiers::kConst_Flag | Modifiers::kIn_Flag | Modifiers::kOut_Flag,
-                             /*permittedLayoutFlags=*/0);
         auto paramIter = param.begin();
         const Type* type = this->convertType(*(paramIter++));
         if (!type) {
@@ -1024,211 +992,40 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             }
             type = fSymbolTable->addArrayDimension(type, arraySize);
         }
-        // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
-        // parameters. You can pass other opaque types to functions safely; this restriction is
-        // specific to "child" objects.
-        if ((type->isEffectChild() || type->isFragmentProcessor()) && !fIsBuiltinCode) {
-            this->errorReporter().error(
-                    param.fOffset, "parameters of type '" + type->displayName() + "' not allowed");
-            return;
-        }
 
-        Modifiers m = pd.fModifiers;
-        if (isMain && (this->programKind() == ProgramKind::kRuntimeColorFilter ||
-                       this->programKind() == ProgramKind::kRuntimeShader ||
-                       this->programKind() == ProgramKind::kFragmentProcessor)) {
-            // We verify that the signature is fully correct later. For now, if this is an .fp or
-            // runtime effect of any flavor, a float2 param is supposed to be the coords, and
-            // a half4/float parameter is supposed to be the input color:
-            if (*type == *fContext.fTypes.fFloat2) {
-                m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-            } else if(typeIsValidForColor(*type)) {
-                m.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
-            }
-        }
-        if (isMain && (this->programKind() == ProgramKind::kFragment)) {
-            // For testing purposes, we have .sksl inputs that are treated as both runtime effects
-            // and fragment shaders. To make that work, fragment shaders are allowed to have a
-            // coords parameter. We turn it into sk_FragCoord.
-            if (*type == *fContext.fTypes.fFloat2) {
-                m.fLayout.fBuiltin = SK_FRAGCOORD_BUILTIN;
-            }
-        }
-
-        const Variable* var = fSymbolTable->takeOwnershipOfSymbol(
-                std::make_unique<Variable>(param.fOffset, this->modifiersPool().add(m), pd.fName,
-                                           type, fIsBuiltinCode, Variable::Storage::kParameter));
-        parameters.push_back(var);
+        parameters.push_back(std::make_unique<Variable>(param.fOffset,
+                                                        this->modifiersPool().add(pd.fModifiers),
+                                                        pd.fName,
+                                                        type,
+                                                        fIsBuiltinCode,
+                                                        Variable::Storage::kParameter));
     }
 
-    auto paramIsCoords = [&](int idx) {
-        const Variable* p = parameters[idx];
-        return p->type() == *fContext.fTypes.fFloat2 &&
-               p->modifiers().fFlags == 0 &&
-               p->modifiers().fLayout.fBuiltin == (this->programKind() == ProgramKind::kFragment
-                                                           ? SK_FRAGCOORD_BUILTIN
-                                                           : SK_MAIN_COORDS_BUILTIN);
-    };
-
-    auto paramIsInputColor = [&](int idx) {
-        return typeIsValidForColor(parameters[idx]->type()) &&
-               parameters[idx]->modifiers().fFlags == 0 &&
-               parameters[idx]->modifiers().fLayout.fBuiltin == SK_INPUT_COLOR_BUILTIN;
-    };
-
-    // Check the function signature of `main`.
-    if (isMain) {
-        switch (this->programKind()) {
-            case ProgramKind::kRuntimeColorFilter: {
-                // (half4|float4) main(half4|float4)
-                if (!typeIsValidForColor(*returnType)) {
-                    this->errorReporter().error(f.fOffset,
-                                                "'main' must return: 'vec4', 'float4', or 'half4'");
-                    return;
-                }
-                bool validParams = (parameters.size() == 1 && paramIsInputColor(0));
-                if (!validParams) {
-                    this->errorReporter().error(
-                            f.fOffset, "'main' parameter must be 'vec4', 'float4', or 'half4'");
-                    return;
-                }
-                break;
-            }
-            case ProgramKind::kRuntimeShader: {
-                // (half4|float4) main(float2)  -or-  (half4|float4) main(float2, half4|float4)
-                if (!typeIsValidForColor(*returnType)) {
-                    this->errorReporter().error(f.fOffset,
-                                                "'main' must return: 'vec4', 'float4', or 'half4'");
-                    return;
-                }
-                bool validParams =
-                        (parameters.size() == 1 && paramIsCoords(0)) ||
-                        (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
-                if (!validParams) {
-                    this->errorReporter().error(
-                            f.fOffset, "'main' parameters must be (float2, (vec4|float4|half4)?)");
-                }
-                break;
-            }
-            case ProgramKind::kFragmentProcessor: {
-                if (*returnType != *fContext.fTypes.fHalf4) {
-                    this->errorReporter().error(f.fOffset, ".fp 'main' must return 'half4'");
-                    return;
-                }
-                bool validParams = (parameters.size() == 0) ||
-                                   (parameters.size() == 1 && paramIsCoords(0));
-                if (!validParams) {
-                    this->errorReporter().error(
-                            f.fOffset, ".fp 'main' must be declared main() or main(float2)");
-                    return;
-                }
-                break;
-            }
-            case ProgramKind::kGeneric:
-                // No rules apply here
-                break;
-            case ProgramKind::kFragment: {
-                bool validParams = (parameters.size() == 0) ||
-                                   (parameters.size() == 1 && paramIsCoords(0));
-                if (!validParams) {
-                    this->errorReporter().error(f.fOffset,
-                                                "shader 'main' must be main() or main(float2)");
-                    return;
-                }
-                break;
-            }
-            case ProgramKind::kVertex:
-            case ProgramKind::kGeometry:
-                if (parameters.size()) {
-                    this->errorReporter().error(f.fOffset,
-                                                "shader 'main' must have zero parameters");
-                }
-                break;
-        }
+    // Conservatively assume all user-defined functions have side effects.
+    Modifiers declModifiers = funcData.fModifiers;
+    if (!fIsBuiltinCode) {
+        declModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
     }
 
-    // Find existing declarations and report conflicts.
-    const FunctionDeclaration* decl = nullptr;
-    const Symbol* entry = (*fSymbolTable)[funcData.fName];
-    if (entry) {
-        std::vector<const FunctionDeclaration*> functions;
-        switch (entry->kind()) {
-            case Symbol::Kind::kUnresolvedFunction:
-                functions = entry->as<UnresolvedFunction>().functions();
-                break;
-            case Symbol::Kind::kFunctionDeclaration:
-                functions.push_back(&entry->as<FunctionDeclaration>());
-                break;
-            default:
-                this->errorReporter().error(f.fOffset,
-                                            "symbol '" + funcData.fName + "' was already defined");
-                return;
-        }
-        for (const FunctionDeclaration* other : functions) {
-            SkASSERT(other->name() == funcData.fName);
-            if (parameters.size() == other->parameters().size()) {
-                bool match = true;
-                for (size_t i = 0; i < parameters.size(); i++) {
-                    if (parameters[i]->type() != other->parameters()[i]->type()) {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match) {
-                    if (*returnType != other->returnType()) {
-                        FunctionDeclaration newDecl(f.fOffset,
-                                                    this->modifiersPool().add(funcData.fModifiers),
-                                                    funcData.fName,
-                                                    parameters,
-                                                    returnType,
-                                                    fIsBuiltinCode);
-                        this->errorReporter().error(
-                                f.fOffset, "functions '" + newDecl.description() + "' and '" +
-                                           other->description() + "' differ only in return type");
-                        return;
-                    }
-                    decl = other;
-                    for (size_t i = 0; i < parameters.size(); i++) {
-                        if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
-                            this->errorReporter().error(
-                                    f.fOffset,
-                                    "modifiers on parameter " + to_string((uint64_t)i + 1) +
-                                            " differ between declaration and definition");
-                            return;
-                        }
-                    }
-                    if (other->definition() && !other->isBuiltin()) {
-                        this->errorReporter().error(
-                                f.fOffset, "duplicate definition of " + other->description());
-                        return;
-                    }
-                    break;
-                }
-            }
-        }
+    if (fContext.fConfig->fSettings.fForceNoInline) {
+        // Apply the `noinline` modifier to every function. This allows us to test Runtime
+        // Effects without any inlining, even when the code is later added to a paint.
+        declModifiers.fFlags &= ~Modifiers::kInline_Flag;
+        declModifiers.fFlags |= Modifiers::kNoInline_Flag;
     }
+
+    const FunctionDeclaration* decl = FunctionDeclaration::Convert(
+                                                           fContext,
+                                                           *fSymbolTable,
+                                                           *fModifiers,
+                                                           f.fOffset,
+                                                           this->modifiersPool().add(declModifiers),
+                                                           funcData.fName,
+                                                           std::move(parameters),
+                                                           returnType,
+                                                           fIsBuiltinCode);
     if (!decl) {
-        // Conservatively assume all user-defined functions have side effects.
-        Modifiers declModifiers = funcData.fModifiers;
-        if (!fIsBuiltinCode) {
-            declModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
-        }
-
-        if (fContext.fConfig->fSettings.fForceNoInline) {
-            // Apply the `noinline` modifier to every function. This allows us to test Runtime
-            // Effects without any inlining, even when the code is later added to a paint.
-            declModifiers.fFlags &= ~Modifiers::kInline_Flag;
-            declModifiers.fFlags |= Modifiers::kNoInline_Flag;
-        }
-
-        // Create a new declaration.
-        decl = fSymbolTable->add(
-                std::make_unique<FunctionDeclaration>(f.fOffset,
-                                                      this->modifiersPool().add(declModifiers),
-                                                      funcData.fName,
-                                                      parameters,
-                                                      returnType,
-                                                      fIsBuiltinCode));
+        return;
     }
     if (iter == f.end()) {
         // If there's no body, we've found a prototype.

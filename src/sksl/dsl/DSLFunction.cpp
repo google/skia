@@ -20,7 +20,7 @@ namespace dsl {
 
 void DSLFunction::init(const DSLType& returnType, const char* name,
                        std::vector<DSLVar*> params) {
-    std::vector<const Variable*> paramVars;
+    std::vector<std::unique_ptr<Variable>> paramVars;
     paramVars.reserve(params.size());
     bool isMain = !strcmp(name, "main");
     auto typeIsValidForColor = [&](const SkSL::Type& type) {
@@ -59,20 +59,24 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
                 }
             }
         }
-        paramVars.push_back(&DSLWriter::Var(*param));
+        std::unique_ptr<SkSL::Variable> paramVar = DSLWriter::ParameterVar(*param);
+        SkASSERT(paramVar);
+        paramVars.push_back(std::move(paramVar));
         param->fDeclaration = nullptr;
     }
-    SkSL::SymbolTable& symbols = *DSLWriter::SymbolTable();
-    fDecl = symbols.add(std::make_unique<SkSL::FunctionDeclaration>(
-                                             /*offset=*/-1,
-                                             DSLWriter::Modifiers(SkSL::Modifiers()),
-                                             isMain ? name : DSLWriter::Name(name),
-                                             std::move(paramVars), fReturnType,
-                                             /*builtin=*/false));
+    fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
+                                               *DSLWriter::SymbolTable(),
+                                               *DSLWriter::IRGenerator().fModifiers, /*offset=*/-1,
+                                               DSLWriter::Modifiers(SkSL::Modifiers()),
+                                               isMain ? name : DSLWriter::Name(name),
+                                               std::move(paramVars), fReturnType,
+                                               /*isBuiltin=*/false);
 }
 
 void DSLFunction::define(DSLBlock block) {
-    SkASSERT(fDecl);
+    if (!fDecl) {
+        return;
+    }
     SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());
     std::unique_ptr<Statement> body = block.release();
     DSLWriter::IRGenerator().finalizeFunction(*fDecl, body.get());

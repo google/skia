@@ -86,9 +86,14 @@ public:
     static const SkSL::Modifiers* Modifiers(const SkSL::Modifiers& modifiers);
 
     /**
-     * Returns the SkSL variable corresponding to a DSLVar.
+     * Returns the SkSL variable corresponding to a (non-parameter) DSLVar.
      */
     static const SkSL::Variable& Var(DSLVar& var);
+
+    /**
+     * Creates an SkSL variable corresponding to a parameter DSLVar.
+     */
+    static std::unique_ptr<SkSL::Variable> ParameterVar(DSLVar& var);
 
     /**
      * Returns the SkSL declaration corresponding to a DSLVar.

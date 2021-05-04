@@ -56,6 +56,10 @@ public:
         return *fModifiers;
     }
 
+    void setModifiers(const Modifiers* modifiers) {
+        fModifiers = modifiers;
+    }
+
     bool isBuiltin() const {
         return fBuiltin;
     }

@@ -132,6 +132,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLForStatement.h",
   "$_src/sksl/ir/SkSLFunctionCall.cpp",
   "$_src/sksl/ir/SkSLFunctionCall.h",
+  "$_src/sksl/ir/SkSLFunctionDeclaration.cpp",
   "$_src/sksl/ir/SkSLFunctionDeclaration.h",
   "$_src/sksl/ir/SkSLFunctionDefinition.h",
   "$_src/sksl/ir/SkSLFunctionPrototype.h",

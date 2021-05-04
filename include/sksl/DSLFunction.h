@@ -76,8 +76,8 @@ private:
 
     DSLExpression call(SkTArray<DSLExpression> args);
 
-    const SkSL::Type* fReturnType;
-    const SkSL::FunctionDeclaration* fDecl;
+    const SkSL::Type* fReturnType = nullptr;
+    const SkSL::FunctionDeclaration* fDecl = nullptr;
 };
 
 } // namespace dsl

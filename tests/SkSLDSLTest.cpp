@@ -1322,13 +1322,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
-    Var coords(kHalf2_Type, "coords");
+    Var coords(kFloat2_Type, "coords");
     DSLFunction(kVoid_Type, "main", coords).define(
         sk_FragColor() = Half4(coords, 0, 1)
     );
     REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[0],
-                 "void main(half2 coords) { (sk_FragColor = half4(coords, 0.0, 1.0)); }");
+                 "void main(float2 coords) { (sk_FragColor = half4(half2(coords), 0.0, 1.0)); }");
 
     {
         DSLWriter::Reset();
