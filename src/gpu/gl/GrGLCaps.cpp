@@ -3875,7 +3875,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         kAdreno530_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno5xx_other_GrGLRenderer == ctxInfo.renderer() ||
         kIntel_GrGLDriver == ctxInfo.driver() ||
-        kChromium_GrGLDriver == ctxInfo.driver()) {
+        kChromium_GrGLDriver == ctxInfo.driver() ||
+        kARM_GrGLVendor == ctxInfo.vendor() /* http://skbug.com/11906 */) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
     }
