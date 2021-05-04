@@ -18,13 +18,23 @@ class SkSVGFilterContext;
 class SkSVGFe : public SkSVGHiddenContainer {
 public:
     static bool IsFilterEffect(const sk_sp<SkSVGNode>& node) {
-        return node->tag() == SkSVGTag::kFeTurbulence || node->tag() == SkSVGTag::kFeColorMatrix ||
-               node->tag() == SkSVGTag::kFeComposite || node->tag() == SkSVGTag::kFeFlood ||
-               node->tag() == SkSVGTag::kFeGaussianBlur || node->tag() == SkSVGTag::kFeOffset ||
-               node->tag() == SkSVGTag::kFeBlend || node->tag() == SkSVGTag::kFeMorphology ||
-               node->tag() == SkSVGTag::kFeDisplacementMap ||
-               node->tag() == SkSVGTag::kFeSpecularLighting ||
-               node->tag() == SkSVGTag::kFeDiffuseLighting;
+        switch (node->tag()) {
+            case SkSVGTag::kFeBlend:             [[fallthrough]];
+            case SkSVGTag::kFeColorMatrix:       [[fallthrough]];
+            case SkSVGTag::kFeComposite:         [[fallthrough]];
+            case SkSVGTag::kFeDiffuseLighting:   [[fallthrough]];
+            case SkSVGTag::kFeDisplacementMap:   [[fallthrough]];
+            case SkSVGTag::kFeFlood:             [[fallthrough]];
+            case SkSVGTag::kFeGaussianBlur:      [[fallthrough]];
+            case SkSVGTag::kFeImage:             [[fallthrough]];
+            case SkSVGTag::kFeMorphology:        [[fallthrough]];
+            case SkSVGTag::kFeOffset:            [[fallthrough]];
+            case SkSVGTag::kFeSpecularLighting:  [[fallthrough]];
+            case SkSVGTag::kFeTurbulence:
+                return true;
+            default:
+                return false;
+        }
     }
 
     sk_sp<SkImageFilter> makeImageFilter(const SkSVGRenderContext& ctx,
@@ -61,7 +71,6 @@ protected:
 
     bool parseAndSetAttribute(const char*, const char*) override;
 
-private:
     /**
      * Resolves the rect specified by the x, y, width and height attributes (if specified) on this
      * filter effect. These attributes are resolved according to the given length context and
@@ -69,6 +78,7 @@ private:
      */
     SkRect resolveBoundaries(const SkSVGRenderContext&, const SkSVGFilterContext&) const;
 
+private:
     using INHERITED = SkSVGHiddenContainer;
 };
 
