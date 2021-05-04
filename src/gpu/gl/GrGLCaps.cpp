@@ -4101,12 +4101,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
         fReuseScratchTextures = false;
     }
-
-    // skbug.com/11935. Don't reorder on these GPUs in GL.
-    if (kAdreno620_GrGLRenderer == ctxInfo.renderer() ||
-        kAdreno640_GrGLRenderer == ctxInfo.renderer()) {
-        fAvoidReorderingRenderTasks = true;
-    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
