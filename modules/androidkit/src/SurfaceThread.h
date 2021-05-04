@@ -9,17 +9,19 @@
 #include <android/looper.h>
 #include <android/native_window.h>
 
+#include "include/core/SkPictureRecorder.h"
+
 enum MessageType {
     kUndefined,
-    kSurfaceCreated,
-    kSurfaceChanged,
-    kSurfaceDestroyed,
-    kAllSurfacesDestroyed,
+    kInitialize,
+    kDestroy,
+    kRenderPicture,
 };
 
 struct Message {
     MessageType fType = kUndefined;
     ANativeWindow* fNativeWindow = nullptr;
+    SkPicture* fPicture;
 
     Message() {}
     Message(MessageType t) : fType(t) {}
