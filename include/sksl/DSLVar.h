@@ -41,7 +41,7 @@ public:
 
     DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
-    DSLVar(DSLVar&&) = delete;
+    DSLVar(DSLVar&&) = default;
 
     ~DSLVar();
 
