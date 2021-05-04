@@ -47,7 +47,7 @@ static bool check_return_type(const Context& context, int offset, const Type& re
     return true;
 }
 
-static bool check_parameters(const Context& context, ModifiersPool& modifiersPool,
+static bool check_parameters(const Context& context,
                              std::vector<std::unique_ptr<Variable>>& parameters, bool isMain,
                              bool isBuiltin) {
     auto typeIsValidForColor = [&](const Type& type) {
@@ -83,7 +83,7 @@ static bool check_parameters(const Context& context, ModifiersPool& modifiersPoo
                 m.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
             }
             if (m.fLayout.fBuiltin) {
-                param->setModifiers(modifiersPool.add(m));
+                param->setModifiers(context.fModifiersPool->add(m));
             }
         }
         if (isMain && (kind == ProgramKind::kFragment)) {
@@ -92,7 +92,7 @@ static bool check_parameters(const Context& context, ModifiersPool& modifiersPoo
             // coords parameter. We turn it into sk_FragCoord.
             if (type == *context.fTypes.fFloat2) {
                 m.fLayout.fBuiltin = SK_FRAGCOORD_BUILTIN;
-                param->setModifiers(modifiersPool.add(m));
+                param->setModifiers(context.fModifiersPool->add(m));
             }
         }
     }
@@ -267,7 +267,7 @@ static bool find_existing_declaration(const Context& context, SymbolTable& symbo
 }
 
 const FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
-        SymbolTable& symbols, ModifiersPool& modifiersPool, int offset, const Modifiers* modifiers,
+        SymbolTable& symbols, int offset, const Modifiers* modifiers,
         StringFragment name, std::vector<std::unique_ptr<Variable>> parameters,
         const Type* returnType, bool isBuiltin) {
     bool isMain = (name == "main");
@@ -275,7 +275,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     const FunctionDeclaration* decl = nullptr;
     if (!check_modifiers(context, offset, *modifiers) ||
         !check_return_type(context, offset, *returnType, isBuiltin) ||
-        !check_parameters(context, modifiersPool, parameters, isMain, isBuiltin) ||
+        !check_parameters(context, parameters, isMain, isBuiltin) ||
         (isMain && !check_main_signature(context, offset, *returnType, parameters, isBuiltin)) ||
         !find_existing_declaration(context, symbols, offset, name, parameters, returnType,
                                    isBuiltin, &decl)) {

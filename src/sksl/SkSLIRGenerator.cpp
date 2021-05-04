@@ -1010,7 +1010,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     const FunctionDeclaration* decl = FunctionDeclaration::Convert(
                                                            fContext,
                                                            *fSymbolTable,
-                                                           this->modifiersPool(),
                                                            f.fOffset,
                                                            this->modifiersPool().add(declModifiers),
                                                            funcData.fName,
