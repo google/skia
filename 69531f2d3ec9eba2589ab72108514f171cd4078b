@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9482dda_af0d87dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-05-04T15:03:17Z",
+      "side": 1,
+      "message": "The only diffs are the names of the config groups, which do not exist on the old configs.",
+      "revId": "69531f2d3ec9eba2589ab72108514f171cd4078b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
