@@ -22,6 +22,30 @@
       },
       "revId": "96b0435b412536238e47c3202a5b75cbb7671eb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82a2b327_926faef5",
+        "filename": "src/gpu/GrSurfaceDrawContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-04T15:15:36Z",
+      "side": 1,
+      "message": "\u003e\u003e So now we are saying a GrSurfaceDrawContext can only use dynamicMSAA if the context only has a single sample?\n\nYes, because if numSamples() \u003e 1 then we use MSAA for everything (not dynamically).\n\n\u003e\u003e I would have thought in order for us to get GrAAType::kMSAA we would have to have a multisampled proxy/draw context.\n\nNot true anymore. In a DMSAA context you can also have GrAAType::kMSAA.",
+      "parentUuid": "e6b220f9_f5c59332",
+      "range": {
+        "startLine": 639,
+        "startChar": 44,
+        "endLine": 639,
+        "endChar": 62
+      },
+      "revId": "96b0435b412536238e47c3202a5b75cbb7671eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
