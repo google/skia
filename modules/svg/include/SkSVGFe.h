@@ -18,13 +18,23 @@ class SkSVGFilterContext;
 class SkSVGFe : public SkSVGHiddenContainer {
 public:
     static bool IsFilterEffect(const sk_sp<SkSVGNode>& node) {
-        return node->tag() == SkSVGTag::kFeTurbulence || node->tag() == SkSVGTag::kFeColorMatrix ||
-               node->tag() == SkSVGTag::kFeComposite || node->tag() == SkSVGTag::kFeFlood ||
-               node->tag() == SkSVGTag::kFeGaussianBlur || node->tag() == SkSVGTag::kFeOffset ||
-               node->tag() == SkSVGTag::kFeBlend || node->tag() == SkSVGTag::kFeMorphology ||
-               node->tag() == SkSVGTag::kFeDisplacementMap ||
-               node->tag() == SkSVGTag::kFeSpecularLighting ||
-               node->tag() == SkSVGTag::kFeDiffuseLighting;
+        switch (node->tag()) {
+            case SkSVGTag::kFeBlend:
+            case SkSVGTag::kFeColorMatrix:
+            case SkSVGTag::kFeComposite:
+            case SkSVGTag::kFeDiffuseLighting:
+            case SkSVGTag::kFeDisplacementMap:
+            case SkSVGTag::kFeFlood:
+            case SkSVGTag::kFeGaussianBlur:
+            case SkSVGTag::kFeImage:
+            case SkSVGTag::kFeMorphology:
+            case SkSVGTag::kFeOffset:
+            case SkSVGTag::kFeSpecularLighting:
+            case SkSVGTag::kFeTurbulence:
+                return true;
+            default:
+                return false;
+        }
     }
 
     sk_sp<SkImageFilter> makeImageFilter(const SkSVGRenderContext& ctx,
