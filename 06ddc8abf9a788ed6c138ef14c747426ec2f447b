@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97efbaed_77cf3871",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-04T14:43:09Z",
+      "side": 1,
+      "message": "tiny, tiny nit: on a second read-through, I feel like having a boolean that you pass into a function that means \"actually, don\u0027t do anything, just instantly return true\" is silly. Can we check this at the call site instead?",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "06ddc8abf9a788ed6c138ef14c747426ec2f447b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

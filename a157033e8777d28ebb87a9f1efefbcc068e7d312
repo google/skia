@@ -191,6 +191,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0529df4b_a4c1ad38",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-04T14:43:09Z",
+      "side": 1,
+      "message": "This is not actually the case... IRGenerator::convertVar can return null if convertArraySize fails (see line 357). Even if it didn\u0027t, IMO it\u0027s not a good idea to have code that relies on a call to a \"convert\" function succeeding. It would be totally reasonable if someone added a new failure check into `convertVar` later, and that would break this baked-in assumption. \n\nI think you can solve this concern by setting the fVar pointers in the DSL vars in a separate loop immediately after this loop completes, instead of inside ParameterVar. That will let you return here instead of asserting, and avoids a leak. \n\nThis is a pretty edge case concern so I\u0027m fine with landing that as a separate CL so this one can be submitted.",
+      "parentUuid": "e822f286_52231984",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 64,
+        "endChar": 19
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "50714e56_4fabd2ed",
         "filename": "src/sksl/dsl/priv/DSLWriter.h",
         "patchSetId": 6
@@ -226,6 +250,30 @@
       "side": 1,
       "message": "Of course I wouldn\u0027t normally include the return type in the name, but I needed to distinguish it from the very similar \"Var\" method. I feel like \"MakeVariable\" isn\u0027t clear enough (why would I need to call MakeVariable instead of just Var?), so I went with \"ParameterVar\" instead. Hopefully that addresses the concern.",
       "parentUuid": "50714e56_4fabd2ed",
+      "range": {
+        "startLine": 96,
+        "startChar": 43,
+        "endLine": 96,
+        "endChar": 59
+      },
+      "revId": "a157033e8777d28ebb87a9f1efefbcc068e7d312",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14d7b16e_5c92c415",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-04T14:43:09Z",
+      "side": 1,
+      "message": "LGTM!",
+      "parentUuid": "1f9bac2e_468cb0c4",
       "range": {
         "startLine": 96,
         "startChar": 43,
