@@ -227,10 +227,9 @@ var (
 		},
 	}
 
-	// Set dontReduceOpsTaskSplitting option on these models
+	// Set dontReduceOpsTaskSplitting option on these models.
 	DONT_REDUCE_OPS_TASK_SPLITTING_MODELS = []string{
 		"NUC5PPYH",
-		"Pixel5",
 	}
 )
 
