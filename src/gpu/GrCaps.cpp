@@ -82,6 +82,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fRequiresManualFBBarrierAfterTessellatedStencilDraw = false;
     fNativeDrawIndexedIndirectIsBroken = false;
     fAvoidReorderingRenderTasks = false;
+    fAvoidDefaultPathRendererWithMSAAStencil = false;
 
     fPreferVRAMUseOverFlushes = true;
 
@@ -241,6 +242,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Native draw indexed indirect is broken [workaround]",
                        fNativeDrawIndexedIndirectIsBroken);
     writer->appendBool("Avoid DAG reordering [workaround]", fAvoidReorderingRenderTasks);
+    writer->appendBool("Avoid Default Path Renderer with MSAA Stencil [workaround]",
+                       fAvoidDefaultPathRendererWithMSAAStencil);
 
     if (this->advancedBlendEquationSupport()) {
         writer->appendHexU32("Advanced Blend Equation Disable Flags", fAdvBlendEqDisableFlags);
