@@ -11,6 +11,7 @@
 #include <android/native_window.h>
 #include <jni.h>
 
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
@@ -35,13 +36,7 @@ class Surface : public SkRefCnt {
 public:
     virtual void release(JNIEnv*) = 0;
     virtual void flushAndSubmit() = 0;
-
-    SkCanvas* getCanvas() const {
-        if (fSurface) {
-            return fSurface->getCanvas();
-        }
-        return nullptr;
-    }
+    virtual SkCanvas* getCanvas() = 0;
 
     int width()  const { return fSurface ? fSurface->width()  : 0; }
     int height() const { return fSurface ? fSurface->height() : 0; }
@@ -66,6 +61,13 @@ private:
     void release(JNIEnv* env) override {
         fWindowContext.reset();
         ANativeWindow_release(fWindow);
+    }
+
+    SkCanvas* getCanvas() override {
+        if (fSurface) {
+            return fSurface->getCanvas();
+        }
+        return nullptr;
     }
 
     void flushAndSubmit() override {
@@ -112,6 +114,13 @@ private:
         }
     }
 
+    SkCanvas* getCanvas() override {
+        if (fSurface) {
+            return fSurface->getCanvas();
+        }
+        return nullptr;
+    }
+
     void flushAndSubmit() override {
         // Nothing to do.
     }
@@ -145,29 +154,38 @@ private:
 
 // SkSurface created from being passed an android.view.Surface
 // For now, assume we are always rendering with OpenGL
-// TODO: refactor to wrap a WindowSurface
+// TODO: add option of choose backing
 class ThreadedSurface final : public Surface {
 public:
     ThreadedSurface(JNIEnv* env, jobject surface) {
-        // TODO: when creating multiple surfaces, they should use the same SurfaceThread
         fWindow = ANativeWindow_fromSurface(env, surface);
+        Message message(kInitialize);
+        message.fNativeWindow = fWindow;
     }
 
 private:
     void release(JNIEnv* env) override {
-        fThread.postMessage(Message(kAllSurfacesDestroyed));
+        fThread.postMessage(Message(kDestroy));
         if (fWindow) {
             ANativeWindow_release(fWindow);
         }
        fSurface.reset();
     }
 
+    SkCanvas* getCanvas() override {
+        return fRecorder.beginRecording(ANativeWindow_getWidth(fWindow),
+                                        ANativeWindow_getHeight(fWindow));
+    }
+
     void flushAndSubmit() override{
-        // implented in followup CL (issue:400816)
+        Message message(kRenderPicture);
+        message.fNativeWindow = fWindow;
+        message.fPicture = fRecorder.finishRecordingAsPicture().release();
+        fThread.postMessage(message);
     }
 
     ANativeWindow* fWindow;
-    // TODO: Decouple thread from WindowSurface if user wants to manage their own thread
+    SkPictureRecorder fRecorder;
     SurfaceThread fThread;
 };
 
@@ -227,7 +245,7 @@ static void Surface_Release(JNIEnv* env, jobject, jlong native_surface) {
 }
 
 static jlong Surface_GetNativeCanvas(JNIEnv* env, jobject, jlong native_surface) {
-    const auto* surface = reinterpret_cast<Surface*>(native_surface);
+    auto* surface = reinterpret_cast<Surface*>(native_surface);
     return surface
         ? reinterpret_cast<jlong>(surface->getCanvas())
         : 0;
