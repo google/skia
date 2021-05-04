@@ -426,8 +426,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(sdc),
-                                                SkGpuDevice::kClear_InitContents));
+    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kClear_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -498,7 +497,7 @@ sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrRecordingContext* cont
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(context, std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -538,7 +537,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* context,
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(context, std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -652,7 +651,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* cont
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(context, std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }

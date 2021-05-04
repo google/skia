@@ -124,12 +124,10 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(GrRecordingContext* context,
-                         std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext,
-                         int width, int height, const SkIRect& subset)
+    SkSpecialSurface_Gpu(std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext, SkIRect subset)
             : INHERITED(subset, surfaceDrawContext->surfaceProps())
             , fReadView(surfaceDrawContext->readSurfaceView()) {
-        auto device = SkGpuDevice::Make(context, std::move(surfaceDrawContext),
+        auto device = SkGpuDevice::Make(std::move(surfaceDrawContext),
                                         SkGpuDevice::kUninit_InitContents);
         if (!device) {
             return;
@@ -181,8 +179,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* c
 
     const SkIRect subset = SkIRect::MakeWH(width, height);
 
-    return sk_make_sp<SkSpecialSurface_Gpu>(context, std::move(surfaceDrawContext),
-                                            width, height, subset);
+    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(surfaceDrawContext), subset);
 }
 
 #endif
