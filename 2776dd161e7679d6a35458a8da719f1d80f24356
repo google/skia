@@ -22,6 +22,30 @@
       },
       "revId": "2776dd161e7679d6a35458a8da719f1d80f24356",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12df088a_b4bbaf2d",
+        "filename": "src/gpu/GrPathRendererChain.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-05-04T16:53:48Z",
+      "side": 0,
+      "message": "Good call, done.",
+      "parentUuid": "42b58d51_e91fff33",
+      "range": {
+        "startLine": 38,
+        "startChar": 92,
+        "endLine": 38,
+        "endChar": 97
+      },
+      "revId": "2776dd161e7679d6a35458a8da719f1d80f24356",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
