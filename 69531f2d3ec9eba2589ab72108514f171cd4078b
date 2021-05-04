@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2fb3fd51_28c17278",
+        "filename": "generated/commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-05-04T15:09:37Z",
+      "side": 1,
+      "message": "I believe there are a few references to the old commit-queue.cfg in differnet tools in infra repo that will have to be updated to this new one before the old commit-queue.cfg is deleted.",
+      "revId": "69531f2d3ec9eba2589ab72108514f171cd4078b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f7f608b0_fe7707c4",
         "filename": "main.star",
         "patchSetId": 1
