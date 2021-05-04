@@ -475,11 +475,6 @@ public:
 
     bool supportsDynamicMSAA(const GrRenderTargetProxy*) const;
 
-    // skbug.com/11935. Task reordering is disabled for some GPUs on GL due to driver bugs.
-    bool avoidReorderingRenderTasks() const {
-        return fAvoidReorderingRenderTasks;
-    }
-
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
         GrColorType fColorType;
@@ -541,7 +536,6 @@ protected:
     bool fAvoidWritePixelsFastPath                   : 1;
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
-    bool fAvoidReorderingRenderTasks                 : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
