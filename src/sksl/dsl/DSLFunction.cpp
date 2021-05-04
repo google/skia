@@ -60,9 +60,15 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
             }
         }
         std::unique_ptr<SkSL::Variable> paramVar = DSLWriter::ParameterVar(*param);
-        SkASSERT(paramVar);
+        if (!paramVar) {
+            return;
+        }
         paramVars.push_back(std::move(paramVar));
         param->fDeclaration = nullptr;
+    }
+    SkASSERT(paramVars.size() == params.size());
+    for (size_t i = 0; i < params.size(); ++i) {
+        params[i]->fVar = paramVars[i].get();
     }
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
                                                *DSLWriter::SymbolTable(),
