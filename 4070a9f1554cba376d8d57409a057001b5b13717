@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e35b433e_6088183e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-04T16:22:41Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "d4fb717e_3c919015",
+      "revId": "4070a9f1554cba376d8d57409a057001b5b13717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80305556_101acedf",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-05-04T15:53:20Z",
       "side": 1,
       "message": "template \u003cclass T\u003e using Wrapper \u003d DSLWrapper\u003cT\u003e;",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 26
+      },
+      "revId": "4070a9f1554cba376d8d57409a057001b5b13717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa0182ee_32d101fd",
+        "filename": "include/sksl/DSL.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-04T16:22:41Z",
+      "side": 1,
+      "message": "TIL, thanks.",
+      "parentUuid": "80305556_101acedf",
       "range": {
         "startLine": 25,
         "startChar": 0,
