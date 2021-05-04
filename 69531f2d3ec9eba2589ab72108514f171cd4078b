@@ -50,6 +50,24 @@
       "message": "How are the generated/* files created?\nIs there a special lucicfg command we have to run after updating main.star?",
       "revId": "69531f2d3ec9eba2589ab72108514f171cd4078b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ff5ab0b_8a223227",
+        "filename": "main.star",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-05-04T15:09:47Z",
+      "side": 1,
+      "message": "Just `./main.star` with `lucicfg` in PATH will do it.  I haven\u0027t figured out how to update our commit queue read/write libraries yet though, so this will have to wait a bit.",
+      "parentUuid": "f7f608b0_fe7707c4",
+      "revId": "69531f2d3ec9eba2589ab72108514f171cd4078b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
