@@ -59,13 +59,13 @@ SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
     // default subregion is equal to the filter effects region
     // (https://www.w3.org/TR/SVG11/filters.html#FilterEffectsRegion).
     const std::vector<SkSVGFeInputType> inputs = this->getInputs();
-    SkRect subregion;
+    SkRect defaultSubregion;
     if (inputs.empty() || AnyIsStandardInput(fctx, inputs)) {
-        subregion = fctx.filterEffectsRegion();
+        defaultSubregion = fctx.filterEffectsRegion();
     } else {
-        subregion = fctx.filterPrimitiveSubregion(inputs[0]);
+        defaultSubregion = fctx.filterPrimitiveSubregion(inputs[0]);
         for (size_t i = 1; i < inputs.size(); i++) {
-            subregion.join(fctx.filterPrimitiveSubregion(inputs[i]));
+            defaultSubregion.join(fctx.filterPrimitiveSubregion(inputs[i]));
         }
     }
 
@@ -73,20 +73,12 @@ SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
     // If those attributes were given, they override the corresponding attribute of the default
     // filter effect subregion calculated above.
     const SkRect boundaries = this->resolveBoundaries(ctx, fctx);
-    if (fX.isValid()) {
-        subregion.fLeft = boundaries.fLeft;
-    }
-    if (fY.isValid()) {
-        subregion.fTop = boundaries.fTop;
-    }
-    if (fWidth.isValid()) {
-        subregion.fRight = subregion.fLeft + boundaries.width();
-    }
-    if (fHeight.isValid()) {
-        subregion.fBottom = subregion.fTop + boundaries.height();
-    }
 
-    return subregion;
+    // Compute and return the fully resolved subregion.
+    return SkRect::MakeXYWH(fX.isValid() ? boundaries.fLeft : defaultSubregion.fLeft,
+                            fY.isValid() ? boundaries.fTop : defaultSubregion.fTop,
+                            fWidth.isValid() ? boundaries.width() : defaultSubregion.width(),
+                            fHeight.isValid() ? boundaries.height() : defaultSubregion.height());
 }
 
 SkSVGColorspace SkSVGFe::resolveColorspace(const SkSVGRenderContext& ctx,
