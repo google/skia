@@ -377,14 +377,10 @@
           textAlign: CanvasKit.TextAlign.Left,
       });
 
-      const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
-      const text =  "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
+      const text0 = "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
                     "wet hole full of worms and oozy smells. This was a hobbit-hole and " +
                     "that means good food, a warm hearth, and all the comforts of home.";
-      builder.addText(text);
-      const paragraph = builder.build();
       const WIDTH = 600;
-      paragraph.layout(WIDTH);
 
       const tf = fontMgr.MakeTypefaceFromData(fontData);
       const font = new CanvasKit.Font(tf, 40);
@@ -420,7 +416,7 @@
                   return runs_x_to_index(l.runs, x);
               }
           }
-          return text.length;
+          return lines[lines.length - 1].textRange.last + 1;
       }
 
       function runs_index_to_run(runs, index) {
@@ -488,6 +484,10 @@
           return path;
       }
 
+      const string_del = function(str, start, end) {
+          return str.slice(0, start) + str.slice(end, str.length);
+      };
+
       let editor = {
           _text: null,
           _lines: null,
@@ -495,12 +495,15 @@
           _width: 1e20,
           _index: { start: 0, end: 0 },
 
-          init: function(text, lines, cursor, width) {
+          init: function(text, cursor, width) {
               this._text = text;
-              this._lines = lines;
               this._cursor = cursor;
               this._width = width;
+
+              this._buildLines();
           },
+          getLines: function() { return this._lines; },
+
           setIndex: function(i) {
               this._index.start = this._index.end = i;
               const l = lines_index_to_line(this._lines, i);
@@ -539,16 +542,51 @@
               }
               this.setIndex(index);
           },
+          _buildLines: function() {
+              const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+              builder.addText(this._text);
+              const paragraph = builder.build();
+              paragraph.layout(WIDTH);
+
+              const rec = new CanvasKit.PictureRecorder();
+              const can = rec.beginRecording([0,0,9999,9999]);
+              can.drawParagraph(paragraph, 0, 0);
+              rec.delete();
+
+              this._lines = paragraph.getShapedLines();
+
+              paragraph.delete();
+              builder.delete();
+          },
+          deleteSelection: function() {
+              let start = this._index.start;
+              if (start == this._index.end) {
+                  if (start > 0) {
+                      this._text = string_del(this._text, start - 1, start);
+                      start -= 1;
+                  }
+              } else {
+                  this._text = string_del(this._text,  start, this._index.end);
+              }
+              this._buildLines();
+              this.setIndex(start);
+          },
+          insert: function(charcode) {
+              if (this._index.start != this._index.end) {
+                  this.deleteSelection();
+              }
+              const index = this._index.start;
+              this._text = this._text.slice(0, index) + charcode + this._text.slice(index);
+              this._buildLines();
+              this.setIndex(index + 1);
+          },
       };
-      let lines;
+      editor.init(text0, cursor, WIDTH);
 
       function drawFrame(canvas) {
+        const lines = editor.getLines();
+
         canvas.clear(CanvasKit.WHITE);
-        canvas.drawParagraph(paragraph, 0, 0);
-        if (!lines) {
-            lines = paragraph.getShapedLines();
-            editor.init(text, lines, cursor, WIDTH);
-        }
 
         if (mouse.isActive()) {
             const pos = mouse.getPos();
@@ -594,6 +632,7 @@
       };
 
       function keyhandler(e) {
+//          console.log(e.key, e.code);
           switch (e.key) {
               case 'ArrowLeft':  editor.moveDX(-1); break;
               case 'ArrowRight': editor.moveDX(1); break;
@@ -604,6 +643,17 @@
               case 'ArrowDown':
                 e.preventDefault();
                 editor.moveDY(1);
+                break;
+              case 'Backspace':
+                editor.deleteSelection();
+                break;
+              case 'Shift':
+              case 'Control':
+              case 'Meta':
+                break;
+              default:
+                e.preventDefault();
+                editor.insert(e.key);
                 break;
           }
       }
