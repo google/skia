@@ -41,7 +41,6 @@ public:
 
     static const FunctionDeclaration* Convert(const Context& context,
                                               SymbolTable& symbols,
-                                              ModifiersPool& modifiersPool,
                                               int offset,
                                               const Modifiers* modifiers,
                                               StringFragment name,
