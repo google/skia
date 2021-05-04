@@ -238,16 +238,9 @@ std::unique_ptr<SkSL::Variable> DSLWriter::ParameterVar(DSLVar& var) {
     // This should only be called on undeclared parameter variables, but we allow the creation to go
     // ahead regardless so we don't have to worry about null pointers potentially sneaking in and
     // breaking things. DSLFunction is responsible for reporting errors for invalid parameters.
-    std::unique_ptr<SkSL::Variable> skslVar = DSLWriter::IRGenerator().convertVar(
-                                                                          /*offset=*/-1,
-                                                                          var.fModifiers.fModifiers,
-                                                                          &var.fType.skslType(),
-                                                                          var.fName,
-                                                                          /*isArray=*/false,
-                                                                          /*arraySize=*/nullptr,
-                                                                          var.fStorage);
-    var.fVar = skslVar.get();
-    return skslVar;
+    return DSLWriter::IRGenerator().convertVar(/*offset=*/-1, var.fModifiers.fModifiers,
+                                               &var.fType.skslType(), var.fName, /*isArray=*/false,
+                                               /*arraySize=*/nullptr, var.fStorage);
 }
 
 std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
