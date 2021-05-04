@@ -100,6 +100,10 @@ DSLExpression::~DSLExpression() {
               "Expression destroyed without being incorporated into program");
 }
 
+void DSLExpression::swap(DSLExpression& other) {
+    std::swap(fExpression, other.fExpression);
+}
+
 std::unique_ptr<SkSL::Expression> DSLExpression::release() {
     return std::move(fExpression);
 }

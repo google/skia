@@ -1790,3 +1790,16 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[2],
                  "struct NestedStruct { int x; SimpleStruct simple; };");
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWrapper, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    std::vector<Wrapper<DSLExpression>> exprs;
+    exprs.push_back(DSLExpression(1));
+    exprs.emplace_back(2.0);
+    EXPECT_EQUAL(std::move(*exprs[0]), "1");
+    EXPECT_EQUAL(std::move(*exprs[1]), "2.0");
+
+    std::vector<Wrapper<DSLVar>> vars;
+    vars.emplace_back(DSLVar(kInt_Type, "x"));
+    REPORTER_ASSERT(r, DSLWriter::Var(*vars[0]).name() == "x");
+}
