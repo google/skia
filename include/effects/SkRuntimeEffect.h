@@ -72,17 +72,6 @@ public:
         size_t sizeInBytes() const;
     };
 
-    struct Child {
-        enum class Type {
-            kShader,
-            kColorFilter,
-        };
-
-        SkString name;
-        Type     type;
-        int      index;
-    };
-
     struct Options {
         // For testing purposes, completely disable the inliner. (Normally, Runtime Effects don't
         // run the inliner directly, but they still get an inlining pass once they are painted.)
@@ -172,13 +161,13 @@ public:
     size_t uniformSize() const;
 
     ConstIterable<Uniform> uniforms() const { return ConstIterable<Uniform>(fUniforms); }
-    ConstIterable<Child> children() const { return ConstIterable<Child>(fChildren); }
+    ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
 
     // Returns pointer to the named uniform variable's description, or nullptr if not found
     const Uniform* findUniform(const char* name) const;
 
-    // Returns pointer to the named child's description, or nullptr if not found
-    const Child* findChild(const char* name) const;
+    // Returns index of the named child, or -1 if not found
+    int findChild(const char* name) const;
 
     static void RegisterFlattenables();
     ~SkRuntimeEffect() override;
@@ -202,7 +191,7 @@ private:
                     const Options& options,
                     const SkSL::FunctionDefinition& main,
                     std::vector<Uniform>&& uniforms,
-                    std::vector<Child>&& children,
+                    std::vector<SkString>&& children,
                     std::vector<SkSL::SampleUsage>&& sampleUsages,
                     uint32_t flags);
 
@@ -219,10 +208,9 @@ private:
     bool allowColorFilter() const { return (fFlags & kAllowColorFilter_Flag); }
 
     struct FilterColorInfo {
-        const skvm::Program* program;         // May be nullptr if it's not possible to compute
+        const skvm::Program& program;
         bool                 alphaUnchanged;
     };
-    void initFilterColorInfo();
     FilterColorInfo getFilterColorInfo();
 
 #if SK_SUPPORT_GPU
@@ -239,11 +227,12 @@ private:
     std::unique_ptr<SkSL::Program> fBaseProgram;
     const SkSL::FunctionDefinition& fMain;
     std::vector<Uniform> fUniforms;
-    std::vector<Child> fChildren;
+    std::vector<SkString> fChildren;
     std::vector<SkSL::SampleUsage> fSampleUsages;
 
+    SkOnce fColorFilterProgramOnce;
     std::unique_ptr<skvm::Program> fColorFilterProgram;
-    bool fColorFilterProgramLeavesAlphaUnchanged = false;
+    bool fColorFilterProgramLeavesAlphaUnchanged;
 
     uint32_t fFlags;  // Flags
 };
@@ -307,18 +296,16 @@ public:
 
     struct BuilderChild {
         template <typename C> BuilderChild& operator=(C&& val) {
-            // TODO(skbug:11813): Validate that the type of val lines up with the type of the child
-            // (SkShader vs. SkColorFilter).
-            if (!fChild) {
+            if (fIndex < 0) {
                 SkDEBUGFAIL("Assigning to missing child");
             } else {
-                fOwner->fChildren[fChild->index] = std::forward<C>(val);
+                fOwner->fChildren[fIndex] = std::forward<C>(val);
             }
             return *this;
         }
 
-        SkRuntimeEffectBuilder*       fOwner;
-        const SkRuntimeEffect::Child* fChild;  // nullptr if the child was not found
+        SkRuntimeEffectBuilder* fOwner;
+        int                     fIndex;  // -1 if the child was not found
     };
 
     const SkRuntimeEffect* effect() const { return fEffect.get(); }

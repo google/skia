@@ -20,7 +20,10 @@ namespace SkSL {
 class FunctionDefinition;
 struct Program;
 
-using SampleChildFn = std::function<skvm::Color(int, skvm::Coord, skvm::Color)>;
+using SampleChildFn = std::function<skvm::Color(int, skvm::Coord)>;
+
+// TODO: Have a generic entry point, supporting SkSpan<skvm::Val> for parameters and return values.
+// That would be useful for interpreter use cases like SkParticleEffect.
 
 // Convert 'function' to skvm instructions in 'builder', for use by shaders and color filters
 skvm::Color ProgramToSkVM(const Program& program,
