@@ -18,6 +18,7 @@
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLWrapper.h"
 
 namespace SkSL {
 
