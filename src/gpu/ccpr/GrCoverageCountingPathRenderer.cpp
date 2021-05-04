@@ -143,7 +143,7 @@ static void assign_atlas_textures(GrTexture* atlasTexture, ClipMapsIter nextPath
 }
 
 void GrCoverageCountingPathRenderer::preFlush(
-        GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t> taskIDs) {
+        GrOnFlushResourceProvider* onFlushRP, SkSpan<const uint32_t> /*taskIDs*/) {
     SkASSERT(!fFlushing);
     SkDEBUGCODE(fFlushing = true);
 
@@ -156,23 +156,22 @@ void GrCoverageCountingPathRenderer::preFlush(
     specs.fMaxPreferredTextureSize = maxPreferredRTSize;
     specs.fMinTextureSize = std::min(512, maxPreferredRTSize);
 
-    // Move the per-opsTask paths that are about to be flushed from fPendingPaths to flushingPaths,
+    // Move the path lists from fPendingPaths to flushingPaths,
     // and count them up so we can preallocate buffers.
+    // NOTE: This assumes a full flush, as opposed to partial flush. This CCPR atlasing technique
+    // is on its way out, though. skbug.com/11948
+    // Also, this temporary array could go away but the ClipMapsIter code would get a whole lot
+    // messier. Leave it be.
     SkSTArray<8, sk_sp<GrCCPerOpsTaskPaths>> flushingPaths;
-    flushingPaths.reserve_back(taskIDs.count());
-    for (uint32_t taskID : taskIDs) {
-        auto iter = fPendingPaths.find(taskID);
-        if (fPendingPaths.end() == iter) {
-            continue;  // No paths on this opsTask.
-        }
-
-        flushingPaths.push_back(std::move(iter->second));
-        fPendingPaths.erase(iter);
+    flushingPaths.reserve_back(fPendingPaths.size());
+    for (auto& [taskID, paths] : fPendingPaths) {
+        flushingPaths.push_back(std::move(paths));
 
         for (const auto& clipsIter : flushingPaths.back()->fClipPaths) {
             clipsIter.second->accountForOwnPath(&specs);
         }
     }
+    fPendingPaths.clear();
 
     GrCCPerFlushResources perFlushResources(onFlushRP, specs);
 
