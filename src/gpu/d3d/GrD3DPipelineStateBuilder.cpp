@@ -687,3 +687,49 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
                                                             geomProc.vertexStride(),
                                                             geomProc.instanceStride()));
 }
+
+
+sk_sp<GrD3DPipeline> GrD3DPipelineStateBuilder::MakeComputePipeline(GrD3DGpu* gpu,
+                                                                    GrD3DRootSignature* rootSig,
+                                                                    const char* shader) {
+    D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
+    psoDesc.pRootSignature = rootSig->rootSignature();
+
+    // compile shader
+    gr_cp<ID3DBlob> shaderBlob;
+    {
+        TRACE_EVENT0("skia.shaders", "driver_compile_shader");
+        uint32_t compileFlags = 0;
+#ifdef SK_DEBUG
+        // Enable better shader debugging with the graphics debugging tools.
+        compileFlags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+        gr_cp<ID3DBlob> errors;
+        HRESULT hr = D3DCompile(shader, strlen(shader), nullptr, nullptr, nullptr, "main",
+                                "cs_5_1", compileFlags, 0, &shaderBlob, &errors);
+        if (!SUCCEEDED(hr)) {
+            gpu->getContext()->priv().getShaderErrorHandler()->compileError(
+                shader, reinterpret_cast<char*>(errors->GetBufferPointer()));
+            return nullptr;
+        }
+        psoDesc.CS = { reinterpret_cast<UINT8*>(shaderBlob->GetBufferPointer()),
+                       shaderBlob->GetBufferSize() };
+    }
+
+    // Only used for multi-adapter systems.
+    psoDesc.NodeMask = 0;
+
+    psoDesc.CachedPSO = { nullptr, 0 };
+    psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+    gr_cp<ID3D12PipelineState> pipelineState;
+    {
+        TRACE_EVENT0("skia.shaders", "CreateComputePipelineState");
+        GR_D3D_CALL_ERRCHECK(
+            gpu->device()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+    }
+
+    return GrD3DPipeline::Make(std::move(pipelineState));
+}
+
