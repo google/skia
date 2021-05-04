@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b02a307_a0876ee4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-04T21:29:08Z",
+      "side": 1,
+      "message": "Here is an experiment where we only use 16 values of grey in the Atlas.",
+      "revId": "e08df95583eca136e0c2d4ec844ae2f26f545a03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
