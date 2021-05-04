@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6b220f9_f5c59332",
+        "filename": "src/gpu/GrSurfaceDrawContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-04T14:01:48Z",
+      "side": 1,
+      "message": "I assume this is set with the GrCaps::supportsDynamicMSAA right? So now we are saying a GrSurfaceDrawContext can only use dynamicMSAA if the context only has a single sample?\n\nSo assuming the above are true do we need the added check in the DashLinePathRenderer? I would have thought in order for us to get GrAAType::kMSAA we would have to have a multisampled proxy/draw context. So is it even possible for us to hit the top branch of the if?",
+      "range": {
+        "startLine": 639,
+        "startChar": 44,
+        "endLine": 639,
+        "endChar": 62
+      },
+      "revId": "96b0435b412536238e47c3202a5b75cbb7671eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
