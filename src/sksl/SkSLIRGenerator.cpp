@@ -80,8 +80,7 @@ public:
 };
 
 IRGenerator::IRGenerator(const Context* context)
-        : fContext(*context)
-        , fModifiers(std::make_unique<ModifiersPool>()) {}
+        : fContext(*context) {}
 
 void IRGenerator::pushSymbolTable() {
     auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
@@ -133,12 +132,6 @@ std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragm
     }
 
     return std::make_unique<Extension>(offset, name);
-}
-
-std::unique_ptr<ModifiersPool> IRGenerator::releaseModifiers() {
-    std::unique_ptr<ModifiersPool> result = std::move(fModifiers);
-    fModifiers = std::make_unique<ModifiersPool>();
-    return result;
 }
 
 std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTNode& statement) {
@@ -1017,7 +1010,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     const FunctionDeclaration* decl = FunctionDeclaration::Convert(
                                                            fContext,
                                                            *fSymbolTable,
-                                                           *fModifiers,
+                                                           this->modifiersPool(),
                                                            f.fOffset,
                                                            this->modifiersPool().add(declModifiers),
                                                            funcData.fName,
@@ -1970,7 +1963,6 @@ IRGenerator::IRBundle IRGenerator::finish() {
 
     return IRBundle{std::move(*fProgramElements),
                     std::move(*fSharedElements),
-                    this->releaseModifiers(),
                     std::move(fSymbolTable),
                     fInputs};
 }

@@ -110,7 +110,6 @@ public:
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
         std::vector<const ProgramElement*>           fSharedElements;
-        std::unique_ptr<ModifiersPool>               fModifiers;
         std::shared_ptr<SymbolTable>                 fSymbolTable;
         Program::Inputs                              fInputs;
     };
@@ -158,11 +157,6 @@ private:
                std::vector<const ProgramElement*>* sharedElements);
 
     IRGenerator::IRBundle finish();
-
-    /**
-     * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
-     */
-    std::unique_ptr<ModifiersPool> releaseModifiers();
 
     void checkVarDeclaration(int offset,
                              const Modifiers& modifiers,
@@ -260,7 +254,7 @@ private:
     }
 
     ModifiersPool& modifiersPool() const {
-        return *fModifiers;
+        return *fContext.fModifiersPool;
     }
 
     Program::Inputs fInputs;
@@ -280,7 +274,6 @@ private:
     int fRTAdjustFieldIndex;
     // true if we are currently processing one of the built-in SkSL include files
     bool fIsBuiltinCode = false;
-    std::unique_ptr<ModifiersPool> fModifiers;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

@@ -34,23 +34,22 @@ DSLVar::DSLVar(const char* name)
         // converting all DSL code into strings rather than nodes, all we really need is a
         // correctly-named variable with the right type, so we just create a placeholder for it.
         // TODO(skia/11330): we'll need to fix this when switching over to nodes.
-        fVar = DSLWriter::SymbolTable()->takeOwnershipOfIRNode(
-                std::make_unique<SkSL::Variable>(
-                        /*offset=*/-1,
-                        DSLWriter::IRGenerator().modifiersPool().add(
-                                SkSL::Modifiers(
-                                        SkSL::Layout(/*flags=*/0, /*location=*/-1, /*offset=*/-1,
-                                                     /*binding=*/-1, /*index=*/-1, /*set=*/-1,
-                                                     SK_MAIN_COORDS_BUILTIN,
-                                                     /*inputAttachmentIndex=*/-1,
-                                                     Layout::kUnspecified_Primitive,
-                                                     /*maxVertices=*/1, /*invocations=*/-1,
-                                                     /*when=*/"", Layout::CType::kDefault),
-                                        SkSL::Modifiers::kNo_Flag)),
-                        fName,
-                        DSLWriter::Context().fTypes.fFloat2.get(),
-                        /*builtin=*/true,
-                        SkSL::VariableStorage::kGlobal));
+        const SkSL::Modifiers* modifiers = DSLWriter::Context().fModifiersPool->add(
+                SkSL::Modifiers(SkSL::Layout(/*flags=*/0, /*location=*/-1, /*offset=*/-1,
+                                             /*binding=*/-1, /*index=*/-1, /*set=*/-1,
+                                             SK_MAIN_COORDS_BUILTIN, /*inputAttachmentIndex=*/-1,
+                                             Layout::kUnspecified_Primitive, /*maxVertices=*/1,
+                                             /*invocations=*/-1, /*when=*/"",
+                                             Layout::CType::kDefault),
+                                SkSL::Modifiers::kNo_Flag));
+
+        fVar = DSLWriter::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(
+                /*offset=*/-1,
+                modifiers,
+                fName,
+                DSLWriter::Context().fTypes.fFloat2.get(),
+                /*builtin=*/true,
+                SkSL::VariableStorage::kGlobal));
         return;
     }
 #endif

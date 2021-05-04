@@ -77,11 +77,9 @@ private:
     std::shared_ptr<SymbolTable> fOldSymbols;
 };
 
-Rehydrator::Rehydrator(const Context* context, ModifiersPool* modifiers,
-                       std::shared_ptr<SymbolTable> symbolTable,
+Rehydrator::Rehydrator(const Context* context,  std::shared_ptr<SymbolTable> symbolTable,
                        const uint8_t* src, size_t length)
                 : fContext(*context)
-                , fModifiers(*modifiers)
                 , fSymbolTable(std::move(symbolTable))
                 , fStart(src)
     SkDEBUGCODE(, fEnd(fStart + length)) {

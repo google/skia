@@ -275,8 +275,7 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
     }
 }
 
-void Inliner::reset(ModifiersPool* modifiers) {
-    fModifiers = modifiers;
+void Inliner::reset() {
     fMangler.reset();
     fInlinedStatementCounter = 0;
 }

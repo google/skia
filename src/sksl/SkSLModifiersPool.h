@@ -25,6 +25,10 @@ public:
         return &*iter;
     }
 
+    void clear() {
+        fModifiersSet.clear();
+    }
+
 private:
     std::unordered_set<Modifiers> fModifiersSet;
 };

@@ -39,7 +39,7 @@ class Inliner {
 public:
     Inliner(const Context* context) : fContext(context) {}
 
-    void reset(ModifiersPool* modifiers);
+    void reset();
 
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
     bool analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
@@ -114,10 +114,9 @@ private:
     /** Checks whether inlining is viable for a FunctionCall, modulo recursion and function size. */
     bool isSafeToInline(const FunctionDefinition* functionDef);
 
-    ModifiersPool& modifiersPool() const { return *fModifiers; }
+    ModifiersPool& modifiersPool() const { return *fContext->fModifiersPool; }
 
     const Context* fContext = nullptr;
-    ModifiersPool* fModifiers = nullptr;
     Mangler fMangler;
     int fInlinedStatementCounter = 0;
 };

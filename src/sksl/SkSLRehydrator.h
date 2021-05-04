@@ -151,8 +151,7 @@ public:
     };
 
     // src must remain in memory as long as the objects created from it do
-    Rehydrator(const Context* context, ModifiersPool* modifiers,
-               std::shared_ptr<SymbolTable> symbolTable,
+    Rehydrator(const Context* context, std::shared_ptr<SymbolTable> symbolTable,
                const uint8_t* src, size_t length);
 
     std::vector<std::unique_ptr<ProgramElement>> elements();
@@ -230,10 +229,9 @@ private:
 
     ErrorReporter* errorReporter() { return &fContext.fErrors; }
 
-    ModifiersPool& modifiersPool() const { return fModifiers; }
+    ModifiersPool& modifiersPool() const { return *fContext.fModifiersPool; }
 
     const Context& fContext;
-    ModifiersPool& fModifiers;
     std::shared_ptr<SymbolTable> fSymbolTable;
     std::vector<const Symbol*> fSymbols;
 
