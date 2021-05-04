@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e74309eb_2cb0d57c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 29
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-04T20:37:05Z",
+      "side": 1,
+      "message": "generally looks good, mostly missing checks for failed \"gets\" from resource provider. There are more cases than I commented on here.",
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20d8ad39_ff3982ef",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-04T20:37:05Z",
+      "side": 1,
+      "message": "this can fail",
+      "range": {
+        "startLine": 926,
+        "startChar": 61,
+        "endLine": 926,
+        "endChar": 87
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17a1706b_cd58ea35",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-04T20:37:05Z",
+      "side": 1,
+      "message": "can this fail?",
+      "range": {
+        "startLine": 932,
+        "startChar": 36,
+        "endLine": 932,
+        "endChar": 65
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07328b6a_1d3604b7",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-04T20:37:05Z",
+      "side": 1,
+      "message": "same fail question",
+      "range": {
+        "startLine": 934,
+        "startChar": 65,
+        "endLine": 934,
+        "endChar": 89
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11b658a6_d5e75e1b",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-04T20:37:05Z",
+      "side": 1,
+      "message": "I thought the uavTexture was the one we wrote to in the shader?",
+      "range": {
+        "startLine": 946,
+        "startChar": 30,
+        "endLine": 946,
+        "endChar": 40
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
