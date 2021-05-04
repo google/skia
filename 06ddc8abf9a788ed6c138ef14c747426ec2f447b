@@ -22,6 +22,30 @@
       },
       "revId": "06ddc8abf9a788ed6c138ef14c747426ec2f447b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f27c71e_e3d93d17",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-04T18:33:09Z",
+      "side": 1,
+      "message": "Yeah, I was torn between wanting to keep the function pretty and wanting to keep the call sites consistent and pretty. Tried it both ways, ultimately preferred this way by the tiniest of margins, but am certainly not married to it.\n\nDone.",
+      "parentUuid": "97efbaed_77cf3871",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "06ddc8abf9a788ed6c138ef14c747426ec2f447b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
