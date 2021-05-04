@@ -38,6 +38,8 @@ public:
 
     DSLCase(DSLCase&&);
 
+    DSLCase(DSLExpression value, SkTArray<DSLStatement> statements);
+
     DSLCase(DSLExpression value, SkSL::StatementArray statements);
 
     ~DSLCase();
