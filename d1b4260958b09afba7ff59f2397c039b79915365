@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c1b5d83_a303608f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-04T17:40:57Z",
+      "side": 1,
+      "message": "And the payoff for all those boilerplate CLs. PTAL.",
+      "revId": "d1b4260958b09afba7ff59f2397c039b79915365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bab0283e_04648230",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-04T17:40:57Z",
+      "side": 1,
+      "message": "The main change is here -- the rest is support data and routines.",
+      "range": {
+        "startLine": 878,
+        "startChar": 5,
+        "endLine": 878,
+        "endChar": 39
+      },
+      "revId": "d1b4260958b09afba7ff59f2397c039b79915365",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
