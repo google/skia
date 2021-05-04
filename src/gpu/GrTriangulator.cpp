@@ -326,7 +326,7 @@ void* GrTriangulator::emitPoly(const Poly* poly, void *data) const {
 }
 
 static bool coincident(const SkPoint& a, const SkPoint& b) {
-    return a == b;
+    return SkScalarNearlyEqual(a.fX, b.fX) && SkScalarNearlyEqual(a.fY, b.fY);
 }
 
 Poly* GrTriangulator::makePoly(Poly** head, Vertex* v, int winding) const {
@@ -894,7 +894,7 @@ Vertex* GrTriangulator::makeSortedVertex(const SkPoint& p, uint8_t alpha, Vertex
 static bool nearly_flat(const Comparator& c, Edge* edge) {
     SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
     float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
-    return fabs(primaryDiff) < std::numeric_limits<float>::epsilon() && primaryDiff != 0.0f;
+    return fabs(primaryDiff) <= std::numeric_limits<float>::epsilon() && primaryDiff != 0.0f;
 }
 
 static SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, const Comparator& c) {
@@ -950,13 +950,13 @@ bool GrTriangulator::checkForIntersection(Edge* left, Edge* right, EdgeList* act
         if (!nearly_flat(c, right)) {
             p = clamp(p, right->fTop->fPoint, right->fBottom->fPoint, c);
         }
-        if (p == left->fTop->fPoint) {
+        if (coincident(p, left->fTop->fPoint)) {
             v = left->fTop;
-        } else if (p == left->fBottom->fPoint) {
+        } else if (coincident(p, left->fBottom->fPoint)) {
             v = left->fBottom;
-        } else if (p == right->fTop->fPoint) {
+        } else if (coincident(p, right->fTop->fPoint)) {
             v = right->fTop;
-        } else if (p == right->fBottom->fPoint) {
+        } else if (coincident(p, right->fBottom->fPoint)) {
             v = right->fBottom;
         } else {
             v = this->makeSortedVertex(p, alpha, mesh, top, c);
