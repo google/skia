@@ -56,6 +56,30 @@
       },
       "revId": "00fc29e56b497d97736d39c8b593b398ea9ee8e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ce5c119_7f6286e3",
+        "filename": "modules/svg/src/SkSVGFe.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-04T18:51:36Z",
+      "side": 1,
+      "message": "Great suggestion, done.",
+      "parentUuid": "682fc886_613abc57",
+      "range": {
+        "startLine": 82,
+        "startChar": 12,
+        "endLine": 82,
+        "endChar": 29
+      },
+      "revId": "00fc29e56b497d97736d39c8b593b398ea9ee8e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
