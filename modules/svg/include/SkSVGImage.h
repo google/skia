@@ -11,6 +11,10 @@
 #include "modules/svg/include/SkSVGTransformableNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
+namespace skresources {
+class ResourceProvider;
+}
+
 class SkSVGImage final : public SkSVGTransformableNode {
 public:
     static sk_sp<SkSVGImage> Make() {
@@ -26,6 +30,15 @@ public:
     SkPath onAsPath(const SkSVGRenderContext&) const override;
     SkRect onObjectBoundingBox(const SkSVGRenderContext&) const override;
 
+    struct ImageInfo {
+        sk_sp<SkImage> fImage;
+        SkRect         fDst;
+    };
+    static ImageInfo LoadImage(const sk_sp<skresources::ResourceProvider>&,
+                               const SkSVGIRI&,
+                               const SkRect&,
+                               SkSVGPreserveAspectRatio);
+
     SVG_ATTR(X                  , SkSVGLength             , SkSVGLength(0))
     SVG_ATTR(Y                  , SkSVGLength             , SkSVGLength(0))
     SVG_ATTR(Width              , SkSVGLength             , SkSVGLength(0))
@@ -38,8 +51,6 @@ protected:
 
 private:
     SkSVGImage() : INHERITED(SkSVGTag::kImage) {}
-
-    SkRect resolveImageRect(const SkRect&, const SkRect&) const;
 
     using INHERITED = SkSVGTransformableNode;
 };
