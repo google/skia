@@ -727,6 +727,11 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         fClippedContentBounds.join(toMerge->fClippedContentBounds);
         fTotalBounds.join(toMerge->fTotalBounds);
         fRenderPassXferBarriers |= toMerge->fRenderPassXferBarriers;
+        if (toMerge->fInitialStencilContent != StencilContent::kDontCare) {
+            SkASSERT(fInitialStencilContent == StencilContent::kDontCare ||
+                     fInitialStencilContent == toMerge->fInitialStencilContent);
+            fInitialStencilContent = toMerge->fInitialStencilContent;
+        }
         fUsesMSAASurface |= toMerge->fUsesMSAASurface;
         SkDEBUGCODE(fNumClips += toMerge->fNumClips);
     }
