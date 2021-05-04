@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff1f5b59_43d3aafb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-05-04T13:46:47Z",
+      "side": 1,
+      "message": "was curious about why:\n\nframeworks/base/libs/hwui/jni/Shader.cpp:298:15: error: no member named \u0027fIndex\u0027 in \u0027SkRuntimeEffectBuilder\u003csk_sp\u003cSkShader\u003e\u003e::BuilderChild\u0027\n    if (child.fIndex \u003d\u003d -1) {\n",
+      "revId": "adadb95a9f1ef21ccc5264c7d0bdc83b56cf91e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
