@@ -1,6 +1,46 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ea7235a_d2685576",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-04T15:40:52Z",
+      "side": 1,
+      "message": "Looks good, modulo picture ownership semantics.",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be18db33_d5769ef8",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-04T15:40:52Z",
+      "side": 1,
+      "message": "This is problematic: we\u0027re not moving the message to the destination thread, including sk_sp\u003cSkPicture\u003e ownership -- we\u0027re just writing a shallow structure.\n\nWhen exiting this scope \u0027message\u0027 gets destroyed, and as the only owner it will delete its fPicture - so the deserializing thread will pick up a stale pointer.\n\nOne way to make it work is to serialize raw SkPicture pointers and manage ownership explicitly:\n\n1) store raw SkPicture ptrs in Message instead of sk_sp\u003c\u003e\n\n2) leak/pass ownership when done recording\n\n  message.fPicture \u003d fRecorder.finishRecordingAsPicture().release();\n\n3) adopt the raw ptr on the deserialization side\n\n  sk_sp\u003cSkPicture\u003e adopted_picture(message.fPicture);",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 37
+      },
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4eaafafb_0f2f9104",
@@ -14,6 +54,58 @@
       "writtenOn": "2021-05-03T19:59:26Z",
       "side": 1,
       "message": "Initializing window context here will be weird given how it\u0027s tied to sk_app. Do we want to refactor WindowContext out of sk_app before implementing SurfaceThread? Or do we want to do the same linker trick here as we did in Surface?",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6689bd7b_0fbfa9f3",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-04T15:40:52Z",
+      "side": 1,
+      "message": "I think the current linker hack should be sufficient - we only need one definition for Application::Create, the linker doesn\u0027t care in which CU it resides.",
+      "parentUuid": "4eaafafb_0f2f9104",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfd551ae_722537d2",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-04T15:40:52Z",
+      "side": 1,
+      "message": "sk_sp\u003cSkPicture\u003e picture(message.fPicture);\n\n(see above, to ensure that we adopt and destroy the picture)",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73be6c02_798c826d",
+        "filename": "modules/androidkit/src/SurfaceThread.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-04T15:40:52Z",
+      "side": 1,
+      "message": "const SkPicture* fPicture;\n\n(see above)",
       "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
