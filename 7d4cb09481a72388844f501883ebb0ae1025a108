@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53df5ff4_341f9159",
+        "filename": "modules/svg/src/SkSVGFeImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-04T17:00:32Z",
+      "side": 1,
+      "message": "This is basically the intersection with the filter region, right?\n\nBased on the expected result, this is not what we want to pass to LoadImage below: it looks like the offset should be observed (shifted to lower-right corner), but not the viewport size scale.\n\nI.e. to achieve result, we\u0027d have to pass image bounds + offset, not filter subregion + offset.",
+      "revId": "7d4cb09481a72388844f501883ebb0ae1025a108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
