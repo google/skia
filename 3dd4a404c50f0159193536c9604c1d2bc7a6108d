@@ -16,6 +16,23 @@
       "message": "I\u0027m not totally sure about everything going on here. We might need to VC about how best to handle this?",
       "revId": "3dd4a404c50f0159193536c9604c1d2bc7a6108d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fba9392_ed7d4cdd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-04T20:34:08Z",
+      "side": 1,
+      "message": "Yeah I hit the assert locally. I\u0027m not always sure what the right answer is here on what fInitialStencilContent should be.",
+      "revId": "3dd4a404c50f0159193536c9604c1d2bc7a6108d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
