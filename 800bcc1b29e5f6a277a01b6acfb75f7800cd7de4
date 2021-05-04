@@ -33,6 +33,29 @@
       "message": "ping",
       "revId": "800bcc1b29e5f6a277a01b6acfb75f7800cd7de4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "effe63b5_c9e6d0ce",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-04T13:56:36Z",
+      "side": 1,
+      "message": "Are there valid situations where we wouldn\u0027t have a before or after resource? Should these be asserts?",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 32
+      },
+      "revId": "800bcc1b29e5f6a277a01b6acfb75f7800cd7de4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
