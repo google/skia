@@ -292,6 +292,13 @@ static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
     bool useCache = !inverseFilled && viewMatrix.preservesAxisAlignment() &&
                     shape.hasUnstyledKey() && as_MFB(maskFilter)->asABlur(nullptr);
 
+    if (shape.asRRect(nullptr, nullptr, nullptr, nullptr)) {
+        // This should never affect blurred rects, circles or nine-patchable blurred round rects.
+        // Caching blurred masks for non-nine-patchable blurred round rects can quickly flood the
+        // cache.
+        useCache = false;
+    }
+
     if (useCache) {
         SkIRect clippedMaskRect, unClippedMaskRect;
         maskFilter->canFilterMaskGPU(shape, unclippedDevShapeBounds, devClipBounds,
