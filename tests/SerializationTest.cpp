@@ -456,14 +456,22 @@ static void TestTypefaceSerialization(skiatest::Reporter* reporter, sk_sp<SkType
     sk_sp<SkTypeface> cloneTypeface = SkTypeface::MakeDeserialize(typefaceStream.get());
     SkASSERT(cloneTypeface);
 
+    SkString name, cloneName;
+    typeface->getFamilyName(&name);
+    cloneTypeface->getFamilyName(&cloneName);
+
+    REPORTER_ASSERT(reporter, typeface->countGlyphs() == cloneTypeface->countGlyphs(),
+        "Typeface: \"%s\" CloneTypeface: \"%s\"", name.c_str(), cloneName.c_str());
+    REPORTER_ASSERT(reporter, typeface->fontStyle() == cloneTypeface->fontStyle(),
+        "Typeface: \"%s\" CloneTypeface: \"%s\"", name.c_str(), cloneName.c_str());
+
     SkFont font(typeface, 12);
     SkFont clone(cloneTypeface, 12);
     SkFontMetrics fontMetrics, cloneMetrics;
     font.getMetrics(&fontMetrics);
     clone.getMetrics(&cloneMetrics);
-    REPORTER_ASSERT(reporter, fontMetrics == cloneMetrics);
-    REPORTER_ASSERT(reporter, typeface->countGlyphs() == cloneTypeface->countGlyphs());
-    REPORTER_ASSERT(reporter, typeface->fontStyle() == cloneTypeface->fontStyle());
+    REPORTER_ASSERT(reporter, fontMetrics == cloneMetrics,
+        "Typeface: \"%s\" CloneTypeface: \"%s\"", name.c_str(), cloneName.c_str());
 }
 DEF_TEST(Serialization_Typeface, reporter) {
     SkFont font;
