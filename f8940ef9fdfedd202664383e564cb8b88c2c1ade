@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c278383_7afae844",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-04T15:33:02Z",
+      "side": 1,
+      "message": "I was going to land this as part of the mipmapping CL, but the first pass won\u0027t be fully correct. So this will wait until I have a fully working implementation and then land to turn everything on.",
+      "revId": "f8940ef9fdfedd202664383e564cb8b88c2c1ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
