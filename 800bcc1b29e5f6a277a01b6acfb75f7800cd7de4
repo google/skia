@@ -56,6 +56,30 @@
       },
       "revId": "800bcc1b29e5f6a277a01b6acfb75f7800cd7de4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "920eec70_c8e9f5ea",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-04T15:30:00Z",
+      "side": 1,
+      "message": "Valid for D3D12, yes:\n\"Both the before and the after resources can be specified or one or both resources can be NULL, which indicates that any placed or reserved resource could cause aliasing.\"\n\nI\u0027m not sure we\u0027d ever use that, though. I\u0027ll change them to asserts for now and if necessary make it more flexible later.",
+      "parentUuid": "effe63b5_c9e6d0ce",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 32
+      },
+      "revId": "800bcc1b29e5f6a277a01b6acfb75f7800cd7de4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
