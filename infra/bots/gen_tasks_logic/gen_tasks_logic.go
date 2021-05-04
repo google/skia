@@ -232,7 +232,6 @@ var (
 		"NUC5PPYH",
 		"Pixel4",
 		"Pixel4XL",
-		"Pixel5",
 	}
 )
 
