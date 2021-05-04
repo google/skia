@@ -95,7 +95,7 @@ public:
                 fArgs.fFragBuilder->definitionAppend(declaration);
             }
 
-            String sampleChild(int index, String coords, String color) override {
+            String sampleChild(int index, String coords) override {
                 // If the child was sampled using the coords passed to main (and they are never
                 // modified), then we will have marked the child as PassThrough. The code generator
                 // doesn't know that, and still supplies coords. Inside invokeChild, we assert that
@@ -112,11 +112,7 @@ public:
                 if (child && !child->isSampledWithExplicitCoords()) {
                     coords.clear();
                 }
-                return String(fSelf->invokeChild(index,
-                                                 color.empty() ? fInputColor : color.c_str(),
-                                                 fArgs,
-                                                 coords)
-                                      .c_str());
+                return String(fSelf->invokeChild(index, fInputColor, fArgs, coords).c_str());
             }
 
             GrGLSLSkSLFP*        fSelf;
@@ -190,11 +186,12 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(std::move(effect), name, std::move(uniforms)));
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms)
+GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect,
+                   const char* name,
+                   sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
-                    effect->getFilterColorInfo().program
-                            ? kConstantOutputForConstantInput_OptimizationFlag
-                            : kNone_OptimizationFlags)
+                    effect->allowColorFilter() ? kConstantOutputForConstantInput_OptimizationFlag
+                                               : kNone_OptimizationFlags)
         , fEffect(std::move(effect))
         , fName(name)
         , fUniforms(std::move(uniforms)) {
@@ -248,8 +245,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
 }
 
 SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputColor) const {
-    const skvm::Program* program = fEffect->getFilterColorInfo().program;
-    SkASSERT(program);
+    const skvm::Program& program = fEffect->getFilterColorInfo().program;
 
     SkSTArray<3, SkPMColor4f, true> childColors;
     childColors.push_back(inputColor);
@@ -258,7 +254,7 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
     }
 
     SkPMColor4f result;
-    program->eval(1, childColors.begin(), fUniforms->data(), result.vec());
+    program.eval(1, childColors.begin(), fUniforms->data(), result.vec());
     return result;
 }
 
