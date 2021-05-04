@@ -12,6 +12,7 @@
 
 
 SurfaceThread::SurfaceThread() {
+    SkDebugf("initialized");
     pipe(fPipe);
     pthread_create(&fThread, nullptr, pthread_main, this);
 }
@@ -31,22 +32,19 @@ int SurfaceThread::message_callback(int /* fd */, int /* events */, void* data) 
     // get target surface from Message
 
     switch (message.fType) {
-        case kSurfaceCreated: {
-            SkDebugf("surface created");
+        case kInitialize: {
+            SkDebugf("initialize WindowContext");
             break;
         }
-        case kSurfaceChanged: {
-            SkDebugf("surface changed");
-            break;
-        }
-        case kSurfaceDestroyed: {
-            SkDebugf("surface destroyed");
-            break;
-        }
-        case kAllSurfacesDestroyed: {
-            // TODO: join thread here, post message from release()
-            SkDebugf("surface destroyed, kill thread");
+        case kDestroy: {
+            SkDebugf("surface destroyed, shut down thread");
             return 0;
+            break;
+        }
+        case kRenderPicture: {
+            sk_sp<SkPicture> picture(message.fPicture);
+            SkDebugf("take in picture and surface from message and call surface.getCanvas().drawPicture()");
+            break;
         }
         default: {
             // do nothing
