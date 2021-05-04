@@ -186,7 +186,7 @@ private:
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    bool onRegenerateMipMapLevels(GrTexture*) override { return true; }
+    bool onRegenerateMipMapLevels(GrTexture*) override;
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&) override;
 
@@ -279,6 +279,9 @@ private:
     uint64_t fCurrentFenceValue = 0;
 
     std::unique_ptr<GrD3DDirectCommandList> fCurrentDirectCommandList;
+    // One-off special-case descriptors created directly by internal GrD3DGpu routines
+    // and hence aren't tracked by the normal path.
+    SkSTArray<32, GrD3DDescriptorHeap::CPUHandle> fTemporaryCPUDescriptors;
 
     struct OutstandingCommandList {
         OutstandingCommandList(std::unique_ptr<GrD3DDirectCommandList> commandList,
