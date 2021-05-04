@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "171c80f9_41a3b109",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-04T21:26:12Z",
+      "side": 1,
+      "message": "Looks like this actually does affect the output from the Metal compiler. I\u0027ll take a brief look later but I may just abandon this.",
+      "revId": "287dcb1520ac5aaca5b674832a0dc2f131ded5c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
