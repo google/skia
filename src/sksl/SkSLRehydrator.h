@@ -11,6 +11,7 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
+#include "src/sksl/SkSLContext.h"
 
 #include <vector>
 
@@ -151,7 +152,7 @@ public:
 
     // src must remain in memory as long as the objects created from it do
     Rehydrator(const Context* context, ModifiersPool* modifiers,
-               std::shared_ptr<SymbolTable> symbolTable, ErrorReporter* errorReporter,
+               std::shared_ptr<SymbolTable> symbolTable,
                const uint8_t* src, size_t length);
 
     std::vector<std::unique_ptr<ProgramElement>> elements();
@@ -227,9 +228,12 @@ private:
 
     const Type* type();
 
+    ErrorReporter* errorReporter() { return &fContext.fErrors; }
+
+    ModifiersPool& modifiersPool() const { return fModifiers; }
+
     const Context& fContext;
     ModifiersPool& fModifiers;
-    ErrorReporter* fErrors;
     std::shared_ptr<SymbolTable> fSymbolTable;
     std::vector<const Symbol*> fSymbols;
 

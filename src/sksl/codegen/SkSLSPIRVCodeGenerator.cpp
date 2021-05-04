@@ -2078,7 +2078,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                         Modifiers::kUniform_Flag);
                 const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
                         std::make_unique<Variable>(/*offset=*/-1,
-                                                   fProgram.fModifiers->addToPool(modifiers),
+                                                   fProgram.fModifiers->add(modifiers),
                                                    name,
                                                    intfStruct.get(),
                                                    /*builtin=*/false,
@@ -3494,7 +3494,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     Modifiers modifiers{layout, Modifiers::kUniform_Flag};
 
     fUniformBuffer.fInnerVariable = std::make_unique<Variable>(
-            /*offset=*/-1, fProgram.fModifiers->addToPool(modifiers), kUniformBufferName,
+            /*offset=*/-1, fProgram.fModifiers->add(modifiers), kUniformBufferName,
             fUniformBuffer.fStruct.get(), /*builtin=*/false, Variable::Storage::kGlobal);
 
     // Create an interface block object for this global variable.

@@ -20,7 +20,7 @@ namespace SkSL {
  */
 class ModifiersPool {
 public:
-    const Modifiers* addToPool(const Modifiers& modifiers) {
+    const Modifiers* add(const Modifiers& modifiers) {
         auto [iter, wasInserted] = fModifiersSet.insert(modifiers);
         return &*iter;
     }
