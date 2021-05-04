@@ -206,8 +206,7 @@ String DSLCPPCodeGenerator::formatRuntimeValue(const Type& type,
         return "%d";
     }
     if (type == *fContext.fTypes.fInt4 ||
-        type == *fContext.fTypes.fShort4 ||
-        type == *fContext.fTypes.fByte4) {
+        type == *fContext.fTypes.fShort4) {
         formatArgs->push_back(cppCode + ".left()");
         formatArgs->push_back(cppCode + ".top()");
         formatArgs->push_back(cppCode + ".right()");

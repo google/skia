@@ -43,14 +43,6 @@ bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outTyp
     if (type == *context.fTypes.fBool2   ) { *outType = kBool2_GrSLType;    return true; }
     if (type == *context.fTypes.fBool3   ) { *outType = kBool3_GrSLType;    return true; }
     if (type == *context.fTypes.fBool4   ) { *outType = kBool4_GrSLType;    return true; }
-    if (type == *context.fTypes.fByte    ) { *outType = kByte_GrSLType;     return true; }
-    if (type == *context.fTypes.fByte2   ) { *outType = kByte2_GrSLType;    return true; }
-    if (type == *context.fTypes.fByte3   ) { *outType = kByte3_GrSLType;    return true; }
-    if (type == *context.fTypes.fByte4   ) { *outType = kByte4_GrSLType;    return true; }
-    if (type == *context.fTypes.fUByte   ) { *outType = kUByte_GrSLType;    return true; }
-    if (type == *context.fTypes.fUByte2  ) { *outType = kUByte2_GrSLType;   return true; }
-    if (type == *context.fTypes.fUByte3  ) { *outType = kUByte3_GrSLType;   return true; }
-    if (type == *context.fTypes.fUByte4  ) { *outType = kUByte4_GrSLType;   return true; }
     if (type == *context.fTypes.fShort   ) { *outType = kShort_GrSLType;    return true; }
     if (type == *context.fTypes.fShort2  ) { *outType = kShort2_GrSLType;   return true; }
     if (type == *context.fTypes.fShort3  ) { *outType = kShort3_GrSLType;   return true; }

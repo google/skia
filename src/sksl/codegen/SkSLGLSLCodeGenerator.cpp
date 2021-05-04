@@ -144,12 +144,6 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             else if (type == *fContext.fTypes.fUShort) {
                 return "uint";
             }
-            else if (type == *fContext.fTypes.fByte) {
-                return "int";
-            }
-            else if (type == *fContext.fTypes.fUByte) {
-                return "uint";
-            }
             else {
                 return type.name();
             }
@@ -986,8 +980,6 @@ void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
         this->write(to_string(i.value() & 0xffffffff) + "u");
     } else if (type == *fContext.fTypes.fUShort) {
         this->write(to_string(i.value() & 0xffff) + "u");
-    } else if (type == *fContext.fTypes.fUByte) {
-        this->write(to_string(i.value() & 0xff) + "u");
     } else {
         this->write(to_string(i.value()));
     }
@@ -1148,8 +1140,7 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
     if (usesPrecisionModifiers()) {
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
-                if (type == *fContext.fTypes.fShort || type == *fContext.fTypes.fUShort ||
-                    type == *fContext.fTypes.fByte || type == *fContext.fTypes.fUByte) {
+                if (type == *fContext.fTypes.fShort || type == *fContext.fTypes.fUShort) {
                     if (fProgram.fConfig->fSettings.fForceHighPrecision ||
                             this->caps().incompleteShortIntPrecision()) {
                         return "highp ";

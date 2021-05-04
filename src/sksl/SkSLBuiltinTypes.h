@@ -51,16 +51,6 @@ public:
     const std::unique_ptr<Type> fUShort3;
     const std::unique_ptr<Type> fUShort4;
 
-    const std::unique_ptr<Type> fByte;
-    const std::unique_ptr<Type> fByte2;
-    const std::unique_ptr<Type> fByte3;
-    const std::unique_ptr<Type> fByte4;
-
-    const std::unique_ptr<Type> fUByte;
-    const std::unique_ptr<Type> fUByte2;
-    const std::unique_ptr<Type> fUByte3;
-    const std::unique_ptr<Type> fUByte4;
-
     const std::unique_ptr<Type> fBool;
     const std::unique_ptr<Type> fBool2;
     const std::unique_ptr<Type> fBool3;
