@@ -8,9 +8,89 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 
 namespace SkSL {
+
+// If the function call is to an intrinsic that we can optimize, identify it.
+// Use an X-macro to list the known intrinsics. https://en.wikipedia.org/wiki/X_Macro
+#define KNOWN_INTRINSICS_LIST \
+    X(all)                    \
+    X(any)
+
+#define X(name) e_##name##_intrinsic,
+enum KnownIntrinsic {
+    KNOWN_INTRINSICS_LIST
+    e_LastIntrinsic
+};
+#undef X
+
+static KnownIntrinsic identify_intrinsic(StringFragment functionName) {
+    #define X(name) #name,
+    static const auto* kKnownIntrinsics = new std::array<StringFragment, e_LastIntrinsic>{
+        KNOWN_INTRINSICS_LIST
+    };
+    #undef X
+
+    SkASSERT(std::is_sorted(kKnownIntrinsics->begin(), kKnownIntrinsics->end()));
+    auto iter = std::equal_range(kKnownIntrinsics->begin(), kKnownIntrinsics->end(), functionName);
+
+    if (iter.first != iter.second) {
+        int intrinsicIndex = iter.first - kKnownIntrinsics->begin();
+        SkASSERT(kKnownIntrinsics->at(intrinsicIndex) == functionName);
+        return (KnownIntrinsic)intrinsicIndex;
+    }
+
+    return e_LastIntrinsic;
+}
+
+#undef KNOWN_INTRINSICS_LIST
+
+static bool has_compile_time_constant_arguments(const ExpressionArray& arguments) {
+    for (const std::unique_ptr<Expression>& arg : arguments) {
+        if (!arg->isCompileTimeConstant()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static std::unique_ptr<Expression> coalesce_bool_vector(
+        const ExpressionArray& arguments,
+        bool startingState,
+        const std::function<bool(bool, bool)>& coalesce) {
+    SkASSERT(arguments.size() == 1);
+    const Expression& arg = *arguments.front();
+    const Type& type = arg.type();
+    SkASSERT(type.isVector());
+    SkASSERT(type.componentType().isBoolean());
+
+    bool value = startingState;
+    for (int index = 0; index < type.columns(); ++index) {
+        const Expression* subexpression = arg.getConstantSubexpression(index);
+        SkASSERT(subexpression);
+        value = coalesce(value, subexpression->as<BoolLiteral>().value());
+    }
+
+    return BoolLiteral::Make(arg.fOffset, value, &type.componentType());
+}
+
+static std::unique_ptr<Expression> optimize_intrinsic_call(KnownIntrinsic intrinsic,
+                                                           const ExpressionArray& arguments) {
+    switch (intrinsic) {
+        case e_all_intrinsic:
+            return coalesce_bool_vector(arguments, /*startingState=*/true,
+                                        [](bool a, bool b) { return a && b; });
+
+        case e_any_intrinsic:
+            return coalesce_bool_vector(arguments, /*startingState=*/false,
+                                        [](bool a, bool b) { return a || b; });
+
+        case e_LastIntrinsic:
+            SkUNREACHABLE;
+    }
+}
 
 bool FunctionCall::hasProperty(Property property) const {
     if (property == Property::kSideEffects &&
@@ -115,6 +195,18 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                ExpressionArray arguments) {
     SkASSERT(function.parameters().size() == arguments.size());
     SkASSERT(function.definition() || function.isBuiltin() || !context.fConfig->strictES2Mode());
+
+    if (function.isBuiltin() && context.fConfig->fSettings.fOptimize) {
+        // We might be able to optimize built-in intrinsics.
+        KnownIntrinsic intrinsic = identify_intrinsic(function.name());
+        if (intrinsic != e_LastIntrinsic && has_compile_time_constant_arguments(arguments)) {
+            // The inputs are all compile-time constants and the function is known. Optimize it.
+            std::unique_ptr<Expression> expr = optimize_intrinsic_call(intrinsic, arguments);
+            if (expr) {
+                return expr;
+            }
+        }
+    }
 
     return std::make_unique<FunctionCall>(offset, returnType, &function, std::move(arguments));
 }
