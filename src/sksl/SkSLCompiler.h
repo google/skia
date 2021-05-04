@@ -229,13 +229,13 @@ private:
     ParsedModule fRuntimeShaderModule;       // [Public] + Runtime color filter decls
 
     // holds ModifiersPools belonging to the core includes for lifetime purposes
-    std::vector<std::unique_ptr<ModifiersPool>> fModifiers;
+    ModifiersPool fCoreModifiers;
 
     Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
 
     const String* fSource;
-    int fErrorCount;
+    int fErrorCount = 0;
     String fErrorText;
     std::vector<size_t> fErrorTextLength;
 

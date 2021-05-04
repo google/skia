@@ -125,8 +125,7 @@ public:
 
 Compiler::Compiler(const ShaderCapsClass* caps)
         : fContext(std::make_shared<Context>(/*errors=*/*this, *caps))
-        , fInliner(fContext.get())
-        , fErrorCount(0) {
+        , fInliner(fContext.get()) {
     SkASSERT(caps);
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
     fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
@@ -196,9 +195,8 @@ Compiler::Compiler(const ShaderCapsClass* caps)
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    static const Modifiers kNoModifiers{};
     fPrivateSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
-                                                        &kNoModifiers,
+                                                        fCoreModifiers.add(Modifiers{}),
                                                         "sk_Caps",
                                                         fContext->fTypes.fSkCaps.get(),
                                                         /*builtin=*/false,
@@ -322,9 +320,8 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     }
     SkASSERT(base);
 
-    // Put a fresh modifier pool into the context.
-    auto modifiersPool = std::make_unique<ModifiersPool>();
-    AutoModifiersPool autoPool(fContext, modifiersPool.get());
+    // Put the core-module modifier pool into the context.
+    AutoModifiersPool autoPool(fContext, &fCoreModifiers);
 
     // Built-in modules always use default program settings.
     ProgramConfig config;
@@ -353,12 +350,10 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
         SkDEBUGFAILF("%s %s\n", data.fPath, this->fErrorText.c_str());
     }
-    fModifiers.push_back(std::move(modifiersPool));
 #else
     SkASSERT(data.fData && (data.fSize != 0));
     Rehydrator rehydrator(fContext.get(), base, data.fData, data.fSize);
     LoadedModule module = { kind, rehydrator.symbolTable(), rehydrator.elements() };
-    fModifiers.push_back(std::move(modifiersPool));
 #endif
 
     return module;
