@@ -54,32 +54,42 @@ static sk_sp<SkImage> LoadImage(const sk_sp<skresources::ResourceProvider>& rp,
     return imageAsset ? imageAsset->getFrameData(0).image : nullptr;
 }
 
-SkRect SkSVGImage::resolveImageRect(const SkRect& viewBox, const SkRect& viewPort) const {
-    const SkMatrix m = ComputeViewboxMatrix(viewBox, viewPort, fPreserveAspectRatio);
-    // Map and place at x, y specified by image attributes
-    return m.mapRect(viewBox).makeOffset(viewPort.fLeft, viewPort.fTop);
-}
-
-void SkSVGImage::onRender(const SkSVGRenderContext& ctx) const {
-    const auto& rp = ctx.resourceProvider();
+SkSVGImage::ImageInfo SkSVGImage::LoadImage(const sk_sp<skresources::ResourceProvider>& rp,
+                                            const SkSVGIRI& iri,
+                                            const SkRect& viewPort,
+                                            SkSVGPreserveAspectRatio par) {
     SkASSERT(rp);
 
     // TODO: svg sources
-    sk_sp<SkImage> image = LoadImage(rp, fHref);
+    sk_sp<SkImage> image = ::LoadImage(rp, iri);
     if (!image) {
+        return {};
+    }
+
+    // Per spec: raster content has implicit viewbox of '0 0 width height'.
+    const SkRect viewBox = SkRect::Make(image->bounds());
+
+    // Map and place at x, y specified by viewport
+    const SkMatrix m = ComputeViewboxMatrix(viewBox, viewPort, par);
+    const SkRect dst = m.mapRect(viewBox).makeOffset(viewPort.fLeft, viewPort.fTop);
+
+    return {std::move(image), dst};
+}
+
+void SkSVGImage::onRender(const SkSVGRenderContext& ctx) const {
+    // Per spec: x, w, width, height attributes establish the new viewport.
+    const SkSVGLengthContext& lctx = ctx.lengthContext();
+    const SkRect viewPort = lctx.resolveRect(fX, fY, fWidth, fHeight);
+
+    const auto imgInfo = LoadImage(ctx.resourceProvider(), fHref, viewPort, fPreserveAspectRatio);
+    if (!imgInfo.fImage) {
         SkDebugf("can't render image: load image failed\n");
         return;
     }
 
-    // Per spec: x, w, width, height attributes establish the new viewport.
-    const SkSVGLengthContext& lctx = ctx.lengthContext();
-    const SkRect viewPort = lctx.resolveRect(fX, fY, fWidth, fHeight);
-    // Per spec: raster content has implicit viewbox of '0 0 width height'.
-    const SkRect viewBox = SkRect::Make(image->bounds());
-
-    ctx.canvas()->drawImageRect(image,
-                                this->resolveImageRect(viewBox, viewPort),
-                                SkSamplingOptions(SkFilterMode::kLinear));
+    // TODO: image-rendering property
+    ctx.canvas()->drawImageRect(
+            imgInfo.fImage, imgInfo.fDst, SkSamplingOptions(SkFilterMode::kLinear));
 }
 
 SkPath SkSVGImage::onAsPath(const SkSVGRenderContext&) const { return {}; }
