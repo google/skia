@@ -214,9 +214,11 @@ public:
 
 private:
     std::unique_ptr<SkSL::ProgramConfig> fConfig;
+    std::unique_ptr<SkSL::ModifiersPool> fModifiersPool;
     SkSL::Compiler* fCompiler;
     std::unique_ptr<Pool> fPool;
     SkSL::ProgramConfig* fOldConfig;
+    SkSL::ModifiersPool* fOldModifiersPool;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     std::vector<const SkSL::ProgramElement*> fSharedElements;
     ErrorHandler* fErrorHandler = nullptr;

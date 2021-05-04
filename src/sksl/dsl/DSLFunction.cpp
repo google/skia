@@ -66,7 +66,7 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
     }
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
                                                *DSLWriter::SymbolTable(),
-                                               *DSLWriter::IRGenerator().fModifiers, /*offset=*/-1,
+                                               *DSLWriter::Context().fModifiersPool, /*offset=*/-1,
                                                DSLWriter::Modifiers(SkSL::Modifiers()),
                                                isMain ? name : DSLWriter::Name(name),
                                                std::move(paramVars), fReturnType,

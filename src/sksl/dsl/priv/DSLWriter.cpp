@@ -34,17 +34,23 @@ namespace dsl {
 DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind)
     : fCompiler(compiler) {
     SkSL::ParsedModule module = fCompiler->moduleForProgramKind(kind);
+
+    fModifiersPool = std::make_unique<ModifiersPool>();
+    fOldModifiersPool = fCompiler->fContext->fModifiersPool;
+    fCompiler->fContext->fModifiersPool = fModifiersPool.get();
+
     fConfig = std::make_unique<ProgramConfig>();
     fConfig->fKind = kind;
-
-    SkSL::IRGenerator& ir = *fCompiler->fIRGenerator;
     fOldConfig = fCompiler->fContext->fConfig;
     fCompiler->fContext->fConfig = fConfig.get();
+
     if (compiler->context().fCaps.useNodePools()) {
         fPool = Pool::Create();
         fPool->attachToThread();
     }
-    ir.start(module, false, nullptr, &fProgramElements, &fSharedElements);
+
+    fCompiler->fIRGenerator->start(module, /*isBuiltinCode=*/false, /*externalFunctions=*/nullptr,
+                                   &fProgramElements, &fSharedElements);
 }
 
 DSLWriter::~DSLWriter() {
@@ -56,6 +62,7 @@ DSLWriter::~DSLWriter() {
         SkASSERT(fProgramElements.empty());
     }
     fCompiler->fContext->fConfig = fOldConfig;
+    fCompiler->fContext->fModifiersPool = fOldModifiersPool;
     if (fPool) {
         fPool->detachFromThread();
     }
@@ -77,10 +84,11 @@ void DSLWriter::Reset() {
     IRGenerator().popSymbolTable();
     IRGenerator().pushSymbolTable();
     ProgramElements().clear();
+    Instance().fModifiersPool->clear();
 }
 
 const SkSL::Modifiers* DSLWriter::Modifiers(const SkSL::Modifiers& modifiers) {
-    return IRGenerator().modifiersPool().add(modifiers);
+    return Context().fModifiersPool->add(modifiers);
 }
 
 const char* DSLWriter::Name(const char* name) {
@@ -253,17 +261,18 @@ void DSLWriter::MarkDeclared(DSLVar& var) {
 }
 
 std::unique_ptr<SkSL::Program> DSLWriter::ReleaseProgram() {
+    DSLWriter& instance = Instance();
     SkSL::IRGenerator& ir = IRGenerator();
     IRGenerator::IRBundle bundle = ir.finish();
     Pool* pool = Instance().fPool.get();
     auto result = std::make_unique<SkSL::Program>(/*source=*/nullptr,
-                                                  std::move(DSLWriter::Instance().fConfig),
+                                                  std::move(instance.fConfig),
                                                   Compiler().fContext,
                                                   std::move(bundle.fElements),
                                                   std::move(bundle.fSharedElements),
-                                                  std::move(bundle.fModifiers),
+                                                  std::move(instance.fModifiersPool),
                                                   std::move(bundle.fSymbolTable),
-                                                  std::move(Instance().fPool),
+                                                  std::move(instance.fPool),
                                                   bundle.fInputs);
     if (pool) {
         pool->detachFromThread();
