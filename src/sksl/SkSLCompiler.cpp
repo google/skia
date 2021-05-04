@@ -83,14 +83,16 @@ using RefKind = VariableReference::RefKind;
 class AutoSource {
 public:
     AutoSource(Compiler* compiler, const String* source)
-            : fCompiler(compiler), fOldSource(fCompiler->fSource) {
+            : fCompiler(compiler) {
+        SkASSERT(!fCompiler->fSource);
         fCompiler->fSource = source;
     }
 
-    ~AutoSource() { fCompiler->fSource = fOldSource; }
+    ~AutoSource() {
+        fCompiler->fSource = nullptr;
+    }
 
     Compiler* fCompiler;
-    const String* fOldSource;
 };
 
 class AutoProgramConfig {
@@ -110,8 +112,7 @@ public:
 
 Compiler::Compiler(const ShaderCapsClass* caps)
         : fContext(std::make_shared<Context>(/*errors=*/*this, *caps))
-        , fInliner(fContext.get())
-        , fErrorCount(0) {
+        , fInliner(fContext.get()) {
     SkASSERT(caps);
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
     fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
@@ -452,9 +453,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fErrorCount = 0;
     fInliner.reset(fIRGenerator->fModifiers.get());
 
-    // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
-    std::unique_ptr<String> textPtr(new String(std::move(text)));
-    fSource = textPtr.get();
+    auto textPtr = std::make_unique<String>(std::move(text));
+    AutoSource as(this, textPtr.get());
 
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
