@@ -51,7 +51,8 @@ public:
         return fState->getResourceState();
     }
 
-    void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState);
+    void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState,
+                          unsigned int subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
     // Changes the layout to present
     void prepareForPresent(GrD3DGpu* gpu);
