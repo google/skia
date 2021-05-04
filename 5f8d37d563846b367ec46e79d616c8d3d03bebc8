@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e8dbc8d_02e6579c",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-04T20:21:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be18db33_d5769ef8",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 37
+      },
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4eaafafb_0f2f9104",
@@ -76,6 +100,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d156fc8a_9625e899",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-04T20:21:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6689bd7b_0fbfa9f3",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dfd551ae_722537d2",
@@ -93,6 +135,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d47415f4_b31abbe0",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-04T20:21:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfd551ae_722537d2",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "73be6c02_798c826d",
@@ -106,6 +166,24 @@
       "writtenOn": "2021-05-04T15:40:52Z",
       "side": 1,
       "message": "const SkPicture* fPicture;\n\n(see above)",
+      "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "548dabbb_123fafb1",
+        "filename": "modules/androidkit/src/SurfaceThread.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-04T20:21:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73be6c02_798c826d",
       "revId": "5f8d37d563846b367ec46e79d616c8d3d03bebc8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
