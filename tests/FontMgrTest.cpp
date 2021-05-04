@@ -67,15 +67,16 @@ DEF_TEST(FontMgr_AliasNames, reporter) {
         if (nullptr == first.get()) {
             continue;
         }
+        SkString firstName;
+        first->getFamilyName(&firstName);
         for (int j = 0; j < 10; ++j) {
             sk_sp<SkTypeface> face(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
-    #if 0
+
             SkString name;
             face->getFamilyName(&name);
-            printf("request %s, received %s, first id %x received %x\n",
-                   inNames[i], name.c_str(), first->uniqueID(), face->uniqueID());
-    #endif
-            REPORTER_ASSERT(reporter, first->uniqueID() == face->uniqueID());
+            REPORTER_ASSERT(reporter, first->uniqueID() == face->uniqueID(),
+                "Request \"%s\" First Name: \"%s\" Id: %x Received Name \"%s\" Id %x",
+                inNames[i], firstName.c_str(), first->uniqueID(), name.c_str(), face->uniqueID());
         }
     }
 }
