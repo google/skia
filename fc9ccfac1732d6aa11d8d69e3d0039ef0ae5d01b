@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fbea5c43_8488e6f6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-05-04T19:00:32Z",
+      "side": 1,
+      "message": "I mentioned this over chat, but for posterity:\n\nThis fixes the issue in the real app. It does *not* fix the issue in the reduced test case app.",
+      "range": {
+        "startLine": 19,
+        "startChar": 5,
+        "endLine": 19,
+        "endChar": 16
+      },
+      "revId": "fc9ccfac1732d6aa11d8d69e3d0039ef0ae5d01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "19398a2f_67023f6c",
         "filename": "src/gpu/GrBlurUtils.cpp",
         "patchSetId": 3
