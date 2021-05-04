@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87e01618_3e17d8f5",
+        "filename": "modules/svg/src/SkSVGFeImage.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-04T19:02:21Z",
+      "side": 1,
+      "message": "Does it make sense to use a higher quality mode here by default, until we support the image-rendering property? https://www.w3.org/TR/SVG11/painting.html#ImageRenderingProperty",
+      "revId": "d95d2087940a3e4f05f0e4bf7ee4d85654a73914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
