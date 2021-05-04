@@ -14,8 +14,7 @@ GrD3DDescriptorTableManager::GrD3DDescriptorTableManager(GrD3DGpu* gpu)
     , fSamplerDescriptorPool(gpu, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) {}
 
 sk_sp<GrD3DDescriptorTable>
-        GrD3DDescriptorTableManager::createShaderViewTable(GrD3DGpu* gpu,
-                                                                         unsigned int size) {
+        GrD3DDescriptorTableManager::createShaderViewTable(GrD3DGpu* gpu, unsigned int size) {
     sk_sp<GrD3DDescriptorTable> table = fShaderViewDescriptorPool.allocateTable(gpu, size);
     this->setHeaps(gpu);
     return table;
