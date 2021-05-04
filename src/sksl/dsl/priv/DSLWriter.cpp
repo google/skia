@@ -79,8 +79,8 @@ void DSLWriter::Reset() {
     ProgramElements().clear();
 }
 
-const SkSL::Modifiers* DSLWriter::Modifiers(SkSL::Modifiers modifiers) {
-    return IRGenerator().fModifiers->addToPool(modifiers);
+const SkSL::Modifiers* DSLWriter::Modifiers(const SkSL::Modifiers& modifiers) {
+    return IRGenerator().modifiersPool().add(modifiers);
 }
 
 const char* DSLWriter::Name(const char* name) {

@@ -83,7 +83,7 @@ public:
      * Returns the final pointer to a pooled Modifiers object that should be used to represent the
      * given modifiers.
      */
-    static const SkSL::Modifiers* Modifiers(SkSL::Modifiers modifiers);
+    static const SkSL::Modifiers* Modifiers(const SkSL::Modifiers& modifiers);
 
     /**
      * Returns the SkSL variable corresponding to a DSLVar.

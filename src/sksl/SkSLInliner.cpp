@@ -589,7 +589,7 @@ Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
     // Create our new variable and add it to the symbol table.
     InlineVariable result;
     auto var = std::make_unique<Variable>(/*offset=*/-1,
-                                          fModifiers->addToPool(Modifiers()),
+                                          this->modifiersPool().add(Modifiers{}),
                                           name->c_str(),
                                           type,
                                           isBuiltinCode,

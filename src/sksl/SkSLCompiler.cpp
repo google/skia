@@ -185,7 +185,7 @@ Compiler::Compiler(const ShaderCapsClass* caps)
     // treat it as builtin (ie, no need to clone it into the Program).
     fPrivateSymbolTable->add(
             std::make_unique<Variable>(/*offset=*/-1,
-                                       fIRGenerator->fModifiers->addToPool(Modifiers()),
+                                       fIRGenerator->modifiersPool().add(Modifiers()),
                                        "sk_Caps",
                                        fContext->fTypes.fSkCaps.get(),
                                        /*builtin=*/false,
@@ -339,7 +339,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     fModifiers.push_back(std::move(ir.fModifiers));
 #else
     SkASSERT(data.fData && (data.fSize != 0));
-    Rehydrator rehydrator(fContext.get(), fIRGenerator->fModifiers.get(), base, this,
+    Rehydrator rehydrator(fContext.get(), fIRGenerator->fModifiers.get(), base,
                           data.fData, data.fSize);
     LoadedModule module = { kind, rehydrator.symbolTable(), rehydrator.elements() };
     fModifiers.push_back(fIRGenerator->releaseModifiers());
