@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c4f8a0b_23ff30db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-04T02:40:16Z",
+      "side": 1,
+      "message": "This uses a hidden picture-recorder-canvas just to trigger its drawing, so that getShapedLines() will succeed. This is a temporary work-around.",
+      "revId": "dfee0e1c2df09e929a5835a4f3d264fc08cb7d1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
