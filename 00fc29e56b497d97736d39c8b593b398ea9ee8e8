@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02f719fa_35c1a5fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-04T18:38:28Z",
+      "side": 1,
+      "message": "This CL doesn\u0027t change anything on gold, but it is the fix for the feImage issue.",
+      "revId": "00fc29e56b497d97736d39c8b593b398ea9ee8e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
