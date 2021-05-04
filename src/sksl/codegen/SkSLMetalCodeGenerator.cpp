@@ -143,10 +143,6 @@ String MetalCodeGenerator::typeName(const Type& type) {
             if (type == *fContext.fTypes.fHalf) {
                 // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.
                 return fContext.fTypes.fFloat->name();
-            } else if (type == *fContext.fTypes.fByte) {
-                return "char";
-            } else if (type == *fContext.fTypes.fUByte) {
-                return "uchar";
             } else {
                 return type.name();
             }
@@ -1482,8 +1478,6 @@ void MetalCodeGenerator::writeIntLiteral(const IntLiteral& i) {
         this->write(to_string(i.value() & 0xffffffff) + "u");
     } else if (type == *fContext.fTypes.fUShort) {
         this->write(to_string(i.value() & 0xffff) + "u");
-    } else if (type == *fContext.fTypes.fUByte) {
-        this->write(to_string(i.value() & 0xff) + "u");
     } else {
         this->write(to_string(i.value()));
     }

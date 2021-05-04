@@ -483,12 +483,10 @@ const Type& SPIRVCodeGenerator::getActualType(const Type& type) {
         if (type.componentType() == *fContext.fTypes.fHalf) {
             return fContext.fTypes.fFloat->toCompound(fContext, type.columns(), type.rows());
         }
-        if (type.componentType() == *fContext.fTypes.fShort ||
-            type.componentType() == *fContext.fTypes.fByte) {
+        if (type.componentType() == *fContext.fTypes.fShort) {
             return fContext.fTypes.fInt->toCompound(fContext, type.columns(), type.rows());
         }
-        if (type.componentType() == *fContext.fTypes.fUShort ||
-            type.componentType() == *fContext.fTypes.fUByte) {
+        if (type.componentType() == *fContext.fTypes.fUShort) {
             return fContext.fTypes.fUInt->toCompound(fContext, type.columns(), type.rows());
         }
     }

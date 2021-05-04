@@ -143,11 +143,9 @@ Compiler::Compiler(const ShaderCapsClass* caps)
         TYPE(  UInt), TYPE(  UInt2), TYPE(  UInt3), TYPE(  UInt4),
         TYPE( Short), TYPE( Short2), TYPE( Short3), TYPE( Short4),
         TYPE(UShort), TYPE(UShort2), TYPE(UShort3), TYPE(UShort4),
-        TYPE(  Byte), TYPE(  Byte2), TYPE(  Byte3), TYPE(  Byte4),
-        TYPE( UByte), TYPE( UByte2), TYPE( UByte3), TYPE( UByte4),
 
         TYPE(GenUType), TYPE(UVec),
-        TYPE(SVec), TYPE(USVec), TYPE(ByteVec), TYPE(UByteVec),
+        TYPE(SVec), TYPE(USVec),
 
         TYPE(Float2x3), TYPE(Float2x4),
         TYPE(Float3x2), TYPE(Float3x4),

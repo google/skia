@@ -217,8 +217,7 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
         return "%d";
     }
     if (type == *fContext.fTypes.fInt4 ||
-        type == *fContext.fTypes.fShort4 ||
-        type == *fContext.fTypes.fByte4) {
+        type == *fContext.fTypes.fShort4) {
         formatArgs->push_back(cppCode + ".left()");
         formatArgs->push_back(cppCode + ".top()");
         formatArgs->push_back(cppCode + ".right()");
@@ -454,14 +453,6 @@ static const char* glsltype_string(const Context& context, const Type& type) {
     if (type == *context.fTypes.fBool2   ) { return "kBool2_GrSLType";    }
     if (type == *context.fTypes.fBool3   ) { return "kBool3_GrSLType";    }
     if (type == *context.fTypes.fBool4   ) { return "kBool4_GrSLType";    }
-    if (type == *context.fTypes.fByte    ) { return "kByte_GrSLType";     }
-    if (type == *context.fTypes.fByte2   ) { return "kByte2_GrSLType";    }
-    if (type == *context.fTypes.fByte3   ) { return "kByte3_GrSLType";    }
-    if (type == *context.fTypes.fByte4   ) { return "kByte4_GrSLType";    }
-    if (type == *context.fTypes.fUByte   ) { return "kUByte_GrSLType";    }
-    if (type == *context.fTypes.fUByte2  ) { return "kUByte2_GrSLType";   }
-    if (type == *context.fTypes.fUByte3  ) { return "kUByte3_GrSLType";   }
-    if (type == *context.fTypes.fUByte4  ) { return "kUByte4_GrSLType";   }
     if (type == *context.fTypes.fShort   ) { return "kShort_GrSLType";    }
     if (type == *context.fTypes.fShort2  ) { return "kShort2_GrSLType";   }
     if (type == *context.fTypes.fShort3  ) { return "kShort3_GrSLType";   }

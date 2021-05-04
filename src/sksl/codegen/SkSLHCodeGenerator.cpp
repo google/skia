@@ -53,18 +53,15 @@ Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type&
     if (type == *context.fTypes.fFloat || type == *context.fTypes.fHalf) {
         return Layout::CType::kFloat;
     } else if (type == *context.fTypes.fInt ||
-               type == *context.fTypes.fShort ||
-               type == *context.fTypes.fByte) {
+               type == *context.fTypes.fShort) {
         return Layout::CType::kInt32;
     } else if (type == *context.fTypes.fFloat2 || type == *context.fTypes.fHalf2) {
         return Layout::CType::kSkPoint;
     } else if (type == *context.fTypes.fInt2 ||
-               type == *context.fTypes.fShort2 ||
-               type == *context.fTypes.fByte2) {
+               type == *context.fTypes.fShort2) {
         return Layout::CType::kSkIPoint;
     } else if (type == *context.fTypes.fInt4 ||
-               type == *context.fTypes.fShort4 ||
-               type == *context.fTypes.fByte4) {
+               type == *context.fTypes.fShort4) {
         return Layout::CType::kSkIRect;
     } else if (type == *context.fTypes.fFloat4 || type == *context.fTypes.fHalf4) {
         return Layout::CType::kSkRect;
