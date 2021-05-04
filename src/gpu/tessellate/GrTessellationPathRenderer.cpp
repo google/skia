@@ -137,15 +137,6 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         !args.fProxy->canUseStencil(*args.fCaps)) {
         return CanDrawPath::kNo;
     }
-    // On platforms that don't have native support for indirect draws and/or hardware tessellation,
-    // we find that cached triangulations of strokes can render slightly faster. Let cacheable paths
-    // go to the triangulator on these platforms for now.
-    // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
-    if (!args.fCaps->nativeDrawIndirectSupport() &&
-        !args.fCaps->shaderCaps()->tessellationSupport() &&
-        shape.hasUnstyledKey()) {  // Is the path cacheable?
-        return CanDrawPath::kNo;
-    }
     return CanDrawPath::kYes;
 }
 
