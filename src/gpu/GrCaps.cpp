@@ -435,6 +435,7 @@ GrDstSampleType GrCaps::getDstSampleTypeForProxy(const GrRenderTargetProxy* rt) 
 }
 
 bool GrCaps::supportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
-    return this->internalMultisampleCount(rtProxy->backendFormat()) > 1 &&
+    return rtProxy->numSamples() == 1 &&
+           this->internalMultisampleCount(rtProxy->backendFormat()) > 1 &&
            this->onSupportsDynamicMSAA(rtProxy);
 }
