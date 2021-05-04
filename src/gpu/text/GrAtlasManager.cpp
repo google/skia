@@ -57,7 +57,7 @@ static void expand_bits(INT_TYPE* dst,
 }
 
 static void get_packed_glyph_image(
-        const SkGlyph& glyph, int dstRB, GrMaskFormat expectedMaskFormat, void* dst) {
+        const SkGlyph& glyph, int dstRB, GrMaskFormat expectedMaskFormat, bool isSDF, void* dst) {
     const int width = glyph.width();
     const int height = glyph.height();
     const void* src = glyph.image();
@@ -77,6 +77,20 @@ static void get_packed_glyph_image(
                 }
             } else {
                 memcpy(dst, src, dstRB * height);
+            }
+            const double levelsOfGrey = 9,
+                         downFactor = (levelsOfGrey - 1) / 255.0,
+                         upFactor = (255.0 / (levelsOfGrey - 1));
+            if (expectedMaskFormat == GrMaskFormat::kA8_GrMaskFormat && !isSDF) {
+                uint8_t* mask = (uint8_t*)dst;
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        uint8_t& pixel = mask[y * dstRB + x];
+                        double dPixel = std::floor(pixel * downFactor + 0.5) * upFactor;
+                        SkASSERT(0.0 <= dPixel && dPixel <= 255.0);
+                        pixel = (uint8_t)std::round(dPixel);
+                    }
+                }
             }
         } else {
             // Handle 8-bit format by expanding the mask to the expected format.
@@ -169,7 +183,8 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
     }
 
-    get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
+    const bool isSDF = skGlyph.maskFormat() == SkMask::kSDF_Format;
+    get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, isSDF, dataPtr);
 
     auto errorCode = this->addToAtlas(resourceProvider,
                                       uploadTarget,
