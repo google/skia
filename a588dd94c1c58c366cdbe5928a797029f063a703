@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5abc28a4_64f0b68d",
+        "filename": "resources/sksl/runtime/ConstPreservation.rts",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-05T13:22:45Z",
+      "side": 1,
+      "message": "Otherwise `r` and `g` are optimized away entirely, defeating the purpose of the test.",
+      "range": {
+        "startLine": 12,
+        "startChar": 17,
+        "endLine": 12,
+        "endChar": 21
+      },
+      "revId": "a588dd94c1c58c366cdbe5928a797029f063a703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
