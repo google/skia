@@ -16,6 +16,46 @@
       "message": "Requested by internal clients, and already supported in Bodymovin.\n\nThe upper bound makes sense, but the lower bound is somewhat ill defined: what if the text @minimum font size doesn\u0027t fit within the given box?  At the moment we don\u0027t draw in that case, as the constraints cannot be satisfied.",
       "revId": "925c9fd9c0330edda6c1c63a6115f1178349d14a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b27db53_251b054c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-05T21:37:04Z",
+      "side": 1,
+      "message": "(discussed future ideas for callbacks to generalize this)",
+      "revId": "925c9fd9c0330edda6c1c63a6115f1178349d14a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20957ebf_5bb3a1c5",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-05T21:37:04Z",
+      "side": 1,
+      "message": "This is getting nice and big :)",
+      "range": {
+        "startLine": 269,
+        "startChar": 18,
+        "endLine": 269,
+        "endChar": 26
+      },
+      "revId": "925c9fd9c0330edda6c1c63a6115f1178349d14a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
