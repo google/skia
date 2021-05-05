@@ -57,7 +57,8 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			// iOS crashes with MSAA (skia:6399)
 			// Nexus7 (Tegra3) does not support MSAA.
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
-			if b.os("iOS") || b.model("Nexus7", "Pixel3a") {
+			// MSAA is disabled on Pixel5 (https://skbug.com/11152).
+			if b.os("iOS") || b.model("Nexus7", "Pixel3a", "Pixel5") {
 				sampleCount = 0
 			}
 		} else if b.matchGpu("Intel") {
@@ -240,10 +241,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	if b.model("Pixel3") && b.extraConfig("Vulkan") {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
-	}
-	if (b.model("Pixel5")) {
-		// skia:11152
-		match = append(match, "~path")
 	}
 
 	if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {

@@ -217,7 +217,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.os("Android", "iOS") {
 			glPrefix = "gles"
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
-			if b.model("Pixel3a") {
+			// MSAA is disabled on Pixel5 (https://skbug.com/11152).
+			if b.model("Pixel3a", "Pixel5") {
 				sampleCount = 0
 			}
 		} else if b.matchGpu("Intel") {
