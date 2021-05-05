@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d10a19a_98618ae1",
+        "filename": "src/sksl/SkSLIntrinsicList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-05T18:38:31Z",
+      "side": 1,
+      "message": "This was adapted from SPIR-V\u0027s intrinsic list, which is fairly comprehensive.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 47
+      },
+      "revId": "a0172a093195a63f1a024c0ec07084cd7c3e7e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
