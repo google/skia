@@ -9,7 +9,10 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
 
 namespace SkSL {
 
@@ -17,6 +20,10 @@ namespace SkSL {
 enum IntrinsicKind {
     k_all_IntrinsicKind,
     k_any_IntrinsicKind,
+    k_greaterThan_IntrinsicKind,
+    k_greaterThanEqual_IntrinsicKind,
+    k_lessThan_IntrinsicKind,
+    k_lessThanEqual_IntrinsicKind,
     kOther_IntrinsicKind,
 };
 
@@ -25,6 +32,10 @@ static IntrinsicKind identify_intrinsic(const String& functionName) {
     #define INTRINSIC(name) {#name, k_##name##_IntrinsicKind},
         INTRINSIC(all)
         INTRINSIC(any)
+        INTRINSIC(greaterThan)
+        INTRINSIC(greaterThanEqual)
+        INTRINSIC(lessThan)
+        INTRINSIC(lessThanEqual)
     #undef INTRINSIC
     };
 
@@ -65,7 +76,53 @@ static std::unique_ptr<Expression> coalesce_bool_vector(
     return BoolLiteral::Make(arg.fOffset, value, &type.componentType());
 }
 
-static std::unique_ptr<Expression> optimize_intrinsic_call(IntrinsicKind intrinsic,
+template <typename LITERAL, typename FN>
+static std::unique_ptr<Expression> optimize_comparison_of_type(const Context& context,
+                                                               const Expression& left,
+                                                               const Expression& right,
+                                                               const FN& compare) {
+    const Type& type = left.type();
+    SkASSERT(type.isVector());
+    SkASSERT(type.componentType().isNumber());
+    SkASSERT(type == right.type());
+
+    ExpressionArray result;
+    result.reserve_back(type.columns());
+
+    for (int index = 0; index < type.columns(); ++index) {
+        const Expression* leftSubexpr = left.getConstantSubexpression(index);
+        const Expression* rightSubexpr = right.getConstantSubexpression(index);
+        SkASSERT(leftSubexpr);
+        SkASSERT(rightSubexpr);
+        bool value = compare(leftSubexpr->as<LITERAL>().value(),
+                             rightSubexpr->as<LITERAL>().value());
+        result.push_back(BoolLiteral::Make(context, leftSubexpr->fOffset, value));
+    }
+
+    const Type& bvecType = context.fTypes.fBool->toCompound(context, type.columns(), /*rows=*/1);
+    return ConstructorCompound::Make(context, left.fOffset, bvecType, std::move(result));
+}
+
+template <typename FN>
+static std::unique_ptr<Expression> optimize_comparison(const Context& context,
+                                                       const ExpressionArray& arguments,
+                                                       const FN& compare) {
+    SkASSERT(arguments.size() == 2);
+    const Expression& left = *arguments[0];
+    const Expression& right = *arguments[1];
+
+    if (left.type().componentType().isFloat()) {
+        return optimize_comparison_of_type<FloatLiteral>(context, left, right, compare);
+    }
+    if (left.type().componentType().isInteger()) {
+        return optimize_comparison_of_type<IntLiteral>(context, left, right, compare);
+    }
+    SkDEBUGFAILF("unsupported type %s", left.type().description().c_str());
+    return nullptr;
+}
+
+static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
+                                                           IntrinsicKind intrinsic,
                                                            const ExpressionArray& arguments) {
     switch (intrinsic) {
         case k_all_IntrinsicKind:
@@ -74,6 +131,18 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(IntrinsicKind intrins
         case k_any_IntrinsicKind:
             return coalesce_bool_vector(arguments, /*startingState=*/false,
                                         [](bool a, bool b) { return a || b; });
+        case k_greaterThan_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a > b; });
+
+        case k_greaterThanEqual_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a >= b; });
+
+        case k_lessThan_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a < b; });
+
+        case k_lessThanEqual_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a <= b; });
+
         case kOther_IntrinsicKind:
             break;
     }
@@ -189,7 +258,8 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
         IntrinsicKind intrinsic = identify_intrinsic(function.name());
         if (intrinsic != kOther_IntrinsicKind && has_compile_time_constant_arguments(arguments)) {
             // The inputs are all compile-time constants and the function is known. Optimize it.
-            std::unique_ptr<Expression> expr = optimize_intrinsic_call(intrinsic, arguments);
+            std::unique_ptr<Expression> expr = optimize_intrinsic_call(context, intrinsic,
+                                                                       arguments);
             if (expr) {
                 return expr;
             }
