@@ -288,13 +288,9 @@ static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
 
 #ifndef SK_DISABLE_MASKFILTERED_MASK_CACHING
     // To prevent overloading the cache with entries during animations we limit the cache of masks
-    // to cases where the matrix preserves axis alignment. Additionally, caching blurred masks
-    // for non-nine-patchable blurred round rects can also quickly flood the cache.
-    bool useCache = !inverseFilled                       &&
-                    viewMatrix.preservesAxisAlignment()  &&
-                    shape.hasUnstyledKey()               &&
-                    as_MFB(maskFilter)->asABlur(nullptr) &&
-                    !shape.asRRect(nullptr, nullptr, nullptr, nullptr);
+    // to cases where the matrix preserves axis alignment.
+    bool useCache = !inverseFilled && viewMatrix.preservesAxisAlignment() &&
+                    shape.hasUnstyledKey() && as_MFB(maskFilter)->asABlur(nullptr);
 
     if (useCache) {
         SkIRect clippedMaskRect, unClippedMaskRect;
