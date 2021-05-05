@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e75a4a85_58856952",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-05T15:54:02Z",
+      "side": 1,
+      "message": "maybe try your normal-distance comparison instead of the angle test?",
+      "revId": "6aa6a972e25b896a5cdfcdec567313403990cf4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
