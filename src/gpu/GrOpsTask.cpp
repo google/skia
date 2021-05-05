@@ -727,6 +727,18 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         fClippedContentBounds.join(toMerge->fClippedContentBounds);
         fTotalBounds.join(toMerge->fTotalBounds);
         fRenderPassXferBarriers |= toMerge->fRenderPassXferBarriers;
+        if (fInitialStencilContent == StencilContent::kDontCare) {
+            // Propogate the first stencil content that isn't kDontCare.
+            //
+            // Once the stencil has any kind of initial content that isn't kDontCare, then the
+            // inital contents of subsequent opsTasks that get merged in don't matter.
+            //
+            // (This works because the opsTask all target the same render target and are in
+            // painter's order. kPreserved obviously happens automatically with a merge, and kClear
+            // is also automatic because the contract is for ops to leave the stencil buffer in a
+            // cleared state when finished.)
+            fInitialStencilContent = toMerge->fInitialStencilContent;
+        }
         fUsesMSAASurface |= toMerge->fUsesMSAASurface;
         SkDEBUGCODE(fNumClips += toMerge->fNumClips);
     }
