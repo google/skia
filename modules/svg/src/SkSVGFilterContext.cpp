@@ -78,17 +78,24 @@ std::tuple<sk_sp<SkImageFilter>, SkSVGColorspace> SkSVGFilterContext::getInput(
         case SkSVGFeInputType::Type::kSourceGraphic:
             // Do nothing.
             break;
-        case SkSVGFeInputType::Type::kFillPaint:
-            result = SkImageFilters::Paint(*ctx.fillPaint());
+        case SkSVGFeInputType::Type::kFillPaint: {
+            const auto& fillPaint = ctx.fillPaint();
+            if (fillPaint.isValid()) {
+                result = SkImageFilters::Paint(*fillPaint);
+            }
             break;
+        }
         case SkSVGFeInputType::Type::kStrokePaint: {
             // The paint filter doesn't handle stroke paints properly, so convert to fill for
             // simplicity.
             // TODO: Paint filter is deprecated, but the replacement (SkShaders::*())
             //       requires some extra work to handle all paint features (gradients, etc).
-            SkPaint p = *ctx.strokePaint();
-            p.setStyle(SkPaint::kFill_Style);
-            result = SkImageFilters::Paint(p);
+            const auto& strokePaint = ctx.strokePaint();
+            if (strokePaint.isValid()) {
+                SkPaint p = *strokePaint;
+                p.setStyle(SkPaint::kFill_Style);
+                result = SkImageFilters::Paint(p);
+            }
             break;
         }
         case SkSVGFeInputType::Type::kFilterPrimitiveReference: {
