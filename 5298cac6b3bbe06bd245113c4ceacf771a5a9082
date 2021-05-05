@@ -34,6 +34,24 @@
       "parentUuid": "a9e67f72_853637ff",
       "revId": "5298cac6b3bbe06bd245113c4ceacf771a5a9082",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "996db004_15cf32b3",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-05T13:28:20Z",
+      "side": 1,
+      "message": "Ah, I missed the builtin check below. Ack. Yeah, I\u0027m not sold on a dedicated IR node type, but agree that having the intrinsic pre-computed in the call node would be really nice (backends wouldn\u0027t each have a separate/dedicated map\u003c\u003e either -- right now we construct those things either each time the generator is made, or once and cache it - because it\u0027s so expensive). All that code can go away.",
+      "parentUuid": "d140ea84_925f7f51",
+      "revId": "5298cac6b3bbe06bd245113c4ceacf771a5a9082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
