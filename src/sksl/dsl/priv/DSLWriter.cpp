@@ -129,6 +129,13 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& fun
     return IRGenerator().call(/*offset=*/-1, function, std::move(arguments));
 }
 
+std::unique_ptr<SkSL::Expression> DSLWriter::Call(std::unique_ptr<SkSL::Expression> expr,
+                                                  ExpressionArray arguments) {
+    // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
+    // IRGenerator::call.
+    return IRGenerator().call(/*offset=*/-1, std::move(expr), std::move(arguments));
+}
+
 std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
     if (DSLWriter::Compiler().errorCount()) {
         DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());

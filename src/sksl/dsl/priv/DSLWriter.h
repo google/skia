@@ -155,6 +155,9 @@ public:
     static std::unique_ptr<SkSL::Expression> Call(const FunctionDeclaration& function,
                                                   ExpressionArray arguments);
 
+    static std::unique_ptr<SkSL::Expression> Call(std::unique_ptr<SkSL::Expression> expr,
+                                                  ExpressionArray arguments);
+
     /**
      * Reports an error if the argument is null. Returns its argument unmodified.
      */
