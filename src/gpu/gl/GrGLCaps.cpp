@@ -3546,7 +3546,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #endif
 
     // https://b.corp.google.com/issues/143074513
-    if (kAdreno615_GrGLRenderer == ctxInfo.renderer()) {
+    // https://skbug.com/11152
+    if (kAdreno615_GrGLRenderer == ctxInfo.renderer() ||
+        kAdreno620_GrGLRenderer == ctxInfo.renderer()) {
         fMSFBOType = kNone_MSFBOType;
         fMSAAResolvesAutomatically = false;
     }
