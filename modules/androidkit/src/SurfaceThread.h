@@ -4,12 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef AndroidKit_SurfaceThread_DEFINED
+#define AndroidKit_SurfaceThread_DEFINED
+
 #include <pthread.h>
 #include <unistd.h>
 #include <android/looper.h>
 #include <android/native_window.h>
 
 #include "include/core/SkPictureRecorder.h"
+
+class WindowSurface;
 
 enum MessageType {
     kUndefined,
@@ -21,7 +26,8 @@ enum MessageType {
 struct Message {
     MessageType fType = kUndefined;
     ANativeWindow* fNativeWindow = nullptr;
-    SkPicture* fPicture;
+    SkPicture* fPicture = nullptr;
+    WindowSurface* fWindowSurface = nullptr;
 
     Message() {}
     Message(MessageType t) : fType(t) {}
@@ -41,3 +47,5 @@ private:
     pthread_t fThread;
     int fPipe[2]; // acts as a Message queue, read from [0] write to [1]
 };
+
+#endif
