@@ -6,5 +6,5 @@ half2 compute_ba_0(const half2 rg)
 half4 main(float2 xy)
 {
 	const half g = 1.0;
-	return half4(half4(r_0, g, compute_ba_0(half2(r_0, g))));
+	return half4(half4(sqrt(r_0), 1.0, compute_ba_0(half2(0.0, sqrt(g)))));
 }
