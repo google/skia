@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc940e5f_64064f86",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e10f5d9_194c0903",
+      "range": {
+        "startLine": 908,
+        "startChar": 8,
+        "endLine": 908,
+        "endChar": 18
+      },
+      "revId": "f6b64a459f6b09ec3c90726683689e40ac75205a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a2c39f2b_bcded5ce",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-04T20:37:05Z",
       "side": 1,
       "message": "Is it less work in release to kind of reverse these and do:\nuint32_t levelCount \u003d d3dTex-\u003emipLevels();\nSkASSERT(levelCount \u003d\u003d (SkMipmap::ComputeLevelCount(...)+1));",
+      "range": {
+        "startLine": 918,
+        "startChar": 2,
+        "endLine": 919,
+        "endChar": 48
+      },
+      "revId": "f6b64a459f6b09ec3c90726683689e40ac75205a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "153d4ce6_ad8428b9",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 919,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2c39f2b_bcded5ce",
       "range": {
         "startLine": 918,
         "startChar": 2,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fe4fc36_29b66e86",
+        "filename": "src/gpu/d3d/GrD3DGpu.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "There may be but I can\u0027t think of a specific one right now, so changed.",
+      "parentUuid": "a4a627eb_0afe8dfd",
+      "range": {
+        "startLine": 284,
+        "startChar": 50,
+        "endLine": 284,
+        "endChar": 74
+      },
+      "revId": "f6b64a459f6b09ec3c90726683689e40ac75205a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7c16cf3_ea9aa6d4",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-05-04T20:37:05Z",
       "side": 1,
       "message": "I see why adding this here kind of matches what we do for general graphics shaders in that we put the strings together else where then pass them to function where we create the ID3D12PipelineState. However, since this is const and not changing does it make sense to move this into the MakeComputePipline call so that all the info for that special pipeline is all in one place?",
+      "range": {
+        "startLine": 204,
+        "startChar": 20,
+        "endLine": 204,
+        "endChar": 27
+      },
+      "revId": "f6b64a459f6b09ec3c90726683689e40ac75205a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1906d5d4_210493a1",
+        "filename": "src/gpu/d3d/GrD3DResourceProvider.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "I\u0027d like to keep it separate as I expect we\u0027ll want to make other compute pipelines.\n\nAlso, originally my plan was to have separate pipelines for sRGB as well as odd widths and heights. I\u0027m not sure if I\u0027ll still do that or will use uniforms to follow different paths in a single shader.",
+      "parentUuid": "f7c16cf3_ea9aa6d4",
       "range": {
         "startLine": 204,
         "startChar": 20,

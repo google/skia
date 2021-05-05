@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bf0b71d_f25d66ff",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "It could, but it\u0027s highly unlikely. Added an assert.",
+      "parentUuid": "20d8ad39_ff3982ef",
+      "range": {
+        "startLine": 926,
+        "startChar": 61,
+        "endLine": 926,
+        "endChar": 87
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17a1706b_cd58ea35",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-05-04T20:37:05Z",
       "side": 1,
       "message": "can this fail?",
+      "range": {
+        "startLine": 932,
+        "startChar": 36,
+        "endLine": 932,
+        "endChar": 65
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "434fbb10_0015d8a5",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "It could fail if we fail to allocate a new descriptor heap or I suppose if we had some memory limitation on descriptor heaps. But then it would crash before this and even if it didn\u0027t we don\u0027t have a good representation for an unallocated descriptor. That\u0027s feeling like a larger change outside of this. I added an assert for the heap allocation for now and will add a bug to be more rigorous on descriptor creation.",
+      "parentUuid": "17a1706b_cd58ea35",
       "range": {
         "startLine": 932,
         "startChar": 36,
@@ -89,6 +137,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "eb91c228_132064da",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "Same.",
+      "parentUuid": "07328b6a_1d3604b7",
+      "range": {
+        "startLine": 934,
+        "startChar": 65,
+        "endLine": 934,
+        "endChar": 89
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "11b658a6_d5e75e1b",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 29
@@ -100,6 +172,30 @@
       "writtenOn": "2021-05-04T20:37:05Z",
       "side": 1,
       "message": "I thought the uavTexture was the one we wrote to in the shader?",
+      "range": {
+        "startLine": 946,
+        "startChar": 30,
+        "endLine": 946,
+        "endChar": 40
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "118124b8_189594db",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T15:16:14Z",
+      "side": 1,
+      "message": "It\u0027s the one we both write to and read from. I\u0027m thinking of the name as meaning \"I can create a UAV for this.\" I fixed the code below -- I missed one rename apparently. I\u0027m surprised it works.",
+      "parentUuid": "11b658a6_d5e75e1b",
       "range": {
         "startLine": 946,
         "startChar": 30,
