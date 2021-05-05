@@ -61,7 +61,10 @@ static AngleType Dot2AngleType(SkScalar dot) {
 //  SkASSERT(SkScalarAbs(dot) <= SK_Scalar1 + SK_ScalarNearlyZero);
 
     if (dot >= 0) { // shallow or line
-        return SkScalarNearlyZero(SK_Scalar1 - dot) ? kNearlyLine_AngleType : kShallow_AngleType;
+        // Allow a bit more room than the default tolerance of 2^-12
+        constexpr SkScalar kLineTol = 1.f / (1 << 10);
+        return SkScalarNearlyZero(SK_Scalar1 - dot, kLineTol) ? kNearlyLine_AngleType
+                                                              : kShallow_AngleType;
     } else {           // sharp or 180
         return SkScalarNearlyZero(SK_Scalar1 + dot) ? kNearly180_AngleType : kSharp_AngleType;
     }
