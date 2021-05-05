@@ -9,5 +9,5 @@ half2 compute_ba(const half2 rg) {
 
 half4 main(float2 xy) {
     const half g = r + 1;
-    return half4(r, g, compute_ba(half2(r, g)));
+    return half4(sqrt(r), g, compute_ba(half2(r, sqrt(g))));
 }
