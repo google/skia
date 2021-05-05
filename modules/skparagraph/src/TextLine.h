@@ -86,6 +86,7 @@ public:
     void format(TextAlign align, SkScalar maxWidth);
     SkRect paint(SkCanvas* canvas, SkScalar x, SkScalar y);
     void visit(SkScalar x, SkScalar y);
+    void ensureTextBlobCachePopulated();
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
@@ -122,7 +123,7 @@ private:
     std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, const Run& run);
     void justify(SkScalar maxWidth);
 
-    void buildTextBlob(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context);
+    void buildTextBlob(TextRange textRange, const TextStyle& style, const ClipContext& context);
     void paintBackground(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     SkRect paintShadow(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintDecorations(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;

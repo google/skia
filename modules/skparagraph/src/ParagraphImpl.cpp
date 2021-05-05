@@ -1053,6 +1053,7 @@ void ParagraphImpl::ensureUTF16Mapping() {
 void ParagraphImpl::visit(const Visitor& visitor) {
     int lineNumber = 0;
     for (auto& line : fLines) {
+        line.ensureTextBlobCachePopulated();
         for (auto& rec : line.fTextBlobCache) {
             SkTextBlob::Iter iter(*rec.fBlob);
             SkTextBlob::Iter::ExperimentalRun run;
