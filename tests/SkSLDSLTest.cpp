@@ -110,15 +110,15 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
     REPORTER_ASSERT(r, !whitespace_insensitive_compare("a b c  d", "\n\n\nabc"));
 }
 
-static SkSL::String stringize(DSLStatement& stmt)          { return stmt.release()->description(); }
-static SkSL::String stringize(DSLPossibleStatement& stmt)  { return stmt.release()->description(); }
-static SkSL::String stringize(DSLExpression& expr)         { return expr.release()->description(); }
-static SkSL::String stringize(DSLPossibleExpression& expr) { return expr.release()->description(); }
-static SkSL::String stringize(SkSL::IRNode& node)  { return node.description(); }
+static SkSL::String stringize(DSLStatement stmt)          { return stmt.release()->description(); }
+static SkSL::String stringize(DSLPossibleStatement stmt)  { return stmt.release()->description(); }
+static SkSL::String stringize(DSLExpression expr)         { return expr.release()->description(); }
+static SkSL::String stringize(DSLPossibleExpression expr) { return expr.release()->description(); }
+static SkSL::String stringize(SkSL::IRNode&& node)        { return node.description(); }
 
 template <typename T>
 static void expect_equal(skiatest::Reporter* r, int lineNumber, T& input, const char* expected) {
-    SkSL::String actual = stringize(input);
+    SkSL::String actual = stringize(std::move(input));
     if (!whitespace_insensitive_compare(expected, actual.c_str())) {
         ERRORF(r, "(Failed on line %d)\nExpected: %s\n  Actual: %s\n",
                   lineNumber, expected, actual.c_str());
@@ -1178,16 +1178,38 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    {
+        DSLExpression sqrt = DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "sqrt");
+        SkTArray<DSLWrapper<DSLExpression>> args;
+        args.emplace_back(1);
+        EXPECT_EQUAL(sqrt(std::move(args)), "sqrt(1.0)");
+    }
+
+    {
+        DSLExpression pow = DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "pow");
+        DSLVar a(kFloat_Type, "a");
+        DSLVar b(kFloat_Type, "b");
+        SkTArray<DSLWrapper<DSLExpression>> args;
+        args.emplace_back(a);
+        args.emplace_back(b);
+        EXPECT_EQUAL(pow(std::move(args)), "pow(a, b)");
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
-    Statement x = Block();
-    EXPECT_EQUAL(x, "{ }");
+    EXPECT_EQUAL(Block(), "{ }");
     Var a(kInt_Type, "a", 1), b(kInt_Type, "b", 2);
-    Statement y = Block(Declare(a), Declare(b), a = b);
-    EXPECT_EQUAL(y, "{ int a = 1; int b = 2; (a = b); }");
+    EXPECT_EQUAL(Block(Declare(a), Declare(b), a = b), "{ int a = 1; int b = 2; (a = b); }");
 
-    Statement z = (If(a > 0, --a), ++b);
-    EXPECT_EQUAL(z, "if ((a > 0)) --a; ++b;");
+    EXPECT_EQUAL((If(a > 0, --a), ++b), "if ((a > 0)) --a; ++b;");
+
+    SkTArray<DSLStatement> statements;
+    statements.push_back(a = 0);
+    statements.push_back(++a);
+    EXPECT_EQUAL(Block(std::move(statements)), "{ (a = 0); ++a; }");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
@@ -1491,16 +1513,18 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     Var a(kFloat_Type, "a"), b(kInt_Type, "b");
 
+    SkTArray<DSLStatement> caseStatements;
+    caseStatements.push_back(Continue());
     Statement x = Switch(b,
         Case(0, a = 0, Break()),
-        Case(1, a = 1, Continue()),
+        Case(1, a = 1, std::move(caseStatements)),
         Case(2, a = 2  /*Fallthrough*/),
         Default(Discard())
     );
     EXPECT_EQUAL(x, R"(
         switch (b) {
             case 0: (a = 0.0); break;
-            case 1: (a = 1.0); continue;
+            case 1: (a = 1.0); { continue; }
             case 2: (a = 2.0);
             default: discard;
         }
