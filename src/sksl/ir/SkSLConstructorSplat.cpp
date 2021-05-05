@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 
 namespace SkSL {
@@ -19,6 +20,15 @@ std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
     // A "splat" to a scalar type is a no-op and can be eliminated.
     if (type.isScalar()) {
         return arg;
+    }
+
+    if (context.fConfig->fSettings.fOptimize) {
+        // Replace constant variables with their corresponding values, so `float3(five)` can
+        // compile down to `float3(5.0)` (the latter is a compile-time constant).
+        const Expression* value = ConstantFolder::GetConstantValueForVariable(*arg);
+        if (value != arg.get()) {
+            arg = value->clone();
+        }
     }
 
     SkASSERT(type.isVector());
