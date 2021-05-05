@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c7319c0_f98a3a19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-05T18:09:27Z",
+      "side": 1,
+      "message": "Requested by internal clients, and already supported in Bodymovin.\n\nThe upper bound makes sense, but the lower bound is somewhat ill defined: what if the text @minimum font size doesn\u0027t fit within the given box?  At the moment we don\u0027t draw in that case, as the constraints cannot be satisfied.",
+      "revId": "925c9fd9c0330edda6c1c63a6115f1178349d14a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
