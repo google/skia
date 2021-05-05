@@ -100,6 +100,8 @@ public:
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
         SkScalar                  fTextSize,
+                                  fMinTextSize,
+                                  fMaxTextSize,
                                   fLineHeight,
                                   fLineShift,
                                   fAscent;

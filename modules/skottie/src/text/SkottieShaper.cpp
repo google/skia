@@ -10,6 +10,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkTextBlob.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkTLazy.h"
@@ -395,9 +396,12 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 
     auto desc = orig_desc;
 
-    float in_scale = 0,                                 // maximum scale that fits inside
-         out_scale = std::numeric_limits<float>::max(), // minimum scale that doesn't fit
-         try_scale = 1;                                 // current probe
+    const auto min_scale = std::max(desc.fMinTextSize / desc.fTextSize, 0.0f),
+               max_scale = std::max(desc.fMaxTextSize / desc.fTextSize, min_scale);
+
+    float in_scale = min_scale,                          // maximum scale that fits inside
+         out_scale = max_scale,                          // minimum scale that doesn't fit
+         try_scale = SkTPin(1.0f, min_scale, max_scale); // current probe
 
     // Perform a binary search for the best vertical fit (SkShaper already handles
     // horizontal fitting), starting with the specified text size.
@@ -415,19 +419,29 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         SkSize res_size = {0, 0};
         auto res = ShapeImpl(txt, desc, box, fontmgr, &res_size);
 
+        const auto prev_scale = try_scale;
         if (res_size.width() > box.width() || res_size.height() > box.height()) {
             out_scale = try_scale;
-            try_scale = (in_scale == 0)
-                    ? try_scale * 0.5f // initial in_scale not found yet - search exponentially
-                    : (in_scale + out_scale) * 0.5f; // in_scale found - binary search
+            try_scale = (in_scale == min_scale)
+                    // initial in_scale not found yet - search exponentially
+                    ? std::max(min_scale, try_scale * 0.5f)
+                    // in_scale found - binary search
+                    : (in_scale + out_scale) * 0.5f;
         } else {
             // It fits - so it's a candidate.
             best_result = std::move(res);
 
             in_scale = try_scale;
-            try_scale = (out_scale == std::numeric_limits<float>::max())
-                    ? try_scale * 2 // initial out_scale not found yet - search exponentially
-                    : (in_scale + out_scale) * 0.5f; // out_scale found - binary search
+            try_scale = (out_scale == max_scale)
+                    // initial out_scale not found yet - search exponentially
+                    ? std::min(max_scale, try_scale * 2)
+                    // out_scale found - binary search
+                    : (in_scale + out_scale) * 0.5f;
+        }
+
+        if (try_scale == prev_scale) {
+            // no more progress
+            break;
         }
     }
 
