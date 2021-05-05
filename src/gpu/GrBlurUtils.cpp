@@ -296,6 +296,15 @@ static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
                     as_MFB(maskFilter)->asABlur(nullptr) &&
                     !shape.asRRect(nullptr, nullptr, nullptr, nullptr);
 
+    // First, blurred rects should never get here (due to the flexibility of the GrRectBlurEffect).
+    // Second, nine-patchable blurred round rects should never get here.
+    // Finally, caching blurred masks for non-nine-patchable round rects can quickly flood the
+    // cache. Even if we were to add canonicalization of 3-patchable blurred round rects we can
+    // still flood the cache
+    if (shape.asRRect(nullptr, nullptr, nullptr, nullptr)) {
+        useCache = false;
+    }
+
     if (useCache) {
         SkIRect clippedMaskRect, unClippedMaskRect;
         maskFilter->canFilterMaskGPU(shape, unclippedDevShapeBounds, devClipBounds,
