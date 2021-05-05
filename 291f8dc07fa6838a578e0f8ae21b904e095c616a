@@ -112,6 +112,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "de273433_695de321",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-05T18:33:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "434fbb10_0015d8a5",
+      "range": {
+        "startLine": 932,
+        "startChar": 36,
+        "endLine": 932,
+        "endChar": 65
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07328b6a_1d3604b7",
@@ -159,6 +183,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd9c3732_72851243",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-05T18:33:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "eb91c228_132064da",
+      "range": {
+        "startLine": 934,
+        "startChar": 65,
+        "endLine": 934,
+        "endChar": 89
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11b658a6_d5e75e1b",
@@ -196,6 +244,30 @@
       "side": 1,
       "message": "It\u0027s the one we both write to and read from. I\u0027m thinking of the name as meaning \"I can create a UAV for this.\" I fixed the code below -- I missed one rename apparently. I\u0027m surprised it works.",
       "parentUuid": "11b658a6_d5e75e1b",
+      "range": {
+        "startLine": 946,
+        "startChar": 30,
+        "endLine": 946,
+        "endChar": 40
+      },
+      "revId": "291f8dc07fa6838a578e0f8ae21b904e095c616a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f48a059_e5862806",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-05T18:33:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "118124b8_189594db",
       "range": {
         "startLine": 946,
         "startChar": 30,
