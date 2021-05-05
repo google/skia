@@ -16,39 +16,19 @@
 
 namespace SkSL {
 
-// If the function call is to an intrinsic that we can optimize, identify it.
-enum IntrinsicKind {
-    k_all_IntrinsicKind,
-    k_any_IntrinsicKind,
-    k_equal_IntrinsicKind,
-    k_greaterThan_IntrinsicKind,
-    k_greaterThanEqual_IntrinsicKind,
-    k_lessThan_IntrinsicKind,
-    k_lessThanEqual_IntrinsicKind,
-    k_notEqual_IntrinsicKind,
-    kOther_IntrinsicKind,
-};
-
 static IntrinsicKind identify_intrinsic(const String& functionName) {
-    static const auto* kSupportedIntrinsics = new std::unordered_map<String, IntrinsicKind>{
-    #define INTRINSIC(name) {#name, k_##name##_IntrinsicKind},
-        INTRINSIC(all)
-        INTRINSIC(any)
-        INTRINSIC(equal)
-        INTRINSIC(greaterThan)
-        INTRINSIC(greaterThanEqual)
-        INTRINSIC(lessThan)
-        INTRINSIC(lessThanEqual)
-        INTRINSIC(notEqual)
-    #undef INTRINSIC
+    #define SKSL_INTRINSIC(name) {#name, k_##name##_IntrinsicKind},
+    static const auto* kAllIntrinsics = new std::unordered_map<String, IntrinsicKind>{
+        SKSL_INTRINSIC_LIST
     };
+    #undef SKSL_INTRINSIC
 
-    auto iter = kSupportedIntrinsics->find(functionName);
-    if (iter != kSupportedIntrinsics->end()) {
+    auto iter = kAllIntrinsics->find(functionName);
+    if (iter != kAllIntrinsics->end()) {
         return iter->second;
     }
 
-    return kOther_IntrinsicKind;
+    return kNotIntrinsic;
 }
 
 static bool has_compile_time_constant_arguments(const ExpressionArray& arguments) {
@@ -153,10 +133,9 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_notEqual_IntrinsicKind:
             return optimize_comparison(context, arguments, [](auto a, auto b) { return a != b; });
 
-        case kOther_IntrinsicKind:
-            break;
+        default:
+            return nullptr;
     }
-    SkUNREACHABLE;
 }
 
 bool FunctionCall::hasProperty(Property property) const {
@@ -178,8 +157,8 @@ std::unique_ptr<Expression> FunctionCall::clone() const {
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
         cloned.push_back(arg->clone());
     }
-    return std::make_unique<FunctionCall>(
-            fOffset, &this->type(), &this->function(), std::move(cloned));
+    return std::make_unique<FunctionCall>(fOffset, &this->type(), &this->function(),
+                                          std::move(cloned), fIntrinsicKind);
 }
 
 String FunctionCall::description() const {
@@ -263,12 +242,13 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
     SkASSERT(function.parameters().size() == arguments.size());
     SkASSERT(function.definition() || function.isBuiltin() || !context.fConfig->strictES2Mode());
 
+    IntrinsicKind intrinsicKind = kNotIntrinsic;
     if (function.isBuiltin() && context.fConfig->fSettings.fOptimize) {
         // We might be able to optimize built-in intrinsics.
-        IntrinsicKind intrinsic = identify_intrinsic(function.name());
-        if (intrinsic != kOther_IntrinsicKind && has_compile_time_constant_arguments(arguments)) {
+        intrinsicKind = identify_intrinsic(function.name());
+        if (intrinsicKind != kNotIntrinsic && has_compile_time_constant_arguments(arguments)) {
             // The inputs are all compile-time constants and the function is known. Optimize it.
-            std::unique_ptr<Expression> expr = optimize_intrinsic_call(context, intrinsic,
+            std::unique_ptr<Expression> expr = optimize_intrinsic_call(context, intrinsicKind,
                                                                        arguments);
             if (expr) {
                 return expr;
@@ -276,7 +256,8 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
         }
     }
 
-    return std::make_unique<FunctionCall>(offset, returnType, &function, std::move(arguments));
+    return std::make_unique<FunctionCall>(offset, returnType, &function, std::move(arguments),
+                                          intrinsicKind);
 }
 
 }  // namespace SkSL
