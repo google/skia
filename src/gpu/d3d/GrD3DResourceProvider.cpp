@@ -199,6 +199,35 @@ GrD3DPipelineState* GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
     return fPipelineStateCache->refPipelineState(rt, info);
 }
 
+sk_sp<GrD3DPipeline> GrD3DResourceProvider::findOrCreateMipmapPipeline() {
+    if (!fMipmapPipeline) {
+        const char* shader =
+            "SamplerState textureSampler : register(s0, space1);\n"
+            "Texture2D<float4> inputTexture : register(t1, space1);\n"
+            "RWTexture2D<float4> outUAV : register(u2, space1);\n"
+            "\n"
+            "cbuffer UniformBuffer : register(b0, space0) {\n"
+            "    uint mipLevel;\n"
+            "    float2 inverseDims;\n"
+            "}\n"
+            "\n"
+            "[numthreads(8, 8, 1)]\n"
+            "void main(uint groupIndex : SV_GroupIndex, uint3 threadID : SV_DispatchThreadID) {\n"
+            "    float2 uv = inverseDims * (threadID.xy + 0.5);\n"
+            "    float4 mipVal = inputTexture.SampleLevel(textureSampler, uv, mipLevel);\n"
+            "\n"
+            "    outUAV[threadID.xy] = mipVal;\n"
+            "}\n";
+
+        sk_sp<GrD3DRootSignature> rootSig = this->findOrCreateRootSignature(1, 1);
+
+        fMipmapPipeline =
+                GrD3DPipelineStateBuilder::MakeComputePipeline(fGpu, rootSig.get(), shader);
+    }
+
+    return fMipmapPipeline;
+}
+
 D3D12_GPU_VIRTUAL_ADDRESS GrD3DResourceProvider::uploadConstantData(void* data, size_t size) {
     // constant size has to be aligned to 256
     constexpr int kConstantAlignment = 256;
