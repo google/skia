@@ -16,6 +16,23 @@
       "message": "Patchset 21 did it!\n\nThis is an entirely different CL now so can I get another +1 from someone?",
       "revId": "9909e759eb07f13af2136ce9e9587971f50f014c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4087ed9d_56170c1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-05T20:02:20Z",
+      "side": 1,
+      "message": "lgtm\n",
+      "revId": "9909e759eb07f13af2136ce9e9587971f50f014c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
