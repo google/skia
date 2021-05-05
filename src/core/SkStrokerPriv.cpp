@@ -61,7 +61,10 @@ static AngleType Dot2AngleType(SkScalar dot) {
 //  SkASSERT(SkScalarAbs(dot) <= SK_Scalar1 + SK_ScalarNearlyZero);
 
     if (dot >= 0) { // shallow or line
-        return SkScalarNearlyZero(SK_Scalar1 - dot) ? kNearlyLine_AngleType : kShallow_AngleType;
+        // Allow a bit more room than the default tolerance of 2^-12
+        constexpr SkScalar kLineTol = 1.f / (1 << 12);
+        return SkScalarNearlyZero(SK_Scalar1 - dot, kLineTol) ? kNearlyLine_AngleType
+                                                              : kShallow_AngleType;
     } else {           // sharp or 180
         return SkScalarNearlyZero(SK_Scalar1 + dot) ? kNearly180_AngleType : kSharp_AngleType;
     }
@@ -211,7 +214,27 @@ DO_BLUNT:
     if (!currIsLine) {
         outer->lineTo(pivot.fX + after.fX, pivot.fY + after.fY);
     }
-    HandleInnerJoin(inner, pivot, after);
+
+    // Check for the case of two line segs where we can omit some of the inner
+    // join geometry.
+    if (prevIsLine && currIsLine) {
+        int npts = inner->countPoints();
+        SkASSERT(npts >= 2);
+        const SkPoint q = inner->getPoint(npts - 2);
+
+        // Compute d: distance from q to current line segment geometry (p1 -> p2)
+        const SkPoint n = afterUnitNormal * -1;
+        const float d = n.dot(q - pivot);
+        if (d >= radius) {
+            // Can skip it. Move last inner pt to mirrored miter point.
+            inner->setLastPt(pivot - mid);
+        } else {
+            // Need the extra inner join geometry.
+            HandleInnerJoin(inner, pivot, after);
+        }
+    } else {
+        HandleInnerJoin(inner, pivot, after);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
