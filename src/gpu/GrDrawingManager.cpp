@@ -139,15 +139,6 @@ bool GrDrawingManager::flush(
 
     this->sortTasks();
 
-    bool usingReorderedDAG = false;
-    GrResourceAllocator resourceAllocator(dContext);
-    if (fReduceOpsTaskSplitting) {
-        usingReorderedDAG = this->reorderTasks(&resourceAllocator);
-        if (!usingReorderedDAG) {
-            resourceAllocator.reset();
-        }
-    }
-
     if (!fCpuBufferCache) {
         // We cache more buffers when the backend is using client side arrays. Otherwise, we
         // expect each pool will use a CPU buffer as a staging buffer before uploading to a GPU
@@ -192,6 +183,15 @@ bool GrDrawingManager::flush(
             });
 #endif
             onFlushRenderTask->prepare(&flushState);
+        }
+    }
+
+    bool usingReorderedDAG = false;
+    GrResourceAllocator resourceAllocator(dContext);
+    if (fReduceOpsTaskSplitting) {
+        usingReorderedDAG = this->reorderTasks(&resourceAllocator);
+        if (!usingReorderedDAG) {
+            resourceAllocator.reset();
         }
     }
 
