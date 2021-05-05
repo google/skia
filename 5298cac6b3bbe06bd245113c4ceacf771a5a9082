@@ -16,6 +16,24 @@
       "message": "Thoughts...\n\nMy first reaction is that this adds another enum of intrinsics (we also have one in each backend, with varying levels of completeness). Maybe it\u0027s time to coalesce those down to a single shared enum. At that point, it *might* be nice to use a custom node for intrinsic calls? Not totally sold on that, but once way or another, we should centralize the logic for mapping a FunctionCall to an actual intrinsic invocation -- this (new) code again has the same bug we\u0027ve fixed before, where user defined functions with the same name as an intrinsic can cause us confusion or incorrect results. (I think the backends do an isBuiltin check on the FunctionCall\u0027s function?).\n\nA single function that maps FunctionCall to Intrinsic enum (covering the union of all the Metal/SPIRV/GLSL/VM intrinsic enums that we track today) would be worthwhile.",
       "revId": "5298cac6b3bbe06bd245113c4ceacf771a5a9082",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d140ea84_925f7f51",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-05T12:55:02Z",
+      "side": 1,
+      "message": "(L187 does the `function.isBuiltin()` check, so I don\u0027t think there is a bug.)\n\nI think this is really good idea. As a starting point that minimizes the ripple effect, maybe every FunctionCall could just have a `fIntrinsicType` enum in it and function calls which aren\u0027t intrinsics can set it to kNotAnIntrinsic or whatever. I can look at that in a followup CL for sure. It will almost certainly be a net savings of LOC :) Adding a whole IRNode type would probably be a lot bigger change but we could look at that next if it seems like it\u0027ll make things cleaner.",
+      "parentUuid": "a9e67f72_853637ff",
+      "revId": "5298cac6b3bbe06bd245113c4ceacf771a5a9082",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
