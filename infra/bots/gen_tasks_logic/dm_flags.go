@@ -220,8 +220,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if b.model("Pixel3a") {
 				sampleCount = 0
 			}
-		} else if b.matchGpu("Intel") {
+		} else if (b.matchGpu("Intel") || b.model("Pixel5")) {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
+			// MSAA crashes randomly on Pixel5 skia:11152
 			sampleCount = 0
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"

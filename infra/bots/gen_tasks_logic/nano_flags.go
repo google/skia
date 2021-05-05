@@ -60,8 +60,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			if b.os("iOS") || b.model("Nexus7", "Pixel3a") {
 				sampleCount = 0
 			}
-		} else if b.matchGpu("Intel") {
+		} else if (b.matchGpu("Intel") || b.model("Pixel5")) {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
+			// MSAA crashes randomly on Pixel5 skia:11152
 			sampleCount = 0
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
@@ -240,10 +241,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	if b.model("Pixel3") && b.extraConfig("Vulkan") {
 		// skia:9972
 		match = append(match, "~^path_text_clipped_uncached$")
-	}
-	if (b.model("Pixel5")) {
-		// skia:11152
-		match = append(match, "~path")
 	}
 
 	if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
