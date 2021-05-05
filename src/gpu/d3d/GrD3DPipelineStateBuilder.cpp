@@ -709,6 +709,7 @@ sk_sp<GrD3DPipeline> GrD3DPipelineStateBuilder::MakeComputePipeline(GrD3DGpu* gp
         HRESULT hr = D3DCompile(shader, strlen(shader), nullptr, nullptr, nullptr, "main",
                                 "cs_5_1", compileFlags, 0, &shaderBlob, &errors);
         if (!SUCCEEDED(hr)) {
+            SkDebugf("%s\n", reinterpret_cast<char*>(errors->GetBufferPointer()));
             gpu->getContext()->priv().getShaderErrorHandler()->compileError(
                 shader, reinterpret_cast<char*>(errors->GetBufferPointer()));
             return nullptr;
