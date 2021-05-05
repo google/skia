@@ -699,9 +699,11 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     bool isHairline = IsStrokeHairlineOrEquivalent(
             args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
-    if (!(single_pass_shape(*args.fShape) || isHairline) &&
-        !args.fProxy->canUseStencil(*args.fCaps)) {
-        return CanDrawPath::kNo;
+    if (!(single_pass_shape(*args.fShape) || isHairline)) {
+        if (!args.fProxy->canUseStencil(*args.fCaps) ||
+            args.fCaps->avoidDefaultPathRendererWithStencil() /*skbug.com/11152*/) {
+            return CanDrawPath::kNo;
+        }
     }
     // If antialiasing is required, we only support MSAA.
     if (GrAAType::kNone != args.fAAType && GrAAType::kMSAA != args.fAAType) {
