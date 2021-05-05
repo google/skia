@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b05e3e8c_df889163",
+        "filename": "resources/sksl/intrinsics/GreaterThan.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-05T20:50:41Z",
+      "side": 1,
+      "message": "It\u0027s probably worth testing fractional values here (and in similar tests).\n\nAs it is, this test would pass even if the values were being inadvertently truncated to integers somewhere along the pipeline. Changing this to e.g. greaterThan(half4(1, 2, 2.1, 4), half4(2)) would catch that case.",
+      "range": {
+        "startLine": 5,
+        "startChar": 23,
+        "endLine": 5,
+        "endChar": 64
+      },
+      "revId": "67f0db84ea1a11716bc06f7449fbdbdea52ba650",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
