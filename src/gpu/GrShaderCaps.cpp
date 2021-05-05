@@ -62,6 +62,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fCanUseDoLoops = true;
     fCanUseFastMath = false;
     fUseNodePools = true;
+    fAvoidDfDxForGradientsWhenPossible = false;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;

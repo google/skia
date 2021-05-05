@@ -100,14 +100,13 @@ public:
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-#ifdef SK_VULKAN
-            fragBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor
-                                    "*half(dFdx(%s.x)));", st.fsIn());
-#else
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor
-                                     "*half(dFdy(%s.y)));", st.fsIn());
-#endif
+            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+                fragBuilder->codeAppendf(
+                        "afwidth = abs(" SK_DistanceFieldAAFactor "*half(dFdy(%s.y)));", st.fsIn());
+            } else {
+                fragBuilder->codeAppendf(
+                        "afwidth = abs(" SK_DistanceFieldAAFactor "*half(dFdx(%s.x)));", st.fsIn());
+            }
         } else if (isSimilarity) {
             // For similarity transform, we adjust the effect of the transformation on the distance
             // by using the length of the gradient of the texture coordinates. We use st coordinates
@@ -115,12 +114,11 @@ public:
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
 
             // this gives us a smooth step across approximately one fragment
-#ifdef SK_VULKAN
-            fragBuilder->codeAppendf("half st_grad_len = length(half2(dFdx(%s)));", st.fsIn());
-#else
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("half st_grad_len = length(half2(dFdy(%s)));", st.fsIn());
-#endif
+            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+                fragBuilder->codeAppendf("half st_grad_len = length(half2(dFdy(%s)));", st.fsIn());
+            } else {
+                fragBuilder->codeAppendf("half st_grad_len = length(half2(dFdx(%s)));", st.fsIn());
+            }
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
@@ -396,26 +394,24 @@ public:
             // We use st coordinates to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-#ifdef SK_VULKAN
-            fragBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor
-                                     "*half(dFdx(%s.x)));", st.fsIn());
-#else
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("afwidth = abs(" SK_DistanceFieldAAFactor
-                                     "*half(dFdy(%s.y)));", st.fsIn());
-#endif
+            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+                fragBuilder->codeAppendf(
+                        "afwidth = abs(" SK_DistanceFieldAAFactor "*half(dFdy(%s.y)));", st.fsIn());
+            } else {
+                fragBuilder->codeAppendf(
+                        "afwidth = abs(" SK_DistanceFieldAAFactor "*half(dFdx(%s.x)));", st.fsIn());
+            }
         } else if (isSimilarity) {
             // For similarity transform, we adjust the effect of the transformation on the distance
             // by using the length of the gradient of the texture coordinates. We use st coordinates
             // to ensure we're mapping 1:1 from texel space to pixel space.
 
             // this gives us a smooth step across approximately one fragment
-#ifdef SK_VULKAN
-            fragBuilder->codeAppendf("half st_grad_len = half(length(dFdx(%s)));", st.fsIn());
-#else
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("half st_grad_len = half(length(dFdy(%s)));", st.fsIn());
-#endif
+            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+                fragBuilder->codeAppendf("half st_grad_len = half(length(dFdy(%s)));", st.fsIn());
+            } else {
+                fragBuilder->codeAppendf("half st_grad_len = half(length(dFdx(%s)));", st.fsIn());
+            }
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
@@ -660,27 +656,26 @@ public:
         fragBuilder->codeAppendf("float2 uv = %s;\n", uv.fsIn());
 
         if (isUniformScale) {
-#ifdef SK_VULKAN
-            fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdx(%s.x)));", st.fsIn());
-#else
-            // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdy(%s.y)));", st.fsIn());
-#endif
+            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+                fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdy(%s.y)));", st.fsIn());
+            } else {
+                fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdx(%s.x)));", st.fsIn());
+            }
             fragBuilder->codeAppendf("half2 offset = half2(half(st_grad_len*%s), 0.0);",
                                      delta.fsIn());
         } else if (isSimilarity) {
             // For a similarity matrix with rotation, the gradient will not be aligned
             // with the texel coordinate axes, so we need to calculate it.
-#ifdef SK_VULKAN
-            fragBuilder->codeAppendf("half2 st_grad = half2(dFdx(%s));", st.fsIn());
-            fragBuilder->codeAppendf("half2 offset = half(%s)*st_grad;", delta.fsIn());
-#else
-            // We use dFdy because of a Mali 400 bug, and rotate -90 degrees to
-            // get the gradient in the x direction.
-            fragBuilder->codeAppendf("half2 st_grad = half2(dFdy(%s));", st.fsIn());
-            fragBuilder->codeAppendf("half2 offset = half2(%s*float2(st_grad.y, -st_grad.x));",
-                                     delta.fsIn());
-#endif
+            if (args.fShaderCaps->avoidDfDxForGradientsWhenPossible()) {
+                // We use dFdy instead and rotate -90 degrees to get the gradient in the x
+                // direction.
+                fragBuilder->codeAppendf("half2 st_grad = half2(dFdy(%s));", st.fsIn());
+                fragBuilder->codeAppendf("half2 offset = half2(%s*float2(st_grad.y, -st_grad.x));",
+                                         delta.fsIn());
+            } else {
+                fragBuilder->codeAppendf("half2 st_grad = half2(dFdx(%s));", st.fsIn());
+                fragBuilder->codeAppendf("half2 offset = half(%s)*st_grad;", delta.fsIn());
+            }
             fragBuilder->codeAppend("half st_grad_len = length(st_grad);");
         } else {
             fragBuilder->codeAppendf("half2 st = half2(%s);\n", st.fsIn());
