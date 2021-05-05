@@ -37,7 +37,9 @@ public:
     , fParameters(std::move(parameters))
     , fReturnType(returnType)
     , fBuiltin(builtin)
-    , fIsMain(name == "main") {}
+    , fIsMain(name == "main") {
+        SkASSERT(fReturnType);
+    }
 
     static const FunctionDeclaration* Convert(const Context& context,
                                               SymbolTable& symbols,
