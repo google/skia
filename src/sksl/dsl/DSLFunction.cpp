@@ -19,7 +19,7 @@ namespace SkSL {
 namespace dsl {
 
 void DSLFunction::init(const DSLType& returnType, const char* name,
-                       std::vector<DSLVar*> params) {
+                       SkTArray<DSLVar*> params) {
     std::vector<std::unique_ptr<Variable>> paramVars;
     paramVars.reserve(params.size());
     bool isMain = !strcmp(name, "main");
@@ -69,7 +69,7 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
                                                *DSLWriter::Context().fModifiersPool, /*offset=*/-1,
                                                DSLWriter::Modifiers(SkSL::Modifiers()),
                                                isMain ? name : DSLWriter::Name(name),
-                                               std::move(paramVars), fReturnType,
+                                               std::move(paramVars), &returnType.skslType(),
                                                /*isBuiltin=*/false);
 }
 
@@ -91,11 +91,11 @@ void DSLFunction::define(DSLBlock block) {
     DSLWriter::ProgramElements().push_back(std::move(function));
 }
 
-DSLExpression DSLFunction::call(SkTArray<DSLExpression> args) {
+DSLExpression DSLFunction::call(SkTArray<DSLWrapper<DSLExpression>> args) {
     ExpressionArray released;
     released.reserve_back(args.size());
-    for (DSLExpression& arg : args) {
-        released.push_back(arg.release());
+    for (DSLWrapper<DSLExpression>& arg : args) {
+        released.push_back(arg->release());
     }
     return DSLWriter::Call(*fDecl, std::move(released));
 }
