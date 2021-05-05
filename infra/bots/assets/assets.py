@@ -10,7 +10,7 @@
 
 
 import argparse
-import asset_utils
+from . import asset_utils
 import os
 import shutil
 import subprocess
