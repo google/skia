@@ -16,6 +16,23 @@
       "message": "Here is an experiment where we only use 16 values of grey in the Atlas.",
       "revId": "e08df95583eca136e0c2d4ec844ae2f26f545a03",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "834f2b4e_8e7531bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-05T00:05:56Z",
+      "side": 1,
+      "message": "Super interesting results! These images look great!\n\nUnfortunately, I just realized that with MSAA 4 we only get 5 values of gray (including white and black). MSAA 4 means a pixel can have either 0 (white), 1, 2, 3, or 4 (black) shades of coverage. Can we try again with 5 values? On lower DPI we also get MSAA 8, which means 9 shades...",
+      "revId": "e08df95583eca136e0c2d4ec844ae2f26f545a03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
