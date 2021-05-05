@@ -16,6 +16,24 @@
       "message": "PTAL, I would appreciate your advice on how I\u0027m sampling things here.",
       "revId": "982e6e81e9fe8f8771f183bb91c1686790d25417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9c9ae29_5b625c16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-05T22:19:50Z",
+      "side": 1,
+      "message": "I haven\u0027t thought through the math completely, but my observations:\n\n1) The CPU backend uses this triangle-filter approach, so it\u0027s probably the best thing to do for now....\n2) ... but I think the triangle filtering of odd sizes is a bad approach, in general. Regardless, if/when we fix it (box filter with a shifting phase), we\u0027ll have to do it everywhere.\n\n3) As for this implementation - if bilerp is always enabled, I think you\u0027re going to get odd results? The center tap won\u0027t land exactly on a pixel center, right? (Actually, none of them will, if the UVs are offset by a texel from there?). I think you either need nearest sampling, or to snap to texel centers? (Could use load intrinsics, rather than sampling, but given that you want to rely on bilerp for the even axes, it\u0027s probably easier to just nudge the uvs?)",
+      "parentUuid": "553ff614_0edc94db",
+      "revId": "982e6e81e9fe8f8771f183bb91c1686790d25417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
