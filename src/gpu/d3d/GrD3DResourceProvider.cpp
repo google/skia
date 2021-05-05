@@ -201,20 +201,61 @@ GrD3DPipelineState* GrD3DResourceProvider::findOrCreateCompatiblePipelineState(
 
 sk_sp<GrD3DPipeline> GrD3DResourceProvider::findOrCreateMipmapPipeline() {
     if (!fMipmapPipeline) {
+        // Note: filtering for non-even widths and heights uses a sample kernel.
+        // E.g. for both non-even width and height the kernel is
+        // | 1  2  1 |
+        // | 2  4  2 |
+        // | 1  2  1 |
+        // For non-even width the kernel is
+        // | 1  2  1 |
+        // Non-even width is similar but rotated 90 degrees.
+        //
+        // When filtering we reconstruct the function using bilerp, then sample from that.
         const char* shader =
             "SamplerState textureSampler : register(s0, space1);\n"
             "Texture2D<float4> inputTexture : register(t1, space1);\n"
             "RWTexture2D<float4> outUAV : register(u2, space1);\n"
             "\n"
             "cbuffer UniformBuffer : register(b0, space0) {\n"
-            "    uint mipLevel;\n"
             "    float2 inverseDims;\n"
+            "    uint mipLevel;\n"
+            "    uint sampleMode;\n"
             "}\n"
             "\n"
             "[numthreads(8, 8, 1)]\n"
             "void main(uint groupIndex : SV_GroupIndex, uint3 threadID : SV_DispatchThreadID) {\n"
             "    float2 uv = inverseDims * (threadID.xy + 0.5);\n"
             "    float4 mipVal = inputTexture.SampleLevel(textureSampler, uv, mipLevel);\n"
+            "    if (sampleMode == 1) {\n"
+            "        mipVal *= 4;\n"
+            "        float2 uvdiff = inverseDims * 0.25;\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv-uvdiff, mipLevel);\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv+uvdiff, mipLevel);\n"
+            "        mipVal += 2*inputTexture.SampleLevel(textureSampler, uv+float2(uvdiff.x, 0),\n"
+            "                                             mipLevel);\n"
+            "        mipVal += 2*inputTexture.SampleLevel(textureSampler, uv+float2(0, uvdiff.y),\n"
+            "                                             mipLevel);\n"
+            "        uvdiff.y = -uvdiff.y;\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv-uvdiff, mipLevel);\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv+uvdiff, mipLevel);\n"
+            "        mipVal += 2*inputTexture.SampleLevel(textureSampler, uv-float2(uvdiff.x, 0),\n"
+            "                                             mipLevel);\n"
+            "        mipVal += 2*inputTexture.SampleLevel(textureSampler, uv+float2(0, uvdiff.y),\n"
+            "                                             mipLevel);\n"
+            "        mipVal *= 0.0625;\n"
+            "    } else if (sampleMode == 2) {\n"
+            "        mipVal *= 2;\n"
+            "        float2 uvdiff = float2(inverseDims.x * 0.25, 0);\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv-uvdiff, mipLevel);\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv+uvdiff, mipLevel);\n"
+            "        mipVal *= 0.25;\n"
+            "    } else if (sampleMode == 3) {\n"
+            "        mipVal *= 2;\n"
+            "        float2 uvdiff = float2(0, inverseDims.y * 0.25);\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv-uvdiff, mipLevel);\n"
+            "        mipVal += inputTexture.SampleLevel(textureSampler, uv+uvdiff, mipLevel);\n"
+            "        mipVal *= 0.25;\n"
+            "    }\n"
             "\n"
             "    outUAV[threadID.xy] = mipVal;\n"
             "}\n";
