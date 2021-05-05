@@ -733,9 +733,11 @@ bool ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
     const int devRight = SkScalarCeilToInt(std::max<SkScalar>(devRadiiUR.fX, devRadiiLR.fX));
     const int devBot   = SkScalarCeilToInt(std::max<SkScalar>(devRadiiLL.fY, devRadiiLR.fY));
 
-    // This is a conservative check for nine-patchability
-    if (devOrig.fLeft + devLeft + devBlurRadius >= devOrig.fRight  - devRight - devBlurRadius ||
-        devOrig.fTop  + devTop  + devBlurRadius >= devOrig.fBottom - devBot   - devBlurRadius) {
+    // This is a conservative check for patchability
+    bool xPatchable = devOrig.fLeft + devLeft + devBlurRadius < devOrig.fRight  - devRight - devBlurRadius;
+    bool yPatchable = devOrig.fTop  + devTop  + devBlurRadius < devOrig.fBottom - devBot   - devBlurRadius;
+
+    if (!xPatchable && !yPatchable) {
         return false;
     }
 
@@ -749,8 +751,10 @@ bool ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
     const SkScalar srcRight = std::max<SkScalar>(srcRadiiUR.fX, srcRadiiLR.fX);
     const SkScalar srcBot   = std::max<SkScalar>(srcRadiiLL.fY, srcRadiiLR.fY);
 
-    int newRRWidth = 2*devBlurRadius + devLeft + devRight + 1;
-    int newRRHeight = 2*devBlurRadius + devTop + devBot + 1;
+    int newRRWidth = xPatchable ? 2*devBlurRadius + devLeft + devRight + 1
+                                : 1;
+    int newRRHeight = yPatchable ? 2*devBlurRadius + devTop + devBot + 1
+                                 : 1;
     widthHeight->fWidth = newRRWidth + 2 * devBlurRadius;
     widthHeight->fHeight = newRRHeight + 2 * devBlurRadius;
 
