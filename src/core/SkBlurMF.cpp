@@ -676,18 +676,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
     if (!this->ignoreXform()) {
         SkRect srcProxyRect = srcRRect.rect();
         srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
-
-        SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, 4, 6, 0);
-        srcProxyRect.toQuad(builder.positions());
-
-        static const uint16_t fullIndices[6] = { 0, 1, 2, 0, 2, 3 };
-        memcpy(builder.indices(), fullIndices, sizeof(fullIndices));
-        sk_sp<SkVertices> vertices = builder.detach();
-
         paint.setCoverageFragmentProcessor(std::move(fp));
-        SkSimpleMatrixProvider matrixProvider(viewMatrix);
-        surfaceDrawContext->drawVertices(clip, std::move(paint), matrixProvider,
-                                         std::move(vertices));
+        surfaceDrawContext->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
     } else {
         SkMatrix inverse;
         if (!viewMatrix.invert(&inverse)) {
