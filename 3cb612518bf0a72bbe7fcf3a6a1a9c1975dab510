@@ -87,6 +87,30 @@
       },
       "revId": "3cb612518bf0a72bbe7fcf3a6a1a9c1975dab510",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7e56625_9e778331",
+        "filename": "include/core/SkM44.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-05T13:08:20Z",
+      "side": 1,
+      "message": "I\u0027ve reconsidered my position and removed the two IsoScale factories. RectToRect is the most widely used, and used externally. 1 use case in skottie for IsoScale should just have skottie define that behavior when it\u0027s updated to use SkM44.",
+      "parentUuid": "9b949d4b_96ecf972",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 238,
+        "endChar": 32
+      },
+      "revId": "3cb612518bf0a72bbe7fcf3a6a1a9c1975dab510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
