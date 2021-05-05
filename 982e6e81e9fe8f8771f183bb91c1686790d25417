@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "553ff614_0edc94db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-05T21:30:58Z",
+      "side": 1,
+      "message": "PTAL, I would appreciate your advice on how I\u0027m sampling things here.",
+      "revId": "982e6e81e9fe8f8771f183bb91c1686790d25417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
