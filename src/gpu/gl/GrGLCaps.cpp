@@ -3796,6 +3796,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fShaderCaps->fColorSpaceMathNeedsFloat = true;
     }
 
+    // On Mali 400 there is a bug using dFd* in the x direction. So we avoid using it when possible.
+    if (ctxInfo.renderer() == kMali4xx_GrGLRenderer) {
+        fShaderCaps->fAvoidDfDxForGradientsWhenPossible = true;
+    }
+
 #ifdef SK_BUILD_FOR_WIN
     // Check for ANGLE on Windows, so we can workaround a bug in D3D itself (anglebug.com/2098).
     //
