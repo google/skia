@@ -47,7 +47,10 @@ if (skia_enable_svg) {
       testonly = true
 
       configs = [ "../..:skia_private" ]
-      sources = [ "tests/Text.cpp" ]
+      sources = [
+        "tests/Filters.cpp",
+        "tests/Text.cpp",
+      ]
 
       deps = [
         ":svg",
