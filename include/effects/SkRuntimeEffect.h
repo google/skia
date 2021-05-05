@@ -8,6 +8,7 @@
 #ifndef SkRuntimeEffect_DEFINED
 #define SkRuntimeEffect_DEFINED
 
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
@@ -20,9 +21,7 @@
 
 class GrFragmentProcessor;
 class GrRecordingContext;
-class SkColorFilter;
 class SkImage;
-class SkShader;
 
 namespace SkSL {
 class FunctionDefinition;
@@ -42,6 +41,7 @@ class Program;
  */
 class SK_API SkRuntimeEffect : public SkRefCnt {
 public:
+    // Reflected description of a uniform variable in the effect's SkSL
     struct Uniform {
         enum class Type {
             kFloat,
@@ -72,6 +72,7 @@ public:
         size_t sizeInBytes() const;
     };
 
+    // Reflected description of a uniform child (shader or colorFilter) in the effect's SkSL
     struct Child {
         enum class Type {
             kShader,
@@ -131,8 +132,21 @@ public:
 
     static Result MakeForShader(std::unique_ptr<SkSL::Program> program);
 
+    // Object that allows passing either an SkShader or SkColorFilter as a child
+    struct ChildPtr {
+        ChildPtr(sk_sp<SkShader> s) : shader(std::move(s)) {}
+        ChildPtr(sk_sp<SkColorFilter> cf) : colorFilter(std::move(cf)) {}
+        sk_sp<SkShader> shader;
+        sk_sp<SkColorFilter> colorFilter;
+    };
+
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
+                               size_t childCount,
+                               const SkMatrix* localMatrix,
+                               bool isOpaque) const;
+    sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
+                               ChildPtr children[],
                                size_t childCount,
                                const SkMatrix* localMatrix,
                                bool isOpaque) const;
@@ -148,6 +162,9 @@ public:
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms) const;
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms,
                                          sk_sp<SkColorFilter> children[],
+                                         size_t childCount) const;
+    sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms,
+                                         ChildPtr children[],
                                          size_t childCount) const;
 
     const SkString& source() const { return fSkSL; }
