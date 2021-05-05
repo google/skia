@@ -269,6 +269,8 @@ void TextAdapter::reshape() {
     const Shaper::TextDesc text_desc = {
         fText->fTypeface,
         fText->fTextSize,
+        fText->fMinTextSize,
+        fText->fMaxTextSize,
         fText->fLineHeight,
         fText->fLineShift,
         fText->fAscent,

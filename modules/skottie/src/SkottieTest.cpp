@@ -313,6 +313,7 @@ DEF_TEST(Skottie_Properties, reporter) {
       test_typeface,
       SkString("inline_text"),
       100,
+      0, 100,
       0,
       120,
       12,
@@ -467,6 +468,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
             const skottie::Shaper::TextDesc desc = {
                 typeface,
                 tsize.text_size,
+                0, tsize.text_size,
                 tsize.text_size,
                 0,
                 0,
@@ -536,6 +538,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
             const skottie::Shaper::TextDesc desc = {
                 typeface,
                 tsize.text_size,
+                0, tsize.text_size,
                 tsize.text_size,
                 0,
                 0,
@@ -575,6 +578,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
     skottie::Shaper::TextDesc desc = {
         SkTypeface::MakeDefault(),
         18,
+        0, 18,
         18,
          0,
          0,
@@ -669,6 +673,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
     skottie::Shaper::TextDesc desc = {
         ToolUtils::create_portable_typeface(),
         18,
+        0, 18,
         18,
          0,
          0,

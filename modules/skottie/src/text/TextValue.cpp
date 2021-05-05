@@ -74,6 +74,10 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                                               ParseDefault<size_t>((*jtxt)["sk_rs"], 0)),
                                      SK_ARRAY_COUNT(gResizeMap))];
 
+    // Optional min/max font size (used when aute-resizing)
+    v->fMinTextSize = ParseDefault<SkScalar>((*jtxt)["mf"], 0.0f);
+    v->fMaxTextSize = ParseDefault<SkScalar>((*jtxt)["xf"], std::numeric_limits<float>::max());
+
     // At the moment, BM uses the paragraph box to discriminate point mode vs. paragraph mode.
     v->fLineBreak = v->fBox.isEmpty()
             ? Shaper::LinebreakPolicy::kExplicit

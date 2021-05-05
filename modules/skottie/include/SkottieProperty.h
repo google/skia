@@ -40,6 +40,8 @@ struct TextPropertyValue {
     sk_sp<SkTypeface>       fTypeface;
     SkString                fText;
     float                   fTextSize    = 0,
+                            fMinTextSize = 0,                                 // when auto-sizing
+                            fMaxTextSize = std::numeric_limits<float>::max(), // when auto-sizing
                             fStrokeWidth = 0,
                             fLineHeight  = 0,
                             fLineShift   = 0,
