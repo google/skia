@@ -488,6 +488,7 @@ public:
                         return res;
                     }
                     fMoveToPtr = fPts++;
+                    fNextIsNewContour = true;
                 } break;
                 case SkPath::kClose_Verb:
                     if (fNeedsCloseLine) return closeline();
