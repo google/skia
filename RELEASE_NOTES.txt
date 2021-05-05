@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 92
 ------------
+  * Add SkM44::RectToRect constructor (SkM44's equivalent to SkMatrix::RectToRect)
+    https://review.skia.org/402957
+
   * Metal support has been removed for versions of iOS older than 10.0 and MacOS older than 10.14.
     https://review.skia.org/401816
 
