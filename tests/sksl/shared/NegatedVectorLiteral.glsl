@@ -8,7 +8,7 @@ bool test_int_b() {
     ivec4 result;
     result.x = 1;
     result.y = 1;
-    result.z = int(-ivec4(two) == ivec4(-2, ivec3(-2)) ? 1 : 0);
+    result.z = 1;
     result.w = int(-ivec2(-one, one + one) == -ivec2(one - two, 2) ? 1 : 0);
     return bool(((result.x * result.y) * result.z) * result.w);
 }
