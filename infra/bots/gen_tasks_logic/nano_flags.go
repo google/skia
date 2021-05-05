@@ -261,8 +261,10 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			"--GPUbenchTileH", "512", "--samples", "1", "--loops", "1", "--config", "gldmsaa",
 			"--dmsaaStatsDump")
 		// Don't collect stats on the skps generated from vector content. We want these to actually
-		// trigger dmsaa.
-		match = append(match, "~svg", "~chalkboard", "~motionmark", "~ccpr")
+		// trigger dmsaa. Also exclude the flutter_PageFlipTests -- it's ok to trigger MSAA all the
+		// time when there is perspective.
+		match = append(match,
+			"~svg", "~chalkboard", "~motionmark", "~ccpr", "~flutter_PageFlipTest")
 	}
 
 	// We do not need or want to benchmark the decodes of incomplete images.
