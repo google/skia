@@ -311,7 +311,7 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
         fInner.moveTo(prevX - normal->fX, prevY - normal->fY);
     } else {    // we have a previous segment
         fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt, *unitNormal,
-                fRadius, fInvMiterLimit, fPrevIsLine, currIsLine);
+                fRadius, fInvMiterLimit, fPrevIsLine, currIsLine, currPt);
     }
     fPrevIsLine = currIsLine;
     return true;
@@ -333,7 +333,7 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
         if (close) {
             fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt,
                     fFirstUnitNormal, fRadius, fInvMiterLimit,
-                    fPrevIsLine, currIsLine);
+                    fPrevIsLine, currIsLine, fFirstPt);
             fOuter.close();
 
             if (fCanIgnoreCenter) {
