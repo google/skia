@@ -21,6 +21,7 @@
 #include "modules/svg/include/SkSVGFeDisplacementMap.h"
 #include "modules/svg/include/SkSVGFeFlood.h"
 #include "modules/svg/include/SkSVGFeGaussianBlur.h"
+#include "modules/svg/include/SkSVGFeImage.h"
 #include "modules/svg/include/SkSVGFeLightSource.h"
 #include "modules/svg/include/SkSVGFeLighting.h"
 #include "modules/svg/include/SkSVGFeMorphology.h"
@@ -247,6 +248,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "feDistantLight"    , []() -> sk_sp<SkSVGNode> { return SkSVGFeDistantLight::Make();     }},
     { "feFlood"           , []() -> sk_sp<SkSVGNode> { return SkSVGFeFlood::Make();            }},
     { "feGaussianBlur"    , []() -> sk_sp<SkSVGNode> { return SkSVGFeGaussianBlur::Make();     }},
+    { "feImage"           , []() -> sk_sp<SkSVGNode> { return SkSVGFeImage::Make();            }},
     { "feMorphology"      , []() -> sk_sp<SkSVGNode> { return SkSVGFeMorphology::Make();       }},
     { "feOffset"          , []() -> sk_sp<SkSVGNode> { return SkSVGFeOffset::Make();           }},
     { "fePointLight"      , []() -> sk_sp<SkSVGNode> { return SkSVGFePointLight::Make();       }},
