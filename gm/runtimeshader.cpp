@@ -20,8 +20,9 @@
 #include "tools/Resources.h"
 
 enum RT_Flags {
-    kAnimate_RTFlag = 0x1,
-    kBench_RTFlag   = 0x2,
+    kAnimate_RTFlag     = 0x1,
+    kBench_RTFlag       = 0x2,
+    kColorFilter_RTFlag = 0x4,
 };
 
 class RuntimeShaderGM : public skiagm::GM {
@@ -30,7 +31,9 @@ public:
             : fName(name), fSize(size), fFlags(flags), fSkSL(sksl) {}
 
     void onOnceBeforeDraw() override {
-        auto [effect, error] = SkRuntimeEffect::MakeForShader(fSkSL);
+        auto [effect, error] = (fFlags & kColorFilter_RTFlag)
+                                       ? SkRuntimeEffect::MakeForColorFilter(fSkSL)
+                                       : SkRuntimeEffect::MakeForShader(fSkSL);
         if (!effect) {
             SkDebugf("RuntimeShader error: %s\n", error.c_str());
         }
@@ -339,6 +342,87 @@ public:
     }
 };
 DEF_GM(return new ColorCubeRT;)
+
+// Same as above, but demonstrating how to implement this as a runtime color filter (that samples
+// a shader child for the LUT).
+class ColorCubeColorFilterRT : public RuntimeShaderGM {
+public:
+    ColorCubeColorFilterRT() : RuntimeShaderGM("color_cube_cf_rt", {512, 512}, R"(
+        uniform shader color_cube;
+
+        uniform float rg_scale;
+        uniform float rg_bias;
+        uniform float b_scale;
+        uniform float inv_size;
+
+        half4 main(half4 inColor) {
+            float4 c = unpremul(inColor);
+
+            // Map to cube coords:
+            float3 cubeCoords = float3(c.rg * rg_scale + rg_bias, c.b * b_scale);
+
+            // Compute slice coordinate
+            float2 coords1 = float2((floor(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
+            float2 coords2 = float2(( ceil(cubeCoords.b) + cubeCoords.r) * inv_size, cubeCoords.g);
+
+            // Two bilinear fetches, plus a manual lerp for the third axis:
+            half4 color = mix(sample(color_cube, coords1), sample(color_cube, coords2),
+                              fract(cubeCoords.b));
+
+            // Premul again
+            color.rgb *= color.a;
+
+            return color;
+        }
+    )", kColorFilter_RTFlag) {}
+
+    sk_sp<SkImage> fMandrill, fMandrillSepia, fIdentityCube, fSepiaCube;
+
+    void onOnceBeforeDraw() override {
+        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
+        fMandrillSepia = GetResourceAsImage("images/mandrill_sepia.png");
+        fIdentityCube  = GetResourceAsImage("images/lut_identity.png");
+        fSepiaCube     = GetResourceAsImage("images/lut_sepia.png");
+
+        this->RuntimeShaderGM::onOnceBeforeDraw();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        // First we draw the unmodified image, and a copy that was sepia-toned in Photoshop:
+        canvas->drawImage(fMandrill,      0,   0);
+        canvas->drawImage(fMandrillSepia, 0, 256);
+
+        // LUT dimensions should be (kSize^2, kSize)
+        constexpr float kSize = 16.0f;
+
+        const SkSamplingOptions sampling(SkFilterMode::kLinear);
+
+        float uniforms[] = {
+                (kSize - 1) / kSize,  // rg_scale
+                0.5f / kSize,         // rg_bias
+                kSize - 1,            // b_scale
+                1.0f / kSize,         // inv_size
+        };
+
+        SkPaint paint;
+
+        // TODO: Should we add SkImage::makeNormalizedShader() to handle this automatically?
+        SkMatrix normalize = SkMatrix::Scale(1.0f / (kSize * kSize), 1.0f / kSize);
+
+        // Now draw the image with an identity color cube - it should look like the original
+        SkRuntimeEffect::ChildPtr children[] = {fIdentityCube->makeShader(sampling, normalize)};
+        paint.setColorFilter(fEffect->makeColorFilter(
+                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkMakeSpan(children)));
+        canvas->drawImage(fMandrill, 256, 0, sampling, &paint);
+
+        // ... and with a sepia-tone color cube. This should match the sepia-toned image.
+        children[0] = fSepiaCube->makeShader(sampling, normalize);
+        paint.setColorFilter(fEffect->makeColorFilter(
+                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkMakeSpan(children)));
+        canvas->drawImage(fMandrill, 256, 256, sampling, &paint);
+    }
+};
+DEF_GM(return new ColorCubeColorFilterRT;)
 
 class DefaultColorRT : public RuntimeShaderGM {
 public:
