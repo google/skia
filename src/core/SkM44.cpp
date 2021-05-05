@@ -9,7 +9,11 @@
 #include "include/core/SkMatrix.h"
 #include "include/private/SkVx.h"
 
-typedef skvx::Vec<4, float> sk4f;
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPathPriv.h"
+
+using sk4f = skvx::Vec<4, float>;
+using sk2f = skvx::Vec<2, float>;
 
 bool SkM44::operator==(const SkM44& other) const {
     if (this == &other) {
@@ -120,6 +124,92 @@ SkV4 SkM44::map(float x, float y, float z, float w) const {
     SkV4 v;
     (c0*x + (c1*y + (c2*z + c3*w))).store(&v.x);
     return v;
+}
+
+static SkRect map_rect_affine(const SkRect& src, const float mat[16]) {
+    // When multiplied against vectors of the form <x,y,x,y>, 'flip' allows a single min(sk4f, sk4f)
+    // to compute both the min and "negated" max between the xy coordinates. Once finished, another
+    // multiplication produces the original max.
+    const sk4f flip{1.f, 1.f, -1.f, -1.f};
+
+    // Since z = 0 and it's assumed ther's no perspective, only load the upper 2x2 and (tx,ty) in c3
+    sk4f c0 = skvx::shuffle<0,1,0,1>(sk2f::Load(mat + 0)) * flip;
+    sk4f c1 = skvx::shuffle<0,1,0,1>(sk2f::Load(mat + 4)) * flip;
+    sk4f c3 = skvx::shuffle<0,1,0,1>(sk2f::Load(mat + 12));
+
+    // Compute the min and max of the four transformed corners pre-translation; then translate once
+    // at the end.
+    sk4f minMax = c3 + flip * min(min(c0 * src.fLeft  + c1 * src.fTop,
+                                      c0 * src.fRight + c1 * src.fTop),
+                                  min(c0 * src.fLeft  + c1 * src.fBottom,
+                                      c0 * src.fRight + c1 * src.fBottom));
+
+    // minMax holds (min x, min y, max x, max y) so can be copied into an SkRect expecting l,t,r,b
+    SkRect r;
+    minMax.store(&r);
+    return r;
+}
+
+static SkRect map_rect_perspective(const SkRect& src, const float mat[16]) {
+    // Like map_rect_affine, z = 0 so we can skip the 3rd column, but we do need to compute w's
+    // for each corner of the src rect.
+    sk4f c0 = sk4f::Load(mat + 0);
+    sk4f c1 = sk4f::Load(mat + 4);
+    sk4f c3 = sk4f::Load(mat + 12);
+
+    // Unlike map_rect_affine, we do not defer the 4th column since we may need to homogeneous
+    // coordinates to clip against the w=0 plane
+    sk4f tl = c0 * src.fLeft  + c1 * src.fTop    + c3;
+    sk4f tr = c0 * src.fRight + c1 * src.fTop    + c3;
+    sk4f bl = c0 * src.fLeft  + c1 * src.fBottom + c3;
+    sk4f br = c0 * src.fRight + c1 * src.fBottom + c3;
+
+    // After clipping to w>0 and projecting to 2d, 'project' employs the same negation trick to
+    // compute min and max at the same time.
+    const sk4f flip{1.f, 1.f, -1.f, -1.f};
+    auto project = [&flip](const sk4f& p0, const sk4f& p1, const sk4f& p2) {
+        float w0 = p0[3];
+        if (w0 >= SkPathPriv::kW0PlaneDistance) {
+            // Unclipped, just divide by w
+            return flip * skvx::shuffle<0,1,0,1>(p0) / w0;
+        } else {
+            auto clip = [&](const sk4f& p) {
+                float w = p[3];
+                if (w >= SkPathPriv::kW0PlaneDistance) {
+                    float t = (SkPathPriv::kW0PlaneDistance - w0) / (w - w0);
+                    sk2f c = (t * skvx::shuffle<0,1>(p) + (1.f - t) * skvx::shuffle<0,1>(p0)) /
+                                  SkPathPriv::kW0PlaneDistance;
+
+                    return flip * skvx::shuffle<0,1,0,1>(c);
+                } else {
+                    return sk4f(SK_ScalarInfinity);
+                }
+            };
+            // Clip both edges leaving p0, and return the min/max of the two clipped points
+            // (since clip returns infinity when both p0 and 2nd vertex have w<0, it'll
+            // automatically be ignored).
+            return min(clip(p1), clip(p2));
+        }
+    };
+
+    // Project all 4 corners, and pass in their adjacent vertices for clipping if it has w < 0,
+    // then accumulate the min and max xy's.
+    sk4f minMax = flip * min(min(project(tl, tr, bl), project(tr, br, tl)),
+                             min(project(br, bl, tr), project(bl, tl, br)));
+
+    SkRect r;
+    minMax.store(&r);
+    return r;
+}
+
+SkRect SkMatrixPriv::MapRect(const SkM44& m, const SkRect& src) {
+    const bool hasPerspective =
+            m.fMat[3] != 0 || m.fMat[7] != 0 || m.fMat[11] != 0 || m.fMat[15] != 1;
+    if (hasPerspective) {
+        return map_rect_perspective(src, m.fMat);
+    } else {
+        return map_rect_affine(src, m.fMat);
+    }
 }
 
 void SkM44::normalizePerspective() {
@@ -265,6 +355,27 @@ void SkM44::dump() const {
              fMat[1], fMat[5], fMat[9],  fMat[13],
              fMat[2], fMat[6], fMat[10], fMat[14],
              fMat[3], fMat[7], fMat[11], fMat[15]);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkM44 SkM44::RectToRect(const SkRect& src, const SkRect& dst) {
+        if (src.isEmpty()) {
+        return SkM44();
+    } else if (dst.isEmpty()) {
+        return SkM44::Scale(0.f, 0.f, 0.f);
+    }
+
+    float sx = dst.width()  / src.width();
+    float sy = dst.height() / src.height();
+
+    float tx = dst.fLeft - sx * src.fLeft;
+    float ty = dst.fTop  - sy * src.fTop;
+
+    return SkM44{sx,  0.f, 0.f, tx,
+                 0.f, sy,  0.f, ty,
+                 0.f, 0.f, 1.f, 0.f,
+                 0.f, 0.f, 0.f, 1.f};
 }
 
 static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }

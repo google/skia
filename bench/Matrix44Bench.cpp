@@ -9,6 +9,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkMatrixPriv.h"
 
 class M4Bench : public Benchmark {
     SkString    fName;
@@ -142,3 +143,117 @@ private:
     using INHERITED = M4Bench;
 };
 DEF_BENCH( return new M4_map2(); )
+
+
+enum class MapMatrixType {
+    kTranslateOnly,
+    kScaleTranslate,
+    kRotate,
+    kPerspective,
+    kPerspectiveClipped
+};
+class MapRectBench : public Benchmark {
+    SkString fName;
+
+public:
+    MapRectBench(MapMatrixType type, const char name[]) {
+        SkRandom rand;
+        const char* typeName;
+        switch(type) {
+            case MapMatrixType::kTranslateOnly:
+                typeName = "t";
+                fM = SkM44::Translate(rand.nextF(), rand.nextF());
+                break;
+            case MapMatrixType::kScaleTranslate:
+                typeName = "s+t";
+                fM = SkM44::Scale(rand.nextF(), rand.nextF());
+                fM.postTranslate(rand.nextF(), rand.nextF());
+                break;
+            case MapMatrixType::kRotate:
+                typeName = "r";
+                fM = SkM44::Rotate({0.f, 0.f, 1.f}, SkDegreesToRadians(45.f));
+                break;
+            case MapMatrixType::kPerspective:
+                typeName = "p";
+                // Hand chosen to have all corners with w > 0 and w != 1
+                fM = SkM44::Perspective(0.01f, 10.f, SK_ScalarPI / 3.f);
+                fM.preTranslate(0.f, 5.f, -0.1f);
+                fM.preConcat(SkM44::Rotate({0.f, 1.f, 0.f}, 0.008f /* radians */));
+                break;
+            case MapMatrixType::kPerspectiveClipped:
+                typeName = "pc";
+                // Hand chosen to have some corners with w > 0 and some with w < 0
+                fM = SkM44();
+                fM.setRow(3, {-.2f, -.6f, 0.f, 8.f});
+                break;
+        }
+        fS = SkRect::MakeXYWH(10.f * rand.nextF(), 10.f * rand.nextF(),
+                              150.f * rand.nextF(), 150.f * rand.nextF());
+
+        fName.printf("mapRect_%s_%s", name, typeName);
+    }
+
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+
+    virtual void performTest() = 0;
+
+protected:
+    SkM44 fM;
+    SkRect fS, fD;
+
+    virtual int mulLoopCount() const { return 1; }
+
+    const char* onGetName() override { return fName.c_str(); }
+
+    void onDraw(int loops, SkCanvas*) override {
+        for (int i = 0; i < loops; i++) {
+            this->performTest();
+        }
+    }
+
+private:
+    using INHERITED = Benchmark;
+};
+
+class M4_mapRectBench : public MapRectBench {
+public:
+    M4_mapRectBench(MapMatrixType type) : INHERITED(type, "m4") {}
+
+protected:
+    void performTest() override {
+        for (int i = 0; i < 100000; ++i) {
+            fD = SkMatrixPriv::MapRect(fM, fS);
+        }
+    }
+
+private:
+    using INHERITED = MapRectBench;
+};
+DEF_BENCH(return new M4_mapRectBench(MapMatrixType::kTranslateOnly);)
+DEF_BENCH(return new M4_mapRectBench(MapMatrixType::kScaleTranslate);)
+DEF_BENCH(return new M4_mapRectBench(MapMatrixType::kRotate);)
+DEF_BENCH(return new M4_mapRectBench(MapMatrixType::kPerspective);)
+DEF_BENCH(return new M4_mapRectBench(MapMatrixType::kPerspectiveClipped);)
+
+class M33_mapRectBench : public MapRectBench {
+public:
+    M33_mapRectBench(MapMatrixType type) : INHERITED(type, "m33") {
+        fM33 = fM.asM33();
+    }
+
+protected:
+    void performTest() override {
+        for (int i = 0; i < 100000; ++i) {
+            fD = fM33.mapRect(fS);
+        }
+    }
+private:
+    SkMatrix fM33;
+    using INHERITED = MapRectBench;
+};
+
+DEF_BENCH(return new M33_mapRectBench(MapMatrixType::kTranslateOnly);)
+DEF_BENCH(return new M33_mapRectBench(MapMatrixType::kScaleTranslate);)
+DEF_BENCH(return new M33_mapRectBench(MapMatrixType::kRotate);)
+DEF_BENCH(return new M33_mapRectBench(MapMatrixType::kPerspective);)
+DEF_BENCH(return new M33_mapRectBench(MapMatrixType::kPerspectiveClipped);)

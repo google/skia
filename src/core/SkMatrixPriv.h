@@ -167,6 +167,11 @@ public:
 
     }
 
+    // Map the four corners of 'r' and return the bounding box of those points. The four corners of
+    // 'r' are assumed to have z = 0 and w = 1. If the matrix has perspective, the returned
+    // rectangle will be the bounding box of the projected points after being clipped to w > 0.
+    static SkRect MapRect(const SkM44& m, const SkRect& r);
+
     // Returns the differential area scale factor for a local point 'p' that will be transformed
     // by 'm' (which may have perspective). If 'm' does not have perspective, this scale factor is
     // constant regardless of 'p'; when it does have perspective, it is specific to that point.
