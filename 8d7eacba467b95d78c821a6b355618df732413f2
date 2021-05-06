@@ -50,6 +50,24 @@
       "message": "I like this lot. Nice Change.",
       "revId": "8d7eacba467b95d78c821a6b355618df732413f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a678cec5_0724cf91",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-06T16:06:38Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "b4c04243_3056b12f",
+      "revId": "8d7eacba467b95d78c821a6b355618df732413f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
