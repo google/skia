@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "164952a4_f3308f29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-06T20:04:47Z",
+      "side": 1,
+      "message": "Just trying to simplify things a little bit before making any real changes.",
+      "revId": "24f6149fee63ab15e30e730219482c5c67bd5db3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
