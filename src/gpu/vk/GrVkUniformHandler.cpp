@@ -294,7 +294,9 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
         GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
         info.fImmutableSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
                 state, *ycbcrInfo);
-        SkASSERT(info.fImmutableSampler);
+        if (!info.fImmutableSampler) {
+            return {};
+        }
     }
 
     fSamplerSwizzles.push_back(swizzle);

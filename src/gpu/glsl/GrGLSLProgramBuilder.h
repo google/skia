@@ -145,14 +145,14 @@ private:
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     void nameExpression(SkString*, const char* baseName);
 
-    void emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage);
-    void emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
+    bool emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage);
+    bool emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
     SkString emitFragProc(const GrFragmentProcessor&,
                           GrGLSLFragmentProcessor&,
                           int transformedCoordVarsIdx,
                           const SkString& input,
                           SkString output);
-    void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
+    bool emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     SamplerHandle emitSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                               const char* name);
     SamplerHandle emitInputSampler(const GrSwizzle& swizzle, const char* name);
