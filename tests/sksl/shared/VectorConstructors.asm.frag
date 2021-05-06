@@ -113,6 +113,7 @@ OpDecorate %212 RelaxedPrecision
 %128 = OpConstantComposite %v2int %int_1 %int_1
 %int_2 = OpConstant %int 2
 %131 = OpConstantComposite %v2int %int_1 %int_2
+%float_1_41421354 = OpConstant %float 1.41421354
 %float_3 = OpConstant %float 3
 %float_4 = OpConstant %float 4
 %int_3 = OpConstant %int 3
@@ -266,8 +267,7 @@ OpStore %v8 %139
 %141 = OpLoad %v2int %v6
 %142 = OpCompositeExtract %int %141 0
 %143 = OpConvertSToF %float %142
-%144 = OpExtInst %float %1 Sqrt %float_2
-%147 = OpCompositeConstruct %v4float %143 %144 %float_3 %float_4
+%147 = OpCompositeConstruct %v4float %143 %float_1_41421354 %float_3 %float_4
 OpStore %v9 %147
 %150 = OpLoad %v2float %v1
 %151 = OpCompositeExtract %float %150 0

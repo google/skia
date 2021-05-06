@@ -1,4 +1,7 @@
-### Compilation failed:
 
-error: 2: static switch has non-static test
-1 error
+out vec4 sk_FragColor;
+vec4 main() {
+    {
+        return vec4(1.0);
+    }
+}

@@ -17,7 +17,7 @@ OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %color RelaxedPrecision
 OpDecorate %25 RelaxedPrecision
-OpDecorate %76 RelaxedPrecision
+OpDecorate %66 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -41,7 +41,6 @@ OpDecorate %76 RelaxedPrecision
 %int_1 = OpConstant %int 1
 %float_1 = OpConstant %float 1
 %_ptr_Function_float = OpTypePointer Function %float
-%float_2 = OpConstant %float 2
 %int_3 = OpConstant %int 3
 %_entrypoint_v = OpFunction %void None %12
 %13 = OpLabel
@@ -110,26 +109,10 @@ OpBranch %55
 OpStore %counter_1 %60
 OpBranch %52
 %56 = OpLabel
-%61 = OpExtInst %float %1 Sqrt %float_1
-%63 = OpFOrdEqual %bool %61 %float_1
-OpSelectionMerge %65 None
-OpBranchConditional %63 %64 %65
-%64 = OpLabel
-%66 = OpAccessChain %_ptr_Function_float %color %int_1
-OpStore %66 %float_1
-OpBranch %65
-%65 = OpLabel
-%68 = OpExtInst %float %1 Sqrt %float_1
-%70 = OpFOrdEqual %bool %68 %float_2
-OpSelectionMerge %73 None
-OpBranchConditional %70 %71 %72
-%71 = OpLabel
-OpBranch %73
-%72 = OpLabel
-%74 = OpAccessChain %_ptr_Function_float %color %int_3
-OpStore %74 %float_1
-OpBranch %73
-%73 = OpLabel
-%76 = OpLoad %v4float %color
-OpReturnValue %76
+%62 = OpAccessChain %_ptr_Function_float %color %int_1
+OpStore %62 %float_1
+%64 = OpAccessChain %_ptr_Function_float %color %int_3
+OpStore %64 %float_1
+%66 = OpLoad %v4float %color
+OpReturnValue %66
 OpFunctionEnd

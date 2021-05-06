@@ -38,7 +38,7 @@ vec4 main() {
     _0_ok = _0_ok && _1_x == 11.0;
     _1_x = -12.0;
     _0_ok = _0_ok && _1_x == -12.0;
-    float _2_unknown = sqrt(4.0);
+    float _2_unknown = 2.0;
     _1_x = _2_unknown;
     _0_ok = _0_ok && _1_x == _2_unknown;
     _1_x = _2_unknown;

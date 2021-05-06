@@ -10,12 +10,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _out;
     (void)_out;
     bool b = true;
-    short s = short(sqrt(1.0));
-    int i = int(sqrt(1.0));
-    ushort us = ushort(sqrt(1.0));
-    uint ui = uint(sqrt(1.0));
-    float h = sqrt(1.0);
-    float f = sqrt(1.0);
+    short s = 1;
+    int i = 1;
+    ushort us = 1u;
+    uint ui = 1u;
+    float h = 1.0;
+    float f = 1.0;
     short s2s = s;
     short i2s = short(i);
     short us2s = short(us);

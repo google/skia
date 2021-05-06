@@ -1,9 +1,7 @@
 
 out vec4 sk_FragColor;
 void main() {
-    if (sqrt(2.0) > 5.0) {
-        sk_FragColor = vec4(0.75);
-    } else {
+    {
         discard;
     }
     int i = 0;

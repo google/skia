@@ -20,8 +20,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     x = (x - x) + ((y * x) * x) * (y - x);
     y = (x / y) / x;
     z = ((z / 2) * 3 + 4) - 2;
-    bool b = x > 4.0 == x < 2.0 || 2.0 >= sqrt(2.0) && y <= x;
-    bool c = sqrt(2.0) > 2.0;
+    bool b = x > 4.0 == x < 2.0 || y <= x;
+    bool c = false;
     bool d = b != c;
     bool e = b && c;
     bool f = b || c;

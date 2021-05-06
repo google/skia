@@ -14,7 +14,7 @@ vec4 main() {
     ivec2 v6 = ivec2(1, 2);
     vec2 v7 = vec2(1.0, 2.0);
     vec2 v8 = vec2(v5);
-    vec4 v9 = vec4(float(v6.x), sqrt(2.0), 3.0, 4.0);
+    vec4 v9 = vec4(float(v6.x), 1.4142135381698608, 3.0, 4.0);
     ivec2 v10 = ivec2(3, int(v1.x));
     bvec4 v11 = bvec4(true, false, true, false);
     vec2 v12 = vec2(1.0, 0.0);

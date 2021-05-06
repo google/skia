@@ -20,7 +20,7 @@ public:
         const GrModuloOp& _outer = args.fFp.cast<GrModuloOp>();
         (void) _outer;
         fragBuilder->codeAppendf(
-R"SkSL(return half4(half(1 %% int(sqrt(2.0))));
+R"SkSL(return half4(0.0);
 )SkSL"
 );
     }

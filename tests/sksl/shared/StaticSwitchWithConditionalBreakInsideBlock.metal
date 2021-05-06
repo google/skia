@@ -13,7 +13,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     switch (0) {
         case 0:
             x = 0.0;
-            if (x < sqrt(1.0)) {
+            if (x < 1.0) {
                 _out.sk_FragColor = float4(x);
                 break;
             }

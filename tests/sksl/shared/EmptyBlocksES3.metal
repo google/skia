@@ -16,10 +16,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
     for (int counter = 0;counter < 10; ++counter) {
     }
-    if (sqrt(1.0) == 1.0) color.y = 1.0;
-    if (sqrt(1.0) == 2.0) ; else color.w = 1.0;
-    while (sqrt(1.0) == 2.0) ;
-    do ; while (sqrt(1.0) == 2.0);
+    color.y = 1.0;
+    color.w = 1.0;
+    while (false) ;
+    do ; while (false);
     _out.sk_FragColor = color;
     return _out;
 }

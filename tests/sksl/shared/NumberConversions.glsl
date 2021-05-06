@@ -2,12 +2,12 @@
 out vec4 sk_FragColor;
 void main() {
     bool b = true;
-    int s = int(sqrt(1.0));
-    int i = int(sqrt(1.0));
-    uint us = uint(sqrt(1.0));
-    uint ui = uint(sqrt(1.0));
-    float h = sqrt(1.0);
-    float f = sqrt(1.0);
+    int s = 1;
+    int i = 1;
+    uint us = 1u;
+    uint ui = 1u;
+    float h = 1.0;
+    float f = 1.0;
     int s2s = s;
     int i2s = i;
     int us2s = int(us);
