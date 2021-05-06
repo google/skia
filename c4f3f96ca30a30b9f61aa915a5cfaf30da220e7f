@@ -69,6 +69,24 @@
       "message": "Sorry in advance for the terse reply. I\u0027m trying to do this from my phone.\n\nIf we are using Wang\u0027s to implement the \"pointCount\" methods then I would recommend using the formula one and not returning 1\u003c\u003clog2.\n\nIn the case of the triangulator since they always divide a curve into powers of two then it wouldn\u0027t make sense to use the quicker log2 version for them, but I\u0027m not sure about other places that use it.",
       "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "638b8d4a_6d81080b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-06T16:03:29Z",
+      "side": 1,
+      "message": "Ah, ok this is way beyond anything I know about. The caps restriction comes in when setting up the GrGLInterface for the command buffer. No idea if these tests will trigger that for the way the legacy raster case is used here or not.",
+      "parentUuid": "0f53d6f0_b64324e1",
+      "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
