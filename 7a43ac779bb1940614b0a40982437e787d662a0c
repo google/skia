@@ -33,6 +33,24 @@
       "message": "Love the simplification.\n\nI did a lot of the complicating sk4f / scale-translate special casing, was was certainly profiling as I did it. That said, we can land.and.hope that we don\u0027t slow down in a meaningful way.\n\nSomewhat separate: have we tried just removing quickReject as a feature? Wonder what gets:\n- slower\n- faster\n- wrong\n?\n",
       "revId": "7a43ac779bb1940614b0a40982437e787d662a0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fd9fb6d_8ce467ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-06T15:34:48Z",
+      "side": 1,
+      "message": "Yeah I was thinking the same, land it and see if we get worse, and re-evaluate if so.\n\nI had this issue from last November: https://bugs.chromium.org/p/skia/issues/detail?id\u003d10972\u0026q\u003downer%3Ame\u0026can\u003d2 to see if we can remove quickReject from the public API. That didn\u0027t go as far as not doing quickReject at all for draws, but I could see a few things happening:\n - draws that are already on screen are faster (or no change, if checking bounds is negligible impact).\n - we spend more time handling draws that are clipped out (although they are eventually detected and rejected by the GPU backend before turning into a GPU operation, so should still be faster than actually drawing it).\n - we\u0027d need to still check for finite bounds, since lower-down code relies on SkCanvas rejecting bad draws at that level.\n - we\u0027d no longer have to update/compute device clip bounds after every clip modification (assuming public and internal quick reject is removed)\n - Chromium is already doing their version of quick reject before their paint ops are converted to skia, so they probably won\u0027t see any regression by us not doing quick reject within a draw (but they do use SkCanvas::quickReject, so it\u0027d stay in the public API :( ). I\u0027m not sure how flutter or android handle rejecting ops.\n - we may need to update recording canvases to handle quick reject themselves, since it does seem valuable to have them handle culling.\n\nAssuming we don\u0027t see any regressions from this CL, I\u0027m definitely happy to put together another CL that just removes our internal use of it to see what happens.",
+      "parentUuid": "d652d38b_d5a585e7",
+      "revId": "7a43ac779bb1940614b0a40982437e787d662a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
