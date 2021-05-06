@@ -453,258 +453,227 @@ void GLSLCodeGenerator::writeTransposeHack(const Expression& mat) {
     this->write(")");
 }
 
-std::unordered_map<StringFragment, GLSLCodeGenerator::FunctionClass>*
-                                                      GLSLCodeGenerator::fFunctionClasses = nullptr;
-
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
-#ifdef SKSL_STANDALONE
-    if (!fFunctionClasses) {
-#else
-    static SkOnce once;
-    once([] {
-#endif
-        fFunctionClasses = new std::unordered_map<StringFragment, FunctionClass>();
-        (*fFunctionClasses)["abs"]         = FunctionClass::kAbs;
-        (*fFunctionClasses)["atan"]        = FunctionClass::kAtan;
-        (*fFunctionClasses)["determinant"] = FunctionClass::kDeterminant;
-        (*fFunctionClasses)["dFdx"]        = FunctionClass::kDFdx;
-        (*fFunctionClasses)["dFdy"]        = FunctionClass::kDFdy;
-        (*fFunctionClasses)["fwidth"]      = FunctionClass::kFwidth;
-        (*fFunctionClasses)["fma"]         = FunctionClass::kFMA;
-        (*fFunctionClasses)["fract"]       = FunctionClass::kFract;
-        (*fFunctionClasses)["inverse"]     = FunctionClass::kInverse;
-        (*fFunctionClasses)["inverseSqrt"] = FunctionClass::kInverseSqrt;
-        (*fFunctionClasses)["min"]         = FunctionClass::kMin;
-        (*fFunctionClasses)["pow"]         = FunctionClass::kPow;
-        (*fFunctionClasses)["saturate"]    = FunctionClass::kSaturate;
-        (*fFunctionClasses)["sample"]      = FunctionClass::kTexture;
-        (*fFunctionClasses)["transpose"]   = FunctionClass::kTranspose;
-    }
-#ifndef SKSL_STANDALONE
-    );
-#endif
-    const auto found = (function.isBuiltin() && !function.definition())
-                               ? fFunctionClasses->find(function.name())
-                               : fFunctionClasses->end();
     bool isTextureFunctionWithBias = false;
     bool nameWritten = false;
-    if (found != fFunctionClasses->end()) {
-        switch (found->second) {
-            case FunctionClass::kAbs: {
-                if (!this->caps().emulateAbsIntFunction())
-                    break;
-                SkASSERT(arguments.size() == 1);
-                if (arguments[0]->type() != *fContext.fTypes.fInt) {
-                    break;
-                }
-                // abs(int) on Intel OSX is incorrect, so emulate it:
-                String name = "_absemulation";
-                this->write(name);
-                nameWritten = true;
-                if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
-                    fWrittenIntrinsics.insert(name);
-                    fExtraFunctions.writeText((
-                        "int " + name + "(int x) {\n"
-                        "    return x * sign(x);\n"
-                        "}\n"
-                    ).c_str());
-                }
+    switch (c.function().intrinsicKind()) {
+        case k_abs_IntrinsicKind: {
+            if (!this->caps().emulateAbsIntFunction())
+                break;
+            SkASSERT(arguments.size() == 1);
+            if (arguments[0]->type() != *fContext.fTypes.fInt) {
                 break;
             }
-            case FunctionClass::kAtan:
-                if (this->caps().mustForceNegatedAtanParamToFloat() &&
-                    arguments.size() == 2 &&
-                    arguments[1]->kind() == Expression::Kind::kPrefix) {
-                    const PrefixExpression& p = (PrefixExpression&) *arguments[1];
-                    if (p.getOperator().kind() == Token::Kind::TK_MINUS) {
-                        this->write("atan(");
-                        this->writeExpression(*arguments[0], Precedence::kSequence);
-                        this->write(", -1.0 * ");
-                        this->writeExpression(*p.operand(), Precedence::kMultiplicative);
-                        this->write(")");
-                        return;
-                    }
-                }
-                break;
-            case FunctionClass::kDFdy:
-                if (fProgram.fConfig->fSettings.fFlipY) {
-                    // Flipping Y also negates the Y derivatives.
-                    this->write("-dFdy");
-                    nameWritten = true;
-                }
-                [[fallthrough]];
-            case FunctionClass::kDFdx:
-            case FunctionClass::kFwidth:
-                if (!fFoundDerivatives &&
-                    this->caps().shaderDerivativeExtensionString()) {
-                    this->writeExtension(this->caps().shaderDerivativeExtensionString());
-                    fFoundDerivatives = true;
-                }
-                break;
-            case FunctionClass::kDeterminant:
-                if (!this->caps().builtinDeterminantSupport()) {
-                    SkASSERT(arguments.size() == 1);
-                    this->writeDeterminantHack(*arguments[0]);
-                    return;
-                }
-                break;
-            case FunctionClass::kFMA:
-                if (!this->caps().builtinFMASupport()) {
-                    SkASSERT(arguments.size() == 3);
-                    this->write("((");
+            // abs(int) on Intel OSX is incorrect, so emulate it:
+            String name = "_absemulation";
+            this->write(name);
+            nameWritten = true;
+            if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+                fWrittenIntrinsics.insert(name);
+                fExtraFunctions.writeText((
+                    "int " + name + "(int x) {\n"
+                    "    return x * sign(x);\n"
+                    "}\n"
+                ).c_str());
+            }
+            break;
+        }
+        case k_atan_IntrinsicKind:
+            if (this->caps().mustForceNegatedAtanParamToFloat() &&
+                arguments.size() == 2 &&
+                arguments[1]->kind() == Expression::Kind::kPrefix) {
+                const PrefixExpression& p = (PrefixExpression&) *arguments[1];
+                if (p.getOperator().kind() == Token::Kind::TK_MINUS) {
+                    this->write("atan(");
                     this->writeExpression(*arguments[0], Precedence::kSequence);
-                    this->write(") * (");
-                    this->writeExpression(*arguments[1], Precedence::kSequence);
-                    this->write(") + (");
-                    this->writeExpression(*arguments[2], Precedence::kSequence);
-                    this->write("))");
+                    this->write(", -1.0 * ");
+                    this->writeExpression(*p.operand(), Precedence::kMultiplicative);
+                    this->write(")");
                     return;
                 }
-                break;
-            case FunctionClass::kFract:
-                if (!this->caps().canUseFractForNegativeValues()) {
-                    SkASSERT(arguments.size() == 1);
-                    this->write("(0.5 - sign(");
-                    this->writeExpression(*arguments[0], Precedence::kSequence);
-                    this->write(") * (0.5 - fract(abs(");
-                    this->writeExpression(*arguments[0], Precedence::kSequence);
-                    this->write("))))");
-                    return;
-                }
-                break;
-            case FunctionClass::kInverse:
-                if (this->caps().generation() < k140_GrGLSLGeneration) {
-                    SkASSERT(arguments.size() == 1);
-                    this->writeInverseHack(*arguments[0]);
-                    return;
-                }
-                break;
-            case FunctionClass::kInverseSqrt:
-                if (this->caps().generation() < k130_GrGLSLGeneration) {
-                    SkASSERT(arguments.size() == 1);
-                    this->writeInverseSqrtHack(*arguments[0]);
-                    return;
-                }
-                break;
-            case FunctionClass::kMin:
-                if (!this->caps().canUseMinAndAbsTogether()) {
-                    SkASSERT(arguments.size() == 2);
-                    if (is_abs(*arguments[0])) {
-                        this->writeMinAbsHack(*arguments[0], *arguments[1]);
-                        return;
-                    }
-                    if (is_abs(*arguments[1])) {
-                        // note that this violates the GLSL left-to-right evaluation semantics.
-                        // I doubt it will ever end up mattering, but it's worth calling out.
-                        this->writeMinAbsHack(*arguments[1], *arguments[0]);
-                        return;
-                    }
-                }
-                break;
-            case FunctionClass::kPow:
-                if (!this->caps().removePowWithConstantExponent()) {
-                    break;
-                }
-                // pow(x, y) on some NVIDIA drivers causes crashes if y is a
-                // constant.  It's hard to tell what constitutes "constant" here
-                // so just replace in all cases.
-
-                // Change pow(x, y) into exp2(y * log2(x))
-                this->write("exp2(");
-                this->writeExpression(*arguments[1], Precedence::kMultiplicative);
-                this->write(" * log2(");
+            }
+            break;
+        case k_dFdy_IntrinsicKind:
+            if (fProgram.fConfig->fSettings.fFlipY) {
+                // Flipping Y also negates the Y derivatives.
+                this->write("-dFdy");
+                nameWritten = true;
+            }
+            [[fallthrough]];
+        case k_dFdx_IntrinsicKind:
+        case k_fwidth_IntrinsicKind:
+            if (!fFoundDerivatives &&
+                this->caps().shaderDerivativeExtensionString()) {
+                this->writeExtension(this->caps().shaderDerivativeExtensionString());
+                fFoundDerivatives = true;
+            }
+            break;
+        case k_determinant_IntrinsicKind:
+            if (!this->caps().builtinDeterminantSupport()) {
+                SkASSERT(arguments.size() == 1);
+                this->writeDeterminantHack(*arguments[0]);
+                return;
+            }
+            break;
+        case k_fma_IntrinsicKind:
+            if (!this->caps().builtinFMASupport()) {
+                SkASSERT(arguments.size() == 3);
+                this->write("((");
                 this->writeExpression(*arguments[0], Precedence::kSequence);
+                this->write(") * (");
+                this->writeExpression(*arguments[1], Precedence::kSequence);
+                this->write(") + (");
+                this->writeExpression(*arguments[2], Precedence::kSequence);
                 this->write("))");
                 return;
-            case FunctionClass::kSaturate:
-                SkASSERT(arguments.size() == 1);
-                this->write("clamp(");
-                this->writeExpression(*arguments[0], Precedence::kSequence);
-                this->write(", 0.0, 1.0)");
-                return;
-            case FunctionClass::kTexture: {
-                const char* dim = "";
-                bool proj = false;
-                const Type& arg0Type = arguments[0]->type();
-                const Type& arg1Type = arguments[1]->type();
-                switch (arg0Type.dimensions()) {
-                    case SpvDim1D:
-                        dim = "1D";
-                        isTextureFunctionWithBias = true;
-                        if (arg1Type == *fContext.fTypes.fFloat) {
-                            proj = false;
-                        } else {
-                            SkASSERT(arg1Type == *fContext.fTypes.fFloat2);
-                            proj = true;
-                        }
-                        break;
-                    case SpvDim2D:
-                        dim = "2D";
-                        if (arg0Type != *fContext.fTypes.fSamplerExternalOES) {
-                            isTextureFunctionWithBias = true;
-                        }
-                        if (arg1Type == *fContext.fTypes.fFloat2) {
-                            proj = false;
-                        } else {
-                            SkASSERT(arg1Type == *fContext.fTypes.fFloat3);
-                            proj = true;
-                        }
-                        break;
-                    case SpvDim3D:
-                        dim = "3D";
-                        isTextureFunctionWithBias = true;
-                        if (arg1Type == *fContext.fTypes.fFloat3) {
-                            proj = false;
-                        } else {
-                            SkASSERT(arg1Type == *fContext.fTypes.fFloat4);
-                            proj = true;
-                        }
-                        break;
-                    case SpvDimCube:
-                        dim = "Cube";
-                        isTextureFunctionWithBias = true;
-                        proj = false;
-                        break;
-                    case SpvDimRect:
-                        dim = "2DRect";
-                        proj = false;
-                        break;
-                    case SpvDimBuffer:
-                        SkASSERT(false); // doesn't exist
-                        dim = "Buffer";
-                        proj = false;
-                        break;
-                    case SpvDimSubpassData:
-                        SkASSERT(false); // doesn't exist
-                        dim = "SubpassData";
-                        proj = false;
-                        break;
-                }
-                if (!fTextureFunctionOverride.empty()) {
-                    this->write(fTextureFunctionOverride.c_str());
-                } else {
-                    this->write("texture");
-                    if (this->caps().generation() < k130_GrGLSLGeneration) {
-                        this->write(dim);
-                    }
-                    if (proj) {
-                        this->write("Proj");
-                    }
-                }
-                nameWritten = true;
-                break;
             }
-            case FunctionClass::kTranspose:
-                if (this->caps().generation() < k130_GrGLSLGeneration) {
-                    SkASSERT(arguments.size() == 1);
-                    this->writeTransposeHack(*arguments[0]);
+            break;
+        case k_fract_IntrinsicKind:
+            if (!this->caps().canUseFractForNegativeValues()) {
+                SkASSERT(arguments.size() == 1);
+                this->write("(0.5 - sign(");
+                this->writeExpression(*arguments[0], Precedence::kSequence);
+                this->write(") * (0.5 - fract(abs(");
+                this->writeExpression(*arguments[0], Precedence::kSequence);
+                this->write("))))");
+                return;
+            }
+            break;
+        case k_inverse_IntrinsicKind:
+            if (this->caps().generation() < k140_GrGLSLGeneration) {
+                SkASSERT(arguments.size() == 1);
+                this->writeInverseHack(*arguments[0]);
+                return;
+            }
+            break;
+        case k_inversesqrt_IntrinsicKind:
+            if (this->caps().generation() < k130_GrGLSLGeneration) {
+                SkASSERT(arguments.size() == 1);
+                this->writeInverseSqrtHack(*arguments[0]);
+                return;
+            }
+            break;
+        case k_min_IntrinsicKind:
+            if (!this->caps().canUseMinAndAbsTogether()) {
+                SkASSERT(arguments.size() == 2);
+                if (is_abs(*arguments[0])) {
+                    this->writeMinAbsHack(*arguments[0], *arguments[1]);
                     return;
                 }
+                if (is_abs(*arguments[1])) {
+                    // note that this violates the GLSL left-to-right evaluation semantics.
+                    // I doubt it will ever end up mattering, but it's worth calling out.
+                    this->writeMinAbsHack(*arguments[1], *arguments[0]);
+                    return;
+                }
+            }
+            break;
+        case k_pow_IntrinsicKind:
+            if (!this->caps().removePowWithConstantExponent()) {
                 break;
+            }
+            // pow(x, y) on some NVIDIA drivers causes crashes if y is a
+            // constant.  It's hard to tell what constitutes "constant" here
+            // so just replace in all cases.
+
+            // Change pow(x, y) into exp2(y * log2(x))
+            this->write("exp2(");
+            this->writeExpression(*arguments[1], Precedence::kMultiplicative);
+            this->write(" * log2(");
+            this->writeExpression(*arguments[0], Precedence::kSequence);
+            this->write("))");
+            return;
+        case k_saturate_IntrinsicKind:
+            SkASSERT(arguments.size() == 1);
+            this->write("clamp(");
+            this->writeExpression(*arguments[0], Precedence::kSequence);
+            this->write(", 0.0, 1.0)");
+            return;
+        case k_sample_IntrinsicKind: {
+            const char* dim = "";
+            bool proj = false;
+            const Type& arg0Type = arguments[0]->type();
+            const Type& arg1Type = arguments[1]->type();
+            switch (arg0Type.dimensions()) {
+                case SpvDim1D:
+                    dim = "1D";
+                    isTextureFunctionWithBias = true;
+                    if (arg1Type == *fContext.fTypes.fFloat) {
+                        proj = false;
+                    } else {
+                        SkASSERT(arg1Type == *fContext.fTypes.fFloat2);
+                        proj = true;
+                    }
+                    break;
+                case SpvDim2D:
+                    dim = "2D";
+                    if (arg0Type != *fContext.fTypes.fSamplerExternalOES) {
+                        isTextureFunctionWithBias = true;
+                    }
+                    if (arg1Type == *fContext.fTypes.fFloat2) {
+                        proj = false;
+                    } else {
+                        SkASSERT(arg1Type == *fContext.fTypes.fFloat3);
+                        proj = true;
+                    }
+                    break;
+                case SpvDim3D:
+                    dim = "3D";
+                    isTextureFunctionWithBias = true;
+                    if (arg1Type == *fContext.fTypes.fFloat3) {
+                        proj = false;
+                    } else {
+                        SkASSERT(arg1Type == *fContext.fTypes.fFloat4);
+                        proj = true;
+                    }
+                    break;
+                case SpvDimCube:
+                    dim = "Cube";
+                    isTextureFunctionWithBias = true;
+                    proj = false;
+                    break;
+                case SpvDimRect:
+                    dim = "2DRect";
+                    proj = false;
+                    break;
+                case SpvDimBuffer:
+                    SkASSERT(false); // doesn't exist
+                    dim = "Buffer";
+                    proj = false;
+                    break;
+                case SpvDimSubpassData:
+                    SkASSERT(false); // doesn't exist
+                    dim = "SubpassData";
+                    proj = false;
+                    break;
+            }
+            if (!fTextureFunctionOverride.empty()) {
+                this->write(fTextureFunctionOverride.c_str());
+            } else {
+                this->write("texture");
+                if (this->caps().generation() < k130_GrGLSLGeneration) {
+                    this->write(dim);
+                }
+                if (proj) {
+                    this->write("Proj");
+                }
+            }
+            nameWritten = true;
+            break;
         }
+        case k_transpose_IntrinsicKind:
+            if (this->caps().generation() < k130_GrGLSLGeneration) {
+                SkASSERT(arguments.size() == 1);
+                this->writeTransposeHack(*arguments[0]);
+                return;
+            }
+            break;
+        default:
+            break;
     }
+
     if (!nameWritten) {
         this->write(function.mangledName());
     }
