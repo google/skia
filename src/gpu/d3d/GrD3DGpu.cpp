@@ -918,7 +918,7 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
 
     uint32_t levelCount = d3dTex->mipLevels();
     // SkMipmap doesn't include the base level in the level count so we have to add 1
-    SkASSERT(levelCount == SkMipmap::ComputeLevelCount(tex->width(), tex->height()) + 1);
+    SkASSERT((int)levelCount == SkMipmap::ComputeLevelCount(tex->width(), tex->height()) + 1);
 
     sk_sp<GrD3DRootSignature> rootSig = fResourceProvider.findOrCreateRootSignature(1, 1);
     this->currentCommandList()->setComputeRootSignature(rootSig);
