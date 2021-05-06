@@ -9,6 +9,8 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 
+#include "include/core/SkPictureRecorder.h"
+
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/TextStyle.h"
@@ -338,6 +340,7 @@ JSArray GetShapedLines(para::Paragraph& self) {
 
     self.visit([&](int lineNumber, const para::Paragraph::VisitorInfo* info) {
         if (!info) {
+            if (!jline) return; // how???
             // end of current line
             JSObject range = emscripten::val::object();
             range.set("first", accum.minOffset);
@@ -369,9 +372,11 @@ JSArray GetShapedLines(para::Paragraph& self) {
 
         JSObject jrun = emscripten::val::object();
 
-        jrun.set("flags",   info->flags);
-        jrun.set("glyphs",  MakeTypedArray(N,  info->glyphs,     "Uint16Array"));
-        jrun.set("offsets", MakeTypedArray(N1, info->utf8Starts, "Uint32Array"));
+        jrun.set("flags",    info->flags);
+//        jrun.set("typeface", info->font.getTypeface());
+        jrun.set("size",     info->font.getSize());
+        jrun.set("glyphs",   MakeTypedArray(N,  info->glyphs,     "Uint16Array"));
+        jrun.set("offsets",  MakeTypedArray(N1, info->utf8Starts, "Uint32Array"));
 
         // we need to modify the positions, so make a temp copy
         SkAutoSTMalloc<32, SkPoint> positions(N1);
@@ -446,6 +451,75 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
                     allow_raw_pointers())
+            .class_function(
+                    "_ShapeText",
+                    optional_override([](JSString jtext, JSArray jruns, float width) -> JSArray {
+                // TODO: figure out utf16 mentality on JS side (for offsets)
+                std::string textStorage = jtext.as<std::string>();
+                const char* text = textStorage.data();
+                size_t      textCount = textStorage.size();
+
+                auto fc = sk_make_sp<para::FontCollection>();
+                fc->setDefaultFontManager(SkFontMgr::RefDefault());
+                fc->enableFontFallback();
+
+                para::ParagraphStyle pstyle;
+                {
+                    para::TextStyle style;
+                    style.setFontFamilies({SkString("sans-serif")});
+                    style.setFontSize(32);
+                    pstyle.setTextStyle(style);
+                }
+
+                auto pb = para::ParagraphBuilder::make(pstyle, fc);
+
+                // tease apart the FontBlock runs
+                size_t runCount = jruns["length"].as<size_t>();
+                for (size_t i = 0; i < runCount; ++i) {
+                    emscripten::val r = jruns[i];
+
+                    auto tf = r["typeface"].as< sk_sp<SkTypeface> >();
+
+                    para::TextStyle style;
+                    style.setTypeface(tf);
+                    style.setFontSize(r["size"].as<float>());
+                    style.setFontStyle({
+                        r["fakeBold"].as<bool>() ? SkFontStyle::kBold_Weight
+                                                 : SkFontStyle::kNormal_Weight,
+                        SkFontStyle::kNormal_Width,
+                        r["fakeItalic"].as<bool>() ? SkFontStyle::kItalic_Slant
+                                                   : SkFontStyle::kUpright_Slant,
+                    });
+
+                    const size_t subTextCount = r["length"].as<size_t>();
+                    if (subTextCount > textCount) {
+                        SkDebugf("block runs exceed text length!");
+                        return emscripten::val("block runs exceed text length!");
+                        return emscripten::val::null();
+                    }
+
+                    pb->pushStyle(style);
+                    pb->addText(text, subTextCount);
+                    pb->pop();
+
+                    text += subTextCount;
+                    textCount -= subTextCount;
+                }
+                if (textCount != 0) {
+                    SkDebugf("Didn't have enough block runs to cover text");
+                    return emscripten::val("Didn't have enough block runs to cover text");
+                    return emscripten::val::null();
+                }
+
+                auto pa = pb->Build();
+                pa->layout(width);
+                {
+                    SkPictureRecorder rec;
+                    pa->paint(rec.beginRecording({0,0,9999,9999}), 0, 0);
+                }
+                return GetShapedLines(*pa);
+            }),
+            allow_raw_pointers())
             .function("addText",
                       optional_override([](para::ParagraphBuilderImpl& self, std::string text) {
                           return self.addText(text.c_str(), text.length());

@@ -655,6 +655,7 @@ export interface Range {
     last:  number;
 }
 
+
 /**
  * Information for a run of shaped text. See Paragraph.getShapedLines()
  *
@@ -666,6 +667,11 @@ export interface Range {
  * to describe the location "after" the last glyph in the glyphs array.
  */
 export interface GlyphRun {
+    typeface: Typeface;
+    size: number;
+    fakeBold: Boolean;
+    fakeItalic: Boolean;
+
     glyphs: Uint16Array;
     positions: Float32Array;    // alternating x0, y0, x1, y1, ...
     offsets: Uint32Array;
@@ -681,6 +687,15 @@ export interface GlyphRun {
     bottom: number;     // bottom y-coordinate for the line
     baseline: number;   // baseline y-coordinate for the line
     runs: GlyphRun[];   // array of GlyphRun objects for the line
+}
+
+export interface FontBlock {
+    length: number;
+
+    typeface: Typeface; // CSS String?
+    size: number;
+    fakeBold: Boolean;
+    fakeItalic: Boolean;
 }
 
 /**
@@ -3011,6 +3026,8 @@ export interface ParagraphBuilderFactory {
      * @param fontSrc
      */
     MakeFromFontProvider(style: ParagraphStyle, fontSrc: TypefaceFontProvider): ParagraphBuilder;
+
+    ShapeText(text: string, runs: FontBlock[], width?: number): ShapedLine[];
 }
 
 export interface ParagraphStyleConstructor {

@@ -192,6 +192,15 @@
     // maps string -> malloc'd pointer
     var stringCache = {};
 
+    // no caching, caller must free with CanvasKit._free()
+    function copyString(str) {
+      // Add 1 for null terminator, which we need when copying/converting
+      const strLen = lengthBytesUTF8(str) + 1;
+      const strPtr = CanvasKit._malloc(strLen);
+      stringToUTF8(str, strPtr, strLen);
+      return strPtr;
+    }
+
     // cacheOrCopyString copies a string from JS into WASM on the heap and returns the pointer
     // to the memory of the string. It is expected that a caller to this helper will *not* free
     // that memory, so it is cached. Thus, if a future call to this function with the same string
@@ -262,6 +271,17 @@
         var result =  CanvasKit.ParagraphBuilder._MakeFromFontProvider(paragraphStyle, fontProvider);
         freeArrays(paragraphStyle['textStyle']);
         return result;
+    };
+
+    CanvasKit.ParagraphBuilder.ShapeText = function(text, blocks, width) {
+        let length = 0;
+        for (const b of blocks) {
+            length += b.length;
+        }
+        if (length !== text.length) {
+            throw "Accumulated block lengths must equal text.length";
+        }
+        return CanvasKit.ParagraphBuilder._ShapeText(text, blocks, width);
     };
 
     CanvasKit.ParagraphBuilder.prototype.pushStyle = function(textStyle) {
