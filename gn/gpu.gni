@@ -367,6 +367,7 @@ skia_gpu_sources = [
   "$_src/gpu/geometry/GrShape.h",
   "$_src/gpu/geometry/GrStyledShape.cpp",
   "$_src/gpu/geometry/GrStyledShape.h",
+  "$_src/gpu/geometry/GrWangsFormula.h",
   "$_src/gpu/ops/GrAAConvexPathRenderer.cpp",
   "$_src/gpu/ops/GrAAConvexPathRenderer.h",
   "$_src/gpu/ops/GrAAConvexTessellator.cpp",
@@ -482,7 +483,6 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrTessellationPathRenderer.cpp",
   "$_src/gpu/tessellate/GrTessellationPathRenderer.h",
   "$_src/gpu/tessellate/GrVectorXform.h",
-  "$_src/gpu/tessellate/GrWangsFormula.h",
 
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",

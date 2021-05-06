@@ -704,3 +704,13 @@ DEF_SIMPLE_GM(path_skbug_11859, canvas, 512, 512) {
     canvas->scale(2, 2);
     canvas->drawPath(path, paint);
 }
+
+DEF_SIMPLE_GM(path_skbug_11886, canvas, 256, 256) {
+    SkPoint m = {0.f, 770.f};
+    SkPath path;
+    path.moveTo(m);
+    path.cubicTo(m + SkPoint{0.f, 1.f}, m + SkPoint{20.f, -750.f}, m + SkPoint{83.f, -746.f});
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawPath(path, paint);
+}

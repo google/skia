@@ -11,8 +11,19 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkUtils.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 
 static const SkScalar gMinCurveTol = 0.0001f;
+
+static float tolerance_to_wangs_precision(float srcTol) {
+    // You should have called scaleToleranceToSrc, which guarantees this
+    SkASSERT(srcTol >= gMinCurveTol);
+
+    // The GrPathUtil API defines tolerance as the max distance the linear segment can be from
+    // the real curve. Wang's formula guarantees the linear segments will be within 1/precision
+    // of the true curve, so precision = 1/srcTol
+    return 1.f / srcTol;
+}
 
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
                                           const SkMatrix& viewM,
@@ -47,34 +58,10 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
 }
 
 uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) {
-    // You should have called scaleToleranceToSrc, which guarantees this
-    SkASSERT(tol >= gMinCurveTol);
-
-    SkScalar d = SkPointPriv::DistanceToLineSegmentBetween(points[1], points[0], points[2]);
-    if (!SkScalarIsFinite(d)) {
-        return kMaxPointsPerCurve;
-    } else if (d <= tol) {
-        return 1;
-    } else {
-        // Each time we subdivide, d should be cut in 4. So we need to
-        // subdivide x = log4(d/tol) times. x subdivisions creates 2^(x)
-        // points.
-        // 2^(log4(x)) = sqrt(x);
-        SkScalar divSqrt = SkScalarSqrt(d / tol);
-        if (((SkScalar)SK_MaxS32) <= divSqrt) {
-            return kMaxPointsPerCurve;
-        } else {
-            int temp = SkScalarCeilToInt(divSqrt);
-            int pow2 = GrNextPow2(temp);
-            // Because of NaNs & INFs we can wind up with a degenerate temp
-            // such that pow2 comes out negative. Also, our point generator
-            // will always output at least one pt.
-            if (pow2 < 1) {
-                pow2 = 1;
-            }
-            return std::min(pow2, kMaxPointsPerCurve);
-        }
-    }
+    // quadratic_log2 bit-shifted to the left gives us the next power of two greater than
+    // calling GrWangsFormula::quadratic w/o having to compute a 4th root.
+    int wangsLog2 = GrWangsFormula::quadratic_log2(tolerance_to_wangs_precision(tol), points);
+    return std::min(1 << wangsLog2, kMaxPointsPerCurve);
 }
 
 uint32_t GrPathUtils::generateQuadraticPoints(const SkPoint& p0,
@@ -102,35 +89,9 @@ uint32_t GrPathUtils::generateQuadraticPoints(const SkPoint& p0,
     return a + b;
 }
 
-uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
-                                           SkScalar tol) {
-    // You should have called scaleToleranceToSrc, which guarantees this
-    SkASSERT(tol >= gMinCurveTol);
-
-    SkScalar d = std::max(
-        SkPointPriv::DistanceToLineSegmentBetweenSqd(points[1], points[0], points[3]),
-        SkPointPriv::DistanceToLineSegmentBetweenSqd(points[2], points[0], points[3]));
-    d = SkScalarSqrt(d);
-    if (!SkScalarIsFinite(d)) {
-        return kMaxPointsPerCurve;
-    } else if (d <= tol) {
-        return 1;
-    } else {
-        SkScalar divSqrt = SkScalarSqrt(d / tol);
-        if (((SkScalar)SK_MaxS32) <= divSqrt) {
-            return kMaxPointsPerCurve;
-        } else {
-            int temp = SkScalarCeilToInt(SkScalarSqrt(d / tol));
-            int pow2 = GrNextPow2(temp);
-            // Because of NaNs & INFs we can wind up with a degenerate temp
-            // such that pow2 comes out negative. Also, our point generator
-            // will always output at least one pt.
-            if (pow2 < 1) {
-                pow2 = 1;
-            }
-            return std::min(pow2, kMaxPointsPerCurve);
-        }
-    }
+uint32_t GrPathUtils::cubicPointCount(const SkPoint points[], SkScalar tol) {
+    int wangsLog2 = GrWangsFormula::cubic_log2(tolerance_to_wangs_precision(tol), points);
+    return std::min(1 << wangsLog2, kMaxPointsPerCurve);
 }
 
 uint32_t GrPathUtils::generateCubicPoints(const SkPoint& p0,
