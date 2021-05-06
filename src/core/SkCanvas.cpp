@@ -451,6 +451,7 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
     fSurfaceBase = nullptr;
     fIsScaleTranslate = true;
     fBaseDevice = std::move(device);
+    fStrikeCache = sk_ref_sp(SkStrikeCache::GlobalStrikeCache());
     fScratchGlyphRunBuilder = std::make_unique<SkGlyphRunBuilder>();
     fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds());
 }
@@ -2367,6 +2368,12 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         totalGlyphCount += r.fGlyphCount;
     }
     this->onDrawTextBlob(blob, x, y, paint);
+}
+
+void SkCanvas::useLocalGlyphCache() {
+    if (fStrikeCache.get() == SkStrikeCache::GlobalStrikeCache()) {
+        fStrikeCache = sk_make_sp<SkStrikeCache>();
+    }
 }
 
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,

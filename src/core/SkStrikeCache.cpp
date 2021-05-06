@@ -23,12 +23,12 @@ bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = fa
 SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
 #if !defined(SK_BUILD_FOR_IOS)
     if (gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental) {
-        static thread_local auto* cache = new SkStrikeCache;
-        return cache;
+        static thread_local auto cache = sk_make_sp<SkStrikeCache>();
+        return cache.get();
     }
 #endif
-    static auto* cache = new SkStrikeCache;
-    return cache;
+    static auto cache = sk_make_sp<SkStrikeCache>();
+    return cache.get();
 }
 
 auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,

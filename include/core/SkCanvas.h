@@ -58,6 +58,7 @@ class SkPixmap;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
+class SkStrikeCache;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
@@ -1854,6 +1855,13 @@ public:
         this->drawTextBlob(blob.get(), x, y, paint);
     }
 
+    /** Usa a glyph cache local to this canvas instead of using the shared global cache.
+     *
+     * This call only has an effect on the first call. There is no switching back to using the
+     * global cache.
+     */
+    void useLocalGlyphCache();
+
     /** Draws SkPicture picture, using clip and SkMatrix.
         Clip and SkMatrix are unchanged by picture contents, as if
         save() was called before and restore() was called after drawPicture().
@@ -2437,6 +2445,7 @@ private:
     class AutoUpdateQRBounds;
     void validateClip() const;
 
+    sk_sp<SkStrikeCache> fStrikeCache;
     std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
 
     using INHERITED = SkRefCnt;

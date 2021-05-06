@@ -34,7 +34,7 @@ public:
     virtual bool canDelete() = 0;
 };
 
-class SkStrikeCache final : public SkStrikeForGPUCacheInterface {
+class SkStrikeCache final : public SkRefCnt, public SkStrikeForGPUCacheInterface {
 public:
     SkStrikeCache() = default;
 
