@@ -145,10 +145,10 @@ public:
     bool generateCode() override;
 
 private:
-    enum IntrinsicKind {
-        kGLSL_STD_450_IntrinsicKind,
-        kSPIRV_IntrinsicKind,
-        kSpecial_IntrinsicKind
+    enum IntrinsicOpcodeKind {
+        kGLSL_STD_450_IntrinsicOpcodeKind,
+        kSPIRV_IntrinsicOpcodeKind,
+        kSpecial_IntrinsicOpcodeKind
     };
 
     enum SpecialIntrinsic {
@@ -459,8 +459,8 @@ private:
     uint64_t fCapabilities;
     SpvId fIdCount;
     SpvId fGLSLExtendedInstructions;
-    typedef std::tuple<IntrinsicKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
-    std::unordered_map<String, Intrinsic> fIntrinsicMap;
+    typedef std::tuple<IntrinsicOpcodeKind, int32_t, int32_t, int32_t, int32_t> Intrinsic;
+    std::unordered_map<IntrinsicKind, Intrinsic> fIntrinsicMap;
     std::unordered_map<const FunctionDeclaration*, SpvId> fFunctionMap;
     std::unordered_map<const Variable*, SpvId> fVariableMap;
     std::unordered_map<const Variable*, int32_t> fInterfaceBlockMap;
