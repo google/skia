@@ -126,7 +126,15 @@ static inline void round(SkPoint* p) {
 }
 
 static inline SkScalar double_to_clamped_scalar(double d) {
-    return SkDoubleToScalar(std::min((double) SK_ScalarMax, std::max(d, (double) -SK_ScalarMax)));
+    // Clamps large values to what's finitely representable when cast back to a float.
+    static const double kMaxLimit = (double) SK_ScalarMax;
+    // It's not perfect, but a using a value larger than float_min helps protect from denormalized
+    // values and ill-conditions in intermediate calculations on coordinates.
+    static const double kNearZeroLimit = 16 * (double) std::numeric_limits<float>::min();
+    if (std::abs(d) < kNearZeroLimit) {
+        d = 0.f;
+    }
+    return SkDoubleToScalar(std::max(-kMaxLimit, std::min(d, kMaxLimit)));
 }
 
 bool GrTriangulator::Line::intersect(const Line& other, SkPoint* point) const {
@@ -163,8 +171,8 @@ bool GrTriangulator::Edge::intersect(const Edge& other, SkPoint* p, uint8_t* alp
     }
     double s = sNumer / denom;
     SkASSERT(s >= 0.0 && s <= 1.0);
-    p->fX = SkDoubleToScalar(fTop->fPoint.fX - s * fLine.fB);
-    p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fLine.fA);
+    p->fX = double_to_clamped_scalar(fTop->fPoint.fX - s * fLine.fB);
+    p->fY = double_to_clamped_scalar(fTop->fPoint.fY + s * fLine.fA);
     if (alpha) {
         if (fType == EdgeType::kInner || other.fType == EdgeType::kInner) {
             // If the intersection is on any interior edge, it needs to stay fully opaque or later
@@ -273,6 +281,22 @@ void* GrTriangulator::emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, int
     return emit_triangle(prev, curr, next, fEmitCoverage, data);
 }
 
+GrTriangulator::Poly::Poly(Vertex* v, int winding)
+        : fFirstVertex(v)
+        , fWinding(winding)
+        , fHead(nullptr)
+        , fTail(nullptr)
+        , fNext(nullptr)
+        , fPartner(nullptr)
+        , fCount(0)
+{
+#if TRIANGULATOR_LOGGING
+    static int gID = 0;
+    fID = gID++;
+    TESS_LOG("*** created Poly %d\n", fID);
+#endif
+}
+
 Poly* GrTriangulator::Poly::addEdge(Edge* e, Side side, SkArenaAlloc* alloc) {
     TESS_LOG("addEdge (%g -> %g) to poly %d, %s side\n",
              e->fTop->fID, e->fBottom->fID, fID, side == kLeft_Side ? "left" : "right");
@@ -318,7 +342,7 @@ void* GrTriangulator::emitPoly(const Poly* poly, void *data) const {
     if (poly->fCount < 3) {
         return data;
     }
-    TESS_LOG("emit() %d, size %d\n", fID, fCount);
+    TESS_LOG("emit() %d, size %d\n", poly->fID, poly->fCount);
     for (MonotonePoly* m = poly->fHead; m != nullptr; m = m->fNext) {
         data = this->emitMonotonePoly(m, data);
     }
@@ -894,7 +918,7 @@ Vertex* GrTriangulator::makeSortedVertex(const SkPoint& p, uint8_t alpha, Vertex
 static bool nearly_flat(const Comparator& c, Edge* edge) {
     SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
     float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
-    return fabs(primaryDiff) < std::numeric_limits<float>::epsilon() && primaryDiff != 0.0f;
+    return fabs(primaryDiff) <= std::numeric_limits<float>::epsilon() && primaryDiff != 0.0f;
 }
 
 static SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, const Comparator& c) {
@@ -944,19 +968,24 @@ bool GrTriangulator::checkForIntersection(Edge* left, Edge* right, EdgeList* act
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        if (!nearly_flat(c, left)) {
+        bool leftFlat = nearly_flat(c, left);
+        bool rightFlat = nearly_flat(c, right);
+        if (leftFlat && rightFlat) {
+            return false;
+        }
+        if (!leftFlat) {
             p = clamp(p, left->fTop->fPoint, left->fBottom->fPoint, c);
         }
-        if (!nearly_flat(c, right)) {
+        if (!rightFlat) {
             p = clamp(p, right->fTop->fPoint, right->fBottom->fPoint, c);
         }
-        if (p == left->fTop->fPoint) {
+        if (coincident(p, left->fTop->fPoint)) {
             v = left->fTop;
-        } else if (p == left->fBottom->fPoint) {
+        } else if (coincident(p, left->fBottom->fPoint)) {
             v = left->fBottom;
-        } else if (p == right->fTop->fPoint) {
+        } else if (coincident(p, right->fTop->fPoint)) {
             v = right->fTop;
-        } else if (p == right->fBottom->fPoint) {
+        } else if (coincident(p, right->fBottom->fPoint)) {
             v = right->fBottom;
         } else {
             v = this->makeSortedVertex(p, alpha, mesh, top, c);
@@ -979,10 +1008,14 @@ void GrTriangulator::sanitizeContours(VertexList* contours, int contourCnt) cons
     for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
         SkASSERT(contour->fHead);
         Vertex* prev = contour->fTail;
+        prev->fPoint.fX = double_to_clamped_scalar((double) prev->fPoint.fX);
+        prev->fPoint.fY = double_to_clamped_scalar((double) prev->fPoint.fY);
         if (fRoundVerticesToQuarterPixel) {
             round(&prev->fPoint);
         }
         for (Vertex* v = contour->fHead; v;) {
+            v->fPoint.fX = double_to_clamped_scalar((double) v->fPoint.fX);
+            v->fPoint.fY = double_to_clamped_scalar((double) v->fPoint.fY);
             if (fRoundVerticesToQuarterPixel) {
                 round(&v->fPoint);
             }
@@ -1376,8 +1409,14 @@ Poly* GrTriangulator::contoursToPolys(VertexList* contours, int contourCnt) cons
                                                           : Comparator::Direction::kVertical);
     VertexList mesh;
     this->contoursToMesh(contours, contourCnt, &mesh, c);
+    TESS_LOG("\ninitial mesh:\n");
+    DUMP_MESH(mesh);
     SortMesh(&mesh, c);
+    TESS_LOG("\nsorted mesh:\n");
+    DUMP_MESH(mesh);
     this->mergeCoincidentVertices(&mesh, c);
+    TESS_LOG("\nsorted+merged mesh:\n");
+    DUMP_MESH(mesh);
     this->simplify(&mesh, c);
     TESS_LOG("\nsimplified mesh:\n");
     DUMP_MESH(mesh);
