@@ -227,7 +227,7 @@ static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
     return CFEqual(self, other);
 }
 
-/** Creates a typeface, searching the cache if isLocalStream is false. */
+/** Creates a typeface, searching the cache if providedData is nullptr. */
 sk_sp<SkTypeface> SkTypeface_Mac::Make(SkUniqueCFRef<CTFontRef> font,
                                        OpszVariation opszVariation,
                                        std::unique_ptr<SkStreamAsset> providedData) {
@@ -237,25 +237,27 @@ sk_sp<SkTypeface> SkTypeface_Mac::Make(SkUniqueCFRef<CTFontRef> font,
     SkASSERT(font);
     const bool isFromStream(providedData);
 
-    if (!isFromStream) {
-        SkAutoMutexExclusive ama(gTFCacheMutex);
-        sk_sp<SkTypeface> face = gTFCache.findByProcAndRef(find_by_CTFontRef, (void*)font.get());
-        if (face) {
-            return face;
-        }
+    auto makeTypeface = [&]() {
+        SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(font.get()));
+        SkFontStyle style = SkCTFontDescriptorGetSkFontStyle(desc.get(), isFromStream);
+        CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(font.get());
+        bool isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
+
+        return sk_sp<SkTypeface>(new SkTypeface_Mac(std::move(font), style, isFixedPitch,
+                                                    opszVariation, std::move(providedData)));
+    };
+
+    if (isFromStream) {
+        return makeTypeface();
     }
 
-    SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(font.get()));
-    SkFontStyle style = SkCTFontDescriptorGetSkFontStyle(desc.get(), isFromStream);
-    CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(font.get());
-    bool isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
-
-    sk_sp<SkTypeface> face(new SkTypeface_Mac(std::move(font), style,
-                                              isFixedPitch, opszVariation,
-                                              std::move(providedData)));
-    if (!isFromStream) {
-        SkAutoMutexExclusive ama(gTFCacheMutex);
-        gTFCache.add(face);
+    SkAutoMutexExclusive ama(gTFCacheMutex);
+    sk_sp<SkTypeface> face = gTFCache.findByProcAndRef(find_by_CTFontRef, (void*)font.get());
+    if (!face) {
+        face = makeTypeface();
+        if (face) {
+            gTFCache.add(face);
+        }
     }
     return face;
 }
