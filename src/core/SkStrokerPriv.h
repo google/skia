@@ -34,7 +34,7 @@ public:
                              const SkPoint& pivot,
                              const SkVector& afterUnitNormal,
                              SkScalar radius, SkScalar invMiterLimit,
-                             bool prevIsLine, bool currIsLine);
+                             bool prevIsLine, bool currIsLine, const SkPoint& nextPt);
 
     static CapProc  CapFactory(SkPaint::Cap);
     static JoinProc JoinFactory(SkPaint::Join);
