@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d6a16f1_c8b9ba6c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-06T18:47:16Z",
+      "side": 1,
+      "message": "The issue is in the \u0027oss-fuzz\u0027 monorail component, not the \u0027skia\u0027 one.\n\n    Bug: oss-fuzz:30314",
+      "revId": "98a284ec1917d26dc0c48088765a9ea1a376cc6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
