@@ -10,11 +10,11 @@
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkGeometry.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 
 static sk_sp<GrDirectContext> make_mock_context() {
     GrMockOptions mockOptions;
