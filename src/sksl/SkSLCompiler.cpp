@@ -83,14 +83,16 @@ using RefKind = VariableReference::RefKind;
 class AutoSource {
 public:
     AutoSource(Compiler* compiler, const String* source)
-            : fCompiler(compiler), fOldSource(fCompiler->fSource) {
+            : fCompiler(compiler) {
+        SkASSERT(!fCompiler->fSource);
         fCompiler->fSource = source;
     }
 
-    ~AutoSource() { fCompiler->fSource = fOldSource; }
+    ~AutoSource() {
+        fCompiler->fSource = nullptr;
+    }
 
     Compiler* fCompiler;
-    const String* fOldSource;
 };
 
 class AutoProgramConfig {
@@ -469,9 +471,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fErrorCount = 0;
     fInliner.reset();
 
-    // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     auto textPtr = std::make_unique<String>(std::move(text));
-    fSource = textPtr.get();
+    AutoSource as(this, textPtr.get());
 
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
@@ -759,9 +760,9 @@ bool Compiler::optimize(Program& program) {
 
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
+    AutoSource as(this, program.fSource.get());
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
-    AutoSource as(this, program.fSource.get());
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
     if (result && program.fConfig->fSettings.fValidateSPIRV) {
@@ -795,7 +796,6 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
         out.write(data.c_str(), data.size());
     }
 #else
-    AutoSource as(this, program.fSource.get());
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
 #endif
@@ -839,6 +839,7 @@ bool Compiler::toHLSL(Program& program, String* out) {
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
+    AutoSource as(this, program.fSource.get());
     MetalCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     return result;
