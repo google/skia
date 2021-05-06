@@ -51,6 +51,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLIRGenerator.h",
   "$_src/sksl/SkSLInliner.cpp",
   "$_src/sksl/SkSLInliner.h",
+  "$_src/sksl/SkSLIntrinsicList.h",
   "$_src/sksl/SkSLLexer.cpp",
   "$_src/sksl/SkSLLexer.h",
   "$_src/sksl/SkSLMangler.cpp",
