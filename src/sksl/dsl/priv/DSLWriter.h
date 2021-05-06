@@ -156,6 +156,12 @@ public:
                                                   ExpressionArray arguments);
 
     /**
+     * Invokes expr(arguments), where expr is a function or type reference.
+     */
+    static std::unique_ptr<SkSL::Expression> Call(std::unique_ptr<SkSL::Expression> expr,
+                                                  ExpressionArray arguments);
+
+    /**
      * Reports an error if the argument is null. Returns its argument unmodified.
      */
     static std::unique_ptr<SkSL::Expression> Check(std::unique_ptr<SkSL::Expression> expr);

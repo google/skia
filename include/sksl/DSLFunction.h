@@ -12,6 +12,7 @@
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLWrapper.h"
 
 namespace SkSL {
 
@@ -26,16 +27,19 @@ class DSLType;
 class DSLFunction {
 public:
     template<class... Parameters>
-    DSLFunction(const DSLType& returnType, const char* name, Parameters&... parameters)
-        : fReturnType(&returnType.skslType()) {
-        std::vector<DSLVar*> parameterArray;
-        parameterArray.reserve(sizeof...(parameters));
+    DSLFunction(const DSLType& returnType, const char* name, Parameters&... parameters) {
+        SkTArray<DSLVar*> parameterArray;
+        parameterArray.reserve_back(sizeof...(parameters));
 
         // in C++17, we could just do:
         // (parameterArray.push_back(&parameters), ...);
         int unused[] = {0, (static_cast<void>(parameterArray.push_back(&parameters)), 0)...};
         static_cast<void>(unused);
         this->init(returnType, name, std::move(parameterArray));
+    }
+
+    DSLFunction(const DSLType& returnType, const char* name, SkTArray<DSLVar*> parameters) {
+        this->init(returnType, name, std::move(parameters));
     }
 
     virtual ~DSLFunction() = default;
@@ -48,35 +52,41 @@ public:
 
     void define(DSLBlock block);
 
+    /**
+     * Invokes the function with the given arguments.
+     */
     template<class... Args>
     DSLExpression operator()(Args&&... args) {
-        SkTArray<DSLExpression> argArray;
+        SkTArray<DSLWrapper<DSLExpression>> argArray;
         argArray.reserve_back(sizeof...(args));
         this->collectArgs(argArray, std::forward<Args>(args)...);
         return this->call(std::move(argArray));
     }
 
+    /**
+     * Invokes the function with the given arguments.
+     */
+    DSLExpression call(SkTArray<DSLWrapper<DSLExpression>> args);
+
 private:
-    void collectArgs(SkTArray<DSLExpression>& args) {}
+    void collectArgs(SkTArray<DSLWrapper<DSLExpression>>& args) {}
 
     template<class... RemainingArgs>
-    void collectArgs(SkTArray<DSLExpression>& args, DSLVar& var, RemainingArgs&&... remaining) {
-        args.push_back(var);
-        collectArgs(args, std::forward<RemainingArgs>(remaining)...);
-    }
-
-    template<class... RemainingArgs>
-    void collectArgs(SkTArray<DSLExpression>& args, DSLExpression expr,
+    void collectArgs(SkTArray<DSLWrapper<DSLExpression>>& args, DSLVar& var,
                      RemainingArgs&&... remaining) {
-        args.push_back(std::move(expr));
+        args.push_back(DSLWrapper<DSLExpression>(var));
         collectArgs(args, std::forward<RemainingArgs>(remaining)...);
     }
 
-    void init(const DSLType& returnType, const char* name, std::vector<DSLVar*> params);
+    template<class... RemainingArgs>
+    void collectArgs(SkTArray<DSLWrapper<DSLExpression>>& args, DSLExpression expr,
+                     RemainingArgs&&... remaining) {
+        args.push_back(DSLWrapper<DSLExpression>(std::move(expr)));
+        collectArgs(args, std::forward<RemainingArgs>(remaining)...);
+    }
 
-    DSLExpression call(SkTArray<DSLExpression> args);
+    void init(const DSLType& returnType, const char* name, SkTArray<DSLVar*> params);
 
-    const SkSL::Type* fReturnType = nullptr;
     const SkSL::FunctionDeclaration* fDecl = nullptr;
 };
 
