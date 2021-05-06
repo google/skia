@@ -136,9 +136,9 @@ static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer,
                            sk_sp<SkColorSpace> colorSpace, int writeFd) {
     const SkIRect bounds = pic.cullRect().round();
     const SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
-    SkTextBlobCacheDiffCanvas filter(bounds.width(), bounds.height(), props,
-                                     strikeServer, std::move(colorSpace), true);
-    pic.playback(&filter);
+    std::unique_ptr<SkCanvas> filter = strikeServer->makeAnalysisCanvas(
+            bounds.width(), bounds.height(), props, std::move(colorSpace), true);
+    pic.playback(filter.get());
 
     std::vector<uint8_t> fontData;
     strikeServer->writeStrikeData(&fontData);
@@ -324,4 +324,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-

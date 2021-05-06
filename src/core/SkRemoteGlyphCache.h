@@ -28,31 +28,6 @@ class SkStrikeServer;
 class SkStrikeServerImpl;
 class SkTypeface;
 
-// A SkTextBlobCacheDiffCanvas is used to populate the SkStrikeServer with ops
-// which will be serialized and rendered using the SkStrikeClient.
-class SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
-public:
-
-    // For testing use only
-    SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
-                              SkStrikeServer* strikeServer, bool DFTSupport = true);
-
-    SK_SPI SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
-                                     SkStrikeServer* strikeServer, sk_sp<SkColorSpace> colorSpace,
-                                     bool DFTSupport);
-
-    SK_SPI ~SkTextBlobCacheDiffCanvas() override;
-
-protected:
-    SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
-    bool onDoSaveBehind(const SkRect*) override;
-    void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                        const SkPaint& paint) override;
-
-private:
-    class TrackLayerDevice;
-};
-
 using SkDiscardableHandleId = uint32_t;
 // This class is not thread-safe.
 class SkStrikeServer {
@@ -94,7 +69,7 @@ public:
     // Serializes the typeface to be transmitted using this server.
     SK_SPI sk_sp<SkData> serializeTypeface(SkTypeface*);
 
-    // Serializes the strike data captured using a SkTextBlobCacheDiffCanvas. Any
+    // Serializes the strike data captured using a canvas returned by ::makeAnalysisCanvas. Any
     // handles locked using the DiscardableHandleManager will be assumed to be
     // unlocked after this call.
     SK_SPI void writeStrikeData(std::vector<uint8_t>* memory);
@@ -104,7 +79,6 @@ public:
     size_t remoteStrikeMapSizeForTesting() const;
 
 private:
-    friend class SkTextBlobCacheDiffCanvas;
     SkStrikeServerImpl* impl();
 
     std::unique_ptr<SkStrikeServerImpl> fImpl;

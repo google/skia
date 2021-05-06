@@ -809,10 +809,10 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(
     return remoteStrikePtr;
 }
 
-// -- TrackLayerDevice -----------------------------------------------------------------------------
-class SkTextBlobCacheDiffCanvas::TrackLayerDevice final : public SkNoPixelsDevice {
+// -- GlyphTrackingDevice --------------------------------------------------------------------------
+class GlyphTrackingDevice final : public SkNoPixelsDevice {
 public:
-    TrackLayerDevice(
+    GlyphTrackingDevice(
             const SkISize& dimensions, const SkSurfaceProps& props, SkStrikeServerImpl* server,
             sk_sp<SkColorSpace> colorSpace, bool DFTSupport)
             : SkNoPixelsDevice(SkIRect::MakeSize(dimensions), props, std::move(colorSpace))
@@ -824,8 +824,8 @@ public:
 
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-        return new TrackLayerDevice(cinfo.fInfo.dimensions(), surfaceProps, fStrikeServerImpl,
-                                    cinfo.fInfo.refColorSpace(), fDFTSupport);
+        return new GlyphTrackingDevice(cinfo.fInfo.dimensions(), surfaceProps, fStrikeServerImpl,
+                                       cinfo.fInfo.refColorSpace(), fDFTSupport);
     }
 
 protected:
@@ -857,40 +857,6 @@ private:
     SkGlyphRunListPainter fPainter;
 };
 
-// -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
-SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
-                                                     const SkSurfaceProps& props,
-                                                     SkStrikeServer* strikeServer,
-                                                     bool DFTSupport)
-        : SkTextBlobCacheDiffCanvas{width, height, props, strikeServer, nullptr, DFTSupport} { }
-
-SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
-                                                     const SkSurfaceProps& props,
-                                                     SkStrikeServer* strikeServer,
-                                                     sk_sp<SkColorSpace> colorSpace,
-                                                     bool DFTSupport)
-        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkISize::Make(width, height),
-                                                      props,
-                                                      strikeServer->impl(),
-                                                      std::move(colorSpace),
-                                                      DFTSupport)} { }
-
-SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
-
-SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
-        const SaveLayerRec& rec) {
-    return kFullLayer_SaveLayerStrategy;
-}
-
-bool SkTextBlobCacheDiffCanvas::onDoSaveBehind(const SkRect*) {
-    return false;
-}
-
-void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                               const SkPaint& paint) {
-    SkCanvas::onDrawTextBlob(blob, x, y, paint);
-}
-
 // -- SkStrikeServer -------------------------------------------------------------------------------
 SkStrikeServer::SkStrikeServer(DiscardableHandleManager* dhm)
         : fImpl(new SkStrikeServerImpl{dhm}) { }
@@ -901,8 +867,11 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
                                                              const SkSurfaceProps& props,
                                                              sk_sp<SkColorSpace> colorSpace,
                                                              bool DFTSupport) {
-    return std::make_unique<SkTextBlobCacheDiffCanvas>(width, height, props, this,
-                                                       std::move(colorSpace), DFTSupport);
+    sk_sp<SkBaseDevice> trackingDevice(new GlyphTrackingDevice(SkISize::Make(width, height),
+                                                               props, this->impl(),
+                                                               std::move(colorSpace),
+                                                               DFTSupport));
+    return std::make_unique<SkCanvas>(std::move(trackingDevice));
 }
 
 sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {

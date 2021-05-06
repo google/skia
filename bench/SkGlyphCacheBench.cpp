@@ -223,11 +223,12 @@ class DiffCanvasBench : public Benchmark {
     void onDraw(int loops, SkCanvas* modelCanvas) override {
         SkSurfaceProps props;
         if (modelCanvas) { modelCanvas->getProps(&props); }
-        SkTextBlobCacheDiffCanvas canvas{1024, 1024, props, fServer.get()};
+        std::unique_ptr<SkCanvas> canvas = fServer->makeAnalysisCanvas(1024, 1024, props,
+                                                                       nullptr, true);
         loops *= 100;
         while (loops --> 0) {
             for (const auto& record : fTrace) {
-                canvas.drawTextBlob(
+                canvas->drawTextBlob(
                         record.blob.get(), record.offset.x(), record.offset.y(),record.paint);
             }
         }
