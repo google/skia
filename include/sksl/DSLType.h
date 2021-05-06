@@ -148,6 +148,9 @@ public:
     static DSLExpression Construct(DSLType type, SkTArray<DSLExpression> argArray);
 
 private:
+    DSLType()
+        : DSLType(kVoid_Type) {}
+
     const SkSL::Type& skslType() const;
 
     const SkSL::Type* fSkSLType = nullptr;
