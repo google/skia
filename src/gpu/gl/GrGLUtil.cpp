@@ -67,6 +67,9 @@ void GrGLGetDriverInfo(GrGLStandard standard,
                        const char* versionString,
                        GrGLDriver* outDriver,
                        GrGLDriverVersion* outVersion) {
+    SkDebugf("Renderer: %s\n", rendererString);
+    SkDebugf("Version : %s\n", versionString);
+
     int major, minor, rev, driverMajor, driverMinor, driverPoint;
 
     *outDriver = kUnknown_GrGLDriver;
@@ -269,6 +272,8 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
 }
 
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
+    SkDebugf("Vendor  : %s\n", vendorString);
+
     if (vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
