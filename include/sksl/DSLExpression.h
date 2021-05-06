@@ -9,7 +9,9 @@
 #define SKSL_DSL_EXPRESSION
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
 #include "include/sksl/DSLErrorHandling.h"
+#include "include/sksl/DSLWrapper.h"
 
 #include <cstdint>
 #include <memory>
@@ -23,6 +25,7 @@ namespace dsl {
 
 class DSLPossibleExpression;
 class DSLStatement;
+class DSLType;
 class DSLVar;
 
 /**
@@ -71,7 +74,11 @@ public:
 
     DSLExpression(DSLPossibleExpression expr, PositionInfo pos = PositionInfo());
 
+    DSLExpression(std::unique_ptr<SkSL::Expression> expression);
+
     ~DSLExpression();
+
+    DSLType type();
 
     /**
      * Overloads the '=' operator to create an SkSL assignment statement.
@@ -104,14 +111,14 @@ public:
      */
     DSLPossibleExpression operator[](DSLExpression index);
 
+    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
+
     /**
      * Invalidates this object and returns the SkSL expression it represents.
      */
     std::unique_ptr<SkSL::Expression> release();
 
 private:
-    DSLExpression(std::unique_ptr<SkSL::Expression> expression);
-
     void swap(DSLExpression& other);
 
     /**
@@ -190,6 +197,8 @@ public:
 
     ~DSLPossibleExpression();
 
+    DSLType type();
+
     DSLExpression x(PositionInfo pos = PositionInfo());
 
     DSLExpression y(PositionInfo pos = PositionInfo());
@@ -217,6 +226,8 @@ public:
     DSLPossibleExpression operator=(double expr);
 
     DSLPossibleExpression operator[](DSLExpression index);
+
+    DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
 
     DSLPossibleExpression operator++();
 

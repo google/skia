@@ -114,6 +114,7 @@ static SkSL::String stringize(DSLStatement& stmt)          { return stmt.release
 static SkSL::String stringize(DSLPossibleStatement& stmt)  { return stmt.release()->description(); }
 static SkSL::String stringize(DSLExpression& expr)         { return expr.release()->description(); }
 static SkSL::String stringize(DSLPossibleExpression& expr) { return expr.release()->description(); }
+static SkSL::String stringize(DSLBlock& blck)              { return blck.release()->description(); }
 static SkSL::String stringize(SkSL::IRNode& node)  { return node.description(); }
 
 template <typename T>
@@ -513,6 +514,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isMatrix());
     REPORTER_ASSERT(r,  DSLType(Array(kFloat_Type, 2)).isArray());
     REPORTER_ASSERT(r, !DSLType(Array(kFloat_Type, 2)).isStruct());
+
+    Var x(kFloat_Type);
+    DSLExpression e = x + 1;
+    REPORTER_ASSERT(r, e.type().isFloat());
+    e.release();
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
@@ -1178,16 +1184,38 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    {
+        DSLExpression sqrt = DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "sqrt");
+        SkTArray<DSLWrapper<DSLExpression>> args;
+        args.emplace_back(1);
+        EXPECT_EQUAL(sqrt(std::move(args)), "sqrt(1.0)");
+    }
+
+    {
+        DSLExpression pow = DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "pow");
+        DSLVar a(kFloat_Type, "a");
+        DSLVar b(kFloat_Type, "b");
+        SkTArray<DSLWrapper<DSLExpression>> args;
+        args.emplace_back(a);
+        args.emplace_back(b);
+        EXPECT_EQUAL(pow(std::move(args)), "pow(a, b)");
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
-    Statement x = Block();
-    EXPECT_EQUAL(x, "{ }");
+    EXPECT_EQUAL(Block(), "{ }");
     Var a(kInt_Type, "a", 1), b(kInt_Type, "b", 2);
-    Statement y = Block(Declare(a), Declare(b), a = b);
-    EXPECT_EQUAL(y, "{ int a = 1; int b = 2; (a = b); }");
+    EXPECT_EQUAL(Block(Declare(a), Declare(b), a = b), "{ int a = 1; int b = 2; (a = b); }");
 
-    Statement z = (If(a > 0, --a), ++b);
-    EXPECT_EQUAL(z, "if ((a > 0)) --a; ++b;");
+    EXPECT_EQUAL((If(a > 0, --a), ++b), "if ((a > 0)) --a; ++b;");
+
+    SkTArray<DSLStatement> statements;
+    statements.push_back(a = 0);
+    statements.push_back(++a);
+    EXPECT_EQUAL(Block(std::move(statements)), "{ (a = 0); ++a; }");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
@@ -1491,9 +1519,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     Var a(kFloat_Type, "a"), b(kInt_Type, "b");
 
+    SkTArray<DSLStatement> caseStatements;
+    caseStatements.push_back(a = 1);
+    caseStatements.push_back(Continue());
     Statement x = Switch(b,
         Case(0, a = 0, Break()),
-        Case(1, a = 1, Continue()),
+        Case(1, std::move(caseStatements)),
         Case(2, a = 2  /*Fallthrough*/),
         Default(Discard())
     );

@@ -46,6 +46,8 @@ public:
 
     ~DSLStatement();
 
+    DSLStatement& operator=(DSLStatement&& other) = default;
+
     std::unique_ptr<SkSL::Statement> release() {
         return std::move(fStatement);
     }

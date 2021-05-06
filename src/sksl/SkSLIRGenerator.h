@@ -147,6 +147,8 @@ public:
                                int permittedModifierFlags,
                                int permittedLayoutFlags);
 
+    std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
+
     const Context& fContext;
 
 private:
@@ -207,7 +209,6 @@ private:
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              StringFragment field);
     std::unique_ptr<Statement> convertFor(const ASTNode& f);
-    std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
     std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
     std::unique_ptr<Statement> convertIf(const ASTNode& s);
     std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTNode& s);
