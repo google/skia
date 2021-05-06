@@ -15,6 +15,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/shaders/SkShaderBase.h"
@@ -27,7 +28,6 @@ class SkImageFilter;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMarkerStack;
-class SkMatrix;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 
@@ -61,9 +61,7 @@ public:
      */
     void getGlobalBounds(SkIRect* bounds) const {
         SkASSERT(bounds);
-        SkRect localBounds = SkRect::Make(this->bounds());
-        fDeviceToGlobal.mapRect(&localBounds);
-        *bounds = localBounds.roundOut();
+        *bounds = SkMatrixPriv::MapRect(fDeviceToGlobal, SkRect::Make(this->bounds())).roundOut();
     }
 
     SkIRect getGlobalBounds() const {
@@ -116,12 +114,12 @@ public:
      *  into the global canvas' space (or root device space). This includes the translation
      *  necessary to account for the device's origin.
      */
-    const SkMatrix& deviceToGlobal() const { return fDeviceToGlobal; }
+    const SkM44& deviceToGlobal() const { return fDeviceToGlobal; }
     /**
      *  Return the inverse of getDeviceToGlobal(), mapping from the global canvas' space (or root
      *  device space) into this device's coordinate space.
      */
-    const SkMatrix& globalToDevice() const { return fGlobalToDevice; }
+    const SkM44& globalToDevice() const { return fGlobalToDevice; }
     /**
      *  DEPRECATED: This asserts that 'getDeviceToGlobal' is a translation matrix with integer
      *  components. In the future some SkDevices will have more complex device-to-global transforms,
@@ -439,12 +437,12 @@ private:
     // is anchored in the device space. The final device-to-global matrix stored by the SkDevice
     // will include a pre-translation by T(deviceOriginX, deviceOriginY), and the final
     // local-to-device matrix will have a post-translation of T(-deviceOriginX, -deviceOriginY).
-    void setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal, const SkM44& localToDevice,
+    void setDeviceCoordinateSystem(const SkM44& deviceToGlobal, const SkM44& localToDevice,
                                    int bufferOriginX, int bufferOriginY);
     // Convenience to configure the device to be axis-aligned with the root canvas, but with a
     // unique origin.
     void setOrigin(const SkM44& globalCTM, int x, int y) {
-        this->setDeviceCoordinateSystem(SkMatrix::I(), globalCTM, x, y);
+        this->setDeviceCoordinateSystem(SkM44(), globalCTM, x, y);
     }
 
     virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }
@@ -461,8 +459,8 @@ private:
     const SkSurfaceProps fSurfaceProps;
     // fDeviceToGlobal and fGlobalToDevice are inverses of each other; there are never that many
     // SkDevices, so pay the memory cost to avoid recalculating the inverse.
-    SkMatrix             fDeviceToGlobal;
-    SkMatrix             fGlobalToDevice;
+    SkM44 fDeviceToGlobal;
+    SkM44 fGlobalToDevice;
 
     // fLocalToDevice (inherited from SkMatrixProvider) is the device CTM, not the global CTM
     // It maps from local space to the device's coordinate space.

@@ -1595,8 +1595,8 @@ SkRect SkCanvas::computeDeviceClipBounds(bool outsetForAA) const {
     if (dev->onGetClipType() == SkBaseDevice::ClipType::kEmpty) {
         return SkRect::MakeEmpty();
     } else {
-        SkRect devClipBounds = SkRect::Make(dev->devClipBounds());
-        dev->deviceToGlobal().mapRect(&devClipBounds);
+        SkRect devClipBounds =
+                SkMatrixPriv::MapRect(dev->deviceToGlobal(), SkRect::Make(dev->devClipBounds()));
         if (outsetForAA) {
             // Expand bounds out by 1 in case we are anti-aliasing.  We store the
             // bounds as floats to enable a faster quick reject implementation.

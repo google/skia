@@ -333,7 +333,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     }
     // Annotations are specified in absolute coordinates, so the page xform maps from device space
     // to the global space, and applies the document transform.
-    SkMatrix pageXform = this->deviceToGlobal();
+    SkMatrix pageXform = this->deviceToGlobal().asM33();
     pageXform.postConcat(fDocument->currentPageTransform());
     if (rect.isEmpty()) {
         if (!strcmp(key, SkPDFGetNodeIdKey())) {

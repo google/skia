@@ -37,11 +37,11 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
         : SkMatrixProvider(/* localToDevice = */ SkMatrix::I())
         , fInfo(info)
         , fSurfaceProps(surfaceProps) {
-    fDeviceToGlobal.reset();
-    fGlobalToDevice.reset();
+    fDeviceToGlobal.setIdentity();
+    fGlobalToDevice.setIdentity();
 }
 
-void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,
+void SkBaseDevice::setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
                                              const SkM44& localToDevice,
                                              int bufferOriginX,
                                              int bufferOriginY) {
@@ -62,17 +62,18 @@ void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,
 void SkBaseDevice::setGlobalCTM(const SkM44& ctm) {
     fLocalToDevice = ctm;
     fLocalToDevice.normalizePerspective();
-    if (!fGlobalToDevice.isIdentity()) {
-        // Map from the global CTM state to this device's coordinate system.
-        fLocalToDevice.postConcat(SkM44(fGlobalToDevice));
-    }
+    // Map from the global CTM state to this device's coordinate system.
+    fLocalToDevice.postConcat(fGlobalToDevice);
     fLocalToDevice33 = fLocalToDevice.asM33();
 }
 
 bool SkBaseDevice::isPixelAlignedToGlobal() const {
-    return fDeviceToGlobal.isTranslate() &&
-           SkScalarIsInt(fDeviceToGlobal.getTranslateX()) &&
-           SkScalarIsInt(fDeviceToGlobal.getTranslateY());
+    // pixelAligned is set to the identity + integer translation of the device-to-global matrix.
+    // If they are equal then the device is by definition pixel aligned.
+    SkM44 pixelAligned = SkM44();
+    pixelAligned.setRC(0, 3, SkScalarFloorToScalar(fDeviceToGlobal.rc(0, 3)));
+    pixelAligned.setRC(1, 3, SkScalarFloorToScalar(fDeviceToGlobal.rc(1, 3)));
+    return pixelAligned == fDeviceToGlobal;
 }
 
 SkIPoint SkBaseDevice::getOrigin() const {
@@ -83,14 +84,14 @@ SkIPoint SkBaseDevice::getOrigin() const {
     // (e.g. Android's device-space clip regions are going away, and are not compatible with the
     // generalized device coordinate system).
     SkASSERT(this->isPixelAlignedToGlobal());
-    return SkIPoint::Make(SkScalarFloorToInt(fDeviceToGlobal.getTranslateX()),
-                          SkScalarFloorToInt(fDeviceToGlobal.getTranslateY()));
+    return SkIPoint::Make(SkScalarFloorToInt(fDeviceToGlobal.rc(0, 3)),
+                          SkScalarFloorToInt(fDeviceToGlobal.rc(1, 3)));
 }
 
 SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& dstDevice) const {
     // To get the transform from this space to the other device's, transform from our space to
     // global and then from global to the other device.
-    return SkMatrix::Concat(dstDevice.fGlobalToDevice, fDeviceToGlobal);
+    return (dstDevice.fGlobalToDevice * fDeviceToGlobal).asM33();
 }
 
 bool SkBaseDevice::getLocalToMarker(uint32_t id, SkM44* localToMarker) const {
@@ -542,8 +543,9 @@ void SkNoPixelsDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
         deviceRgn.translate(-origin.fX, -origin.fY);
         this->writableClip().opRegion(deviceRgn, (SkRegion::Op) op);
     } else {
-        this->writableClip().opRect(SkRect::Make(globalRgn.getBounds()), this->globalToDevice(),
-                                    this->bounds(), (SkRegion::Op) op, false);
+        this->writableClip().opRect(SkRect::Make(globalRgn.getBounds()),
+                                    this->globalToDevice().asM33(), this->bounds(),
+                                    (SkRegion::Op) op, false);
     }
 }
 
@@ -552,7 +554,7 @@ void SkNoPixelsDevice::onClipShader(sk_sp<SkShader> shader) {
 }
 
 void SkNoPixelsDevice::onReplaceClip(const SkIRect& rect) {
-    SkIRect deviceRect = this->globalToDevice().mapRect(SkRect::Make(rect)).round();
+    SkIRect deviceRect = SkMatrixPriv::MapRect(this->globalToDevice(), SkRect::Make(rect)).round();
     if (!deviceRect.intersect(this->bounds())) {
         deviceRect.setEmpty();
     }
@@ -564,8 +566,9 @@ void SkNoPixelsDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestrictio
         // The subset clip restriction is gone, so just store the actual device bounds as the limit
         fDeviceClipRestriction.setEmpty();
     } else {
-        fDeviceClipRestriction =
-                this->globalToDevice().mapRect(SkRect::Make(*mutableClipRestriction)).round();
+        fDeviceClipRestriction = SkMatrixPriv::MapRect(this->globalToDevice(),
+                                                       SkRect::Make(*mutableClipRestriction))
+                                              .round();
         // Besides affecting future ops, it acts as an immediate intersection
         this->writableClip().opIRect(fDeviceClipRestriction, SkRegion::kIntersect_Op);
     }

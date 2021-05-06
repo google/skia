@@ -275,11 +275,11 @@ void SkGpuDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
     if (globalRgn.isEmpty()) {
         fClip.clipRect(SkMatrix::I(), SkRect::MakeEmpty(), aa, op);
     } else if (globalRgn.isRect()) {
-        fClip.clipRect(this->globalToDevice(), SkRect::Make(globalRgn.getBounds()), aa, op);
+        fClip.clipRect(this->globalToDevice().asM33(), SkRect::Make(globalRgn.getBounds()), aa, op);
     } else {
         SkPath path;
         globalRgn.getBoundaryPath(&path);
-        fClip.clipPath(this->globalToDevice(), path, aa, op);
+        fClip.clipPath(this->globalToDevice().asM33(), path, aa, op);
     }
 }
 
