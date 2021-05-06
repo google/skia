@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3e2775b_f56a2338",
+        "filename": "src/sksl/SkSLIntrinsicList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-06T15:37:37Z",
+      "side": 1,
+      "message": "Oops, forgot these when porting over the original intrinsic list.",
+      "range": {
+        "startLine": 101,
+        "startChar": 19,
+        "endLine": 101,
+        "endChar": 35
+      },
+      "revId": "25389a346085db322e6dc13a4e433f8bedcbd5d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
