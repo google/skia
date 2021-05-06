@@ -87,6 +87,24 @@
       "parentUuid": "0f53d6f0_b64324e1",
       "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0dea7e8_a4e62eed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-06T16:08:05Z",
+      "side": 1,
+      "message": "Also since we\u0027re moving GrWangsFormula into src/geometry now, can we just delete the pointCount methods and update the call sites to use Wangs?",
+      "parentUuid": "dbb1c407_cce210b3",
+      "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
