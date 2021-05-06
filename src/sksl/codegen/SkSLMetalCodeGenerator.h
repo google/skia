@@ -63,9 +63,7 @@ public:
     : INHERITED(program, errors, out)
     , fReservedWords({"atan2", "rsqrt", "rint", "dfdx", "dfdy", "vertex", "fragment"})
     , fLineEnding("\n")
-    , fContext(*context) {
-        this->setupIntrinsics();
-    }
+    , fContext(*context) {}
 
     bool generateCode() override;
 
@@ -80,43 +78,10 @@ protected:
     static constexpr Requirements kGlobals_Requirement   = 1 << 3;
     static constexpr Requirements kFragCoord_Requirement = 1 << 4;
 
-    enum IntrinsicKind {
-        kAtan_IntrinsicKind,
-        kBitcast_IntrinsicKind,
-        kBitCount_IntrinsicKind,
-        kCompareEqual_IntrinsicKind,
-        kCompareGreaterThan_IntrinsicKind,
-        kCompareGreaterThanEqual_IntrinsicKind,
-        kCompareLessThan_IntrinsicKind,
-        kCompareLessThanEqual_IntrinsicKind,
-        kCompareNotEqual_IntrinsicKind,
-        kDegrees_IntrinsicKind,
-        kDFdx_IntrinsicKind,
-        kDFdy_IntrinsicKind,
-        kDistance_IntrinsicKind,
-        kDot_IntrinsicKind,
-        kFaceforward_IntrinsicKind,
-        kFindLSB_IntrinsicKind,
-        kFindMSB_IntrinsicKind,
-        kInverse_IntrinsicKind,
-        kInversesqrt_IntrinsicKind,
-        kLength_IntrinsicKind,
-        kMatrixCompMult_IntrinsicKind,
-        kMod_IntrinsicKind,
-        kNormalize_IntrinsicKind,
-        kRadians_IntrinsicKind,
-        kReflect_IntrinsicKind,
-        kRefract_IntrinsicKind,
-        kRoundEven_IntrinsicKind,
-        kTexture_IntrinsicKind,
-    };
-
     static const char* OperatorName(Operator op);
 
     class GlobalStructVisitor;
     void visitGlobalStruct(GlobalStructVisitor* visitor);
-
-    void setupIntrinsics();
 
     void write(const char* s);
 
@@ -229,7 +194,7 @@ protected:
 
     void writeSimpleIntrinsic(const FunctionCall& c);
 
-    void writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind);
+    bool writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind);
 
     bool canCoerce(const Type& t1, const Type& t2);
 
@@ -302,7 +267,6 @@ protected:
 
     int getUniformSet(const Modifiers& m);
 
-    std::unordered_map<String, IntrinsicKind> fIntrinsicMap;
     std::unordered_set<String> fReservedWords;
     std::unordered_map<const Type::Field*, const InterfaceBlock*> fInterfaceBlockMap;
     std::unordered_map<const InterfaceBlock*, String> fInterfaceBlockNameMap;
