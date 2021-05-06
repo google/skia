@@ -37,6 +37,10 @@ public:
     DSLModifiers(int flags)
         : fModifiers(SkSL::Layout(), flags) {}
 
+    int flags() const {
+        return fModifiers.fFlags;
+    }
+
 private:
     SkSL::Modifiers fModifiers;
 
