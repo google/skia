@@ -311,9 +311,9 @@
             LOC_Y = 20;
       const WIDTH = 400;
 
-      const tf = fontMgr.MakeTypefaceFromData(fontData);
-      const font = new CanvasKit.Font(tf, TEXTSIZE);
-      const fm = font.getMetrics();
+//      const tf = fontMgr.MakeTypefaceFromData(fontData);
+      const tf = null;  // trouble with skparagraph fontmgr (for now)
+      const runFont = new CanvasKit.Font(tf, TEXTSIZE);
       const fontPaint = new CanvasKit.Paint();
       fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
       fontPaint.setAntiAlias(true);
@@ -321,7 +321,7 @@
       const bgPaint = new CanvasKit.Paint();
       bgPaint.setColor([0.965, 0.965, 0.965, 1]);
 
-      const editor = MakeEditor(text0, cursor, WIDTH, builder);
+      const editor = MakeEditor(text0, tf, cursor, WIDTH, builder);
 
       function drawFrame(canvas) {
         const lines = editor.getLines();
@@ -347,7 +347,11 @@
         cursor.draw_before(canvas);
         for (const l of lines) {
             for (let r of l.runs) {
-                canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, font, fontPaint);
+                runFont.setTypeface(tf);    // r.typeface is always null right now
+                runFont.setSize(r.size);
+//              runFont.setEmbolden(r.fakeBold);    // todo: expose embolden in CK
+                runFont.setSkewX(r.fakeItalic ? -0.2 : 0);
+                canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, runFont, fontPaint);
             }
         }
         cursor.draw_after(canvas);
