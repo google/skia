@@ -33,6 +33,23 @@
       "message": "Deferring to Herb, but I approve all deleted code.",
       "revId": "8d7eacba467b95d78c821a6b355618df732413f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4c04243_3056b12f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-06T15:27:27Z",
+      "side": 1,
+      "message": "I like this lot. Nice Change.",
+      "revId": "8d7eacba467b95d78c821a6b355618df732413f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
