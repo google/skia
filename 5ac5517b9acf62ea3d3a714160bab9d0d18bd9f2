@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8283789b_55fecd18",
+        "filename": "include/sksl/DSLBlock.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-06T14:14:15Z",
+      "side": 1,
+      "message": "In the normal flow, the SymbolTable is created by IRGenerator when it starts working on a block, and then stored in the SkSLBlock object when we\u0027re done processing it.\n\nThe DSL normally doesn\u0027t need to really bother with SymbolTables. DSLVars go into the C++ symbol table, we rely on the C++ compiler to match identifiers to vars, and we don\u0027t really have much reason to care about the SkSLSymbolTable side of things other than for lifetime management purposes. So normally DSLVars just go into the main table, even if their declaration appears nested inside blocks.\n\nThat doesn\u0027t gel well with DSLParser, which needs to actually do the right thing with symbol tables since it has to look up identifiers itself. So this change just parallels SkSLBlock\u0027s API, and the symbol table ends up in the resulting SkSLBlock on release().",
+      "parentUuid": "7145b2fc_414a9287",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 0
+      },
+      "revId": "5ac5517b9acf62ea3d3a714160bab9d0d18bd9f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8ad63bc2_c903278e",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-06T01:08:13Z",
       "side": 1,
       "message": "Does it work if you say `DSLWrapper{var}`? I feel like if that compiles, it\u0027d be clearer under casual inspection. But if it doesn\u0027t work just leave it as-is :)",
+      "range": {
+        "startLine": 77,
+        "startChar": 23,
+        "endLine": 77,
+        "endChar": 28
+      },
+      "revId": "5ac5517b9acf62ea3d3a714160bab9d0d18bd9f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70360fc3_4ec1c564",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-06T14:14:15Z",
+      "side": 1,
+      "message": "I think this should actually be emplace_back(var), rather than either of those things.",
+      "parentUuid": "8ad63bc2_c903278e",
       "range": {
         "startLine": 77,
         "startChar": 23,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d70af32_d0275ebb",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-06T14:14:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8167f75c_6af1dc26",
+      "range": {
+        "startLine": 84,
+        "startChar": 23,
+        "endLine": 84,
+        "endChar": 24
+      },
+      "revId": "5ac5517b9acf62ea3d3a714160bab9d0d18bd9f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9fdaec3b_bec9dd57",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-05-06T01:08:13Z",
       "side": 1,
       "message": "const",
+      "range": {
+        "startLine": 40,
+        "startChar": 15,
+        "endLine": 40,
+        "endChar": 16
+      },
+      "revId": "5ac5517b9acf62ea3d3a714160bab9d0d18bd9f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f111572_9f7eac9c",
+        "filename": "include/sksl/DSLModifiers.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-06T14:14:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fdaec3b_bec9dd57",
       "range": {
         "startLine": 40,
         "startChar": 15,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e161aac0_8c0e5622",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-06T14:14:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6787fefa_5fdfd869",
+      "range": {
+        "startLine": 158,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 0
+      },
+      "revId": "5ac5517b9acf62ea3d3a714160bab9d0d18bd9f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c28156a_2c26f77f",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-05-06T01:08:13Z",
       "side": 1,
       "message": "Curious: how did we end up with a Block here?",
+      "range": {
+        "startLine": 1533,
+        "startChar": 30,
+        "endLine": 1533,
+        "endChar": 32
+      },
+      "revId": "5ac5517b9acf62ea3d3a714160bab9d0d18bd9f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d176f0e8_4ae5aa6a",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-06T14:14:15Z",
+      "side": 1,
+      "message": "Because I screwed up the test :-). Fixed.",
+      "parentUuid": "8c28156a_2c26f77f",
       "range": {
         "startLine": 1533,
         "startChar": 30,
