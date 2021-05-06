@@ -38,13 +38,15 @@ namespace dsl {
 
 class ErrorHandler;
 
+enum DSLFlag : uint8_t;
+
 /**
  * Thread-safe class that tracks per-thread state associated with DSL output. This class is for
  * internal use only.
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind);
+    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, DSLFlag flags);
 
     ~DSLWriter();
 
@@ -206,7 +208,7 @@ public:
     static void ReportError(const char* msg, PositionInfo* info = nullptr);
 
     /**
-     * Returns whether name mangling is enabled. This should always be enabled outside of tests.
+     * Returns whether name mangling is enabled.
      */
     static bool ManglingEnabled() {
         return Instance().fMangle;
