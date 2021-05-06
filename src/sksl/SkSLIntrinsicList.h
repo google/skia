@@ -97,6 +97,7 @@
     SKSL_INTRINSIC(tan)              \
     SKSL_INTRINSIC(transpose)        \
     SKSL_INTRINSIC(trunc)            \
-    SKSL_INTRINSIC(uintBitsToFloat)
+    SKSL_INTRINSIC(uintBitsToFloat)  \
+    SKSL_INTRINSIC(unpremul)
 
 #endif
