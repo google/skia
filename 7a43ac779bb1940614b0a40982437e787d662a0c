@@ -16,6 +16,23 @@
       "message": "Taking advantage of the new SkM44::MapRect, I\u0027m continuing my skcanvas simplification from last November.",
       "revId": "7a43ac779bb1940614b0a40982437e787d662a0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d652d38b_d5a585e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-06T15:15:14Z",
+      "side": 1,
+      "message": "Love the simplification.\n\nI did a lot of the complicating sk4f / scale-translate special casing, was was certainly profiling as I did it. That said, we can land.and.hope that we don\u0027t slow down in a meaningful way.\n\nSomewhat separate: have we tried just removing quickReject as a feature? Wonder what gets:\n- slower\n- faster\n- wrong\n?\n",
+      "revId": "7a43ac779bb1940614b0a40982437e787d662a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
