@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTessellatingStencilFillOp_DEFINED
-#define GrTessellatingStencilFillOp_DEFINED
+#ifndef GrPathStencilFillOp_DEFINED
+#define GrPathStencilFillOp_DEFINED
 
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrPathShader.h"
@@ -17,12 +17,12 @@ class GrPathTessellator;
 // Draws paths using a standard Redbook "stencil then fill" method. Curves get linearized by either
 // GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it requires
 // MSAA if AA is desired.
-class GrTessellatingStencilFillOp : public GrDrawOp {
+class GrPathStencilFillOp : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
-    GrTessellatingStencilFillOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                                GrAAType aaType, GrTessellationPathRenderer::OpFlags opFlags)
+    GrPathStencilFillOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
+                        GrAAType aaType, GrTessellationPathRenderer::OpFlags opFlags)
             : GrDrawOp(ClassID())
             , fOpFlags(opFlags)
             , fViewMatrix(viewMatrix)
@@ -35,7 +35,7 @@ private:
         this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
-    const char* name() const override { return "GrTessellatingStencilFillOp"; }
+    const char* name() const override { return "GrPathStencilFillOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
