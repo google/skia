@@ -7,7 +7,10 @@ uniform uvec2 d;
 uniform ivec3 e;
 uniform ivec3 f;
 void main() {
+    bvec4 expectTTFF = bvec4(true, true, false, false);
+    bvec4 expectFFTT = bvec4(false, false, true, true);
     sk_FragColor.x = float(lessThan(a, b).x ? 1 : 0);
     sk_FragColor.y = float(lessThan(c, d).y ? 1 : 0);
     sk_FragColor.z = float(lessThan(e, f).z ? 1 : 0);
+    sk_FragColor.w = float(any(expectTTFF) || any(expectFFTT) ? 1 : 0);
 }
