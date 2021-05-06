@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67f91728_04cae9f9",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-06T17:13:57Z",
+      "side": 1,
+      "message": "NaN \u003d\u003d NaN",
+      "range": {
+        "startLine": 25,
+        "startChar": 23,
+        "endLine": 25,
+        "endChar": 45
+      },
+      "revId": "0eca5603f3a0a5c0d8c57dcac4c41d67a28131f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6ec8856_b0d1314b",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-06T17:13:57Z",
+      "side": 1,
+      "message": "I think this whole function can just be\n\n    return x \u003d\u003d y || (x !\u003d x \u0026\u0026 y !\u003d y);\n\nsince finite and Inf are being handled the same way.",
+      "revId": "0eca5603f3a0a5c0d8c57dcac4c41d67a28131f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
