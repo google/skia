@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d26f1795_e26409d1",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-06T18:25:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67f91728_04cae9f9",
+      "range": {
+        "startLine": 25,
+        "startChar": 23,
+        "endLine": 25,
+        "endChar": 45
+      },
+      "revId": "0eca5603f3a0a5c0d8c57dcac4c41d67a28131f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6ec8856_b0d1314b",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-05-06T17:13:57Z",
       "side": 1,
       "message": "I think this whole function can just be\n\n    return x \u003d\u003d y || (x !\u003d x \u0026\u0026 y !\u003d y);\n\nsince finite and Inf are being handled the same way.",
+      "revId": "0eca5603f3a0a5c0d8c57dcac4c41d67a28131f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bed6d3e0_654caf88",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-06T18:25:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6ec8856_b0d1314b",
       "revId": "0eca5603f3a0a5c0d8c57dcac4c41d67a28131f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
