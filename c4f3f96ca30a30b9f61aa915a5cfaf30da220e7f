@@ -34,6 +34,24 @@
       "parentUuid": "6099f243_a453e720",
       "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f53d6f0_b64324e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-06T15:38:17Z",
+      "side": 1,
+      "message": "My understanding of the oop-pixel tests are they build a paint op buffer in the test case and then render it using old gpu raster, and again by serializing and playing back a la oopr, then compare. \n\nI don\u0027t think we can get rid of the tests entirely, but if old gpu raster isn\u0027t use anywhere anymore, the tests ought to be updated to have a different way of getting an expected image (either a png file like other tests, or just skipping the serialization/deserialization step). I\u0027ll bring that up with Backer once I do some looking to confirm what\u0027s going on.",
+      "parentUuid": "887ec267_34d81318",
+      "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
