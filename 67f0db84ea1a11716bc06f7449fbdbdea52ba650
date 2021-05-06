@@ -22,6 +22,30 @@
       },
       "revId": "67f0db84ea1a11716bc06f7449fbdbdea52ba650",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6217ddfe_132b8b47",
+        "filename": "resources/sksl/intrinsics/GreaterThan.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-06T13:03:55Z",
+      "side": 1,
+      "message": "Excellent point. Updated all the tests to include a value that would change the results if integer rounding occurred.",
+      "parentUuid": "b05e3e8c_df889163",
+      "range": {
+        "startLine": 5,
+        "startChar": 23,
+        "endLine": 5,
+        "endChar": 64
+      },
+      "revId": "67f0db84ea1a11716bc06f7449fbdbdea52ba650",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
