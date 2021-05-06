@@ -33,6 +33,24 @@
       "message": "first thought: we \u0027invoke\u0027 the cache from other non-canvas objects as well (e.g. SkFont). Is TLS an equivalent improvement? (as an experiment)",
       "revId": "63ec95284e6941c93a2ae7dbf4c4b3fcce6a6434",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9198464_721f57fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-06T17:28:24Z",
+      "side": 1,
+      "message": "I see your point with SkFonts. Would it be bad to have them use the shared cache?\n\nThe problem with TLS is how does Java multiplex on the threads? I will have to investigate this. It could be that the multiplex multiple java threads onto a few OS threads.",
+      "parentUuid": "6ecb7fbb_9acebfc4",
+      "revId": "63ec95284e6941c93a2ae7dbf4c4b3fcce6a6434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
