@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "388b716d_1471de1b",
+        "filename": "include/sksl/DSLFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-06T14:22:44Z",
+      "side": 1,
+      "message": "Google guidance tends to lean towards push_back unless there is a reason to prefer emplace_back: https://abseil.io/tips/112\n\n\"Consequently, if you have a choice between push_back() and emplace_back() with the same arguments, your code will tend to be more readable if you choose push_back(), because push_back() expresses your intent more specifically.\"",
+      "parentUuid": "70360fc3_4ec1c564",
+      "range": {
+        "startLine": 77,
+        "startChar": 23,
+        "endLine": 77,
+        "endChar": 28
+      },
+      "revId": "5ac5517b9acf62ea3d3a714160bab9d0d18bd9f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8167f75c_6af1dc26",
         "filename": "include/sksl/DSLFunction.h",
         "patchSetId": 3
