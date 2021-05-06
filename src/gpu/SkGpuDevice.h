@@ -143,8 +143,8 @@ protected:
     }
     void onReplaceClip(const SkIRect& rect) override {
         // Transform from "global/canvas" coordinates to relative to this device
-        SkIRect deviceRect = this->globalToDevice().mapRect(SkRect::Make(rect)).round();
-        fClip.replaceClip(deviceRect);
+        SkRect deviceRect = SkMatrixPriv::MapRect(this->globalToDevice(), SkRect::Make(rect));
+        fClip.replaceClip(deviceRect.round());
     }
     void onClipRegion(const SkRegion& globalRgn, SkClipOp op) override;
     void onAsRgnClip(SkRegion*) const override;
