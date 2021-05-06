@@ -1,1 +1,12 @@
-uniform half4 a, b; void main() { sk_FragColor.x = lessThanEqual(a, b).x ? 1 : 0; }
+uniform half4 a, b;
+uniform uint2 c, d;
+uniform int3 e, f;
+void main() {
+    bool4 expectTTFF = lessThanEqual(half4(2, 2.25, 2.5, 2.75), half4(2.25));
+    bool4 expectFFTT = lessThanEqual(int4(0), int4(-100, -50, 0, 50));
+
+    sk_FragColor.x = lessThanEqual(a, b).x ? 1 : 0;
+    sk_FragColor.y = lessThanEqual(c, d).y ? 1 : 0;
+    sk_FragColor.z = lessThanEqual(e, f).z ? 1 : 0;
+    sk_FragColor.w = any(expectTTFF) || any(expectFFTT) ? 1 : 0;
+}
