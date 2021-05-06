@@ -931,73 +931,12 @@ Value SkVMGenerator::writeMatrixInverse4x4(const Value& m) {
 }
 
 Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
-    static std::unordered_map<String, Intrinsic> intrinsics {
-        { "radians", Intrinsic::kRadians },
-        { "degrees", Intrinsic::kDegrees },
-        { "sin",     Intrinsic::kSin },
-        { "cos",     Intrinsic::kCos },
-        { "tan",     Intrinsic::kTan },
-        { "asin",    Intrinsic::kASin },
-        { "acos",    Intrinsic::kACos },
-        { "atan",    Intrinsic::kATan },
-
-        { "pow",  Intrinsic::kPow },
-        { "exp",  Intrinsic::kExp },
-        { "log",  Intrinsic::kLog },
-        { "exp2", Intrinsic::kExp2 },
-        { "log2", Intrinsic::kLog2 },
-        { "sqrt", Intrinsic::kSqrt },
-        { "inversesqrt", Intrinsic::kInverseSqrt },
-
-        { "abs",   Intrinsic::kAbs },
-        { "sign",  Intrinsic::kSign },
-        { "floor", Intrinsic::kFloor },
-        { "ceil",  Intrinsic::kCeil },
-        { "fract", Intrinsic::kFract },
-        { "mod",   Intrinsic::kMod },
-
-        { "min",        Intrinsic::kMin },
-        { "max",        Intrinsic::kMax },
-        { "clamp",      Intrinsic::kClamp },
-        { "saturate",   Intrinsic::kSaturate },
-        { "mix",        Intrinsic::kMix },
-        { "step",       Intrinsic::kStep },
-        { "smoothstep", Intrinsic::kSmoothstep },
-
-        { "length",      Intrinsic::kLength },
-        { "distance",    Intrinsic::kDistance },
-        { "dot",         Intrinsic::kDot },
-        { "cross",       Intrinsic::kCross },
-        { "normalize",   Intrinsic::kNormalize },
-        { "faceforward", Intrinsic::kFaceforward },
-        { "reflect",     Intrinsic::kReflect },
-        { "refract",     Intrinsic::kRefract },
-
-        { "matrixCompMult", Intrinsic::kMatrixCompMult },
-        { "inverse",        Intrinsic::kInverse },
-
-        { "lessThan",         Intrinsic::kLessThan },
-        { "lessThanEqual",    Intrinsic::kLessThanEqual },
-        { "greaterThan",      Intrinsic::kGreaterThan },
-        { "greaterThanEqual", Intrinsic::kGreaterThanEqual },
-        { "equal",            Intrinsic::kEqual },
-        { "notEqual",         Intrinsic::kNotEqual },
-
-        { "any", Intrinsic::kAny },
-        { "all", Intrinsic::kAll },
-        { "not", Intrinsic::kNot },
-
-        { "sample", Intrinsic::kSample } };
-
-    auto found = intrinsics.find(c.function().name());
-    if (found == intrinsics.end()) {
-        SkDEBUGFAILF("Missing intrinsic: '%s'", String(c.function().name()).c_str());
-        return {};
-    }
+    IntrinsicKind intrinsicKind = c.function().intrinsicKind();
+    SkASSERT(intrinsicKind != kNotIntrinsic);
 
     const size_t nargs = c.arguments().size();
 
-    if (found->second == Intrinsic::kSample) {
+    if (intrinsicKind == k_sample_IntrinsicKind) {
         // Sample is very special, the first argument is a child (shader/colorFilter), which can't
         // be evaluated
         SkASSERT(nargs == 2);
@@ -1083,70 +1022,70 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         return result;
     };
 
-    switch (found->second) {
-        case Intrinsic::kRadians:
+    switch (intrinsicKind) {
+        case k_radians_IntrinsicKind:
             return unary(args[0], [](skvm::F32 deg) { return deg * (SK_FloatPI / 180); });
-        case Intrinsic::kDegrees:
+        case k_degrees_IntrinsicKind:
             return unary(args[0], [](skvm::F32 rad) { return rad * (180 / SK_FloatPI); });
 
-        case Intrinsic::kSin: return unary(args[0], skvm::approx_sin);
-        case Intrinsic::kCos: return unary(args[0], skvm::approx_cos);
-        case Intrinsic::kTan: return unary(args[0], skvm::approx_tan);
+        case k_sin_IntrinsicKind: return unary(args[0], skvm::approx_sin);
+        case k_cos_IntrinsicKind: return unary(args[0], skvm::approx_cos);
+        case k_tan_IntrinsicKind: return unary(args[0], skvm::approx_tan);
 
-        case Intrinsic::kASin: return unary(args[0], skvm::approx_asin);
-        case Intrinsic::kACos: return unary(args[0], skvm::approx_acos);
+        case k_asin_IntrinsicKind: return unary(args[0], skvm::approx_asin);
+        case k_acos_IntrinsicKind: return unary(args[0], skvm::approx_acos);
 
-        case Intrinsic::kATan: return nargs == 1 ? unary(args[0], skvm::approx_atan)
+        case k_atan_IntrinsicKind: return nargs == 1 ? unary(args[0], skvm::approx_atan)
                                                  : binary(skvm::approx_atan2);
 
-        case Intrinsic::kPow:
+        case k_pow_IntrinsicKind:
             return binary([](skvm::F32 x, skvm::F32 y) { return skvm::approx_powf(x, y); });
-        case Intrinsic::kExp:  return unary(args[0], skvm::approx_exp);
-        case Intrinsic::kLog:  return unary(args[0], skvm::approx_log);
-        case Intrinsic::kExp2: return unary(args[0], skvm::approx_pow2);
-        case Intrinsic::kLog2: return unary(args[0], skvm::approx_log2);
+        case k_exp_IntrinsicKind:  return unary(args[0], skvm::approx_exp);
+        case k_log_IntrinsicKind:  return unary(args[0], skvm::approx_log);
+        case k_exp2_IntrinsicKind: return unary(args[0], skvm::approx_pow2);
+        case k_log2_IntrinsicKind: return unary(args[0], skvm::approx_log2);
 
-        case Intrinsic::kSqrt: return unary(args[0], skvm::sqrt);
-        case Intrinsic::kInverseSqrt:
+        case k_sqrt_IntrinsicKind: return unary(args[0], skvm::sqrt);
+        case k_inversesqrt_IntrinsicKind:
             return unary(args[0], [](skvm::F32 x) { return 1.0f / skvm::sqrt(x); });
 
-        case Intrinsic::kAbs: return unary(args[0], skvm::abs);
-        case Intrinsic::kSign:
+        case k_abs_IntrinsicKind: return unary(args[0], skvm::abs);
+        case k_sign_IntrinsicKind:
             return unary(args[0], [](skvm::F32 x) { return select(x < 0, -1.0f,
                                                            select(x > 0, +1.0f, 0.0f)); });
-        case Intrinsic::kFloor: return unary(args[0], skvm::floor);
-        case Intrinsic::kCeil:  return unary(args[0], skvm::ceil);
-        case Intrinsic::kFract: return unary(args[0], skvm::fract);
-        case Intrinsic::kMod:
+        case k_floor_IntrinsicKind: return unary(args[0], skvm::floor);
+        case k_ceil_IntrinsicKind:  return unary(args[0], skvm::ceil);
+        case k_fract_IntrinsicKind: return unary(args[0], skvm::fract);
+        case k_mod_IntrinsicKind:
             return binary([](skvm::F32 x, skvm::F32 y) { return x - y*skvm::floor(x / y); });
 
-        case Intrinsic::kMin:
+        case k_min_IntrinsicKind:
             return binary([](skvm::F32 x, skvm::F32 y) { return skvm::min(x, y); });
-        case Intrinsic::kMax:
+        case k_max_IntrinsicKind:
             return binary([](skvm::F32 x, skvm::F32 y) { return skvm::max(x, y); });
-        case Intrinsic::kClamp:
+        case k_clamp_IntrinsicKind:
             return ternary(
                     [](skvm::F32 x, skvm::F32 lo, skvm::F32 hi) { return skvm::clamp(x, lo, hi); });
-        case Intrinsic::kSaturate:
+        case k_saturate_IntrinsicKind:
             return unary(args[0], [](skvm::F32 x) { return skvm::clamp01(x); });
-        case Intrinsic::kMix:
+        case k_mix_IntrinsicKind:
             return ternary(
                     [](skvm::F32 x, skvm::F32 y, skvm::F32 t) { return skvm::lerp(x, y, t); });
-        case Intrinsic::kStep:
+        case k_step_IntrinsicKind:
             return binary([](skvm::F32 edge, skvm::F32 x) { return select(x < edge, 0.0f, 1.0f); });
-        case Intrinsic::kSmoothstep:
+        case k_smoothstep_IntrinsicKind:
             return ternary([](skvm::F32 edge0, skvm::F32 edge1, skvm::F32 x) {
                 skvm::F32 t = skvm::clamp01((x - edge0) / (edge1 - edge0));
                 return t ** t ** (3 - 2 ** t);
             });
 
-        case Intrinsic::kLength: return skvm::sqrt(dot(args[0], args[0]));
-        case Intrinsic::kDistance: {
+        case k_length_IntrinsicKind: return skvm::sqrt(dot(args[0], args[0]));
+        case k_distance_IntrinsicKind: {
             Value vec = binary([](skvm::F32 x, skvm::F32 y) { return x - y; });
             return skvm::sqrt(dot(vec, vec));
         }
-        case Intrinsic::kDot: return dot(args[0], args[1]);
-        case Intrinsic::kCross: {
+        case k_dot_IntrinsicKind: return dot(args[0], args[1]);
+        case k_cross_IntrinsicKind: {
             skvm::F32 ax = f32(args[0][0]), ay = f32(args[0][1]), az = f32(args[0][2]),
                       bx = f32(args[1][0]), by = f32(args[1][1]), bz = f32(args[1][2]);
             Value result(3);
@@ -1155,11 +1094,11 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             result[2] = ax**by - ay**bx;
             return result;
         }
-        case Intrinsic::kNormalize: {
+        case k_normalize_IntrinsicKind: {
             skvm::F32 invLen = 1.0f / skvm::sqrt(dot(args[0], args[0]));
             return unary(args[0], [&](skvm::F32 x) { return x ** invLen; });
         }
-        case Intrinsic::kFaceforward: {
+        case k_faceforward_IntrinsicKind: {
             const Value &N    = args[0],
                         &I    = args[1],
                         &Nref = args[2];
@@ -1167,7 +1106,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             skvm::F32 dotNrefI = dot(Nref, I);
             return unary(N, [&](skvm::F32 n) { return select(dotNrefI<0, n, -n); });
         }
-        case Intrinsic::kReflect: {
+        case k_reflect_IntrinsicKind: {
             const Value &I = args[0],
                         &N = args[1];
 
@@ -1176,7 +1115,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 return i - 2**dotNI**n;
             });
         }
-        case Intrinsic::kRefract: {
+        case k_refract_IntrinsicKind: {
             const Value &I  = args[0],
                         &N  = args[1];
             skvm::F32   eta = f32(args[2]);
@@ -1188,9 +1127,9 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             });
         }
 
-        case Intrinsic::kMatrixCompMult:
+        case k_matrixCompMult_IntrinsicKind:
             return binary([](skvm::F32 x, skvm::F32 y) { return x ** y; });
-        case Intrinsic::kInverse: {
+        case k_inverse_IntrinsicKind: {
             switch (args[0].slots()) {
                 case  4: return this->writeMatrixInverse2x2(args[0]);
                 case  9: return this->writeMatrixInverse3x3(args[0]);
@@ -1201,58 +1140,57 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             }
         }
 
-        case Intrinsic::kLessThan:
+        case k_lessThan_IntrinsicKind:
             return nk == Type::NumberKind::kFloat
                            ? binary([](skvm::F32 x, skvm::F32 y) { return x < y; })
                            : binary([](skvm::I32 x, skvm::I32 y) { return x < y; });
-        case Intrinsic::kLessThanEqual:
+        case k_lessThanEqual_IntrinsicKind:
             return nk == Type::NumberKind::kFloat
                            ? binary([](skvm::F32 x, skvm::F32 y) { return x <= y; })
                            : binary([](skvm::I32 x, skvm::I32 y) { return x <= y; });
-        case Intrinsic::kGreaterThan:
+        case k_greaterThan_IntrinsicKind:
             return nk == Type::NumberKind::kFloat
                            ? binary([](skvm::F32 x, skvm::F32 y) { return x > y; })
                            : binary([](skvm::I32 x, skvm::I32 y) { return x > y; });
-        case Intrinsic::kGreaterThanEqual:
+        case k_greaterThanEqual_IntrinsicKind:
             return nk == Type::NumberKind::kFloat
                            ? binary([](skvm::F32 x, skvm::F32 y) { return x >= y; })
                            : binary([](skvm::I32 x, skvm::I32 y) { return x >= y; });
 
-        case Intrinsic::kEqual:
+        case k_equal_IntrinsicKind:
             return nk == Type::NumberKind::kFloat
                            ? binary([](skvm::F32 x, skvm::F32 y) { return x == y; })
                            : binary([](skvm::I32 x, skvm::I32 y) { return x == y; });
-        case Intrinsic::kNotEqual:
+        case k_notEqual_IntrinsicKind:
             return nk == Type::NumberKind::kFloat
                            ? binary([](skvm::F32 x, skvm::F32 y) { return x != y; })
                            : binary([](skvm::I32 x, skvm::I32 y) { return x != y; });
 
-        case Intrinsic::kAny: {
+        case k_any_IntrinsicKind: {
             skvm::I32 result = i32(args[0][0]);
             for (size_t i = 1; i < args[0].slots(); ++i) {
                 result |= i32(args[0][i]);
             }
             return result;
         }
-        case Intrinsic::kAll: {
+        case k_all_IntrinsicKind: {
             skvm::I32 result = i32(args[0][0]);
             for (size_t i = 1; i < args[0].slots(); ++i) {
                 result &= i32(args[0][i]);
             }
             return result;
         }
-        case Intrinsic::kNot: return unary(args[0], [](skvm::I32 x) { return ~x; });
+        case k_not_IntrinsicKind: return unary(args[0], [](skvm::I32 x) { return ~x; });
 
-        case Intrinsic::kSample:
-            // Handled earlier
-            SkASSERT(false);
+        default:
+            SkDEBUGFAILF("unsupported intrinsic %s", c.function().description().c_str());
             return {};
     }
     SkUNREACHABLE;
 }
 
 Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
-    if (f.function().isBuiltin() && !f.function().definition()) {
+    if (f.function().isIntrinsic() && !f.function().definition()) {
         return this->writeIntrinsicCall(f);
     }
 
