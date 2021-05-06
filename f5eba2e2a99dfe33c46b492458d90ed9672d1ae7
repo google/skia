@@ -39,6 +39,29 @@
       },
       "revId": "f5eba2e2a99dfe33c46b492458d90ed9672d1ae7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06bfd230_3b3a8018",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-06T18:42:52Z",
+      "side": 1,
+      "message": "This is just to refresh my d3d knowledge. So this probably should have been a question on the last CL, but because we are using the RootConstant here the driver/gpu takes control over data lifetime/synchronization, right? Like we don\u0027t have to worry about overwriting the constant data while it is still in use by the GPU.",
+      "range": {
+        "startLine": 978,
+        "startChar": 36,
+        "endLine": 978,
+        "endChar": 68
+      },
+      "revId": "f5eba2e2a99dfe33c46b492458d90ed9672d1ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
