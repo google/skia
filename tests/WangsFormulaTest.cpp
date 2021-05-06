@@ -7,7 +7,7 @@
 
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "tests/Test.h"
 
 constexpr static int kPrecision = 4;  // 1/4 pixel max error.

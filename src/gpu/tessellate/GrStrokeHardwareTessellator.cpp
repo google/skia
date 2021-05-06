@@ -11,7 +11,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrPathUtils.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 
 namespace {
 
