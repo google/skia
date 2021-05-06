@@ -67,15 +67,9 @@ public class Matrix {
      * Translates this Matrix by x, y, z
      * Store result in caller Matrix
      * returns reference to this Matrix for operation chaining
-     *
-     * TODO: optimize calls to JNI
      */
     public Matrix translate(float x, float y, float z) {
-        Matrix t = new Matrix(1, 0, 0, x,
-                              0, 1, 0, y,
-                              0, 0, 1, z,
-                              0, 0, 0, 1);
-        this.preConcat(t);
+        nTranslate(this.mNativeInstance, x, y, z);
         return this;
     }
 
@@ -85,11 +79,7 @@ public class Matrix {
      * returns reference to this Matrix for operation chaining
      */
     public Matrix scale(float x, float y, float z) {
-        Matrix s = new Matrix(x, 0, 0, 0,
-                              0, y, 0, 0,
-                              0, 0, z, 0,
-                              0, 0, 0, 1);
-        this.preConcat(s);
+        nScale(this.mNativeInstance, x, y, z);
         return this;
     }
 
@@ -99,11 +89,7 @@ public class Matrix {
      * returns reference to this Matrix for operation chaining
      */
     public Matrix rotateX(float rad) {
-        Matrix r = new Matrix(1, 0,                     0,                      0,
-                              0, (float) Math.cos(rad), (float) -Math.sin(rad), 0,
-                              0, (float) Math.sin(rad), (float) Math.cos(rad),  0,
-                              0, 0,                     0,                      1);
-        this.preConcat(r);
+        nRotate(this.mNativeInstance, 1, 0, 0, rad);
         return this;
     }
 
@@ -113,11 +99,7 @@ public class Matrix {
      * returns reference to this Matrix for operation chaining
      */
     public Matrix rotateY(float rad) {
-        Matrix r = new Matrix((float) Math.cos(rad),  0, (float) Math.sin(rad), 0,
-                              0,                      1, 0,                     0,
-                              (float) -Math.sin(rad), 0, (float) Math.cos(rad), 0,
-                              0,                      0, 0,                     1);
-        this.preConcat(r);
+        nRotate(this.mNativeInstance, 0, 1, 0, rad);
         return this;
     }
 
@@ -127,11 +109,7 @@ public class Matrix {
      * returns reference to this Matrix for operation chaining
      */
     public Matrix rotateZ(float rad) {
-        Matrix r = new Matrix((float) Math.cos(rad), (float) -Math.sin(rad), 0, 0,
-                (float) Math.sin(rad), (float) Math.cos(rad),  0, 0,
-                0,                     0,                      1, 0,
-                0,                     0,                      0, 1);
-        this.preConcat(r);
+        nRotate(this.mNativeInstance, 0, 0, 1, rad);
         return this;
     }
 
@@ -159,4 +137,7 @@ public class Matrix {
 
     private static native void nPreConcat(long mNativeInstanceA, long mNativeInstanceB);
     private static native long nConcat(long mNativeInstanceA, long mNativeInstanceB);
+    private static native void nTranslate(long mNativeInstance, float x, float y, float z);
+    private static native void nScale(long mNativeInstance, float x, float y, float z);
+    private static native void nRotate(long mNativeInstance, float x, float y, float z, float rad);
 }

@@ -407,6 +407,7 @@ public:
     SkM44& postTranslate(SkScalar x, SkScalar y, SkScalar z = 0);
 
     SkM44& preScale(SkScalar x, SkScalar y);
+    SkM44& preScale(SkScalar x, SkScalar y, SkScalar z);
     SkM44& preConcat(const SkMatrix&);
 
 private:
