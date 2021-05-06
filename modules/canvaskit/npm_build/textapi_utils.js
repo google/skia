@@ -175,9 +175,10 @@ function string_del(str, start, end) {
     return str.slice(0, start) + str.slice(end, str.length);
 }
 
-function MakeEditor(text, cursor, width, builder) {
+function MakeEditor(text, typeface, cursor, width, builder) {
     const ed = {
         _text: text,
+        _typeface: typeface,
         _lines: null,
         _builder: builder,
         _cursor: cursor,
@@ -232,21 +233,32 @@ function MakeEditor(text, cursor, width, builder) {
             this.setIndex(index);
         },
         _buildLines: function() {
-            const builder = this._builder();
-            builder.addText(this._text);
-            const paragraph = builder.build();
-            paragraph.layout(this._width);
-
-            const rec = new CanvasKit.PictureRecorder();
-            const can = rec.beginRecording([0,0,9999,9999]);
-            can.drawParagraph(paragraph, 0, 0);
-            rec.delete();
-
-            this._lines = paragraph.getShapedLines();
-            if (!this._lines) throw "null lines";
-
-            paragraph.delete();
-            builder.delete();
+            const blocks = [];
+            blocks.push({
+                length: 1,
+                typeface: this._typeface,
+                size: 100,
+                // fakeBold, fakeItalic
+            });
+            blocks.push({
+                length: 37,
+                typeface: this._typeface,
+                size: 24,
+                // fakeBold, fakeItalic
+            });
+            blocks.push({
+                length: 6,
+                typeface: this._typeface,
+                size: 24,
+                fakeItalic: true,
+            });
+            blocks.push({
+                length: this._text.length - 1-37-6,
+                typeface: this._typeface,
+                size: 24,
+                // fakeBold, fakeItalic
+            });
+            this._lines = CanvasKit.ParagraphBuilder.ShapeText(this._text, blocks, this._width);
         },
         deleteSelection: function() {
             let start = this._index.start;

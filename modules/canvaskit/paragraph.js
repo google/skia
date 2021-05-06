@@ -264,6 +264,17 @@
         return result;
     };
 
+    CanvasKit.ParagraphBuilder.ShapeText = function(text, blocks, width) {
+        let length = 0;
+        for (const b of blocks) {
+            length += b.length;
+        }
+        if (length !== text.length) {
+            throw "Accumulated block lengths must equal text.length";
+        }
+        return CanvasKit.ParagraphBuilder._ShapeText(text, blocks, width);
+    };
+
     CanvasKit.ParagraphBuilder.prototype.pushStyle = function(textStyle) {
       copyArrays(textStyle);
       this._pushStyle(textStyle);
