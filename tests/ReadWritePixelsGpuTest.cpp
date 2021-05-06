@@ -600,10 +600,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels, reporter, ctxInfo) {
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto factory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
-                    // skbug.com/8862
-                    if (src.colorType() == kRGB_888x_SkColorType) {
-                        return Surface();
-                    }
                     auto surf = SkSurface::MakeRenderTarget(context,
                                                             SkBudgeted::kYes,
                                                             src.info(),
@@ -679,10 +675,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels, reporter, ctxInfo) {
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             auto factory = std::function<GpuSrcFactory<Image>>([&](const SkPixmap& src) {
-                // skbug.com/8862
-                if (src.colorType() == kRGB_888x_SkColorType) {
-                    return Image();
-                }
                 return sk_gpu_test::MakeBackendTextureImage(ctxInfo.directContext(), src,
                                                             renderable, origin);
             });
@@ -1123,10 +1115,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
 
     for (int c = 0; c < kGrColorTypeCnt; ++c) {
         auto ct = static_cast<GrColorType>(c);
-        // skbug.com/8862
-        if (ct == GrColorType::kRGB_888x) {
-            continue;
-        }
         // Below we use rendering to read the level pixels back.
         auto format = direct->priv().caps()->getDefaultBackendFormat(ct, GrRenderable::kYes);
         if (!format.isValid()) {
