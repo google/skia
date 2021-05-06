@@ -16,6 +16,24 @@
       "message": "How *does* this work, again? I\u0027m still not following... If I call convertProgram, and it fails, and I then call errorText() ... we won\u0027t have the source pointer, so the positions are wrong, right?",
       "revId": "148f6012258f60a1495501925abea325b26e828f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "911495bf_00d1398b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-06T12:43:23Z",
+      "side": 0,
+      "message": "The positions are looked up when error(offset, message) is called. The issue with Metal was that `Compiler::toMetal` wasn\u0027t calling AutoSource to set fSource to the Program\u0027s source like all the other backends do. This meant that errors that occurred during Metal compilation would calculate their line number based on whatever stale pointer existed in Compiler::fSource (that is, whatever it had compiled last). In practice this was probably not going to cause any issues, because we generally do SkSL-\u003eProgram-\u003ebackend all in one shot without interleaving any other work.",
+      "parentUuid": "879f4969_62edc9fc",
+      "revId": "148f6012258f60a1495501925abea325b26e828f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
