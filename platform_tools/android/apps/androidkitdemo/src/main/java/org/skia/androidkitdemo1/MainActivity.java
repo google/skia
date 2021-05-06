@@ -14,10 +14,7 @@ import android.support.annotation.NonNull;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.ImageView;
-import org.skia.androidkit.Canvas;
-import org.skia.androidkit.Color;
-import org.skia.androidkit.Paint;
-import org.skia.androidkit.Surface;
+import org.skia.androidkit.*;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
     static {
@@ -36,7 +33,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
         Bitmap bmp = Bitmap.createBitmap(200, 200, conf);
         Surface bitmapSurface = new Surface(bmp);
-        bitmapSurface.getCanvas().drawRect(0, 0, 100, 100, p);
+        Canvas canvas = bitmapSurface.getCanvas();
+
+        canvas.drawRect(0, 0, 100, 100, p);
+
+        float[] m = {1, 0, 0, 100,
+                     0, 1, 0, 100,
+                     0, 0, 1,   0,
+                     0, 0, 0,   1};
+        p.setColor(new Color(0, 0, 1, 1));
+        canvas.save();
+        canvas.concat(m);
+        canvas.drawRect(0, 0, 100, 100, p);
+        canvas.restore();
+
         ImageView image = findViewById(R.id.image);
         image.setImageBitmap(bmp);
 
