@@ -227,33 +227,24 @@ enum class GrGLANGLERenderer {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Helpers for glGetString()
- */
-
-// these variants assume caller already has a string from glGetString()
-GrGLVersion GrGLGetVersionFromString(const char* versionString);
 GrGLStandard GrGLGetStandardInUseFromString(const char* versionString);
-GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
-GrGLVendor GrGLGetVendorFromString(const char* vendorString);
-GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString, const GrGLExtensions&);
-std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInfoFromString(
-        const char* rendererString);
+GrGLSLVersion GrGLGetVersion(const GrGLInterface*);
+GrGLSLVersion GrGLGetVersionFromString(const char*);
 
-void GrGLGetDriverInfo(GrGLStandard standard,
-                       GrGLVendor vendor,
-                       const char* rendererString,
-                       const char* versionString,
-                       GrGLDriver* outDriver,
-                       GrGLDriverVersion* outVersion);
+struct GrGLDriverInfo {
+    GrGLStandard      fStandard       = kNone_GrGLStandard;
+    GrGLVersion       fVersion        = GR_GL_INVALID_VER;
+    GrGLSLVersion     fGLSLVersion    = GR_GLSL_INVALID_VER;
+    GrGLVendor        fVendor         = kOther_GrGLVendor;
+    GrGLRenderer      fRenderer       = kOther_GrGLRenderer;
+    GrGLDriver        fDriver         = kUnknown_GrGLDriver;
+    GrGLDriverVersion fDriverVersion  = GR_GL_DRIVER_UNKNOWN_VER;
+    GrGLANGLEBackend  fANGLEBackend   = GrGLANGLEBackend::kUnknown;
+    GrGLANGLEVendor   fANGLEVendor    = GrGLANGLEVendor::kUnknown;
+    GrGLANGLERenderer fANGLERenderer  = GrGLANGLERenderer::kUnknown;
+};
 
-// these variants call glGetString()
-GrGLVersion GrGLGetVersion(const GrGLInterface*);
-GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
-GrGLVendor GrGLGetVendor(const GrGLInterface*);
-GrGLRenderer GrGLGetRenderer(const GrGLInterface*);
-std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer> GrGLGetANGLEInfo(
-        const GrGLInterface*);
+GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface*);
 
 /**
  * Helpers for glGetError()

@@ -29,17 +29,17 @@ public:
     virtual ~GrGLContextInfo() {}
 
     GrGLStandard standard() const { return fInterface->fStandard; }
-    GrGLVersion version() const { return fGLVersion; }
+    GrGLVersion version() const { return fDriverInfo.fVersion; }
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
-    GrGLVendor vendor() const { return fVendor; }
-    GrGLRenderer renderer() const { return fRenderer; }
-    GrGLANGLEBackend angleBackend() const { return fANGLEBackend; }
-    GrGLANGLEVendor angleVendor() const { return fANGLEVendor; }
-    GrGLANGLERenderer angleRenderer() const { return fANGLERenderer; }
+    GrGLVendor vendor() const { return fDriverInfo.fVendor; }
+    GrGLRenderer renderer() const { return fDriverInfo.fRenderer; }
+    GrGLANGLEBackend angleBackend() const { return fDriverInfo.fANGLEBackend; }
+    GrGLANGLEVendor angleVendor() const { return fDriverInfo.fANGLEVendor; }
+    GrGLANGLERenderer angleRenderer() const { return fDriverInfo.fANGLERenderer; }
     /** What driver is running our GL implementation? This is not necessarily related to the vendor.
         (e.g. Intel GPU being driven by Mesa) */
-    GrGLDriver driver() const { return fDriver; }
-    GrGLDriverVersion driverVersion() const { return fDriverVersion; }
+    GrGLDriver driver() const { return fDriverInfo.fDriver; }
+    GrGLDriverVersion driverVersion() const { return fDriverInfo.fDriverVersion; }
     const GrGLCaps* caps() const { return fGLCaps.get(); }
     GrGLCaps* caps() { return fGLCaps.get(); }
     bool hasExtension(const char* ext) const {
@@ -51,30 +51,16 @@ public:
 protected:
     struct ConstructorArgs {
         sk_sp<const GrGLInterface>          fInterface;
-        GrGLVersion                         fGLVersion;
+        GrGLDriverInfo                      fDriverInfo;
         GrGLSLGeneration                    fGLSLGeneration;
-        GrGLVendor                          fVendor;
-        GrGLRenderer                        fRenderer;
-        GrGLDriver                          fDriver;
-        GrGLDriverVersion                   fDriverVersion;
-        GrGLANGLEBackend                    fANGLEBackend;
-        GrGLANGLEVendor                     fANGLEVendor;
-        GrGLANGLERenderer                   fANGLERenderer;
         const  GrContextOptions*            fContextOptions;
     };
 
     GrGLContextInfo(ConstructorArgs&&);
 
     sk_sp<const GrGLInterface> fInterface;
-    GrGLVersion                fGLVersion;
+    GrGLDriverInfo             fDriverInfo;
     GrGLSLGeneration           fGLSLGeneration;
-    GrGLVendor                 fVendor;
-    GrGLRenderer               fRenderer;
-    GrGLDriver                 fDriver;
-    GrGLDriverVersion          fDriverVersion;
-    GrGLANGLEBackend           fANGLEBackend;
-    GrGLANGLEVendor            fANGLEVendor;
-    GrGLANGLERenderer          fANGLERenderer;
     sk_sp<GrGLCaps>            fGLCaps;
 };
 
