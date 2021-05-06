@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ce13c4f_fe16abdd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-06T14:46:16Z",
+      "side": 1,
+      "message": "Taking advantage of the new SkM44::MapRect, I\u0027m continuing my skcanvas simplification from last November.",
+      "revId": "7a43ac779bb1940614b0a40982437e787d662a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
