@@ -62,6 +62,30 @@
       },
       "revId": "f5eba2e2a99dfe33c46b492458d90ed9672d1ae7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0055e13b_e5f7e3c2",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-06T19:35:58Z",
+      "side": 1,
+      "message": "This is using a constant buffer with the descriptor stored in the rootsignature. However, uploadConstantData uses an offset into the uniforms ring buffer, so maintaining lifetime is all handled automatically.",
+      "parentUuid": "06bfd230_3b3a8018",
+      "range": {
+        "startLine": 978,
+        "startChar": 36,
+        "endLine": 978,
+        "endChar": 68
+      },
+      "revId": "f5eba2e2a99dfe33c46b492458d90ed9672d1ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
