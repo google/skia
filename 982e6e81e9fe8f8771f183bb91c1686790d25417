@@ -34,6 +34,24 @@
       "parentUuid": "553ff614_0edc94db",
       "revId": "982e6e81e9fe8f8771f183bb91c1686790d25417",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d574fee_aabb4921",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-06T15:50:17Z",
+      "side": 1,
+      "message": "Right, I was mistaken in thinking that I needed the bilerp to \"reconstruct\" the function. The end result is too blurry. For now I\u0027m going to go with the approximate triangle filter that the D3D examples use. If we sample with bilerp exactly between the larger miplevel\u0027s pixels we should get an exact triangle filter, but I need to work out the math to place the uv coords.",
+      "parentUuid": "a9c9ae29_5b625c16",
+      "revId": "982e6e81e9fe8f8771f183bb91c1686790d25417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

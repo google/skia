@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86ae588d_a65bb534",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-06T15:50:17Z",
+      "side": 1,
+      "message": "Brian is out the next couple of days, so PTAL.",
+      "revId": "f5eba2e2a99dfe33c46b492458d90ed9672d1ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3263b2f_2df8cc37",
+        "filename": "src/gpu/d3d/GrD3DCaps.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-06T15:50:17Z",
+      "side": 1,
+      "message": "I\u0027ll turn this off again before final submit and commit the other CL. This is just to generate GMs to show it\u0027s working.",
+      "range": {
+        "startLine": 34,
+        "startChar": 74,
+        "endLine": 34,
+        "endChar": 78
+      },
+      "revId": "f5eba2e2a99dfe33c46b492458d90ed9672d1ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
