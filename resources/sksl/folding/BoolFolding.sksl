@@ -11,8 +11,12 @@ bool test() {
     bool h = false == true;
     bool i = true == !false;
     bool j = false == !false;
+    bool k = all(bool3(1 == 1, !false, 123 > 12));  // all are true
+    bool l = all(bool4(true, 1 == 2, true, true));  // three out of four are true
+    bool m = any(bool4(true, 1 == 2, true, true));  // three out of four are true
+    bool n = any(bool2(0 == 1, false));             // none are true
 
-    return a && !b && c && !d && e && !f && g && !h && i && !j;
+    return a && !b && c && !d && e && !f && g && !h && i && !j && k && !l && m && !n;
 }
 
 half4 main(float2 coords) {
