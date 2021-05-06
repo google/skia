@@ -8,12 +8,33 @@
 package org.skia.androidkit;
 
 import org.skia.androidkit.Color;
+import org.skia.androidkit.Matrix;
 import org.skia.androidkit.Paint;
 import org.skia.androidkit.Surface;
 
 public class Canvas {
     private long mNativeInstance;
     private Surface mSurface;
+
+    public void save() {
+        nSave(mNativeInstance);
+    }
+
+    public void restore() {
+        nRestore(mNativeInstance);
+    }
+
+    public void concat(Matrix m) {
+        nConcat(mNativeInstance, m.getNativeInstance());
+    }
+
+    public void concat(float[] rowMajorMatrix) {
+        if (rowMajorMatrix.length != 16) {
+            throw new java.lang.IllegalArgumentException("Expecting a 16 float array.");
+        }
+
+        nConcat16f(mNativeInstance, rowMajorMatrix);
+    }
 
     public void drawRect(float left, float right, float top, float bottom, Paint paint) {
         nDrawRect(mNativeInstance, left, right, top, bottom, paint.getNativeInstance());
@@ -41,6 +62,11 @@ public class Canvas {
         mNativeInstance = native_instance;
         mSurface = surface;
     }
+
+    private static native void nSave(long nativeInstance);
+    private static native void nRestore(long nativeInstance);
+    private static native void nConcat(long nativeInstance, long nativeMatrix);
+    private static native void nConcat16f(long nativeInstance, float[] floatMatrix);
 
     private static native void nDrawColor(long nativeInstance, float r, float g, float b, float a);
 
