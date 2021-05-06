@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcb62e88_95004d2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-06T17:07:09Z",
+      "side": 1,
+      "message": "This is just a proposed API for moving the strike cache to the Canvas to reduce contention. It\nhas not been plumbed through the system yet, but I don\u0027t think that will be much of a problem. If\nI add the strike cache to SkGlyphRunList, then this will be plumbed everywhere it needs to be.",
+      "revId": "63ec95284e6941c93a2ae7dbf4c4b3fcce6a6434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
