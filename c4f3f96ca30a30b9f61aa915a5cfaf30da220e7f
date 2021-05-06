@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6099f243_a453e720",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-06T14:45:05Z",
+      "side": 1,
+      "message": "This should be ready for review, although I will need to suppress some chrome unit tests that are failing exact pixel tests. I survey of our gold differences suggests the changes in vertex count is visually fine, with the most impact around curves approaching a circle. The complexclip2_rrect_bw\nresults that show drop-outs are caused by an earlier CL that hasn\u0027t been triaged yet, while this one just changes how the round-rect corners are rasterized.\n\nRegarding the chrome unit tests, the changes appear benign and just need simple updates to the expected images. The exception is the OopPathPixelTest/Basic, where the expected image has a poor quality circle drawn and the new actual has a nicer circle (likely because of an increased vertex count). What I don\u0027t yet understand is why the expected image (from the legacy gpu-raster path in chrome) would make a different path renderer decision than oop-r. At the very least, I don\u0027t think it indicates a bug in this CL. \n\nI can either suppress that OopPathPixelTest at the same time as the others needing rebaselines, or try and understand what\u0027s going on before this one lands.",
+      "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
