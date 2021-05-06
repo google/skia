@@ -8,9 +8,53 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 
 namespace SkSL {
+
+static bool has_compile_time_constant_arguments(const ExpressionArray& arguments) {
+    for (const std::unique_ptr<Expression>& arg : arguments) {
+        if (!arg->isCompileTimeConstant()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static std::unique_ptr<Expression> coalesce_bool_vector(
+        const ExpressionArray& arguments,
+        bool startingState,
+        const std::function<bool(bool, bool)>& coalesce) {
+    SkASSERT(arguments.size() == 1);
+    const Expression& arg = *arguments.front();
+    const Type& type = arg.type();
+    SkASSERT(type.isVector());
+    SkASSERT(type.componentType().isBoolean());
+
+    bool value = startingState;
+    for (int index = 0; index < type.columns(); ++index) {
+        const Expression* subexpression = arg.getConstantSubexpression(index);
+        SkASSERT(subexpression);
+        value = coalesce(value, subexpression->as<BoolLiteral>().value());
+    }
+
+    return BoolLiteral::Make(arg.fOffset, value, &type.componentType());
+}
+
+static std::unique_ptr<Expression> optimize_intrinsic_call(IntrinsicKind intrinsic,
+                                                           const ExpressionArray& arguments) {
+    switch (intrinsic) {
+        case k_all_IntrinsicKind:
+            return coalesce_bool_vector(arguments, /*startingState=*/true,
+                                        [](bool a, bool b) { return a && b; });
+        case k_any_IntrinsicKind:
+            return coalesce_bool_vector(arguments, /*startingState=*/false,
+                                        [](bool a, bool b) { return a || b; });
+        default:
+            return nullptr;
+    }
+}
 
 bool FunctionCall::hasProperty(Property property) const {
     if (property == Property::kSideEffects &&
@@ -115,6 +159,17 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                ExpressionArray arguments) {
     SkASSERT(function.parameters().size() == arguments.size());
     SkASSERT(function.definition() || function.isBuiltin() || !context.fConfig->strictES2Mode());
+
+    if (context.fConfig->fSettings.fOptimize) {
+        // We might be able to optimize built-in intrinsics.
+        if (function.isIntrinsic() && has_compile_time_constant_arguments(arguments)) {
+            // The function is an intrinsic and all inputs are compile-time constants. Optimize it.
+            if (std::unique_ptr<Expression> expr = optimize_intrinsic_call(function.intrinsicKind(),
+                                                                           arguments)) {
+                return expr;
+            }
+        }
+    }
 
     return std::make_unique<FunctionCall>(offset, returnType, &function, std::move(arguments));
 }
