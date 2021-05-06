@@ -31,8 +31,8 @@ std::unique_ptr<Expression> FunctionCall::clone() const {
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
         cloned.push_back(arg->clone());
     }
-    return std::make_unique<FunctionCall>(
-            fOffset, &this->type(), &this->function(), std::move(cloned));
+    return std::make_unique<FunctionCall>(fOffset, &this->type(), &this->function(),
+                                          std::move(cloned));
 }
 
 String FunctionCall::description() const {
