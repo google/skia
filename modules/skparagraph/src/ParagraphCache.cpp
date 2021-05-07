@@ -17,10 +17,6 @@ namespace {
           return a;
         }
     }
-
-    bool exactlyEqual(SkScalar x, SkScalar y) {
-        return x == y || (x != x && y != y);
-    }
 }  // namespace
 
 class ParagraphCacheKey {
@@ -140,7 +136,7 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     }
 
     // There is no need to compare default paragraph styles - they are included into fTextStyles
-    if (!exactlyEqual(a.fParagraphStyle.getHeight(), b.fParagraphStyle.getHeight())) {
+    if (!nearlyEqual(a.fParagraphStyle.getHeight(), b.fParagraphStyle.getHeight())) {
         return false;
     }
     if (a.fParagraphStyle.getTextDirection() != b.fParagraphStyle.getTextDirection()) {
