@@ -532,11 +532,10 @@ void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
             line_positions[1].fX = colrv1_paint.u.linear_gradient.p1.x;
             line_positions[1].fY = -colrv1_paint.u.linear_gradient.p1.y;
 
-            SkPoint& p0 = line_positions[0];
-            SkPoint& p1 = line_positions[1];
-            SkPoint p2;
-            p2.set(colrv1_paint.u.linear_gradient.p2.x,
-                   -colrv1_paint.u.linear_gradient.p2.y);
+            SkPoint p0 = line_positions[0];
+            SkPoint p1 = line_positions[1];
+            SkPoint p2 = SkPoint::Make(colrv1_paint.u.linear_gradient.p2.x,
+                                       -colrv1_paint.u.linear_gradient.p2.y);
 
             // Do not draw the gradient of p0p1 is parallel to p0p2.
             if (p1 == p0 || p2 == p0 || !SkPoint::CrossProduct(p1 - p0, p2 - p0)) break;
@@ -553,14 +552,45 @@ void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
             std::vector<SkColor> colors;
             fetch_color_stops(stops, colors, colrv1_paint.u.linear_gradient.colorline.color_stop_iterator);
 
+            if (stops.empty()) {
+              break;
+            }
+
+            if (stops.size() == 1) {
+                paint->setColor(colors[0]);
+                break;
+            }
+
+            // Project/scale points according to stop extrema along p0p1 line,
+            // then scale stops to to [0, 1] range so that repeat modes work.
+            // The Skia linear gradient shader performs the repeat modes over
+            // the 0 to 1 range, that's why we need to scale the stops to within
+            // that range.
+            SkVector p0p1 = p1 - p0;
+            SkVector new_p0_offset = p0p1;
+            new_p0_offset.scale(stops.front());
+            SkVector new_p1_offset = p0p1;
+            new_p1_offset.scale(stops.back());
+
+            line_positions[0] = p0 + new_p0_offset;
+            line_positions[1] = p0 + new_p1_offset;
+
+            SkScalar scale_factor = 1 / (stops.back() - stops.front());
+            SkScalar start_offset = stops.front();
+            for (SkScalar& stop : stops) {
+                stop = (stop - start_offset) * scale_factor;
+            }
+
             sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
-                    line_positions, colors.data(), stops.data(), stops.size(),
+                    line_positions,
+                    colors.data(),
+                    stops.data(),
+                    stops.size(),
                     ToSkTileMode(colrv1_paint.u.linear_gradient.colorline.extend)));
             SkASSERT(shader);
             // An opaque color is needed to ensure the gradient's not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
             paint->setShader(shader);
-
 
             break;
         }
