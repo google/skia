@@ -45,6 +45,54 @@
       },
       "revId": "eea7d7de3c83866a75e2760648025def299c0650",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1deedde_f1ba688f",
+        "filename": "src/core/SkEnumerate.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-07T20:51:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "46481a93_43585c35",
+      "range": {
+        "startLine": 28,
+        "startChar": 66,
+        "endLine": 28,
+        "endChar": 91
+      },
+      "revId": "eea7d7de3c83866a75e2760648025def299c0650",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2da57bd6_af787ddc",
+        "filename": "src/core/SkEnumerate.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-07T20:51:13Z",
+      "side": 1,
+      "message": "The forward is just wrong. Captured needs to be \u0026\u0026 for binding to temporary non-const references.",
+      "parentUuid": "fd573170_13b7c31c",
+      "range": {
+        "startLine": 28,
+        "startChar": 62,
+        "endLine": 28,
+        "endChar": 65
+      },
+      "revId": "eea7d7de3c83866a75e2760648025def299c0650",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
