@@ -487,7 +487,7 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
         }
     } else if (GR_IS_GR_GL_ES(interface->fStandard)) {
         if (info.fVendor == kNVIDIA_GrGLVendor) {
-            info.fDriverVersion = kNVIDIA_GrGLDriver;
+            info.fDriver = kNVIDIA_GrGLDriver;
             int n = sscanf(version,
                            "OpenGL ES %d.%d NVIDIA %d.%d",
                            &major,
