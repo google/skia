@@ -175,6 +175,12 @@ function string_del(str, start, end) {
     return str.slice(0, start) + str.slice(end, str.length);
 }
 
+function make_default_paint() {
+    const p = new CanvasKit.Paint();
+    p.setAntiAlias(true);
+    return p;
+}
+
 function MakeEditor(text, typeface, cursor, width, builder) {
     const ed = {
         _text: text,
@@ -184,6 +190,11 @@ function MakeEditor(text, typeface, cursor, width, builder) {
         _cursor: cursor,
         _width: width,
         _index: { start: 0, end: 0 },
+        // drawing
+        _X: 0,
+        _Y: 0,
+        _paint: make_default_paint(),
+        _font: new CanvasKit.Font(typeface),
 
         getLines: function() { return this._lines; },
 
@@ -192,6 +203,13 @@ function MakeEditor(text, typeface, cursor, width, builder) {
         },
         height: function() {
             return this._lines[this._lines.length-1].bottom;
+        },
+        bounds: function() {
+            return [this._X, this._Y, this._X + this.width(), this._Y + this.height()];
+        },
+        setXY: function(x, y) {
+            this._X = x;
+            this._Y = y;
         },
 
         setIndex: function(i) {
@@ -238,25 +256,11 @@ function MakeEditor(text, typeface, cursor, width, builder) {
                 length: 1,
                 typeface: this._typeface,
                 size: 100,
-                // fakeBold, fakeItalic
             });
             blocks.push({
-                length: 37,
+                length: this._text.length - 1,
                 typeface: this._typeface,
                 size: 24,
-                // fakeBold, fakeItalic
-            });
-            blocks.push({
-                length: 6,
-                typeface: this._typeface,
-                size: 24,
-                fakeItalic: true,
-            });
-            blocks.push({
-                length: this._text.length - 1-37-6,
-                typeface: this._typeface,
-                size: 24,
-                // fakeBold, fakeItalic
             });
             this._lines = CanvasKit.ParagraphBuilder.ShapeText(this._text, blocks, this._width);
         },
@@ -281,6 +285,25 @@ function MakeEditor(text, typeface, cursor, width, builder) {
             this._text = this._text.slice(0, index) + charcode + this._text.slice(index);
             this._buildLines();
             this.setIndex(index + 1);
+        },
+
+        draw: function(canvas) {
+            canvas.save();
+            canvas.translate(this._X, this._Y);
+            this._cursor.draw_before(canvas);
+            for (const l of this._lines) {
+                for (let r of l.runs) {
+    //              this._font.setTypeface(r.typeface); // r.typeface is always null (for now)
+                    this._font.setSize(r.size);
+                    if (r.scaleX && r.scaleX != 1) {
+                        this._font.setScaleX(r.scaleX);
+                    }
+                    this._font.setSkewX(r.fakeItalic ? -0.2 : 0);
+                    canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, this._font, this._paint);
+                }
+            }
+            this._cursor.draw_after(canvas);
+            canvas.restore();
         },
     };
     ed._buildLines();
