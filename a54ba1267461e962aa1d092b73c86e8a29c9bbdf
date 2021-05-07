@@ -22,6 +22,30 @@
       },
       "revId": "a54ba1267461e962aa1d092b73c86e8a29c9bbdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68109fcf_2ca53f46",
+        "filename": "tests/sksl/folding/CastFolding.glsl",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-07T21:13:58Z",
+      "side": 1,
+      "message": "The value of ok isn\u0027t statically known. We don\u0027t have any form of data flow analysis for non-constant variables, even ones that never change.",
+      "parentUuid": "ce20a38e_4c24a14a",
+      "range": {
+        "startLine": 7,
+        "startChar": 11,
+        "endLine": 7,
+        "endChar": 40
+      },
+      "revId": "a54ba1267461e962aa1d092b73c86e8a29c9bbdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
