@@ -2,8 +2,9 @@ uniform half4 a, b;
 uniform uint2 c, d;
 uniform int3 e, f;
 void main() {
+    const int4 int4_zero = int4(0);
     bool4 expectTTFF = lessThan(half4(1, 2, 2.5, 2.75), half4(2.25));
-    bool4 expectFFTT = lessThan(int4(0), int4(-50, 0, 50, 100));
+    bool4 expectFFTT = lessThan(int4_zero, int4(-50, 0, 50, 100));
 
     sk_FragColor.x = lessThan(a, b).x ? 1 : 0;
     sk_FragColor.y = lessThan(c, d).y ? 1 : 0;

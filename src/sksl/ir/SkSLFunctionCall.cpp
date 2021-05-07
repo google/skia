@@ -6,6 +6,7 @@
  */
 
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
@@ -18,7 +19,8 @@ namespace SkSL {
 
 static bool has_compile_time_constant_arguments(const ExpressionArray& arguments) {
     for (const std::unique_ptr<Expression>& arg : arguments) {
-        if (!arg->isCompileTimeConstant()) {
+        const Expression* expr = ConstantFolder::GetConstantValueForVariable(*arg);
+        if (!expr->isCompileTimeConstant()) {
             return false;
         }
     }
@@ -30,19 +32,19 @@ static std::unique_ptr<Expression> coalesce_bool_vector(
         bool startingState,
         const std::function<bool(bool, bool)>& coalesce) {
     SkASSERT(arguments.size() == 1);
-    const Expression& arg = *arguments.front();
-    const Type& type = arg.type();
+    const Expression* arg = ConstantFolder::GetConstantValueForVariable(*arguments.front());
+    const Type& type = arg->type();
     SkASSERT(type.isVector());
     SkASSERT(type.componentType().isBoolean());
 
     bool value = startingState;
     for (int index = 0; index < type.columns(); ++index) {
-        const Expression* subexpression = arg.getConstantSubexpression(index);
+        const Expression* subexpression = arg->getConstantSubexpression(index);
         SkASSERT(subexpression);
         value = coalesce(value, subexpression->as<BoolLiteral>().value());
     }
 
-    return BoolLiteral::Make(arg.fOffset, value, &type.componentType());
+    return BoolLiteral::Make(arg->fOffset, value, &type.componentType());
 }
 
 template <typename LITERAL, typename FN>
@@ -77,16 +79,16 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
                                                        const ExpressionArray& arguments,
                                                        const FN& compare) {
     SkASSERT(arguments.size() == 2);
-    const Expression& left = *arguments[0];
-    const Expression& right = *arguments[1];
+    const Expression* left = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
+    const Expression* right = ConstantFolder::GetConstantValueForVariable(*arguments[1]);
 
-    if (left.type().componentType().isFloat()) {
-        return optimize_comparison_of_type<FloatLiteral>(context, left, right, compare);
+    if (left->type().componentType().isFloat()) {
+        return optimize_comparison_of_type<FloatLiteral>(context, *left, *right, compare);
     }
-    if (left.type().componentType().isInteger()) {
-        return optimize_comparison_of_type<IntLiteral>(context, left, right, compare);
+    if (left->type().componentType().isInteger()) {
+        return optimize_comparison_of_type<IntLiteral>(context, *left, *right, compare);
     }
-    SkDEBUGFAILF("unsupported type %s", left.type().description().c_str());
+    SkDEBUGFAILF("unsupported type %s", left->type().description().c_str());
     return nullptr;
 }
 
