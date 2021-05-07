@@ -2,9 +2,14 @@ uniform half4 testInputs;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
+    const half4 constVal = half4(-1.25, 0, 0.75, 2.25);
     int4 expected = int4(1, 0, 0, 2);
     return (abs(int4(testInputs).x)    == expected.x     &&
             abs(int4(testInputs).xy)   == expected.xy    &&
             abs(int4(testInputs).xyz)  == expected.xyz   &&
-            abs(int4(testInputs).xyzw) == expected.xyzw) ? colorGreen : colorRed;
+            abs(int4(testInputs).xyzw) == expected.xyzw  &&
+            abs(int4(constVal).x)      == expected.x     &&
+            abs(int4(constVal).xy)     == expected.xy    &&
+            abs(int4(constVal).xyz)    == expected.xyz   &&
+            abs(int4(constVal).xyzw)   == expected.xyzw) ? colorGreen : colorRed;
 }

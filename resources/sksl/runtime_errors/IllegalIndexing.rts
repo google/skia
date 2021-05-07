@@ -25,5 +25,5 @@ uniform int u;
 void uniform_index()    { int a[2]; a[u] = 0; }
 void param_index(int p) { int a[2]; a[p] = 0; }
 
-// Legal in GLSL, not yet in SkSL:
-void func_index()      { int a[2]; a[int(abs(-1))] = 0; }        // skbug.com/10835
+// Legal in SkSL when optimization is enabled:
+void func_index()      { int a[2]; a[int(abs(-1))] = 0; }

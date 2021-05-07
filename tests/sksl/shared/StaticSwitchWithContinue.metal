@@ -17,7 +17,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float result = 0.0;
     for (int x = 0;x <= 1; x++) {
         {
-            result = abs(2.0);
+            result = 2.0;
             continue;
         }
     }
