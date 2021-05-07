@@ -74,84 +74,88 @@ static constexpr uint32_t GrGLFormatChannels(GrGLFormat format) {
 /**
  * The Vendor and Renderer enum values are lazily updated as required.
  */
-enum GrGLVendor {
-    kARM_GrGLVendor,
-    kGoogle_GrGLVendor,
-    kImagination_GrGLVendor,
-    kIntel_GrGLVendor,
-    kQualcomm_GrGLVendor,
-    kNVIDIA_GrGLVendor,
-    kATI_GrGLVendor,
+enum class GrGLVendor {
+    kARM,
+    kGoogle,
+    kImagination,
+    kIntel,
+    kQualcomm,
+    kNVIDIA,
+    kATI,
 
-    kOther_GrGLVendor
+    kOther
 };
 
-enum GrGLRenderer {
-    kTegra_PreK1_GrGLRenderer,  // Legacy Tegra architecture (pre-K1).
-    kTegra_GrGLRenderer,  // Tegra with the same architecture as NVIDIA desktop GPUs (K1+).
-    kPowerVR54x_GrGLRenderer,
-    kPowerVRRogue_GrGLRenderer,
-    kAdreno3xx_GrGLRenderer,
-    kAdreno430_GrGLRenderer,
-    kAdreno4xx_other_GrGLRenderer,
-    kAdreno530_GrGLRenderer,
-    kAdreno5xx_other_GrGLRenderer,
-    kAdreno615_GrGLRenderer,  // Pixel3a
-    kAdreno620_GrGLRenderer,  // Pixel5
-    kAdreno630_GrGLRenderer,  // Pixel3
-    kAdreno640_GrGLRenderer,  // Pixel4
-    kGoogleSwiftShader_GrGLRenderer,
+enum class GrGLRenderer {
+    kTegra_PreK1,  // Legacy Tegra architecture (pre-K1).
+    kTegra,        // Tegra with the same architecture as NVIDIA desktop GPUs (K1+).
+
+    kPowerVR54x,
+    kPowerVRRogue,
+
+    kAdreno3xx,
+    kAdreno430,
+    kAdreno4xx_other,
+    kAdreno530,
+    kAdreno5xx_other,
+    kAdreno615,  // Pixel3a
+    kAdreno620,  // Pixel5
+    kAdreno630,  // Pixel3
+    kAdreno640,  // Pixel4
+
+    kGoogleSwiftShader,
 
     /** Intel GPU families, ordered by generation **/
     // 6th gen
-    kIntelSandyBridge_GrGLRenderer,
+    kIntelSandyBridge,
 
     // 7th gen
-    kIntelIvyBridge_GrGLRenderer,
-    kIntelValleyView_GrGLRenderer, // aka BayTrail
-    kIntelHaswell_GrGLRenderer,
+    kIntelIvyBridge,
+    kIntelValleyView,  // aka BayTrail
+    kIntelHaswell,
 
     // 8th gen
-    kIntelCherryView_GrGLRenderer, // aka Braswell
-    kIntelBroadwell_GrGLRenderer,
+    kIntelCherryView,  // aka Braswell
+    kIntelBroadwell,
 
     // 9th gen
-    kIntelApolloLake_GrGLRenderer,
-    kIntelSkyLake_GrGLRenderer,
-    kIntelGeminiLake_GrGLRenderer,
-    kIntelKabyLake_GrGLRenderer,
-    kIntelCoffeeLake_GrGLRenderer,
+    kIntelApolloLake,
+    kIntelSkyLake,
+    kIntelGeminiLake,
+    kIntelKabyLake,
+    kIntelCoffeeLake,
 
     // 11th gen
-    kIntelIceLake_GrGLRenderer,
+    kIntelIceLake,
 
-    kGalliumLLVM_GrGLRenderer,
-    kMali4xx_GrGLRenderer,
+    kGalliumLLVM,
+
+    kMali4xx,
     /** G-3x, G-5x, or G-7x */
-    kMaliG_GrGLRenderer,
+    kMaliG,
     /** T-6xx, T-7xx, or T-8xx */
-    kMaliT_GrGLRenderer,
-    kANGLE_GrGLRenderer,
+    kMaliT,
+    kANGLE,
 
-    kAMDRadeonHD7xxx_GrGLRenderer,    // AMD Radeon HD 7000 Series
-    kAMDRadeonR9M3xx_GrGLRenderer,    // AMD Radeon R9 M300 Series
-    kAMDRadeonR9M4xx_GrGLRenderer,    // AMD Radeon R9 M400 Series
-    kAMDRadeonPro5xxx_GrGLRenderer,   // AMD Radeon Pro 5000 Series
-    kAMDRadeonProVegaxx_GrGLRenderer, // AMD Radeon Pro Vega
+    kAMDRadeonHD7xxx,     // AMD Radeon HD 7000 Series
+    kAMDRadeonR9M3xx,     // AMD Radeon R9 M300 Series
+    kAMDRadeonR9M4xx,     // AMD Radeon R9 M400 Series
+    kAMDRadeonPro5xxx,    // AMD Radeon Pro 5000 Series
+    kAMDRadeonProVegaxx,  // AMD Radeon Pro Vega
 
-    kOther_GrGLRenderer
+    kOther
 };
 
-enum GrGLDriver {
-    kMesa_GrGLDriver,
-    kChromium_GrGLDriver,
-    kNVIDIA_GrGLDriver,
-    kIntel_GrGLDriver,
-    kANGLE_GrGLDriver,
-    kSwiftShader_GrGLDriver,
-    kQualcomm_GrGLDriver,
-    kAndroidEmulator_GrGLDriver,
-    kUnknown_GrGLDriver
+enum class GrGLDriver {
+    kMesa,
+    kChromium,
+    kNVIDIA,
+    kIntel,
+    kANGLE,
+    kSwiftShader,
+    kQualcomm,
+    kAndroidEmulator,
+    kUnknown
 };
 
 enum class GrGLANGLEBackend {
@@ -235,9 +239,9 @@ struct GrGLDriverInfo {
     GrGLStandard      fStandard       = kNone_GrGLStandard;
     GrGLVersion       fVersion        = GR_GL_INVALID_VER;
     GrGLSLVersion     fGLSLVersion    = GR_GLSL_INVALID_VER;
-    GrGLVendor        fVendor         = kOther_GrGLVendor;
-    GrGLRenderer      fRenderer       = kOther_GrGLRenderer;
-    GrGLDriver        fDriver         = kUnknown_GrGLDriver;
+    GrGLVendor        fVendor         = GrGLVendor::kOther;
+    GrGLRenderer      fRenderer       = GrGLRenderer::kOther;
+    GrGLDriver        fDriver         = GrGLDriver::kUnknown;
     GrGLDriverVersion fDriverVersion  = GR_GL_DRIVER_UNKNOWN_VER;
     GrGLANGLEBackend  fANGLEBackend   = GrGLANGLEBackend::kUnknown;
     GrGLANGLEVendor   fANGLEVendor    = GrGLANGLEVendor::kUnknown;
