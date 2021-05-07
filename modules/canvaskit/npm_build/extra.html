@@ -322,6 +322,7 @@
       bgPaint.setColor([0.965, 0.965, 0.965, 1]);
 
       const editor = MakeEditor(text0, tf, cursor, WIDTH, builder);
+      editor.setXY(LOC_X, LOC_Y);
 
       function drawFrame(canvas) {
         const lines = editor.getLines();
@@ -339,23 +340,8 @@
             }
         }
 
-        canvas.save();
-        canvas.translate(LOC_X, LOC_Y);
-
-        canvas.drawRect([0, 0, editor.width(), editor.height()], bgPaint);
-
-        cursor.draw_before(canvas);
-        for (const l of lines) {
-            for (let r of l.runs) {
-                runFont.setTypeface(tf);    // r.typeface is always null right now
-                runFont.setSize(r.size);
-//              runFont.setEmbolden(r.fakeBold);    // todo: expose embolden in CK
-                runFont.setSkewX(r.fakeItalic ? -0.2 : 0);
-                canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, runFont, fontPaint);
-            }
-        }
-        cursor.draw_after(canvas);
-        canvas.restore();
+        canvas.drawRect(editor.bounds(), bgPaint);
+        editor.draw(canvas);
 
         surface.requestAnimationFrame(drawFrame);
       }
