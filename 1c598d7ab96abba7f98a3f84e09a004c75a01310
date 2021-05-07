@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a2606df_d32eb15e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-07T13:29:04Z",
+      "side": 1,
+      "message": "PTAL. I ended up not using a fuzzy equality for coincidence. That lead to too many topology assumption violations down the road; it may have been reasonable if the rest of the algorithm was implemented in the same vein but at this point it seemed intractable to update it piecemeal to that end.\n\nInstead this approach sanitizes the inputs and computed coordinates a bit more to avoid the worst numerical scenarios (fingers crossed).\n\nThe chrome canary failures appear unrelated to this change. This CL allows both of the fuzzer bugs to pass w/o crashing now.",
+      "revId": "1c598d7ab96abba7f98a3f84e09a004c75a01310",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
