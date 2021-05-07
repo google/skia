@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce20a38e_4c24a14a",
+        "filename": "tests/sksl/folding/CastFolding.glsl",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-07T17:07:41Z",
+      "side": 1,
+      "message": "Do you know why we\u0027re missing this optimization?",
+      "range": {
+        "startLine": 7,
+        "startChar": 11,
+        "endLine": 7,
+        "endChar": 40
+      },
+      "revId": "a54ba1267461e962aa1d092b73c86e8a29c9bbdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
