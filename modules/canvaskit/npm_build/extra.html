@@ -289,39 +289,21 @@
       const mouse = MakeMouse();
       const cursor = MakeCursor(CanvasKit);
       const canvas = surface.getCanvas();
-      const fontMgr = CanvasKit.FontMgr.FromData([fontData]);
-      const TEXTSIZE = 32;
-
-      const paraStyle = new CanvasKit.ParagraphStyle({
-          textStyle: {
-              color: CanvasKit.GRAY,
-              fontFamilies: ['Roboto'],
-              fontSize: TEXTSIZE,
-          },
-          textAlign: CanvasKit.TextAlign.Left,
-      });
-      const builder = function() {
-          return CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
-      }
 
       const text0 = "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
                     "wet hole full of worms and oozy smells. This was a hobbit-hole and " +
                     "that means good food, a warm hearth, and all the comforts of home.";
       const LOC_X = 20,
             LOC_Y = 20;
-      const WIDTH = 400;
-
-//      const tf = fontMgr.MakeTypefaceFromData(fontData);
-      const tf = null;  // trouble with skparagraph fontmgr (for now)
-      const runFont = new CanvasKit.Font(tf, TEXTSIZE);
-      const fontPaint = new CanvasKit.Paint();
-      fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
-      fontPaint.setAntiAlias(true);
 
       const bgPaint = new CanvasKit.Paint();
       bgPaint.setColor([0.965, 0.965, 0.965, 1]);
 
-      const editor = MakeEditor(text0, tf, cursor, WIDTH, builder);
+      const editor = MakeEditor(text0, {typeface:null, size:24}, cursor, 400);
+
+      editor.applyStyleToRange({size:100}, 0, 1);
+      editor.applyStyleToRange({size:10}, 38, 38+6);
+
       editor.setXY(LOC_X, LOC_Y);
 
       function drawFrame(canvas) {
