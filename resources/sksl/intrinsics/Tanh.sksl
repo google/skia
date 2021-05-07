@@ -1,1 +1,14 @@
-uniform half a; void main() { sk_FragColor.x = tanh(a); }
+uniform half4 input, expected;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal = half4(0);
+    return (tanh(input.x)       == expected.x     &&
+            tanh(input.xy)      == expected.xy    &&
+            tanh(input.xyz)     == expected.xyz   &&
+            tanh(input.xyzw)    == expected.xyzw  &&
+            tanh(constVal.x)    == expected.x     &&
+            tanh(constVal.xy)   == expected.xy    &&
+            tanh(constVal.xyz)  == expected.xyz   &&
+            tanh(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}
