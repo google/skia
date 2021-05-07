@@ -2037,7 +2037,7 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
         // only time we have multiple proxies is if we are flushing a yuv SkImage which won't have
         // state updates anyways. Additionally if we have a newState than we must not have any
         // BackendSurfaceAccess.
-        SkASSERT(!newState || proxies.count() == 1);
+        SkASSERT(!newState || proxies.size() == 1);
         SkASSERT(!newState || access == SkSurface::BackendSurfaceAccess::kNoAccess);
         GrVkImage* image;
         for (GrSurfaceProxy* proxy : proxies) {

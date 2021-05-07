@@ -13,7 +13,6 @@
 #include <type_traits>
 #include <utility>
 #include "include/private/SkTLogic.h"
-#include "include/private/SkTo.h"
 
 template <typename T>
 class SkSpan {
@@ -40,14 +39,9 @@ public:
     constexpr T& back()  const { return fPtr[fSize - 1]; }
     constexpr T* begin() const { return fPtr; }
     constexpr T* end() const { return fPtr + fSize; }
-    constexpr const T* cbegin() const { return this->begin(); }
-    constexpr const T* cend() const { return this->end(); }
     constexpr auto rbegin() const { return std::make_reverse_iterator(this->end()); }
     constexpr auto rend() const { return std::make_reverse_iterator(this->begin()); }
-    constexpr auto crbegin() const { return std::make_reverse_iterator(this->cend()); }
-    constexpr auto crend() const { return std::make_reverse_iterator(this->cbegin()); }
     constexpr T* data() const { return this->begin(); }
-    constexpr int count() const { return SkTo<int>(fSize); }
     constexpr size_t size() const { return fSize; }
     constexpr bool empty() const { return fSize == 0; }
     constexpr size_t size_bytes() const { return fSize * sizeof(T); }

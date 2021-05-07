@@ -409,7 +409,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
         }
 
         // Update atlas generation if there are no more glyphs to put in the atlas.
-        if (success && begin + glyphsPlacedInAtlas == fGlyphs.count()) {
+        if (success && begin + glyphsPlacedInAtlas == SkCount(fGlyphs)) {
             // Need to get the freshest value of the atlas' generation because
             // updateTextureCoordinates may have changed it.
             fAtlasGeneration = atlasManager->atlasGeneration(maskFormat);
@@ -418,7 +418,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
         return {success, glyphsPlacedInAtlas};
     } else {
         // The atlas hasn't changed, so our texture coordinates are still valid.
-        if (end == fGlyphs.count()) {
+        if (end == SkCount(fGlyphs)) {
             // The atlas hasn't changed and the texture coordinates are all still valid. Update
             // all the plots used to the new use token.
             atlasManager->setUseTokenBulk(fBulkUseToken,
@@ -584,7 +584,7 @@ size_t DirectMaskSubRun::vertexStride(const SkMatrix&) const {
 }
 
 int DirectMaskSubRun::glyphCount() const {
-    return fGlyphs.glyphs().count();
+    return SkCount(fGlyphs.glyphs());
 }
 
 namespace {
@@ -1059,7 +1059,7 @@ size_t TransformedMaskSubRun::vertexStride(const SkMatrix& drawMatrix) const {
 }
 
 int TransformedMaskSubRun::glyphCount() const {
-    return fVertexData.count();
+    return SkCount(fVertexData);
 }
 
 SkRect TransformedMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
@@ -1327,7 +1327,7 @@ void SDFTSubRun::fillVertexData(
 }
 
 int SDFTSubRun::glyphCount() const {
-    return fVertexData.count();
+    return SkCount(fVertexData);
 }
 
 SkRect SDFTSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
@@ -1743,7 +1743,7 @@ size_t DirectMaskSubRunNoCache::vertexStride(const SkMatrix&) const {
 }
 
 int DirectMaskSubRunNoCache::glyphCount() const {
-    return fGlyphs.glyphs().count();
+    return SkCount(fGlyphs.glyphs());
 }
 
 std::tuple<const GrClip*, GrOp::Owner>
@@ -2076,7 +2076,7 @@ size_t TransformedMaskSubRunNoCache::vertexStride(const SkMatrix& drawMatrix) co
 }
 
 int TransformedMaskSubRunNoCache::glyphCount() const {
-    return fVertexData.count();
+    return SkCount(fVertexData);
 }
 
 SkRect TransformedMaskSubRunNoCache::deviceRect(
@@ -2269,7 +2269,7 @@ void SDFTSubRunNoCache::fillVertexData(
 }
 
 int SDFTSubRunNoCache::glyphCount() const {
-    return fVertexData.count();
+    return SkCount(fVertexData);
 }
 
 SkRect SDFTSubRunNoCache::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
