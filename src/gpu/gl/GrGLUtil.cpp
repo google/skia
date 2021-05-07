@@ -361,16 +361,18 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     return GrGLRenderer::kOther;
 }
 
-std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer>
+std::tuple<GrGLANGLEBackend, GrGLVendor, GrGLRenderer>
 get_angle_info(const char* rendererString) {
-    auto backend = GrGLANGLEBackend::kUnknown;
-    auto vendor = GrGLANGLEVendor::kUnknown;
-    auto renderer = GrGLANGLERenderer::kUnknown;
+    auto backend  = GrGLANGLEBackend::kUnknown;
+    auto vendor   = GrGLVendor::kOther;
+    auto renderer = GrGLRenderer::kOther;
+
     if (!is_renderer_angle(rendererString)) {
         return {backend, vendor, renderer};
     }
+
     if (strstr(rendererString, "Intel")) {
-        vendor = GrGLANGLEVendor::kIntel;
+        vendor = GrGLVendor::kIntel;
 
         const char* modelStr;
         int modelNumber;
@@ -380,17 +382,17 @@ get_angle_info(const char* rendererString) {
             switch (modelNumber) {
                 case 2000:
                 case 3000:
-                    renderer = GrGLANGLERenderer::kSandyBridge;
+                    renderer = GrGLRenderer::kIntelSandyBridge;
                     break;
                 case 4000:
                 case 2500:
-                    renderer = GrGLANGLERenderer::kIvyBridge;
+                    renderer = GrGLRenderer::kIntelSandyBridge;
                     break;
                 case 510:
                 case 515:
                 case 520:
                 case 530:
-                    renderer = GrGLANGLERenderer::kSkylake;
+                    renderer = GrGLRenderer::kIntelSkyLake;
                     break;
             }
         } else if ((modelStr = strstr(rendererString, "Iris")) &&
@@ -402,14 +404,14 @@ get_angle_info(const char* rendererString) {
                 case 550:
                 case 555:
                 case 580:
-                    renderer = GrGLANGLERenderer::kSkylake;
+                    renderer = GrGLRenderer::kIntelSkyLake;
                     break;
             }
         }
     } else if (strstr(rendererString, "NVIDIA")) {
-        vendor = GrGLANGLEVendor::kNVIDIA;
+        vendor = GrGLVendor::kNVIDIA;
     } else if (strstr(rendererString, "Radeon")) {
-        vendor = GrGLANGLEVendor::kAMD;
+        vendor = GrGLVendor::kATI;
     }
     if (strstr(rendererString, "Direct3D11")) {
         backend = GrGLANGLEBackend::kD3D11;
