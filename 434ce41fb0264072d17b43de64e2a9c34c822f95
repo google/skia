@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8bac383_4cddc015",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-07T20:28:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2aaa8f08_009cd05f",
+      "range": {
+        "startLine": 354,
+        "startChar": 22,
+        "endLine": 354,
+        "endChar": 63
+      },
+      "revId": "434ce41fb0264072d17b43de64e2a9c34c822f95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a5caf38_5e5f219d",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-07T19:41:36Z",
       "side": 1,
       "message": "Can we add a comment in there saying something along the lines of:\n\n\"We don\u0027t actually use render passes in d3d. So there is nothing to actually submit here as all commands have already been recorded on the main command list. If in the future we start to use render passes on d3d12 devices that support them (most likely arm devices), then we will submit them here.\"",
+      "range": {
+        "startLine": 363,
+        "startChar": 3,
+        "endLine": 363,
+        "endChar": 8
+      },
+      "revId": "434ce41fb0264072d17b43de64e2a9c34c822f95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44e9650b_778c575f",
+        "filename": "src/gpu/d3d/GrD3DOpsRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-07T20:28:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a5caf38_5e5f219d",
       "range": {
         "startLine": 363,
         "startChar": 3,
