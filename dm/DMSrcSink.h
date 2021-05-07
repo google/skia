@@ -224,9 +224,9 @@ private:
 
 class ImageGenSrc : public Src {
 public:
-    enum Mode {
-        kCodec_Mode,    // Use CodecImageGenerator
-        kPlatform_Mode, // Uses CG or WIC
+    enum class Mode {
+        kCodec,    // Use CodecImageGenerator
+        kPlatform, // Uses CG or WIC
     };
     ImageGenSrc(Path, Mode, SkAlphaType, bool);
 
@@ -241,6 +241,8 @@ private:
     SkAlphaType fDstAlphaType;
     bool        fIsGpu;
     bool        fRunSerially;
+
+    std::unique_ptr<SkImageGenerator> makeGenerator() const;
 };
 
 class ColorCodecSrc : public Src {

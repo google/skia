@@ -916,48 +916,43 @@ bool ImageGenSrc::veto(SinkFlags flags) const {
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
-Result ImageGenSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
-    if (kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
-        return Result::Skip("Uninteresting to test image generator to 565.");
-    }
-
+std::unique_ptr<SkImageGenerator> ImageGenSrc::makeGenerator() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
-        return Result::Fatal("Couldn't read %s.", fPath.c_str());
+        return nullptr;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
     // Initialize COM in order to test with WIC.
     SkAutoCoInitialize com;
     if (!com.succeeded()) {
-        return Result::Fatal("Could not initialize COM.");
+        return false;
     }
 #endif
 
-    std::unique_ptr<SkImageGenerator> gen(nullptr);
     switch (fMode) {
-        case kCodec_Mode:
-            gen = SkCodecImageGenerator::MakeFromEncodedCodec(encoded);
-            if (!gen) {
-                return Result::Fatal("Could not create codec image generator.");
-            }
-            break;
-        case kPlatform_Mode: {
+        case Mode::kCodec:
+            return SkCodecImageGenerator::MakeFromEncodedCodec(encoded);
+        case Mode::kPlatform: {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-            gen = SkImageGeneratorCG::MakeFromEncodedCG(encoded);
+            return SkImageGeneratorCG::MakeFromEncodedCG(encoded);
 #elif defined(SK_BUILD_FOR_WIN)
-            gen = SkImageGeneratorWIC::MakeFromEncodedWIC(encoded);
+            return SkImageGeneratorWIC::MakeFromEncodedWIC(encoded);
 #elif defined(SK_ENABLE_NDK_IMAGES)
-            gen = SkImageGeneratorNDK::MakeFromEncodedNDK(encoded);
+            return SkImageGeneratorNDK::MakeFromEncodedNDK(encoded);
 #endif
-            if (!gen) {
-                return Result::Fatal("Could not create platform image generator.");
-            }
-            break;
         }
-        default:
-            SkASSERT(false);
-            return Result::Fatal("Invalid image generator mode");
+    }
+}
+
+Result ImageGenSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
+    if (kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
+        return Result::Skip("Uninteresting to test image generator to 565.");
+    }
+
+    auto gen = this->makeGenerator();
+    if (!gen) {
+        return Result::Fatal("Couldn't read or decode %s.", fPath.c_str());
     }
 
     // Test deferred decoding path on GPU
@@ -994,12 +989,11 @@ Result ImageGenSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
 }
 
 SkISize ImageGenSrc::size() const {
-    sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
-    if (nullptr == codec) {
+    auto gen = this->makeGenerator();
+    if (!gen) {
         return {0, 0};
     }
-    return codec->getInfo().dimensions();
+    return gen->getInfo().dimensions();
 }
 
 Name ImageGenSrc::name() const {

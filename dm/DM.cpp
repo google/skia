@@ -585,10 +585,10 @@ static void push_image_gen_src(Path path, ImageGenSrc::Mode mode, SkAlphaType al
 {
     SkString folder;
     switch (mode) {
-        case ImageGenSrc::kCodec_Mode:
+        case ImageGenSrc::Mode::kCodec:
             folder.append("gen_codec");
             break;
-        case ImageGenSrc::kPlatform_Mode:
+        case ImageGenSrc::Mode::kPlatform:
             folder.append("gen_platform");
             break;
     }
@@ -823,27 +823,27 @@ static void push_codec_srcs(Path path) {
     }
 
     // Push image generator GPU test.
-    push_image_gen_src(path, ImageGenSrc::kCodec_Mode, codec->getInfo().alphaType(), true);
+    push_image_gen_src(path, ImageGenSrc::Mode::kCodec, codec->getInfo().alphaType(), true);
 
     // Push image generator CPU tests.
     for (SkAlphaType alphaType : alphaModes) {
-        push_image_gen_src(path, ImageGenSrc::kCodec_Mode, alphaType, false);
+        push_image_gen_src(path, ImageGenSrc::Mode::kCodec, alphaType, false);
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         if (SkEncodedImageFormat::kWEBP != codec->getEncodedFormat() &&
             SkEncodedImageFormat::kWBMP != codec->getEncodedFormat() &&
             kUnpremul_SkAlphaType != alphaType)
         {
-            push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
+            push_image_gen_src(path, ImageGenSrc::Mode::kPlatform, alphaType, false);
         }
 #elif defined(SK_BUILD_FOR_WIN)
         if (SkEncodedImageFormat::kWEBP != codec->getEncodedFormat() &&
             SkEncodedImageFormat::kWBMP != codec->getEncodedFormat())
         {
-            push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
+            push_image_gen_src(path, ImageGenSrc::Mode::kPlatform, alphaType, false);
         }
 #elif defined(SK_ENABLE_NDK_IMAGES)
-        push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
+        push_image_gen_src(path, ImageGenSrc::Mode::kPlatform, alphaType, false);
 #endif
     }
 }
