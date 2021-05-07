@@ -92,6 +92,33 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     return nullptr;
 }
 
+using Float1Fn = float (*)(float);
+static std::unique_ptr<Expression> evaluate_intrinsic_float1(const Context& context,
+                                                             const ExpressionArray& arguments,
+                                                             const Float1Fn& evaluate) {
+    SkASSERT(arguments.size() == 1);
+    const Expression* arg = ConstantFolder::GetConstantValueForVariable(*arguments.front());
+    const Type& vecType = arg->type();
+    const Type& type = vecType.componentType();
+
+    if (type.isFloat()) {
+        ExpressionArray result;
+        result.reserve_back(vecType.columns());
+
+        for (int index = 0; index < vecType.columns(); ++index) {
+            const Expression* subexpr = arg->getConstantSubexpression(index);
+            SkASSERT(subexpr);
+            float value = evaluate(subexpr->as<FloatLiteral>().value());
+            result.push_back(FloatLiteral::Make(subexpr->fOffset, value, &type));
+        }
+
+        return ConstructorCompound::Make(context, arg->fOffset, vecType, std::move(result));
+    }
+
+    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
+    return nullptr;
+}
+
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
                                                            IntrinsicKind intrinsic,
                                                            const ExpressionArray& arguments) {
@@ -119,6 +146,54 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
         case k_notEqual_IntrinsicKind:
             return optimize_comparison(context, arguments, [](auto a, auto b) { return a != b; });
+
+        case k_sin_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return sin(a); });
+
+        case k_cos_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return cos(a); });
+
+        case k_tan_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return tan(a); });
+
+        case k_asin_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return asin(a); });
+
+        case k_acos_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return acos(a); });
+
+        case k_sinh_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return sinh(a); });
+
+        case k_cosh_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return cosh(a); });
+
+        case k_tanh_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return tanh(a); });
+
+        case k_ceil_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return ceil(a); });
+
+        case k_floor_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return floor(a); });
+
+        case k_fract_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments,
+                                             [](float a) { return a - floor(a); });
+        case k_trunc_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return trunc(a); });
+
+        case k_exp_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return exp(a); });
+
+        case k_log_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return log(a); });
+
+        case k_exp2_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return exp2(a); });
+
+        case k_log2_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return log2(a); });
 
         default:
             return nullptr;
