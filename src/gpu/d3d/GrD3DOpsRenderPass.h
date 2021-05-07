@@ -31,6 +31,8 @@ public:
         const GrOpsRenderPass::StencilLoadAndStoreInfo&,
         const SkTArray<GrSurfaceProxy*, true>& sampledProxies);
 
+    void submit();
+
 private:
     GrGpu* gpu() override;
 
