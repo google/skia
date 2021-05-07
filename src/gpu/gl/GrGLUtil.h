@@ -165,6 +165,7 @@ enum class GrGLANGLEBackend {
     kOpenGL
 };
 
+/*
 enum class GrGLANGLEVendor {
     kUnknown,
     kIntel,
@@ -178,6 +179,7 @@ enum class GrGLANGLERenderer {
     kIvyBridge,
     kSkylake
 };
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -244,8 +246,8 @@ struct GrGLDriverInfo {
     GrGLDriver        fDriver         = GrGLDriver::kUnknown;
     GrGLDriverVersion fDriverVersion  = GR_GL_DRIVER_UNKNOWN_VER;
     GrGLANGLEBackend  fANGLEBackend   = GrGLANGLEBackend::kUnknown;
-    GrGLANGLEVendor   fANGLEVendor    = GrGLANGLEVendor::kUnknown;
-    GrGLANGLERenderer fANGLERenderer  = GrGLANGLERenderer::kUnknown;
+    GrGLVendor        fANGLEVendor    = GrGLVendor::kOther;
+    GrGLRenderer      fANGLERenderer  = GrGLRenderer::kOther;
 };
 
 GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface*);
