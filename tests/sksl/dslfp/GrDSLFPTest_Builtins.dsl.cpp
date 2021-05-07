@@ -24,8 +24,8 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-zero = floor(0.5f);
-one = ceil(0.5f);
+zero = 0.0f;
+one = 1.0f;
 Var _zero(kConst_Modifier, DSLType(kFloat_Type), "zero", Float(zero));
 Declare(_zero);
 Var _one(kConst_Modifier, DSLType(kFloat_Type), "one", Float(one));
@@ -92,9 +92,9 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrDSLFPTest_Builtins::onMakeProgramImpl
     return std::make_unique<GrGLSLDSLFPTest_Builtins>();
 }
 void GrDSLFPTest_Builtins::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-float zero = floor(0.5f);
+float zero = 0.0f;
     b->add32(sk_bit_cast<uint32_t>(zero), "zero");
-float one = ceil(0.5f);
+float one = 1.0f;
     b->add32(sk_bit_cast<uint32_t>(one), "one");
 }
 bool GrDSLFPTest_Builtins::onIsEqual(const GrFragmentProcessor& other) const {
