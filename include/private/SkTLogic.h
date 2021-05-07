@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+#include "include/private/SkTo.h"
 
 namespace skstd {
 
@@ -78,5 +79,8 @@ template <typename D, typename S> using same_cv = copy_cv<std::remove_cv_t<D>, S
 template <typename D, typename S> using same_cv_t = typename same_cv<D, S>::type;
 
 }  // namespace sknonstd
+
+template <typename Container>
+constexpr int SkCount(const Container& c) { return SkTo<int>(skstd::size(c)); }
 
 #endif

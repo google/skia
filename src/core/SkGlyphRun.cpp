@@ -86,7 +86,7 @@ SkRect SkGlyphRun::sourceBounds(const SkPaint& paint) const {
     // Use conservative bounds. All glyph have a box of fontBounds size.
     if (fScaledRotations.empty()) {
         SkRect bounds;
-        bounds.setBounds(this->positions().data(), this->positions().count());
+        bounds.setBounds(this->positions().data(), SkCount(this->positions()));
         bounds.fLeft   += fontBounds.left();
         bounds.fTop    += fontBounds.top();
         bounds.fRight  += fontBounds.right();
@@ -269,7 +269,7 @@ const SkGlyphRunList& SkGlyphRunBuilder::blobToGlyphRunList(
 
 std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
 SkGlyphRunBuilder::convertRSXForm(SkSpan<const SkRSXform> xforms) {
-    const int count = xforms.count();
+    const int count = SkCount(xforms);
     this->prepareBuffers(count, count);
     auto positions = SkSpan(fPositions.get(), count);
     auto scaledRotations = SkSpan(fScaledRotations.get(), count);
