@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c551bfee_d8abc8e8",
+        "filename": "tests/sksl/intrinsics/SignInt.glsl",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-07T15:47:20Z",
+      "side": 0,
+      "message": "Oops--this test was previously submitted in a broken state 🙃",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 23
+      },
+      "revId": "f43dc3306a7ee3bae76ee8b96024c5dcfe7decfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
