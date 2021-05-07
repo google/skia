@@ -1,0 +1,29 @@
+uniform half4 colorRed, colorGreen;
+
+bool test() {
+    const float floatOne = 1;
+    const int intOne = 1;
+    const half4 half4One = half4(1);
+    const int4 int4One = int4(1);
+
+    bool ok = true;
+
+    // Typecasting a constant scalar variable should fold away.
+    ok = ok && (int(floatOne) == intOne);
+    ok = ok && (float(intOne) == floatOne);
+
+    // Typecasting a constant vector variable should fold away.
+    ok = ok && (int4(half4One) == int4One);
+    ok = ok && (half4(int4One) == half4One);
+
+    // More complex cases should also fold.
+    ok = ok && (int4(half4One) == int4(intOne));            // cast(vector) == splat(scalar)
+    ok = ok && (half4(int4One) == half4(half(floatOne)));   // cast(vector) == splat(cast(scalar))
+    ok = ok && (half4(intOne) == half4(float4(floatOne)));  // splatcast(sclr) == cast(splat(sclr))
+
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return test() ? colorGreen : colorRed;
+}
