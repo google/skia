@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e637c4a5_2b2f3ece",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-07T16:33:53Z",
+      "side": 1,
+      "message": "nit: since this is kind-of a method of FT_ColorStopIterator it would be more consistent if this FT_ColorStopIterator parameter came first in the parameter list (since the \u0027this\u0027 pointer or \u0027self\u0027 reference is traditionally the first parameter). Especially since \u0027stops\u0027 and \u0027colors\u0027 are kind-of out parameters which traditionally come last.",
+      "revId": "25ab4d6ce38f99cc48be016205d2d98da507a154",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a28ff86_55e4cd40",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-07T16:33:53Z",
+      "side": 1,
+      "message": "Is there a special palette_index (like #FFFF) for the current color? I\u0027m assuming FreeType has already sanitized the values to ensure the palette_index is within palette?",
+      "revId": "25ab4d6ce38f99cc48be016205d2d98da507a154",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
