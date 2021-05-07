@@ -2423,13 +2423,16 @@ private:
 
     virtual SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const { return nullptr; }
 
-    // Keep track of the device clip bounds in the canvas' global space to reject draws before
-    // invoking the top-level device.
+    /**
+     *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
+     *  us to do a fast quick reject in the common case.
+     */
+    bool   fIsScaleTranslate;
     SkRect fQuickRejectBounds;
 
     // Compute the clip's bounds based on all clipped SkDevice's reported device bounds transformed
     // into the canvas' global space.
-    SkRect computeDeviceClipBounds(bool outsetForAA=true) const;
+    SkRect computeDeviceClipBounds() const;
 
     class AutoUpdateQRBounds;
     void validateClip() const;
