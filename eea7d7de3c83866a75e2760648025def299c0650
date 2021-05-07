@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd573170_13b7c31c",
+        "filename": "src/core/SkEnumerate.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-07T16:08:47Z",
+      "side": 1,
+      "message": "So make_tuple was returning values, so changes to those values didn\u0027t affect the originals (it does std::decay).\n\nHere tie ensures that this returns lvalue references, which seems in conflict with the desire to forward?\n\nNow you\u0027ve got me wondering if this should be forward_as_tuple. Is it possible to create a test which shows it should or shouldn\u0027t be?",
+      "range": {
+        "startLine": 28,
+        "startChar": 62,
+        "endLine": 28,
+        "endChar": 65
+      },
+      "revId": "eea7d7de3c83866a75e2760648025def299c0650",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
