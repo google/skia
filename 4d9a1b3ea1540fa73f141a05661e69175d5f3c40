@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94edf918_58d0cb10",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-07T20:49:49Z",
+      "side": 1,
+      "message": "styles starting to work, at least those that apply to FontBlocks.\n\nNext iteration will be the tricky-one: can I apply the \u0027drawing\u0027 styles on the fly, and not rely on the GlyphRun boundaries for them (e.g. color, bold).\n\nptal",
+      "revId": "4d9a1b3ea1540fa73f141a05661e69175d5f3c40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
