@@ -15,7 +15,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     const float4 b = float4(1.0);
-    float4 c = abs(b);
+    float4 c = float4(1.0, 1.0, 1.0, 1.0);
     if (any(b != c)) {
         _out.sk_FragColor = _uniforms.colorRed;
         return _out;
