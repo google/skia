@@ -220,8 +220,13 @@ void GrD3DGpu::waitForQueueCompletion() {
 void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
     SkASSERT(fCachedOpsRenderPass.get() == renderPass);
 
-    // TODO: actually submit something here
+    fCachedOpsRenderPass->submit();
     fCachedOpsRenderPass.reset();
+}
+
+void GrD3DGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
+                             const SkIRect& bounds) {
+    this->didWriteToSurface(target, origin, &bounds);
 }
 
 void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
@@ -514,6 +519,10 @@ void GrD3DGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRec
     SkASSERT(srcRT);
 
     this->resolveTexture(dst, dstPoint.fX, dstPoint.fY, srcRT, srcRect);
+    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                        srcRect.width(), srcRect.height());
+    // The rect is already in device space so we pass in kTopLeft so no flip is done.
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
 }
 
 void GrD3DGpu::resolveTexture(GrSurface* dst, int32_t dstX, int32_t dstY,
