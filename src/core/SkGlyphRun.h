@@ -103,13 +103,13 @@ public:
     SkRect sourceBounds() const { return fSourceBounds; }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
 
-    auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin();  }
-    auto end()   -> decltype(fGlyphRuns.end())                 { return fGlyphRuns.end();    }
-    auto begin() const -> decltype(fGlyphRuns.cbegin())        { return fGlyphRuns.cbegin(); }
-    auto end()   const -> decltype(fGlyphRuns.cend())          { return fGlyphRuns.cend();   }
-    auto size()  const -> decltype(fGlyphRuns.size())          { return fGlyphRuns.size();   }
-    auto empty() const -> decltype(fGlyphRuns.empty())         { return fGlyphRuns.empty();  }
-    auto operator [] (size_t i) const -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i];     }
+    auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin();      }
+    auto end()   -> decltype(fGlyphRuns.end())                 { return fGlyphRuns.end();        }
+    auto begin() const -> decltype(std::cbegin(fGlyphRuns))    { return std::cbegin(fGlyphRuns); }
+    auto end()   const -> decltype(std::cend(fGlyphRuns))      { return std::cend(fGlyphRuns);   }
+    auto size()  const -> decltype(fGlyphRuns.size())          { return fGlyphRuns.size();       }
+    auto empty() const -> decltype(fGlyphRuns.empty())         { return fGlyphRuns.empty();      }
+    auto operator [] (size_t i) const -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i];         }
 
 private:
     // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It

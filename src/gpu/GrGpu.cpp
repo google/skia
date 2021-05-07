@@ -624,7 +624,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
     // We currently don't support passing in new surface state for multiple proxies here. The only
     // time we have multiple proxies is if we are flushing a yuv SkImage which won't have state
     // updates anyways.
-    SkASSERT(!newState || proxies.count() == 1);
+    SkASSERT(!newState || proxies.size() == 1);
     SkASSERT(!newState || access == SkSurface::BackendSurfaceAccess::kNoAccess);
     this->prepareSurfacesForBackendAccessAndStateUpdates(proxies, access, newState);
 }
