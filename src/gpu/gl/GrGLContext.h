@@ -34,8 +34,8 @@ public:
     GrGLVendor vendor() const { return fDriverInfo.fVendor; }
     GrGLRenderer renderer() const { return fDriverInfo.fRenderer; }
     GrGLANGLEBackend angleBackend() const { return fDriverInfo.fANGLEBackend; }
-    GrGLANGLEVendor angleVendor() const { return fDriverInfo.fANGLEVendor; }
-    GrGLANGLERenderer angleRenderer() const { return fDriverInfo.fANGLERenderer; }
+    GrGLVendor angleVendor() const { return fDriverInfo.fANGLEVendor; }
+    GrGLRenderer angleRenderer() const { return fDriverInfo.fANGLERenderer; }
     /** What driver is running our GL implementation? This is not necessarily related to the vendor.
         (e.g. Intel GPU being driven by Mesa) */
     GrGLDriver driver() const { return fDriverInfo.fDriver; }

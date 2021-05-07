@@ -3975,8 +3975,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #ifdef SK_BUILD_FOR_WIN
     // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
     if (ctxInfo.driver() == GrGLDriver::kIntel ||
-        (ctxInfo.driver()       == GrGLDriver::kANGLE      &&
-         ctxInfo.angleVendor()  == GrGLANGLEVendor::kIntel &&
+        (ctxInfo.driver()       == GrGLDriver::kANGLE &&
+         ctxInfo.angleVendor()  == GrGLVendor::kIntel &&
          ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL)) {
         fNativeDrawIndexedIndirectIsBroken = true;
         fUseClientSideIndirectBuffers = true;
@@ -4095,7 +4095,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // ANGLE's D3D9 backend + AMD GPUs are flaky with program binary caching (skbug.com/10395)
     if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 &&
-        ctxInfo.angleVendor() == GrGLANGLEVendor::kAMD) {
+        ctxInfo.angleVendor()  == GrGLVendor::kATI) {
         fProgramBinarySupport = false;
     }
 

@@ -189,7 +189,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     // using this backend.
                     if (glCtx) {
                         GrGLDriverInfo info = GrGLGetDriverInfo(glCtx->gl());
-                        if (info.fANGLEVendor == GrGLANGLEVendor::kNVIDIA) {
+                        if (info.fANGLEVendor == GrGLVendor::kNVIDIA) {
                             delete glCtx;
                             return ContextInfo();
                         }
