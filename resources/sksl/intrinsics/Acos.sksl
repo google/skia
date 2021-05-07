@@ -1,1 +1,14 @@
-uniform half a; void main() { sk_FragColor.x = acos(a); }
+uniform half4 input, expected;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal = half4(1);
+    return (acos(input.x)       == expected.x     &&
+            acos(input.xy)      == expected.xy    &&
+            acos(input.xyz)     == expected.xyz   &&
+            acos(input.xyzw)    == expected.xyzw  &&
+            acos(constVal.x)    == expected.x     &&
+            acos(constVal.xy)   == expected.xy    &&
+            acos(constVal.xyz)  == expected.xyz   &&
+            acos(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}

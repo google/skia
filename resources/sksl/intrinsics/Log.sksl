@@ -1,1 +1,14 @@
-uniform half a; void main() { sk_FragColor.x = log(a); }
+uniform half4 input, expected;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal = half4(1);
+    return (log(input.x)       == expected.x     &&
+            log(input.xy)      == expected.xy    &&
+            log(input.xyz)     == expected.xyz   &&
+            log(input.xyzw)    == expected.xyzw  &&
+            log(constVal.x)    == expected.x     &&
+            log(constVal.xy)   == expected.xy    &&
+            log(constVal.xyz)  == expected.xyz   &&
+            log(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}
