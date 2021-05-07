@@ -6,7 +6,7 @@ vec4 main() {
     float result = 0.0;
     for (int x = 0;x <= 1; x++) {
         {
-            result = abs(2.0);
+            result = 2.0;
             continue;
         }
     }
