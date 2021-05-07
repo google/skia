@@ -25,10 +25,7 @@ std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
     if (context.fConfig->fSettings.fOptimize) {
         // Replace constant variables with their corresponding values, so `float3(five)` can
         // compile down to `float3(5.0)` (the latter is a compile-time constant).
-        const Expression* value = ConstantFolder::GetConstantValueForVariable(*arg);
-        if (value != arg.get()) {
-            arg = value->clone();
-        }
+        arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
     }
 
     SkASSERT(type.isVector());

@@ -233,6 +233,15 @@ const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& 
     return &inExpr;
 }
 
+std::unique_ptr<Expression> ConstantFolder::MakeConstantValueForVariable(
+        std::unique_ptr<Expression> expr) {
+    const Expression* constantExpr = GetConstantValueForVariable(*expr);
+    if (constantExpr != expr.get()) {
+        expr = constantExpr->clone();
+    }
+    return expr;
+}
+
 static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& context,
                                                              const Expression& left,
                                                              Operator op,

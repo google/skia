@@ -76,10 +76,7 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
         // Replace constant variables with their corresponding values, so `float2(one, two)` can
         // compile down to `float2(1.0, 2.0)` (the latter is a compile-time constant).
         for (std::unique_ptr<Expression>& arg : args) {
-            const Expression* value = ConstantFolder::GetConstantValueForVariable(*arg);
-            if (value != arg.get()) {
-                arg = value->clone();
-            }
+            arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
         }
     }
 
