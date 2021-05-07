@@ -22,6 +22,29 @@
       },
       "revId": "eea7d7de3c83866a75e2760648025def299c0650",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46481a93_43585c35",
+        "filename": "src/core/SkEnumerate.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-07T16:45:22Z",
+      "side": 1,
+      "message": "I\u0027m not sure I understand the std::forward here either. Captured is not in a deduced context, so \u0027v\u0027 is just an rvalue (never an lvalue), so it isn\u0027t clear what is being \u0027forwarded\u0027 here?",
+      "range": {
+        "startLine": 28,
+        "startChar": 66,
+        "endLine": 28,
+        "endChar": 91
+      },
+      "revId": "eea7d7de3c83866a75e2760648025def299c0650",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
