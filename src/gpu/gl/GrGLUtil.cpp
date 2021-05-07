@@ -136,27 +136,27 @@ static GrGLSLVersion get_glsl_version(const char* versionString) {
 static GrGLVendor get_vendor(const char* vendorString) {
     SkASSERT(vendorString);
     if (0 == strcmp(vendorString, "ARM")) {
-        return kARM_GrGLVendor;
+        return GrGLVendor::kARM;
     }
     if (0 == strcmp(vendorString, "Google Inc.")) {
-        return kGoogle_GrGLVendor;
+        return GrGLVendor::kGoogle;
     }
     if (0 == strcmp(vendorString, "Imagination Technologies")) {
-        return kImagination_GrGLVendor;
+        return GrGLVendor::kImagination;
     }
     if (0 == strncmp(vendorString, "Intel ", 6) || 0 == strcmp(vendorString, "Intel")) {
-        return kIntel_GrGLVendor;
+        return GrGLVendor::kIntel;
     }
     if (0 == strcmp(vendorString, "Qualcomm") || 0 == strcmp(vendorString, "freedreno")) {
-        return kQualcomm_GrGLVendor;
+        return GrGLVendor::kQualcomm;
     }
     if (0 == strcmp(vendorString, "NVIDIA Corporation")) {
-        return kNVIDIA_GrGLVendor;
+        return GrGLVendor::kNVIDIA;
     }
     if (0 == strcmp(vendorString, "ATI Technologies Inc.")) {
-        return kATI_GrGLVendor;
+        return GrGLVendor::kATI;
     }
-    return kOther_GrGLVendor;
+    return GrGLVendor::kOther;
 }
 
 static bool is_renderer_angle(const char* rendererString) {
@@ -172,13 +172,13 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
         // Tegra strings are not very descriptive. We distinguish between the modern and legacy
         // architectures by the presence of NV_path_rendering.
-        return extensions.has("GL_NV_path_rendering") ? kTegra_GrGLRenderer
-                                                      : kTegra_PreK1_GrGLRenderer;
+        return extensions.has("GL_NV_path_rendering") ? GrGLRenderer::kTegra
+                                                      : GrGLRenderer::kTegra_PreK1;
     }
     int lastDigit;
     int n = sscanf(rendererString, "PowerVR SGX 54%d", &lastDigit);
     if (1 == n && lastDigit >= 0 && lastDigit <= 9) {
-        return kPowerVR54x_GrGLRenderer;
+        return GrGLRenderer::kPowerVR54x;
     }
     // certain iOS devices also use PowerVR54x GPUs
     static const char kAppleA4Str[] = "Apple A4";
@@ -187,7 +187,7 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     if (0 == strncmp(rendererString, kAppleA4Str, SK_ARRAY_COUNT(kAppleA4Str) - 1) ||
         0 == strncmp(rendererString, kAppleA5Str, SK_ARRAY_COUNT(kAppleA5Str) - 1) ||
         0 == strncmp(rendererString, kAppleA6Str, SK_ARRAY_COUNT(kAppleA6Str) - 1)) {
-        return kPowerVR54x_GrGLRenderer;
+        return GrGLRenderer::kPowerVR54x;
     }
     static const char kPowerVRRogueStr[] = "PowerVR Rogue";
     static const char kAppleA7Str[] = "Apple A7";
@@ -195,7 +195,7 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     if (0 == strncmp(rendererString, kPowerVRRogueStr, SK_ARRAY_COUNT(kPowerVRRogueStr) - 1) ||
         0 == strncmp(rendererString, kAppleA7Str, SK_ARRAY_COUNT(kAppleA7Str) - 1) ||
         0 == strncmp(rendererString, kAppleA8Str, SK_ARRAY_COUNT(kAppleA8Str) - 1)) {
-        return kPowerVRRogue_GrGLRenderer;
+        return GrGLRenderer::kPowerVRRogue;
     }
     int adrenoNumber;
     n = sscanf(rendererString, "Adreno (TM) %d", &adrenoNumber);
@@ -206,45 +206,45 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     if (1 == n) {
         if (adrenoNumber >= 300) {
             if (adrenoNumber < 400) {
-                return kAdreno3xx_GrGLRenderer;
+                return GrGLRenderer::kAdreno3xx;
             }
             if (adrenoNumber < 500) {
-                return adrenoNumber >= 430 ? kAdreno430_GrGLRenderer
-                                           : kAdreno4xx_other_GrGLRenderer;
+                return adrenoNumber >= 430 ? GrGLRenderer::kAdreno430
+                                           : GrGLRenderer::kAdreno4xx_other;
             }
             if (adrenoNumber < 600) {
-                return adrenoNumber == 530 ? kAdreno530_GrGLRenderer
-                                           : kAdreno5xx_other_GrGLRenderer;
+                return adrenoNumber == 530 ? GrGLRenderer::kAdreno530
+                                           : GrGLRenderer::kAdreno5xx_other;
             }
             if (adrenoNumber == 615) {
-                return kAdreno615_GrGLRenderer;
+                return GrGLRenderer::kAdreno615;
             }
             if (adrenoNumber == 620) {
-                return kAdreno620_GrGLRenderer;
+                return GrGLRenderer::kAdreno620;
             }
             if (adrenoNumber == 630) {
-                return kAdreno630_GrGLRenderer;
+                return GrGLRenderer::kAdreno630;
             }
             if (adrenoNumber == 640) {
-                return kAdreno640_GrGLRenderer;
+                return GrGLRenderer::kAdreno640;
             }
         }
     }
     if (0 == strcmp("Google SwiftShader", rendererString)) {
-        return kGoogleSwiftShader_GrGLRenderer;
+        return GrGLRenderer::kGoogleSwiftShader;
     }
 
     if (const char* intelString = strstr(rendererString, "Intel")) {
         // These generic strings seem to always come from Haswell: Iris 5100 or Iris Pro 5200
         if (0 == strcmp("Intel Iris OpenGL Engine", intelString) ||
             0 == strcmp("Intel Iris Pro OpenGL Engine", intelString)) {
-            return kIntelHaswell_GrGLRenderer;
+            return GrGLRenderer::kIntelHaswell;
         }
         if (strstr(intelString, "Sandybridge")) {
-            return kIntelSandyBridge_GrGLRenderer;
+            return GrGLRenderer::kIntelSandyBridge;
         }
         if (strstr(intelString, "Bay Trail")) {
-            return kIntelValleyView_GrGLRenderer;
+            return GrGLRenderer::kIntelValleyView;
         }
         // There are many possible intervening strings here:
         // 'Intel(R)' is a common prefix
@@ -259,43 +259,43 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
             if (sscanf(intelGfxString, "Graphics %d", &intelNumber) ||
                 sscanf(intelGfxString, "Graphics P%d", &intelNumber)) {
                 if (intelNumber == 2000 || intelNumber == 3000) {
-                    return kIntelSandyBridge_GrGLRenderer;
+                    return GrGLRenderer::kIntelSandyBridge;
                 }
                 if (intelNumber == 2500 || intelNumber == 4000) {
-                    return kIntelIvyBridge_GrGLRenderer;
+                    return GrGLRenderer::kIntelIvyBridge;
                 }
                 if (intelNumber >= 4200 && intelNumber <= 5200) {
-                    return kIntelHaswell_GrGLRenderer;
+                    return GrGLRenderer::kIntelHaswell;
                 }
                 if (intelNumber >= 400 && intelNumber <= 405) {
-                    return kIntelCherryView_GrGLRenderer;
+                    return GrGLRenderer::kIntelCherryView;
                 }
                 if (intelNumber >= 5300 && intelNumber <= 6300) {
-                    return kIntelBroadwell_GrGLRenderer;
+                    return GrGLRenderer::kIntelBroadwell;
                 }
                 if (intelNumber >= 500 && intelNumber <= 505) {
-                    return kIntelApolloLake_GrGLRenderer;
+                    return GrGLRenderer::kIntelApolloLake;
                 }
                 if (intelNumber >= 510 && intelNumber <= 580) {
-                    return kIntelSkyLake_GrGLRenderer;
+                    return GrGLRenderer::kIntelSkyLake;
                 }
                 if (intelNumber >= 600 && intelNumber <= 605) {
-                    return kIntelGeminiLake_GrGLRenderer;
+                    return GrGLRenderer::kIntelGeminiLake;
                 }
                 // 610 and 630 are reused from KabyLake to CoffeeLake. The CoffeeLake variants
                 // are "UHD Graphics", while the KabyLake ones are "HD Graphics"
                 if (intelNumber == 610 || intelNumber == 630) {
-                    return strstr(intelString, "UHD") ? kIntelCoffeeLake_GrGLRenderer
-                                                      : kIntelKabyLake_GrGLRenderer;
+                    return strstr(intelString, "UHD") ? GrGLRenderer::kIntelCoffeeLake
+                                                      : GrGLRenderer::kIntelKabyLake;
                 }
                 if (intelNumber >= 610 && intelNumber <= 650) {
-                    return kIntelKabyLake_GrGLRenderer;
+                    return GrGLRenderer::kIntelKabyLake;
                 }
                 if (intelNumber == 655) {
-                    return kIntelCoffeeLake_GrGLRenderer;
+                    return GrGLRenderer::kIntelCoffeeLake;
                 }
                 if (intelNumber >= 910 && intelNumber <= 950) {
-                    return kIntelIceLake_GrGLRenderer;
+                    return GrGLRenderer::kIntelIceLake;
                 }
             }
         }
@@ -315,50 +315,50 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
         int amdModel;
         n = sscanf(amdString, "R9 M3%c%c", &amd0, &amd1);
         if (2 == n && isdigit(amd0) && isdigit(amd1)) {
-            return kAMDRadeonR9M3xx_GrGLRenderer;
+            return GrGLRenderer::kAMDRadeonR9M3xx;
         }
 
         n = sscanf(amdString, "R9 M4%c%c", &amd0, &amd1);
         if (2 == n && isdigit(amd0) && isdigit(amd1)) {
-            return kAMDRadeonR9M4xx_GrGLRenderer;
+            return GrGLRenderer::kAMDRadeonR9M4xx;
         }
 
         n = sscanf(amdString, "HD 7%c%c%c Series", &amd0, &amd1, &amd2);
         if (3 == n && isdigit(amd0) && isdigit(amd1) && isdigit(amd2)) {
-            return kAMDRadeonHD7xxx_GrGLRenderer;
+            return GrGLRenderer::kAMDRadeonHD7xxx;
         }
 
         n = sscanf(amdString, "Pro 5%c%c%c", &amd0, &amd1, &amd2);
         if (3 == n && isdigit(amd0) && isdigit(amd1) && isdigit(amd2)) {
-            return kAMDRadeonPro5xxx_GrGLRenderer;
+            return GrGLRenderer::kAMDRadeonPro5xxx;
         }
 
         n = sscanf(amdString, "Pro Vega %i", &amdModel);
         if (1 == n) {
-            return kAMDRadeonProVegaxx_GrGLRenderer;
+            return GrGLRenderer::kAMDRadeonProVegaxx;
         }
     }
 
     if (strstr(rendererString, "llvmpipe")) {
-        return kGalliumLLVM_GrGLRenderer;
+        return GrGLRenderer::kGalliumLLVM;
     }
     static const char kMaliGStr[] = "Mali-G";
     if (0 == strncmp(rendererString, kMaliGStr, SK_ARRAY_COUNT(kMaliGStr) - 1)) {
-        return kMaliG_GrGLRenderer;
+        return GrGLRenderer::kMaliG;
     }
     static const char kMaliTStr[] = "Mali-T";
     if (0 == strncmp(rendererString, kMaliTStr, SK_ARRAY_COUNT(kMaliTStr) - 1)) {
-        return kMaliT_GrGLRenderer;
+        return GrGLRenderer::kMaliT;
     }
     int mali400Num;
     if (1 == sscanf(rendererString, "Mali-%d", &mali400Num) && mali400Num >= 400 &&
         mali400Num < 500) {
-        return kMali4xx_GrGLRenderer;
+        return GrGLRenderer::kMali4xx;
     }
     if (is_renderer_angle(rendererString)) {
-        return kANGLE_GrGLRenderer;
+        return GrGLRenderer::kANGLE;
     }
-    return kOther_GrGLRenderer;
+    return GrGLRenderer::kOther;
 }
 
 std::tuple<GrGLANGLEBackend, GrGLANGLEVendor, GrGLANGLERenderer>
@@ -455,10 +455,10 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
     if (0 == strcmp(renderer, kChromium) ||
         (3 == sscanf(version, "OpenGL ES %d.%d %8s", &major, &minor, suffix) &&
          0 == strcmp(kChromium, suffix))) {
-        info.fDriver = kChromium_GrGLDriver;
+        info.fDriver = GrGLDriver::kChromium;
     } else if (GR_IS_GR_GL(interface->fStandard)) {
-        if (info.fVendor == kNVIDIA_GrGLVendor) {
-            info.fDriver = kNVIDIA_GrGLDriver;
+        if (info.fVendor == GrGLVendor::kNVIDIA) {
+            info.fDriver = GrGLDriver::kNVIDIA;
             int n = sscanf(version,
                            "%d.%d.%d NVIDIA %d.%d",
                            &major,
@@ -481,13 +481,13 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
                            &driverMinor);
             }
             if (n == 4) {
-                info.fDriver = kMesa_GrGLDriver;
+                info.fDriver = GrGLDriver::kMesa;
                 info.fDriverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
         }
     } else if (GR_IS_GR_GL_ES(interface->fStandard)) {
-        if (info.fVendor == kNVIDIA_GrGLVendor) {
-            info.fDriver = kNVIDIA_GrGLDriver;
+        if (info.fVendor == GrGLVendor::kNVIDIA) {
+            info.fDriver = GrGLDriver::kNVIDIA;
             int n = sscanf(version,
                            "OpenGL ES %d.%d NVIDIA %d.%d",
                            &major,
@@ -506,10 +506,10 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
                            &driverMajor,
                            &driverMinor);
             if (n == 4) {
-                info.fDriver = kMesa_GrGLDriver;
+                info.fDriver = GrGLDriver::kMesa;
                 info.fDriverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             } else if (0 == strncmp("ANGLE", renderer, 5)) {
-                info.fDriver = kANGLE_GrGLDriver;
+                info.fDriver = GrGLDriver::kANGLE;
                 n = sscanf(version,
                            "OpenGL ES %d.%d (ANGLE %d.%d",
                            &major,
@@ -523,10 +523,10 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
         }
     }
 
-    if (info.fDriver == kUnknown_GrGLDriver) {
-        if (info.fVendor == kGoogle_GrGLVendor) {
+    if (info.fDriver == GrGLDriver::kUnknown) {
+        if (info.fVendor == GrGLVendor::kGoogle) {
             // Swiftshader is the only Google vendor at the moment
-            info.fDriver = kSwiftShader_GrGLDriver;
+            info.fDriver = GrGLDriver::kSwiftShader;
 
             // Swiftshader has a strange version string: w.x.y.z  Going to arbitrarily ignore
             // y and assume w,x and z are major, minor, point.
@@ -541,9 +541,9 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
             if (n == 5) {
                 info.fDriverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
             }
-        } else if (info.fVendor == kIntel_GrGLVendor) {
+        } else if (info.fVendor == GrGLVendor::kIntel) {
             // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
-            info.fDriver = kIntel_GrGLDriver;
+            info.fDriver = GrGLDriver::kIntel;
 
             // This is how the macOS version strings are structured. This might be different on
             // different
@@ -558,14 +558,14 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
             if (n == 5) {
                 info.fDriverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
             }
-        } else if (info.fVendor == kQualcomm_GrGLVendor) {
-            info.fDriver = kQualcomm_GrGLDriver;
+        } else if (info.fVendor == GrGLVendor::kQualcomm) {
+            info.fDriver = GrGLDriver::kQualcomm;
             int n = sscanf(
                     version, "OpenGL ES %d.%d V@%d.%d", &major, &minor, &driverMajor, &driverMinor);
             if (n == 4) {
                 info.fDriverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
-        } else if (info.fVendor == kImagination_GrGLVendor) {
+        } else if (info.fVendor == GrGLVendor::kImagination) {
             int revision;
             int n = sscanf(version,
                            "OpenGL ES %d.%d build %d.%d@%d",
@@ -582,7 +582,7 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
         } else {
             static constexpr char kEmulatorPrefix[] = "Android Emulator OpenGL ES Translator";
             if (0 == strncmp(kEmulatorPrefix, renderer, strlen(kEmulatorPrefix))) {
-                info.fDriver = kAndroidEmulator_GrGLDriver;
+                info.fDriver = GrGLDriver::kAndroidEmulator;
             }
         }
     }
