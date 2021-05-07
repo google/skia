@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 
 namespace SkSL {
@@ -87,6 +88,11 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
     // No cast required when the types match.
     if (arg->type() == type) {
         return arg;
+    }
+    // When optimization is on, look up the value of constant variables. This allows expressions
+    // like `int(zero)` to be replaced with a literal zero.
+    if (context.fConfig->fSettings.fOptimize) {
+        arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
     }
     // We can cast scalar literals at compile-time.
     if (std::unique_ptr<Expression> converted = cast_scalar_literal(type, *arg)) {
