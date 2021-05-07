@@ -160,7 +160,7 @@ bool GrClusterRenderTasks(SkSpan<const sk_sp<GrRenderTask>> input,
                           SkTInternalLList<GrRenderTask>* llist) {
     SkASSERT(llist->isEmpty());
 
-    if (input.count() < 3) {
+    if (input.size() < 3) {
         return false;
     }
 
