@@ -347,5 +347,18 @@ void GrD3DOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
     // If we ever start using copy command lists for doing uploads, then we'll need to make sure
     // we submit our main command list before doing the copy here and then start a new main command
     // list.
-    state->doUpload(upload);
+
+    fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+
+    // We pass in true here to signal that after the upload we need to set the upload textures
+    // layout back to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL.
+    state->doUpload(upload, true);
+}
+
+void GrD3DOpsRenderPass::submit() {
+    if (!fRenderTarget) {
+        return;
+    }
+
+    fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }

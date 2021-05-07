@@ -114,6 +114,8 @@ public:
     }
 
     void submit(GrOpsRenderPass* renderPass) override;
+    void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
+                       const SkIRect& bounds);
 
     void checkFinishProcs() override { this->checkForFinishedCommandLists(); }
     void finishOutstandingGpuWork() override;
