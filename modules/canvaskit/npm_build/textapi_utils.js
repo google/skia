@@ -1,3 +1,8 @@
+function LOG(...args) {
+    // comment out for non-debugging
+//    console.log(args);
+}
+
 function MakeCursor(CanvasKit) {
     const linePaint = new CanvasKit.Paint();
     linePaint.setColor([0,0,1,1]);
@@ -181,6 +186,12 @@ function make_default_paint() {
     return p;
 }
 
+function make_default_font(tf) {
+    const font = new CanvasKit.Font(tf);
+    font.setSubpixel(true);
+    return font;
+}
+
 function MakeStyle(length) {
     return {
         _length: length,
@@ -189,6 +200,14 @@ function MakeStyle(length) {
         color: null,
         bold: null,
         italic: null,
+
+        _check_toggle: function(src, dst) {
+            if (src == 'toggle') {
+                return !dst;
+            } else {
+                return src;
+            }
+        },
 
         // returns true if we changed something affecting layout
         mergeFrom: function(src) {
@@ -203,8 +222,18 @@ function MakeStyle(length) {
                 layoutChanged = true;
             }
             if (src.color)    { this.color  = src.color; }
-            if (src.bold)     { this.bold   = src.bold; }
-            if (src.italic)   { this.italic = src.italic; }
+
+            if (src.bold) {
+                this.bold = this._check_toggle(src.bold, this.bold);
+            }
+            if (src.italic) {
+                this.italic = this._check_toggle(src.italic, this.italic);
+            }
+
+            if (src.size_add) {
+                this.size += src.size_add;
+                layoutChanged = true;
+            }
 
             return layoutChanged;
         }
@@ -223,7 +252,7 @@ function MakeEditor(text, style, cursor, width) {
         _X: 0,
         _Y: 0,
         _paint: make_default_paint(),
-        _font: new CanvasKit.Font(style.typeface),
+        _font: make_default_font(style.typeface),
 
         getLines: function() { return this._lines; },
 
@@ -241,17 +270,26 @@ function MakeEditor(text, style, cursor, width) {
             this._Y = y;
         },
 
+        _rebuild_selection: function() {
+            const a = this._index.start;
+            const b = this._index.end;
+            if (a === b) {
+                const l = lines_index_to_line(this._lines, a);
+                const x = runs_index_to_x(l.runs, a);
+                this._cursor.place(x, l.top, l.bottom);
+            } else {
+                this._cursor.setPath(lines_indices_to_path(this._lines, a, b, this._width));
+            }
+        },
         setIndex: function(i) {
             this._index.start = this._index.end = i;
-            const l = lines_index_to_line(this._lines, i);
-            const x = runs_index_to_x(l.runs, i);
-            this._cursor.place(x, l.top, l.bottom);
+            this._rebuild_selection();
         },
         setIndices: function(a, b) {
             if (a > b) { [a, b] = [b, a]; }
             this._index.start = a;
             this._index.end = b;
-            this._cursor.setPath(lines_indices_to_path(this._lines, a, b, this._width));
+            this._rebuild_selection();
         },
         moveDX: function(dx) {
             let index;
@@ -302,9 +340,11 @@ function MakeEditor(text, style, cursor, width) {
         },
 
         _buildLines: function() {
+            const build_sparse = true;
             const blocks = [];
             let block = null;
             for (const s of this._styles) {
+                if (build_sparse) {
                 if (!block || (block.typeface === s.typeface && block.size === s.size)) {
                     if (!block) {
                         block = { length: 0, typeface: s.typeface, size: s.size };
@@ -314,12 +354,28 @@ function MakeEditor(text, style, cursor, width) {
                     blocks.push(block);
                     block = { length: s._length, typeface: s.typeface, size: s.size };
                 }
+                } else {
+                // force a block on every style boundary for now
+                blocks.push({ length: s._length, typeface: s.typeface, size: s.size });
+                }
             }
-            blocks.push(block);
+            if (build_sparse) {
+                blocks.push(block);
+            }
             this._validateBlocks(blocks);
 
-            console.log('new blocks', blocks);
+            LOG('new blocks', blocks);
             this._lines = CanvasKit.ParagraphBuilder.ShapeText(this._text, blocks, this._width);
+            this._rebuild_selection();
+
+            // add textRange to each run, to aid in drawing
+            this._runs = [];
+            for (const l of this._lines) {
+                for (const r of l.runs) {
+                    r.textRange = { start: r.offsets[0], end: r.offsets[r.offsets.length-1] };
+                    this._runs.push(r);
+                }
+            }
         },
 
         deleteSelection: function() {
@@ -348,14 +404,84 @@ function MakeEditor(text, style, cursor, width) {
         draw: function(canvas) {
             canvas.save();
             canvas.translate(this._X, this._Y);
+
             this._cursor.draw_before(canvas);
-            for (const l of this._lines) {
-                for (let r of l.runs) {
-    //              this._font.setTypeface(r.typeface); // r.typeface is always null (for now)
-                    this._font.setSize(r.size);
-                    canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, this._font, this._paint);
+
+            const runs = this._runs;
+            const styles = this._styles;
+            const f = this._font;
+            const p = this._paint;
+
+            let s = styles[0];
+            let sindex = 0;
+            let s_start = 0;
+            let s_end = s._length;
+
+            let r = runs[0];
+            let rindex = 0;
+
+            let start = 0;
+            let end = 0;
+            while (start < this._text.length) {
+                while (r.textRange.end <= start) {
+                    r = runs[++rindex];
+                    if (!r) {
+                        // ran out of runs, so the remaining text must just be WS
+                        break;
+                    }
                 }
+                if (!r) break;
+                while (s_end <= start) {
+                    s = styles[++sindex];
+                    s_start = s_end;
+                    s_end += s._length;
+                }
+                end = Math.min(r.textRange.end, s_end);
+
+                LOG('New range: ', start, end,
+                    'from run', r.textRange.start, r.textRange.end,
+                    'style', s_start, s_end);
+
+                // check that we have anything to draw
+                if (r.textRange.start >= end) {
+                    start = end;
+                    continue;  // could be a span of WS with no glyphs
+                }
+
+//              f.setTypeface(r.typeface); // r.typeface is always null (for now)
+                f.setSize(r.size);
+                // s.bold
+                f.setSkewX(s.italic ? -0.2 : 0);
+                p.setColor(s.color ? s.color : [0,0,0,1]);
+
+                let gly = r.glyphs;
+                let pos = r.positions;
+                if (start > r.textRange.start || end < r.textRange.end) {
+                    // search for the subset of glyphs to draw
+                    let glyph_start, glyph_end;
+                    for (let i = 0; i < r.offsets.length; ++i) {
+                        if (r.offsets[i] >= start) {
+                            glyph_start = i;
+                            break;
+                        }
+                    }
+                    for (let i = glyph_start+1; i < r.offsets.length; ++i) {
+                        if (r.offsets[i] >= end) {
+                            glyph_end = i;
+                            break;
+                        }
+                    }
+                    LOG('    glyph subrange', glyph_start, glyph_end);
+                    gly = gly.slice(glyph_start, glyph_end);
+                    pos = pos.slice(glyph_start*2, glyph_end*2);
+                } else {
+                    LOG('    use entire glyph run');
+                }
+                canvas.drawGlyphs(gly, pos, 0, 0, f, p);
+
+                start = end;
             }
+
             this._cursor.draw_after(canvas);
             canvas.restore();
         },
@@ -371,7 +497,7 @@ function MakeEditor(text, style, cursor, width) {
                 return;
             }
 
-            console.log('trying to apply', style, start, end);
+            LOG('trying to apply', style, start, end);
             let i;
             for (i = 0; i < this._styles.length; ++i) {
                 if (start <= this._styles[i]._length) {
@@ -387,7 +513,7 @@ function MakeEditor(text, style, cursor, width) {
                 const ns = Object.assign({}, s);
                 s._length = start;
                 ns._length -= start;
-                console.log('initial splice', i, start, s._length, ns._length);
+                LOG('initial splice', i, start, s._length, ns._length);
                 i += 1;
                 this._styles.splice(i, 0, ns);
                 end -= start;
@@ -396,7 +522,7 @@ function MakeEditor(text, style, cursor, width) {
             // merge into any/all whole styles we overlap
             let layoutChanged = false;
             while (end >= this._styles[i]._length) {
-                console.log('whole run merging for style index', i)
+                LOG('whole run merging for style index', i)
                 layoutChanged |= this._styles[i].mergeFrom(style);
                 end -= this._styles[i]._length;
                 i += 1;
@@ -410,20 +536,20 @@ function MakeEditor(text, style, cursor, width) {
                 const ns = Object.assign({}, s);    // the new first half
                 ns._length = end;
                 s._length -= end;                   // trim the (unchanged) tail
-                console.log('merging tail', i, ns._length, s._length);
+                LOG('merging tail', i, ns._length, s._length);
                 layoutChanged |= ns.mergeFrom(style);
                 this._styles.splice(i, 0, ns);
             }
 
             this._validateStyles();
-            console.log('after applying styles', this._styles);
+            LOG('after applying styles', this._styles);
 
             if (layoutChanged) {
                 this._buildLines();
             }
         },
         applyStyleToSelection: function(style) {
-            applyStyleToRange(style, this._index.start, this._index.end);
+            this.applyStyleToRange(style, this._index.start, this._index.end);
         },
     };
 
