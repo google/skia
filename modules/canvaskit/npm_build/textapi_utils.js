@@ -1,3 +1,8 @@
+function LOG(...args) {
+    // comment out for non-debugging
+//    console.log(args);
+}
+
 function MakeCursor(CanvasKit) {
     const linePaint = new CanvasKit.Paint();
     linePaint.setColor([0,0,1,1]);
@@ -302,9 +307,11 @@ function MakeEditor(text, style, cursor, width) {
         },
 
         _buildLines: function() {
+            const build_sparse = true;
             const blocks = [];
             let block = null;
             for (const s of this._styles) {
+                if (build_sparse) {
                 if (!block || (block.typeface === s.typeface && block.size === s.size)) {
                     if (!block) {
                         block = { length: 0, typeface: s.typeface, size: s.size };
@@ -314,12 +321,27 @@ function MakeEditor(text, style, cursor, width) {
                     blocks.push(block);
                     block = { length: s._length, typeface: s.typeface, size: s.size };
                 }
+                } else {
+                // force a block on every style boundary for now
+                blocks.push({ length: s._length, typeface: s.typeface, size: s.size });
+                }
             }
-            blocks.push(block);
+            if (build_sparse) {
+                blocks.push(block);
+            }
             this._validateBlocks(blocks);
 
-            console.log('new blocks', blocks);
+            LOG('new blocks', blocks);
             this._lines = CanvasKit.ParagraphBuilder.ShapeText(this._text, blocks, this._width);
+
+            // add textRange to each run, to aid in drawing
+            this._runs = [];
+            for (const l of this._lines) {
+                for (const r of l.runs) {
+                    r.textRange = { start: r.offsets[0], end: r.offsets[r.offsets.length-1] };
+                    this._runs.push(r);
+                }
+            }
         },
 
         deleteSelection: function() {
@@ -349,13 +371,71 @@ function MakeEditor(text, style, cursor, width) {
             canvas.save();
             canvas.translate(this._X, this._Y);
             this._cursor.draw_before(canvas);
-            for (const l of this._lines) {
-                for (let r of l.runs) {
-    //              this._font.setTypeface(r.typeface); // r.typeface is always null (for now)
-                    this._font.setSize(r.size);
-                    canvas.drawGlyphs(r.glyphs, r.positions, 0, 0, this._font, this._paint);
+
+            const runs = this._runs;
+            const styles = this._styles;
+            const f = this._font;
+            const p = this._paint;
+
+            let s = styles[0];
+            let sindex = 0;
+            let s_start = 0;
+            let s_end = s._length;
+
+            let r = runs[0];
+            let rindex = 0;
+
+            let start = 0;
+            let end = 0;
+            while (start < this._text.length) {
+                while (r.textRange.end <= start) {
+                    r = runs[++rindex];
                 }
+                while (s_end <= start) {
+                    s = styles[++sindex];
+                    s_start = s_end;
+                    s_end += s._length;
+                }
+                end = Math.min(r.textRange.end, s_end);
+
+                LOG('New range: ', start, end,
+                    'from run', r.textRange.start, r.textRange.end,
+                    'style', s_start, s_end);
+
+//              f.setTypeface(r.typeface); // r.typeface is always null (for now)
+                f.setSize(r.size);
+                // s.bold
+                f.setSkewX(s.italic ? -0.2 : 0);
+                p.setColor(s.color ? s.color : [0,0,0,1]);
+
+                let gly = r.glyphs;
+                let pos = r.positions;
+                if (start > r.textRange.start || end < r.textRange.end) {
+                    // search for the subset of glyphs to draw
+                    let glyph_start, glyph_end;
+                    for (let i = 0; i < r.offsets.length; ++i) {
+                        if (r.offsets[i] >= start) {
+                            glyph_start = i;
+                            break;
+                        }
+                    }
+                    for (let i = glyph_start+1; i < r.offsets.length; ++i) {
+                        if (r.offsets[i] >= end) {
+                            glyph_end = i;
+                            break;
+                        }
+                    }
+                    LOG('    glyph subrange', glyph_start, glyph_end);
+                    gly = gly.slice(glyph_start, glyph_end);
+                    pos = pos.slice(glyph_start*2, glyph_end*2);
+                } else {
+                    LOG('    use entire glyph run');
+                }
+                canvas.drawGlyphs(gly, pos, 0, 0, f, p);
+
+                start = end;
             }
+
             this._cursor.draw_after(canvas);
             canvas.restore();
         },
@@ -371,7 +451,7 @@ function MakeEditor(text, style, cursor, width) {
                 return;
             }
 
-            console.log('trying to apply', style, start, end);
+            LOG('trying to apply', style, start, end);
             let i;
             for (i = 0; i < this._styles.length; ++i) {
                 if (start <= this._styles[i]._length) {
@@ -387,7 +467,7 @@ function MakeEditor(text, style, cursor, width) {
                 const ns = Object.assign({}, s);
                 s._length = start;
                 ns._length -= start;
-                console.log('initial splice', i, start, s._length, ns._length);
+                LOG('initial splice', i, start, s._length, ns._length);
                 i += 1;
                 this._styles.splice(i, 0, ns);
                 end -= start;
@@ -396,7 +476,7 @@ function MakeEditor(text, style, cursor, width) {
             // merge into any/all whole styles we overlap
             let layoutChanged = false;
             while (end >= this._styles[i]._length) {
-                console.log('whole run merging for style index', i)
+                LOG('whole run merging for style index', i)
                 layoutChanged |= this._styles[i].mergeFrom(style);
                 end -= this._styles[i]._length;
                 i += 1;
@@ -410,15 +490,15 @@ function MakeEditor(text, style, cursor, width) {
                 const ns = Object.assign({}, s);    // the new first half
                 ns._length = end;
                 s._length -= end;                   // trim the (unchanged) tail
-                console.log('merging tail', i, ns._length, s._length);
+                LOG('merging tail', i, ns._length, s._length);
                 layoutChanged |= ns.mergeFrom(style);
                 this._styles.splice(i, 0, ns);
             }
 
             this._validateStyles();
-            console.log('after applying styles', this._styles);
+            LOG('after applying styles', this._styles);
 
-            if (layoutChanged) {
+            if (layoutChanged || true) {
                 this._buildLines();
             }
         },

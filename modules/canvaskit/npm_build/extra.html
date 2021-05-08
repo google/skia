@@ -302,7 +302,8 @@
       const editor = MakeEditor(text0, {typeface:null, size:24}, cursor, 400);
 
       editor.applyStyleToRange({size:100}, 0, 1);
-      editor.applyStyleToRange({size:10}, 38, 38+6);
+      editor.applyStyleToRange({italic:true}, 38, 38+6);
+      editor.applyStyleToRange({color:[1,0,0,1]}, 5, 5+4);
 
       editor.setXY(LOC_X, LOC_Y);
 
@@ -325,7 +326,7 @@
         canvas.drawRect(editor.bounds(), bgPaint);
         editor.draw(canvas);
 
-        surface.requestAnimationFrame(drawFrame);
+ //       surface.requestAnimationFrame(drawFrame);
       }
       surface.requestAnimationFrame(drawFrame);
 
