@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67dc1804_c61bbc3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17900
+      },
+      "writtenOn": "2021-05-08T07:44:05Z",
+      "side": 1,
+      "message": "open: android b... [jcgregorio 2d ago]\nGold\tTryjobs\nSkia Gardener\negdaniel@\nInfra Gardener\nrmistry@\nเปิดใช้งาน DSL บน FPs ที่สร้างขึ้นจริง CL นี้พอร์ตทุกไฟล์ FP ไปยัง DSL อย่าส่ง: สำหรับการตรวจสอบ Change-Id: Ia109ee5763b0ed61cc31ba8ca299891cb9a4130d Bug: skia: 11854",
+      "revId": "7d09422e24de911b0ac07f1b2ca50f05a43653c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
