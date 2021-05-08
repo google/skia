@@ -302,7 +302,8 @@
       const editor = MakeEditor(text0, {typeface:null, size:24}, cursor, 400);
 
       editor.applyStyleToRange({size:100}, 0, 1);
-      editor.applyStyleToRange({size:10}, 38, 38+6);
+      editor.applyStyleToRange({italic:true}, 38, 38+6);
+      editor.applyStyleToRange({color:[1,0,0,1]}, 5, 5+4);
 
       editor.setXY(LOC_X, LOC_Y);
 
@@ -342,28 +343,40 @@
 
       function keyhandler(e) {
           switch (e.key) {
-              case 'ArrowLeft':  editor.moveDX(-1); break;
-              case 'ArrowRight': editor.moveDX(1); break;
+              case 'ArrowLeft':  editor.moveDX(-1); return;
+              case 'ArrowRight': editor.moveDX(1); return;
               case 'ArrowUp':
                 e.preventDefault();
                 editor.moveDY(-1);
-                break;
+                return;
               case 'ArrowDown':
                 e.preventDefault();
                 editor.moveDY(1);
-                break;
+                return;
               case 'Backspace':
                 editor.deleteSelection();
-                break;
+                return;
               case 'Shift':
-                break;
-              default:
-                if (!e.ctrlKey && !e.metaKey) {
-                    e.preventDefault(); // at least needed for 'space'
-                    editor.insert(e.key);
+                return;
+            }
+            if (e.ctrlKey) {
+                switch (e.key) {
+                    case 'r': editor.applyStyleToSelection({color:[1,0,0,1]}); return;
+                    case 'g': editor.applyStyleToSelection({color:[0,0.6,0,1]}); return;
+                    case 'u': editor.applyStyleToSelection({color:[0,0,1,1]}); return;
+                    case 'k': editor.applyStyleToSelection({color:[0,0,0,1]}); return;
+
+                    case 'i': editor.applyStyleToSelection({italic:'toggle'}); return;
+                    case 'b': editor.applyStyleToSelection({bold:'toggle'}); return;
+
+                    case ']': editor.applyStyleToSelection({size_add:1}); return;
+                    case '[': editor.applyStyleToSelection({size_add:-1}); return;
                 }
-                break;
-          }
+            }
+            if (!e.ctrlKey && !e.metaKey) {
+                e.preventDefault(); // at least needed for 'space'
+                editor.insert(e.key);
+            }
       }
 
       document.getElementById('para2').addEventListener('pointermove', interact);
