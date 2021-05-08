@@ -21,6 +21,14 @@ static jlong Matrix_Create(JNIEnv* env, jobject, jfloat m0, jfloat m4, jfloat m8
                                              m3, m7, m11, m15));
 }
 
+static jlong Matrix_CreateLookAt(JNIEnv* env, jobject, float eyeX, float eyeY, float eyeZ,
+                                                       float coaX, float coaY, float coaZ,
+                                                       float upX, float upY, float upZ) {
+    return reinterpret_cast<jlong>(new SkM44(SkM44::LookAt({eyeX, eyeY, eyeZ},
+                                                           {coaX, coaY, coaZ},
+                                                           {upX, upY, upZ})));
+}
+
 static void Matrix_Release(JNIEnv* env, jobject, jlong native_matrix) {
     delete reinterpret_cast<SkM44*>(native_matrix);
 }
@@ -63,13 +71,14 @@ static void Matrix_Rotate(JNIEnv* env, jobject, jlong native_matrix, jfloat x, j
 
 int register_androidkit_Matrix(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nCreate"     , "(FFFFFFFFFFFFFFFF)J" , reinterpret_cast<void*>(Matrix_Create)},
-        {"nRelease"    , "(J)V"                , reinterpret_cast<void*>(Matrix_Release)},
-        {"nPreConcat"  , "(JJ)V"               , reinterpret_cast<void*>(Matrix_PreConcat)},
-        {"nConcat"     , "(JJ)J"               , reinterpret_cast<void*>(Matrix_Concat)},
-        {"nTranslate"  , "(JFFF)V"             , reinterpret_cast<void*>(Matrix_Translate)},
-        {"nScale"      , "(JFFF)V"             , reinterpret_cast<void*>(Matrix_Scale)},
-        {"nRotate"     , "(JFFFF)V"             , reinterpret_cast<void*>(Matrix_Rotate)},
+        {"nCreate"       , "(FFFFFFFFFFFFFFFF)J" , reinterpret_cast<void*>(Matrix_Create)},
+        {"nCreateLookAt" , "(FFFFFFFFF)J"        , reinterpret_cast<void*>(Matrix_CreateLookAt)},
+        {"nRelease"      , "(J)V"                , reinterpret_cast<void*>(Matrix_Release)},
+        {"nPreConcat"    , "(JJ)V"               , reinterpret_cast<void*>(Matrix_PreConcat)},
+        {"nConcat"       , "(JJ)J"               , reinterpret_cast<void*>(Matrix_Concat)},
+        {"nTranslate"    , "(JFFF)V"             , reinterpret_cast<void*>(Matrix_Translate)},
+        {"nScale"        , "(JFFF)V"             , reinterpret_cast<void*>(Matrix_Scale)},
+        {"nRotate"       , "(JFFFF)V"             , reinterpret_cast<void*>(Matrix_Rotate)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Matrix");

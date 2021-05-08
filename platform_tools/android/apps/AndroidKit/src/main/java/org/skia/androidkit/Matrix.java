@@ -40,6 +40,13 @@ public class Matrix {
         mNativeInstance = nativeInstance;
     }
 
+    public static Matrix lookAt(float eyeX, float eyeY, float eyeZ,
+                                float coaX, float coaY, float coaZ,
+                                float upX, float upY, float upZ) {
+        return new Matrix(nCreateLookAt(eyeX, eyeY, eyeZ,
+                                        coaX, coaY, coaZ,
+                                        upX, upY, upZ));
+    }
     /*
      * A: this Matrix
      * B: Matrix passed in
@@ -133,6 +140,9 @@ public class Matrix {
                                        float m1, float m5, float m9,  float m13,
                                        float m2, float m6, float m10, float m14,
                                        float m3, float m7, float m11, float m15);
+    private static native long nCreateLookAt(float eyeX, float eyeY, float eyeZ,
+                                             float coaX, float coaY, float coaZ,
+                                             float upX, float upY, float upZ);
     private static native void nRelease(long nativeInstance);
 
     private static native void nPreConcat(long mNativeInstanceA, long mNativeInstanceB);
