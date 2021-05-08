@@ -1,3 +1,8 @@
+
+function ASSERT(pred) {
+    console.assert(pred, 'assert failed');
+}
+
 function LOG(...args) {
     // comment out for non-debugging
 //    console.log(args);
@@ -340,6 +345,8 @@ function MakeEditor(text, style, cursor, width) {
         },
 
         _buildLines: function() {
+            this._validateStyles();
+
             const build_sparse = true;
             const blocks = [];
             let block = null;
@@ -364,7 +371,6 @@ function MakeEditor(text, style, cursor, width) {
             }
             this._validateBlocks(blocks);
 
-            LOG('new blocks', blocks);
             this._lines = CanvasKit.ParagraphBuilder.ShapeText(this._text, blocks, this._width);
             this._rebuild_selection();
 
@@ -378,27 +384,49 @@ function MakeEditor(text, style, cursor, width) {
             }
         },
 
+        // note: this does not rebuild lines/runs, or update the cursor,
+        //       but it does edit the text and styles
+        // returns true if it deleted anything
+        _deleteRange: function(start, end) {
+            ASSERT(start >= 0 && end <= this._text.length);
+            ASSERT(start <= end);
+            if (start === end) {
+                return false;
+            }
+
+            this._delete_style_range(start, end);
+            // Do this after shrink styles (we use text.length in an assert)
+            this._text = string_del(this._text, start, end);
+        },
         deleteSelection: function() {
             let start = this._index.start;
             if (start == this._index.end) {
-                if (start > 0) {
-                    this._text = string_del(this._text, start - 1, start);
-                    start -= 1;
+                if (start == 0) {
+                    return;     // nothing to do
                 }
+                this._deleteRange(start - 1, start);
+                start -= 1;
             } else {
-                this._text = string_del(this._text,  start, this._index.end);
+                this._deleteRange(start, this._index.end);
             }
+            this._index.start = this._index.end = start;
             this._buildLines();
-            this.setIndex(start);
         },
         insert: function(charcode) {
             if (this._index.start != this._index.end) {
                 this.deleteSelection();
             }
             const index = this._index.start;
+
+            // do this before edit the text (we use text.length in an assert)
+            const [i, prev_len] = this.find_style_index_and_prev_length(index);
+            this._styles[i]._length += 1;
+
+            // now grow the text
             this._text = this._text.slice(0, index) + charcode + this._text.slice(index);
+
+            this._index.start = this._index.end = index + 1;
             this._buildLines();
-            this.setIndex(index + 1);
         },
 
         draw: function(canvas) {
@@ -488,11 +516,62 @@ function MakeEditor(text, style, cursor, width) {
 
         // Styling
 
+        // returns [index, prev total length before this style]
+        find_style_index_and_prev_length: function(index) {
+            let len = 0;
+            for (let i = 0; i < this._styles.length; ++i) {
+                const l = this._styles[i]._length;
+                len += l;
+                // < favors the latter style if index is between two styles
+                if (index < len) {
+                    return [i, len - l];
+                }
+            }
+            ASSERT(len === this._text.length);
+            return [this._styles.length-1, len];
+        },
+        _delete_style_range: function(start, end) {
+            // shrink/remove styles
+            //
+            // [.....][....][....][.....]  styles
+            //    [..................]     start...end
+            //
+            // - trim the first style
+            // - remove the middle styles
+            // - trim the last style
+
+            let N = end - start;
+            let [i, prev_len] = this.find_style_index_and_prev_length(start);
+            let s = this._styles[i];
+            if (start > prev_len) {
+                // we overlap the first style (but not entirely
+                const skip = start - prev_len;
+                ASSERT(skip < s._length);
+                const shrink = Math.min(N, s._length - skip);
+                ASSERT(shrink > 0);
+                s._length -= shrink;
+                N -= shrink;
+                if (N === 0) {
+                    return;
+                }
+                i += 1;
+                ASSERT(i < this._styles.length);
+            }
+            while (N > 0) {
+                s = this._styles[i];
+                if (N >= s._length) {
+                    N -= s._length;
+                    this._styles.splice(i, 1);
+                } else {
+                    s._length -= N;
+                    break;
+                }
+            }
+        },
+
         applyStyleToRange: function(style, start, end) {
             if (start > end) { [start, end] = [end, start]; }
-            if (start < 0 || end > this._text.length) {
-                throw "style selection out of range";
-            }
+            ASSERT(start >= 0 && end <= this._text.length);
             if (start === end) {
                 return;
             }
