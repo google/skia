@@ -113,7 +113,7 @@ function lines_pos_to_index(lines, x, y) {
             return runs_x_to_index(l.runs, x);
         }
     }
-    return lines[lines.length - 1].textRange.last + 1;
+    return lines[lines.length - 1].textRange.last;
 }
 
 function runs_index_to_run(runs, index) {
@@ -122,7 +122,7 @@ function runs_index_to_run(runs, index) {
             return r;
         }
     }
-    return null;
+    return runs[runs.length-1];     // last run
 }
 
 function runs_index_to_x(runs, index) {
@@ -132,7 +132,7 @@ function runs_index_to_x(runs, index) {
           return r.positions[i*2];
       }
   }
-  return null;
+  return r.positions[r.positions.length-2]; // last x
 }
 
 function lines_index_to_line_index(lines, index) {
@@ -278,6 +278,7 @@ function MakeEditor(text, style, cursor, width) {
         _rebuild_selection: function() {
             const a = this._index.start;
             const b = this._index.end;
+            ASSERT(a >= 0 && a <= b && b <= this._text.length);
             if (a === b) {
                 const l = lines_index_to_line(this._lines, a);
                 const x = runs_index_to_x(l.runs, a);
@@ -328,20 +329,14 @@ function MakeEditor(text, style, cursor, width) {
             for (const s of this._styles) {
                 len += s._length;
             }
-            if (len !== this._text.length) {
-                console.log('bad style lengths', this._text.length, blocks);
-                throw "";
-            }
+            ASSERT(len === this._text.length);
         },
         _validateBlocks: function(blocks) {
             let len = 0;
             for (const b of blocks) {
                 len += b.length;
             }
-            if (len !== this._text.length) {
-                console.log('bad block lengths', this._text.length, blocks);
-                throw "";
-            }
+            ASSERT(len === this._text.length);
         },
 
         _buildLines: function() {
