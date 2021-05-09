@@ -473,7 +473,7 @@ function MakeEditor(text, style, cursor, width) {
 
 //              f.setTypeface(r.typeface); // r.typeface is always null (for now)
                 f.setSize(r.size);
-                // s.bold
+                f.setEmbolden(s.bold);
                 f.setSkewX(s.italic ? -0.2 : 0);
                 p.setColor(s.color ? s.color : [0,0,0,1]);
 

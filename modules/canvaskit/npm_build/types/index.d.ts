@@ -1675,6 +1675,11 @@ export interface Font extends EmbindObject<Font> {
     getSkewX(): number;
 
     /**
+     * Returns embolden effect for this font. Default value is false.
+     */
+    isEmbolden(): boolean;
+
+     /**
      * Returns the Typeface set for this font.
      */
     getTypeface(): Typeface | null;
@@ -1723,6 +1728,12 @@ export interface Font extends EmbindObject<Font> {
      * @param sx
      */
     setSkewX(sx: number): void;
+
+    /**
+     * Set embolden effect for this font.
+     * @param embolden
+     */
+    setEmbolden(embolden: boolean): void;
 
     /**
      * Requests, but does not require, that glyphs respect sub-pixel positioning.

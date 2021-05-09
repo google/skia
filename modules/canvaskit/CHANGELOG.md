@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.26.0] - 2021-04-23
 
 ### Added
+ - Add 'isEmbolden, setEmbolden' to 'Font'
  - Add 'drawGlyphs' to 'Canvas'
  - Add `drawPatch` to `Canvas`.
  - Add `Strut` as a `RectHeightStyle` enum.
