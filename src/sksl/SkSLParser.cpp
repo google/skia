@@ -95,7 +95,6 @@ void Parser::InitLayoutMap() {
     TOKEN(INPUT_ATTACHMENT_INDEX,       "input_attachment_index");
     TOKEN(ORIGIN_UPPER_LEFT,            "origin_upper_left");
     TOKEN(OVERRIDE_COVERAGE,            "override_coverage");
-    TOKEN(EARLY_FRAGMENT_TESTS,         "early_fragment_tests");
     TOKEN(BLEND_SUPPORT_ALL_EQUATIONS,  "blend_support_all_equations");
     TOKEN(PUSH_CONSTANT,                "push_constant");
     TOKEN(POINTS,                       "points");
@@ -919,9 +918,6 @@ Layout Parser::layout() {
                         break;
                     case LayoutToken::OVERRIDE_COVERAGE:
                         setFlag(Layout::kOverrideCoverage_Flag);
-                        break;
-                    case LayoutToken::EARLY_FRAGMENT_TESTS:
-                        setFlag(Layout::kEarlyFragmentTests_Flag);
                         break;
                     case LayoutToken::PUSH_CONSTANT:
                         setFlag(Layout::kPushConstant_Flag);

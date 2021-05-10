@@ -1,7 +1,6 @@
 layout (
     origin_upper_left,
     override_coverage,
-    early_fragment_tests,
     push_constant,
     blend_support_all_equations,
     tracked,
@@ -21,7 +20,6 @@ layout (
 
     origin_upper_left,
     override_coverage,
-    early_fragment_tests,
     push_constant,
     blend_support_all_equations,
     tracked,
