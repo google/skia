@@ -10,6 +10,7 @@
 
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkTArray.h"
+#include "include/sksl/DSLLayout.h"
 
 namespace SkSL {
 
@@ -32,10 +33,11 @@ enum Modifier {
 class DSLModifiers {
 public:
 
-    DSLModifiers() {}
+    DSLModifiers(int flags = 0)
+        : DSLModifiers(DSLLayout(), flags) {}
 
-    DSLModifiers(int flags)
-        : fModifiers(SkSL::Layout(), flags) {}
+    DSLModifiers(DSLLayout layout, int flags = 0)
+        : fModifiers(layout.fSkSLLayout, flags) {}
 
     int flags() const {
         return fModifiers.fFlags;

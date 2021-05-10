@@ -1763,6 +1763,95 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     // Uniforms do not need to be explicitly declared
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    Var v1(DSLModifiers(DSLLayout().location(1).set(2).binding(3).offset(4).index(5).builtin(6)
+                                   .inputAttachmentIndex(7),
+                        kConst_Modifier), kInt_Type, "v1", 0);
+    EXPECT_EQUAL(Declare(v1), "layout (location = 1, offset = 4, binding = 3, index = 5, set = 2, "
+                              "builtin = 6, input_attachment_index = 7) const int v1 = 0;");
+
+    Var v2(DSLLayout().originUpperLeft(), kFloat2_Type, "v2");
+    EXPECT_EQUAL(Declare(v2), "layout (origin_upper_left) float2 v2;");
+
+    Var v3(DSLLayout().overrideCoverage(), kHalf_Type, "v3");
+    EXPECT_EQUAL(Declare(v3), "layout (override_coverage) half v3;");
+
+    Var v4(DSLLayout().pushConstant(), kBool_Type, "v4");
+    EXPECT_EQUAL(Declare(v4), "layout (push_constant) bool v4;");
+
+    Var v5(DSLLayout().blendSupportAllEquations(), kHalf4_Type, "v5");
+    EXPECT_EQUAL(Declare(v5), "layout (blend_support_all_equations) half4 v5;");
+
+    Var v6(DSLModifiers(DSLLayout().srgbUnpremul(), kUniform_Modifier), kBool_Type, "v6");
+    DeclareGlobal(v6);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "layout (srgb_unpremul) uniform bool v6;");
+
+    {
+        ExpectError error(r, "error: layout qualifier 'location' appears more than once\n");
+        DSLLayout().location(1).location(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'set' appears more than once\n");
+        DSLLayout().set(1).set(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'binding' appears more than once\n");
+        DSLLayout().binding(1).binding(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'offset' appears more than once\n");
+        DSLLayout().offset(1).offset(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'index' appears more than once\n");
+        DSLLayout().index(1).index(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'builtin' appears more than once\n");
+        DSLLayout().builtin(1).builtin(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'input_attachment_index' appears more than "
+                             "once\n");
+        DSLLayout().inputAttachmentIndex(1).inputAttachmentIndex(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'origin_upper_left' appears more than "
+                             "once\n");
+        DSLLayout().originUpperLeft().originUpperLeft();
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'override_coverage' appears more than "
+                             "once\n");
+        DSLLayout().overrideCoverage().overrideCoverage();
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'push_constant' appears more than once\n");
+        DSLLayout().pushConstant().pushConstant();
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'blend_support_all_equations' appears more "
+                             "than once\n");
+        DSLLayout().blendSupportAllEquations().blendSupportAllEquations();
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'srgb_unpremul' appears more than once\n");
+        DSLLayout().srgbUnpremul().srgbUnpremul();
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleFragmentProcessor, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/true,
                            SkSL::ProgramKind::kFragmentProcessor);
