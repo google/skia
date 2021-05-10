@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b41f792_3e00c3f2",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-10T15:52:49Z",
+      "side": 1,
+      "message": "Doesn\u0027t this trigger a warning?  invert() can fail for non-invertible inputs, and it\u0027s tagged with SK_WARN_UNUSED_RESULT.\n\nReturning identity in that case is an option, but let\u0027s at least document it.\n\nThrowing an exception seems more idiomatic for Java.",
+      "revId": "62165583b7814e1e738b6f03218c0754ff587174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "376780f9_4c8c39e1",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-10T15:52:49Z",
+      "side": 1,
+      "message": "Naming is starting to get confusing (concat/preconcat).  Let\u0027s come up with clear convention for factories (static methods which return a new Matrix) and stick to it... how about MakeFoo or CreateFoo?  MakeConcat, MakeInverse, MakePerspective, MakeLookAt?\n\nThen we can rename preConcat -\u003e concat as a cleanup.",
+      "range": {
+        "startLine": 64,
+        "startChar": 25,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "62165583b7814e1e738b6f03218c0754ff587174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
