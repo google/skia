@@ -218,7 +218,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
         ++left;
         // We're assuming that the required alignment is 1 or a small multiple of the bpp, which
         // it is currently for all color types across all backends.
-        SkASSERT(left + width <= tex->width());
+        SkASSERT(left + width <= tex->width() ||
+                 allowedSrc.fOffsetAlignmentForTransferBuffer >= tex->width());
     }
 
     // change color of subrectangle
