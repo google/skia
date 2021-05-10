@@ -45,9 +45,8 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     fReadPixelsRowBytesSupport = true;
     fWritePixelsRowBytesSupport = true;
 
-    // TODO: implement these
-    fTransferFromBufferToTextureSupport = false;
-    fTransferFromSurfaceToBufferSupport = false;
+    fTransferFromBufferToTextureSupport = true;
+    fTransferFromSurfaceToBufferSupport = true;
 
     fMaxRenderTargetSize = 16384;  // minimum required by feature level 11_0
     fMaxTextureSize = 16384;       // minimum required by feature level 11_0
@@ -891,8 +890,7 @@ GrCaps::SupportedWrite GrD3DCaps::supportedWritePixelsColorType(
 
     // TODO: this seems to be pretty constrictive, confirm
     // Any buffer data needs to be aligned to 512 bytes and that of a single texel.
-    size_t offsetAlignment = GrAlignTo(GrDxgiFormatBytesPerBlock(dxgiFormat),
-                                       D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
+    size_t offsetAlignment = GrAlignTo(GrDxgiFormatBytesPerBlock(dxgiFormat), 1);
 
     const auto& info = this->getFormatInfo(dxgiFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
