@@ -920,9 +920,6 @@ Layout Parser::layout() {
                     case LayoutToken::OVERRIDE_COVERAGE:
                         setFlag(Layout::kOverrideCoverage_Flag);
                         break;
-                    case LayoutToken::EARLY_FRAGMENT_TESTS:
-                        setFlag(Layout::kEarlyFragmentTests_Flag);
-                        break;
                     case LayoutToken::PUSH_CONSTANT:
                         setFlag(Layout::kPushConstant_Flag);
                         break;
