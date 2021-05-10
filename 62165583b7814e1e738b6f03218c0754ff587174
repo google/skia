@@ -39,6 +39,30 @@
       },
       "revId": "62165583b7814e1e738b6f03218c0754ff587174",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e12782f_d314254f",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T16:01:03Z",
+      "side": 1,
+      "message": "maybe for factories, you don\u0027t even need a verb...\n\nConcat(a, b)\nScale(sx, sy, sz)\nRotateDegrees(degrees)\n...",
+      "parentUuid": "376780f9_4c8c39e1",
+      "range": {
+        "startLine": 64,
+        "startChar": 25,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "62165583b7814e1e738b6f03218c0754ff587174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
