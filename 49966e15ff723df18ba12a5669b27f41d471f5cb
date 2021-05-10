@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6aa1adcb_cfa8b133",
+        "filename": "include/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-10T21:15:30Z",
+      "side": 1,
+      "message": "Argh. This is C++17, so it fails our public-headers check of only using C++14.",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 0
+      },
+      "revId": "49966e15ff723df18ba12a5669b27f41d471f5cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
