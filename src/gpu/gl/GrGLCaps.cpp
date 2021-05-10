@@ -884,9 +884,10 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
 
     // Flat interpolation appears to be slow on Qualcomm GPUs (tested Adreno 405 and 530). ANGLE
     // Avoid on ANGLE too, it inserts a geometry shader into the pipeline to implement flat interp.
+    // Should this just be limited to ANGLE's D3D backends?
     shaderCaps->fPreferFlatInterpolation = shaderCaps->fFlatInterpolationSupport &&
                                            ctxInfo.vendor() != GrGLVendor::kQualcomm &&
-                                           ctxInfo.driver() != GrGLDriver::kANGLE;
+                                           ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown;
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fNoPerspectiveInterpolationSupport =
             ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
@@ -3528,7 +3529,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // The TransferPixelsToTexture test fails on ANGLE.
-    if (ctxInfo.driver() == GrGLDriver::kANGLE) {
+    // TODO: Limit this to D3D and perhaps more specifically than that.
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
         fTransferFromBufferToTextureSupport = false;
     }
 
@@ -3713,8 +3715,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://anglebug.com/4536
-    if (ctxInfo.driver() == GrGLDriver::kANGLE &&
-        ctxInfo.angleBackend() != GrGLANGLEBackend::kOpenGL) {
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kD3D9 ||
+        ctxInfo.angleBackend() != GrGLANGLEBackend::kD3D11) {
         fBaseVertexBaseInstanceSupport = false;
         fNativeDrawIndirectSupport = false;
         fMultiDrawType = MultiDrawType::kNone;
@@ -4088,8 +4090,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMSFBOType = kNone_MSFBOType;
     }
 
-    // ANGLE doesn't support do-while loops
-    if (ctxInfo.driver() == GrGLDriver::kANGLE) {
+    // ANGLE doesn't support do-while loops.
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
         shaderCaps->fCanUseDoLoops = false;
     }
 
