@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c7e4e1e_bd0f5215",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "prefer \u003d\u003d\u003d to avoid unintended coercion. Here and other places.",
+      "range": {
+        "startLine": 65,
+        "startChar": 19,
+        "endLine": 65,
+        "endChar": 20
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6519bbf0_a5dfba03",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "Maybe delete as well?",
+      "range": {
+        "startLine": 102,
+        "startChar": 20,
+        "endLine": 102,
+        "endChar": 29
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55ec7292_a082a9ed",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "I noticed that things seem to break after I hit tab. Maybe it needs to be ignored or handled specially?",
+      "range": {
+        "startLine": 105,
+        "startChar": 20,
+        "endLine": 105,
+        "endChar": 25
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8722c959_c83bd6e1",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "Once the leak is taken care of below, we should probably call this.setPath(null) to make use of the cleanup code.",
+      "range": {
+        "startLine": 40,
+        "startChar": 17,
+        "endLine": 40,
+        "endChar": 22
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bed3bd1_7ae4cc2d",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "This leaks the old path. We should delete the previous path here if it is not-null, right? AFIK, nobody else needs that path.",
+      "range": {
+        "startLine": 43,
+        "startChar": 17,
+        "endLine": 43,
+        "endChar": 22
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9ed1517_975496e9",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "ubernit: I would probably use % instead of the bitwise operator - feels more JS-like.",
+      "range": {
+        "startLine": 54,
+        "startChar": 68,
+        "endLine": 54,
+        "endChar": 69
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d7810be_3b4d053a",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "style: JS tends to use camelCase for functions, not snake_case.",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 24
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bff2d9c3_f7e4a2d0",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find may be useful here and in other places.\n\nconst lowest \u003d lines.find((line) \u003d\u003e y \u003c\u003d line.bottom);\nif (lowest) {\n  return runs_x_to_index(lowest.runs, x);\n}\nreturn lines[lines.length - 1].textRange.last;",
+      "range": {
+        "startLine": 111,
+        "startChar": 9,
+        "endLine": 111,
+        "endChar": 14
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "908d1f72_d58f06ea",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "!i is slightly more idiomatic.",
+      "range": {
+        "startLine": 314,
+        "startChar": 26,
+        "endLine": 314,
+        "endChar": 32
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b00ba82_69985e60",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce could be used here.",
+      "range": {
+        "startLine": 335,
+        "startChar": 16,
+        "endLine": 335,
+        "endChar": 19
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec50c840_e89938b3",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-10T18:13:06Z",
+      "side": 1,
+      "message": "nit: indentation is a bit off.",
+      "range": {
+        "startLine": 350,
+        "startChar": 15,
+        "endLine": 358,
+        "endChar": 17
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
