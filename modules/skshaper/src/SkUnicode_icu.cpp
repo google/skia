@@ -183,6 +183,23 @@ class SkBreakIterator_icu : public SkBreakIterator {
         fLastResult = 0;
         return true;
     }
+    bool setText(const char16_t utftext16[], int utf16Units) override {
+        UErrorCode status = U_ZERO_ERROR;
+        ICUUText text(utext_openUChars(nullptr, &utftext16[0], utf16Units, &status));
+
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Break error: %s", u_errorName(status));
+            return false;
+        }
+        SkASSERT(text);
+        ubrk_setUText(fBreakIterator.get(), text.get(), &status);
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Break error: %s", u_errorName(status));
+            return false;
+        }
+        fLastResult = 0;
+        return true;
+    }
 };
 
 class SkIcuBreakIteratorCache {
@@ -425,6 +442,9 @@ public:
             return nullptr;
         }
         return std::unique_ptr<SkBreakIterator>(new SkBreakIterator_icu(std::move(iterator)));
+    }
+    std::unique_ptr<SkBreakIterator> makeBreakIterator(BreakType breakType) override {
+        return makeBreakIterator(uloc_getDefault(), breakType);
     }
     std::unique_ptr<SkScriptIterator> makeScriptIterator() override {
         return SkScriptIterator_icu::makeScriptIterator();
