@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "27d7ba24_1bfce6f4",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-10T20:54:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bc38849_1fcc70e9",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "62d8462abc74ac209ef5118cdcbe9e457b3478e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "161cd582_68781c06",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-10T20:07:13Z",
       "side": 1,
       "message": "nativeMatrix",
+      "range": {
+        "startLine": 61,
+        "startChar": 26,
+        "endLine": 61,
+        "endChar": 57
+      },
+      "revId": "62d8462abc74ac209ef5118cdcbe9e457b3478e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65d5f4df_064052e5",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-10T20:54:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "161cd582_68781c06",
       "range": {
         "startLine": 61,
         "startChar": 26,
