@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fca83df_c3ff5fd0",
+        "filename": "resources/sksl/errors/LayoutRepeatedQualifiers.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-10T20:13:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea27bdec_24fc9e0d",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 24
+      },
+      "revId": "d28a1b8438f847e1649df425b292651c53e3a775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "afd98048_fc4ef343",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-10T18:46:53Z",
       "side": 1,
       "message": "Maybe remove from the test?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 65
+      },
+      "revId": "d28a1b8438f847e1649df425b292651c53e3a775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8396887a_d05d5178",
+        "filename": "tests/sksl/errors/LayoutRepeatedQualifiers.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-10T20:13:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afd98048_fc4ef343",
       "range": {
         "startLine": 5,
         "startChar": 0,
