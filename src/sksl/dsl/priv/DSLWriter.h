@@ -44,7 +44,7 @@ class ErrorHandler;
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind);
+    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, int flags);
 
     ~DSLWriter();
 
@@ -206,7 +206,7 @@ public:
     static void ReportError(const char* msg, PositionInfo* info = nullptr);
 
     /**
-     * Returns whether name mangling is enabled. This should always be enabled outside of tests.
+     * Returns whether name mangling is enabled.
      */
     static bool ManglingEnabled() {
         return Instance().fMangle;

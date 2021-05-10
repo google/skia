@@ -24,7 +24,7 @@ public:
     /**
      * Creates an empty, unpopulated DSLVar. Can be replaced with a real DSLVar later via `swap`.
      */
-    DSLVar() : fType(kVoid_Type), fDeclared(true) {}
+    DSLVar() : fDeclared(true) {}
 
     /**
      * Constructs a new variable with the specified type and name. The name is used (in mangled
@@ -123,7 +123,7 @@ public:
         return DSLExpression(*this)--;
     }
 
-private:
+//private:
     /**
      * Constructs a reference to a variable that already exists in the symbol table. This is used
      * internally to reference built-in vars.

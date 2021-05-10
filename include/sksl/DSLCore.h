@@ -32,11 +32,19 @@ namespace dsl {
 // shouldn't pollute the SkSL::dsl namespace with anything else.
 using namespace SkSL::SwizzleComponent;
 
+enum DSLFlag {
+    kNo_Flag         = 0,
+    kNoMangle_Flag   = 1 << 0,
+    kNoOptimize_Flag = 1 << 1,
+    kNoValidate_Flag = 1 << 2,
+};
+
 /**
  * Starts DSL output on the current thread using the specified compiler. This must be called
  * prior to any other DSL functions.
  */
-void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment);
+void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment,
+           int flags = kNo_Flag);
 
 /**
  * Signals the end of DSL output. This must be called sometime between a call to Start() and the
@@ -65,7 +73,7 @@ DSLStatement Break();
 DSLStatement Continue();
 
 /**
- * Creates a variable declaration statement.
+ * Creates a local variable declaration statement.
  */
 DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo());
 

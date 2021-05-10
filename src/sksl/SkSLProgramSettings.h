@@ -67,6 +67,9 @@ struct ProgramSettings {
     // If true, configurations which demand strict ES2 conformance (runtime effects, generic
     // programs, and SkVM rendering) will fail during compilation if ES2 restrictions are violated.
     bool fEnforceES2Restrictions = true;
+    // If true, the program is processed using the DSLParser pipeline rather than the standard
+    // parser and IRGenerator.
+    bool fUseDSL = false;
 };
 
 /**

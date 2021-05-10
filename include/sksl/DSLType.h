@@ -76,6 +76,9 @@ enum TypeConstant : uint8_t {
 
 class DSLType {
 public:
+    DSLType()
+        : DSLType(kVoid_Type) {}
+
     DSLType(TypeConstant tc)
         : fTypeConstant(tc) {}
 
