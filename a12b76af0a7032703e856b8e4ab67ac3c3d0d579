@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "294d5e5b_973df7da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-10T15:36:38Z",
+      "side": 1,
+      "message": "Added SkCount, expanded CL description.",
+      "revId": "a12b76af0a7032703e856b8e4ab67ac3c3d0d579",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
