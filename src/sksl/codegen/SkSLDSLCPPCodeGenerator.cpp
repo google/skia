@@ -32,6 +32,8 @@ static const char* get_scalar_type_name(const Context& context, const Type& type
         return "Float";
     } else if (type.isSigned()) {
         return "Int";
+    } else if (type.isUnsigned()) {
+        return "UInt";
     } else if (type.isBoolean()) {
         return "Bool";
     }
