@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bef02bbb_6889065f",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-10T18:51:49Z",
+      "side": 1,
+      "message": "Since you\u0027re doing this here, maybe something like\n\n            FT_PaintLinearGradient\u0026 linear_gradient \u003d colrv1_paint.u.linear_gradient;\n            SkPoint line_positions[2] \u003d {\n                SkPoint::Make(linear_gradient.p0.x, -linear_gradient.p0.y),\n                SkPoint::Make(linear_gradient.p1.x, -linear_gradient.p1.y),\n            };\n            SkPoint\u0026 p0 \u003d line_positions[0];\n            SkPoint\u0026 p1 \u003d line_positions[1];\n            SkPoint p2 \u003d SkPoint::Make(linear_gradient.p2.x, -linear_gradient.p2.y);\n\nThen later lines can be shortened by replacing \u0027colrv1_paint.u.linear_gradient\u0027 with \u0027linear_gradient\u0027. Might want to consider this for the other blocks as well, since this limits the mention of the \u0027u\u0027 union and makes it obvious that the block uses that member of the union.",
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fbd9389_1369b9f1",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-10T18:51:49Z",
+      "side": 1,
+      "message": "I know this isn\u0027t part of this change, but right here I expected to read SkVector. It\u0027s just a typedef of SkPoint, but here it\u0027s being used as a vector and not a point. It looks a bit more out of place now that the new code is also using SkVector for a similar thing.",
+      "range": {
+        "startLine": 547,
+        "startChar": 12,
+        "endLine": 547,
+        "endChar": 19
+      },
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf05d357_c67fd2fc",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-10T18:51:49Z",
+      "side": 1,
+      "message": "nit: two more space indent",
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2d00b76_ec8795a9",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-10T18:51:49Z",
+      "side": 1,
+      "message": "Not that it should matter much, but does the FreeType side ensure that the stops are in ascending order? I suppose FreeType could do that or fetch_color_stops could enforce it somehow (either sorting if unsorted, or taking the max of the last value and the current as it goes along). I think Skia won\u0027t do anything terrible if they\u0027re out of order, but it may do something strange.\n\nI suppose that\u0027s actually something of a bigger deal here for this new code since is assumes stops.front() and stops.back() are the extrema.",
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
