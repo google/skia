@@ -6,13 +6,10 @@
  */
 #include "modules/androidkit/src/SurfaceThread.h"
 
-#include <pthread.h>
-#include <android/looper.h>
 #include "include/core/SkTypes.h"
 
 
 SurfaceThread::SurfaceThread() {
-    SkDebugf("initialized");
     pipe(fPipe);
     pthread_create(&fThread, nullptr, pthread_main, this);
 }
@@ -33,7 +30,12 @@ int SurfaceThread::message_callback(int /* fd */, int /* events */, void* data) 
 
     switch (message.fType) {
         case kInitialize: {
-            SkDebugf("initialize WindowContext");
+            sk_app::DisplayParams params;
+            auto winctx = sk_app::window_context_factory::MakeGLForAndroid(message.fNativeWindow, params);
+            if (!winctx) {
+                break;
+            }
+            *message.fWindowSurface = new WindowSurface(message.fNativeWindow, std::move(winctx));
             break;
         }
         case kDestroy: {
@@ -43,7 +45,9 @@ int SurfaceThread::message_callback(int /* fd */, int /* events */, void* data) 
         }
         case kRenderPicture: {
             sk_sp<SkPicture> picture(message.fPicture);
-            SkDebugf("take in picture and surface from message and call surface.getCanvas().drawPicture()");
+            auto* windowSurface = reinterpret_cast<Surface*>(*message.fWindowSurface);
+            windowSurface->getCanvas()->drawPicture(picture);
+            windowSurface->flushAndSubmit();
             break;
         }
         default: {
