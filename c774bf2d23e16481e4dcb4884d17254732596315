@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09b8f91f_ee07d1a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T21:06:41Z",
+      "side": 1,
+      "message": "Certainly JavaScript would *like* this as its backend, since I must give meaningful \"offsets\" to JS. Either this change, or I can move the UTF8\u003c--\u003e16 converters into my layer (glue between C++ and JS).",
+      "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef018d39_40e79f5a",
+        "filename": "experimental/sktext/include/Processor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T21:06:41Z",
+      "side": 1,
+      "message": "nit:\n\neither take (const uint16_t text[], size_t count)\n\nor\n(std::u16string by_value) -- which you would then move into fText\n\nI think either of those is clearer to the caller your intent:\n- either you just want their data, and you\u0027ll copy it or not as you please\n- or you are explicitly wanting to copy it (the string case), so by value is clearer",
+      "range": {
+        "startLine": 92,
+        "startChar": 14,
+        "endLine": 92,
+        "endChar": 19
+      },
+      "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
