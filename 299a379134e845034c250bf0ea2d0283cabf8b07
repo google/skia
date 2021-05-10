@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5019ec14_8fe39a3d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "OK, I really like find(), findIndex(), reduce()",
+      "revId": "299a379134e845034c250bf0ea2d0283cabf8b07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

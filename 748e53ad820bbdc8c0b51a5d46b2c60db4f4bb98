@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cc48fff_e5d64178",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c7e4e1e_bd0f5215",
+      "range": {
+        "startLine": 65,
+        "startChar": 19,
+        "endLine": 65,
+        "endChar": 20
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6519bbf0_a5dfba03",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-10T18:13:06Z",
       "side": 1,
       "message": "Maybe delete as well?",
+      "range": {
+        "startLine": 102,
+        "startChar": 20,
+        "endLine": 102,
+        "endChar": 29
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4172a401_bd7e0dee",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6519bbf0_a5dfba03",
       "range": {
         "startLine": 102,
         "startChar": 20,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66df69e4_992ce955",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55ec7292_a082a9ed",
+      "range": {
+        "startLine": 105,
+        "startChar": 20,
+        "endLine": 105,
+        "endChar": 25
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8722c959_c83bd6e1",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-05-10T18:13:06Z",
       "side": 1,
       "message": "Once the leak is taken care of below, we should probably call this.setPath(null) to make use of the cleanup code.",
+      "range": {
+        "startLine": 40,
+        "startChar": 17,
+        "endLine": 40,
+        "endChar": 22
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d4dea20_ee4fecad",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8722c959_c83bd6e1",
       "range": {
         "startLine": 40,
         "startChar": 17,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d72b1406_99d4b879",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3bed3bd1_7ae4cc2d",
+      "range": {
+        "startLine": 43,
+        "startChar": 17,
+        "endLine": 43,
+        "endChar": 22
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9ed1517_975496e9",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-05-10T18:13:06Z",
       "side": 1,
       "message": "ubernit: I would probably use % instead of the bitwise operator - feels more JS-like.",
+      "range": {
+        "startLine": 54,
+        "startChar": 68,
+        "endLine": 54,
+        "endChar": 69
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb48636b_839d36ee",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9ed1517_975496e9",
       "range": {
         "startLine": 54,
         "startChar": 68,
@@ -164,6 +308,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "451229c9_e3b64b48",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "For now I may leave these. They are intended to be strictly private, and (possibly) moved into methods rather than stand-alone functions. While I\u0027m fiddling, I\u0027d like to keep them like this, partly because they *do* stand out.",
+      "parentUuid": "0d7810be_3b4d053a",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 24
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bff2d9c3_f7e4a2d0",
         "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
         "patchSetId": 2
@@ -175,6 +343,30 @@
       "writtenOn": "2021-05-10T18:13:06Z",
       "side": 1,
       "message": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find may be useful here and in other places.\n\nconst lowest \u003d lines.find((line) \u003d\u003e y \u003c\u003d line.bottom);\nif (lowest) {\n  return runs_x_to_index(lowest.runs, x);\n}\nreturn lines[lines.length - 1].textRange.last;",
+      "range": {
+        "startLine": 111,
+        "startChar": 9,
+        "endLine": 111,
+        "endChar": 14
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd26b857_2a3d6d40",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bff2d9c3_f7e4a2d0",
       "range": {
         "startLine": 111,
         "startChar": 9,
@@ -210,6 +402,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fa52b6e9_f8eccebc",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Hmmm, can do that in C too, but I want to emphasize i as a number. Will change to \u003d\u003d\u003d",
+      "parentUuid": "908d1f72_d58f06ea",
+      "range": {
+        "startLine": 314,
+        "startChar": 26,
+        "endLine": 314,
+        "endChar": 32
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7b00ba82_69985e60",
         "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
         "patchSetId": 2
@@ -221,6 +437,30 @@
       "writtenOn": "2021-05-10T18:13:06Z",
       "side": 1,
       "message": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce could be used here.",
+      "range": {
+        "startLine": 335,
+        "startChar": 16,
+        "endLine": 335,
+        "endChar": 19
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e87055e0_b8065a13",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b00ba82_69985e60",
       "range": {
         "startLine": 335,
         "startChar": 16,
@@ -244,6 +484,30 @@
       "writtenOn": "2021-05-10T18:13:06Z",
       "side": 1,
       "message": "nit: indentation is a bit off.",
+      "range": {
+        "startLine": 350,
+        "startChar": 15,
+        "endLine": 358,
+        "endChar": 17
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbe4de50_b560d82b",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-10T19:38:14Z",
+      "side": 1,
+      "message": "Yea, was playing with build_sparse as a \u0027build flag\u0027 -- removed.",
+      "parentUuid": "ec50c840_e89938b3",
       "range": {
         "startLine": 350,
         "startChar": 15,
