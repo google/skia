@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "58e0564c_ddb8e531",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-10T20:29:59Z",
+      "side": 1,
+      "message": "Ok, I\u0027ll do that.",
+      "parentUuid": "cfb390ff_f23b3ce4",
+      "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "703cebd0_0f82d19e",
         "filename": "include/core/SkPathEffect.h",
         "patchSetId": 1
@@ -48,6 +66,30 @@
       "writtenOn": "2021-05-10T19:32:14Z",
       "side": 1,
       "message": "Are there clients with their own subclasses? I wonder if we\u0027d be better off forcing the implementor of each SkPathEffect to have to think about this by making it pure virtual. Might work better if the query and computation were one function, maybe like:\n\n virtual bool computeFastBounds(SkRect* inOutBounds) const \u003d 0;",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 88
+      },
+      "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bfa917d_751e6afb",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-10T20:29:59Z",
+      "side": 1,
+      "message": "I could not find any clients that subclassed SkPathEffect. I do like your function signature better, but SkPaint\u0027s computeFastBounds API is split into two functions as well. To remain compatible with that, I\u0027ll have SkPathEffect::computeFastBounds() specified so that \u0027inOutBounds\u0027 can be null, in which case it just reports the bool w/o computing the bounds.  If SkPaint\u0027s API can be cleaned up similarly, then we can remove the null support.  \n\nDoes that sound reasonable?",
+      "parentUuid": "703cebd0_0f82d19e",
       "range": {
         "startLine": 186,
         "startChar": 0,
