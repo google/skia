@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f1cdb26_0ed74f70",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-10T18:10:31Z",
+      "side": 1,
+      "message": "technically, \u0027might\u0027",
+      "range": {
+        "startLine": 211,
+        "startChar": 16,
+        "endLine": 211,
+        "endChar": 20
+      },
+      "revId": "4ffad5f849ca9846058eb9b69b7c3b5d7f9550c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58e1bd7b_d68e9a32",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-10T18:10:31Z",
+      "side": 1,
+      "message": "\u0027assert\u0027\n\nThis used to read through the pointer, but GetConstantValueForVariable is now more defensive; it checks for null and DEBUGFAILs with \"found a const variable without an initial value\".",
+      "range": {
+        "startLine": 214,
+        "startChar": 63,
+        "endLine": 214,
+        "endChar": 98
+      },
+      "revId": "4ffad5f849ca9846058eb9b69b7c3b5d7f9550c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
