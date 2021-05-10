@@ -204,6 +204,18 @@ DSLStatement Continue() {
     return DSLCore::Continue();
 }
 
+// Logically, we'd want the variable's initial value to appear on here in Declare, since that
+// matches how we actually write code (and in fact that was what our first attempt looked like).
+// Unfortunately, C++ doesn't guarantee execution order between arguments, and Declare() can appear
+// as a function argument in constructs like Block(Declare(x, 0), foo(x)). If these are executed out
+// of order, we will evaluate the reference to x before we evaluate Declare(x, 0), and thus the
+// variable's initial value is unknown at the point of reference. There are probably some other
+// issues with this as well, but it is particularly dangerous when x is const, since SkSL will
+// expect its value to be known when it is referenced and will end up asserting, dereferencing a
+// null pointer, or possibly doing something else awful.
+//
+// So, we put the initial value onto the Var itself instead of the Declare to guarantee that it is
+// always executed in the correct order.
 DSLStatement Declare(DSLVar& var, PositionInfo pos) {
     return DSLCore::Declare(var, pos);
 }
