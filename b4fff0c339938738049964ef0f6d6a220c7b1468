@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5825d345_69ae7733",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-10T12:06:56Z",
+      "side": 1,
+      "message": "Did the angle win bots every get fixed last week? If so should we update the DEPS this manually rolls to? If not maybe removed the DEPS change so we at least have the Skia side fix in and then we can trust the autoroller to work when angle gets fixed.",
+      "revId": "b4fff0c339938738049964ef0f6d6a220c7b1468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
