@@ -10,10 +10,12 @@
 #include <memory>
 #include <unordered_set>
 
+#include "include/sksl/DSL.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -208,7 +210,9 @@ Compiler::Compiler(const ShaderCapsClass* caps)
     fPrivateModule = {fPrivateSymbolTable, /*fIntrinsics=*/nullptr};
 }
 
-Compiler::~Compiler() {}
+Compiler::~Compiler() {
+    SkASSERT(!Pool::IsAttached());
+}
 
 const ParsedModule& Compiler::loadGPUModule() {
     if (!fGPUModule.fSymbols) {
@@ -295,6 +299,7 @@ const ParsedModule& Compiler::loadRuntimeShaderModule() {
 }
 
 const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
+    SkASSERT(!Pool::IsAttached());
     switch (kind) {
         case ProgramKind::kVertex:             return this->loadVertexModule();             break;
         case ProgramKind::kFragment:           return this->loadFragmentModule();           break;
@@ -362,6 +367,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 }
 
 ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base) {
+    SkASSERT(!Pool::IsAttached());
     LoadedModule module = this->loadModule(kind, data, base.fSymbols, /*dehydrate=*/false);
     this->optimize(module);
 
@@ -422,6 +428,10 @@ std::unique_ptr<Program> Compiler::convertProgram(
         const Program::Settings& settings,
         const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
+
+    if (settings.fUseDSL) {
+        return DSLParser(this, dsl::kNoMangle_Flag, kind, text.c_str(), text.length()).program();
+    }
 
     SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
 

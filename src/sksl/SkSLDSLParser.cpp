@@ -1,17 +1,20 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2021 Google LLC.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLParser.h"
+#include "src/sksl/SkSLDSLParser.h"
 
 #include <memory>
 #include "stdio.h"
 
 #include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLASTNode.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -19,10 +22,12 @@
 #include "include/private/SkOnce.h"
 #endif
 
+using namespace SkSL::dsl;
+
 namespace SkSL {
 
 static constexpr int kMaxParseDepth = 50;
-static constexpr int kMaxStructDepth = 8;
+//static constexpr int kMaxStructDepth = 8;
 
 static bool struct_is_too_deeply_nested(const Type& type, int limit) {
     if (limit < 0) {
@@ -56,13 +61,13 @@ static int parse_modifier_token(Token::Kind token) {
     }
 }
 
-class AutoDepth {
+class AutoDSLDepth {
 public:
-    AutoDepth(Parser* p)
+    AutoDSLDepth(DSLParser* p)
     : fParser(p)
     , fDepth(0) {}
 
-    ~AutoDepth() {
+    ~AutoDSLDepth() {
         fParser->fDepth -= fDepth;
     }
 
@@ -77,13 +82,13 @@ public:
     }
 
 private:
-    Parser* fParser;
+    DSLParser* fParser;
     int fDepth;
 };
 
-std::unordered_map<String, Parser::LayoutToken>* Parser::layoutTokens;
+std::unordered_map<String, DSLParser::LayoutToken>* DSLParser::layoutTokens;
 
-void Parser::InitLayoutMap() {
+void DSLParser::InitLayoutMap() {
     layoutTokens = new std::unordered_map<String, LayoutToken>;
     #define TOKEN(name, text) (*layoutTokens)[text] = LayoutToken::name
     TOKEN(LOCATION,                     "location");
@@ -107,6 +112,7 @@ void Parser::InitLayoutMap() {
     TOKEN(TRIANGLES_ADJACENCY,          "triangles_adjacency");
     TOKEN(MAX_VERTICES,                 "max_vertices");
     TOKEN(INVOCATIONS,                  "invocations");
+    TOKEN(MARKER,                       "marker");
     TOKEN(WHEN,                         "when");
     TOKEN(KEY,                          "key");
     TOKEN(TRACKED,                      "tracked");
@@ -124,92 +130,80 @@ void Parser::InitLayoutMap() {
     #undef TOKEN
 }
 
-Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
-: fText(text, length)
-, fPushback(Token::Kind::TK_NONE, -1, -1)
-, fSymbols(symbols)
-, fErrors(errors) {
+DSLParser::DSLParser(Compiler* compiler, int flags, ProgramKind kind, const char* text,
+                     size_t length)
+    : fCompiler(*compiler)
+    , fFlags(flags)
+    , fKind(kind)
+    , fText(text, length)
+    , fPushback(Token::Kind::TK_NONE, -1, -1) {
     fLexer.start(text, length);
     static const bool layoutMapInitialized = []{ return (void)InitLayoutMap(), true; }();
     (void) layoutMapInitialized;
 }
 
-template <typename... Args>
-ASTNode::ID Parser::createNode(Args&&... args) {
-    ASTNode::ID result(fFile->fNodes.size());
-    fFile->fNodes.emplace_back(&fFile->fNodes, std::forward<Args>(args)...);
-    return result;
-}
-
-ASTNode::ID Parser::addChild(ASTNode::ID target, ASTNode::ID child) {
-    fFile->fNodes[target.fValue].addChild(child);
-    return child;
-}
-
-void Parser::createEmptyChild(ASTNode::ID target) {
-    ASTNode::ID child(fFile->fNodes.size());
-    fFile->fNodes.emplace_back();
-    fFile->fNodes[target.fValue].addChild(child);
-}
-
 /* (directive | section | declaration)* END_OF_FILE */
-std::unique_ptr<ASTFile> Parser::compilationUnit() {
-    fFile = std::make_unique<ASTFile>();
-    fFile->fNodes.reserve(fText.size() / 10);  // a typical program is approx 10:1 for chars:nodes
-    ASTNode::ID result = this->createNode(/*offset=*/0, ASTNode::Kind::kFile);
-    fFile->fRoot = result;
-    for (;;) {
+std::unique_ptr<Program> DSLParser::program() {
+    Start(&fCompiler, fKind, fFlags);
+    SkASSERT(fCompiler.fIRGenerator->fSymbolTable);
+    std::unique_ptr<Program> result;
+    bool done = false;
+    while (!done) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_END_OF_FILE:
-                return std::move(fFile);
+                done = true;
+                result = DSLWriter::ReleaseProgram();
+                break;
             case Token::Kind::TK_DIRECTIVE: {
                 ASTNode::ID dir = this->directive();
-                if (fErrors.errorCount()) {
-                    return nullptr;
+                if (this->errors().errorCount()) {
+                    done = true;
+                    break;
                 }
                 if (dir) {
-                    getNode(result).addChild(dir);
+                    abort();
                 }
                 break;
             }
             case Token::Kind::TK_SECTION: {
                 ASTNode::ID section = this->section();
-                if (fErrors.errorCount()) {
-                    return nullptr;
+                if (this->errors().errorCount()) {
+                    done = true;
+                    break;
                 }
                 if (section) {
-                    getNode(result).addChild(section);
+                    abort();
                 }
                 break;
             }
             case Token::Kind::TK_INVALID: {
                 this->error(this->peek(), String("invalid token"));
-                return nullptr;
+                done = true;
+                break;
             }
             default: {
-                ASTNode::ID decl = this->declaration();
-                if (fErrors.errorCount()) {
-                    return nullptr;
-                }
-                if (decl) {
-                    getNode(result).addChild(decl);
+                if (!this->declaration()) {
+                    done = true;
+                    break;
                 }
             }
         }
     }
-    return std::move(fFile);
+    End();
+    return result;
 }
 
-Token Parser::nextRawToken() {
+Token DSLParser::nextRawToken() {
     if (fPushback.fKind != Token::Kind::TK_NONE) {
         Token result = fPushback;
         fPushback.fKind = Token::Kind::TK_NONE;
         return result;
     }
-    return fLexer.next();
+    Token result = fLexer.next();
+    return result;
 }
 
-Token Parser::nextToken() {
+Token DSLParser::nextToken() {
     Token token = this->nextRawToken();
     while (token.fKind == Token::Kind::TK_WHITESPACE ||
            token.fKind == Token::Kind::TK_LINE_COMMENT ||
@@ -219,19 +213,19 @@ Token Parser::nextToken() {
     return token;
 }
 
-void Parser::pushback(Token t) {
+void DSLParser::pushback(Token t) {
     SkASSERT(fPushback.fKind == Token::Kind::TK_NONE);
     fPushback = std::move(t);
 }
 
-Token Parser::peek() {
+Token DSLParser::peek() {
     if (fPushback.fKind == Token::Kind::TK_NONE) {
         fPushback = this->nextToken();
     }
     return fPushback;
 }
 
-bool Parser::checkNext(Token::Kind kind, Token* result) {
+bool DSLParser::checkNext(Token::Kind kind, Token* result) {
     if (fPushback.fKind != Token::Kind::TK_NONE && fPushback.fKind != kind) {
         return false;
     }
@@ -246,7 +240,7 @@ bool Parser::checkNext(Token::Kind kind, Token* result) {
     return false;
 }
 
-bool Parser::expect(Token::Kind kind, const char* expected, Token* result) {
+bool DSLParser::expect(Token::Kind kind, const char* expected, Token* result) {
     Token next = this->nextToken();
     if (next.fKind == kind) {
         if (result) {
@@ -260,7 +254,7 @@ bool Parser::expect(Token::Kind kind, const char* expected, Token* result) {
     }
 }
 
-bool Parser::expectIdentifier(Token* result) {
+bool DSLParser::expectIdentifier(Token* result) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", result)) {
         return false;
     }
@@ -272,33 +266,27 @@ bool Parser::expectIdentifier(Token* result) {
     return true;
 }
 
-StringFragment Parser::text(Token token) {
+StringFragment DSLParser::text(Token token) {
     return StringFragment(fText.begin() + token.fOffset, token.fLength);
 }
 
-void Parser::error(Token token, String msg) {
+void DSLParser::error(Token token, String msg) {
     this->error(token.fOffset, msg);
 }
 
-void Parser::error(int offset, String msg) {
-    fErrors.error(offset, msg);
+void DSLParser::error(int offset, String msg) {
+    this->errors().error(offset, msg);
 }
 
-bool Parser::isType(StringFragment name) {
-    const Symbol* s = fSymbols[name];
+bool DSLParser::isType(StringFragment name) {
+    const Symbol* s = this->symbols()[name];
     return s && s->is<Type>();
-}
-
-bool Parser::isArrayType(ASTNode::ID type) {
-    const ASTNode& node = this->getNode(type);
-    SkASSERT(node.fKind == ASTNode::Kind::kType);
-    return node.begin() != node.end();
 }
 
 /* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? |
    DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
-ASTNode::ID Parser::directive() {
-    Token start;
+ASTNode::ID DSLParser::directive() {
+/*    Token start;
     if (!this->expect(Token::Kind::TK_DIRECTIVE, "a directive", &start)) {
         return ASTNode::ID::Invalid();
     }
@@ -319,13 +307,14 @@ ASTNode::ID Parser::directive() {
     } else {
         this->error(start, "unsupported directive '" + this->text(start) + "'");
         return ASTNode::ID::Invalid();
-    }
+    }*/
+    abort();
 }
 
 /* SECTION LBRACE (LPAREN IDENTIFIER RPAREN)? <any sequence of tokens with balanced braces>
    RBRACE */
-ASTNode::ID Parser::section() {
-    Token start;
+ASTNode::ID DSLParser::section() {
+/*    Token start;
     if (!this->expect(Token::Kind::TK_SECTION, "a section token", &start)) {
         return ASTNode::ID::Invalid();
     }
@@ -374,13 +363,14 @@ ASTNode::ID Parser::section() {
     ++name.fChars;
     --name.fLength;
     return this->createNode(start.fOffset, ASTNode::Kind::kSection,
-                            ASTNode::SectionData(name, argument, text));
+                            ASTNode::SectionData(name, argument, text));*/
+    abort();
 }
 
 /* ENUM CLASS IDENTIFIER LBRACE (IDENTIFIER (EQ expression)? (COMMA IDENTIFIER (EQ expression))*)?
    RBRACE */
-ASTNode::ID Parser::enumDeclaration() {
-    Token start;
+ASTNode::ID DSLParser::enumDeclaration() {
+/*    Token start;
     if (!this->expect(Token::Kind::TK_ENUM, "'enum'", &start)) {
         return ASTNode::ID::Invalid();
     }
@@ -394,7 +384,7 @@ ASTNode::ID Parser::enumDeclaration() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(Type::MakeEnumType(this->text(name)));
+    this->symbols().add(Type::MakeEnumType(this->text(name)));
     ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token id;
@@ -437,12 +427,13 @@ ASTNode::ID Parser::enumDeclaration() {
         }
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    return result;
+    return result;*/
+    abort();
 }
 
 /* enumDeclaration | modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
    (COMMA parameter)* RPAREN (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
-ASTNode::ID Parser::declaration() {
+bool DSLParser::declaration() {
     Token lookahead = this->peek();
     switch (lookahead.fKind) {
         case Token::Kind::TK_ENUM:
@@ -453,112 +444,138 @@ ASTNode::ID Parser::declaration() {
         default:
             break;
     }
-    Modifiers modifiers = this->modifiers();
+    DSLModifiers modifiers = this->modifiers();
     lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_IDENTIFIER && !this->isType(this->text(lookahead))) {
         // we have an identifier that's not a type, could be the start of an interface block
-        return this->interfaceBlock(modifiers);
+//        return this->interfaceBlock(modifiers);
+        abort();
     }
     if (lookahead.fKind == Token::Kind::TK_STRUCT) {
-        return this->structVarDeclaration(modifiers);
+//        return this->structVarDeclaration(modifiers);
+        abort();
     }
     if (lookahead.fKind == Token::Kind::TK_SEMICOLON) {
-        this->nextToken();
-        return this->createNode(lookahead.fOffset, ASTNode::Kind::kModifiers, modifiers);
+//        this->nextToken();
+//        return this->createNode(lookahead.fOffset, ASTNode::Kind::kModifiers, modifiers);
+        abort();
     }
-    ASTNode::ID type = this->type();
+    DSLOptional<DSLType> type = this->type();
     if (!type) {
-        return ASTNode::ID::Invalid();
+        return false;
     }
     Token name;
     if (!this->expectIdentifier(&name)) {
-        return ASTNode::ID::Invalid();
+        return false;
     }
     if (this->checkNext(Token::Kind::TK_LPAREN)) {
-        ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kFunction);
-        ASTNode::FunctionData fd(modifiers, this->text(name), 0);
-        getNode(result).addChild(type);
+        SkTArray<DSLOptional<DSLWrapper<DSLVar>>> parameters;
+        SkTArray<DSLVar*> parameterPointers;
         if (this->peek().fKind != Token::Kind::TK_RPAREN) {
             for (;;) {
-                ASTNode::ID parameter = this->parameter();
+                DSLOptional<DSLWrapper<DSLVar>> parameter = this->parameter();
                 if (!parameter) {
-                    return ASTNode::ID::Invalid();
+                    return false;
                 }
-                ++fd.fParameterCount;
-                getNode(result).addChild(parameter);
+                parameters.push_back(std::move(parameter));
+                parameterPointers.push_back(&**parameters.back());
                 if (!this->checkNext(Token::Kind::TK_COMMA)) {
                     break;
                 }
             }
         }
-        getNode(result).setFunctionData(fd);
         if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-            return ASTNode::ID::Invalid();
+            return false;
         }
-        ASTNode::ID body;
+        const char* c_name = this->symbols().takeOwnershipOfString(this->text(name))->c_str();
+        DSLFunction result(*type, c_name, parameterPointers);
         if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
-            body = this->block();
-            if (!body) {
-                return ASTNode::ID::Invalid();
+            AutoSymbolTable symbols(fCompiler.fIRGenerator.get());
+            for (DSLVar* var : parameterPointers) {
+                this->symbols().addWithoutOwnership(&DSLWriter::Var(*var));
             }
-            getNode(result).addChild(body);
+            DSLOptional<DSLBlock> body = this->block();
+            if (!body) {
+                return false;
+            }
+            result.define(std::move(*body));
         }
-        return result;
+        return true;
     } else {
-        return this->varDeclarationEnd(modifiers, type, this->text(name));
+        SkTArray<DSLVar> result = this->varDeclarationEnd(modifiers, *type, this->text(name));
+        for (DSLVar& var : result) {
+            DeclareGlobal(var);
+            this->symbols().addWithoutOwnership(&DSLWriter::Var(var));
+        }
+        return true;
     }
 }
 
-/* (varDeclarations | expressionStatement) */
-ASTNode::ID Parser::varDeclarationsOrExpressionStatement() {
-    Token nextToken = this->peek();
-    if (nextToken.fKind == Token::Kind::TK_CONST) {
-        // Statements that begin with `const` might be variable declarations, but can't be legal
-        // SkSL expression-statements. (SkSL constructors don't take a `const` modifier.)
-        return this->varDeclarations();
+static DSLStatement declaration_statements(SkTArray<DSLVar> vars, SymbolTable& symbols) {
+    if (vars.empty()) {
+        return {};
     }
+    if (vars.count() == 1) {
+        symbols.addWithoutOwnership(&DSLWriter::Var(vars[0]));
+        return Declare(vars[0]);
+    }
+    DSLBlock result;
+    for (DSLVar& var : vars) {
+        symbols.addWithoutOwnership(&DSLWriter::Var(var));
+        result.append(Declare(var));
+    }
+    return std::move(result);
+}
 
-    if (this->isType(this->text(nextToken))) {
+/* (varDeclarations | expressionStatement) */
+DSLOptional<DSLStatement> DSLParser::varDeclarationsOrExpressionStatement() {
+    if (this->isType(this->text(this->peek()))) {
         // Statements that begin with a typename are most often variable declarations, but
         // occasionally the type is part of a constructor, and these are actually expression-
         // statements in disguise. First, attempt the common case: parse it as a vardecl.
         Checkpoint checkpoint(this);
         VarDeclarationsPrefix prefix;
         if (this->varDeclarationsPrefix(&prefix)) {
-            return this->varDeclarationEnd(prefix.modifiers, prefix.type, this->text(prefix.name));
+            checkpoint.accept();
+            return declaration_statements(this->varDeclarationEnd(prefix.modifiers, prefix.type,
+                                                                  this->text(prefix.name)),
+                                          this->symbols());
         }
 
         // If this statement wasn't actually a vardecl after all, rewind and try parsing it as an
         // expression-statement instead.
         checkpoint.rewind();
     }
-
     return this->expressionStatement();
 }
 
+
 // Helper function for varDeclarations(). If this function succeeds, we assume that the rest of the
 // statement is a variable-declaration statement, not an expression-statement.
-bool Parser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
+bool DSLParser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
     prefixData->modifiers = this->modifiers();
-    prefixData->type = this->type();
-    if (!prefixData->type) {
+    DSLOptional<DSLType> type = this->type();
+    if (!type) {
         return false;
     }
+    prefixData->type = *type;
     return this->expectIdentifier(&prefixData->name);
 }
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
-ASTNode::ID Parser::varDeclarations() {
+DSLOptional<DSLStatement> DSLParser::varDeclarations() {
     VarDeclarationsPrefix prefix;
     if (!this->varDeclarationsPrefix(&prefix)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    return this->varDeclarationEnd(prefix.modifiers, prefix.type, this->text(prefix.name));
+    return declaration_statements(this->varDeclarationEnd(prefix.modifiers, prefix.type,
+                                                          this->text(prefix.name)),
+                                  this->symbols());
 }
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
-ASTNode::ID Parser::structDeclaration() {
-    if (!this->expect(Token::Kind::TK_STRUCT, "'struct'")) {
+ASTNode::ID DSLParser::structDeclaration() {
+/*    if (!this->expect(Token::Kind::TK_STRUCT, "'struct'")) {
         return ASTNode::ID::Invalid();
     }
     Token name;
@@ -583,7 +600,7 @@ ASTNode::ID Parser::structDeclaration() {
                         "modifier '" + desc + "' is not permitted on a struct field");
         }
 
-        const Symbol* symbol = fSymbols[(declsNode.begin() + 1)->getString()];
+        const Symbol* symbol = this->symbols()[(declsNode.begin() + 1)->getString()];
         SkASSERT(symbol);
         const Type* type = &symbol->as<Type>();
         if (type->isOpaque()) {
@@ -608,7 +625,7 @@ ASTNode::ID Parser::structDeclaration() {
                 }
                 // Add the array dimensions to our type.
                 int arraySize = size.getInt();
-                type = fSymbols.addArrayDimension(type, arraySize);
+                type = this->symbols().addArrayDimension(type, arraySize);
             }
 
             fields.push_back(Type::Field(modifiers, vd.fName, type));
@@ -630,13 +647,14 @@ ASTNode::ID Parser::structDeclaration() {
         this->error(name.fOffset, "struct '" + this->text(name) + "' is too deeply nested");
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(std::move(newType));
-    return this->createNode(name.fOffset, ASTNode::Kind::kType, this->text(name));
+    this->symbols().add(std::move(newType));
+    return this->createNode(name.fOffset, ASTNode::Kind::kType, this->text(name));*/
+    abort();
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
-ASTNode::ID Parser::structVarDeclaration(Modifiers modifiers) {
-    ASTNode::ID type = this->structDeclaration();
+ASTNode::ID DSLParser::structVarDeclaration(Modifiers modifiers) {
+/*    ASTNode::ID type = this->structDeclaration();
     if (!type) {
         return ASTNode::ID::Invalid();
     }
@@ -645,17 +663,16 @@ ASTNode::ID Parser::structVarDeclaration(Modifiers modifiers) {
         return this->varDeclarationEnd(modifiers, std::move(type), this->text(name));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    return type;
+    return type;*/
+    abort();
 }
 
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
-ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFragment name) {
-    int offset = this->peek().fOffset;
-    ASTNode::ID result = this->createNode(offset, ASTNode::Kind::kVarDeclarations);
-    this->addChild(result, this->createNode(offset, ASTNode::Kind::kModifiers, mods));
-    getNode(result).addChild(type);
-
+SkTArray<dsl::DSLVar> DSLParser::varDeclarationEnd(DSLModifiers mods, DSLType type,
+                                              StringFragment name) {
+    SkTArray<dsl::DSLVar> result;
+/*    int offset = this->peek().fOffset;
     auto parseArrayDimensions = [&](ASTNode::ID currentVar, ASTNode::VarData* vd) -> bool {
         while (this->checkNext(Token::Kind::TK_LBRACKET)) {
             if (vd->fIsArray || this->isArrayType(type)) {
@@ -677,97 +694,86 @@ ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFr
             vd->fIsArray = true;
         }
         return true;
-    };
+    };*/
 
-    auto parseInitializer = [this](ASTNode::ID currentVar) -> bool {
-        if (this->checkNext(Token::Kind::TK_EQ)) {
-            ASTNode::ID value = this->assignmentExpression();
-            if (!value) {
-                return false;
-            }
-            getNode(currentVar).addChild(value);
-        }
-        return true;
-    };
-
-    ASTNode::ID currentVar = this->createNode(offset, ASTNode::Kind::kVarDeclaration);
-    ASTNode::VarData vd{name, /*isArray=*/false};
-
-    getNode(result).addChild(currentVar);
-    if (!parseArrayDimensions(currentVar, &vd)) {
-        return ASTNode::ID::Invalid();
-    }
-    getNode(currentVar).setVarData(vd);
-    if (!parseInitializer(currentVar)) {
-        return ASTNode::ID::Invalid();
-    }
-
-    while (this->checkNext(Token::Kind::TK_COMMA)) {
-        Token identifierName;
-        if (!this->expectIdentifier(&identifierName)) {
-            return ASTNode::ID::Invalid();
-        }
-
-        currentVar = ASTNode::ID(fFile->fNodes.size());
-        vd = ASTNode::VarData{this->text(identifierName), /*isArray=*/false};
-        fFile->fNodes.emplace_back(&fFile->fNodes, offset, ASTNode::Kind::kVarDeclaration);
-
-        getNode(result).addChild(currentVar);
-        if (!parseArrayDimensions(currentVar, &vd)) {
-            return ASTNode::ID::Invalid();
-        }
-        getNode(currentVar).setVarData(vd);
-        if (!parseInitializer(currentVar)) {
-            return ASTNode::ID::Invalid();
+/*    if (!parseArrayDimensions(currentVar, &vd)) {
+        return nullptr;
+    }*/
+    DSLOptional<DSLWrapper<DSLExpression>> value;
+    if (this->checkNext(Token::Kind::TK_EQ)) {
+        value = this->assignmentExpression();
+        if (!value) {
+            return {};
         }
     }
+
+    result.emplace_back(mods, type, this->symbols().takeOwnershipOfString(name)->c_str(),
+                        value ? std::move(**value) : DSLExpression());
+//    while (this->checkNext(Token::Kind::TK_COMMA)) {
+//        Token identifierName;
+//        if (!this->expectIdentifier(&identifierName)) {
+//            return {};
+//        }
+//
+//        currentVar = ASTNode::ID(fFile->fNodes.size());
+//        vd = ASTNode::VarData{this->text(identifierName), /*isArray=*/false};
+//        fFile->fNodes.emplace_back(&fFile->fNodes, offset, ASTNode::Kind::kVarDeclaration);
+//
+//        getNode(result).addChild(currentVar);
+//        if (!parseArrayDimensions(currentVar, &vd)) {
+//            return {};
+//        }
+//        getNode(currentVar).setVarData(vd);
+//        if (!parseInitializer(currentVar)) {
+//            return {};
+//        }
+//    }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     return result;
 }
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
-ASTNode::ID Parser::parameter() {
-    Modifiers modifiers = this->modifiersWithDefaults(0);
-    ASTNode::ID type = this->type();
+DSLOptional<DSLWrapper<DSLVar>> DSLParser::parameter() {
+    DSLModifiers modifiers = this->modifiersWithDefaults(0);
+    DSLOptional<DSLType> type = this->type();
     if (!type) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     Token name;
     if (!this->expectIdentifier(&name)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kParameter);
-    ASTNode::ParameterData pd(modifiers, this->text(name), 0);
-    getNode(result).addChild(type);
+//    bool isArray = false;
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-        if (pd.fIsArray || this->isArrayType(type)) {
+/*        if (isArray || this->isArrayType(type)) {
             this->error(this->peek(), "multi-dimensional arrays are not supported");
-            return ASTNode::ID::Invalid();
+            return {};
         }
         Token sizeToken;
         if (!this->expect(Token::Kind::TK_INT_LITERAL, "a positive integer", &sizeToken)) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
         StringFragment arraySizeFrag = this->text(sizeToken);
         SKSL_INT arraySize;
         if (!SkSL::stoi(arraySizeFrag, &arraySize)) {
             this->error(sizeToken, "array size is too large: " + arraySizeFrag);
-            return ASTNode::ID::Invalid();
+            return {};
         }
         this->addChild(result, this->createNode(sizeToken.fOffset, ASTNode::Kind::kInt, arraySize));
         if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        pd.fIsArray = true;
+        isArray = true;*/
+        abort();
     }
-    getNode(result).setParameterData(pd);
-    return result;
+    const char* c_name = this->symbols().takeOwnershipOfString(this->text(name))->c_str();
+    return {{DSLVar(modifiers, *type, c_name)}};
 }
 
 /** EQ INT_LITERAL */
-int Parser::layoutInt() {
+int DSLParser::layoutInt() {
     if (!this->expect(Token::Kind::TK_EQ, "'='")) {
         return -1;
     }
@@ -785,7 +791,7 @@ int Parser::layoutInt() {
 }
 
 /** EQ IDENTIFIER */
-StringFragment Parser::layoutIdentifier() {
+StringFragment DSLParser::layoutIdentifier() {
     if (!this->expect(Token::Kind::TK_EQ, "'='")) {
         return StringFragment();
     }
@@ -798,7 +804,7 @@ StringFragment Parser::layoutIdentifier() {
 
 
 /** EQ <any sequence of tokens with balanced parentheses and no top-level comma> */
-StringFragment Parser::layoutCode() {
+StringFragment DSLParser::layoutCode() {
     if (!this->expect(Token::Kind::TK_EQ, "'='")) {
         return "";
     }
@@ -839,7 +845,7 @@ StringFragment Parser::layoutCode() {
     return code;
 }
 
-Layout::CType Parser::layoutCType() {
+Layout::CType DSLParser::layoutCType() {
     if (this->expect(Token::Kind::TK_EQ, "'='")) {
         Token t = this->nextToken();
         String text = this->text(t);
@@ -874,133 +880,56 @@ Layout::CType Parser::layoutCType() {
 }
 
 /* LAYOUT LPAREN IDENTIFIER (EQ INT_LITERAL)? (COMMA IDENTIFIER (EQ INT_LITERAL)?)* RPAREN */
-Layout Parser::layout() {
-    int flags = 0;
-    int location = -1;
-    int offset = -1;
-    int binding = -1;
-    int index = -1;
-    int set = -1;
-    int builtin = -1;
-    int inputAttachmentIndex = -1;
-    Layout::Primitive primitive = Layout::kUnspecified_Primitive;
-    int maxVertices = -1;
-    int invocations = -1;
-    StringFragment when;
-    Layout::CType ctype = Layout::CType::kDefault;
+DSLLayout DSLParser::layout() {
+    DSLLayout result;
     if (this->checkNext(Token::Kind::TK_LAYOUT)) {
         if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-            return Layout(flags, location, offset, binding, index, set, builtin,
-                          inputAttachmentIndex, primitive, maxVertices, invocations, when, ctype);
+            return result;
         }
         for (;;) {
             Token t = this->nextToken();
             String text = this->text(t);
-            auto setFlag = [&](Layout::Flag f) {
-                if (flags & f) {
-                    this->error(t, "layout qualifier '" + text + "' appears more than once");
-                }
-                flags |= f;
-            };
-            auto setPrimitive = [&](Layout::Primitive p) {
-                if (flags & Layout::kPrimitive_Flag) {
-                    this->error(t, "only one primitive-type layout qualifier is allowed");
-                }
-                flags |= Layout::kPrimitive_Flag;
-                primitive = p;
-            };
-
             auto found = layoutTokens->find(text);
             if (found != layoutTokens->end()) {
                 switch (found->second) {
                     case LayoutToken::ORIGIN_UPPER_LEFT:
-                        setFlag(Layout::kOriginUpperLeft_Flag);
+                        result.originUpperLeft();
                         break;
                     case LayoutToken::OVERRIDE_COVERAGE:
-                        setFlag(Layout::kOverrideCoverage_Flag);
+                        result.overrideCoverage();
                         break;
                     case LayoutToken::EARLY_FRAGMENT_TESTS:
-                        setFlag(Layout::kEarlyFragmentTests_Flag);
+                        result.earlyFragmentTests();
                         break;
                     case LayoutToken::PUSH_CONSTANT:
-                        setFlag(Layout::kPushConstant_Flag);
+                        result.pushConstant();
                         break;
                     case LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS:
-                        setFlag(Layout::kBlendSupportAllEquations_Flag);
-                        break;
-                    case LayoutToken::TRACKED:
-                        setFlag(Layout::kTracked_Flag);
+                        result.blendSupportAllEquations();
                         break;
                     case LayoutToken::SRGB_UNPREMUL:
-                        setFlag(Layout::kSRGBUnpremul_Flag);
-                        break;
-                    case LayoutToken::KEY:
-                        setFlag(Layout::kKey_Flag);
+                        result.srgbUnpremul();
                         break;
                     case LayoutToken::LOCATION:
-                        setFlag(Layout::kLocation_Flag);
-                        location = this->layoutInt();
+                        result.location(this->layoutInt());
                         break;
                     case LayoutToken::OFFSET:
-                        setFlag(Layout::kOffset_Flag);
-                        offset = this->layoutInt();
+                        result.offset(this->layoutInt());
                         break;
                     case LayoutToken::BINDING:
-                        setFlag(Layout::kBinding_Flag);
-                        binding = this->layoutInt();
+                        result.binding(this->layoutInt());
                         break;
                     case LayoutToken::INDEX:
-                        setFlag(Layout::kIndex_Flag);
-                        index = this->layoutInt();
+                        result.index(this->layoutInt());
                         break;
                     case LayoutToken::SET:
-                        setFlag(Layout::kSet_Flag);
-                        set = this->layoutInt();
+                        result.set(this->layoutInt());
                         break;
                     case LayoutToken::BUILTIN:
-                        setFlag(Layout::kBuiltin_Flag);
-                        builtin = this->layoutInt();
+                        result.builtin(this->layoutInt());
                         break;
                     case LayoutToken::INPUT_ATTACHMENT_INDEX:
-                        setFlag(Layout::kInputAttachmentIndex_Flag);
-                        inputAttachmentIndex = this->layoutInt();
-                        break;
-                    case LayoutToken::POINTS:
-                        setPrimitive(Layout::kPoints_Primitive);
-                        break;
-                    case LayoutToken::LINES:
-                        setPrimitive(Layout::kLines_Primitive);
-                        break;
-                    case LayoutToken::LINE_STRIP:
-                        setPrimitive(Layout::kLineStrip_Primitive);
-                        break;
-                    case LayoutToken::LINES_ADJACENCY:
-                        setPrimitive(Layout::kLinesAdjacency_Primitive);
-                        break;
-                    case LayoutToken::TRIANGLES:
-                        setPrimitive(Layout::kTriangles_Primitive);
-                        break;
-                    case LayoutToken::TRIANGLE_STRIP:
-                        setPrimitive(Layout::kTriangleStrip_Primitive);
-                        break;
-                    case LayoutToken::TRIANGLES_ADJACENCY:
-                        setPrimitive(Layout::kTrianglesAdjacency_Primitive);
-                        break;
-                    case LayoutToken::MAX_VERTICES:
-                        setFlag(Layout::kMaxVertices_Flag);
-                        maxVertices = this->layoutInt();
-                        break;
-                    case LayoutToken::INVOCATIONS:
-                        setFlag(Layout::kInvocations_Flag);
-                        invocations = this->layoutInt();
-                        break;
-                    case LayoutToken::WHEN:
-                        setFlag(Layout::kWhen_Flag);
-                        when = this->layoutCode();
-                        break;
-                    case LayoutToken::CTYPE:
-                        setFlag(Layout::kCType_Flag);
-                        ctype = this->layoutCType();
+                        result.inputAttachmentIndex(this->layoutInt());
                         break;
                     default:
                         this->error(t, "'" + text + "' is not a valid layout qualifier");
@@ -1017,13 +946,13 @@ Layout Parser::layout() {
             }
         }
     }
-    return Layout(flags, location, offset, binding, index, set, builtin, inputAttachmentIndex,
-                  primitive, maxVertices, invocations, when, ctype);
+    return result;
 }
 
-/* layout? (UNIFORM | CONST | IN | OUT | INOUT | FLAT | NOPERSPECTIVE | INLINE)* */
-Modifiers Parser::modifiers() {
-    Layout layout = this->layout();
+/* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
+            VARYING | INLINE)* */
+DSLModifiers DSLParser::modifiers() {
+    DSLLayout layout = this->layout();
     int flags = 0;
     for (;;) {
         // TODO: handle duplicate / incompatible flags
@@ -1034,23 +963,25 @@ Modifiers Parser::modifiers() {
         flags |= tokenFlag;
         this->nextToken();
     }
-    return Modifiers(layout, flags);
+    (void) layout; // FIXME need DSL layout support
+    return DSLModifiers(std::move(layout), flags);
 }
 
-Modifiers Parser::modifiersWithDefaults(int defaultFlags) {
-    Modifiers result = this->modifiers();
-    if (!result.fFlags) {
-        return Modifiers(result.fLayout, defaultFlags);
+DSLModifiers DSLParser::modifiersWithDefaults(int defaultFlags) {
+    DSLModifiers result = this->modifiers();
+    if (defaultFlags && !result.flags()) {
+        //return Modifiers(result.fLayout, defaultFlags);
+        abort();
     }
     return result;
 }
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
-ASTNode::ID Parser::statement() {
+DSLOptional<DSLStatement> DSLParser::statement() {
     Token start = this->nextToken();
-    AutoDepth depth(this);
+    AutoDSLDepth depth(this);
     if (!depth.increase()) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     this->pushback(start);
     switch (start.fKind) {
@@ -1074,12 +1005,16 @@ ASTNode::ID Parser::statement() {
             return this->continueStatement();
         case Token::Kind::TK_DISCARD:
             return this->discardStatement();
-        case Token::Kind::TK_LBRACE:
-            return this->block();
+        case Token::Kind::TK_LBRACE: {
+            DSLOptional<DSLBlock> result = this->block();
+            return result ? DSLOptional<DSLStatement>(std::move(*result))
+                          : DSLOptional<DSLStatement>();
+        }
         case Token::Kind::TK_SEMICOLON:
             this->nextToken();
-            return this->createNode(start.fOffset, ASTNode::Kind::kBlock);
+            return dsl::Block();
         case Token::Kind::TK_CONST:
+            return this->varDeclarations();
         case Token::Kind::TK_IDENTIFIER:
             return this->varDeclarationsOrExpressionStatement();
         default:
@@ -1088,19 +1023,19 @@ ASTNode::ID Parser::statement() {
 }
 
 /* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
-ASTNode::ID Parser::type() {
+DSLOptional<DSLType> DSLParser::type() {
     Token type;
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->isType(this->text(type))) {
         this->error(type, ("no type named '" + this->text(type) + "'").c_str());
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(type.fOffset, ASTNode::Kind::kType, this->text(type));
-    bool isArray = false;
+    ASTNode result(nullptr, type.fOffset, ASTNode::Kind::kType, this->text(type));
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
-        if (isArray) {
+        abort();
+/*        if (isArray) {
             this->error(this->peek(), "multi-dimensional arrays are not supported");
             return ASTNode::ID::Invalid();
         }
@@ -1116,16 +1051,16 @@ ASTNode::ID Parser::type() {
             this->createEmptyChild(result);
         }
         isArray = true;
-        this->expect(Token::Kind::TK_RBRACKET, "']'");
+        this->expect(Token::Kind::TK_RBRACKET, "']'");*/
     }
-    return result;
+    return fCompiler.fIRGenerator->convertType(result, true);
 }
 
 /* IDENTIFIER LBRACE
      varDeclaration+
    RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? SEMICOLON */
-ASTNode::ID Parser::interfaceBlock(Modifiers mods) {
-    Token name;
+ASTNode::ID DSLParser::interfaceBlock(Modifiers mods) {
+/*    Token name;
     if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
     }
@@ -1179,402 +1114,405 @@ ASTNode::ID Parser::interfaceBlock(Modifiers mods) {
     }
     getNode(result).setInterfaceBlockData(id);
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    return result;
+    return result;*/
+    abort();
 }
 
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
-ASTNode::ID Parser::ifStatement() {
+DSLOptional<DSLStatement> DSLParser::ifStatement() {
     Token start;
     bool isStatic = this->checkNext(Token::Kind::TK_STATIC_IF, &start);
     if (!isStatic && !this->expect(Token::Kind::TK_IF, "'if'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kIf, isStatic);
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID test = this->expression();
+    DSLOptional<DSLWrapper<DSLExpression>> test = this->expression();
     if (!test) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(test);
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID ifTrue = this->statement();
+    DSLOptional<DSLStatement> ifTrue = this->statement();
     if (!ifTrue) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(ifTrue);
-    ASTNode::ID ifFalse;
+    DSLOptional<DSLStatement> ifFalse;
     if (this->checkNext(Token::Kind::TK_ELSE)) {
         ifFalse = this->statement();
         if (!ifFalse) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        getNode(result).addChild(ifFalse);
     }
-    return result;
+    if (isStatic) {
+        return StaticIf(std::move(**test), std::move(*ifTrue), ifFalse ? std::move(*ifFalse)
+                                                                       : DSLStatement());
+    } else {
+        return If(std::move(**test), std::move(*ifTrue), ifFalse ? std::move(*ifFalse)
+                                                                 : DSLStatement());
+    }
 }
 
 /* DO statement WHILE LPAREN expression RPAREN SEMICOLON */
-ASTNode::ID Parser::doStatement() {
+DSLOptional<DSLStatement> DSLParser::doStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_DO, "'do'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kDo);
-    ASTNode::ID statement = this->statement();
+    DSLOptional<DSLStatement> statement = this->statement();
     if (!statement) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(statement);
     if (!this->expect(Token::Kind::TK_WHILE, "'while'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID test = this->expression();
+    DSLOptional<DSLWrapper<DSLExpression>> test = this->expression();
     if (!test) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(test);
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    return result;
+    return Do(std::move(*statement), std::move(**test));
 }
 
 /* WHILE LPAREN expression RPAREN STATEMENT */
-ASTNode::ID Parser::whileStatement() {
+DSLOptional<DSLStatement> DSLParser::whileStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_WHILE, "'while'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kWhile);
-    ASTNode::ID test = this->expression();
+    DSLOptional<DSLWrapper<DSLExpression>> test = this->expression();
     if (!test) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(test);
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID statement = this->statement();
+    DSLOptional<DSLStatement> statement = this->statement();
     if (!statement) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(statement);
-    return result;
+    return While(std::move(**test), std::move(*statement));
 }
 
 /* CASE expression COLON statement* */
-ASTNode::ID Parser::switchCase() {
+DSLOptional<DSLCase> DSLParser::switchCase() {
     Token start;
     if (!this->expect(Token::Kind::TK_CASE, "'case'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kSwitchCase);
-    ASTNode::ID value = this->expression();
+    DSLOptional<DSLWrapper<DSLExpression>> value = this->expression();
     if (!value) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_COLON, "':'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(value);
+    SkTArray<DSLStatement> statements;
     while (this->peek().fKind != Token::Kind::TK_RBRACE &&
            this->peek().fKind != Token::Kind::TK_CASE &&
            this->peek().fKind != Token::Kind::TK_DEFAULT) {
-        ASTNode::ID s = this->statement();
+        DSLOptional<DSLStatement> s = this->statement();
         if (!s) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        getNode(result).addChild(s);
+        statements.push_back(std::move(*s));
     }
-    return result;
+    return DSLCase(std::move(**value), std::move(statements));
 }
 
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
-ASTNode::ID Parser::switchStatement() {
+DSLOptional<DSLStatement> DSLParser::switchStatement() {
     Token start;
     bool isStatic = this->checkNext(Token::Kind::TK_STATIC_SWITCH, &start);
     if (!isStatic && !this->expect(Token::Kind::TK_SWITCH, "'switch'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID value = this->expression();
+    DSLOptional<DSLWrapper<DSLExpression>> value = this->expression();
     if (!value) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kSwitch, isStatic);
-    getNode(result).addChild(value);
+    SkTArray<DSLCase> cases;
     while (this->peek().fKind == Token::Kind::TK_CASE) {
-        ASTNode::ID c = this->switchCase();
+        DSLOptional<DSLCase> c = this->switchCase();
         if (!c) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        getNode(result).addChild(c);
+        cases.push_back(std::move(*c));
     }
     // Requiring default: to be last (in defiance of C and GLSL) was a deliberate decision. Other
     // parts of the compiler may rely upon this assumption.
     if (this->peek().fKind == Token::Kind::TK_DEFAULT) {
+        SkTArray<DSLStatement> statements;
         Token defaultStart;
         SkAssertResult(this->expect(Token::Kind::TK_DEFAULT, "'default'", &defaultStart));
         if (!this->expect(Token::Kind::TK_COLON, "':'")) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        ASTNode::ID defaultCase = this->addChild(
-                result, this->createNode(defaultStart.fOffset, ASTNode::Kind::kSwitchCase));
-        this->createEmptyChild(defaultCase); // empty test to signify default case
         while (this->peek().fKind != Token::Kind::TK_RBRACE) {
-            ASTNode::ID s = this->statement();
+            DSLOptional<DSLStatement> s = this->statement();
             if (!s) {
-                return ASTNode::ID::Invalid();
+                return {};
             }
-            getNode(defaultCase).addChild(s);
+            statements.push_back(std::move(*s));
         }
+        cases.emplace_back(DSLExpression(), std::move(statements));
     }
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    return result;
+    if (isStatic) {
+        return StaticSwitch(std::move(**value), std::move(cases));
+    } else {
+        return Switch(std::move(**value), std::move(cases));
+    }
 }
 
 /* FOR LPAREN (declaration | expression)? SEMICOLON expression? SEMICOLON expression? RPAREN
    STATEMENT */
-ASTNode::ID Parser::forStatement() {
+DSLOptional<dsl::DSLStatement> DSLParser::forStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_FOR, "'for'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kFor);
+    DSLOptional<dsl::DSLStatement> initializer;
     Token nextToken = this->peek();
-    if (nextToken.fKind == Token::Kind::TK_SEMICOLON) {
-        // An empty init-statement.
-        this->nextToken();
-        this->createEmptyChild(result);
-    } else {
-        // The init-statement must be an expression or variable declaration.
-        ASTNode::ID initializer = this->varDeclarationsOrExpressionStatement();
-        if (!initializer) {
-            return ASTNode::ID::Invalid();
+    switch (nextToken.fKind) {
+        case Token::Kind::TK_SEMICOLON:
+            this->nextToken();
+            break;
+        case Token::Kind::TK_CONST: {
+            initializer = this->varDeclarations();
+            if (!initializer) {
+                return {};
+            }
+            break;
         }
-        getNode(result).addChild(initializer);
+        case Token::Kind::TK_IDENTIFIER: {
+            if (this->isType(this->text(nextToken))) {
+                initializer = this->varDeclarations();
+                if (!initializer) {
+                    return {};
+                }
+                break;
+            }
+            [[fallthrough]];
+        }
+        default:
+            initializer = this->expressionStatement();
+            if (!initializer) {
+                return {};
+            }
     }
-    ASTNode::ID test;
+    DSLOptional<DSLWrapper<DSLExpression>> test;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
         test = this->expression();
         if (!test) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        getNode(result).addChild(test);
-    } else {
-        this->createEmptyChild(result);
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID next;
+    DSLOptional<DSLWrapper<DSLExpression>> next;
     if (this->peek().fKind != Token::Kind::TK_RPAREN) {
         next = this->expression();
         if (!next) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        getNode(result).addChild(next);
-    } else {
-        this->createEmptyChild(result);
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID statement = this->statement();
+    DSLOptional<dsl::DSLStatement> statement = this->statement();
     if (!statement) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    getNode(result).addChild(statement);
-    return result;
+    return For(initializer ? std::move(*initializer) : DSLStatement(),
+               test ? std::move(**test) : DSLExpression(),
+               next ? std::move(**next) : DSLExpression(),
+               std::move(*statement));
 }
 
 /* RETURN expression? SEMICOLON */
-ASTNode::ID Parser::returnStatement() {
+DSLOptional<DSLStatement> DSLParser::returnStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_RETURN, "'return'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kReturn);
+    DSLOptional<DSLWrapper<DSLExpression>> expression;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
-        ASTNode::ID expression = this->expression();
+        expression = this->expression();
         if (!expression) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        getNode(result).addChild(expression);
     }
-    if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return ASTNode::ID::Invalid();
-    }
-    return result;
+    this->expect(Token::Kind::TK_SEMICOLON, "';'");
+    return Return(expression ? std::move(**expression) : DSLExpression());
 }
 
 /* BREAK SEMICOLON */
-ASTNode::ID Parser::breakStatement() {
+DSLOptional<DSLStatement> DSLParser::breakStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_BREAK, "'break'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    return this->createNode(start.fOffset, ASTNode::Kind::kBreak);
+    return Break();
 }
 
 /* CONTINUE SEMICOLON */
-ASTNode::ID Parser::continueStatement() {
+DSLOptional<DSLStatement> DSLParser::continueStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_CONTINUE, "'continue'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    return this->createNode(start.fOffset, ASTNode::Kind::kContinue);
+    return Continue();
 }
 
 /* DISCARD SEMICOLON */
-ASTNode::ID Parser::discardStatement() {
+DSLOptional<DSLStatement> DSLParser::discardStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_DISCARD, "'continue'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    return this->createNode(start.fOffset, ASTNode::Kind::kDiscard);
+    return Discard();
 }
 
 /* LBRACE statement* RBRACE */
-ASTNode::ID Parser::block() {
+DSLOptional<DSLBlock> DSLParser::block() {
     Token start;
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'", &start)) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    AutoDepth depth(this);
+    AutoDSLDepth depth(this);
     if (!depth.increase()) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    ASTNode::ID result = this->createNode(start.fOffset, ASTNode::Kind::kBlock);
+    AutoSymbolTable symbols(fCompiler.fIRGenerator.get());
+    SkTArray<DSLStatement> statements;
     for (;;) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_RBRACE:
                 this->nextToken();
-                return result;
+                return DSLBlock(std::move(statements), fCompiler.fIRGenerator->fSymbolTable);
             case Token::Kind::TK_END_OF_FILE:
                 this->error(this->peek(), "expected '}', but found end of file");
-                return ASTNode::ID::Invalid();
+                return {};
             default: {
-                ASTNode::ID statement = this->statement();
+                DSLOptional<DSLStatement> statement = this->statement();
                 if (!statement) {
-                    return ASTNode::ID::Invalid();
+                    return {};
                 }
-                getNode(result).addChild(statement);
+                statements.push_back(std::move(*statement));
             }
         }
     }
-    return result;
 }
 
 /* expression SEMICOLON */
-ASTNode::ID Parser::expressionStatement() {
-    ASTNode::ID expr = this->expression();
+DSLOptional<DSLStatement> DSLParser::expressionStatement() {
+    DSLOptional<DSLWrapper<DSLExpression>> expr = this->expression();
     if (expr) {
         if (this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-            return expr;
+            return {{DSLStatement(std::move(**expr))}};
         }
     }
-    return ASTNode::ID::Invalid();
+    return {};
 }
 
 /* assignmentExpression (COMMA assignmentExpression)* */
-ASTNode::ID Parser::expression() {
-    ASTNode::ID result = this->assignmentExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::expression() {
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->assignmentExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     Token t;
-    AutoDepth depth(this);
+    AutoDSLDepth depth(this);
     while (this->checkNext(Token::Kind::TK_COMMA, &t)) {
         if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        ASTNode::ID right = this->assignmentExpression();
+        DSLOptional<DSLWrapper<DSLExpression>> right = this->expression();
         if (!right) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        ASTNode::ID newResult = this->createNode(t.fOffset, ASTNode::Kind::kBinary,
-                                                 Operator(t.fKind));
-        getNode(newResult).addChild(result);
-        getNode(newResult).addChild(right);
-        result = newResult;
+        //result = DSLOptional<DSLWrapper<DSLExpression>>(std::move(**result) , std::move(**right));
+        abort();
+        break;
     }
     return result;
 }
+
+#define OPERATOR_RIGHT(op, exprType)                                       \
+    {                                                                      \
+        this->nextToken();                                                 \
+        if (!depth.increase()) {                                           \
+            return {};                                                     \
+        }                                                                  \
+        DSLOptional<DSLWrapper<DSLExpression>> right = this->exprType(); \
+        if (!right) {                                                      \
+            return {};                                                     \
+        }                                                                  \
+        result = {{std::move(**result) op std::move(**right)}};            \
+        break;                                                             \
+    }
 
 /* ternaryExpression ((EQEQ | STAREQ | SLASHEQ | PERCENTEQ | PLUSEQ | MINUSEQ | SHLEQ | SHREQ |
    BITWISEANDEQ | BITWISEXOREQ | BITWISEOREQ | LOGICALANDEQ | LOGICALXOREQ | LOGICALOREQ)
    assignmentExpression)*
  */
-ASTNode::ID Parser::assignmentExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->ternaryExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::assignmentExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->ternaryExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::Kind::TK_EQ:           // fall through
-            case Token::Kind::TK_STAREQ:       // fall through
-            case Token::Kind::TK_SLASHEQ:      // fall through
-            case Token::Kind::TK_PERCENTEQ:    // fall through
-            case Token::Kind::TK_PLUSEQ:       // fall through
-            case Token::Kind::TK_MINUSEQ:      // fall through
-            case Token::Kind::TK_SHLEQ:        // fall through
-            case Token::Kind::TK_SHREQ:        // fall through
-            case Token::Kind::TK_BITWISEANDEQ: // fall through
-            case Token::Kind::TK_BITWISEXOREQ: // fall through
-            case Token::Kind::TK_BITWISEOREQ: {
-                if (!depth.increase()) {
-                    return ASTNode::ID::Invalid();
-                }
-                Token t = this->nextToken();
-                ASTNode::ID right = this->assignmentExpression();
-                if (!right) {
-                    return ASTNode::ID::Invalid();
-                }
-                ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
-                getNode(newResult).addChild(result);
-                getNode(newResult).addChild(right);
-                result = newResult;
-                break;
-            }
+            case Token::Kind::TK_EQ:           OPERATOR_RIGHT(=,   assignmentExpression)
+            case Token::Kind::TK_STAREQ:       OPERATOR_RIGHT(*=,  assignmentExpression)
+            case Token::Kind::TK_SLASHEQ:      OPERATOR_RIGHT(/=,  assignmentExpression)
+            case Token::Kind::TK_PERCENTEQ:    OPERATOR_RIGHT(%=,  assignmentExpression)
+            case Token::Kind::TK_PLUSEQ:       OPERATOR_RIGHT(+=,  assignmentExpression)
+            case Token::Kind::TK_MINUSEQ:      OPERATOR_RIGHT(-=,  assignmentExpression)
+            case Token::Kind::TK_SHLEQ:        OPERATOR_RIGHT(<<=, assignmentExpression)
+            case Token::Kind::TK_SHREQ:        OPERATOR_RIGHT(>>=, assignmentExpression)
+            case Token::Kind::TK_BITWISEANDEQ: OPERATOR_RIGHT(&=,  assignmentExpression)
+            case Token::Kind::TK_BITWISEXOREQ: OPERATOR_RIGHT(^=,  assignmentExpression)
+            case Token::Kind::TK_BITWISEOREQ:  OPERATOR_RIGHT(|=,  assignmentExpression)
             default:
                 return result;
         }
@@ -1582,371 +1520,268 @@ ASTNode::ID Parser::assignmentExpression() {
 }
 
 /* logicalOrExpression ('?' expression ':' assignmentExpression)? */
-ASTNode::ID Parser::ternaryExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID base = this->logicalOrExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::ternaryExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> base = this->logicalOrExpression();
     if (!base) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     if (this->checkNext(Token::Kind::TK_QUESTION)) {
         if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
-        ASTNode::ID trueExpr = this->expression();
+        DSLOptional<DSLWrapper<DSLExpression>> trueExpr = this->expression();
         if (!trueExpr) {
-            return ASTNode::ID::Invalid();
+            return {};
         }
         if (this->expect(Token::Kind::TK_COLON, "':'")) {
-            ASTNode::ID falseExpr = this->assignmentExpression();
+            DSLOptional<DSLWrapper<DSLExpression>> falseExpr = this->assignmentExpression();
             if (!falseExpr) {
-                return ASTNode::ID::Invalid();
+                return {};
             }
-            ASTNode::ID ternary = this->createNode(getNode(base).fOffset, ASTNode::Kind::kTernary);
-            getNode(ternary).addChild(base);
-            getNode(ternary).addChild(trueExpr);
-            getNode(ternary).addChild(falseExpr);
-            return ternary;
+            return Select(std::move(**base), std::move(**trueExpr), std::move(**falseExpr));
         }
-        return ASTNode::ID::Invalid();
+        return {};
     }
     return base;
 }
 
 /* logicalXorExpression (LOGICALOR logicalXorExpression)* */
-ASTNode::ID Parser::logicalOrExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->logicalXorExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::logicalOrExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->logicalXorExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
-    Token t;
-    while (this->checkNext(Token::Kind::TK_LOGICALOR, &t)) {
-        if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID right = this->logicalXorExpression();
-        if (!right) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 Operator(t.fKind));
-        getNode(newResult).addChild(result);
-        getNode(newResult).addChild(right);
-        result = newResult;
+    while (this->peek().fKind == Token::Kind::TK_LOGICALOR) {
+        OPERATOR_RIGHT(||, logicalOrExpression)
     }
     return result;
 }
 
 /* logicalAndExpression (LOGICALXOR logicalAndExpression)* */
-ASTNode::ID Parser::logicalXorExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->logicalAndExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::logicalXorExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->logicalAndExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     Token t;
-    while (this->checkNext(Token::Kind::TK_LOGICALXOR, &t)) {
-        if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID right = this->logicalAndExpression();
-        if (!right) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 Operator(t.fKind));
-        getNode(newResult).addChild(result);
-        getNode(newResult).addChild(right);
-        result = newResult;
+    while (this->peek().fKind == Token::Kind::TK_LOGICALXOR) {
+//        OPERATOR_RIGHT(^^, logicalXorExpression)
+        abort();
     }
     return result;
 }
 
 /* bitwiseOrExpression (LOGICALAND bitwiseOrExpression)* */
-ASTNode::ID Parser::logicalAndExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->bitwiseOrExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::logicalAndExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->bitwiseOrExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     Token t;
-    while (this->checkNext(Token::Kind::TK_LOGICALAND, &t)) {
-        if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID right = this->bitwiseOrExpression();
-        if (!right) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 Operator(t.fKind));
-        getNode(newResult).addChild(result);
-        getNode(newResult).addChild(right);
-        result = newResult;
+    while (this->peek().fKind == Token::Kind::TK_LOGICALAND) {
+        OPERATOR_RIGHT(&&, logicalAndExpression)
     }
     return result;
 }
 
 /* bitwiseXorExpression (BITWISEOR bitwiseXorExpression)* */
-ASTNode::ID Parser::bitwiseOrExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->bitwiseXorExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::bitwiseOrExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->bitwiseXorExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     Token t;
-    while (this->checkNext(Token::Kind::TK_BITWISEOR, &t)) {
-        if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID right = this->bitwiseXorExpression();
-        if (!right) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 Operator(t.fKind));
-        getNode(newResult).addChild(result);
-        getNode(newResult).addChild(right);
-        result = newResult;
+    while (this->peek().fKind == Token::Kind::TK_BITWISEOR) {
+        OPERATOR_RIGHT(|, bitwiseOrExpression)
     }
     return result;
 }
 
 /* bitwiseAndExpression (BITWISEXOR bitwiseAndExpression)* */
-ASTNode::ID Parser::bitwiseXorExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->bitwiseAndExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::bitwiseXorExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->bitwiseAndExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     Token t;
-    while (this->checkNext(Token::Kind::TK_BITWISEXOR, &t)) {
-        if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID right = this->bitwiseAndExpression();
-        if (!right) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 Operator(t.fKind));
-        getNode(newResult).addChild(result);
-        getNode(newResult).addChild(right);
-        result = newResult;
+    while (this->peek().fKind == Token::Kind::TK_BITWISEXOR) {
+        OPERATOR_RIGHT(^, bitwiseXorExpression)
     }
     return result;
 }
 
 /* equalityExpression (BITWISEAND equalityExpression)* */
-ASTNode::ID Parser::bitwiseAndExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->equalityExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::bitwiseAndExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->equalityExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     Token t;
-    while (this->checkNext(Token::Kind::TK_BITWISEAND, &t)) {
-        if (!depth.increase()) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID right = this->equalityExpression();
-        if (!right) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID newResult = this->createNode(getNode(result).fOffset, ASTNode::Kind::kBinary,
-                                                 Operator(t.fKind));
-        getNode(newResult).addChild(result);
-        getNode(newResult).addChild(right);
-        result = newResult;
+    while (this->peek().fKind == Token::Kind::TK_BITWISEAND) {
+        OPERATOR_RIGHT(&, bitwiseAndExpression)
     }
     return result;
 }
 
 /* relationalExpression ((EQEQ | NEQ) relationalExpression)* */
-ASTNode::ID Parser::equalityExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->relationalExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::equalityExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->relationalExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::Kind::TK_EQEQ:   // fall through
-            case Token::Kind::TK_NEQ: {
-                if (!depth.increase()) {
-                    return ASTNode::ID::Invalid();
-                }
-                Token t = this->nextToken();
-                ASTNode::ID right = this->relationalExpression();
-                if (!right) {
-                    return ASTNode::ID::Invalid();
-                }
-                ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
-                getNode(newResult).addChild(result);
-                getNode(newResult).addChild(right);
-                result = newResult;
-                break;
-            }
-            default:
-                return result;
+            case Token::Kind::TK_EQEQ: OPERATOR_RIGHT(==, equalityExpression)
+            case Token::Kind::TK_NEQ:  OPERATOR_RIGHT(!=, equalityExpression)
+            default: return result;
         }
     }
 }
 
 /* shiftExpression ((LT | GT | LTEQ | GTEQ) shiftExpression)* */
-ASTNode::ID Parser::relationalExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->shiftExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::relationalExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->shiftExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::Kind::TK_LT:   // fall through
-            case Token::Kind::TK_GT:   // fall through
-            case Token::Kind::TK_LTEQ: // fall through
-            case Token::Kind::TK_GTEQ: {
-                if (!depth.increase()) {
-                    return ASTNode::ID::Invalid();
-                }
-                Token t = this->nextToken();
-                ASTNode::ID right = this->shiftExpression();
-                if (!right) {
-                    return ASTNode::ID::Invalid();
-                }
-                ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
-                getNode(newResult).addChild(result);
-                getNode(newResult).addChild(right);
-                result = newResult;
-                break;
-            }
-            default:
-                return result;
+            case Token::Kind::TK_LT:   OPERATOR_RIGHT(<,  relationalExpression)
+            case Token::Kind::TK_GT:   OPERATOR_RIGHT(>,  relationalExpression)
+            case Token::Kind::TK_LTEQ: OPERATOR_RIGHT(<=, relationalExpression)
+            case Token::Kind::TK_GTEQ: OPERATOR_RIGHT(>=, relationalExpression)
+            default: return result;
         }
     }
 }
 
 /* additiveExpression ((SHL | SHR) additiveExpression)* */
-ASTNode::ID Parser::shiftExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->additiveExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::shiftExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->additiveExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::Kind::TK_SHL: // fall through
-            case Token::Kind::TK_SHR: {
-                if (!depth.increase()) {
-                    return ASTNode::ID::Invalid();
-                }
-                Token t = this->nextToken();
-                ASTNode::ID right = this->additiveExpression();
-                if (!right) {
-                    return ASTNode::ID::Invalid();
-                }
-                ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
-                getNode(newResult).addChild(result);
-                getNode(newResult).addChild(right);
-                result = newResult;
-                break;
-            }
-            default:
-                return result;
+            case Token::Kind::TK_SHL: OPERATOR_RIGHT(<<, shiftExpression)
+            case Token::Kind::TK_SHR: OPERATOR_RIGHT(>>, shiftExpression)
+            default: return result;
         }
     }
 }
 
 /* multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)* */
-ASTNode::ID Parser::additiveExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->multiplicativeExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::additiveExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->multiplicativeExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::Kind::TK_PLUS: // fall through
-            case Token::Kind::TK_MINUS: {
-                if (!depth.increase()) {
-                    return ASTNode::ID::Invalid();
-                }
-                Token t = this->nextToken();
-                ASTNode::ID right = this->multiplicativeExpression();
-                if (!right) {
-                    return ASTNode::ID::Invalid();
-                }
-                ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
-                getNode(newResult).addChild(result);
-                getNode(newResult).addChild(right);
-                result = newResult;
-                break;
-            }
-            default:
-                return result;
+            case Token::Kind::TK_PLUS:  OPERATOR_RIGHT(+, additiveExpression)
+            case Token::Kind::TK_MINUS: OPERATOR_RIGHT(-, additiveExpression)
+            default: return result;
         }
     }
 }
 
 /* unaryExpression ((STAR | SLASH | PERCENT) unaryExpression)* */
-ASTNode::ID Parser::multiplicativeExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->unaryExpression();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::multiplicativeExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->unaryExpression();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::Kind::TK_STAR: // fall through
-            case Token::Kind::TK_SLASH: // fall through
-            case Token::Kind::TK_PERCENT: {
-                if (!depth.increase()) {
-                    return ASTNode::ID::Invalid();
-                }
-                Token t = this->nextToken();
-                ASTNode::ID right = this->unaryExpression();
-                if (!right) {
-                    return ASTNode::ID::Invalid();
-                }
-                ASTNode::ID newResult = this->createNode(getNode(result).fOffset,
-                                                         ASTNode::Kind::kBinary, Operator(t.fKind));
-                getNode(newResult).addChild(result);
-                getNode(newResult).addChild(right);
-                result = newResult;
-                break;
-            }
-            default:
-                return result;
+            case Token::Kind::TK_STAR:    OPERATOR_RIGHT(*, multiplicativeExpression)
+            case Token::Kind::TK_SLASH:   OPERATOR_RIGHT(/, multiplicativeExpression)
+            case Token::Kind::TK_PERCENT: OPERATOR_RIGHT(%, multiplicativeExpression)
+            default: return result;
         }
     }
 }
 
 /* postfixExpression | (PLUS | MINUS | NOT | PLUSPLUS | MINUSMINUS) unaryExpression */
-ASTNode::ID Parser::unaryExpression() {
-    AutoDepth depth(this);
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::unaryExpression() {
+    AutoDSLDepth depth(this);
     switch (this->peek().fKind) {
-        case Token::Kind::TK_PLUS:       // fall through
-        case Token::Kind::TK_MINUS:      // fall through
-        case Token::Kind::TK_LOGICALNOT: // fall through
-        case Token::Kind::TK_BITWISENOT: // fall through
-        case Token::Kind::TK_PLUSPLUS:   // fall through
+        case Token::Kind::TK_PLUS: {
+            if (!depth.increase()) {
+                return {};
+            }
+            this->nextToken();
+            DSLOptional<DSLWrapper<DSLExpression>> expr = this->unaryExpression();
+            if (!expr) {
+                return {};
+            }
+            return {{+std::move(**expr)}};
+        }
+        case Token::Kind::TK_MINUS: {
+            if (!depth.increase()) {
+                return {};
+            }
+            this->nextToken();
+            DSLOptional<DSLWrapper<DSLExpression>> expr = this->unaryExpression();
+            if (!expr) {
+                return {};
+            }
+            return {{-std::move(**expr)}};
+        }
+        case Token::Kind::TK_LOGICALNOT: {
+            if (!depth.increase()) {
+                return {};
+            }
+            this->nextToken();
+            DSLOptional<DSLWrapper<DSLExpression>> expr = this->unaryExpression();
+            if (!expr) {
+                return {};
+            }
+            return {{!std::move(**expr)}};
+        }
+        case Token::Kind::TK_BITWISENOT: {
+            if (!depth.increase()) {
+                return {};
+            }
+            this->nextToken();
+            DSLOptional<DSLWrapper<DSLExpression>> expr = this->unaryExpression();
+            if (!expr) {
+                return {};
+            }
+            return {{~std::move(**expr)}};
+        }
+        case Token::Kind::TK_PLUSPLUS: {
+            if (!depth.increase()) {
+                return {};
+            }
+            this->nextToken();
+            DSLOptional<DSLWrapper<DSLExpression>> expr = this->unaryExpression();
+            if (!expr) {
+                return {};
+            }
+            return {{++std::move(**expr)}};
+        }
         case Token::Kind::TK_MINUSMINUS: {
             if (!depth.increase()) {
-                return ASTNode::ID::Invalid();
+                return {};
             }
-            Token t = this->nextToken();
-            ASTNode::ID expr = this->unaryExpression();
+            this->nextToken();
+            DSLOptional<DSLWrapper<DSLExpression>> expr = this->unaryExpression();
             if (!expr) {
-                return ASTNode::ID::Invalid();
+                return {};
             }
-            ASTNode::ID result = this->createNode(t.fOffset, ASTNode::Kind::kPrefix,
-                                                  Operator(t.fKind));
-            getNode(result).addChild(expr);
-            return result;
+            return {{--std::move(**expr)}};
         }
         default:
             return this->postfixExpression();
@@ -1954,11 +1789,11 @@ ASTNode::ID Parser::unaryExpression() {
 }
 
 /* term suffix* */
-ASTNode::ID Parser::postfixExpression() {
-    AutoDepth depth(this);
-    ASTNode::ID result = this->term();
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::postfixExpression() {
+    AutoDSLDepth depth(this);
+    DSLOptional<DSLWrapper<DSLExpression>> result = this->term();
     if (!result) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     for (;;) {
         Token t = this->peek();
@@ -1975,11 +1810,11 @@ ASTNode::ID Parser::postfixExpression() {
             case Token::Kind::TK_MINUSMINUS:
             case Token::Kind::TK_COLONCOLON:
                 if (!depth.increase()) {
-                    return ASTNode::ID::Invalid();
+                    return {};
                 }
-                result = this->suffix(result);
+                result = this->suffix(std::move(result));
                 if (!result) {
-                    return ASTNode::ID::Invalid();
+                    return {};
                 }
                 break;
             default:
@@ -1988,133 +1823,161 @@ ASTNode::ID Parser::postfixExpression() {
     }
 }
 
-/* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN |
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::swizzle(int offset,
+        DSLOptional<DSLWrapper<DSLExpression>> base, const char* swizzleMask) {
+    if (!(**base).type().isVector()) {
+        return (**base).field(swizzleMask);
+    }
+    int length = strlen(swizzleMask);
+    if (length == 0 || length > 4) {
+        this->error(offset, "invalid swizzle");
+        return {};
+    }
+    SkSL::SwizzleComponent::Type components[4];
+    for (int i = 0; i < length; ++i) {
+        switch (swizzleMask[i]) {
+            case '0': components[i] = SwizzleComponent::ZERO; break;
+            case '1': components[i] = SwizzleComponent::ONE;  break;
+            case 'r':
+            case 'x':
+            case 's':
+            case 'L': components[i] = SwizzleComponent::R;    break;
+            case 'g':
+            case 'y':
+            case 't':
+            case 'T': components[i] = SwizzleComponent::G;    break;
+            case 'b':
+            case 'z':
+            case 'p':
+            case 'R': components[i] = SwizzleComponent::B;    break;
+            case 'a':
+            case 'w':
+            case 'q':
+            case 'B': components[i] = SwizzleComponent::A;    break;
+            default:
+                this->error(offset, "invalid swizzle");
+                return {};
+        }
+    }
+    switch (length) {
+        case 1: return dsl::Swizzle(std::move(**base), components[0]);
+        case 2: return dsl::Swizzle(std::move(**base), components[0], components[1]);
+        case 3: return dsl::Swizzle(std::move(**base), components[0], components[1],
+                                    components[2]);
+        case 4: return dsl::Swizzle(std::move(**base), components[0], components[1],
+                                    components[2], components[3]);
+        default: SkUNREACHABLE;
+    }
+}
+
+DSLOptional<dsl::Wrapper<dsl::DSLExpression>> DSLParser::call(int offset,
+        DSLOptional<dsl::Wrapper<dsl::DSLExpression>> base,
+        SkTArray<Wrapper<DSLExpression>> args) {
+    return {{(**base)(std::move(args))}};
+}
+
+/* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN arguments RPAREN |
    PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER | FLOAT_LITERAL [IDENTIFIER] */
-ASTNode::ID Parser::suffix(ASTNode::ID base) {
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::suffix(
+        DSLOptional<DSLWrapper<DSLExpression>> base) {
     SkASSERT(base);
     Token next = this->nextToken();
-    AutoDepth depth(this);
+    AutoDSLDepth depth(this);
     if (!depth.increase()) {
-        return ASTNode::ID::Invalid();
+        return {};
     }
     switch (next.fKind) {
         case Token::Kind::TK_LBRACKET: {
-            if (this->checkNext(Token::Kind::TK_RBRACKET)) {
-                ASTNode::ID result = this->createNode(next.fOffset, ASTNode::Kind::kIndex);
-                getNode(result).addChild(base);
-                return result;
-            }
-            ASTNode::ID e = this->expression();
-            if (!e) {
-                return ASTNode::ID::Invalid();
+            DSLOptional<DSLWrapper<DSLExpression>> index = this->expression();
+            if (!index) {
+                return {};
             }
             this->expect(Token::Kind::TK_RBRACKET, "']' to complete array access expression");
-            ASTNode::ID result = this->createNode(next.fOffset, ASTNode::Kind::kIndex);
-            getNode(result).addChild(base);
-            getNode(result).addChild(e);
-            return result;
+            return {{std::move(**base)[std::move(**index)]}};
         }
-        case Token::Kind::TK_COLONCOLON: {
-            int offset = this->peek().fOffset;
-            StringFragment text;
-            if (this->identifier(&text)) {
-                ASTNode::ID result = this->createNode(offset, ASTNode::Kind::kScope,
-                                                      std::move(text));
-                getNode(result).addChild(base);
-                return result;
-            }
-            return ASTNode::ID::Invalid();
-        }
+        case Token::Kind::TK_COLONCOLON:
+            abort();
         case Token::Kind::TK_DOT: {
             int offset = this->peek().fOffset;
             StringFragment text;
             if (this->identifier(&text)) {
-                ASTNode::ID result = this->createNode(offset, ASTNode::Kind::kField,
-                                                      std::move(text));
-                getNode(result).addChild(base);
-                return result;
+                return this->swizzle(offset, std::move(**base), String(text).c_str());
             }
             [[fallthrough]];
         }
         case Token::Kind::TK_FLOAT_LITERAL: {
-            // Swizzles that start with a constant number, e.g. '.000r', will be tokenized as
+            // Swizzles *that start with a constant number, e.g. '.000r', will be tokenized as
             // floating point literals, possibly followed by an identifier. Handle that here.
             StringFragment field = this->text(next);
             SkASSERT(field.fChars[0] == '.');
             ++field.fChars;
             --field.fLength;
-            for (size_t i = 0; i < field.fLength; ++i) {
-                if (field.fChars[i] != '0' && field.fChars[i] != '1') {
-                    this->error(next, "invalid swizzle");
-                    return ASTNode::ID::Invalid();
-                }
-            }
             // use the next *raw* token so we don't ignore whitespace - we only care about
             // identifiers that directly follow the float
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
-                field.fLength += id.fLength;
-            } else {
-                this->pushback(id);
+                return this->swizzle(next.fOffset, std::move(**base),
+                                     (field + this->text(id)).c_str());
             }
-            ASTNode::ID result = this->createNode(next.fOffset, ASTNode::Kind::kField, field);
-            getNode(result).addChild(base);
-            return result;
+            this->pushback(id);
+            return this->swizzle(next.fOffset, std::move(**base), String(field).c_str());
         }
         case Token::Kind::TK_LPAREN: {
-            ASTNode::ID result = this->createNode(next.fOffset, ASTNode::Kind::kCall);
-            getNode(result).addChild(base);
+            SkTArray<Wrapper<DSLExpression>> args;
             if (this->peek().fKind != Token::Kind::TK_RPAREN) {
                 for (;;) {
-                    ASTNode::ID expr = this->assignmentExpression();
+                    DSLOptional<DSLWrapper<DSLExpression>> expr = this->assignmentExpression();
                     if (!expr) {
-                        return ASTNode::ID::Invalid();
+                        return {};
                     }
-                    getNode(result).addChild(expr);
+                    args.push_back(std::move(*expr));
                     if (!this->checkNext(Token::Kind::TK_COMMA)) {
                         break;
                     }
                 }
             }
-            this->expect(Token::Kind::TK_RPAREN, "')' to complete function parameters");
-            return result;
+            this->expect(Token::Kind::TK_RPAREN, "')' to complete function arguments");
+            return call(next.fOffset, std::move(**base), std::move(args));
         }
-        case Token::Kind::TK_PLUSPLUS: // fall through
+        case Token::Kind::TK_PLUSPLUS:
+            return {{std::move(**base)++}};
         case Token::Kind::TK_MINUSMINUS: {
-            ASTNode::ID result = this->createNode(next.fOffset, ASTNode::Kind::kPostfix,
-                                                  Operator(next.fKind));
-            getNode(result).addChild(base);
-            return result;
+            return {{std::move(**base)--}};
         }
         default: {
             this->error(next,  "expected expression suffix, but found '" + this->text(next) + "'");
-            return ASTNode::ID::Invalid();
+            return {};
         }
     }
 }
 
 /* IDENTIFIER | intLiteral | floatLiteral | boolLiteral | '(' expression ')' */
-ASTNode::ID Parser::term() {
+DSLOptional<DSLWrapper<DSLExpression>> DSLParser::term() {
     Token t = this->peek();
     switch (t.fKind) {
         case Token::Kind::TK_IDENTIFIER: {
             StringFragment text;
             if (this->identifier(&text)) {
-                return this->createNode(t.fOffset, ASTNode::Kind::kIdentifier, std::move(text));
+                std::unique_ptr<Expression> result =
+                                         fCompiler.fIRGenerator->convertIdentifier(t.fOffset, text);
+                if (!result.get()) {
+                    return {};
+                }
+                return {{std::move(result)}};
             }
             break;
         }
         case Token::Kind::TK_INT_LITERAL: {
             SKSL_INT i;
             if (this->intLiteral(&i)) {
-                return this->createNode(t.fOffset, ASTNode::Kind::kInt, i);
+                return {{(int) i}};
             }
             break;
         }
         case Token::Kind::TK_FLOAT_LITERAL: {
             SKSL_FLOAT f;
             if (this->floatLiteral(&f)) {
-                return this->createNode(t.fOffset, ASTNode::Kind::kFloat, f);
+                return {{f}};
             }
             break;
         }
@@ -2122,17 +1985,17 @@ ASTNode::ID Parser::term() {
         case Token::Kind::TK_FALSE_LITERAL: {
             bool b;
             if (this->boolLiteral(&b)) {
-                return this->createNode(t.fOffset, ASTNode::Kind::kBool, b);
+                return {{b}};
             }
             break;
         }
         case Token::Kind::TK_LPAREN: {
             this->nextToken();
-            AutoDepth depth(this);
+            AutoDSLDepth depth(this);
             if (!depth.increase()) {
-                return ASTNode::ID::Invalid();
+                return {};
             }
-            ASTNode::ID result = this->expression();
+            DSLOptional<DSLWrapper<DSLExpression>> result = this->expression();
             if (result) {
                 this->expect(Token::Kind::TK_RPAREN, "')' to complete expression");
                 return result;
@@ -2143,11 +2006,11 @@ ASTNode::ID Parser::term() {
             this->nextToken();
             this->error(t.fOffset, "expected expression, but found '" + this->text(t) + "'");
     }
-    return ASTNode::ID::Invalid();
+    return {};
 }
 
 /* INT_LITERAL */
-bool Parser::intLiteral(SKSL_INT* dest) {
+bool DSLParser::intLiteral(SKSL_INT* dest) {
     Token t;
     if (!this->expect(Token::Kind::TK_INT_LITERAL, "integer literal", &t)) {
         return false;
@@ -2162,7 +2025,7 @@ bool Parser::intLiteral(SKSL_INT* dest) {
 
 
 /* FLOAT_LITERAL */
-bool Parser::floatLiteral(SKSL_FLOAT* dest) {
+bool DSLParser::floatLiteral(SKSL_FLOAT* dest) {
     Token t;
     if (!this->expect(Token::Kind::TK_FLOAT_LITERAL, "float literal", &t)) {
         return false;
@@ -2176,7 +2039,7 @@ bool Parser::floatLiteral(SKSL_FLOAT* dest) {
 }
 
 /* TRUE_LITERAL | FALSE_LITERAL */
-bool Parser::boolLiteral(bool* dest) {
+bool DSLParser::boolLiteral(bool* dest) {
     Token t = this->nextToken();
     switch (t.fKind) {
         case Token::Kind::TK_TRUE_LITERAL:
@@ -2192,7 +2055,7 @@ bool Parser::boolLiteral(bool* dest) {
 }
 
 /* IDENTIFIER */
-bool Parser::identifier(StringFragment* dest) {
+bool DSLParser::identifier(StringFragment* dest) {
     Token t;
     if (this->expect(Token::Kind::TK_IDENTIFIER, "identifier", &t)) {
         *dest = this->text(t);
