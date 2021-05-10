@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8eaa15a9_5342b40c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T14:18:01Z",
+      "side": 1,
+      "message": "This is the penultimate change in this series.",
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45bb42e0_258a3834",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 3532,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T14:18:01Z",
+      "side": 1,
+      "message": "Will address this in a follow up.",
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

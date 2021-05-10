@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7ef0824_4da1c174",
+        "filename": "src/gpu/gl/GrGLUtil.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T14:18:01Z",
+      "side": 0,
+      "message": "Moved this later and renamed to get_angle_d3d_vendor_and_renderer",
+      "revId": "07218de777c6ee792fce0ee4bf8da729d3b4ce50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "056fc3d8_e3c31ea3",
+        "filename": "src/gpu/gl/GrGLUtil.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T14:18:01Z",
+      "side": 0,
+      "message": "We were never looking at driver version if GrGLDriver was kANGLE.",
+      "range": {
+        "startLine": 512,
+        "startChar": 20,
+        "endLine": 512,
+        "endChar": 82
+      },
+      "revId": "07218de777c6ee792fce0ee4bf8da729d3b4ce50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
