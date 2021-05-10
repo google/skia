@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b48af37f_5a3d2bd6",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-10T17:49:35Z",
+      "side": 1,
+      "message": "Java would probably want an exception thrown in case the user has plans for if it fails. I\u0027ll throw one on the Java side.",
+      "parentUuid": "7b41f792_3e00c3f2",
+      "revId": "62165583b7814e1e738b6f03218c0754ff587174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "376780f9_4c8c39e1",
@@ -55,6 +73,30 @@
       "side": 1,
       "message": "maybe for factories, you don\u0027t even need a verb...\n\nConcat(a, b)\nScale(sx, sy, sz)\nRotateDegrees(degrees)\n...",
       "parentUuid": "376780f9_4c8c39e1",
+      "range": {
+        "startLine": 64,
+        "startChar": 25,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "62165583b7814e1e738b6f03218c0754ff587174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf8714ad_48c84a04",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-10T17:49:35Z",
+      "side": 1,
+      "message": "We do need a naming convention to differentiate between \"this nonstatic function modifies the matrix\" and \"this function leaves the matrices unchanged and returns a new one\". I like Make as a prefix, I think I used \"Create\" in native code if that matters.\nWe\u0027ll probably need a prefix for factories due to a combination of certain Java conventions/rules. I tried writing out an explanation here, but it\u0027s long enough for a one pager.",
+      "parentUuid": "6e12782f_d314254f",
       "range": {
         "startLine": 64,
         "startChar": 25,
