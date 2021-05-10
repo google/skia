@@ -338,6 +338,12 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
         if (1 == n) {
             return GrGLRenderer::kAMDRadeonProVegaxx;
         }
+
+        n = sscanf(amdString, "Vega %i", &amdModel);
+        SkDebugf("AMD string: %s\n", amdString);
+        if (1 == n) {
+            return GrGLRenderer::kAMDRadeonVegaxx;
+        }
     }
 
     if (strstr(rendererString, "llvmpipe")) {
