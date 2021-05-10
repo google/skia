@@ -24,10 +24,10 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var _coords(kConst_Modifier, DSLType(kFloat2_Type), "coords", Float2(0.5f));
-Var _inColor(kConst_Modifier, DSLType(kHalf4_Type), "inColor", Half4(0.75f));
-Declare(_coords);
-Declare(_inColor);
+Var _coords(kConst_Modifier, DSLType(kFloat2_Type), "coords");
+Var _inColor(kConst_Modifier, DSLType(kHalf4_Type), "inColor");
+Declare(_coords, Float2(0.5f));
+Declare(_inColor, Half4(0.75f));
 Return(((SampleChild(0) * SampleChild(1, _coords)) * SampleChild(0, _inColor)) * SampleChild(1, _coords, _inColor));
         EndFragmentProcessor();
     }

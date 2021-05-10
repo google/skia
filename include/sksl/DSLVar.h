@@ -51,6 +51,11 @@ public:
 
     void swap(DSLVar& other);
 
+    void setInitialValue(DSLExpression initialValue) {
+        SkASSERT(!fInitialValue.fExpression.get());
+        fInitialValue.swap(initialValue);
+    }
+
     DSLExpression x() {
         return DSLExpression(*this).x();
     }

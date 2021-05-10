@@ -25,10 +25,10 @@ public:
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
 [[maybe_unused]] const auto& ten = _outer.ten;
-Var _ten(kConst_Modifier, DSLType(kInt_Type), "ten", Int(ten));
-Declare(_ten);
-Var _color(kNo_Modifier, DSLType(kInt4_Type), "color", Int4(0));
-Declare(_color);
+Var _ten(kConst_Modifier, DSLType(kInt_Type), "ten");
+Declare(_ten, Int(ten));
+Var _color(kNo_Modifier, DSLType(kInt4_Type), "color");
+Declare(_color, Int4(0));
 Switch(_color.x(),
     Case(0, ++_color.y()),
     Case(1, Break()),
