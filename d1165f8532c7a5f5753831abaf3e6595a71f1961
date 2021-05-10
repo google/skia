@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6eb1372_faef1b47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T15:50:10Z",
+      "side": 1,
+      "message": "Also removed uses of GrGLDriver::kAngle in windows-only code.",
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e2dfe555_ac8a0034",
@@ -58,6 +75,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a57a3cce_31c91c62",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T15:50:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2dfe555_ac8a0034",
+      "range": {
+        "startLine": 885,
+        "startChar": 91,
+        "endLine": 885,
+        "endChar": 96
+      },
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8a918666_2802f16b",
@@ -71,6 +112,30 @@
       "writtenOn": "2021-05-10T15:05:04Z",
       "side": 1,
       "message": "Does it use flat on OpenGL backend?",
+      "range": {
+        "startLine": 887,
+        "startChar": 7,
+        "endLine": 887,
+        "endChar": 59
+      },
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f0afecf_977bf371",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 887,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T15:50:10Z",
+      "side": 1,
+      "message": "I don\u0027t know but that was my suspicion. I\u0027m trying to avoid actually changing behavior here, just leaving a breadcrumb for future investigation. Changed the comment.",
+      "parentUuid": "8a918666_2802f16b",
       "range": {
         "startLine": 887,
         "startChar": 7,
@@ -111,6 +176,30 @@
       "writtenOn": "2021-05-10T15:05:04Z",
       "side": 1,
       "message": "Like this is fine enough and I wouldn\u0027t force you to change it, but for a function that\u0027s call get_angle_backend and only called in one place it seems like having this extra logic here complicates the code without adding much code reuse.\n\nIf you want to leave the function as is I would at least rename the function something like get_angle_backend_and_inner_driver_info. Then unless you plan on ever using this without an innerString I would just assert it is no null.\n\nAlternatively I would just have this function do:\nif (strstr(renderString, \"ANGLE\")) { // or strncmp\n    if(strsrt(renderSring, \"Direct3d11\") {\n      ...\n      ...\n}\nreturn kUnknown;\n\nThen do the inner string inline in the one caller or add a helper for that.",
+      "range": {
+        "startLine": 512,
+        "startChar": 4,
+        "endLine": 516,
+        "endChar": 9
+      },
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6d0c5eb_db8bb8b4",
+        "filename": "src/gpu/gl/GrGLUtil.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T15:50:10Z",
+      "side": 1,
+      "message": "The code this is replacing looked for \"ANGLE \" (extended here to \"ANGLE (\") before searching for substrings to determine the particular ANGLE backend. I\u0027d rather not change that functionality to just scan for \"Direct3D11\", etc, especially since ANGLE GL backend is dependent on having \"OpenGL\" which seems likely to appear in non-ANGLE renderer strings.\n\nChanged it to return std::tuple\u003cGrGLANGLE, SkString\u003e. WDYT? Seemed preferable than duplicating the header detection.",
+      "parentUuid": "1d9ce465_f5c25149",
       "range": {
         "startLine": 512,
         "startChar": 4,
