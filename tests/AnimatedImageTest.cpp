@@ -48,6 +48,41 @@ DEF_TEST(AnimatedImage_simple, r) {
     REPORTER_ASSERT(r, animatedImage);
 }
 
+DEF_TEST(AnimatedImage_rotation, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    // These images use different exif orientations to achieve the same final
+    // dimensions
+    const auto expectedBounds = SkRect::MakeIWH(100, 80);
+    for (int i = 1; i <=8; i++) {
+        for (const SkString& name : { SkStringPrintf("images/orientation/%d.webp", i),
+                                      SkStringPrintf("images/orientation/%d_444.jpg", i) }) {
+
+            const char* file = name.c_str();
+            auto data = GetResourceAsData(file);
+            if (!data) {
+                ERRORF(r, "Could not get %s", file);
+                return;
+            }
+
+            auto androidCodec = SkAndroidCodec::MakeFromData(std::move(data));
+            auto animatedImage = SkAnimatedImage::Make(std::move(androidCodec));
+            if (!animatedImage) {
+                ERRORF(r, "Failed to create animated image from %s", file);
+                return;
+            }
+
+            auto bounds = animatedImage->getBounds();
+            if (bounds != expectedBounds) {
+                ERRORF(r, "Mismatched bounds for %", file);
+                bounds.dump();
+            }
+        }
+    }
+}
+
 DEF_TEST(AnimatedImage_invalidCrop, r) {
     if (GetResourcePath().isEmpty()) {
         return;
