@@ -20,10 +20,10 @@ half4 main() {
         color.g = 0;
     }
 
-//    // A for-loop with two init-variables. TODO(skia:11868): currently unsupported in DSL
-//    for (half x = 0, y = 1; x <= y; ++x) {
-//        color.a = x;
-//    }
+    // A for-loop with two init-variables.
+    for (uint x = 0, y = 1; x <= y; ++x) {
+        color.a = half(x);
+    }
 
     // color contains green.
     return color;
