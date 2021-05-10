@@ -39,6 +39,40 @@
       },
       "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f48c6aa_0948ee51",
+        "filename": "experimental/sktext/src/Processor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-10T21:34:47Z",
+      "side": 1,
+      "message": "I think you can fix the ambiguity issue here by casting 0 to size_t (the actual type in fUTF16FromUTF8 which may or may not be the same as \u0027unsigned long\u0027). Or just pass utf16Index here since that\u0027s actually the right value for the right reason here.",
+      "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e708bb38_f062f27d",
+        "filename": "experimental/sktext/src/TextRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-10T21:34:47Z",
+      "side": 1,
+      "message": "Why not just put this all in the initializer?\n\n    : fFont(info.fFont)\n    , fBidiLevel(info.fBidiLevel)\n    , fAdvance(info.fAdvance)\n    ...",
+      "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
