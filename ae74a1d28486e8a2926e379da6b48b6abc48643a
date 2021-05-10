@@ -22,6 +22,30 @@
       },
       "revId": "ae74a1d28486e8a2926e379da6b48b6abc48643a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d42335d_85e2126d",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Paint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-10T14:58:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f606576_a82114f5",
+      "range": {
+        "startLine": 46,
+        "startChar": 16,
+        "endLine": 46,
+        "endChar": 24
+      },
+      "revId": "ae74a1d28486e8a2926e379da6b48b6abc48643a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
