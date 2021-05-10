@@ -83,7 +83,8 @@ static void HandleInnerJoin(SkPath* inner, const SkPoint& pivot, const SkVector&
 
 static void BluntJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
-                        SkScalar radius, SkScalar invMiterLimit, bool, bool) {
+                        SkScalar radius, SkScalar invMiterLimit, bool, bool,
+                        const SkPoint&, const SkPoint&) {
     SkVector    after;
     afterUnitNormal.scale(radius, &after);
 
@@ -99,7 +100,8 @@ static void BluntJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
 
 static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
-                        SkScalar radius, SkScalar invMiterLimit, bool, bool) {
+                        SkScalar radius, SkScalar invMiterLimit, bool, bool,
+                        const SkPoint&, const SkPoint&) {
     SkScalar    dotProd = SkPoint::DotProduct(beforeUnitNormal, afterUnitNormal);
     AngleType   angleType = Dot2AngleType(dotProd);
 
@@ -137,7 +139,8 @@ static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
 static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
                         SkScalar radius, SkScalar invMiterLimit,
-                        bool prevIsLine, bool currIsLine) {
+                        bool prevIsLine, bool currIsLine,
+                        const SkPoint& prevPt, const SkPoint& nextPt) {
     // negate the dot since we're using normals instead of tangents
     SkScalar    dotProd = SkPoint::DotProduct(beforeUnitNormal, afterUnitNormal);
     AngleType   angleType = Dot2AngleType(dotProd);
@@ -145,7 +148,7 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     SkVector    after = afterUnitNormal;
     SkVector    mid;
     SkScalar    sinHalfAngle;
-    bool        ccw;
+    bool        ccw = !is_clockwise(before, after);
 
     if (angleType == kNearlyLine_AngleType) {
         return;
@@ -155,7 +158,6 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
         goto DO_BLUNT;
     }
 
-    ccw = !is_clockwise(before, after);
     if (ccw) {
         using std::swap;
         swap(outer, inner);
@@ -207,11 +209,65 @@ DO_MITER:
     }
 
 DO_BLUNT:
+    // Save CW/CCW swapped unit normal before scaling it
+    const SkPoint swappedAfterUnitNormal = after;
     after.scale(radius);
     if (!currIsLine) {
         outer->lineTo(pivot.fX + after.fX, pivot.fY + after.fY);
     }
-    HandleInnerJoin(inner, pivot, after);
+
+    // Check for the case of two line segs where we can omit some of the inner
+    // join geometry.
+    if (prevIsLine && currIsLine) {
+        const int npts = inner->countPoints();
+        SkASSERT(npts >= 2);
+
+        SkPoint scaledBefore = before;
+        scaledBefore.scale(radius);
+
+        const SkPoint innerUlt = inner->getPoint(npts - 1);
+        const SkPoint innerPenult = prevPt - scaledBefore;
+        const int sgn = ccw ? 1 : -1;
+        bool needInnerJoin = false;
+
+        // Case 1: points of previous segment are inside curr segment's stroke
+        {
+            // First check ("bowtie" case)
+            const SkPoint p0 = prevPt;
+            const SkPoint v1 = (pivot - after) - p0;
+            const SkPoint v2 = innerPenult - p0;
+            needInnerJoin |= sgn * v1.cross(v2) > 0;
+
+            // Second check (perpendicular distance)
+            const SkPoint q = innerPenult - pivot;
+            const SkPoint n = -swappedAfterUnitNormal;
+            needInnerJoin |= n.dot(q) < radius;
+        }
+
+        // Case 2: points of current segment are inside prev segment's stroke
+        {
+            // "Bowtie"
+            const SkPoint nextInnerPoint = nextPt - after;
+            const SkPoint v1 = innerUlt - nextPt;
+            const SkPoint v2 = nextInnerPoint - nextPt;
+            needInnerJoin |= sgn * v1.cross(v2) < 0;
+
+            // Perpendicular distance
+            const SkPoint q = nextInnerPoint - pivot;
+            const SkPoint n = -before;
+            needInnerJoin |= n.dot(q) < radius;
+        }
+
+        if (needInnerJoin) {
+            // Need the extra inner join geometry.
+            HandleInnerJoin(inner, pivot, after);
+        } else {
+            // Can skip it. Move last inner pt to mirrored miter point.
+            inner->setLastPt(pivot - mid);
+        }
+    } else {
+        HandleInnerJoin(inner, pivot, after);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
