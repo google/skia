@@ -14,6 +14,10 @@
 #include <utility>
 #include "include/private/SkTLogic.h"
 
+/**
+ * An SkSpan is a view of a contiguous collection of elements. It can be directly constructed
+ * from a pointer and size, an array, or a container (like std::vector).
+ */
 template <typename T>
 class SkSpan {
 public:

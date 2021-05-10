@@ -10,10 +10,10 @@
 
 #ifdef SKSL_STANDALONE
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTHash.h"
-#include "src/core/SkSpan.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
 

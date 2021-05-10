@@ -10,8 +10,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTDArray.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkZip.h"
 #include "tools/ToolUtils.h"
 
