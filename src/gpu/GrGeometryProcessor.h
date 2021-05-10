@@ -218,21 +218,6 @@ public:
         the object. */
     virtual GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const = 0;
 
-    // We use these methods as a temporary back door to inject OpenGL tessellation code. Once
-    // tessellation is supported by SkSL we can remove these.
-    virtual SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
-                                              const char* versionAndExtensionDecls,
-                                              const GrGLSLUniformHandler&,
-                                              const GrShaderCaps&) const {
-        SK_ABORT("Not implemented.");
-    }
-    virtual SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
-                                                 const char* versionAndExtensionDecls,
-                                                 const GrGLSLUniformHandler&,
-                                                 const GrShaderCaps&) const {
-        SK_ABORT("Not implemented.");
-    }
-
 protected:
     // GPs that need to use either float or ubyte colors can just call this to get a correctly
     // configured Attribute struct

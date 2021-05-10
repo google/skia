@@ -109,185 +109,197 @@ GrGLSLGeometryProcessor* GrStencilPathShader::createGLSLInstance(const GrShaderC
     return new Impl;
 }
 
-SkString GrCubicTessellateShader::getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
-                                                           const char* versionAndExtensionDecls,
-                                                           const GrGLSLUniformHandler&,
-                                                           const GrShaderCaps&) const {
-    SkString code(versionAndExtensionDecls);
-    code.append(kWangsFormulaCubicFn);
-    code.append(kSkSLTypeDefs);
-    code.append(kUnpackRationalCubicFn);
-    code.append(R"(
-    layout(vertices = 1) out;
+GrGLSLGeometryProcessor* GrCubicTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
+    class CubicImpl : public GrStencilPathShader::Impl {
+        SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
+                                          const char* versionAndExtensionDecls,
+                                          const GrGLSLUniformHandler&,
+                                          const GrShaderCaps&) const override {
+            SkString code(versionAndExtensionDecls);
+            code.append(kWangsFormulaCubicFn);
+            code.append(kSkSLTypeDefs);
+            code.append(kUnpackRationalCubicFn);
+            code.append(R"(
+            layout(vertices = 1) out;
 
-    in vec2 vsPt[];
-    out vec4 X[];
-    out vec4 Y[];
-    out float w[];
+            in vec2 vsPt[];
+            out vec4 X[];
+            out vec4 Y[];
+            out float w[];
 
-    void main() {
-        mat4x3 P = unpack_rational_cubic(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
+            void main() {
+                mat4x3 P = unpack_rational_cubic(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
 
-        // Chop the curve at T=1/2. Here we take advantage of the fact that a uniform scalar has no
-        // effect on homogeneous coordinates in order to eval quickly at .5:
-        //
-        //    mix(p0, p1, .5) / mix(w0, w1, .5)
-        //    == ((p0 + p1) * .5) / ((w0 + w1) * .5)
-        //    == (p0 + p1) / (w0 + w1)
-        //
-        vec3 ab = P[0] + P[1];
-        vec3 bc = P[1] + P[2];
-        vec3 cd = P[2] + P[3];
-        vec3 abc = ab + bc;
-        vec3 bcd = bc + cd;
-        vec3 abcd = abc + bcd;
+                // Chop the curve at T=1/2. Here we take advantage of the fact that a uniform scalar
+                // has no effect on homogeneous coordinates in order to eval quickly at .5:
+                //
+                //    mix(p0, p1, .5) / mix(w0, w1, .5)
+                //    == ((p0 + p1) * .5) / ((w0 + w1) * .5)
+                //    == (p0 + p1) / (w0 + w1)
+                //
+                vec3 ab = P[0] + P[1];
+                vec3 bc = P[1] + P[2];
+                vec3 cd = P[2] + P[3];
+                vec3 abc = ab + bc;
+                vec3 bcd = bc + cd;
+                vec3 abcd = abc + bcd;
 
-        // Calculate how many triangles we need to linearize each half of the curve. We simply call
-        // Wang's formula for integral cubics with the down-projected points. This appears to be an
-        // upper bound on what the actual number of subdivisions would have been.
-        float w0 = wangs_formula_cubic(P[0].xy, ab.xy/ab.z, abc.xy/abc.z, abcd.xy/abcd.z);
-        float w1 = wangs_formula_cubic(abcd.xy/abcd.z, bcd.xy/bcd.z, cd.xy/cd.z, P[3].xy);
+                // Calculate how many triangles we need to linearize each half of the curve. We
+                // simply call Wang's formula for integral cubics with the down-projected points.
+                // This appears to be an upper bound on what the actual number of subdivisions would
+                // have been.
+                float w0 = wangs_formula_cubic(P[0].xy, ab.xy/ab.z, abc.xy/abc.z, abcd.xy/abcd.z);
+                float w1 = wangs_formula_cubic(abcd.xy/abcd.z, bcd.xy/bcd.z, cd.xy/cd.z, P[3].xy);
 
-        gl_TessLevelOuter[0] = w1;
-        gl_TessLevelOuter[1] = 1.0;
-        gl_TessLevelOuter[2] = w0;
+                gl_TessLevelOuter[0] = w1;
+                gl_TessLevelOuter[1] = 1.0;
+                gl_TessLevelOuter[2] = w0;
 
-        // Changing the inner level to 1 when w0 == w1 == 1 collapses the entire patch to a single
-        // triangle. Otherwise, we need an inner level of 2 so our curve triangles have an interior
-        // point to originate from.
-        gl_TessLevelInner[0] = min(max(w0, w1), 2.0);
+                // Changing the inner level to 1 when w0 == w1 == 1 collapses the entire patch to a
+                // single triangle. Otherwise, we need an inner level of 2 so our curve triangles
+                // have an interior point to originate from.
+                gl_TessLevelInner[0] = min(max(w0, w1), 2.0);
 
-        X[gl_InvocationID /*== 0*/] = vec4(P[0].x, P[1].x, P[2].x, P[3].x);
-        Y[gl_InvocationID /*== 0*/] = vec4(P[0].y, P[1].y, P[2].y, P[3].y);
-        w[gl_InvocationID /*== 0*/] = P[1].z;
-    })");
+                X[gl_InvocationID /*== 0*/] = vec4(P[0].x, P[1].x, P[2].x, P[3].x);
+                Y[gl_InvocationID /*== 0*/] = vec4(P[0].y, P[1].y, P[2].y, P[3].y);
+                w[gl_InvocationID /*== 0*/] = P[1].z;
+            })");
 
-    return code;
-}
-
-SkString GrCubicTessellateShader::getTessEvaluationShaderGLSL(
-        const GrGLSLGeometryProcessor*,
-        const char* versionAndExtensionDecls,
-        const GrGLSLUniformHandler&,
-        const GrShaderCaps&) const {
-    SkString code(versionAndExtensionDecls);
-    code.append(kSkSLTypeDefs);
-    code.append(kEvalRationalCubicFn);
-    code.append(R"(
-    layout(triangles, equal_spacing, ccw) in;
-
-    uniform vec4 sk_RTAdjust;
-
-    in vec4 X[];
-    in vec4 Y[];
-    in float w[];
-
-    void main() {
-        // Locate our parametric point of interest. T ramps from [0..1/2] on the left edge of the
-        // triangle, and [1/2..1] on the right. If we are the patch's interior vertex, then we want
-        // T=1/2. Since the barycentric coords are (1/3, 1/3, 1/3) at the interior vertex, the below
-        // fma() works in all 3 scenarios.
-        float T = fma(.5, gl_TessCoord.y, gl_TessCoord.z);
-
-        mat4x3 P = transpose(mat3x4(X[0], Y[0], 1,w[0],w[0],1));
-        vec2 vertexpos = eval_rational_cubic(P, T);
-        if (all(notEqual(gl_TessCoord.xz, vec2(0)))) {
-            // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
-            vertexpos = (P[0].xy + vertexpos + P[3].xy) / 3.0;
+            return code;
         }
 
-        gl_Position = vec4(vertexpos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
-    })");
+        SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
+                                             const char* versionAndExtensionDecls,
+                                             const GrGLSLUniformHandler&,
+                                             const GrShaderCaps&) const override {
+            SkString code(versionAndExtensionDecls);
+            code.append(kSkSLTypeDefs);
+            code.append(kEvalRationalCubicFn);
+            code.append(R"(
+            layout(triangles, equal_spacing, ccw) in;
 
-    return code;
+            uniform vec4 sk_RTAdjust;
+
+            in vec4 X[];
+            in vec4 Y[];
+            in float w[];
+
+            void main() {
+                // Locate our parametric point of interest. T ramps from [0..1/2] on the left edge
+                // of the triangle, and [1/2..1] on the right. If we are the patch's interior
+                // vertex, then we want T=1/2. Since the barycentric coords are (1/3, 1/3, 1/3) at
+                // the interior vertex, the below fma() works in all 3 scenarios.
+                float T = fma(.5, gl_TessCoord.y, gl_TessCoord.z);
+
+                mat4x3 P = transpose(mat3x4(X[0], Y[0], 1,w[0],w[0],1));
+                vec2 vertexpos = eval_rational_cubic(P, T);
+                if (all(notEqual(gl_TessCoord.xz, vec2(0)))) {
+                    // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
+                    vertexpos = (P[0].xy + vertexpos + P[3].xy) / 3.0;
+                }
+
+                gl_Position = vec4(vertexpos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
+            })");
+
+            return code;
+        }
+    };
+
+    return new CubicImpl;
 }
 
-SkString GrWedgeTessellateShader::getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
-                                                           const char* versionAndExtensionDecls,
-                                                           const GrGLSLUniformHandler&,
-                                                           const GrShaderCaps&) const {
-    SkString code(versionAndExtensionDecls);
-    code.append(kWangsFormulaCubicFn);
-    code.append(kSkSLTypeDefs);
-    code.append(kUnpackRationalCubicFn);
-    code.append(R"(
-    layout(vertices = 1) out;
+GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
+    class WedgeImpl : public GrStencilPathShader::Impl {
+        SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
+                                          const char* versionAndExtensionDecls,
+                                          const GrGLSLUniformHandler&,
+                                          const GrShaderCaps&) const override {
+            SkString code(versionAndExtensionDecls);
+            code.append(kWangsFormulaCubicFn);
+            code.append(kSkSLTypeDefs);
+            code.append(kUnpackRationalCubicFn);
+            code.append(R"(
+            layout(vertices = 1) out;
 
-    in vec2 vsPt[];
-    out vec4 X[];
-    out vec4 Y[];
-    out float w[];
-    out vec2 fanpoint[];
+            in vec2 vsPt[];
+            out vec4 X[];
+            out vec4 Y[];
+            out float w[];
+            out vec2 fanpoint[];
 
-    void main() {
-        mat4x3 P = unpack_rational_cubic(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
+            void main() {
+                mat4x3 P = unpack_rational_cubic(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
 
-        // Figure out how many segments to divide the curve into. To do this we simply call Wang's
-        // formula for integral cubics with the down-projected points. This appears to be an upper
-        // bound on what the actual number of subdivisions would have been.
-        float num_segments = wangs_formula_cubic(P[0].xy, P[1].xy/P[1].z, P[2].xy/P[2].z, P[3].xy);
+                // Figure out how many segments to divide the curve into. To do this we simply call
+                // Wang's formula for integral cubics with the down-projected points. This appears
+                // to be an upper bound on what the actual number of subdivisions would have been.
+                float num_segments = wangs_formula_cubic(P[0].xy, P[1].xy/P[1].z, P[2].xy/P[2].z,
+                                                         P[3].xy);
 
-        // Tessellate the first side of the patch into num_segments triangles.
-        gl_TessLevelOuter[0] = num_segments;
+                // Tessellate the first side of the patch into num_segments triangles.
+                gl_TessLevelOuter[0] = num_segments;
 
-        // Leave the other two sides of the patch as single segments.
-        gl_TessLevelOuter[1] = 1.0;
-        gl_TessLevelOuter[2] = 1.0;
+                // Leave the other two sides of the patch as single segments.
+                gl_TessLevelOuter[1] = 1.0;
+                gl_TessLevelOuter[2] = 1.0;
 
-        // Changing the inner level to 1 when num_segments == 1 collapses the entire
-        // patch to a single triangle. Otherwise, we need an inner level of 2 so our curve
-        // triangles have an interior point to originate from.
-        gl_TessLevelInner[0] = min(num_segments, 2.0);
+                // Changing the inner level to 1 when num_segments == 1 collapses the entire
+                // patch to a single triangle. Otherwise, we need an inner level of 2 so our curve
+                // triangles have an interior point to originate from.
+                gl_TessLevelInner[0] = min(num_segments, 2.0);
 
-        X[gl_InvocationID /*== 0*/] = vec4(P[0].x, P[1].x, P[2].x, P[3].x);
-        Y[gl_InvocationID /*== 0*/] = vec4(P[0].y, P[1].y, P[2].y, P[3].y);
-        w[gl_InvocationID /*== 0*/] = P[1].z;
-        fanpoint[gl_InvocationID /*== 0*/] = vsPt[4];
-    })");
+                X[gl_InvocationID /*== 0*/] = vec4(P[0].x, P[1].x, P[2].x, P[3].x);
+                Y[gl_InvocationID /*== 0*/] = vec4(P[0].y, P[1].y, P[2].y, P[3].y);
+                w[gl_InvocationID /*== 0*/] = P[1].z;
+                fanpoint[gl_InvocationID /*== 0*/] = vsPt[4];
+            })");
 
-    return code;
-}
-
-SkString GrWedgeTessellateShader::getTessEvaluationShaderGLSL(
-        const GrGLSLGeometryProcessor*,
-        const char* versionAndExtensionDecls,
-        const GrGLSLUniformHandler&,
-        const GrShaderCaps&) const {
-    SkString code(versionAndExtensionDecls);
-    code.append(kSkSLTypeDefs);
-    code.append(kEvalRationalCubicFn);
-    code.append(R"(
-    layout(triangles, equal_spacing, ccw) in;
-
-    uniform vec4 sk_RTAdjust;
-
-    in vec4 X[];
-    in vec4 Y[];
-    in float w[];
-    in vec2 fanpoint[];
-
-    void main() {
-        // Locate our parametric point of interest. It is equal to the barycentric y-coordinate if
-        // we are a vertex on the tessellated edge of the triangle patch, 0.5 if we are the patch's
-        // interior vertex, or N/A if we are the fan point.
-        // NOTE: We are on the tessellated edge when the barycentric x-coordinate == 0.
-        float T = (gl_TessCoord.x == 0.0) ? gl_TessCoord.y : 0.5;
-
-        mat4x3 P = transpose(mat3x4(X[0], Y[0], 1,w[0],w[0],1));
-        vec2 vertexpos = eval_rational_cubic(P, T);
-
-        if (gl_TessCoord.x == 1.0) {
-            // We are the anchor point that fans from the center of the curve's contour.
-            vertexpos = fanpoint[0];
-        } else if (gl_TessCoord.x != 0.0) {
-            // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
-            vertexpos = (P[0].xy + vertexpos + P[3].xy) / 3.0;
+            return code;
         }
 
-        gl_Position = vec4(vertexpos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
-    })");
+        SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
+                                             const char* versionAndExtensionDecls,
+                                             const GrGLSLUniformHandler&,
+                                             const GrShaderCaps&) const override {
+            SkString code(versionAndExtensionDecls);
+            code.append(kSkSLTypeDefs);
+            code.append(kEvalRationalCubicFn);
+            code.append(R"(
+            layout(triangles, equal_spacing, ccw) in;
 
-    return code;
+            uniform vec4 sk_RTAdjust;
+
+            in vec4 X[];
+            in vec4 Y[];
+            in float w[];
+            in vec2 fanpoint[];
+
+            void main() {
+                // Locate our parametric point of interest. It is equal to the barycentric
+                // y-coordinate if we are a vertex on the tessellated edge of the triangle patch,
+                // 0.5 if we are the patch's interior vertex, or N/A if we are the fan point.
+                // NOTE: We are on the tessellated edge when the barycentric x-coordinate == 0.
+                float T = (gl_TessCoord.x == 0.0) ? gl_TessCoord.y : 0.5;
+
+                mat4x3 P = transpose(mat3x4(X[0], Y[0], 1,w[0],w[0],1));
+                vec2 vertexpos = eval_rational_cubic(P, T);
+
+                if (gl_TessCoord.x == 1.0) {
+                    // We are the anchor point that fans from the center of the curve's contour.
+                    vertexpos = fanpoint[0];
+                } else if (gl_TessCoord.x != 0.0) {
+                    // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
+                    vertexpos = (P[0].xy + vertexpos + P[3].xy) / 3.0;
+                }
+
+                gl_Position = vec4(vertexpos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
+            })");
+
+            return code;
+        }
+    };
+
+    return new WedgeImpl;
 }
 
 constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
