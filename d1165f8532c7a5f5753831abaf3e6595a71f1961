@@ -20,6 +20,69 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ddafb876_121ffbdc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-10T15:05:04Z",
+      "side": 1,
+      "message": "Additionally need to fix the missed kANGLE enums",
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2dfe555_ac8a0034",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-10T15:05:04Z",
+      "side": 1,
+      "message": "Unneeded?",
+      "range": {
+        "startLine": 885,
+        "startChar": 91,
+        "endLine": 885,
+        "endChar": 96
+      },
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a918666_2802f16b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 887,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-10T15:05:04Z",
+      "side": 1,
+      "message": "Does it use flat on OpenGL backend?",
+      "range": {
+        "startLine": 887,
+        "startChar": 7,
+        "endLine": 887,
+        "endChar": 59
+      },
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "45bb42e0_258a3834",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 8
@@ -31,6 +94,29 @@
       "writtenOn": "2021-05-10T14:18:01Z",
       "side": 1,
       "message": "Will address this in a follow up.",
+      "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d9ce465_f5c25149",
+        "filename": "src/gpu/gl/GrGLUtil.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-10T15:05:04Z",
+      "side": 1,
+      "message": "Like this is fine enough and I wouldn\u0027t force you to change it, but for a function that\u0027s call get_angle_backend and only called in one place it seems like having this extra logic here complicates the code without adding much code reuse.\n\nIf you want to leave the function as is I would at least rename the function something like get_angle_backend_and_inner_driver_info. Then unless you plan on ever using this without an innerString I would just assert it is no null.\n\nAlternatively I would just have this function do:\nif (strstr(renderString, \"ANGLE\")) { // or strncmp\n    if(strsrt(renderSring, \"Direct3d11\") {\n      ...\n      ...\n}\nreturn kUnknown;\n\nThen do the inner string inline in the one caller or add a helper for that.",
+      "range": {
+        "startLine": 512,
+        "startChar": 4,
+        "endLine": 516,
+        "endChar": 9
+      },
       "revId": "d1165f8532c7a5f5753831abaf3e6595a71f1961",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
