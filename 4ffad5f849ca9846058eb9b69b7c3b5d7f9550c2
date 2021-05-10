@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47e6a5ff_48f05e1b",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-10T18:22:53Z",
+      "side": 1,
+      "message": "Well, that\u0027s prefixed by \"If these are executed out of order...\". If it\u0027s given that they\u0027re being executed out of order, then it\u0027s no longer a \"might\".",
+      "parentUuid": "7f1cdb26_0ed74f70",
+      "range": {
+        "startLine": 211,
+        "startChar": 16,
+        "endLine": 211,
+        "endChar": 20
+      },
+      "revId": "4ffad5f849ca9846058eb9b69b7c3b5d7f9550c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58e1bd7b_d68e9a32",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-10T18:10:31Z",
       "side": 1,
       "message": "\u0027assert\u0027\n\nThis used to read through the pointer, but GetConstantValueForVariable is now more defensive; it checks for null and DEBUGFAILs with \"found a const variable without an initial value\".",
+      "range": {
+        "startLine": 214,
+        "startChar": 63,
+        "endLine": 214,
+        "endChar": 98
+      },
+      "revId": "4ffad5f849ca9846058eb9b69b7c3b5d7f9550c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80572a27_23e883f3",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-10T18:22:53Z",
+      "side": 1,
+      "message": "Eh, asserts aren\u0027t always enabled :-). I\u0027ll clarify.",
+      "parentUuid": "58e1bd7b_d68e9a32",
       "range": {
         "startLine": 214,
         "startChar": 63,
