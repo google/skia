@@ -286,8 +286,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
 #ifdef SK_BUILD_FOR_WIN
     // We're assuming that on Windows Chromium we're using ANGLE.
-    bool isANGLE = ctxInfo.driver() == GrGLDriver::kANGLE ||
-                   ctxInfo.driver() == GrGLDriver::kChromium;
+    bool isANGLE = ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown ||
+                   ctxInfo.driver()       == GrGLDriver::kChromium;
     // Angle has slow read/write pixel paths for 32bit RGBA (but fast for BGRA).
     fRGBA8888PixelsOpsAreSlow = isANGLE;
     // On DX9 ANGLE reading a partial FBO is slow. TODO: Check whether this is still true and
@@ -882,11 +882,12 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // This is the value for GLSL ES 3.0.
     } // not sure for WebGL
 
-    // Flat interpolation appears to be slow on Qualcomm GPUs (tested Adreno 405 and 530). ANGLE
+    // Flat interpolation appears to be slow on Qualcomm GPUs (tested Adreno 405 and 530).
     // Avoid on ANGLE too, it inserts a geometry shader into the pipeline to implement flat interp.
+    // Is this only true on ANGLE's D3D backends or also on the GL backend?
     shaderCaps->fPreferFlatInterpolation = shaderCaps->fFlatInterpolationSupport &&
                                            ctxInfo.vendor() != GrGLVendor::kQualcomm &&
-                                           ctxInfo.driver() != GrGLDriver::kANGLE;
+                                           ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown;
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fNoPerspectiveInterpolationSupport =
             ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
@@ -3528,7 +3529,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // The TransferPixelsToTexture test fails on ANGLE.
-    if (ctxInfo.driver() == GrGLDriver::kANGLE) {
+    // TODO: Limit this to D3D and perhaps more specifically than that.
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
         fTransferFromBufferToTextureSupport = false;
     }
 
@@ -3713,8 +3715,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://anglebug.com/4536
-    if (ctxInfo.driver() == GrGLDriver::kANGLE &&
-        ctxInfo.angleBackend() != GrGLANGLEBackend::kOpenGL) {
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kD3D9 ||
+        ctxInfo.angleBackend() != GrGLANGLEBackend::kD3D11) {
         fBaseVertexBaseInstanceSupport = false;
         fNativeDrawIndirectSupport = false;
         fMultiDrawType = MultiDrawType::kNone;
@@ -3816,7 +3818,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // we've explicitly guarded the division with a check against zero. This manifests in much
     // more complex ways in some of our shaders, so we use this caps bit to add an epsilon value
     // to the denominator of divisions, even when we've added checks that the denominator isn't 0.
-    if (ctxInfo.driver() == GrGLDriver::kANGLE || ctxInfo.driver() == GrGLDriver::kChromium) {
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown ||
+        ctxInfo.driver()       == GrGLDriver::kChromium) {
         shaderCaps->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
     }
 #endif
@@ -3975,8 +3978,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #ifdef SK_BUILD_FOR_WIN
     // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
     if (ctxInfo.driver() == GrGLDriver::kIntel ||
-        (ctxInfo.driver()       == GrGLDriver::kANGLE &&
-         ctxInfo.angleVendor()  == GrGLVendor::kIntel &&
+        (ctxInfo.angleVendor()  == GrGLVendor::kIntel &&
          ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL)) {
         fNativeDrawIndexedIndirectIsBroken = true;
         fUseClientSideIndirectBuffers = true;
@@ -4088,8 +4090,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMSFBOType = kNone_MSFBOType;
     }
 
-    // ANGLE doesn't support do-while loops
-    if (ctxInfo.driver() == GrGLDriver::kANGLE) {
+    // ANGLE doesn't support do-while loops.
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
         shaderCaps->fCanUseDoLoops = false;
     }
 

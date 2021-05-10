@@ -160,13 +160,6 @@ static GrGLVendor get_vendor(const char* vendorString) {
     return GrGLVendor::kOther;
 }
 
-static bool is_renderer_angle(const char* rendererString) {
-    SkASSERT(rendererString);
-    static constexpr char kHeader[] = "ANGLE ";
-    static constexpr size_t kHeaderLength = SK_ARRAY_COUNT(kHeader) - 1;
-    return rendererString && 0 == strncmp(rendererString, kHeader, kHeaderLength);
-}
-
 static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtensions& extensions) {
     SkASSERT(rendererString);
     static const char kTegraStr[] = "NVIDIA Tegra";
@@ -356,74 +349,7 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
         mali400Num < 500) {
         return GrGLRenderer::kMali4xx;
     }
-    if (is_renderer_angle(rendererString)) {
-        return GrGLRenderer::kANGLE;
-    }
     return GrGLRenderer::kOther;
-}
-
-std::tuple<GrGLANGLEBackend, GrGLVendor, GrGLRenderer>
-get_angle_info(const char* rendererString) {
-    SkASSERT(rendererString);
-
-    auto backend  = GrGLANGLEBackend::kUnknown;
-    auto vendor   = GrGLVendor::kOther;
-    auto renderer = GrGLRenderer::kOther;
-
-    if (!is_renderer_angle(rendererString)) {
-        return {backend, vendor, renderer};
-    }
-
-    if (strstr(rendererString, "Intel")) {
-        vendor = GrGLVendor::kIntel;
-
-        const char* modelStr;
-        int modelNumber;
-        if ((modelStr = strstr(rendererString, "HD Graphics")) &&
-            (1 == sscanf(modelStr, "HD Graphics %i", &modelNumber) ||
-             1 == sscanf(modelStr, "HD Graphics P%i", &modelNumber))) {
-            switch (modelNumber) {
-                case 2000:
-                case 3000:
-                    renderer = GrGLRenderer::kIntelSandyBridge;
-                    break;
-                case 4000:
-                case 2500:
-                    renderer = GrGLRenderer::kIntelSandyBridge;
-                    break;
-                case 510:
-                case 515:
-                case 520:
-                case 530:
-                    renderer = GrGLRenderer::kIntelSkyLake;
-                    break;
-            }
-        } else if ((modelStr = strstr(rendererString, "Iris")) &&
-                   (1 == sscanf(modelStr, "Iris(TM) Graphics %i", &modelNumber) ||
-                    1 == sscanf(modelStr, "Iris(TM) Pro Graphics %i", &modelNumber) ||
-                    1 == sscanf(modelStr, "Iris(TM) Pro Graphics P%i", &modelNumber))) {
-            switch (modelNumber) {
-                case 540:
-                case 550:
-                case 555:
-                case 580:
-                    renderer = GrGLRenderer::kIntelSkyLake;
-                    break;
-            }
-        }
-    } else if (strstr(rendererString, "NVIDIA")) {
-        vendor = GrGLVendor::kNVIDIA;
-    } else if (strstr(rendererString, "Radeon")) {
-        vendor = GrGLVendor::kATI;
-    }
-    if (strstr(rendererString, "Direct3D11")) {
-        backend = GrGLANGLEBackend::kD3D11;
-    } else if (strstr(rendererString, "Direct3D9")) {
-        backend = GrGLANGLEBackend::kD3D9;
-    } else if (strstr(rendererString, "OpenGL")) {
-        backend = GrGLANGLEBackend::kOpenGL;
-    }
-    return {backend, vendor, renderer};
 }
 
 std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStandard standard,
@@ -500,17 +426,6 @@ std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStandard st
             if (n == 4) {
                 driver = GrGLDriver::kMesa;
                 driverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
-            } else if (0 == strncmp("ANGLE", rendererString, 5)) {
-                driver = GrGLDriver::kANGLE;
-                n = sscanf(versionString,
-                           "OpenGL ES %d.%d (ANGLE %d.%d",
-                           &major,
-                           &minor,
-                           &driverMajor,
-                           &driverMinor);
-                if (n == 4) {
-                    driverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
-                }
             }
         }
     }
@@ -585,6 +500,110 @@ std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStandard st
     return {driver, driverVersion};
 }
 
+// If this is detected as ANGLE then the ANGLE backend is returned along with rendererString
+// stripped of "ANGLE(" and ")" at the start and end, respectively.
+static std::tuple<GrGLANGLEBackend, SkString> get_angle_backend(const char* rendererString) {
+    // crbug.com/1203705 ANGLE renderer will be "ANGLE (<gl-vendor>, <gl-renderer>, <gl-version>)"
+    // on ANGLE's GL backend with related substitutions for the inner strings on other backends.
+    static constexpr char kHeader[] = "ANGLE (";
+    static constexpr size_t kHeaderLength = SK_ARRAY_COUNT(kHeader) - 1;
+    int rendererLength = strlen(rendererString);
+    if (!strncmp(rendererString, kHeader, kHeaderLength) &&
+        rendererString[rendererLength - 1] == ')') {
+        SkString innerString;
+        innerString.set(rendererString + kHeaderLength, rendererLength - kHeaderLength - 1);
+        if (strstr(rendererString, "Direct3D11")) {
+            return {GrGLANGLEBackend::kD3D11, std::move(innerString)};
+        } else if (strstr(rendererString, "Direct3D9")) {
+            return {GrGLANGLEBackend::kD3D9, std::move(innerString)};
+        } else if (strstr(rendererString, "OpenGL")) {
+            return {GrGLANGLEBackend::kOpenGL, std::move(innerString)};
+        }
+    }
+    return {GrGLANGLEBackend::kUnknown, {}};
+}
+
+std::tuple<GrGLVendor, GrGLRenderer, GrGLDriver, GrGLDriverVersion>
+get_angle_gl_vendor_and_renderer(
+        const char* innerString,
+        const GrGLExtensions& extensions) {
+    SkTArray<SkString> parts;
+    SkStrSplit(innerString, ",", &parts);
+    // This would need some fixing if we have substrings that contain commas.
+    if (parts.size() != 3) {
+        return {GrGLVendor::kOther,
+                GrGLRenderer::kOther,
+                GrGLDriver::kUnknown,
+                GR_GL_DRIVER_UNKNOWN_VER};
+    }
+
+    const char* angleVendorString   = parts[0].c_str();
+    const char* angleRendererString = parts[1].c_str() + 1; // skip initial space
+    const char* angleVersionString  = parts[2].c_str() + 1; // skip initial space
+
+    GrGLVendor angleVendor = get_vendor(angleVendorString);
+
+    auto [angleDriver, angleDriverVersion] = get_driver_and_version(kGLES_GrGLStandard,
+                                                                    angleVendor,
+                                                                    angleRendererString,
+                                                                    angleVersionString);
+
+    auto angleRenderer = get_renderer(angleRendererString, extensions);
+
+    return {angleVendor, angleRenderer, angleDriver, angleDriverVersion};
+}
+
+std::tuple<GrGLVendor, GrGLRenderer, GrGLDriver, GrGLDriverVersion>
+get_angle_d3d_vendor_and_renderer(const char* innerString) {
+    auto vendor   = GrGLVendor::kOther;
+    auto renderer = GrGLRenderer::kOther;
+
+    if (strstr(innerString, "Intel")) {
+        vendor = GrGLVendor::kIntel;
+
+        const char* modelStr;
+        int modelNumber;
+        if ((modelStr = strstr(innerString, "HD Graphics")) &&
+            (1 == sscanf(modelStr, "HD Graphics %i", &modelNumber) ||
+             1 == sscanf(modelStr, "HD Graphics P%i", &modelNumber))) {
+            switch (modelNumber) {
+                case 2000:
+                case 3000:
+                    renderer = GrGLRenderer::kIntelSandyBridge;
+                    break;
+                case 4000:
+                case 2500:
+                    renderer = GrGLRenderer::kIntelSandyBridge;
+                    break;
+                case 510:
+                case 515:
+                case 520:
+                case 530:
+                    renderer = GrGLRenderer::kIntelSkyLake;
+                    break;
+            }
+        } else if ((modelStr = strstr(innerString, "Iris")) &&
+                   (1 == sscanf(modelStr, "Iris(TM) Graphics %i", &modelNumber) ||
+                    1 == sscanf(modelStr, "Iris(TM) Pro Graphics %i", &modelNumber) ||
+                    1 == sscanf(modelStr, "Iris(TM) Pro Graphics P%i", &modelNumber))) {
+            switch (modelNumber) {
+                case 540:
+                case 550:
+                case 555:
+                case 580:
+                    renderer = GrGLRenderer::kIntelSkyLake;
+                    break;
+            }
+        }
+    } else if (strstr(innerString, "NVIDIA")) {
+        vendor = GrGLVendor::kNVIDIA;
+    } else if (strstr(innerString, "Radeon")) {
+        vendor = GrGLVendor::kATI;
+    }
+    // We haven't had a need yet to parse the D3D driver string.
+    return {vendor, renderer, GrGLDriver::kUnknown, GR_GL_DRIVER_UNKNOWN_VER};
+}
+
 GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
     if (!interface) {
         return {};
@@ -606,17 +625,35 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
     const char* const renderer   = getString(GR_GL_RENDERER);
     const char* const vendor     = getString(GR_GL_VENDOR);
 
-    info.fVersion      = GrGLGetVersionFromString(version);
-    info.fGLSLVersion  = get_glsl_version(slversion);
-    info.fVendor       = get_vendor(vendor);
-    info.fRenderer     = get_renderer(renderer, interface->fExtensions);
-
-    std::tie(info.fANGLEBackend, info.fANGLEVendor, info.fANGLERenderer) = get_angle_info(renderer);
+    info.fVersion     = GrGLGetVersionFromString(version);
+    info.fGLSLVersion = get_glsl_version(slversion);
+    info.fVendor      = get_vendor(vendor);
+    info.fRenderer    = get_renderer(renderer, interface->fExtensions);
 
     std::tie(info.fDriver, info.fDriverVersion) = get_driver_and_version(interface->fStandard,
                                                                          info.fVendor,
                                                                          renderer,
                                                                          version);
+
+    SkString innerAngleRendererString;
+    std::tie(info.fANGLEBackend, innerAngleRendererString) = get_angle_backend(renderer);
+
+    if (info.fANGLEBackend == GrGLANGLEBackend::kD3D9 ||
+        info.fANGLEBackend == GrGLANGLEBackend::kD3D11) {
+        std::tie(info.fANGLEVendor,
+                 info.fANGLERenderer,
+                 info.fANGLEDriver,
+                 info.fANGLEDriverVersion) =
+                get_angle_d3d_vendor_and_renderer(innerAngleRendererString.c_str());
+    } else if (info.fANGLEBackend == GrGLANGLEBackend::kOpenGL) {
+        std::tie(info.fANGLEVendor,
+                 info.fANGLERenderer,
+                 info.fANGLEDriver,
+                 info.fANGLEDriverVersion) =
+                get_angle_gl_vendor_and_renderer(innerAngleRendererString.c_str(),
+                                                 interface->fExtensions);
+    }
+
     return info;
 }
 
