@@ -89,7 +89,7 @@ class Processor {
 
 public:
 
-    Processor(const SkString& text)
+    Processor(const std::u16string& text)
         : fText(text)
         , fUnicode(nullptr) {}
 
@@ -157,9 +157,8 @@ public:
     TextRun& run(const size_t index) { return fRuns[index]; }
 
     // Simplification (using default font manager, default font family and default everything possible)
-    static bool drawText(const char* text, SkCanvas* canvas, SkScalar x, SkScalar y);
-    //static bool drawText(const char* text, SkCanvas* canvas, TextFormatStyle textFormat, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y);
-    static bool drawText(const char* text, SkCanvas* canvas, TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y);
+    static bool drawText(const std::u16string& text, SkCanvas* canvas, SkScalar x, SkScalar y);
+    static bool drawText(const std::u16string& text, SkCanvas* canvas, TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y);
 
     void sortDecorBlocks(SkTArray<DecorBlock, true>& decorBlocks);
 
@@ -182,7 +181,7 @@ private:
     friend class Shaper;
     friend class Wrapper;
 
-    SkString fText;
+    std::u16string fText;
     SkTArray<FontBlock, true> fFontBlocks;
     //TextFormatStyle fTextFormatStyle;
     //TextFontStyle fTextFontStyle;
@@ -192,6 +191,7 @@ private:
 
     std::unique_ptr<SkUnicode> fUnicode;
     SkTArray<CodeUnitFlags, true> fCodeUnitProperties;
+    SkTArray<size_t, true> fUTF16FromUTF8;
 };
 
 }  // namespace text
