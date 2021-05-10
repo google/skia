@@ -105,6 +105,30 @@
       },
       "revId": "62165583b7814e1e738b6f03218c0754ff587174",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "500f418f_cd2ceb0f",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-10T19:47:41Z",
+      "side": 1,
+      "message": "For now I added the make prefix for the static method factories, here is a link to the one pager draft if anyone is interested:\nhttps://docs.google.com/document/d/14cNY00kcZYe9oJiPUB9lCZqk0EFmUZJmtju5dn7GHQI/edit?resourcekey\u003d0-a7yKLa0qYNcQeyGfhkPNwQ#",
+      "parentUuid": "cf8714ad_48c84a04",
+      "range": {
+        "startLine": 64,
+        "startChar": 25,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "62165583b7814e1e738b6f03218c0754ff587174",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
