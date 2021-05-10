@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4083830_0dd66120",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-10T19:01:47Z",
+      "side": 1,
+      "message": "The android canary isn\u0027t running for some reason, but I don\u0027t see any dependencies on computeFastBounds() in its codebase. The flutter canary failed because its tree is closed, but all the tests passed.",
+      "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
