@@ -183,6 +183,7 @@ class SkBreakIterator_icu : public SkBreakIterator {
         fLastResult = 0;
         return true;
     }
+
     bool setText(const char16_t utftext16[], int utf16Units) override {
         UErrorCode status = U_ZERO_ERROR;
         ICUUText text(utext_openUChars(nullptr, &utftext16[0], utf16Units, &status));
