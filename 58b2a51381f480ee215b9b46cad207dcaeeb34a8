@@ -16,6 +16,46 @@
       "message": "The android canary isn\u0027t running for some reason, but I don\u0027t see any dependencies on computeFastBounds() in its codebase. The flutter canary failed because its tree is closed, but all the tests passed.",
       "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfb390ff_f23b3ce4",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T19:32:14Z",
+      "side": 1,
+      "message": "Instead of friend\u0027ing these maybe src/effect/SkPathEffectPriv.h with a class that makes them public to all of Skia?",
+      "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "703cebd0_0f82d19e",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-10T19:32:14Z",
+      "side": 1,
+      "message": "Are there clients with their own subclasses? I wonder if we\u0027d be better off forcing the implementor of each SkPathEffect to have to think about this by making it pure virtual. Might work better if the query and computation were one function, maybe like:\n\n virtual bool computeFastBounds(SkRect* inOutBounds) const \u003d 0;",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 88
+      },
+      "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
