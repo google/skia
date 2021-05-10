@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ae8e1c0_95692ef5",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-10T18:32:31Z",
+      "side": 1,
+      "message": "Orderings which aren\u0027t front-to-back could still have Declare() come before first use. (i.e., back-to-front isn\u0027t the only other option)",
+      "parentUuid": "47e6a5ff_48f05e1b",
+      "range": {
+        "startLine": 211,
+        "startChar": 16,
+        "endLine": 211,
+        "endChar": 20
+      },
+      "revId": "4ffad5f849ca9846058eb9b69b7c3b5d7f9550c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58e1bd7b_d68e9a32",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Eh, asserts aren\u0027t always enabled :-). I\u0027ll clarify.",
       "parentUuid": "58e1bd7b_d68e9a32",
+      "range": {
+        "startLine": 214,
+        "startChar": 63,
+        "endLine": 214,
+        "endChar": 98
+      },
+      "revId": "4ffad5f849ca9846058eb9b69b7c3b5d7f9550c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9632a0c_127b334d",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-10T18:32:31Z",
+      "side": 1,
+      "message": "If asserts are enabled, it DEBUGFAILs, but whether they are enabled or disabled, it does not read through the null. It will just not substitute the variable\u0027s initial value and miss an optimization.",
+      "parentUuid": "80572a27_23e883f3",
       "range": {
         "startLine": 214,
         "startChar": 63,
