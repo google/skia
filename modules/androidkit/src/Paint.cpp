@@ -27,6 +27,18 @@ static void Paint_SetColor(JNIEnv* env, jobject, jlong native_paint,
     }
 }
 
+static void Paint_SetStroke(JNIEnv* env, jobject, jlong native_paint, jboolean stroke) {
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        paint->setStroke(stroke);
+    }
+}
+
+static void Paint_SetStrokeWidth(JNIEnv* env, jobject, jlong native_paint, jfloat width) {
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        paint->setStrokeWidth(width);
+    }
+}
+
 static void Paint_SetShader(JNIEnv* env, jobject, jlong native_paint, jlong native_shader) {
     if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
         paint->setShader(sk_ref_sp(reinterpret_cast<SkShader*>(native_shader)));
@@ -37,10 +49,12 @@ static void Paint_SetShader(JNIEnv* env, jobject, jlong native_paint, jlong nati
 
 int register_androidkit_Paint(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nCreate"   , "()J"     , reinterpret_cast<void*>(Paint_Create)},
-        {"nRelease"  , "(J)V"    , reinterpret_cast<void*>(Paint_Release)},
-        {"nSetColor" , "(JFFFF)V", reinterpret_cast<void*>(Paint_SetColor)},
-        {"nSetShader", "(JJ)V"   , reinterpret_cast<void*>(Paint_SetShader)},
+        {"nCreate"         , "()J"     , reinterpret_cast<void*>(Paint_Create)},
+        {"nRelease"        , "(J)V"    , reinterpret_cast<void*>(Paint_Release)},
+        {"nSetColor"       , "(JFFFF)V", reinterpret_cast<void*>(Paint_SetColor)},
+        {"nSetStroke"      , "(JZ)V"   , reinterpret_cast<void*>(Paint_SetStroke)},
+        {"nSetStrokeWidth" , "(JF)V"   , reinterpret_cast<void*>(Paint_SetStrokeWidth)},
+        {"nSetShader"      , "(JJ)V"   , reinterpret_cast<void*>(Paint_SetShader)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Paint");
