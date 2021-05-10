@@ -16,6 +16,24 @@
       "message": "Is there a way we could change the analysis of the stats rather than excluding tests?",
       "revId": "9a86c55e71200067347d1573597ec009bf166d2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4277eaa6_eceadb16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-10T16:32:24Z",
+      "side": 1,
+      "message": "I think we could do that instead. I forgot the data we collect is per-skp anyway, so you\u0027re right: we can analyze it however we want.",
+      "parentUuid": "f50610aa_edc84183",
+      "revId": "9a86c55e71200067347d1573597ec009bf166d2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
