@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afd98048_fc4ef343",
+        "filename": "tests/sksl/errors/LayoutRepeatedQualifiers.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-10T18:46:53Z",
+      "side": 1,
+      "message": "Maybe remove from the test?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 65
+      },
+      "revId": "d28a1b8438f847e1649df425b292651c53e3a775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
