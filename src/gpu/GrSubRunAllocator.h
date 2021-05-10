@@ -8,8 +8,8 @@
 #ifndef GrSubRunAllocator_DEFINED
 #define GrSubRunAllocator_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkSpan.h"
 
 #include <algorithm>
 #include <memory>

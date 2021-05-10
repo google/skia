@@ -9,8 +9,8 @@
 #define GrOnFlushResourceProvider_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTArray.h"
-#include "src/core/SkSpan.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceProvider.h"
