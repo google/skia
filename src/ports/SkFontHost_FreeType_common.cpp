@@ -491,6 +491,28 @@ inline SkPoint SkVectorProjection(SkPoint a, SkPoint b) {
 void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
                               FT_COLR_Paint colrv1_paint, SkPaint* paint) {
 
+    auto fetch_color_stops = [&face, &palette](FT_ColorStopIterator& color_stop_iterator,
+                                               std::vector<SkScalar>& stops,
+                                               std::vector<SkColor>& colors) {
+        const FT_UInt num_color_stops = color_stop_iterator.num_color_stops;
+        stops.resize(num_color_stops);
+        colors.resize(num_color_stops);
+
+        FT_ColorStop color_stop;
+        while (FT_Get_Colorline_Stops(face, &color_stop, &color_stop_iterator)) {
+            FT_UInt index = color_stop_iterator.current_color_stop - 1;
+            stops[index] = color_stop.stop_offset / float(1 << 14);
+            FT_UInt16& palette_index = color_stop.color.palette_index;
+            // TODO(drott): Ensure palette_index is sanitized on the FreeType
+            // side and 0xFFFF foreground color will be handled correctly here.
+            colors[index] = SkColorSetARGB(
+                    palette[palette_index].alpha * SkColrV1AlphaToFloat(color_stop.color.alpha),
+                    palette[palette_index].red,
+                    palette[palette_index].green,
+                    palette[palette_index].blue);
+        }
+    };
+
     switch (colrv1_paint.format) {
         case FT_COLR_PAINTFORMAT_SOLID: {
             SkColor color =
@@ -529,31 +551,12 @@ void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
             perpendicular_to_p2_p0 = SkPoint::Make(perpendicular_to_p2_p0.y(), -perpendicular_to_p2_p0.x());
             line_positions[1] = p0 + SkVectorProjection((p1 - p0), perpendicular_to_p2_p0);
 
-            /* populate points */
-            const FT_UInt num_color_stops =
-                    colrv1_paint.u.linear_gradient.colorline.color_stop_iterator.num_color_stops;
             std::vector<SkScalar> stops;
             std::vector<SkColor> colors;
-            stops.resize(num_color_stops);
-            colors.resize(num_color_stops);
-
-            FT_ColorStop color_stop;
-            while (FT_Get_Colorline_Stops(
-                    face, &color_stop,
-                    &colrv1_paint.u.linear_gradient.colorline.color_stop_iterator)) {
-                FT_UInt index = colrv1_paint.u.linear_gradient.colorline.color_stop_iterator
-                                        .current_color_stop -
-                                1;
-                stops[index] = color_stop.stop_offset / float(1 << 14);
-                FT_UInt16& palette_index = color_stop.color.palette_index;
-                colors[index] = SkColorSetARGB(
-                        palette[palette_index].alpha * SkColrV1AlphaToFloat(color_stop.color.alpha),
-                        palette[palette_index].red, palette[palette_index].green,
-                        palette[palette_index].blue);
-            }
+            fetch_color_stops(colrv1_paint.u.linear_gradient.colorline.color_stop_iterator, stops, colors);
 
             sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
-                    line_positions, colors.data(), stops.data(), num_color_stops,
+                    line_positions, colors.data(), stops.data(), stops.size(),
                     ToSkTileMode(colrv1_paint.u.linear_gradient.colorline.extend)));
             SkASSERT(shader);
             // An opaque color is needed to ensure the gradient's not modulated by alpha.
@@ -572,33 +575,16 @@ void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
                                         -colrv1_paint.u.radial_gradient.c1.y);
             SkScalar end_radius = colrv1_paint.u.radial_gradient.r1;
 
-            const FT_UInt num_color_stops =
-                    colrv1_paint.u.radial_gradient.colorline.color_stop_iterator.num_color_stops;
+
             std::vector<SkScalar> stops;
             std::vector<SkColor> colors;
-            stops.resize(num_color_stops);
-            colors.resize(num_color_stops);
-
-            FT_ColorStop color_stop;
-            while (FT_Get_Colorline_Stops(
-                    face, &color_stop,
-                    &colrv1_paint.u.radial_gradient.colorline.color_stop_iterator)) {
-                FT_UInt index = colrv1_paint.u.radial_gradient.colorline.color_stop_iterator
-                                        .current_color_stop -
-                                1;
-                stops[index] = color_stop.stop_offset / float(1 << 14);
-                FT_UInt16& palette_index = color_stop.color.palette_index;
-                colors[index] = SkColorSetARGB(
-                        palette[palette_index].alpha * SkColrV1AlphaToFloat(color_stop.color.alpha),
-                        palette[palette_index].red, palette[palette_index].green,
-                        palette[palette_index].blue);
-            }
+            fetch_color_stops(colrv1_paint.u.radial_gradient.colorline.color_stop_iterator, stops, colors);
 
             // An opaque color is needed to ensure the gradient's not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
 
             paint->setShader(SkGradientShader::MakeTwoPointConical(
-                    start, radius, end, end_radius, colors.data(), stops.data(), num_color_stops,
+                    start, radius, end, end_radius, colors.data(), stops.data(), stops.size(),
                     ToSkTileMode(colrv1_paint.u.radial_gradient.colorline.extend)));
             break;
         }
@@ -608,27 +594,9 @@ void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
             SkScalar startAngle = SkFixedToScalar(colrv1_paint.u.sweep_gradient.start_angle);
             SkScalar endAngle = SkFixedToScalar(colrv1_paint.u.sweep_gradient.end_angle);
 
-            const FT_UInt num_color_stops =
-                    colrv1_paint.u.sweep_gradient.colorline.color_stop_iterator.num_color_stops;
             std::vector<SkScalar> stops;
             std::vector<SkColor> colors;
-            stops.resize(num_color_stops);
-            colors.resize(num_color_stops);
-
-            FT_ColorStop color_stop;
-            while (FT_Get_Colorline_Stops(
-                    face, &color_stop,
-                    &colrv1_paint.u.sweep_gradient.colorline.color_stop_iterator)) {
-                FT_UInt index = colrv1_paint.u.sweep_gradient.colorline.color_stop_iterator
-                                        .current_color_stop -
-                                1;
-                stops[index] = color_stop.stop_offset / float(1 << 14);
-                FT_UInt16& palette_index = color_stop.color.palette_index;
-                colors[index] = SkColorSetARGB(
-                        palette[palette_index].alpha * SkColrV1AlphaToFloat(color_stop.color.alpha),
-                        palette[palette_index].red, palette[palette_index].green,
-                        palette[palette_index].blue);
-            }
+            fetch_color_stops(colrv1_paint.u.sweep_gradient.colorline.color_stop_iterator, stops, colors);
 
             // An opaque color is needed to ensure the gradient's not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
@@ -655,7 +623,7 @@ void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
             angle_adjust.postScale(-1, 1, center.x(), center.y());
 
             paint->setShader(SkGradientShader::MakeSweep(
-                    center.x(), center.y(), colors.data(), stops.data(), num_color_stops,
+                    center.x(), center.y(), colors.data(), stops.data(), stops.size(),
                     SkTileMode::kDecal, startAngle, endAngle, 0, &angle_adjust));
             break;
         }
