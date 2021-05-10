@@ -24,6 +24,9 @@ protected:
 
     DashType onAsADash(DashInfo* info) const override;
 
+    // Dashing a path returns a subset of the input path so we do not need to override the
+    // default fast bounds calculations.
+
 private:
     SK_FLATTENABLE_HOOKS(SkDashImpl)
 

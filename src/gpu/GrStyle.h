@@ -170,8 +170,8 @@ public:
 
     /** Given bounds of a path compute the bounds of path with the style applied. */
     void adjustBounds(SkRect* dst, const SkRect& src) const {
-        if (this->pathEffect()) {
-            this->pathEffect()->computeFastBounds(dst, src);
+        if (this->pathEffect() && SkPathEffect::CanComputeFastBounds(this->pathEffect())) {
+            *dst = SkPathEffect::ComputeFastBounds(this->pathEffect(), src);
             // This may not be the correct SkStrokeRec to use. skbug.com/5299
             // It happens to work for dashing.
             SkScalar radius = fStrokeRec.getInflationRadius();

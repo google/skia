@@ -370,6 +370,9 @@ bool SkPaint::canComputeFastBounds() const {
     if (this->getImageFilter() && !this->getImageFilter()->canComputeFastBounds()) {
         return false;
     }
+    if (this->getPathEffect() && !SkPathEffect::CanComputeFastBounds(this->getPathEffect())) {
+        return false;
+    }
     return true;
 }
 
@@ -382,7 +385,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
 
     SkRect tmpSrc;
     if (this->getPathEffect()) {
-        this->getPathEffect()->computeFastBounds(&tmpSrc, origSrc);
+        tmpSrc = SkPathEffect::ComputeFastBounds(this->getPathEffect(), origSrc);
         src = &tmpSrc;
     }
 

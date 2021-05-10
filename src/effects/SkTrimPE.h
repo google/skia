@@ -20,6 +20,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
+    // Trimming a path returns a subset of the input path so we do not need to override the
+    // default fast bounds calculations.
+
 private:
     SK_FLATTENABLE_HOOKS(SkTrimPE)
 

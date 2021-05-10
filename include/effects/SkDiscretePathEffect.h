@@ -42,6 +42,11 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkDiscretePathEffect)
 
+    SkRect onComputeFastBounds(const SkRect& src) const override {
+        SkScalar maxOutset = SkScalarAbs(fPerterb);
+        return src.makeOutset(maxOutset, maxOutset);
+    }
+
     SkScalar fSegLength, fPerterb;
 
     /* Caller-supplied 32 bit seed assist */

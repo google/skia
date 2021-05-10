@@ -32,6 +32,9 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
+    // Rounding sharp corners within a path produces a new path that is still contained within the
+    // original's bounds, so the default fast-bounds calculations are sufficient.
+
 private:
     SK_FLATTENABLE_HOOKS(SkCornerPathEffect)
 

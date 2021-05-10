@@ -22,6 +22,9 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkOpPE)
 
+    SkRect onComputeFastBounds(const SkRect& src) const override;
+    bool onCanComputeFastBounds() const override;
+
     sk_sp<SkPathEffect> fOne;
     sk_sp<SkPathEffect> fTwo;
     SkPathOp            fOp;
@@ -40,6 +43,10 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkMatrixPE)
 
+    SkRect onComputeFastBounds(const SkRect& src) const override {
+        return fMatrix.mapRect(src);
+    }
+
     SkMatrix    fMatrix;
 
     using INHERITED = SkPathEffect;
@@ -52,10 +59,11 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-    // TODO: override onComputeFastBounds (I think)
 
 private:
     SK_FLATTENABLE_HOOKS(SkStrokePE)
+
+    SkRect onComputeFastBounds(const SkRect& src) const override;
 
     SkScalar        fWidth,
                     fMiter;
@@ -72,13 +80,16 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-    // TODO: override onComputeFastBounds (I think)
 
 private:
     SK_FLATTENABLE_HOOKS(SkStrokeAndFillPE)
+
+    bool onCanComputeFastBounds() const override {
+        // The effect's bounds depend on the StrokeRect that is not yet available
+        return false;
+    }
 
     using INHERITED = SkPathEffect;
 };
 
 #endif
-

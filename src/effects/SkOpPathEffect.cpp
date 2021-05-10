@@ -7,6 +7,7 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkOpPE.h"
 
@@ -36,6 +37,43 @@ bool SkOpPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
         two = src;
     }
     return Op(one, two, fOp, dst);
+}
+
+bool SkOpPE::onCanComputeFastBounds() const {
+    if (fOne && !CanComputeFastBounds(fOne.get())) {
+        return false;
+    }
+    if (fTwo && !CanComputeFastBounds(fTwo.get())) {
+        return false;
+    }
+    return true;
+}
+
+SkRect SkOpPE::onComputeFastBounds(const SkRect& src) const {
+    SkRect one = fOne ? ComputeFastBounds(fOne.get(), src) : src;
+    SkRect two = fTwo ? ComputeFastBounds(fTwo.get(), src) : src;
+
+    switch (fOp) {
+        case SkPathOp::kIntersect_SkPathOp:
+            if (one.intersect(two)) {
+                return one;
+            } else {
+                return SkRect::MakeEmpty();
+            }
+        case SkPathOp::kDifference_SkPathOp:
+            // (one - two) conservatively leaves one's bounds unmodified
+            return one;
+        case SkPathOp::kReverseDifference_SkPathOp:
+            // (two - one) conservatively leaves two's bounds unmodified
+            return two;
+        case SkPathOp::kXOR_SkPathOp:
+            // fall through to union since XOR computes a subset of regular OR
+        case SkPathOp::kUnion_SkPathOp:
+            one.join(two);
+            return one;
+    }
+
+    SkUNREACHABLE;
 }
 
 void SkOpPE::flatten(SkWriteBuffer& buffer) const {
@@ -104,6 +142,13 @@ bool SkStrokePE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, cons
     rec.setStrokeStyle(fWidth);
     rec.setStrokeParams(fCap, fJoin, fMiter);
     return rec.applyToPath(dst, src);
+}
+
+SkRect SkStrokePE::onComputeFastBounds(const SkRect& src) const {
+    SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+    rec.setStrokeStyle(fWidth);
+    rec.setStrokeParams(fCap, fJoin, fMiter);
+    return src.makeOutset(rec.getInflationRadius(), rec.getInflationRadius());
 }
 
 void SkStrokePE::flatten(SkWriteBuffer& buffer) const {

@@ -60,12 +60,6 @@ public:
      */
     bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect* cullR) const;
 
-    /**
-     *  Compute a conservative bounds for its effect, given the src bounds.
-     *  The baseline implementation just assigns src to dst.
-     */
-    void computeFastBounds(SkRect* dst, const SkRect& src) const;
-
     /** \class PointData
 
         PointData aggregates all the information needed to draw the point
@@ -165,9 +159,6 @@ protected:
     SkPathEffect() {}
 
     virtual bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const = 0;
-    virtual SkRect onComputeFastBounds(const SkRect& src) const {
-        return src;
-    }
     virtual bool onAsPoints(PointData*, const SkPath&, const SkStrokeRec&, const SkMatrix&,
                             const SkRect*) const {
         return false;
@@ -176,7 +167,26 @@ protected:
         return kNone_DashType;
     }
 
+    // These are static so that an SkPathEffect subclass can access them for any other path effect
+
+    // Compute a conservative bounds for its effect, given the src bounds of the path.
+    // Only callable if canComputeFastBounds() returns true.
+    static SkRect ComputeFastBounds(const SkPathEffect* pe, const SkRect& src) {
+        SkASSERT(pe->onCanComputeFastBounds());
+        return pe->onComputeFastBounds(src);
+    }
+    static bool CanComputeFastBounds(const SkPathEffect* pe) {
+        return pe->onCanComputeFastBounds();
+    }
+
 private:
+    friend class SkPaint; // for computeFastBounds
+    friend class GrStyle; // ""
+
+    // The base implementation assumes the path effect does not modify the path's bounds
+    virtual SkRect onComputeFastBounds(const SkRect& src) const { return src; }
+    virtual bool onCanComputeFastBounds() const { return true; }
+
     // illegal
     SkPathEffect(const SkPathEffect&);
     SkPathEffect& operator=(const SkPathEffect&);
