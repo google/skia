@@ -75,6 +75,26 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
 
 GrGLContext::~GrGLContext() {}
 
+GrGLContextInfo GrGLContextInfo::makeNonAngle() const {
+    GrGLContextInfo copy = *this;
+    if (fDriverInfo.fANGLEBackend == GrGLANGLEBackend::kUnknown) {
+        return copy;
+    }
+
+    copy.fDriverInfo.fVendor        = copy.fDriverInfo.fANGLEVendor;
+    copy.fDriverInfo.fDriver        = copy.fDriverInfo.fANGLEDriver;
+    copy.fDriverInfo.fDriverVersion = copy.fDriverInfo.fANGLEDriverVersion;
+    copy.fDriverInfo.fRenderer      = copy.fDriverInfo.fANGLERenderer;
+
+    copy.fDriverInfo.fANGLEBackend       = GrGLANGLEBackend::kUnknown;
+    copy.fDriverInfo.fANGLEVendor        = GrGLVendor::kOther;
+    copy.fDriverInfo.fANGLEDriver        = GrGLDriver::kUnknown;
+    copy.fDriverInfo.fANGLEDriverVersion = GR_GL_DRIVER_UNKNOWN_VER;
+    copy.fDriverInfo.fANGLERenderer      = GrGLRenderer::kOther;
+
+    return copy;
+}
+
 GrGLContextInfo::GrGLContextInfo(ConstructorArgs&& args) {
     fInterface = std::move(args.fInterface);
     fDriverInfo = args.fDriverInfo;
