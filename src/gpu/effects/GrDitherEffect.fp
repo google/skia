@@ -16,11 +16,11 @@ half4 main() {
     @if (sk_Caps.integerSupport)
     {
         // This ordered-dither code is lifted from the cpu backend.
-        uint x = uint(sk_FragCoord.x);
-        uint y = uint(sk_FragCoord.y) ^ x;
-        uint m = (y & 1) << 5 | (x & 1) << 4 |
-                 (y & 2) << 2 | (x & 2) << 1 |
-                 (y & 4) >> 1 | (x & 4) >> 2;
+        int x = int(sk_FragCoord.x);
+        int y = int(sk_FragCoord.y) ^ x;
+        int m = (y & 1) << 5 | (x & 1) << 4 |
+                (y & 2) << 2 | (x & 2) << 1 |
+                (y & 4) >> 1 | (x & 4) >> 2;
         value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
     } else {
         // Simulate the integer effect used above using step/mod/abs. For speed, simulates a 4x4
