@@ -24,9 +24,9 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var _v(kNo_Modifier, DSLType(kHalf4_Type), "v", Half4(1.0f, 2.0f, 3.0f, 4.0f));
-Var _b(kNo_Modifier, DSLType(kBool4_Type), "b", Bool4(true, true, true, true));
-Declare(_v);
+Var _v(kNo_Modifier, DSLType(kHalf4_Type), "v");
+Var _b(kNo_Modifier, DSLType(kBool4_Type), "b");
+Declare(_v, Half4(1.0f, 2.0f, 3.0f, 4.0f));
 _v = Half4(_v.x(), 1.0f, 1.0f, 1.0f);
 _v = Half4(Swizzle(_v, X, Y), 1.0f, 1.0f);
 _v = Half4(_v.x(), 1.0f, 1.0f, 1.0f);
@@ -58,7 +58,7 @@ _v = Half4(1.0f, 1.0f, Swizzle(_v, W, X));
 _v = Half4(Swizzle(_v, Z, Y), 1.0f, 1.0f);
 _v = Half4(Swizzle(_v, X, X), 1.0f, 1.0f);
 _v = Swizzle(_v, W, Z, W, Z);
-Declare(_b);
+Declare(_b, Bool4(true, true, true, true));
 _b = Bool4(_b.x(), true, true, true);
 _b = Bool4(Swizzle(_b, X, Y), false, true);
 _b = Bool4(_b.x(), true, true, false);
