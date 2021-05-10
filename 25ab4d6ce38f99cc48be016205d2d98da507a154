@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cf96c11d_decab781",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-05-10T08:42:40Z",
+      "side": 1,
+      "message": "Fully agree, order changed.",
+      "parentUuid": "e637c4a5_2b2f3ece",
+      "revId": "25ab4d6ce38f99cc48be016205d2d98da507a154",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4a28ff86_55e4cd40",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2021-05-07T16:33:53Z",
       "side": 1,
       "message": "Is there a special palette_index (like #FFFF) for the current color? I\u0027m assuming FreeType has already sanitized the values to ensure the palette_index is within palette?",
+      "revId": "25ab4d6ce38f99cc48be016205d2d98da507a154",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7f35726_5d67e83f",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-05-10T08:42:40Z",
+      "side": 1,
+      "message": "Good point, currently they are not, compare https://source.chromium.org/chromium/chromium/src/+/main:third_party/freetype/src/src/sfnt/ttcolr.c;l\u003d742;drc\u003d25b97f298830b78a443fd7cdfd0b3e190817d1dd?q\u003dttcolr.c - just reading them from the color stops of a color line. But it\u0027s good idea to sanitize them on the FreeType side. \n\nThey can\u0027t conveniently be sanitized here as the FT_Color* palette array is passed without a known size. As this CL does not intend to change any functionality but just restructure to code, I added a TODO for myself to validate the palette index values on the FreeType side. There I believe we do have access to CPAL and can check them before returning.\n\nAlso the foreground value needs to be handled here, but I think that applies to CORLv0 in Skia as well. Again, I may want to claim that this is unrelated to this CL.",
+      "parentUuid": "4a28ff86_55e4cd40",
       "revId": "25ab4d6ce38f99cc48be016205d2d98da507a154",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
