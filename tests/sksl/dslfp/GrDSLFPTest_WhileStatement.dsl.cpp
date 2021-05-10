@@ -24,8 +24,8 @@ public:
 
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
-Var _color(kNo_Modifier, DSLType(kHalf4_Type), "color", Half4(1.0f));
-Declare(_color);
+Var _color(kNo_Modifier, DSLType(kHalf4_Type), "color");
+Declare(_color, Half4(1.0f));
 While(_color.x() > 0.5f, _color.x() -= 0.25f);
 While(_color.w() == 1.0f, Block(_color.x() -= 0.25f, If(_color.x() <= 0.0f, /*Then:*/ Break())));
 While(_color.z() > 0.0f, Block(_color.z() -= 0.25f, If(_color.w() == 1.0f, /*Then:*/ Continue()), _color.y() = 0.0f));

@@ -1260,29 +1260,37 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
-    Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
+    Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1)), c(kHalf4_Type, "c");
     Statement x = Declare(a);
     EXPECT_EQUAL(x, "half4 a;");
     Statement y = Declare(b);
     EXPECT_EQUAL(y, "half4 b = half4(1.0);");
+    Statement z = Declare(c, Half4(1.0, 2.0, 3.0, 4.0));
+    EXPECT_EQUAL(z, "half4 c = half4(1.0, 2.0, 3.0, 4.0);");
 
     {
-        Var c(kHalf4_Type, "c", 1);
+        Var d(kHalf4_Type, "d", 1);
         ExpectError error(r, "error: expected 'half4', but found 'int'\n");
-        Declare(c).release();
-    }
-
-    {
-        Var d(kInt_Type, "d");
-        Declare(d).release();
-        ExpectError error(r, "error: variable has already been declared\n");
         Declare(d).release();
     }
 
     {
-        Var e(kUniform_Modifier, kInt_Type, "e");
-        ExpectError error(r, "error: this variable must be declared with DeclareGlobal\n");
+        Var e(kInt_Type, "e");
         Declare(e).release();
+        ExpectError error(r, "error: variable has already been declared\n");
+        Declare(e).release();
+    }
+
+    {
+        Var f(kUniform_Modifier, kInt_Type, "f");
+        ExpectError error(r, "error: this variable must be declared with DeclareGlobal\n");
+        Declare(f).release();
+    }
+
+    {
+        Var g(kInt_Type, "g", Int(123));
+        ExpectError error(r, "error: variable already has an initial value\n");
+        Declare(g, Int(123)).release();
     }
 }
 
@@ -1295,6 +1303,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
     REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "int x = 0;");
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[1], "uniform float2 y;");
+
+    {
+        Var a(kInt_Type, "a", Int(123));
+        ExpectError error(r, "error: variable already has an initial value\n");
+        DeclareGlobal(a, Int(123));
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDiscard, r, ctxInfo) {
