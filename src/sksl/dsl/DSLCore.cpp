@@ -83,6 +83,16 @@ public:
         return DSLWriter::Declaration(var);
     }
 
+    static DSLStatement Declare(DSLVar& var, DSLExpression initialValue, PositionInfo pos) {
+        if (!var.fInitialValue.fExpression.get()) {
+            var.setInitialValue(std::move(initialValue));
+        } else {
+            DSLWriter::ReportError("error: variable already has an initial value\n", &pos);
+            initialValue.release();
+        }
+        return Declare(var, pos);
+    }
+
     static void DeclareGlobal(DSLVar& var, PositionInfo pos) {
         if (var.fDeclared) {
             DSLWriter::ReportError("error: variable has already been declared\n", &pos);
@@ -94,6 +104,16 @@ public:
             DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
                     std::move(stmt)));
         }
+    }
+
+    static void DeclareGlobal(DSLVar& var, DSLExpression initialValue, PositionInfo pos) {
+        if (!var.fInitialValue.fExpression.get()) {
+            var.setInitialValue(std::move(initialValue));
+        } else {
+            DSLWriter::ReportError("error: variable already has an initial value\n", &pos);
+            initialValue.release();
+        }
+        DeclareGlobal(var, pos);
     }
 
     static DSLStatement Discard() {
@@ -208,8 +228,16 @@ DSLStatement Declare(DSLVar& var, PositionInfo pos) {
     return DSLCore::Declare(var, pos);
 }
 
+DSLStatement Declare(DSLVar& var, DSLExpression initialValue, PositionInfo pos) {
+    return DSLCore::Declare(var, std::move(initialValue), pos);
+}
+
 void DeclareGlobal(DSLVar& var, PositionInfo pos) {
     return DSLCore::DeclareGlobal(var, pos);
+}
+
+void DeclareGlobal(DSLVar& var, DSLExpression initialValue, PositionInfo pos) {
+    return DSLCore::DeclareGlobal(var, std::move(initialValue), pos);
 }
 
 DSLStatement Discard() {

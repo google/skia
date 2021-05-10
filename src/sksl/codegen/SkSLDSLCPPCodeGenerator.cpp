@@ -564,13 +564,7 @@ void DSLCPPCodeGenerator::writeCppInitialValue(const Variable& var) {
     this->write(")");
 }
 
-void DSLCPPCodeGenerator::writeVarCtorExpression(const Variable& var) {
-    this->write(this->getDSLModifiers(var.modifiers()));
-    this->write(", ");
-    this->write(this->getDSLType(var.type()));
-    this->write(", \"");
-    this->write(var.name());
-    this->write("\"");
+void DSLCPPCodeGenerator::writeDeclInitialValue(const Variable& var) {
     if (var.initialValue()) {
         this->write(", ");
         if (is_private(var)) {
@@ -582,6 +576,15 @@ void DSLCPPCodeGenerator::writeVarCtorExpression(const Variable& var) {
             this->writeExpression(*var.initialValue(), Precedence::kTopLevel);
         }
     }
+}
+
+void DSLCPPCodeGenerator::writeVarCtorExpression(const Variable& var) {
+    this->write(this->getDSLModifiers(var.modifiers()));
+    this->write(", ");
+    this->write(this->getDSLType(var.type()));
+    this->write(", \"");
+    this->write(var.name());
+    this->write("\"");
 }
 
 void DSLCPPCodeGenerator::writeVar(const Variable& var) {
@@ -598,19 +601,24 @@ void DSLCPPCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, boo
         // We want to divert our output into fFunctionHeader, but fFunctionHeader is just a
         // String, not a StringStream. So instead, we divert into a temporary stream and append
         // that stream into fFunctionHeader afterwards.
-        StringStream stream;
-        AutoOutputStream divert(this, &stream);
+        {
+            StringStream stream;
+            AutoOutputStream divert(this, &stream);
 
-        this->writeVar(var);
+            this->writeVar(var);
 
-        fFunctionHeader += stream.str();
+            fFunctionHeader += stream.str();
+        }
+
+        this->write("Declare(");
     } else {
         // For global variables, we can write the Var directly into the code stream.
         this->writeVar(var);
+        this->write("DeclareGlobal(");
     }
 
-    this->write("Declare(");
     this->write(this->getVariableCppName(var));
+    this->writeDeclInitialValue(var);
     this->write(")");
 }
 
@@ -910,18 +918,27 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
                  (int)var.name().size(), var.name().data(), this->getVariableCppName(var));
 
     if (var.modifiers().fLayout.fWhen.fLength) {
-        this->writef("    DeclareGlobal(%s);\n", varCppName);
-        // In cases where the `when` is false, we declare the Var as a const with a default value.
+        this->write("    DeclareGlobal(");
+        this->write(varCppName);
+        this->writeDeclInitialValue(var);
+        this->write(");\n");
+
+        // If the `when` clause is false, we declare the Var as a const with a default value.
         this->writef("} else {\n"
                      "    Var(kConst_Modifier, %s, \"%.*s\", %s).swap(%s);\n"
-                     "    Declare(%s);\n"
-                     "}\n",
+                     "    Declare(%s",
                      this->getDSLType(var.type()).c_str(),
                      (int)var.name().size(), var.name().data(),
                      this->getDefaultDSLValue(var).c_str(),
                      varCppName, varCppName);
+        this->writeDeclInitialValue(var);
+        this->write(");\n"
+                    "}\n");
     } else {
-        this->writef("DeclareGlobal(%s);\n", varCppName);
+        this->write("DeclareGlobal(");
+        this->write(varCppName);
+        this->writeDeclInitialValue(var);
+        this->write(");\n");
     }
 }
 
@@ -1009,14 +1026,15 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
             if (SectionAndParameterHelper::IsParameter(var) && is_accessible(var)) {
                 const char* varCppName = this->getVariableCppName(var);
                 this->writef("[[maybe_unused]] const auto& %.*s = _outer.%.*s;\n"
-                             "Var %s(kConst_Modifier, %s, \"%.*s\", ",
+                             "Var %s(kConst_Modifier, %s, \"%.*s\");\n"
+                             "Declare(%s, ",
                              (int)var.name().size(), var.name().data(),
                              (int)var.name().size(), var.name().data(),
                              varCppName, this->getDSLType(var.type()).c_str(),
-                             (int)var.name().size(), var.name().data());
+                             (int)var.name().size(), var.name().data(),
+                             varCppName);
                 this->writeCppInitialValue(var);
-                this->writef(");\n"
-                             "Declare(%s);\n", varCppName);
+                this->write(");\n");
             }
         }
     }

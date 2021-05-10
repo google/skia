@@ -25,8 +25,8 @@ public:
         using namespace SkSL::dsl;
         StartFragmentProcessor(this, &args);
 [[maybe_unused]] const auto& primaryColors = _outer.primaryColors;
-Var _primaryColors(kConst_Modifier, DSLType(kBool_Type), "primaryColors", Bool(!!(primaryColors)));
-Declare(_primaryColors);
+Var _primaryColors(kConst_Modifier, DSLType(kBool_Type), "primaryColors");
+Declare(_primaryColors, Bool(!!(primaryColors)));
 Var _colorGreen;
 if (primaryColors) {
     Var(kUniform_Modifier, DSLType(kHalf4_Type), "colorGreen").swap(_colorGreen);
@@ -63,14 +63,14 @@ if (!primaryColors) {
     Var(kConst_Modifier, DSLType(kHalf4_Type), "colorPurple", Half4(0)).swap(_colorPurple);
     Declare(_colorPurple);
 }
-Var _green(kNo_Modifier, DSLType(kHalf4_Type), "green", Select(_primaryColors, /*If True:*/ _colorGreen, /*If False:*/ _colorOrange));
-Var _red(kNo_Modifier, DSLType(kHalf4_Type), "red", Select(_primaryColors, /*If True:*/ _colorRed, /*If False:*/ _colorPurple));
-Var _t(kNo_Modifier, DSLType(kBool_Type), "t", true);
-Var _f(kNo_Modifier, DSLType(kBool_Type), "f", false);
-Declare(_green);
-Declare(_red);
-Declare(_t);
-Declare(_f);
+Var _green(kNo_Modifier, DSLType(kHalf4_Type), "green");
+Var _red(kNo_Modifier, DSLType(kHalf4_Type), "red");
+Var _t(kNo_Modifier, DSLType(kBool_Type), "t");
+Var _f(kNo_Modifier, DSLType(kBool_Type), "f");
+Declare(_green, Select(_primaryColors, /*If True:*/ _colorGreen, /*If False:*/ _colorOrange));
+Declare(_red, Select(_primaryColors, /*If True:*/ _colorRed, /*If False:*/ _colorPurple));
+Declare(_t, true);
+Declare(_f, false);
 Return(Half4(Select(_t, /*If True:*/ _green.x(), /*If False:*/ _red.x()), Select(_f, /*If True:*/ _red.y(), /*If False:*/ _green.y()), Select(_green.y() == _red.x(), /*If True:*/ _green.z(), /*If False:*/ _red.x()), Select(_green.w() != _red.w(), /*If True:*/ _red.y(), /*If False:*/ _green.w())));
         EndFragmentProcessor();
     }
