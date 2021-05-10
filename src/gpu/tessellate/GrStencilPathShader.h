@@ -114,14 +114,7 @@ public:
     const char* name() const override { return "tessellate_GrCubicTessellateShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
-                                      const char* versionAndExtensionDecls,
-                                      const GrGLSLUniformHandler&,
-                                      const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
-                                         const char* versionAndExtensionDecls,
-                                         const GrGLSLUniformHandler&,
-                                         const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 };
 
 // Uses GPU tessellation shaders to linearize, triangulate, and render cubic "wedge" patches. A
@@ -137,14 +130,7 @@ public:
     const char* name() const override { return "tessellate_GrWedgeTessellateShader"; }
 
 private:
-    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
-                                      const char* versionAndExtensionDecls,
-                                      const GrGLSLUniformHandler&,
-                                      const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
-                                         const char* versionAndExtensionDecls,
-                                         const GrGLSLUniformHandler&,
-                                         const GrShaderCaps&) const override;
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 };
 
 // Uses indirect (instanced) draws to triangulate standalone closed cubics with a "middle-out"

@@ -86,18 +86,6 @@ static void append_wangs_formula_fn(SkString* code, bool hasConics) {
 }
 
 class GrStrokeTessellateShader::TessellationImpl : public GrGLSLGeometryProcessor {
-public:
-    const char* getTessArgsUniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fTessArgsUniform);
-    }
-    const char* getTranslateUniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fTranslateUniform);
-    }
-    const char* getAffineMatrixUniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fAffineMatrixUniform);
-    }
-
-private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& shader = args.fGeomProc.cast<GrStrokeTessellateShader>();
         auto* uniHandler = args.fUniformHandler;
@@ -414,6 +402,16 @@ private:
         args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
+    SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
+                                      const char* versionAndExtensionDecls,
+                                      const GrGLSLUniformHandler&,
+                                      const GrShaderCaps&) const override;
+    SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
+                                         const char* versionAndExtensionDecls,
+                                         const GrGLSLUniformHandler&,
+                                         const GrShaderCaps&) const override;
+
+
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
@@ -461,13 +459,13 @@ private:
     GrGLSLUniformHandler::UniformHandle fColorUniform;
 };
 
-SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
-        const GrGLSLGeometryProcessor* glslGeomProc,
+SkString GrStrokeTessellateShader::TessellationImpl::getTessControlShaderGLSL(
+        const GrGeometryProcessor& geomProc,
         const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler,
         const GrShaderCaps& shaderCaps) const {
-    SkASSERT(fMode == Mode::kHardwareTessellation);
-    auto impl = static_cast<const GrStrokeTessellateShader::TessellationImpl*>(glslGeomProc);
+    const auto& shader = geomProc.cast<GrStrokeTessellateShader>();
+    SkASSERT(shader.fMode == Mode::kHardwareTessellation);
 
     SkString code(versionAndExtensionDecls);
     // Run 3 invocations: 1 for each section that the vertex shader chopped the curve into.
@@ -483,8 +481,8 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     code.appendf("#define MAX_TESSELLATION_SEGMENTS %i.0\n", shaderCaps.maxTessellationSegments());
     code.appendf("#define cross cross2d\n");  // GLSL already has a function named "cross".
 
-    const char* tessArgsName = impl->getTessArgsUniformName(uniformHandler);
-    if (!this->hasDynamicStroke()) {
+    const char* tessArgsName = uniformHandler.getUniformCStr(fTessArgsUniform);
+    if (!shader.hasDynamicStroke()) {
         code.appendf("uniform vec4 %s;\n", tessArgsName);
         code.appendf("#define PARAMETRIC_PRECISION %s.x\n", tessArgsName);
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN %s.y\n", tessArgsName);
@@ -495,7 +493,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     }
 
     code.append(kLengthPow2Fn);
-    append_wangs_formula_fn(&code, this->hasConics());
+    append_wangs_formula_fn(&code, shader.hasConics());
     code.append(kAtan2Fn);
     code.append(kCosineBetweenVectorsFn);
     code.append(kMiterExtentFn);
@@ -514,11 +512,11 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     in vec4 vsPts89[];
     in vec4 vsTans01[];
     in vec4 vsTans23[];)");
-    if (this->hasDynamicStroke()) {
+    if (shader.hasDynamicStroke()) {
         code.append(R"(
         in vec2 vsStrokeArgs[];)");
     }
-    if (this->hasDynamicColor()) {
+    if (shader.hasDynamicColor()) {
         code.append(R"(
         in mediump vec4 vsColor[];)");
     }
@@ -531,11 +529,11 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
                                  //  prevJoinTangent.xy]
     patch out vec4 tcsJoinArgs1;  // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
     patch out vec4 tcsEndPtEndTan;)");
-    if (this->hasDynamicStroke()) {
+    if (shader.hasDynamicStroke()) {
         code.append(R"(
         patch out float tcsStrokeRadius;)");
     }
-    if (this->hasDynamicColor()) {
+    if (shader.hasDynamicColor()) {
         code.append(R"(
         patch out mediump vec4 tcsColor;)");
     }
@@ -545,11 +543,11 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // Forward join args to the evaluation stage.
         tcsJoinArgs0 = vsJoinArgs0[0];
         tcsJoinArgs1 = vsJoinArgs1[0];)");
-    if (this->hasDynamicStroke()) {
+    if (shader.hasDynamicStroke()) {
         code.append(R"(
         tcsStrokeRadius = vsStrokeArgs[0].y;)");
     }
-    if (this->hasDynamicColor()) {
+    if (shader.hasDynamicColor()) {
         code.append(R"(
         tcsColor = vsColor[0];)");
     }
@@ -821,13 +819,13 @@ static void append_eval_stroke_edge_fn(SkString* code, bool hasConics) {
     })");
 }
 
-SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
-        const GrGLSLGeometryProcessor* glslGeomProc,
+SkString GrStrokeTessellateShader::TessellationImpl::getTessEvaluationShaderGLSL(
+        const GrGeometryProcessor& geomProc,
         const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler,
         const GrShaderCaps& shaderCaps) const {
-    SkASSERT(fMode == Mode::kHardwareTessellation);
-    auto impl = static_cast<const GrStrokeTessellateShader::TessellationImpl*>(glslGeomProc);
+    const auto& shader = geomProc.cast<GrStrokeTessellateShader>();
+    SkASSERT(shader.fMode == Mode::kHardwareTessellation);
 
     SkString code(versionAndExtensionDecls);
     code.append("layout(quads, equal_spacing, ccw) in;\n");
@@ -843,22 +841,22 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     code.appendf("#define MAX_PARAMETRIC_SEGMENTS_LOG2 %i\n",
                  SkNextLog2(shaderCaps.maxTessellationSegments()));
 
-    if (!this->hasDynamicStroke()) {
-        const char* tessArgsName = impl->getTessArgsUniformName(uniformHandler);
+    if (!shader.hasDynamicStroke()) {
+        const char* tessArgsName = uniformHandler.getUniformCStr(fTessArgsUniform);
         code.appendf("uniform vec4 %s;\n", tessArgsName);
         code.appendf("#define STROKE_RADIUS %s.w\n", tessArgsName);
     } else {
         code.appendf("#define STROKE_RADIUS tcsStrokeRadius\n");
     }
 
-    if (!this->viewMatrix().isIdentity()) {
-        const char* translateName = impl->getTranslateUniformName(uniformHandler);
+    if (!shader.viewMatrix().isIdentity()) {
+        const char* translateName = uniformHandler.getUniformCStr(fTranslateUniform);
         code.appendf("uniform vec2 %s;\n", translateName);
         code.appendf("#define TRANSLATE %s\n", translateName);
-        if (!fStroke.isHairlineStyle()) {
+        if (!shader.fStroke.isHairlineStyle()) {
             // In the normal case we need the affine matrix too. (In the hairline case we already
             // applied the affine matrix in the vertex shader.)
-            const char* affineMatrixName = impl->getAffineMatrixUniformName(uniformHandler);
+            const char* affineMatrixName = uniformHandler.getUniformCStr(fAffineMatrixUniform);
             code.appendf("uniform vec4 %s;\n", affineMatrixName);
             code.appendf("#define AFFINE_MATRIX mat2(%s)\n", affineMatrixName);
         }
@@ -872,11 +870,11 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
                                  //  prevJoinTangent.xy]
     patch in vec4 tcsJoinArgs1;  // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
     patch in vec4 tcsEndPtEndTan;)");
-    if (this->hasDynamicStroke()) {
+    if (shader.hasDynamicStroke()) {
         code.append(R"(
         patch in float tcsStrokeRadius;)");
     }
-    if (this->hasDynamicColor()) {
+    if (shader.hasDynamicColor()) {
         code.appendf(R"(
         patch in mediump vec4 tcsColor;
         %s out mediump vec4 tesColor;)", shaderCaps.preferFlatInterpolation() ? "flat" : "");
@@ -886,7 +884,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     uniform vec4 sk_RTAdjust;)");
 
     code.append(kUncheckedMixFn);
-    append_eval_stroke_edge_fn(&code, this->hasConics());
+    append_eval_stroke_edge_fn(&code, shader.hasConics());
 
     code.append(R"(
     void main() {
@@ -937,7 +935,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
 
         float w = -1.0;  // w<0 means the curve is an integral cubic.)");
 
-    if (this->hasConics()) {
+    if (shader.hasConics()) {
         code.append(R"(
         if (isinf(P[3].y)) {
             w = P[3].x;  // The curve is actually a conic.
@@ -971,8 +969,8 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
 
         vec2 vertexPos = position + normalize(vec2(-tangent.y, tangent.x)) * outset;)");
 
-    if (!this->viewMatrix().isIdentity()) {
-        if (!fStroke.isHairlineStyle()) {
+    if (!shader.viewMatrix().isIdentity()) {
+        if (!shader.fStroke.isHairlineStyle()) {
             // Normal case. Do the transform after tessellation.
             code.append("vertexPos = AFFINE_MATRIX * vertexPos + TRANSLATE;");
         } else {
@@ -984,7 +982,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     code.append(R"(
         gl_Position = vec4(vertexPos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);)");
 
-    if (this->hasDynamicColor()) {
+    if (shader.hasDynamicColor()) {
         code.append(R"(
         tesColor = tcsColor;)");
     }

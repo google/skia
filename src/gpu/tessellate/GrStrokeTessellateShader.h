@@ -183,15 +183,6 @@ private:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
-    SkString getTessControlShaderGLSL(const GrGLSLGeometryProcessor*,
-                                      const char* versionAndExtensionDecls,
-                                      const GrGLSLUniformHandler&,
-                                      const GrShaderCaps&) const override;
-    SkString getTessEvaluationShaderGLSL(const GrGLSLGeometryProcessor*,
-                                         const char* versionAndExtensionDecls,
-                                         const GrGLSLUniformHandler&,
-                                         const GrShaderCaps&) const override;
-
     const Mode fMode;
     const ShaderFlags fShaderFlags;
     const SkStrokeRec fStroke;
