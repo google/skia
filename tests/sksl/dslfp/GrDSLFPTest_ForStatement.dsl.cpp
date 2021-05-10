@@ -31,10 +31,13 @@ Var _color(kNo_Modifier, DSLType(kHalf4_Type), "color", _colorWhite);
 Var _a(kNo_Modifier, DSLType(kHalf_Type), "a", 0.0f);
 Var _r(kNo_Modifier, DSLType(kHalf_Type), "r", -5.0f);
 Var _b(kNo_Modifier, DSLType(kHalf_Type), "b", 5.0f);
+Var _x(kNo_Modifier, DSLType(kUInt_Type), "x", 0u);
+Var _y(kNo_Modifier, DSLType(kUInt_Type), "y", 1u);
 Declare(_color);
 For(Declare(_a), _a <= 1.0f, ++_a, /*Body:*/ _color.w() = _a);
 For(Declare(_r), _r < 5.0f, _r += 1.0f, /*Body:*/ Block(_color.x() = _r, If(_color.x() == 0.0f, /*Then:*/ Break())));
 For(Declare(_b), _b >= 0.0f, _b -= 1.0f, /*Body:*/ Block(_color.z() = _b, If(_color.w() == 1.0f, /*Then:*/ Continue()), _color.y() = 0.0f));
+Block(Declare(_x), Declare(_y), For(Statement(), _x <= _y, ++_x, /*Body:*/ Block(_color.w() = Half(_x))));
 Return(_color);
         EndFragmentProcessor();
     }
