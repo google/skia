@@ -37,12 +37,9 @@ function MakeCursor(CanvasKit) {
             this._top = top;
             this._bottom = bottom;
 
-            this.setPath(null);
+            this._path = null;
         },
         setPath: function(path) {
-            if (this._path && this._path !== path) {
-                this._path.delete();
-            }
             this._path = path;
         },
         draw_before: function(canvas) {
@@ -54,7 +51,7 @@ function MakeCursor(CanvasKit) {
             if (this._path) {
                 return;
             }
-            if (Math.floor(Date.now() * this._draws_per_sec / 1000) % 1) {
+            if (Math.floor(Date.now() * this._draws_per_sec / 1000) & 1) {
                 canvas.drawLine(this._x, this._top, this._x, this._bottom, this._line_paint);
             }
         },
