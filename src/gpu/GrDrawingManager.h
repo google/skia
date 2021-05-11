@@ -8,10 +8,10 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
-#include "src/core/SkSpan.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrHashMapWithCache.h"

@@ -6,9 +6,9 @@
  */
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkEnumerate.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "src/core/SkZip.h"

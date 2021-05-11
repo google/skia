@@ -13,10 +13,10 @@
 #include <type_traits>
 #include <utility>
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkSpan.h"
 
 // Take a list of things that can be pointers, and use them all in parallel. The iterators and
 // accessor operator[] for the class produce a tuple of the items.

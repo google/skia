@@ -8,9 +8,9 @@
 #ifndef GrDirectContextPriv_DEFINED
 #define GrDirectContextPriv_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/core/SkSpan.h"
 
 class GrAtlasManager;
 class GrBackendFormat;

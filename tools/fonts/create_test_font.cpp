@@ -13,12 +13,12 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkSpan.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkUTF.h"
 

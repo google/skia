@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 
+#include "include/core/SkSpan.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkSpan.h"
 
 class SkJSONWriter;
 
