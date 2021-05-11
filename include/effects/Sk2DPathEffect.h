@@ -42,6 +42,9 @@ private:
     SkMatrix    fMatrix, fInverse;
     bool        fMatrixIsInvertible;
 
+    // For simplicity, assume fast bounds cannot be computed
+    bool computeFastBounds(SkRect*) const override { return false; }
+
     // illegal
     Sk2DPathEffect(const Sk2DPathEffect&);
     Sk2DPathEffect& operator=(const Sk2DPathEffect&);

@@ -32,6 +32,9 @@ protected:
     virtual SkScalar next(SkPath* dst, SkScalar dist, SkPathMeasure&) const = 0;
 
 private:
+    // For simplicity, assume fast bounds cannot be computed
+    bool computeFastBounds(SkRect*) const override { return false; }
+
     using INHERITED = SkPathEffect;
 };
 

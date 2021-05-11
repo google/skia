@@ -7,6 +7,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "src/core/SkPathEffectPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -25,10 +26,6 @@ bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
         return true;
     }
     return false;
-}
-
-void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) const {
-    *dst = this->onComputeFastBounds(src);
 }
 
 bool SkPathEffect::asPoints(PointData* results, const SkPath& src,
@@ -112,6 +109,12 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkComposePathEffect)
 
+    bool computeFastBounds(SkRect* bounds) const override {
+        // inner (fPE1) is computed first, automatically updating bounds before computing outer.
+        return SkPathEffectPriv::ComputeFastBounds(fPE1.get(), bounds) &&
+               SkPathEffectPriv::ComputeFastBounds(fPE0.get(), bounds);
+    }
+
     // illegal
     SkComposePathEffect(const SkComposePathEffect&);
     SkComposePathEffect& operator=(const SkComposePathEffect&);
@@ -150,8 +153,6 @@ public:
         return sk_sp<SkPathEffect>(new SkSumPathEffect(first, second));
     }
 
-    SK_FLATTENABLE_HOOKS(SkSumPathEffect)
-
 protected:
     SkSumPathEffect(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second)
         : INHERITED(first, second) {}
@@ -164,6 +165,14 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(SkSumPathEffect)
+
+    bool computeFastBounds(SkRect* bounds) const override {
+        // Unlike Compose(), PE0 modifies the path first for Sum
+        return SkPathEffectPriv::ComputeFastBounds(fPE0.get(), bounds) &&
+               SkPathEffectPriv::ComputeFastBounds(fPE1.get(), bounds);
+    }
+
     // illegal
     SkSumPathEffect(const SkSumPathEffect&);
     SkSumPathEffect& operator=(const SkSumPathEffect&);
