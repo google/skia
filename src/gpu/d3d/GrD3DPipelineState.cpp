@@ -83,9 +83,12 @@ void GrD3DPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfac
         fRenderTargetState.fRenderTargetSize = dimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
-        float rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        // D3D's NDC space is flipped from GL, Vulkan, and Metal.
+        bool flip = (origin == kTopLeft_GrSurfaceOrigin);
+        std::array<float,4> v = SkSL::Compiler::GetRTAdjustVector(dimensions.width(),
+                                                                  dimensions.height(),
+                                                                  flip);
+        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
     }
 }
 

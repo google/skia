@@ -736,7 +736,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
         skPerVertex = &perVertexDecl->as<InterfaceBlock>().variable();
     }
 
-    // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
+    // sk_Position = float4((sk_Position.xy - sk_Position.ww * rtAdjust.yw) * rtAdjust.yw,
     //                      0,
     //                      sk_Position.w);
     SkASSERT(skPerVertex && fRTAdjust);
@@ -776,9 +776,9 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     ExpressionArray children;
     children.reserve_back(3);
     children.push_back(Op(
-            Op(Swizzle(Pos(), kXYIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kXZIndices)),
-            Token::Kind::TK_PLUS,
-            Op(Swizzle(Pos(), kWWIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kYWIndices))));
+            Op(Swizzle(Pos(), kXYIndices), Token::Kind::TK_MINUS, Op(Swizzle(Pos(), kWWIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kYWIndices))),
+            Token::Kind::TK_STAR,
+            Swizzle(Adjust(), kXZIndices)));
     children.push_back(FloatLiteral::Make(fContext, /*offset=*/-1, /*value=*/0.0));
     children.push_back(Swizzle(Pos(), kWIndex));
     std::unique_ptr<Expression> result =

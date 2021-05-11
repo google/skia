@@ -72,9 +72,27 @@ struct ParsedModule {
  */
 class SK_API Compiler : public ErrorReporter {
 public:
-    static constexpr const char FRAGCOLOR_NAME[]  = "sk_FragColor";
+    static constexpr const char FRAGCOLOR_NAME[] = "sk_FragColor";
     static constexpr const char RTADJUST_NAME[]  = "sk_RTAdjust";
     static constexpr const char PERVERTEX_NAME[] = "sk_PerVertex";
+
+   /**
+    * Gets a float4 that adjusts the position from Skia device coords to normalized device coords,
+    * used to populate sk_RTAdjust.  Assuming the transformed position, pos, is a homogeneous
+    * float4, the vec, v, is applied as such:
+    * float4((pos.xy - sk_Position.ww * v.yw) * v.xz, 0, pos.w);
+    */
+    static std::array<float, 4> GetRTAdjustVector(int w, int h, bool flipY) {
+       std::array<float, 4> result;
+        result[0] = 2.f / w;
+        result[1] = w / 2.f;
+        result[2] = 2.f / h;
+        result[3] = h / 2.f;
+        if (flipY) {
+            result[2] = -result[2];
+        }
+        return result;
+    }
 
     struct OptimizationContext {
         // nodes we have already reported errors for and should not error on again

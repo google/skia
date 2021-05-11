@@ -470,9 +470,12 @@ void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrig
         fRenderTargetState.fRenderTargetSize = dimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
-        float rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        // Dawn, like D3D, has an NDC space that is flipped relative to GL, Vulkan, and Metal.
+        bool flip = (origin == kTopLeft_GrSurfaceOrigin);
+        std::array<float,4> v = SkSL::Compiler::GetRTAdjustVector(dimensions.width(),
+                                                                  dimensions.height(),
+                                                                  flip);
+        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
     }
 }
 

@@ -264,9 +264,12 @@ void GrVkPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
         fRenderTargetState.fRenderTargetSize = colorAttachmentDimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
-        float rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        bool flip = (origin == kBottomLeft_GrSurfaceOrigin);
+        std::array<float,4> v = SkSL::Compiler::GetRTAdjustVector(
+                colorAttachmentDimensions.width(),
+                colorAttachmentDimensions.height(),
+                flip);
+        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
     }
 }
 
