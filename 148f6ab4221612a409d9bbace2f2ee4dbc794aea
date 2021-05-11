@@ -22,6 +22,30 @@
       },
       "revId": "148f6ab4221612a409d9bbace2f2ee4dbc794aea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a093eeaa_104faa4e",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-11T19:40:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77379b92_3bf6d3dd",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 18
+      },
+      "revId": "148f6ab4221612a409d9bbace2f2ee4dbc794aea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
