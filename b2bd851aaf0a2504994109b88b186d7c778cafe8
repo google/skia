@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7feda490_461e255d",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-05-11T13:02:48Z",
+      "side": 1,
+      "message": "Done, defined the reference to linear_gradient here and in the other cases. \nCan\u0027t make p0 a reference to line_positions, as I need at least p0 copied for the projection computations below. So for consistency, making those three, p0, p1, p2 copies.",
+      "parentUuid": "bef02bbb_6889065f",
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2fbd9389_1369b9f1",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-05-10T18:51:49Z",
       "side": 1,
       "message": "I know this isn\u0027t part of this change, but right here I expected to read SkVector. It\u0027s just a typedef of SkPoint, but here it\u0027s being used as a vector and not a point. It looks a bit more out of place now that the new code is also using SkVector for a similar thing.",
+      "range": {
+        "startLine": 547,
+        "startChar": 12,
+        "endLine": 547,
+        "endChar": 19
+      },
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b874064_d440b7c1",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-05-11T13:02:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fbd9389_1369b9f1",
       "range": {
         "startLine": 547,
         "startChar": 12,
@@ -58,6 +100,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28495ef2_67f66cba",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-05-11T13:02:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf05d357_c67fd2fc",
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f2d00b76_ec8795a9",
@@ -71,6 +131,24 @@
       "writtenOn": "2021-05-10T18:51:49Z",
       "side": 1,
       "message": "Not that it should matter much, but does the FreeType side ensure that the stops are in ascending order? I suppose FreeType could do that or fetch_color_stops could enforce it somehow (either sorting if unsorted, or taking the max of the last value and the current as it goes along). I think Skia won\u0027t do anything terrible if they\u0027re out of order, but it may do something strange.\n\nI suppose that\u0027s actually something of a bigger deal here for this new code since is assumes stops.front() and stops.back() are the extrema.",
+      "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0dae3466_c8592756",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-05-11T13:02:48Z",
+      "side": 1,
+      "message": "Sorting them in fetch_color_stops. Tested that locally with a modified test font that had the sort order changed, and filed https://github.com/googlefonts/color-fonts/issues/57 for adding test glyphs for funny orders.",
+      "parentUuid": "f2d00b76_ec8795a9",
       "revId": "b2bd851aaf0a2504994109b88b186d7c778cafe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
