@@ -99,14 +99,25 @@ enum class FillMode {
     kScale
 };
 
-static void draw_test(SkCanvas* canvas, const SkColor strokeColor) {
+static void draw_test(SkCanvas* canvas, SkPaint::Cap cap, SkPaint::Join join) {
+    SkRandom rand;
+
+    if (canvas->recordingContext() &&
+        canvas->recordingContext()->priv().caps()->shaderCaps()->tessellationSupport() &&
+        canvas->recordingContext()->priv().caps()->shaderCaps()->maxTessellationSegments() < 64) {
+        // There are fewer tessellation segments than the spec minimum. It must have been overriden
+        // for testing. Indicate this in the background color.
+        canvas->clear(SkColorSetARGB(255, 64, 0, 0));
+    } else {
+        canvas->clear(SK_ColorBLACK);
+    }
+
     SkPaint strokePaint;
     strokePaint.setAntiAlias(true);
     strokePaint.setStrokeWidth(kStrokeWidth);
-    strokePaint.setColor(strokeColor);
     strokePaint.setStyle(SkPaint::kStroke_Style);
-
-    canvas->clear(SK_ColorBLACK);
+    strokePaint.setStrokeCap(cap);
+    strokePaint.setStrokeJoin(join);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(kTrickyCubics); ++i) {
         auto [originalPts, numPts, fillMode, scale] = kTrickyCubics[i];
@@ -145,6 +156,7 @@ static void draw_test(SkCanvas* canvas, const SkColor strokeColor) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(matrix);
         strokePaint.setStrokeWidth(kStrokeWidth / matrix.getMaxScale());
+        strokePaint.setColor(rand.nextU() | 0xff808080);
         SkPath path = SkPath().moveTo(p[0]);
         if (numPts == 4) {
             path.cubicTo(p[1], p[2], p[3]);
@@ -160,7 +172,11 @@ static void draw_test(SkCanvas* canvas, const SkColor strokeColor) {
 }
 
 DEF_SIMPLE_GM(trickycubicstrokes, canvas, kTestWidth, kTestHeight) {
-    draw_test(canvas, SK_ColorGREEN);
+    draw_test(canvas, SkPaint::kButt_Cap, SkPaint::kMiter_Join);
+}
+
+DEF_SIMPLE_GM(trickycubicstrokes_roundcaps, canvas, kTestWidth, kTestHeight) {
+    draw_test(canvas, SkPaint::kRound_Cap, SkPaint::kRound_Join);
 }
 
 class TrickyCubicStrokes_tess_segs_5 : public skiagm::GpuGM {
@@ -208,7 +224,7 @@ class TrickyCubicStrokes_tess_segs_5 : public skiagm::GpuGM {
         }
         // Suppress a tessellator warning message that caps.maxTessellationSegments is too small.
         GrRecordingContextPriv::AutoSuppressWarningMessages aswm(context);
-        draw_test(canvas, SK_ColorRED);
+        draw_test(canvas, SkPaint::kButt_Cap, SkPaint::kMiter_Join);
         return DrawResult::kOk;
     }
 };

@@ -147,6 +147,29 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
+bool GrStrokeTessellateOp::canUseHardwareTessellation(int numVerbs, const GrCaps& caps) {
+    SkASSERT(!fStencilProgram && !fFillProgram);  // Ensure we haven't std::moved fProcessors.
+    if (!caps.shaderCaps()->tessellationSupport()) {
+        return false;
+    }
+    if (fProcessors.usesVaryingCoords()) {
+        // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
+        // the fragment shader, so if the processors have varyings, we need to use instanced draws
+        // instead.
+        return false;
+    }
+#if GR_TEST_UTILS
+    if (caps.shaderCaps()->maxTessellationSegments() < 64) {
+        // If maxTessellationSegments is lower than the spec minimum, it means we've overriden it
+        // for testing. Always use hardware tessellation if this is the case.
+        return true;
+    }
+#endif
+    // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
+    // we seem to be better off using instanced draws.
+    return numVerbs >= 50;
+}
+
 void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args,
                                                  GrAppliedClip&& clip) {
     SkASSERT(!fTessellator);
@@ -156,7 +179,7 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
     const GrCaps& caps = *args.fCaps;
     SkArenaAlloc* arena = args.fArena;
 
-    if (fTotalCombinedVerbCnt > 50 && this->canUseHardwareTessellation(caps)) {
+    if (this->canUseHardwareTessellation(fTotalCombinedVerbCnt, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
         fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, fViewMatrix,
