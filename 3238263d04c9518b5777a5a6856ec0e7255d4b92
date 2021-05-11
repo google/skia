@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2172d26_e10f00a1",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-11T19:06:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d4a8658_04020cd8",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4cd5901c_ba2da6da",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-05-11T13:25:23Z",
       "side": 1,
       "message": "Other than WindowContext, I don\u0027t think these are referenced in the header.  Move to Surface.cpp?",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "502045aa_6393b358",
+        "filename": "modules/androidkit/src/Surface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-11T19:06:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cd5901c_ba2da6da",
       "range": {
         "startLine": 18,
         "startChar": 0,
@@ -58,6 +100,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2edd560d_38e6961f",
+        "filename": "modules/androidkit/src/Surface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-11T19:06:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f78521c6_2e0e66e9",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a5aa1e3_885279bd",
@@ -71,6 +131,24 @@
       "writtenOn": "2021-05-11T13:25:23Z",
       "side": 1,
       "message": "std::unique_ptr\u003cSurfaceThread\u003e\n\n(otherwise we\u0027ll have to delete explicitly)",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a545a87_8f26ba1a",
+        "filename": "modules/androidkit/src/Surface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-11T19:06:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a5aa1e3_885279bd",
       "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -115,6 +193,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "433f3b71_372d7aee",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-11T19:06:29Z",
+      "side": 1,
+      "message": "They\u0027re private, so it says we can\u0027t. Surface.getCanvas() is public and can be called after the cast.\n\nI\u0027ll check for failed initialization.",
+      "parentUuid": "4ee906b7_1f5ce566",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 44
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6bfc34a1_fc95521f",
@@ -128,6 +230,30 @@
       "writtenOn": "2021-05-11T13:25:23Z",
       "side": 1,
       "message": "these are not referenced in the header, let\u0027s move to SurfaceThread.cpp.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 34
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "751d574b_54c36335",
+        "filename": "modules/androidkit/src/SurfaceThread.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-11T19:06:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bfc34a1_fc95521f",
       "range": {
         "startLine": 15,
         "startChar": 0,
