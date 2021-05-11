@@ -105,6 +105,24 @@
       "parentUuid": "dbb1c407_cce210b3",
       "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3efa6e27_dc092a3d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-11T14:04:47Z",
+      "side": 1,
+      "message": "Coming back to this, I tried updating to what we\u0027d talked about offline, where we replaced the pointCount functions with chopCount that relied on the log2 Wang formulas.  Given the how vertex-count oriented the existing recursive algorithms are, it started to expand into a really big CL. That plus the existing difference in tolerance vs. precision semantics, I\u0027m deciding to keep them around as pointCount functions.\n\nI updated their comments to be more descriptive, and updated their impls to be clearer as to why we\u0027re using log2 and then raising it back to a power.",
+      "parentUuid": "a0dea7e8_a4e62eed",
+      "revId": "c4f3f96ca30a30b9f61aa915a5cfaf30da220e7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

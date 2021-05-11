@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6426bbc8_323853ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-11T14:04:47Z",
+      "side": 1,
+      "message": "The chrome tests have been addressed here: https://chromium-review.googlesource.com/c/chromium/src/+/2885462\n\nI could not find a valid reason why the tests failed; use of Wang\u0027s formula for the really small circular paths actually used fewer points than previously, so the vertex positions would be slightly different (so rebasing is reasonable). The number of vertices and chosen path renderer (default) was identical between GPU raster and OOP-R, so the only reason I could come up with was that the new vertex positions on certain platforms triggered different non-aa snapping.",
+      "revId": "6e149ccb5ffcc1ee7d6ae15b93ad54e689fd99ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
