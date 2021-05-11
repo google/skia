@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77379b92_3bf6d3dd",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-11T18:43:47Z",
+      "side": 1,
+      "message": "optional: I\u0027ve usually leaned towards flags that are affirmative (kMangle_Flag) instead of negative (kNoMangle_Flag) since it is less confusing and avoids needing to think in double negatives. That is, specifying an \"optimize\" flag is 100% clear, while omitting a \"don\u0027t optimize\" flag leaves some room for doubt.\n\nYou can add a `constexpr int kDefaultDSLFlags \u003d kOptimize_Flag | kValidate_Flag | kMangle_Flag;` below the enum if you are worried about callers needing to spell out all the \"default\" flags at each call site and keeping that up to date.\n\nI don\u0027t feel strongly about it, though.",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 18
+      },
+      "revId": "148f6ab4221612a409d9bbace2f2ee4dbc794aea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
